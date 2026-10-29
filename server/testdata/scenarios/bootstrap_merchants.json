@@ -1,5 +1,5 @@
 {
-  "description": "Tier-3 reference game (D-056, CONTENT §12) on the generated dev archipelago of seed 1053001 from the content starting stock only: bootstrap_citizens step for step (all but its final wait, to minute 147), then the same attentive play (plan order, whole-minute waits, nearest sites a road reaches, no pauses, demolitions or stock grants): route 1 drops its stone leg (planks out, tools home), the tavern and a Trading Post upgrade, and every full Settler house that passes the gate upgraded to Citizens (22 at home, keeping 18 Settler houses); on island 2 (iron, clay, hops) a market, six Settler houses and a quarry, the idle start sloop on a second route (wool garments out, bricks and stone home) and three Citizen houses to staff the clay pit and brickworks; at home one alternative per Citizen category (three dairies and cheese dairies, four apiaries and two meaderies, four pig farms and two tanneries), a warehouse, a second lumberjack and sawmill, and a second Trading Post upgrade; three Merchant houses, then salt pans and a butcher (sausages), hops from island 2 on route 1 with a wheat farm and a brewery (beer), leather works and a tailor (coats), a lumberjack, a paper mill and a printing press (books). Merchants unlock at minute 223, the first Merchant house stands at 254 and every Merchant category reaches 0.6 by 288 (targets 240 / 270 / 420).",
+  "description": "Tier-3 reference game (D-056, CONTENT §12) on the generated dev archipelago of seed 1053001 from the content starting stock only: bootstrap_citizens step for step (all but its final wait, to minute 132), then the same attentive play (plan order, whole-minute waits, nearest sites a road reaches, no pauses, demolitions or stock grants): route 1 drops its stone leg (planks out, tools home), the tavern and a Trading Post upgrade, and every full Settler house that passes the gate upgraded to Citizens (22 at home, keeping 18 Settler houses); on island 2 (iron, clay, hops) a market, six Settler houses and a quarry, the idle start sloop on a second route (wool garments out, bricks and stone home) and three Citizen houses to staff the clay pit and brickworks; at home one alternative per Citizen category (three dairies and cheese dairies, four apiaries and two meaderies, four pig farms and two tanneries), a warehouse, a second lumberjack and sawmill, and a second Trading Post upgrade; three Merchant houses, then salt pans and a butcher (sausages), hops from island 2 on route 1 with a wheat farm and a brewery (beer), leather works and a tailor (coats), a lumberjack, a paper mill and a printing press (books). Merchants unlock at minute 228, the first Merchant house stands at 269 and every Merchant category reaches 0.6 by 303 (targets 240 / 270 / 420).",
   "name": "bootstrap_merchants",
   "seed": {
     "archipelago": 1053001,
@@ -30,44 +30,54 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "found_island": {
         "island": "isle-01",
-        "rotation": 180,
+        "rotation": 90,
         "ship": 1,
-        "x": 85,
-        "y": 157
+        "x": 162,
+        "y": 149
       }
     },
     {
       "road": {
         "from": [
-          88,
-          149
+          154,
+          152
         ],
         "to": [
-          88,
-          156
+          161,
+          152
         ],
         "type": "road_dirt"
       }
     },
     {
       "place": {
-        "rotation": 180,
+        "rotation": 90,
         "type": "fisher",
-        "x": 91,
-        "y": 159
+        "x": 162,
+        "y": 158
       }
     },
     {
       "road": {
         "from": [
-          89,
-          156
+          161,
+          155
         ],
         "to": [
-          91,
-          156
+          162,
+          155
         ],
         "type": "road_dirt"
       }
@@ -75,12 +85,25 @@
     {
       "road": {
         "from": [
-          91,
-          157
+          161,
+          153
         ],
         "to": [
-          91,
-          158
+          161,
+          154
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          162,
+          156
+        ],
+        "to": [
+          162,
+          157
         ],
         "type": "road_dirt"
       }
@@ -89,19 +112,32 @@
       "place": {
         "rotation": 0,
         "type": "lumberjack",
-        "x": 107,
-        "y": 157
+        "x": 167,
+        "y": 133
       }
     },
     {
       "road": {
         "from": [
-          92,
-          156
+          161,
+          135
         ],
         "to": [
-          108,
-          156
+          166,
+          135
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          161,
+          136
+        ],
+        "to": [
+          161,
+          151
         ],
         "type": "road_dirt"
       }
@@ -110,35 +146,35 @@
       "place": {
         "rotation": 0,
         "type": "sawmill",
-        "x": 84,
-        "y": 146
+        "x": 150,
+        "y": 149
       }
     },
     {
       "place": {
-        "rotation": 0,
+        "rotation": 90,
         "type": "market",
-        "x": 89,
-        "y": 146
+        "x": 154,
+        "y": 147
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "lumberjack",
-        "x": 110,
-        "y": 158
+        "x": 170,
+        "y": 132
       }
     },
     {
       "road": {
         "from": [
-          109,
-          156
+          166,
+          132
         ],
         "to": [
-          110,
-          156
+          169,
+          132
         ],
         "type": "road_dirt"
       }
@@ -146,12 +182,12 @@
     {
       "road": {
         "from": [
-          110,
-          157
+          166,
+          133
         ],
         "to": [
-          110,
-          157
+          166,
+          134
         ],
         "type": "road_dirt"
       }
@@ -160,193 +196,7 @@
       "place": {
         "rotation": 90,
         "type": "sawmill",
-        "x": 85,
-        "y": 142
-      }
-    },
-    {
-      "road": {
-        "from": [
-          88,
-          146
-        ],
-        "to": [
-          88,
-          148
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 85,
-        "y": 152
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 89,
-        "y": 152
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 81,
-        "y": 148
-      }
-    },
-    {
-      "road": {
-        "from": [
-          83,
-          152
-        ],
-        "to": [
-          84,
-          152
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          84,
-          155
-        ],
-        "to": [
-          87,
-          155
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          83,
-          151
-        ],
-        "to": [
-          83,
-          151
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          84,
-          153
-        ],
-        "to": [
-          84,
-          154
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 91,
-        "y": 143
-      }
-    },
-    {
-      "road": {
-        "from": [
-          94,
-          145
-        ],
-        "to": [
-          94,
-          155
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 81,
-        "y": 145
-      }
-    },
-    {
-      "road": {
-        "from": [
-          80,
-          151
-        ],
-        "to": [
-          82,
-          151
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          80,
-          147
-        ],
-        "to": [
-          80,
-          150
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 82,
-        "y": 142
-      }
-    },
-    {
-      "road": {
-        "from": [
-          80,
-          144
-        ],
-        "to": [
-          81,
-          144
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          80,
-          145
-        ],
-        "to": [
-          80,
-          146
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 81,
+        "x": 154,
         "y": 153
       }
     },
@@ -354,250 +204,60 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 95,
-        "y": 148
+        "x": 151,
+        "y": 155
+      }
+    },
+    {
+      "road": {
+        "from": [
+          154,
+          157
+        ],
+        "to": [
+          161,
+          157
+        ],
+        "type": "road_dirt"
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 95,
-        "y": 145
+        "x": 151,
+        "y": 146
+      }
+    },
+    {
+      "road": {
+        "from": [
+          154,
+          146
+        ],
+        "to": [
+          160,
+          146
+        ],
+        "type": "road_dirt"
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 95,
+        "x": 147,
         "y": 151
       }
     },
     {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 91,
-        "y": 140
-      }
-    },
-    {
       "road": {
         "from": [
-          94,
-          142
-        ],
-        "to": [
-          94,
-          144
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 87,
-        "y": 139
-      }
-    },
-    {
-      "road": {
-        "from": [
-          90,
-          139
-        ],
-        "to": [
-          94,
-          139
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          94,
-          140
-        ],
-        "to": [
-          94,
-          141
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 82,
-        "y": 156
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 84,
-        "y": 139
-      }
-    },
-    {
-      "road": {
-        "from": [
-          86,
-          138
-        ],
-        "to": [
-          90,
-          138
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 78,
-        "y": 152
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 95,
-        "y": 142
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 77,
-        "y": 148
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 77,
-        "y": 145
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 79,
-        "y": 141
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 98,
-        "y": 148
-      }
-    },
-    {
-      "road": {
-        "from": [
-          98,
-          151
-        ],
-        "to": [
-          98,
-          155
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 79,
-        "y": 156
-      }
-    },
-    {
-      "road": {
-        "from": [
-          77,
-          151
-        ],
-        "to": [
-          79,
-          151
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          77,
+          149,
           155
         ],
         "to": [
-          79,
+          150,
           155
         ],
         "type": "road_dirt"
@@ -606,92 +266,101 @@
     {
       "road": {
         "from": [
-          77,
-          152
+          150,
+          158
         ],
         "to": [
-          77,
+          154,
+          158
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          149,
+          154
+        ],
+        "to": [
+          149,
           154
         ],
         "type": "road_dirt"
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "from": [
+          150,
+          156
+        ],
+        "to": [
+          150,
+          157
+        ],
+        "type": "road_dirt"
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 98,
+        "x": 147,
+        "y": 148
+      }
+    },
+    {
+      "road": {
+        "from": [
+          146,
+          154
+        ],
+        "to": [
+          148,
+          154
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          146,
+          150
+        ],
+        "to": [
+          146,
+          153
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 155,
+        "y": 158
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 148,
         "y": 145
       }
     },
     {
       "road": {
         "from": [
-          95,
-          141
+          151,
+          145
         ],
         "to": [
-          98,
-          141
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          98,
-          142
-        ],
-        "to": [
-          98,
-          144
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 180,
-        "type": "fisher",
-        "x": 98,
-        "y": 162
-      }
-    },
-    {
-      "road": {
-        "from": [
-          98,
-          157
-        ],
-        "to": [
-          98,
-          161
+          154,
+          145
         ],
         "type": "road_dirt"
       }
@@ -700,78 +369,77 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 94,
-        "y": 157
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
+        "x": 147,
+        "y": 156
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 81,
-        "y": 138
-      }
-    },
-    {
-      "road": {
-        "from": [
-          84,
-          138
-        ],
-        "to": [
-          85,
-          138
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 82,
+        "x": 152,
         "y": 159
       }
     },
     {
-      "road": {
-        "from": [
-          78,
-          159
-        ],
-        "to": [
-          81,
-          159
-        ],
-        "type": "road_dirt"
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 155,
+        "y": 143
       }
     },
     {
-      "road": {
-        "from": [
-          78,
-          156
-        ],
-        "to": [
-          78,
-          158
-        ],
-        "type": "road_dirt"
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 158,
+        "y": 158
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 149,
+        "y": 159
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 152,
+        "y": 142
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 158,
+        "y": 143
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 149,
+        "y": 142
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 144,
+        "y": 147
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -783,7 +451,25 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 99,
+        "x": 144,
+        "y": 155
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 143,
         "y": 151
       }
     },
@@ -793,27 +479,22 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "rotation": 0,
-        "type": "lumberjack",
-        "x": 111,
+        "type": "house_settlers",
+        "x": 155,
         "y": 161
       }
     },
     {
       "road": {
         "from": [
-          111,
-          157
+          158,
+          161
         ],
         "to": [
-          113,
-          157
+          161,
+          161
         ],
         "type": "road_dirt"
       }
@@ -821,11 +502,11 @@
     {
       "road": {
         "from": [
-          113,
+          161,
           158
         ],
         "to": [
-          113,
+          161,
           160
         ],
         "type": "road_dirt"
@@ -845,19 +526,63 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 76,
-        "y": 142
+        "x": 162,
+        "y": 146
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 145,
+        "y": 144
       }
     },
     {
       "road": {
         "from": [
-          79,
-          144
+          143,
+          146
         ],
         "to": [
-          79,
-          144
+          144,
+          146
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          143,
+          150
+        ],
+        "to": [
+          145,
+          150
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          143,
+          147
+        ],
+        "to": [
+          143,
+          149
         ],
         "type": "road_dirt"
       }
@@ -871,8 +596,52 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 91,
-        "y": 136
+        "x": 146,
+        "y": 159
+      }
+    },
+    {
+      "road": {
+        "from": [
+          143,
+          154
+        ],
+        "to": [
+          145,
+          154
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          143,
+          158
+        ],
+        "to": [
+          146,
+          158
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          143,
+          155
+        ],
+        "to": [
+          143,
+          157
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -884,8 +653,44 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 95,
-        "y": 138
+        "x": 163,
+        "y": 155
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 90,
+        "type": "fisher",
+        "x": 168,
+        "y": 146
+      }
+    },
+    {
+      "road": {
+        "from": [
+          162,
+          145
+        ],
+        "to": [
+          168,
+          145
+        ],
+        "type": "road_dirt"
       }
     },
     {
@@ -897,8 +702,223 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 87,
-        "y": 135
+        "x": 152,
+        "y": 162
+      }
+    },
+    {
+      "road": {
+        "from": [
+          155,
+          164
+        ],
+        "to": [
+          158,
+          164
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          158,
+          162
+        ],
+        "to": [
+          158,
+          163
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 155,
+        "y": 140
+      }
+    },
+    {
+      "road": {
+        "from": [
+          158,
+          140
+        ],
+        "to": [
+          160,
+          140
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 152,
+        "y": 139
+      }
+    },
+    {
+      "road": {
+        "from": [
+          155,
+          139
+        ],
+        "to": [
+          158,
+          139
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 146,
+        "y": 141
+      }
+    },
+    {
+      "road": {
+        "from": [
+          144,
+          143
+        ],
+        "to": [
+          145,
+          143
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          144,
+          144
+        ],
+        "to": [
+          144,
+          145
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "lumberjack",
+        "x": 168,
+        "y": 129
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 149,
+        "y": 139
+      }
+    },
+    {
+      "road": {
+        "from": [
+          151,
+          138
+        ],
+        "to": [
+          155,
+          138
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 162,
+        "y": 142
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 143,
+        "y": 159
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 165,
+        "y": 146
       }
     },
     {
@@ -910,80 +930,18 @@
       "place": {
         "rotation": 0,
         "type": "chapel",
-        "x": 74,
-        "y": 148
+        "x": 140,
+        "y": 151
       }
     },
     {
       "road": {
         "from": [
-          76,
-          151
+          142,
+          150
         ],
         "to": [
-          76,
-          151
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 84,
-        "y": 135
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 74,
-        "y": 145
-      }
-    },
-    {
-      "road": {
-        "from": [
-          73,
-          151
-        ],
-        "to": [
-          75,
-          151
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          73,
-          147
-        ],
-        "to": [
-          73,
+          142,
           150
         ],
         "type": "road_dirt"
@@ -995,11 +953,34 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 99,
-        "y": 142
+        "x": 140,
+        "y": 154
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 140,
+        "y": 147
       }
     },
     {
@@ -1011,26 +992,8 @@
       "place": {
         "rotation": 0,
         "type": "sawmill",
-        "x": 101,
-        "y": 145
-      }
-    },
-    {
-      "road": {
-        "from": [
-          102,
-          151
-        ],
-        "to": [
-          102,
-          155
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
+        "x": 139,
+        "y": 157
       }
     },
     {
@@ -1081,110 +1044,115 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 78,
+        "x": 145,
+        "y": 162
+      }
+    },
+    {
+      "road": {
+        "from": [
+          139,
+          150
+        ],
+        "to": [
+          141,
+          150
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          138,
+          156
+        ],
+        "to": [
+          139,
+          156
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          138,
+          163
+        ],
+        "to": [
+          144,
+          163
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          139,
+          151
+        ],
+        "to": [
+          139,
+          155
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          138,
+          157
+        ],
+        "to": [
+          138,
+          162
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 141,
+        "y": 143
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 146,
         "y": 138
       }
     },
     {
       "road": {
         "from": [
-          73,
-          140
-        ],
-        "to": [
-          77,
-          140
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          73,
-          141
-        ],
-        "to": [
-          73,
-          146
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 74,
-        "y": 152
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 94,
-        "y": 160
-      }
-    },
-    {
-      "road": {
-        "from": [
-          97,
-          160
-        ],
-        "to": [
-          97,
-          160
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 81,
-        "y": 135
-      }
-    },
-    {
-      "road": {
-        "from": [
-          77,
-          137
-        ],
-        "to": [
-          80,
-          137
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          77,
+          149,
           138
         ],
         "to": [
-          77,
-          139
+          150,
+          138
         ],
         "type": "road_dirt"
       }
@@ -1198,34 +1166,8 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 75,
-        "y": 156
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 94,
-        "y": 135
-      }
-    },
-    {
-      "road": {
-        "from": [
-          94,
-          138
-        ],
-        "to": [
-          94,
-          138
-        ],
-        "type": "road_dirt"
+        "x": 143,
+        "y": 140
       }
     },
     {
@@ -1236,22 +1178,22 @@
     {
       "found_island": {
         "island": "isle-02",
-        "rotation": 180,
+        "rotation": 90,
         "ship": 1,
-        "x": 130,
-        "y": 155
+        "x": 213,
+        "y": 109
       }
     },
     {
       "road": {
         "from": [
-          133,
-          147
+          205,
+          112
         ],
         "island": "isle-02",
         "to": [
-          133,
-          154
+          212,
+          112
         ],
         "type": "road_dirt"
       }
@@ -1297,27 +1239,22 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
-        "rotation": 180,
+        "rotation": 270,
         "type": "shipyard",
-        "x": 39,
-        "y": 145
+        "x": 129,
+        "y": 171
       }
     },
     {
       "road": {
         "from": [
-          47,
-          145
+          138,
+          164
         ],
         "to": [
-          72,
-          145
+          138,
+          170
         ],
         "type": "road_dirt"
       }
@@ -1350,8 +1287,8 @@
     {
       "order_ship": {
         "ship_type": "sloop",
-        "x": 39,
-        "y": 145
+        "x": 129,
+        "y": 171
       }
     },
     {
@@ -1368,28 +1305,28 @@
       "place": {
         "rotation": 0,
         "type": "sheep_farm",
-        "x": 98,
-        "y": 138
+        "x": 162,
+        "y": 139
       }
     },
     {
       "fields": {
         "farm": [
-          98,
-          138
+          162,
+          139
         ],
         "tiles": [
           [
-            101,
-            139
+            165,
+            140
           ],
           [
-            101,
+            165,
+            137
+          ],
+          [
+            162,
             136
-          ],
-          [
-            98,
-            135
           ]
         ]
       }
@@ -1400,16 +1337,16 @@
       }
     },
     {
-      "place": {
-        "rotation": 0,
-        "type": "weaver_wool",
-        "x": 99,
-        "y": 157
+      "advance": {
+        "duration": "1m"
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "place": {
+        "rotation": 90,
+        "type": "weaver_wool",
+        "x": 156,
+        "y": 136
       }
     },
     {
@@ -1426,18 +1363,96 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 90,
-        "y": 133
+        "x": 153,
+        "y": 135
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 150,
+        "y": 135
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 137,
+        "y": 147
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "quarry",
+        "x": 106,
+        "y": 90
       }
     },
     {
       "road": {
         "from": [
-          90,
-          136
+          109,
+          97
         ],
         "to": [
-          90,
+          146,
+          97
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          146,
+          106
+        ],
+        "to": [
+          149,
+          106
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          146,
+          98
+        ],
+        "to": [
+          146,
+          105
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          149,
+          107
+        ],
+        "to": [
+          149,
           137
         ],
         "type": "road_dirt"
@@ -1456,162 +1471,22 @@
     {
       "place": {
         "rotation": 0,
-        "type": "quarry",
-        "x": 158,
-        "y": 64
+        "type": "house_settlers",
+        "x": 138,
+        "y": 144
       }
     },
     {
       "road": {
         "from": [
-          133,
-          54
+          141,
+          146
         ],
         "to": [
-          158,
-          54
+          142,
+          146
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          129,
-          56
-        ],
-        "to": [
-          133,
-          56
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          125,
-          64
-        ],
-        "to": [
-          129,
-          64
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          119,
-          70
-        ],
-        "to": [
-          125,
-          70
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          80,
-          85
-        ],
-        "to": [
-          119,
-          85
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          133,
-          55
-        ],
-        "to": [
-          133,
-          55
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          158,
-          55
-        ],
-        "to": [
-          158,
-          63
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          129,
-          57
-        ],
-        "to": [
-          129,
-          63
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          125,
-          65
-        ],
-        "to": [
-          125,
-          69
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          119,
-          71
-        ],
-        "to": [
-          119,
-          84
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          80,
-          86
-        ],
-        "to": [
-          80,
-          136
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -1633,19 +1508,19 @@
       "place": {
         "rotation": 0,
         "type": "sheep_farm",
-        "x": 87,
-        "y": 132
+        "x": 144,
+        "y": 165
       }
     },
     {
       "road": {
         "from": [
-          81,
-          132
+          144,
+          164
         ],
         "to": [
-          86,
-          132
+          144,
+          164
         ],
         "type": "road_dirt"
       }
@@ -1653,21 +1528,21 @@
     {
       "fields": {
         "farm": [
-          87,
-          132
+          144,
+          165
         ],
         "tiles": [
           [
-            90,
-            130
+            143,
+            168
           ],
           [
-            87,
-            129
+            141,
+            165
           ],
           [
-            93,
-            132
+            145,
+            171
           ]
         ]
       }
@@ -1686,8 +1561,8 @@
       "place": {
         "rotation": 0,
         "type": "weaver_wool",
-        "x": 103,
-        "y": 151
+        "x": 136,
+        "y": 150
       }
     },
     {
@@ -1709,28 +1584,67 @@
       "place": {
         "rotation": 0,
         "type": "sheep_farm",
-        "x": 71,
-        "y": 152
+        "x": 140,
+        "y": 140
+      }
+    },
+    {
+      "road": {
+        "from": [
+          145,
+          137
+        ],
+        "to": [
+          148,
+          137
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          142,
+          139
+        ],
+        "to": [
+          145,
+          139
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          145,
+          138
+        ],
+        "to": [
+          145,
+          138
+        ],
+        "type": "road_dirt"
       }
     },
     {
       "fields": {
         "farm": [
-          71,
-          152
+          140,
+          140
         ],
         "tiles": [
           [
-            72,
-            155
+            137,
+            141
           ],
           [
-            68,
-            153
+            139,
+            137
           ],
           [
-            70,
-            149
+            142,
+            136
           ]
         ]
       }
@@ -1749,8 +1663,8 @@
       "place": {
         "rotation": 0,
         "type": "weaver_wool",
-        "x": 74,
-        "y": 136
+        "x": 168,
+        "y": 141
       }
     },
     {
@@ -1767,19 +1681,32 @@
       "place": {
         "rotation": 180,
         "type": "fisher",
-        "x": 65,
-        "y": 152
+        "x": 182,
+        "y": 144
       }
     },
     {
       "road": {
         "from": [
-          65,
-          146
+          171,
+          144
         ],
         "to": [
-          65,
-          151
+          181,
+          144
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          169,
+          145
+        ],
+        "to": [
+          171,
+          145
         ],
         "type": "road_dirt"
       }
@@ -1801,8 +1728,8 @@
     },
     {
       "upgrade": {
-        "x": 85,
-        "y": 152
+        "x": 151,
+        "y": 155
       }
     },
     {
@@ -1856,22 +1783,22 @@
     {
       "place": {
         "island": "isle-02",
-        "rotation": 180,
+        "rotation": 90,
         "type": "fisher",
-        "x": 136,
-        "y": 156
+        "x": 213,
+        "y": 116
       }
     },
     {
       "road": {
         "from": [
-          134,
-          154
+          212,
+          115
         ],
         "island": "isle-02",
         "to": [
-          136,
-          154
+          213,
+          115
         ],
         "type": "road_dirt"
       }
@@ -1879,13 +1806,13 @@
     {
       "road": {
         "from": [
-          136,
-          155
+          212,
+          113
         ],
         "island": "isle-02",
         "to": [
-          136,
-          155
+          212,
+          114
         ],
         "type": "road_dirt"
       }
@@ -1895,8 +1822,8 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 132,
-        "y": 144
+        "x": 210,
+        "y": 109
       }
     },
     {
@@ -1904,8 +1831,8 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 134,
-        "y": 147
+        "x": 209,
+        "y": 113
       }
     },
     {
@@ -1913,20 +1840,20 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 135,
-        "y": 144
+        "x": 210,
+        "y": 123
       }
     },
     {
       "road": {
         "from": [
-          134,
-          150
+          211,
+          120
         ],
         "island": "isle-02",
         "to": [
-          137,
-          150
+          212,
+          120
         ],
         "type": "road_dirt"
       }
@@ -1934,20 +1861,29 @@
     {
       "road": {
         "from": [
-          137,
-          147
+          212,
+          116
         ],
         "island": "isle-02",
         "to": [
-          137,
-          149
+          212,
+          119
         ],
         "type": "road_dirt"
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "from": [
+          211,
+          121
+        ],
+        "island": "isle-02",
+        "to": [
+          211,
+          122
+        ],
+        "type": "road_dirt"
       }
     },
     {
@@ -2000,8 +1936,8 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 130,
-        "y": 149
+        "x": 207,
+        "y": 109
       }
     },
     {
@@ -2009,36 +1945,8 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 134,
-        "y": 141
-      }
-    },
-    {
-      "road": {
-        "from": [
-          137,
-          143
-        ],
-        "island": "isle-02",
-        "to": [
-          138,
-          143
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          138,
-          144
-        ],
-        "island": "isle-02",
-        "to": [
-          138,
-          147
-        ],
-        "type": "road_dirt"
+        "x": 206,
+        "y": 113
       }
     },
     {
@@ -2046,667 +1954,17 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "lumberjack",
-        "x": 75,
-        "y": 45
-      }
-    },
-    {
-      "road": {
-        "from": [
-          88,
-          34
-        ],
-        "island": "isle-02",
-        "to": [
-          133,
-          34
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          86,
-          35
-        ],
-        "island": "isle-02",
-        "to": [
-          88,
-          35
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          80,
-          36
-        ],
-        "island": "isle-02",
-        "to": [
-          86,
-          36
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          75,
-          38
-        ],
-        "island": "isle-02",
-        "to": [
-          80,
-          38
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          133,
-          38
-        ],
-        "island": "isle-02",
-        "to": [
-          146,
-          38
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          146,
-          39
-        ],
-        "island": "isle-02",
-        "to": [
-          165,
-          39
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          74,
-          41
-        ],
-        "island": "isle-02",
-        "to": [
-          75,
-          41
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          165,
-          41
-        ],
-        "island": "isle-02",
-        "to": [
-          166,
-          41
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          166,
-          42
-        ],
-        "island": "isle-02",
-        "to": [
-          167,
-          42
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          167,
-          43
-        ],
-        "island": "isle-02",
-        "to": [
-          169,
-          43
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          74,
-          44
-        ],
-        "island": "isle-02",
-        "to": [
-          75,
-          44
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          169,
-          46
-        ],
-        "island": "isle-02",
-        "to": [
-          170,
-          46
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          170,
-          50
-        ],
-        "island": "isle-02",
-        "to": [
-          172,
-          50
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          172,
-          61
-        ],
-        "island": "isle-02",
-        "to": [
-          176,
-          61
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          175,
-          101
-        ],
-        "island": "isle-02",
-        "to": [
-          176,
-          101
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          174,
-          105
-        ],
-        "island": "isle-02",
-        "to": [
-          175,
-          105
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          172,
-          110
-        ],
-        "island": "isle-02",
-        "to": [
-          174,
-          110
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          167,
-          111
-        ],
-        "island": "isle-02",
-        "to": [
-          172,
-          111
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          166,
-          112
-        ],
-        "island": "isle-02",
-        "to": [
-          167,
-          112
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          162,
-          113
-        ],
-        "island": "isle-02",
-        "to": [
-          166,
-          113
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          158,
-          114
-        ],
-        "island": "isle-02",
-        "to": [
-          162,
-          114
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          156,
-          116
-        ],
-        "island": "isle-02",
-        "to": [
-          158,
-          116
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          155,
-          118
-        ],
-        "island": "isle-02",
-        "to": [
-          156,
-          118
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          154,
-          119
-        ],
-        "island": "isle-02",
-        "to": [
-          155,
-          119
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          152,
-          122
-        ],
-        "island": "isle-02",
-        "to": [
-          154,
-          122
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          151,
-          123
-        ],
-        "island": "isle-02",
-        "to": [
-          152,
-          123
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          141,
-          125
-        ],
-        "island": "isle-02",
-        "to": [
-          151,
-          125
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          138,
-          135
-        ],
-        "island": "isle-02",
-        "to": [
-          141,
-          135
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          133,
-          35
-        ],
-        "island": "isle-02",
-        "to": [
-          133,
-          37
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          80,
-          37
-        ],
-        "island": "isle-02",
-        "to": [
-          80,
-          37
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          75,
-          39
-        ],
-        "island": "isle-02",
-        "to": [
-          75,
-          40
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          165,
-          40
-        ],
-        "island": "isle-02",
-        "to": [
-          165,
-          40
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          74,
-          42
-        ],
-        "island": "isle-02",
-        "to": [
-          74,
-          43
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          169,
-          44
-        ],
-        "island": "isle-02",
-        "to": [
-          169,
-          45
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          170,
-          47
-        ],
-        "island": "isle-02",
-        "to": [
-          170,
-          49
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          172,
-          51
-        ],
-        "island": "isle-02",
-        "to": [
-          172,
-          60
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          176,
-          62
-        ],
-        "island": "isle-02",
-        "to": [
-          176,
-          100
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          175,
-          102
-        ],
-        "island": "isle-02",
-        "to": [
-          175,
-          104
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          174,
-          106
-        ],
-        "island": "isle-02",
-        "to": [
-          174,
-          109
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          158,
-          115
-        ],
-        "island": "isle-02",
-        "to": [
-          158,
-          115
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          156,
-          117
-        ],
-        "island": "isle-02",
-        "to": [
-          156,
-          117
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          154,
-          120
-        ],
-        "island": "isle-02",
-        "to": [
-          154,
-          121
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          151,
-          124
-        ],
-        "island": "isle-02",
-        "to": [
-          151,
-          124
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          141,
-          126
-        ],
-        "island": "isle-02",
-        "to": [
-          141,
-          134
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          138,
-          136
-        ],
-        "island": "isle-02",
-        "to": [
-          138,
-          142
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
+        "x": 204,
+        "y": 109
       }
     },
     {
       "place": {
         "island": "isle-02",
-        "rotation": 0,
+        "rotation": 90,
         "type": "charcoal_burner",
-        "x": 139,
-        "y": 143
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
+        "x": 205,
+        "y": 116
       }
     },
     {
@@ -2734,20 +1992,146 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "iron_mine",
-        "x": 107,
-        "y": 94
+        "x": 137,
+        "y": 65
       }
     },
     {
       "road": {
         "from": [
-          107,
-          35
+          158,
+          58
         ],
         "island": "isle-02",
         "to": [
-          107,
-          93
+          203,
+          58
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          155,
+          59
+        ],
+        "island": "isle-02",
+        "to": [
+          158,
+          59
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          151,
+          60
+        ],
+        "island": "isle-02",
+        "to": [
+          155,
+          60
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          150,
+          61
+        ],
+        "island": "isle-02",
+        "to": [
+          151,
+          61
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          148,
+          62
+        ],
+        "island": "isle-02",
+        "to": [
+          150,
+          62
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          144,
+          64
+        ],
+        "island": "isle-02",
+        "to": [
+          148,
+          64
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          140,
+          65
+        ],
+        "island": "isle-02",
+        "to": [
+          144,
+          65
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          203,
+          112
+        ],
+        "island": "isle-02",
+        "to": [
+          204,
+          112
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          203,
+          59
+        ],
+        "island": "isle-02",
+        "to": [
+          203,
+          111
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          148,
+          63
+        ],
+        "island": "isle-02",
+        "to": [
+          148,
+          63
         ],
         "type": "road_dirt"
       }
@@ -2798,17 +2182,40 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "place": {
+        "island": "isle-02",
+        "rotation": 90,
+        "type": "smelter",
+        "x": 210,
+        "y": 105
       }
     },
     {
-      "place": {
+      "road": {
+        "from": [
+          204,
+          96
+        ],
         "island": "isle-02",
-        "rotation": 0,
-        "type": "smelter",
-        "x": 138,
-        "y": 149
+        "to": [
+          210,
+          96
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          210,
+          97
+        ],
+        "island": "isle-02",
+        "to": [
+          210,
+          104
+        ],
+        "type": "road_dirt"
       }
     },
     {
@@ -2851,72 +2258,8 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "toolmaker",
-        "x": 126,
-        "y": 153
-      }
-    },
-    {
-      "road": {
-        "from": [
-          130,
-          153
-        ],
-        "island": "isle-02",
-        "to": [
-          132,
-          153
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
+        "x": 211,
+        "y": 101
       }
     },
     {
@@ -3000,47 +2343,13 @@
       "place": {
         "rotation": 0,
         "type": "tavern",
-        "x": 102,
-        "y": 130
+        "x": 171,
+        "y": 138
       }
     },
     {
-      "road": {
-        "from": [
-          86,
-          128
-        ],
-        "to": [
-          102,
-          128
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          86,
-          129
-        ],
-        "to": [
-          86,
-          131
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          102,
-          129
-        ],
-        "to": [
-          102,
-          129
-        ],
-        "type": "road_dirt"
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -3080,66 +2389,13 @@
     },
     {
       "upgrade_trading_post": {
-        "x": 85,
-        "y": 157
+        "x": 162,
+        "y": 149
       }
     },
     {
       "advance": {
         "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 89,
-        "y": 152
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 81,
-        "y": 148
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 91,
-        "y": 143
       }
     },
     {
@@ -3169,8 +2425,8 @@
     },
     {
       "upgrade": {
-        "x": 81,
-        "y": 145
+        "x": 151,
+        "y": 146
       }
     },
     {
@@ -3181,22 +2437,6 @@
     {
       "advance": {
         "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 82,
-        "y": 142
       }
     },
     {
@@ -3216,65 +2456,7 @@
     },
     {
       "upgrade": {
-        "x": 81,
-        "y": 153
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 95,
-        "y": 148
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 95,
-        "y": 145
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 95,
+        "x": 147,
         "y": 151
       }
     },
@@ -3294,25 +2476,8 @@
       }
     },
     {
-      "upgrade": {
-        "x": 91,
-        "y": 140
-      }
-    },
-    {
       "advance": {
         "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 87,
-        "y": 139
       }
     },
     {
@@ -3327,7 +2492,85 @@
     },
     {
       "upgrade": {
-        "x": 82,
+        "x": 147,
+        "y": 148
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 155,
+        "y": 158
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 148,
+        "y": 145
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 147,
         "y": 156
       }
     },
@@ -3337,14 +2580,9 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
-        "x": 84,
-        "y": 139
+        "x": 152,
+        "y": 159
       }
     },
     {
@@ -3355,12 +2593,6 @@
     {
       "advance": {
         "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 78,
-        "y": 152
       }
     },
     {
@@ -3370,7 +2602,60 @@
     },
     {
       "upgrade": {
-        "x": 95,
+        "x": 155,
+        "y": 143
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 158,
+        "y": 158
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 149,
+        "y": 159
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 152,
         "y": 142
       }
     },
@@ -3386,19 +2671,8 @@
     },
     {
       "upgrade": {
-        "x": 77,
-        "y": 148
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 77,
-        "y": 145
+        "x": 158,
+        "y": 143
       }
     },
     {
@@ -3413,19 +2687,8 @@
     },
     {
       "upgrade": {
-        "x": 79,
-        "y": 141
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 98,
-        "y": 148
+        "x": 149,
+        "y": 142
       }
     },
     {
@@ -3440,8 +2703,8 @@
     },
     {
       "upgrade": {
-        "x": 79,
-        "y": 156
+        "x": 144,
+        "y": 147
       }
     },
     {
@@ -3451,8 +2714,29 @@
     },
     {
       "upgrade": {
-        "x": 98,
-        "y": 145
+        "x": 144,
+        "y": 155
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 143,
+        "y": 151
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -3470,20 +2754,20 @@
         "island": "isle-02",
         "rotation": 90,
         "type": "market",
-        "x": 139,
-        "y": 155
+        "x": 212,
+        "y": 96
       }
     },
     {
       "road": {
         "from": [
-          137,
-          155
+          211,
+          96
         ],
         "island": "isle-02",
         "to": [
-          138,
-          155
+          211,
+          96
         ],
         "type": "road_dirt"
       }
@@ -3493,34 +2777,20 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 142,
-        "y": 152
+        "x": 218,
+        "y": 95
       }
     },
     {
       "road": {
         "from": [
-          139,
-          142
+          211,
+          95
         ],
         "island": "isle-02",
         "to": [
-          144,
-          142
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          144,
-          143
-        ],
-        "island": "isle-02",
-        "to": [
-          144,
-          151
+          217,
+          95
         ],
         "type": "road_dirt"
       }
@@ -3530,8 +2800,8 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 135,
-        "y": 151
+        "x": 207,
+        "y": 98
       }
     },
     {
@@ -3539,22 +2809,8 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 145,
-        "y": 154
-      }
-    },
-    {
-      "road": {
-        "from": [
-          145,
-          151
-        ],
-        "island": "isle-02",
-        "to": [
-          145,
-          153
-        ],
-        "type": "road_dirt"
+        "x": 214,
+        "y": 92
       }
     },
     {
@@ -3562,8 +2818,8 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 146,
-        "y": 151
+        "x": 211,
+        "y": 92
       }
     },
     {
@@ -3571,8 +2827,8 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 145,
-        "y": 148
+        "x": 217,
+        "y": 92
       }
     },
     {
@@ -3580,36 +2836,35 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "house_settlers",
-        "x": 148,
-        "y": 154
+        "x": 208,
+        "y": 93
       }
     },
     {
-      "road": {
-        "from": [
-          145,
-          147
-        ],
-        "island": "isle-02",
-        "to": [
-          149,
-          147
-        ],
-        "type": "road_dirt"
+      "advance": {
+        "duration": "1m"
       }
     },
     {
-      "road": {
-        "from": [
-          149,
-          148
-        ],
-        "island": "isle-02",
-        "to": [
-          149,
-          153
-        ],
-        "type": "road_dirt"
+      "upgrade": {
+        "x": 155,
+        "y": 161
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 162,
+        "y": 146
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -3622,19 +2877,103 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "quarry",
-        "x": 124,
-        "y": 113
+        "x": 81,
+        "y": 118
       }
     },
     {
       "road": {
         "from": [
-          127,
+          164,
+          99
+        ],
+        "island": "isle-02",
+        "to": [
+          202,
+          99
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          161,
+          102
+        ],
+        "island": "isle-02",
+        "to": [
+          164,
+          102
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          158,
+          104
+        ],
+        "island": "isle-02",
+        "to": [
+          161,
+          104
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          155,
+          107
+        ],
+        "island": "isle-02",
+        "to": [
+          158,
+          107
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          152,
+          110
+        ],
+        "island": "isle-02",
+        "to": [
+          155,
+          110
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          149,
+          112
+        ],
+        "island": "isle-02",
+        "to": [
+          152,
+          112
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          121,
           120
         ],
         "island": "isle-02",
         "to": [
-          134,
+          149,
           120
         ],
         "type": "road_dirt"
@@ -3643,40 +2982,12 @@
     {
       "road": {
         "from": [
-          134,
-          121
-        ],
-        "island": "isle-02",
-        "to": [
-          135,
-          121
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          135,
-          122
-        ],
-        "island": "isle-02",
-        "to": [
-          137,
-          122
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          137,
+          84,
           123
         ],
         "island": "isle-02",
         "to": [
-          138,
+          121,
           123
         ],
         "type": "road_dirt"
@@ -3685,13 +2996,13 @@
     {
       "road": {
         "from": [
-          138,
-          124
+          164,
+          100
         ],
         "island": "isle-02",
         "to": [
-          140,
-          124
+          164,
+          101
         ],
         "type": "road_dirt"
       }
@@ -3699,13 +3010,83 @@
     {
       "road": {
         "from": [
-          140,
-          125
+          161,
+          103
         ],
         "island": "isle-02",
         "to": [
-          140,
-          125
+          161,
+          103
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          158,
+          105
+        ],
+        "island": "isle-02",
+        "to": [
+          158,
+          106
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          155,
+          108
+        ],
+        "island": "isle-02",
+        "to": [
+          155,
+          109
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          152,
+          111
+        ],
+        "island": "isle-02",
+        "to": [
+          152,
+          111
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          149,
+          113
+        ],
+        "island": "isle-02",
+        "to": [
+          149,
+          119
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          121,
+          121
+        ],
+        "island": "isle-02",
+        "to": [
+          121,
+          122
         ],
         "type": "road_dirt"
       }
@@ -3759,93 +3140,88 @@
       }
     },
     {
-      "place": {
-        "rotation": 0,
-        "type": "dairy_farm",
-        "x": 104,
-        "y": 138
-      }
-    },
-    {
-      "road": {
-        "from": [
-          103,
-          129
-        ],
-        "to": [
-          106,
-          129
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          106,
-          130
-        ],
-        "to": [
-          106,
-          137
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "fields": {
-        "farm": [
-          104,
-          138
-        ],
-        "tiles": [
-          [
-            108,
-            140
-          ],
-          [
-            112,
-            138
-          ],
-          [
-            108,
-            133
-          ],
-          [
-            112,
-            131
-          ],
-          [
-            116,
-            136
-          ]
-        ]
-      }
-    },
-    {
       "advance": {
         "duration": "1m"
       }
     },
     {
       "place": {
-        "rotation": 90,
-        "type": "cheese_dairy",
-        "x": 97,
+        "rotation": 0,
+        "type": "dairy_farm",
+        "x": 145,
         "y": 131
       }
     },
     {
-      "road": {
-        "from": [
-          97,
-          129
+      "fields": {
+        "farm": [
+          145,
+          131
         ],
-        "to": [
-          97,
-          130
-        ],
-        "type": "road_dirt"
+        "tiles": [
+          [
+            141,
+            129
+          ],
+          [
+            145,
+            124
+          ],
+          [
+            137,
+            130
+          ],
+          [
+            141,
+            122
+          ],
+          [
+            137,
+            123
+          ]
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "cheese_dairy",
+        "x": 175,
+        "y": 139
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "island": "isle-02",
+        "x": 210,
+        "y": 109
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "island": "isle-02",
+        "x": 207,
+        "y": 109
       }
     },
     {
@@ -3866,22 +3242,8 @@
     {
       "upgrade": {
         "island": "isle-02",
-        "x": 132,
-        "y": 144
-      }
-    },
-    {
-      "upgrade": {
-        "island": "isle-02",
-        "x": 134,
-        "y": 147
-      }
-    },
-    {
-      "upgrade": {
-        "island": "isle-02",
-        "x": 135,
-        "y": 144
+        "x": 218,
+        "y": 95
       }
     },
     {
@@ -3896,50 +3258,40 @@
     },
     {
       "place": {
-        "rotation": 90,
+        "rotation": 0,
         "type": "pig_farm",
-        "x": 107,
-        "y": 130
+        "x": 161,
+        "y": 131
       }
     },
     {
       "fields": {
         "farm": [
-          107,
-          130
+          161,
+          131
         ],
         "tiles": [
           [
-            111,
+            158,
+            132
+          ],
+          [
+            158,
+            128
+          ],
+          [
+            155,
+            131
+          ],
+          [
+            155,
             127
           ],
           [
-            108,
-            126
-          ],
-          [
-            114,
-            127
-          ],
-          [
-            105,
-            125
-          ],
-          [
-            116,
+            152,
             131
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -3956,463 +3308,442 @@
       "place": {
         "rotation": 0,
         "type": "tannery",
-        "x": 120,
-        "y": 136
+        "x": 168,
+        "y": 137
       }
     },
     {
       "road": {
         "from": [
-          104,
-          124
+          166,
+          136
         ],
         "to": [
-          120,
-          124
+          168,
+          136
         ],
         "type": "road_dirt"
       }
     },
     {
-      "road": {
-        "from": [
-          104,
-          125
-        ],
-        "to": [
-          104,
-          128
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          120,
-          125
-        ],
-        "to": [
-          120,
-          135
-        ],
-        "type": "road_dirt"
+      "advance": {
+        "duration": "1m"
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "apiary",
-        "x": 99,
-        "y": 123
+        "x": 144,
+        "y": 117
       }
     },
     {
       "fields": {
         "farm": [
-          99,
-          123
+          144,
+          117
         ],
         "tiles": [
           [
-            101,
-            122
+            146,
+            116
           ],
           [
-            98,
-            125
-          ],
-          [
-            100,
-            122
-          ],
-          [
-            102,
-            122
-          ],
-          [
-            98,
-            124
-          ],
-          [
-            98,
-            126
-          ],
-          [
-            99,
-            122
-          ],
-          [
-            103,
-            122
-          ],
-          [
-            98,
-            123
-          ],
-          [
-            104,
-            123
-          ],
-          [
-            98,
-            127
-          ],
-          [
-            103,
-            128
-          ],
-          [
-            101,
-            121
-          ],
-          [
-            97,
-            125
-          ],
-          [
-            100,
-            121
-          ],
-          [
-            102,
-            121
-          ],
-          [
-            97,
-            124
-          ],
-          [
-            97,
-            126
-          ],
-          [
-            98,
-            122
-          ],
-          [
-            104,
-            122
-          ],
-          [
-            99,
-            121
-          ],
-          [
-            103,
-            121
-          ],
-          [
-            97,
-            123
-          ],
-          [
-            105,
-            123
-          ],
-          [
-            97,
-            127
-          ],
-          [
-            101,
-            120
-          ],
-          [
-            98,
-            121
-          ],
-          [
-            104,
-            121
-          ],
-          [
-            97,
-            122
-          ],
-          [
-            105,
-            122
-          ],
-          [
-            96,
-            125
-          ],
-          [
-            100,
-            120
-          ],
-          [
-            102,
-            120
-          ],
-          [
-            96,
-            124
-          ],
-          [
-            96,
-            126
-          ],
-          [
-            99,
-            120
-          ],
-          [
-            103,
-            120
-          ],
-          [
-            96,
-            123
-          ],
-          [
-            106,
-            123
-          ],
-          [
-            96,
-            127
-          ],
-          [
-            97,
-            121
-          ],
-          [
-            105,
-            121
-          ],
-          [
-            98,
-            120
-          ],
-          [
-            104,
-            120
-          ],
-          [
-            96,
-            122
-          ],
-          [
-            106,
-            122
-          ],
-          [
-            101,
+            143,
             119
           ],
           [
-            95,
-            125
-          ],
-          [
-            100,
-            119
-          ],
-          [
-            102,
-            119
-          ],
-          [
-            95,
-            124
-          ],
-          [
-            95,
-            126
-          ],
-          [
-            99,
-            119
-          ],
-          [
-            103,
-            119
-          ],
-          [
-            95,
-            123
-          ],
-          [
-            107,
-            123
-          ],
-          [
-            95,
-            127
-          ],
-          [
-            97,
-            120
-          ],
-          [
-            105,
-            120
-          ],
-          [
-            96,
-            121
-          ],
-          [
-            106,
-            121
-          ],
-          [
-            98,
-            119
-          ],
-          [
-            104,
-            119
-          ],
-          [
-            95,
+            146,
             122
           ],
           [
-            107,
-            122
+            145,
+            116
           ],
           [
-            101,
+            147,
+            116
+          ],
+          [
+            143,
             118
           ],
           [
-            94,
-            125
-          ],
-          [
-            100,
-            118
-          ],
-          [
-            102,
-            118
-          ],
-          [
-            96,
+            143,
             120
           ],
           [
-            106,
-            120
-          ],
-          [
-            94,
-            124
-          ],
-          [
-            94,
-            126
-          ],
-          [
-            97,
-            119
-          ],
-          [
-            105,
-            119
-          ],
-          [
-            95,
-            121
-          ],
-          [
-            107,
-            121
-          ],
-          [
-            99,
-            118
-          ],
-          [
-            103,
-            118
-          ],
-          [
-            94,
-            123
-          ],
-          [
-            108,
-            123
-          ],
-          [
-            94,
-            127
-          ],
-          [
-            98,
-            118
-          ],
-          [
-            104,
-            118
-          ],
-          [
-            94,
+            145,
             122
           ],
           [
-            108,
+            147,
             122
           ],
           [
-            96,
-            119
+            144,
+            116
           ],
           [
-            106,
-            119
+            148,
+            116
           ],
           [
-            95,
-            120
-          ],
-          [
-            107,
-            120
-          ],
-          [
-            101,
+            143,
             117
           ],
           [
-            93,
-            125
-          ],
-          [
-            100,
-            117
-          ],
-          [
-            102,
-            117
-          ],
-          [
-            97,
-            118
-          ],
-          [
-            105,
-            118
-          ],
-          [
-            94,
+            143,
             121
           ],
           [
-            108,
+            148,
+            122
+          ],
+          [
+            146,
+            115
+          ],
+          [
+            142,
+            119
+          ],
+          [
+            146,
+            123
+          ],
+          [
+            145,
+            115
+          ],
+          [
+            147,
+            115
+          ],
+          [
+            142,
+            118
+          ],
+          [
+            142,
+            120
+          ],
+          [
+            145,
+            123
+          ],
+          [
+            147,
+            123
+          ],
+          [
+            143,
+            116
+          ],
+          [
+            144,
+            115
+          ],
+          [
+            148,
+            115
+          ],
+          [
+            142,
+            117
+          ],
+          [
+            142,
             121
           ],
           [
-            93,
-            124
+            148,
+            123
           ],
           [
-            93,
-            126
+            146,
+            114
+          ],
+          [
+            143,
+            115
+          ],
+          [
+            142,
+            116
+          ],
+          [
+            141,
+            119
+          ],
+          [
+            145,
+            114
+          ],
+          [
+            147,
+            114
+          ],
+          [
+            141,
+            118
+          ],
+          [
+            141,
+            120
+          ],
+          [
+            144,
+            114
+          ],
+          [
+            148,
+            114
+          ],
+          [
+            141,
+            117
+          ],
+          [
+            141,
+            121
+          ],
+          [
+            142,
+            115
+          ],
+          [
+            143,
+            114
+          ],
+          [
+            141,
+            116
+          ],
+          [
+            146,
+            113
+          ],
+          [
+            140,
+            119
+          ],
+          [
+            145,
+            113
+          ],
+          [
+            147,
+            113
+          ],
+          [
+            140,
+            118
+          ],
+          [
+            140,
+            120
+          ],
+          [
+            144,
+            113
+          ],
+          [
+            148,
+            113
+          ],
+          [
+            140,
+            117
+          ],
+          [
+            140,
+            121
+          ],
+          [
+            142,
+            114
+          ],
+          [
+            141,
+            115
+          ],
+          [
+            143,
+            113
+          ],
+          [
+            140,
+            116
+          ],
+          [
+            140,
+            122
+          ],
+          [
+            146,
+            112
+          ],
+          [
+            139,
+            119
+          ],
+          [
+            145,
+            112
+          ],
+          [
+            147,
+            112
+          ],
+          [
+            141,
+            114
+          ],
+          [
+            139,
+            118
+          ],
+          [
+            139,
+            120
+          ],
+          [
+            142,
+            113
+          ],
+          [
+            140,
+            115
+          ],
+          [
+            144,
+            112
+          ],
+          [
+            148,
+            112
+          ],
+          [
+            139,
+            117
+          ],
+          [
+            139,
+            121
+          ],
+          [
+            143,
+            112
+          ],
+          [
+            139,
+            116
+          ],
+          [
+            139,
+            122
+          ],
+          [
+            141,
+            113
+          ],
+          [
+            140,
+            114
+          ],
+          [
+            146,
+            111
+          ],
+          [
+            138,
+            119
+          ],
+          [
+            145,
+            111
+          ],
+          [
+            147,
+            111
+          ],
+          [
+            142,
+            112
+          ],
+          [
+            139,
+            115
+          ],
+          [
+            138,
+            118
+          ],
+          [
+            138,
+            120
+          ],
+          [
+            144,
+            111
+          ],
+          [
+            148,
+            111
+          ],
+          [
+            138,
+            117
+          ],
+          [
+            138,
+            121
+          ],
+          [
+            140,
+            113
+          ],
+          [
+            143,
+            111
+          ],
+          [
+            138,
+            116
+          ],
+          [
+            138,
+            122
+          ],
+          [
+            141,
+            112
+          ],
+          [
+            139,
+            114
+          ],
+          [
+            142,
+            111
+          ],
+          [
+            138,
+            115
+          ],
+          [
+            146,
+            110
+          ],
+          [
+            137,
+            119
+          ],
+          [
+            145,
+            110
           ]
         ]
       }
@@ -4424,39 +3755,77 @@
     },
     {
       "place": {
-        "rotation": 90,
+        "rotation": 0,
         "type": "meadery",
-        "x": 109,
-        "y": 120
+        "x": 179,
+        "y": 139
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "warehouse",
-        "x": 87,
-        "y": 122
+        "x": 150,
+        "y": 117
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "lumberjack",
-        "x": 112,
-        "y": 151
+        "x": 174,
+        "y": 133
       }
     },
     {
       "road": {
         "from": [
-          112,
-          154
+          170,
+          135
         ],
         "to": [
-          112,
-          156
+          173,
+          135
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          169,
+          136
+        ],
+        "to": [
+          170,
+          136
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -4468,8 +3837,93 @@
       "place": {
         "rotation": 90,
         "type": "sawmill",
-        "x": 114,
-        "y": 120
+        "x": 183,
+        "y": 140
+      }
+    },
+    {
+      "road": {
+        "from": [
+          173,
+          136
+        ],
+        "to": [
+          174,
+          136
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          174,
+          137
+        ],
+        "to": [
+          176,
+          137
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          176,
+          138
+        ],
+        "to": [
+          183,
+          138
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          183,
+          139
+        ],
+        "to": [
+          183,
+          139
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 145,
+        "y": 144
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 146,
+        "y": 159
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 163,
+        "y": 155
       }
     },
     {
@@ -4483,49 +3937,69 @@
       }
     },
     {
-      "place": {
-        "island": "isle-02",
-        "rotation": 90,
-        "type": "clay_pit",
-        "x": 162,
-        "y": 89
+      "advance": {
+        "duration": "1m"
       }
     },
     {
-      "road": {
-        "from": [
-          170,
-          87
-        ],
-        "island": "isle-02",
-        "to": [
-          175,
-          87
-        ],
-        "type": "road_dirt"
+      "advance": {
+        "duration": "1m"
       }
     },
     {
-      "road": {
-        "from": [
-          167,
-          88
-        ],
-        "island": "isle-02",
-        "to": [
-          170,
-          88
-        ],
-        "type": "road_dirt"
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
       "place": {
         "island": "isle-02",
         "rotation": 0,
+        "type": "clay_pit",
+        "x": 89,
+        "y": 110
+      }
+    },
+    {
+      "road": {
+        "from": [
+          89,
+          116
+        ],
+        "island": "isle-02",
+        "to": [
+          89,
+          122
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "place": {
+        "island": "isle-02",
+        "rotation": 90,
         "type": "brickworks",
-        "x": 150,
-        "y": 149
+        "x": 213,
+        "y": 88
+      }
+    },
+    {
+      "road": {
+        "from": [
+          204,
+          88
+        ],
+        "island": "isle-02",
+        "to": [
+          212,
+          88
+        ],
+        "type": "road_dirt"
       }
     },
     {
@@ -4533,8 +4007,8 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "charcoal_burner",
-        "x": 139,
-        "y": 136
+        "x": 198,
+        "y": 89
       }
     },
     {
@@ -4542,20 +4016,34 @@
         "island": "isle-02",
         "rotation": 0,
         "type": "lumberjack",
-        "x": 127,
-        "y": 147
+        "x": 146,
+        "y": 41
       }
     },
     {
       "road": {
         "from": [
-          130,
-          147
+          149,
+          43
         ],
         "island": "isle-02",
         "to": [
-          132,
-          147
+          155,
+          43
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          155,
+          44
+        ],
+        "island": "isle-02",
+        "to": [
+          155,
+          58
         ],
         "type": "road_dirt"
       }
@@ -4576,44 +4064,65 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "place": {
+        "rotation": 90,
+        "type": "dairy_farm",
+        "x": 134,
+        "y": 137
       }
     },
     {
-      "place": {
-        "rotation": 0,
-        "type": "dairy_farm",
-        "x": 76,
-        "y": 131
+      "road": {
+        "from": [
+          135,
+          154
+        ],
+        "to": [
+          138,
+          154
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          135,
+          141
+        ],
+        "to": [
+          135,
+          153
+        ],
+        "type": "road_dirt"
       }
     },
     {
       "fields": {
         "farm": [
-          76,
-          131
+          134,
+          137
         ],
         "tiles": [
           [
-            72,
-            129
+            131,
+            141
           ],
           [
-            69,
-            136
+            130,
+            134
           ],
           [
-            76,
-            124
+            127,
+            141
           ],
           [
-            68,
-            129
+            131,
+            148
           ],
           [
-            72,
-            122
+            126,
+            134
           ]
         ]
       }
@@ -4627,8 +4136,51 @@
       "place": {
         "rotation": 0,
         "type": "cheese_dairy",
-        "x": 82,
-        "y": 127
+        "x": 151,
+        "y": 126
+      }
+    },
+    {
+      "road": {
+        "from": [
+          150,
+          126
+        ],
+        "to": [
+          150,
+          126
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -4660,46 +4212,64 @@
       "place": {
         "rotation": 0,
         "type": "pig_farm",
-        "x": 121,
-        "y": 125
+        "x": 134,
+        "y": 133
+      }
+    },
+    {
+      "road": {
+        "from": [
+          134,
+          98
+        ],
+        "to": [
+          134,
+          132
+        ],
+        "type": "road_dirt"
       }
     },
     {
       "fields": {
         "farm": [
-          121,
-          125
+          134,
+          133
         ],
         "tiles": [
           [
-            121,
-            129
+            131,
+            130
           ],
           [
-            121,
-            121
+            128,
+            130
           ],
           [
-            122,
-            117
+            131,
+            126
           ],
           [
-            119,
-            116
+            125,
+            130
           ],
           [
-            116,
-            116
+            128,
+            126
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
       "place": {
         "rotation": 90,
         "type": "tannery",
-        "x": 93,
-        "y": 129
+        "x": 181,
+        "y": 135
       }
     },
     {
@@ -4711,429 +4281,865 @@
       "place": {
         "rotation": 0,
         "type": "apiary",
-        "x": 82,
-        "y": 122
-      }
-    },
-    {
-      "road": {
-        "from": [
-          81,
-          122
-        ],
-        "to": [
-          81,
-          122
-        ],
-        "type": "road_dirt"
+        "x": 133,
+        "y": 155
       }
     },
     {
       "fields": {
         "farm": [
-          82,
-          122
+          133,
+          155
         ],
         "tiles": [
           [
-            84,
-            121
+            132,
+            157
           ],
           [
-            81,
-            124
+            135,
+            160
           ],
           [
-            83,
-            121
+            132,
+            156
           ],
           [
-            85,
-            121
+            132,
+            158
           ],
           [
-            81,
+            134,
+            160
+          ],
+          [
+            136,
+            160
+          ],
+          [
+            132,
+            155
+          ],
+          [
+            138,
+            155
+          ],
+          [
+            132,
+            159
+          ],
+          [
+            133,
+            160
+          ],
+          [
+            137,
+            160
+          ],
+          [
+            131,
+            157
+          ],
+          [
+            135,
+            161
+          ],
+          [
+            131,
+            156
+          ],
+          [
+            131,
+            158
+          ],
+          [
+            134,
+            161
+          ],
+          [
+            136,
+            161
+          ],
+          [
+            132,
+            160
+          ],
+          [
+            131,
+            155
+          ],
+          [
+            131,
+            159
+          ],
+          [
+            133,
+            161
+          ],
+          [
+            137,
+            161
+          ],
+          [
+            130,
+            157
+          ],
+          [
+            131,
+            160
+          ],
+          [
+            132,
+            161
+          ],
+          [
+            135,
+            162
+          ],
+          [
+            130,
+            156
+          ],
+          [
+            130,
+            158
+          ],
+          [
+            134,
+            162
+          ],
+          [
+            136,
+            162
+          ],
+          [
+            130,
+            155
+          ],
+          [
+            130,
+            159
+          ],
+          [
+            133,
+            162
+          ],
+          [
+            137,
+            162
+          ],
+          [
+            131,
+            161
+          ],
+          [
+            130,
+            154
+          ],
+          [
+            130,
+            160
+          ],
+          [
+            132,
+            162
+          ],
+          [
+            129,
+            157
+          ],
+          [
+            135,
+            163
+          ],
+          [
+            129,
+            156
+          ],
+          [
+            129,
+            158
+          ],
+          [
+            134,
+            163
+          ],
+          [
+            136,
+            163
+          ],
+          [
+            129,
+            155
+          ],
+          [
+            129,
+            159
+          ],
+          [
+            133,
+            163
+          ],
+          [
+            137,
+            163
+          ],
+          [
+            130,
+            153
+          ],
+          [
+            130,
+            161
+          ],
+          [
+            131,
+            162
+          ],
+          [
+            129,
+            154
+          ],
+          [
+            129,
+            160
+          ],
+          [
+            132,
+            163
+          ],
+          [
+            128,
+            157
+          ],
+          [
+            135,
+            164
+          ],
+          [
+            130,
+            152
+          ],
+          [
+            128,
+            156
+          ],
+          [
+            128,
+            158
+          ],
+          [
+            130,
+            162
+          ],
+          [
+            134,
+            164
+          ],
+          [
+            136,
+            164
+          ],
+          [
+            129,
+            153
+          ],
+          [
+            129,
+            161
+          ],
+          [
+            131,
+            163
+          ],
+          [
+            128,
+            155
+          ],
+          [
+            128,
+            159
+          ],
+          [
+            133,
+            164
+          ],
+          [
+            137,
+            164
+          ],
+          [
+            128,
+            154
+          ],
+          [
+            128,
+            160
+          ],
+          [
+            132,
+            164
+          ],
+          [
+            130,
+            151
+          ],
+          [
+            129,
+            152
+          ],
+          [
+            129,
+            162
+          ],
+          [
+            130,
+            163
+          ],
+          [
+            127,
+            157
+          ],
+          [
+            135,
+            165
+          ],
+          [
+            128,
+            153
+          ],
+          [
+            127,
+            156
+          ],
+          [
+            127,
+            158
+          ],
+          [
+            128,
+            161
+          ],
+          [
+            131,
+            164
+          ],
+          [
+            134,
+            165
+          ],
+          [
+            136,
+            165
+          ],
+          [
+            127,
+            155
+          ],
+          [
+            127,
+            159
+          ],
+          [
+            133,
+            165
+          ],
+          [
+            137,
+            165
+          ],
+          [
+            129,
+            151
+          ],
+          [
+            129,
+            163
+          ],
+          [
+            127,
+            154
+          ],
+          [
+            127,
+            160
+          ],
+          [
+            132,
+            165
+          ],
+          [
+            130,
+            150
+          ],
+          [
+            128,
+            152
+          ],
+          [
+            128,
+            162
+          ],
+          [
+            130,
+            164
+          ],
+          [
+            127,
+            153
+          ],
+          [
+            127,
+            161
+          ]
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "meadery",
+        "x": 141,
+        "y": 171
+      }
+    },
+    {
+      "road": {
+        "from": [
+          139,
+          170
+        ],
+        "to": [
+          141,
+          170
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "apiary",
+        "x": 129,
+        "y": 121
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          129,
+          121
+        ],
+        "tiles": [
+          [
+            131,
+            120
+          ],
+          [
+            128,
             123
           ],
           [
-            81,
+            130,
+            120
+          ],
+          [
+            132,
+            120
+          ],
+          [
+            128,
+            122
+          ],
+          [
+            128,
+            124
+          ],
+          [
+            129,
+            120
+          ],
+          [
+            133,
+            120
+          ],
+          [
+            128,
+            121
+          ],
+          [
+            128,
             125
           ],
           [
-            82,
+            131,
+            119
+          ],
+          [
+            127,
+            123
+          ],
+          [
+            130,
+            119
+          ],
+          [
+            132,
+            119
+          ],
+          [
+            127,
+            122
+          ],
+          [
+            127,
+            124
+          ],
+          [
+            128,
+            120
+          ],
+          [
+            129,
+            119
+          ],
+          [
+            133,
+            119
+          ],
+          [
+            127,
             121
           ],
           [
-            86,
-            121
+            127,
+            125
           ],
           [
-            81,
+            131,
+            118
+          ],
+          [
+            128,
+            119
+          ],
+          [
+            127,
+            120
+          ],
+          [
+            126,
+            123
+          ],
+          [
+            127,
             126
           ],
           [
-            86,
-            127
+            130,
+            118
           ],
           [
-            84,
-            120
+            132,
+            118
           ],
           [
-            83,
-            120
+            126,
+            122
           ],
           [
-            85,
-            120
+            126,
+            124
           ],
           [
-            81,
+            129,
+            118
+          ],
+          [
+            133,
+            118
+          ],
+          [
+            126,
             121
           ],
           [
-            87,
-            121
+            126,
+            125
           ],
           [
-            81,
-            127
-          ],
-          [
-            82,
-            120
-          ],
-          [
-            86,
-            120
-          ],
-          [
-            84,
+            127,
             119
           ],
           [
-            81,
+            127,
+            127
+          ],
+          [
+            128,
+            118
+          ],
+          [
+            126,
             120
           ],
           [
-            87,
-            120
+            126,
+            126
           ],
           [
-            88,
+            131,
+            117
+          ],
+          [
+            125,
+            123
+          ],
+          [
+            130,
+            117
+          ],
+          [
+            132,
+            117
+          ],
+          [
+            125,
+            122
+          ],
+          [
+            125,
+            124
+          ],
+          [
+            129,
+            117
+          ],
+          [
+            133,
+            117
+          ],
+          [
+            125,
             121
           ],
           [
-            81,
+            125,
+            125
+          ],
+          [
+            127,
+            118
+          ],
+          [
+            126,
+            119
+          ],
+          [
+            126,
+            127
+          ],
+          [
+            127,
             128
           ],
           [
-            83,
-            119
+            128,
+            117
           ],
           [
-            85,
-            119
-          ],
-          [
-            82,
-            119
-          ],
-          [
-            86,
-            119
-          ],
-          [
-            88,
+            125,
             120
           ],
           [
-            81,
+            125,
+            126
+          ],
+          [
+            131,
+            116
+          ],
+          [
+            124,
+            123
+          ],
+          [
+            130,
+            116
+          ],
+          [
+            132,
+            116
+          ],
+          [
+            126,
+            118
+          ],
+          [
+            124,
+            122
+          ],
+          [
+            124,
+            124
+          ],
+          [
+            126,
+            128
+          ],
+          [
+            127,
+            117
+          ],
+          [
+            125,
             119
           ],
           [
-            87,
-            119
+            125,
+            127
           ],
           [
-            89,
-            121
-          ],
-          [
-            81,
+            127,
             129
           ],
           [
-            84,
-            118
+            129,
+            116
           ],
           [
-            83,
-            118
+            133,
+            116
           ],
           [
-            85,
-            118
-          ],
-          [
-            82,
-            118
-          ],
-          [
-            86,
-            118
-          ],
-          [
-            88,
-            119
-          ],
-          [
-            89,
-            120
-          ],
-          [
-            81,
-            118
-          ],
-          [
-            87,
-            118
-          ],
-          [
-            90,
+            124,
             121
           ],
           [
-            81,
-            130
+            124,
+            125
           ],
           [
-            84,
-            117
+            128,
+            116
           ],
           [
-            83,
-            117
-          ],
-          [
-            85,
-            117
-          ],
-          [
-            89,
-            119
-          ],
-          [
-            88,
-            118
-          ],
-          [
-            90,
+            124,
             120
           ],
           [
-            82,
+            124,
+            126
+          ],
+          [
+            126,
             117
           ],
           [
-            86,
-            117
+            125,
+            118
           ],
           [
-            81,
-            117
+            125,
+            128
           ],
           [
-            87,
-            117
+            126,
+            129
           ],
           [
-            91,
+            131,
+            115
+          ],
+          [
+            123,
+            123
+          ],
+          [
+            130,
+            115
+          ],
+          [
+            132,
+            115
+          ],
+          [
+            127,
+            116
+          ],
+          [
+            124,
+            119
+          ],
+          [
+            123,
+            122
+          ],
+          [
+            123,
+            124
+          ],
+          [
+            124,
+            127
+          ],
+          [
+            129,
+            115
+          ],
+          [
+            133,
+            115
+          ],
+          [
+            123,
             121
           ],
           [
-            81,
-            131
+            123,
+            125
           ],
           [
-            89,
-            118
-          ],
-          [
-            90,
-            119
-          ],
-          [
-            84,
-            116
-          ],
-          [
-            83,
-            116
-          ],
-          [
-            85,
-            116
-          ],
-          [
-            88,
+            125,
             117
           ],
           [
-            91,
+            125,
+            129
+          ],
+          [
+            128,
+            115
+          ],
+          [
+            123,
             120
           ],
           [
-            82,
+            123,
+            126
+          ],
+          [
+            126,
             116
           ],
           [
-            86,
-            116
-          ],
-          [
-            90,
+            124,
             118
           ],
           [
-            81,
-            116
-          ],
-          [
-            87,
-            116
-          ],
-          [
-            92,
-            121
-          ],
-          [
-            89,
-            117
-          ],
-          [
-            91,
-            119
-          ],
-          [
-            88,
-            116
-          ],
-          [
-            92,
-            120
-          ],
-          [
-            84,
-            115
-          ],
-          [
-            83,
-            115
-          ],
-          [
-            85,
-            115
-          ],
-          [
-            82,
-            115
-          ],
-          [
-            86,
-            115
-          ],
-          [
-            90,
-            117
-          ],
-          [
-            91,
-            118
-          ],
-          [
-            89,
-            116
-          ],
-          [
-            92,
-            119
-          ],
-          [
-            81,
-            115
-          ],
-          [
-            87,
-            115
-          ],
-          [
-            93,
-            121
-          ],
-          [
-            88,
-            115
-          ],
-          [
-            93,
-            120
-          ],
-          [
-            91,
-            117
-          ],
-          [
-            84,
-            114
-          ],
-          [
-            90,
-            116
-          ],
-          [
-            92,
-            118
-          ],
-          [
-            83,
-            114
-          ],
-          [
-            85,
-            114
-          ],
-          [
-            82,
-            114
-          ],
-          [
-            86,
-            114
-          ],
-          [
-            89,
-            115
-          ],
-          [
-            93,
-            119
-          ],
-          [
-            81,
-            114
-          ],
-          [
-            87,
-            114
-          ],
-          [
-            91,
-            116
-          ],
-          [
-            92,
-            117
+            124,
+            128
           ]
         ]
       }
@@ -5149,447 +5155,13 @@
       }
     },
     {
-      "place": {
-        "rotation": 90,
-        "type": "meadery",
-        "x": 95,
-        "y": 114
-      }
-    },
-    {
-      "road": {
-        "from": [
-          81,
-          113
-        ],
-        "to": [
-          95,
-          113
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
       "advance": {
         "duration": "1m"
       }
     },
     {
-      "place": {
-        "rotation": 0,
-        "type": "apiary",
-        "x": 94,
-        "y": 108
-      }
-    },
-    {
-      "fields": {
-        "farm": [
-          94,
-          108
-        ],
-        "tiles": [
-          [
-            96,
-            107
-          ],
-          [
-            93,
-            110
-          ],
-          [
-            96,
-            113
-          ],
-          [
-            95,
-            107
-          ],
-          [
-            97,
-            107
-          ],
-          [
-            93,
-            109
-          ],
-          [
-            93,
-            111
-          ],
-          [
-            99,
-            111
-          ],
-          [
-            97,
-            113
-          ],
-          [
-            94,
-            107
-          ],
-          [
-            98,
-            107
-          ],
-          [
-            93,
-            108
-          ],
-          [
-            93,
-            112
-          ],
-          [
-            99,
-            112
-          ],
-          [
-            98,
-            113
-          ],
-          [
-            96,
-            106
-          ],
-          [
-            92,
-            110
-          ],
-          [
-            95,
-            106
-          ],
-          [
-            92,
-            109
-          ],
-          [
-            92,
-            111
-          ],
-          [
-            93,
-            107
-          ],
-          [
-            99,
-            113
-          ],
-          [
-            94,
-            106
-          ],
-          [
-            92,
-            108
-          ],
-          [
-            92,
-            112
-          ],
-          [
-            100,
-            112
-          ],
-          [
-            96,
-            105
-          ],
-          [
-            93,
-            106
-          ],
-          [
-            92,
-            107
-          ],
-          [
-            91,
-            110
-          ],
-          [
-            100,
-            113
-          ],
-          [
-            95,
-            105
-          ],
-          [
-            91,
-            109
-          ],
-          [
-            91,
-            111
-          ],
-          [
-            94,
-            105
-          ],
-          [
-            91,
-            108
-          ],
-          [
-            91,
-            112
-          ],
-          [
-            92,
-            106
-          ],
-          [
-            100,
-            114
-          ],
-          [
-            93,
-            105
-          ],
-          [
-            91,
-            107
-          ],
-          [
-            101,
-            113
-          ],
-          [
-            96,
-            104
-          ],
-          [
-            90,
-            110
-          ],
-          [
-            95,
-            104
-          ],
-          [
-            90,
-            109
-          ],
-          [
-            90,
-            111
-          ],
-          [
-            94,
-            104
-          ],
-          [
-            90,
-            108
-          ],
-          [
-            90,
-            112
-          ],
-          [
-            92,
-            105
-          ],
-          [
-            91,
-            106
-          ],
-          [
-            101,
-            114
-          ],
-          [
-            100,
-            115
-          ],
-          [
-            93,
-            104
-          ],
-          [
-            90,
-            107
-          ],
-          [
-            102,
-            113
-          ],
-          [
-            89,
-            110
-          ],
-          [
-            91,
-            105
-          ],
-          [
-            89,
-            109
-          ],
-          [
-            89,
-            111
-          ],
-          [
-            101,
-            115
-          ],
-          [
-            92,
-            104
-          ],
-          [
-            90,
-            106
-          ],
-          [
-            102,
-            114
-          ],
-          [
-            100,
-            116
-          ],
-          [
-            94,
-            103
-          ],
-          [
-            89,
-            108
-          ],
-          [
-            89,
-            112
-          ],
-          [
-            93,
-            103
-          ],
-          [
-            89,
-            107
-          ],
-          [
-            103,
-            113
-          ],
-          [
-            91,
-            104
-          ],
-          [
-            90,
-            105
-          ],
-          [
-            102,
-            115
-          ],
-          [
-            101,
-            116
-          ],
-          [
-            88,
-            110
-          ],
-          [
-            92,
-            103
-          ],
-          [
-            89,
-            106
-          ],
-          [
-            88,
-            109
-          ],
-          [
-            88,
-            111
-          ],
-          [
-            103,
-            114
-          ],
-          [
-            94,
-            102
-          ],
-          [
-            88,
-            108
-          ],
-          [
-            88,
-            112
-          ],
-          [
-            90,
-            104
-          ],
-          [
-            102,
-            116
-          ],
-          [
-            93,
-            102
-          ],
-          [
-            88,
-            107
-          ],
-          [
-            91,
-            103
-          ],
-          [
-            89,
-            105
-          ],
-          [
-            103,
-            115
-          ],
-          [
-            92,
-            102
-          ],
-          [
-            88,
-            106
-          ],
-          [
-            104,
-            114
-          ],
-          [
-            87,
-            110
-          ],
-          [
-            87,
-            109
-          ],
-          [
-            87,
-            111
-          ],
-          [
-            90,
-            103
-          ],
-          [
-            89,
-            104
-          ]
-        ]
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -5614,8 +5186,8 @@
     },
     {
       "upgrade_trading_post": {
-        "x": 85,
-        "y": 157
+        "x": 162,
+        "y": 149
       }
     },
     {
@@ -5645,38 +5217,116 @@
     },
     {
       "place": {
-        "rotation": 0,
+        "rotation": 90,
         "type": "dairy_farm",
-        "x": 65,
-        "y": 140
+        "x": 124,
+        "y": 148
+      }
+    },
+    {
+      "road": {
+        "from": [
+          126,
+          162
+        ],
+        "to": [
+          127,
+          162
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          127,
+          163
+        ],
+        "to": [
+          128,
+          163
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          128,
+          164
+        ],
+        "to": [
+          129,
+          164
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          129,
+          165
+        ],
+        "to": [
+          131,
+          165
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          131,
+          166
+        ],
+        "to": [
+          137,
+          166
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          126,
+          152
+        ],
+        "to": [
+          126,
+          161
+        ],
+        "type": "road_dirt"
       }
     },
     {
       "fields": {
         "farm": [
-          65,
-          140
+          124,
+          148
         ],
         "tiles": [
           [
-            61,
-            138
+            122,
+            152
           ],
           [
-            57,
-            138
+            120,
+            145
           ],
           [
-            64,
-            131
+            118,
+            152
           ],
           [
-            60,
-            131
+            122,
+            159
           ],
           [
-            56,
-            131
+            116,
+            145
           ]
         ]
       }
@@ -5693,10 +5343,23 @@
     },
     {
       "place": {
-        "rotation": 0,
+        "rotation": 90,
         "type": "cheese_dairy",
-        "x": 66,
-        "y": 146
+        "x": 140,
+        "y": 107
+      }
+    },
+    {
+      "road": {
+        "from": [
+          145,
+          107
+        ],
+        "to": [
+          146,
+          107
+        ],
+        "type": "road_dirt"
       }
     },
     {
@@ -5728,36 +5391,49 @@
       "place": {
         "rotation": 0,
         "type": "pig_farm",
-        "x": 77,
-        "y": 120
+        "x": 137,
+        "y": 110
+      }
+    },
+    {
+      "road": {
+        "from": [
+          135,
+          110
+        ],
+        "to": [
+          136,
+          110
+        ],
+        "type": "road_dirt"
       }
     },
     {
       "fields": {
         "farm": [
-          77,
-          120
+          137,
+          110
         ],
         "tiles": [
           [
-            74,
-            118
-          ],
-          [
-            77,
-            116
-          ],
-          [
-            71,
-            118
-          ],
-          [
-            74,
+            135,
             114
           ],
           [
-            69,
-            122
+            137,
+            106
+          ],
+          [
+            140,
+            103
+          ],
+          [
+            137,
+            102
+          ],
+          [
+            143,
+            103
           ]
         ]
       }
@@ -5771,19 +5447,19 @@
       "place": {
         "rotation": 0,
         "type": "apiary",
-        "x": 63,
-        "y": 126
+        "x": 121,
+        "y": 139
       }
     },
     {
       "road": {
         "from": [
-          55,
-          130
+          127,
+          114
         ],
         "to": [
-          62,
-          130
+          133,
+          114
         ],
         "type": "road_dirt"
       }
@@ -5791,12 +5467,77 @@
     {
       "road": {
         "from": [
-          55,
-          131
+          125,
+          115
         ],
         "to": [
-          55,
-          144
+          127,
+          115
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          124,
+          116
+        ],
+        "to": [
+          125,
+          116
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          123,
+          117
+        ],
+        "to": [
+          124,
+          117
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          122,
+          119
+        ],
+        "to": [
+          123,
+          119
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          123,
+          118
+        ],
+        "to": [
+          123,
+          118
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          122,
+          120
+        ],
+        "to": [
+          122,
+          138
         ],
         "type": "road_dirt"
       }
@@ -5804,417 +5545,422 @@
     {
       "fields": {
         "farm": [
-          63,
-          126
+          121,
+          139
         ],
         "tiles": [
           [
-            65,
-            125
+            123,
+            138
           ],
           [
-            62,
-            128
+            120,
+            141
           ],
           [
-            68,
-            128
+            126,
+            141
           ],
           [
-            64,
-            125
+            123,
+            144
           ],
           [
-            66,
-            125
+            124,
+            138
           ],
           [
-            62,
-            127
+            120,
+            140
           ],
           [
-            68,
-            127
+            120,
+            142
           ],
           [
-            62,
-            129
+            126,
+            142
           ],
           [
-            63,
-            125
+            122,
+            144
           ],
           [
-            67,
-            125
+            124,
+            144
           ],
           [
-            62,
-            126
+            121,
+            138
           ],
           [
-            68,
-            126
+            125,
+            138
           ],
           [
-            65,
-            124
+            120,
+            139
           ],
           [
-            61,
-            128
+            120,
+            143
           ],
           [
-            69,
-            128
+            126,
+            143
           ],
           [
-            64,
-            124
+            121,
+            144
           ],
           [
-            66,
-            124
+            125,
+            144
           ],
           [
-            61,
-            127
+            123,
+            137
           ],
           [
-            69,
-            127
+            119,
+            141
           ],
           [
-            61,
-            129
+            124,
+            137
           ],
           [
-            62,
-            125
+            119,
+            140
           ],
           [
-            68,
-            125
+            119,
+            142
           ],
           [
-            63,
-            124
+            124,
+            145
           ],
           [
-            67,
-            124
+            120,
+            138
           ],
           [
-            61,
-            126
+            120,
+            144
           ],
           [
-            69,
-            126
+            126,
+            144
           ],
           [
-            65,
-            123
+            121,
+            137
           ],
           [
-            62,
-            124
+            125,
+            137
           ],
           [
-            68,
-            124
+            119,
+            139
           ],
           [
-            61,
-            125
+            119,
+            143
           ],
           [
-            60,
-            128
+            125,
+            145
           ],
           [
-            70,
-            128
+            123,
+            136
           ],
           [
-            64,
-            123
+            120,
+            137
           ],
           [
-            66,
-            123
+            119,
+            138
           ],
           [
-            60,
-            127
+            118,
+            141
           ],
           [
-            70,
-            127
+            119,
+            144
           ],
           [
-            60,
-            129
+            126,
+            145
           ],
           [
-            63,
-            123
+            124,
+            136
           ],
           [
-            67,
-            123
+            118,
+            140
           ],
           [
-            60,
-            126
+            118,
+            142
           ],
           [
-            70,
-            126
+            124,
+            146
           ],
           [
-            61,
-            124
+            121,
+            136
           ],
           [
-            62,
-            123
+            125,
+            136
           ],
           [
-            68,
-            123
+            118,
+            139
           ],
           [
-            60,
-            125
+            118,
+            143
           ],
           [
-            65,
-            122
+            125,
+            146
           ],
           [
-            59,
-            128
+            119,
+            137
           ],
           [
-            71,
-            128
+            120,
+            136
           ],
           [
-            64,
-            122
+            118,
+            138
           ],
           [
-            66,
-            122
+            118,
+            144
           ],
           [
-            59,
-            127
+            126,
+            146
           ],
           [
-            71,
-            127
+            123,
+            135
           ],
           [
-            59,
-            129
+            117,
+            141
           ],
           [
-            63,
-            122
+            124,
+            135
           ],
           [
-            67,
-            122
+            117,
+            140
           ],
           [
-            59,
-            126
+            117,
+            142
           ],
           [
-            71,
-            126
+            124,
+            147
           ],
           [
-            61,
-            123
+            121,
+            135
           ],
           [
-            60,
-            124
+            125,
+            135
           ],
           [
-            62,
-            122
+            117,
+            139
           ],
           [
-            68,
-            122
+            117,
+            143
           ],
           [
-            59,
-            125
+            125,
+            147
           ],
           [
-            65,
-            121
+            119,
+            136
           ],
           [
-            58,
-            128
+            118,
+            137
           ],
           [
-            64,
-            121
+            120,
+            135
           ],
           [
-            66,
-            121
+            117,
+            138
           ],
           [
-            60,
-            123
+            117,
+            144
           ],
           [
-            58,
-            127
+            126,
+            147
           ],
           [
-            58,
-            129
+            123,
+            134
           ],
           [
-            61,
-            122
+            116,
+            141
           ],
           [
-            59,
-            124
+            124,
+            134
           ],
           [
-            63,
-            121
+            118,
+            136
           ],
           [
-            67,
-            121
+            116,
+            140
           ],
           [
-            58,
-            126
+            116,
+            142
           ],
           [
-            62,
-            121
+            119,
+            135
           ],
           [
-            68,
-            121
+            117,
+            137
           ],
           [
-            58,
-            125
+            121,
+            134
           ],
           [
-            60,
-            122
+            125,
+            134
           ],
           [
-            59,
-            123
+            116,
+            139
           ],
           [
-            65,
-            120
+            116,
+            143
           ],
           [
-            57,
-            128
+            120,
+            134
           ],
           [
-            64,
-            120
+            116,
+            138
           ],
           [
-            66,
-            120
+            116,
+            144
           ],
           [
-            61,
-            121
+            118,
+            135
           ],
           [
-            69,
-            121
+            117,
+            136
           ],
           [
-            58,
-            124
+            123,
+            133
           ],
           [
-            57,
-            127
+            115,
+            141
           ],
           [
-            57,
-            129
+            124,
+            133
           ],
           [
-            63,
-            120
+            119,
+            134
           ],
           [
-            67,
-            120
+            116,
+            137
           ],
           [
-            57,
-            126
+            115,
+            140
           ],
           [
-            59,
-            122
+            115,
+            142
           ],
           [
-            62,
-            120
+            121,
+            133
           ],
           [
-            68,
-            120
+            115,
+            139
           ],
           [
-            57,
-            125
+            115,
+            143
           ],
           [
-            60,
-            121
+            117,
+            135
           ],
           [
-            70,
-            121
+            120,
+            133
           ],
           [
-            58,
-            123
+            115,
+            138
           ],
           [
-            61,
-            120
+            115,
+            144
           ],
           [
-            69,
-            120
+            118,
+            134
           ]
         ]
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
-        "x": 85,
-        "y": 152
+        "x": 151,
+        "y": 155
       }
     },
     {
@@ -6224,8 +5970,8 @@
     },
     {
       "upgrade": {
-        "x": 89,
-        "y": 152
+        "x": 151,
+        "y": 146
       }
     },
     {
@@ -6235,8 +5981,13 @@
     },
     {
       "upgrade": {
-        "x": 81,
-        "y": 148
+        "x": 147,
+        "y": 151
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -6248,19 +5999,19 @@
       "place": {
         "rotation": 90,
         "type": "salt_pans",
-        "x": 175,
-        "y": 130
+        "x": 110,
+        "y": 179
       }
     },
     {
       "road": {
         "from": [
-          159,
-          63
+          121,
+          168
         ],
         "to": [
-          175,
-          63
+          126,
+          168
         ],
         "type": "road_dirt"
       }
@@ -6268,19 +6019,66 @@
     {
       "road": {
         "from": [
-          175,
-          64
+          120,
+          169
         ],
         "to": [
-          175,
-          129
+          121,
+          169
         ],
         "type": "road_dirt"
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "from": [
+          119,
+          170
+        ],
+        "to": [
+          120,
+          170
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          116,
+          171
+        ],
+        "to": [
+          119,
+          171
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          126,
+          163
+        ],
+        "to": [
+          126,
+          167
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          116,
+          172
+        ],
+        "to": [
+          116,
+          178
+        ],
+        "type": "road_dirt"
       }
     },
     {
@@ -6317,36 +6115,36 @@
       "place": {
         "rotation": 0,
         "type": "pig_farm",
-        "x": 84,
-        "y": 109
+        "x": 131,
+        "y": 110
       }
     },
     {
       "fields": {
         "farm": [
-          84,
-          109
+          131,
+          110
         ],
         "tiles": [
           [
-            81,
-            109
+            128,
+            110
           ],
           [
-            85,
-            105
+            131,
+            106
           ],
           [
-            82,
-            105
+            128,
+            106
           ],
           [
-            85,
-            101
+            125,
+            110
           ],
           [
-            82,
-            101
+            125,
+            106
           ]
         ]
       }
@@ -6358,10 +6156,10 @@
     },
     {
       "place": {
-        "rotation": 0,
+        "rotation": 90,
         "type": "butcher",
-        "x": 61,
-        "y": 146
+        "x": 133,
+        "y": 167
       }
     },
     {
@@ -6369,257 +6167,271 @@
         "island": "isle-02",
         "rotation": 90,
         "type": "hop_farm",
-        "x": 145,
-        "y": 144
+        "x": 213,
+        "y": 85
+      }
+    },
+    {
+      "road": {
+        "from": [
+          212,
+          87
+        ],
+        "island": "isle-02",
+        "to": [
+          212,
+          87
+        ],
+        "type": "road_dirt"
       }
     },
     {
       "fields": {
         "farm": [
-          145,
-          144
+          213,
+          85
         ],
         "island": "isle-02",
         "tiles": [
           [
-            146,
-            143
+            214,
+            84
           ],
           [
-            147,
-            143
+            215,
+            84
           ],
           [
-            145,
-            143
+            213,
+            84
           ],
           [
-            148,
-            143
+            216,
+            84
           ],
           [
-            149,
-            145
+            212,
+            86
           ],
           [
-            149,
-            144
+            212,
+            85
           ],
           [
-            149,
-            146
+            214,
+            83
           ],
           [
-            146,
-            142
+            215,
+            83
           ],
           [
-            147,
-            142
+            212,
+            84
           ],
           [
-            149,
-            143
+            213,
+            83
           ],
           [
-            145,
-            142
+            211,
+            86
           ],
           [
-            148,
-            142
+            211,
+            85
           ],
           [
-            150,
-            145
+            211,
+            87
           ],
           [
-            150,
-            144
+            212,
+            83
           ],
           [
-            150,
-            146
+            214,
+            82
           ],
           [
-            149,
-            142
+            215,
+            82
           ],
           [
-            146,
-            141
+            211,
+            84
           ],
           [
-            147,
-            141
+            213,
+            82
           ],
           [
-            150,
-            143
+            210,
+            86
           ],
           [
-            150,
-            147
+            211,
+            83
           ],
           [
-            145,
-            141
+            210,
+            85
           ],
           [
-            148,
-            141
+            210,
+            87
           ],
           [
-            151,
-            145
+            212,
+            82
           ],
           [
-            150,
-            142
+            210,
+            84
           ],
           [
-            151,
-            144
+            214,
+            81
           ],
           [
-            151,
-            146
+            215,
+            81
           ],
           [
-            150,
-            148
+            213,
+            81
           ],
           [
-            144,
-            141
+            211,
+            82
           ],
           [
-            149,
-            141
+            210,
+            83
           ],
           [
-            151,
-            143
+            209,
+            86
           ],
           [
-            151,
-            147
+            212,
+            81
           ],
           [
-            146,
-            140
+            209,
+            85
           ],
           [
-            147,
-            140
+            209,
+            87
           ],
           [
-            145,
-            140
+            209,
+            84
           ],
           [
-            148,
-            140
+            210,
+            82
           ],
           [
-            150,
-            141
+            211,
+            81
           ],
           [
-            151,
-            142
+            209,
+            83
           ],
           [
-            151,
-            148
+            208,
+            86
           ],
           [
-            152,
-            145
+            208,
+            85
           ],
           [
-            144,
-            140
+            208,
+            87
           ],
           [
-            149,
-            140
+            210,
+            81
           ],
           [
-            152,
-            144
+            209,
+            82
           ],
           [
-            152,
-            146
+            208,
+            84
           ],
           [
-            152,
-            143
+            211,
+            80
           ],
           [
-            152,
-            147
+            208,
+            83
           ],
           [
-            146,
-            139
+            209,
+            81
           ],
           [
-            147,
-            139
+            210,
+            80
           ],
           [
-            151,
-            141
+            207,
+            86
           ],
           [
-            150,
-            140
+            207,
+            85
           ],
           [
-            145,
-            139
+            207,
+            87
           ],
           [
-            148,
-            139
+            208,
+            82
           ],
           [
-            152,
-            142
+            207,
+            84
           ],
           [
-            152,
-            148
+            211,
+            79
           ],
           [
-            144,
-            139
+            207,
+            83
           ],
           [
-            149,
-            139
+            209,
+            80
           ],
           [
-            153,
-            145
+            208,
+            81
           ],
           [
-            153,
-            144
+            210,
+            79
           ],
           [
-            153,
-            146
+            207,
+            82
           ],
           [
-            151,
-            140
+            206,
+            86
           ],
           [
-            152,
-            141
+            206,
+            85
           ]
         ]
       }
@@ -6662,576 +6474,576 @@
       "place": {
         "rotation": 0,
         "type": "wheat_farm",
-        "x": 77,
-        "y": 112
+        "x": 119,
+        "y": 129
       }
     },
     {
       "fields": {
         "farm": [
-          77,
-          112
+          119,
+          129
         ],
         "tiles": [
           [
-            76,
-            113
+            118,
+            130
           ],
           [
-            78,
-            111
+            118,
+            131
           ],
           [
-            76,
-            112
+            120,
+            128
           ],
           [
-            77,
-            111
+            118,
+            129
           ],
           [
-            79,
-            111
+            118,
+            132
           ],
           [
-            75,
-            113
+            119,
+            128
           ],
           [
-            76,
-            111
+            121,
+            128
           ],
           [
-            75,
-            112
+            119,
+            133
           ],
           [
-            78,
-            110
+            117,
+            130
           ],
           [
-            77,
-            110
+            117,
+            131
           ],
           [
-            79,
-            110
+            118,
+            128
           ],
           [
-            75,
-            111
+            118,
+            133
           ],
           [
-            76,
-            110
+            117,
+            129
           ],
           [
-            74,
-            113
+            117,
+            132
           ],
           [
-            74,
-            112
+            120,
+            127
           ],
           [
-            78,
-            109
+            119,
+            127
           ],
           [
-            77,
-            109
+            121,
+            127
           ],
           [
-            79,
-            109
+            117,
+            128
           ],
           [
-            75,
-            110
+            117,
+            133
           ],
           [
-            74,
-            111
+            118,
+            127
           ],
           [
-            76,
-            109
+            116,
+            130
           ],
           [
-            73,
-            113
+            116,
+            131
           ],
           [
-            73,
-            114
+            116,
+            129
           ],
           [
-            73,
-            112
+            116,
+            132
           ],
           [
-            73,
-            115
+            120,
+            126
           ],
           [
-            74,
-            110
+            119,
+            126
           ],
           [
-            75,
-            109
+            121,
+            126
           ],
           [
-            78,
-            108
+            117,
+            127
           ],
           [
-            77,
-            108
+            117,
+            134
           ],
           [
-            79,
-            108
+            116,
+            128
           ],
           [
-            73,
-            111
+            116,
+            133
           ],
           [
-            73,
-            116
+            118,
+            126
           ],
           [
-            76,
-            108
+            115,
+            130
           ],
           [
-            74,
-            109
+            115,
+            131
           ],
           [
-            72,
-            113
+            115,
+            129
           ],
           [
-            72,
-            114
+            115,
+            132
           ],
           [
-            73,
-            110
+            116,
+            127
           ],
           [
-            73,
-            117
+            116,
+            134
           ],
           [
-            72,
-            112
+            117,
+            126
           ],
           [
-            72,
-            115
+            120,
+            125
           ],
           [
-            75,
-            108
+            119,
+            125
           ],
           [
-            78,
-            107
+            121,
+            125
           ],
           [
-            72,
-            111
+            115,
+            128
           ],
           [
-            72,
-            116
+            115,
+            133
           ],
           [
-            77,
-            107
+            118,
+            125
           ],
           [
-            79,
-            107
+            116,
+            126
           ],
           [
-            73,
-            109
+            114,
+            130
           ],
           [
-            76,
-            107
+            114,
+            131
           ],
           [
-            74,
-            108
+            116,
+            135
           ],
           [
-            72,
-            110
+            115,
+            127
           ],
           [
-            72,
-            117
+            115,
+            134
           ],
           [
-            71,
-            113
+            114,
+            129
           ],
           [
-            71,
-            114
+            114,
+            132
           ],
           [
-            75,
-            107
+            117,
+            125
           ],
           [
-            71,
-            112
+            120,
+            124
           ],
           [
-            71,
-            115
+            114,
+            128
           ],
           [
-            73,
-            108
+            114,
+            133
           ],
           [
-            71,
-            111
+            119,
+            124
           ],
           [
-            71,
-            116
+            121,
+            124
           ],
           [
-            78,
-            106
+            115,
+            126
           ],
           [
-            72,
-            109
+            115,
+            135
           ],
           [
-            77,
-            106
+            118,
+            124
           ],
           [
-            79,
-            106
+            116,
+            125
           ],
           [
-            74,
-            107
+            116,
+            136
           ],
           [
-            76,
-            106
+            114,
+            127
           ],
           [
-            71,
-            110
+            114,
+            134
           ],
           [
-            71,
-            117
+            113,
+            130
           ],
           [
-            70,
-            113
+            113,
+            131
           ],
           [
-            70,
-            114
+            117,
+            124
           ],
           [
-            75,
-            106
+            113,
+            129
           ],
           [
-            72,
-            108
+            113,
+            132
           ],
           [
-            70,
-            112
+            115,
+            125
           ],
           [
-            70,
-            115
+            113,
+            128
           ],
           [
-            73,
-            107
+            113,
+            133
           ],
           [
-            71,
-            109
+            115,
+            136
           ],
           [
-            70,
-            111
+            120,
+            123
           ],
           [
-            70,
-            116
+            114,
+            126
           ],
           [
-            78,
-            105
+            114,
+            135
           ],
           [
-            74,
-            106
+            119,
+            123
           ],
           [
-            77,
-            105
+            121,
+            123
           ],
           [
-            79,
-            105
+            116,
+            124
           ],
           [
-            76,
-            105
+            118,
+            123
           ],
           [
-            70,
-            110
+            113,
+            127
           ],
           [
-            70,
-            117
+            113,
+            134
           ],
           [
-            72,
-            107
+            112,
+            130
           ],
           [
-            71,
-            108
+            112,
+            131
           ],
           [
-            75,
-            105
+            117,
+            123
           ],
           [
-            73,
-            106
+            114,
+            125
           ],
           [
-            69,
-            113
+            112,
+            129
           ],
           [
-            69,
-            114
+            112,
+            132
           ],
           [
-            69,
-            112
+            114,
+            136
           ],
           [
-            69,
-            115
+            115,
+            124
           ],
           [
-            70,
-            109
+            115,
+            137
           ],
           [
-            70,
-            118
+            113,
+            126
           ],
           [
-            69,
-            111
+            113,
+            135
           ],
           [
-            69,
-            116
+            112,
+            128
           ],
           [
-            74,
-            105
+            112,
+            133
           ],
           [
-            78,
-            104
+            120,
+            122
           ],
           [
-            77,
-            104
+            116,
+            123
           ],
           [
-            79,
-            104
+            119,
+            122
           ],
           [
-            71,
-            107
+            121,
+            122
           ],
           [
-            72,
-            106
+            118,
+            122
           ],
           [
-            69,
-            110
+            112,
+            127
           ],
           [
-            69,
-            117
+            112,
+            134
           ],
           [
-            76,
-            104
+            114,
+            124
           ],
           [
-            70,
-            108
+            114,
+            137
           ],
           [
-            70,
-            119
+            113,
+            125
           ],
           [
-            73,
-            105
+            113,
+            136
           ],
           [
-            75,
-            104
+            117,
+            122
           ],
           [
-            68,
-            113
+            115,
+            123
           ],
           [
-            68,
-            114
+            111,
+            130
           ],
           [
-            69,
-            109
+            111,
+            131
           ],
           [
-            69,
-            118
+            111,
+            129
           ],
           [
-            68,
-            112
+            111,
+            132
           ],
           [
-            68,
-            115
+            112,
+            126
           ],
           [
-            71,
-            106
+            112,
+            135
           ],
           [
-            74,
-            104
+            111,
+            128
           ],
           [
-            70,
-            107
+            111,
+            133
           ],
           [
-            68,
-            111
+            116,
+            122
           ],
           [
-            68,
-            116
+            120,
+            121
           ],
           [
-            70,
-            120
+            119,
+            121
           ],
           [
-            72,
-            105
+            121,
+            121
           ],
           [
-            78,
-            103
+            113,
+            124
           ],
           [
-            77,
-            103
+            113,
+            137
           ],
           [
-            79,
-            103
+            114,
+            123
           ],
           [
-            69,
-            108
+            114,
+            138
           ],
           [
-            69,
-            119
+            111,
+            127
           ],
           [
-            68,
-            110
+            111,
+            134
           ],
           [
-            68,
-            117
+            118,
+            121
           ],
           [
-            76,
-            103
+            112,
+            125
           ],
           [
-            73,
-            104
+            112,
+            136
           ],
           [
-            75,
-            103
+            115,
+            122
           ],
           [
-            70,
-            106
+            117,
+            121
           ],
           [
-            68,
-            109
+            110,
+            130
           ],
           [
-            68,
-            118
+            110,
+            131
           ],
           [
-            71,
-            105
+            111,
+            126
           ],
           [
-            69,
-            107
+            111,
+            135
           ],
           [
-            74,
-            103
+            110,
+            129
           ],
           [
-            72,
-            104
+            110,
+            132
           ],
           [
-            68,
-            108
+            113,
+            123
           ]
         ]
       }
@@ -7243,10 +7055,10 @@
     },
     {
       "place": {
-        "rotation": 0,
+        "rotation": 90,
         "type": "brewery",
-        "x": 60,
-        "y": 151
+        "x": 140,
+        "y": 98
       }
     },
     {
@@ -7256,42 +7068,50 @@
     },
     {
       "place": {
-        "rotation": 0,
+        "rotation": 90,
         "type": "leather_works",
-        "x": 117,
-        "y": 127
+        "x": 151,
+        "y": 123
+      }
+    },
+    {
+      "road": {
+        "from": [
+          150,
+          123
+        ],
+        "to": [
+          150,
+          123
+        ],
+        "type": "road_dirt"
       }
     },
     {
       "place": {
-        "rotation": 0,
+        "rotation": 90,
         "type": "tailor",
-        "x": 57,
-        "y": 146
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
+        "x": 135,
+        "y": 98
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "lumberjack",
-        "x": 115,
-        "y": 149
+        "x": 177,
+        "y": 132
       }
     },
     {
       "road": {
         "from": [
-          113,
-          154
+          176,
+          136
         ],
         "to": [
-          115,
-          154
+          177,
+          136
         ],
         "type": "road_dirt"
       }
@@ -7299,66 +7119,83 @@
     {
       "road": {
         "from": [
-          115,
-          152
+          177,
+          135
         ],
         "to": [
-          115,
-          153
+          177,
+          135
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "paper_mill",
-        "x": 56,
-        "y": 151
-      }
-    },
-    {
-      "road": {
-        "from": [
-          56,
-          146
-        ],
-        "to": [
-          56,
-          150
-        ],
-        "type": "road_dirt"
+        "x": 130,
+        "y": 100
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "printing_press",
-        "x": 88,
-        "y": 98
+        "x": 118,
+        "y": 159
       }
     },
     {
       "road": {
         "from": [
-          81,
-          98
+          121,
+          164
         ],
         "to": [
-          87,
-          98
+          121,
+          167
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {

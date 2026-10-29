@@ -64,7 +64,7 @@ func skeleton(r *rng, arms int) []*bone {
 		side := 1 - 2*r.intn(2)
 		d := heading + 16*h + side*r.between(6, 10)
 		b := &bone{arm: true, half: h, root: root}
-		rr := trunk.r[root] * r.between(60, 80) / 100
+		rr := trunk.r[root] * r.between(50, 70) / 100
 		b.add(trunk.x[root], trunk.y[root], rr)
 		length := r.between(300, 450)
 		segs := 3
@@ -170,11 +170,10 @@ func stamp(v []int, n, x0, y0, x1, y1, v0, v1 int) {
 	}
 }
 
-// boneField returns the weighted distance field of the skeleton: for
-// every tile the largest (radius - distance) over the bones' points, in
-// thirds of a tile (positive inside the discs).
-func boneField(bones []*bone, n int) []int {
-	v := make([]int, n*n)
+// boneFieldInto writes the weighted distance field of the skeleton into
+// v (n x n): for every tile the largest (radius - distance) over the
+// bones' points, in thirds of a tile (positive inside the discs).
+func boneFieldInto(v []int, bones []*bone, n int) []int {
 	for i := range v {
 		v[i] = chamferInf
 	}

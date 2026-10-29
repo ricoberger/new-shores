@@ -43,10 +43,18 @@ const (
 	cliffMaxPct  = 25
 	level2MinPct = 0
 	level2MaxPct = 20
-	// landTargetMinPct and landTargetMaxPct bound the land share of the
-	// extent a skeleton shape is cut at (before smoothing).
+	// outlineMinPct and outlineMaxPct bound the land share of the extent
+	// the skeleton's outline is cut at; landTargetMinPct and
+	// landTargetMaxPct the share it grows to along the bones (before
+	// smoothing); armReachPct is the most (percent of the size) the
+	// bones run on past their tips to grow it, at armTipPct of the tip's
+	// radius.
+	outlineMinPct    = 50
+	outlineMaxPct    = 56
 	landTargetMinPct = 57
 	landTargetMaxPct = 63
+	armReachPct      = 20
+	armTipPct        = 60
 	// habLandMinPct and habLandMaxPct bound the land share after
 	// smoothing and the coast detail.
 	habLandMinPct = 48
@@ -60,40 +68,57 @@ const (
 // islets and the deposit slots.
 func habitable(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scratch) *grid {
 	size, sh := sc.Size, sc.Shape
-	n := size + 2*islandPad
+	// The skeleton fills the extent of size tiles; the bones may run on
+	// past it by up to reach tiles on every side.
+	reach := size * armReachPct / 100
+	n := size + 2*islandPad + 2*reach
 	g := newGrid(n, s)
 	g.pad = islandPad
 	bones := skeleton(r, r.between(sh.Arms.Min, sh.Arms.Max))
 	warp := max(1, size*12/100)
-	fit(bones, size, islandPad, size*8/100)
-	field := boneField(bones, n)
-	g.carveBays(r, bones, field, size)
+	fit(bones, size, islandPad+reach, size*8/100)
+	bays := g.carveBays(r, bones, size)
 	wx := newNoise(r, n, max(4, size/4), warp)
 	wy := newNoise(r, n, max(4, size/4), warp)
 	detail := newFBM(r, n, max(4, size/4), max(3, size*3*14/100), 5)
-	zone := 46 // octagon radius, percent of size
-	// The land is the target share of the extent with the highest values
-	// (warped skeleton field plus detail noise).
+	// The outline is the outlineMinPct..outlineMaxPct share of the extent
+	// with the highest values (warped skeleton field plus detail noise);
+	// the land grows from there to the landTarget share along the
+	// bones: arms and trunk halves run on past their tips, the cut value
+	// stays, so the body does not swell into a disc.
 	vals := make([]int, len(g.t))
-	var sorted []int
+	sorted := make([]int, 0, size*size)
+	lb := g.newLandBase(wx, wy, detail)
+	g.landValues(vals, bones, 0, bays, lb, size)
 	for y := g.pad; y < n-g.pad; y++ {
-		for x := g.pad; x < n-g.pad; x++ {
-			sx := min(max(x+wx.smooth(x, y), 0), n-1)
-			sy := min(max(y+wy.smooth(x, y), 0), n-1)
-			// The coast curves away from the extent's border instead of
-			// running along it: a penalty outside an octagon.
-			ax, ay := abs(2*x-2*g.pad-size+1)/2, abs(2*y-2*g.pad-size+1)/2
-			oct := max(ax, ay) + min(ax, ay)/2
-			pen := 0
-			if over := oct - size*zone/100; over > 0 {
-				pen = over * over * 3 * 2 / max(1, size/16)
-			}
-			vals[y*n+x] = field[sy*n+sx] + detail.at(x, y) - pen
-			sorted = append(sorted, vals[y*n+x])
-		}
+		sorted = append(sorted, vals[y*n+g.pad:y*n+n-g.pad]...)
 	}
 	slices.Sort(sorted)
-	cut := sorted[len(sorted)-1-size*size*r.between(landTargetMinPct, landTargetMaxPct)/100]
+	cut := sorted[len(sorted)-1-size*size*r.between(outlineMinPct, outlineMaxPct)/100]
+	want := size * size * r.between(landTargetMinPct, landTargetMaxPct) / 100
+	count := func() int {
+		c := 0
+		for y := g.pad; y < n-g.pad; y++ {
+			for _, v := range vals[y*n+g.pad : y*n+n-g.pad] {
+				if v > cut {
+					c++
+				}
+			}
+		}
+		return c
+	}
+	// Binary search of the run past the tips (tile units x16).
+	lo, hi := 0, reach*16
+	for lo < hi {
+		mid := (lo + hi) / 2
+		g.landValues(vals, bones, mid, bays, lb, size)
+		if count() >= want {
+			hi = mid
+		} else {
+			lo = mid + 1
+		}
+	}
+	g.landValues(vals, bones, lo, bays, lb, size)
 	for y := g.pad; y < n-g.pad; y++ {
 		for x := g.pad; x < n-g.pad; x++ {
 			if vals[y*n+x] > cut {
@@ -112,6 +137,9 @@ func habitable(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scr
 		if land > area*habLandMaxPct/100 {
 			g.s.reject = "area>"
 		}
+		return nil
+	}
+	if size >= ridgeLargeSize && !g.outlineOK() {
 		return nil
 	}
 	dist := g.waterDistance(4)
@@ -164,18 +192,23 @@ func habitable(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scr
 	return g
 }
 
-// carveBays cuts 1-3 round bays into the field (D-058 part 1: lobed coasts):
-// discs centred on the extent's border between the skeleton's tips, the
-// field capped at the distance to the disc's rim.
-func (g *grid) carveBays(r *rng, bones []*bone, field []int, size int) {
+// carveBays returns the cap of 1-3 round bays (D-058 part 1: lobed
+// coasts): discs centred on the extent's border between the skeleton's
+// tips; the field is capped at the distance to the nearest disc's rim.
+func (g *grid) carveBays(r *rng, bones []*bone, size int) []int {
 	n := g.n
-	mid := (2*g.pad + size) * 8 // x16
+	field := make([]int, n*n)
+	for i := range field {
+		field[i] = chamferInf
+	}
+	mid := g.n * 8 // x16
 	var tips []int
 	for _, b := range bones {
 		x, y := b.last()
 		tips = append(tips, angle32(x-mid, y-mid))
 	}
 	bays := r.between(1, 3)
+	v := make([]int, n*n)
 	for range bays {
 		var d int
 		ok := false
@@ -199,7 +232,6 @@ func (g *grid) carveBays(r *rng, bones []*bone, field []int, size int) {
 		reach := size * 8 * r.between(85, 105) / 100 // x16: from the centre
 		cx, cy := (mid+dx*reach/1024)>>4, (mid+dy*reach/1024)>>4
 		rad := size * r.between(14, 24) / 100
-		v := make([]int, n*n)
 		for i := range v {
 			v[i] = chamferInf
 		}
@@ -209,6 +241,69 @@ func (g *grid) carveBays(r *rng, bones []*bone, field []int, size int) {
 		chamfer(v, n)
 		for i := range field {
 			field[i] = min(field[i], v[i])
+		}
+	}
+	return field
+}
+
+// landBase holds the per-tile parts of the land value that do not depend
+// on the bones' run: the domain-warped source tile, the detail noise and
+// the octagon distance from the working grid's centre.
+type landBase struct {
+	src, detail, oct []int
+	// field is the work buffer of the skeleton field.
+	field []int
+}
+
+// newLandBase computes the landBase of the working grid's inner tiles
+// (domain warp (wx, wy), detail noise).
+func (g *grid) newLandBase(wx, wy *noise, detail fbm) *landBase {
+	n := g.n
+	lb := &landBase{src: make([]int, n*n), detail: make([]int, n*n), oct: make([]int, n*n), field: make([]int, n*n)}
+	for y := g.pad; y < n-g.pad; y++ {
+		for x := g.pad; x < n-g.pad; x++ {
+			i := y*n + x
+			sx := min(max(x+wx.smooth(x, y), 0), n-1)
+			sy := min(max(y+wy.smooth(x, y), 0), n-1)
+			lb.src[i] = sy*n + sx
+			lb.detail[i] = detail.at(x, y)
+			ax, ay := abs(2*x-n+1)/2, abs(2*y-n+1)/2
+			lb.oct[i] = max(ax, ay) + min(ax, ay)/2
+		}
+	}
+	return lb
+}
+
+// landValues fills vals with the land value of the working grid's
+// tiles: the skeleton field of bones that run on past their tips by run
+// (tile units x16, tapering), capped by the bays, domain warped, plus
+// detail noise, minus the penalty outside an octagon (the coast curves
+// away from the extent's border; the octagon grows with the run).
+func (g *grid) landValues(vals []int, bones []*bone, run int, bays []int, lb *landBase, size int) {
+	n := g.n
+	grown := make([]*bone, len(bones))
+	for k, b := range bones {
+		c := *b
+		c.x, c.y, c.r = slices.Clone(b.x), slices.Clone(b.y), slices.Clone(b.r)
+		if m := len(c.x); run > 0 && m >= 2 {
+			dx, dy := c.x[m-1]-c.x[m-2], c.y[m-1]-c.y[m-2]
+			l := max(1, isqrt(dx*dx+dy*dy))
+			c.add(c.x[m-1]+dx*run/l, c.y[m-1]+dy*run/l, c.r[m-1]*armTipPct/100)
+		}
+		grown[k] = &c
+	}
+	field := boneFieldInto(lb.field, grown, n)
+	zone := size*46/100 + run/16 // octagon radius: 46 % of size
+	pw := max(1, size/16)
+	for y := g.pad; y < n-g.pad; y++ {
+		for x := g.pad; x < n-g.pad; x++ {
+			i := y*n + x
+			pen := 0
+			if over := lb.oct[i] - zone; over > 0 {
+				pen = over * over * 3 * 2 / pw
+			}
+			src := lb.src[i]
+			vals[i] = min(field[src], bays[src]) + lb.detail[i] - pen
 		}
 	}
 }
@@ -436,11 +531,17 @@ func (g *grid) ridge(r *rng, bones []*bone, size, land int) bool {
 		count++
 	}
 	// Short spurs of one or two tiles off the foot.
+	var feet []int
+	for i := range g.t {
+		if g.edgeMountain(i) {
+			feet = append(feet, i)
+		}
+	}
 	for range land / 300 {
-		i, ok := g.pick(r, func(i int) bool { return g.edgeMountain(i) })
-		if !ok {
+		if len(feet) == 0 {
 			break
 		}
+		i := feet[r.intn(len(feet))]
 		d := dirs4()[r.intn(4)]
 		x, y := i%n, i/n
 		for k := 1; k <= r.between(1, 2); k++ {

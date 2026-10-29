@@ -180,6 +180,9 @@ type islandStats struct {
 	// diagonal) in percent of the island's span; isletMax the largest
 	// islet.
 	cliffShore, beachShore, riverReach, isletMax int
+	// bay and pen are the deepest bay and the longest peninsula, percent
+	// of the span (outlineOf).
+	bay, pen int
 }
 
 func statsOf(is *sim.Island) islandStats {
@@ -226,6 +229,13 @@ func statsOf(is *sim.Island) islandStats {
 		}
 	}
 	span := max(x1-x0, y1-y0) + 1
+	land := make([]bool, len(is.Tiles))
+	for i, t := range is.Tiles {
+		land[i] = t.Terrain != content.TerrainWater && t.Terrain != content.TerrainIslet
+	}
+	if sp, bay, pen := outlineOf(land, is.Width, is.Height); sp > 0 {
+		s.bay, s.pen = bay*100/sp, pen*100/sp
+	}
 	s.riverReach = -1
 	for _, comp := range islandComponents(is, content.TerrainRiver) {
 		bx0, by0, bx1, by1 := is.Width, is.Height, 0, 0
@@ -359,7 +369,7 @@ func renderIsland(is *sim.Island, c *content.Catalogue) *image.RGBA {
 	ink := color.RGBA{30, 30, 30, 255}
 	y0 := is.Height*s + 6
 	drawText(img, 6, y0, 2, ink, fmt.Sprintf("%s %s %s %dX%d", is.ID, strings.ToUpper(is.Name), strings.ToUpper(is.SizeClass), is.Width, is.Height))
-	drawText(img, 6, y0+14, 2, ink, fmt.Sprintf("BUILD %d PLAIN %d RIV %d ISL %d MTN %d CLIFF %d LV %d/%d/%d", st.buildable, st.plain, st.rivers, st.islets, st.mountain, st.cliff, st.levels[0], st.levels[1], st.levels[2]))
+	drawText(img, 6, y0+14, 2, ink, fmt.Sprintf("BUILD %d PLAIN %d RIV %d ISL %d MTN %d CLIFF %d LV %d/%d/%d BAY %d PEN %d", st.buildable, st.plain, st.rivers, st.islets, st.mountain, st.cliff, st.levels[0], st.levels[1], st.levels[2], st.bay, st.pen))
 	return img
 }
 
@@ -461,6 +471,7 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 		mtnMin, mtnMax                     int // percent of land
 		shoreMin, shoreMax, cliffShore     int // cliff share of the shore, percent
 		shoreSum, reachMin, isletMax       int
+		bays, pens                         []int
 		level2                             map[int]int // level-2 share of land, by tens of percent
 	}
 	per := map[string]*agg{}
@@ -516,6 +527,7 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 				g.reachMin = st.riverReach
 			}
 			g.isletMax = max(g.isletMax, st.isletMax)
+			g.bays, g.pens = append(g.bays, st.bay), append(g.pens, st.pen)
 			g.level2[10*st.levels[2]/max(1, st.levels[0]+st.levels[1]+st.levels[2])*10]++
 		}
 	}
@@ -571,6 +583,10 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 			float64(sum)/float64(max(1, len(tries)-fails)), worst, fails, len(tries))
 		t.Logf("%-6s mountain+cliff %d-%d%% of land | cliff shore %d-%d%% (mean %d%%) | shortest river reach %d%% of span | largest islet %d | level-2 share histogram (%%) %v",
 			sc.ID, g.mtnMin, g.mtnMax, g.shoreMin, g.shoreMax, 100*g.cliffShore/max(1, g.shoreSum), g.reachMin, g.isletMax, g.level2)
+		slices.Sort(g.bays)
+		slices.Sort(g.pens)
+		q := func(v []int) string { return fmt.Sprintf("%d/%d/%d", v[0], v[len(v)/2], v[len(v)-1]) }
+		t.Logf("%-6s deepest bay %s%% of span (min/median/max) | longest peninsula %s%%", sc.ID, q(g.bays), q(g.pens))
 	}
 }
 

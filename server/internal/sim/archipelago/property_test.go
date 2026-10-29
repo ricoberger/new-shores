@@ -158,7 +158,7 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 // and 0 on beaches; cliffs on the coast ring (next to the sea); deposits
 // on mountain tiles at the foot (next to buildable land); two disjoint
 // Trading Post sites and a shipyard site that reach the plain by land or
-// bridges.
+// bridges; large and medium islands keep a bay and a peninsula.
 func checkShape(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Island, sc *content.SizeClass) {
 	t.Helper()
 	fail := func(format string, args ...any) {
@@ -168,6 +168,16 @@ func checkShape(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Island,
 	sh := sc.Shape
 	if p := largestSquare(is); p < sh.Plain {
 		fail("largest plain %d, want %d", p, sh.Plain)
+	}
+	if sc.Size >= ridgeLargeSize {
+		land := make([]bool, len(is.Tiles))
+		for i, tl := range is.Tiles {
+			land[i] = tl.Terrain != content.TerrainWater && tl.Terrain != content.TerrainIslet
+		}
+		span, bay, pen := outlineOf(land, is.Width, is.Height)
+		if bay*100 < span*bayMinPct || pen*100 < span*peninsulaMinPct {
+			fail("bay %d%%, peninsula %d%% of the span, want %d%% and %d%%", bay*100/span, pen*100/span, bayMinPct, peninsulaMinPct)
+		}
 	}
 	if n := components(is, content.TerrainRiver); !sh.Rivers.Contains(n) {
 		fail("%d rivers, want %v", n, sh.Rivers)

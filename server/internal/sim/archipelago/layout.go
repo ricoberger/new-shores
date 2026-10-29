@@ -16,8 +16,63 @@ func Gap2(a, b *sim.Island) int {
 	return dx*dx + dy*dy
 }
 
-// layoutTries bounds the candidate positions per island.
-const layoutTries = 400
+// layoutTries bounds the candidate positions per island; layoutRounds is
+// the number of layouts tried, the one with the home candidate closest
+// to the archipelago's centre (next to the start ship's spawn) and to its
+// nearest neighbour wins.
+const (
+	layoutTries  = 400
+	layoutRounds = 32
+)
+
+// layout runs layoutRounds layouts (layoutOnce) and keeps the one with
+// the least sum of the distance of the home candidate's (islands[0])
+// centre to the centre of the bounds and the leg (origin to origin) to
+// its nearest habitable neighbour.
+func layout(r *rng, islands []*sim.Island, rules *content.IslandRules) error {
+	best := -1
+	var keep [][2]int
+	var err error
+	for range layoutRounds {
+		if err = layoutOnce(r, islands, rules); err != nil {
+			continue
+		}
+		_, _, maxX, maxY := Bounds(islands)
+		h := islands[0]
+		dx, dy := 2*h.X+h.Width-maxX, 2*h.Y+h.Height-maxY
+		// The nearest habitable neighbour (by gap) and the leg to it.
+		gap, near := 1<<30, -1
+		for k, o := range islands[1:] {
+			if sc := rules.SizeClassByID[o.SizeClass]; sc != nil && sc.Rock {
+				continue
+			}
+			if g := Gap2(h, o); g < gap {
+				gap, near = g, k+1
+			}
+		}
+		far := 0
+		if near > 0 {
+			// Legs run between the islands' origins (sim.TravelMs).
+			ex, ey := islands[near].X-h.X, islands[near].Y-h.Y
+			far = isqrt(ex*ex + ey*ey)
+		}
+		d := isqrt(dx*dx+dy*dy)/2 + far
+		if best < 0 || d < best {
+			best = d
+			keep = keep[:0]
+			for _, is := range islands {
+				keep = append(keep, [2]int{is.X, is.Y})
+			}
+		}
+	}
+	if best < 0 {
+		return err
+	}
+	for i, is := range islands {
+		is.X, is.Y = keep[i][0], keep[i][1]
+	}
+	return nil
+}
 
 // layout places the islands (the home candidate, then the largest first)
 // one by one next to a
@@ -26,7 +81,7 @@ const layoutTries = 400
 // anchor, so every island has a neighbour in reach; of up to eight valid
 // candidates the one closest to the current centre wins (a compact
 // archipelago). Positions are then shifted so the bounds start at (0, 0).
-func layout(r *rng, islands []*sim.Island, rules *content.IslandRules) error {
+func layoutOnce(r *rng, islands []*sim.Island, rules *content.IslandRules) error {
 	order := make([]int, len(islands))
 	for i := range order {
 		order[i] = i
