@@ -1,9 +1,9 @@
 {
   "scenario": "manual_shipment_excess",
   "base": {
-    "evaluated_at": "2026-01-01T00:06:40.000Z",
+    "evaluated_at": "2026-01-01T00:07:11.606Z",
     "next_change_at": "2026-01-01T11:17:00.000Z",
-    "gold": 670333,
+    "gold": 669806,
     "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 1000,
@@ -638,15 +638,15 @@
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T00:04:50.000Z"
+    "last_seen_at": "2026-01-01T00:05:10.000Z"
   },
   "samples": [
     {
       "offset_ms": 250,
       "display": {
-        "evaluated_at": "2026-01-01T00:06:40.250Z",
+        "evaluated_at": "2026-01-01T00:07:11.856Z",
         "next_change_at": "2026-01-01T11:17:00.000Z",
-        "gold": 670329,
+        "gold": 669802,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -1281,15 +1281,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:04:50.000Z"
+        "last_seen_at": "2026-01-01T00:05:10.000Z"
       }
     },
     {
       "offset_ms": 1000,
       "display": {
-        "evaluated_at": "2026-01-01T00:06:41.000Z",
+        "evaluated_at": "2026-01-01T00:07:12.606Z",
         "next_change_at": "2026-01-01T11:17:00.000Z",
-        "gold": 670316,
+        "gold": 669789,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -1924,15 +1924,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:04:50.000Z"
+        "last_seen_at": "2026-01-01T00:05:10.000Z"
       }
     },
     {
       "offset_ms": 5000,
       "display": {
-        "evaluated_at": "2026-01-01T00:06:45.000Z",
+        "evaluated_at": "2026-01-01T00:07:16.606Z",
         "next_change_at": "2026-01-01T11:17:00.000Z",
-        "gold": 670250,
+        "gold": 669723,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -2567,15 +2567,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:04:50.000Z"
+        "last_seen_at": "2026-01-01T00:05:10.000Z"
       }
     },
     {
       "offset_ms": 30000,
       "display": {
-        "evaluated_at": "2026-01-01T00:07:10.000Z",
+        "evaluated_at": "2026-01-01T00:07:41.606Z",
         "next_change_at": "2026-01-01T11:17:00.000Z",
-        "gold": 669833,
+        "gold": 669306,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -3210,15 +3210,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:04:50.000Z"
+        "last_seen_at": "2026-01-01T00:05:10.000Z"
       }
     },
     {
       "offset_ms": 300000,
       "display": {
-        "evaluated_at": "2026-01-01T00:11:40.000Z",
+        "evaluated_at": "2026-01-01T00:12:11.606Z",
         "next_change_at": "2026-01-01T11:17:00.000Z",
-        "gold": 665333,
+        "gold": 664806,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -3853,7 +3853,7 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:04:50.000Z"
+        "last_seen_at": "2026-01-01T00:05:10.000Z"
       }
     }
   ]

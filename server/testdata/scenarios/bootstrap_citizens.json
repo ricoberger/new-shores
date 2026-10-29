@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_citizens",
-  "description": "Tier-1/2 reference game (balancing pass, golden t) on the generated dev archipelago of seed 1053001 with the D-054 content (island 2 is the nearest island with iron) from the content starting stock only, the start sloop sailing from its spawn: a settler town grown house by house from three plank chains with an early chapel (services: market and chapel, D-056), the start sloop settling island 2 with 40 planks before a shipyard and a second sloop, wool for the Citizens unlock, a quarry on the start island's stone deposits for the first Citizen house, and the Settler-staffed tool chain on island 2 (iron deposits) supplied by a route that brings stone and planks out and tools home. The player builds in plan order as soon as gold and materials allow (waiting in whole minutes; buildings at the nearest site a road reaches, off the forest, lumberjacks only where they work at full efficiency, pastures painted with one drag), keeps planks for the next planned building, and fills the remaining planks with settler houses (at most 40, at most 22 per fisher); no pauses, demolitions or micro-timing. Island 2 is founded at minute 51, the Citizens unlock by 35, the first Citizen house stands at minute 90 and tools reach the start island by 132.",
+  "description": "Tier-1/2 reference game (balancing pass, golden t) on the generated dev archipelago of seed 1053001 with the D-054 content (island 2 is the nearest island with iron) from the content starting stock only, the start sloop sailing from its spawn: a settler town grown house by house from three plank chains with an early chapel (services: market and chapel, D-056), the start sloop settling island 2 with 40 planks before a shipyard and a second sloop, wool for the Citizens unlock, a quarry on the start island's stone deposits for the first Citizen house, and the Settler-staffed tool chain on island 2 (iron deposits) supplied by a route that brings stone and planks out and tools home. The player builds in plan order as soon as gold and materials allow (waiting in whole minutes; buildings at the nearest site a road reaches, off the forest, lumberjacks only where they work at full efficiency, pastures painted with one drag), keeps planks for the next planned building, and fills the remaining planks with settler houses (at most 40, at most 22 per fisher); no pauses, demolitions or micro-timing. Island 2 is founded at minute 45, the Citizens unlock by 30, the first Citizen house stands at minute 90 and tools reach the start island by 139.",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
     "archipelago": 1053001,
@@ -11,26 +11,6 @@
       "sail_ship": {
         "ship": 1,
         "to": "isle-01"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -801,6 +781,24 @@
     {
       "place": {
         "rotation": 0,
+        "type": "lumberjack",
+        "x": 168,
+        "y": 129
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
         "type": "house_settlers",
         "x": 146,
         "y": 141
@@ -830,24 +828,6 @@
           145
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "lumberjack",
-        "x": 168,
-        "y": 129
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -895,11 +875,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
@@ -913,9 +888,14 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "rotation": 0,
-        "type": "house_settlers",
+        "type": "chapel",
         "x": 165,
         "y": 146
       }
@@ -926,9 +906,14 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "rotation": 0,
-        "type": "chapel",
+        "type": "house_settlers",
         "x": 140,
         "y": 151
       }
@@ -952,11 +937,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
@@ -970,16 +950,16 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
         "x": 140,
         "y": 147
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1131,11 +1111,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
@@ -1154,19 +1129,6 @@
           138
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 143,
-        "y": 140
       }
     },
     {
@@ -1238,6 +1200,42 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 143,
+        "y": 140
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 162,
+        "y": 139
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "rotation": 270,
         "type": "shipyard",
@@ -1279,11 +1277,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "order_ship": {
         "ship_type": "sloop",
         "x": 129,
@@ -1301,31 +1294,36 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "rotation": 0,
         "type": "sheep_farm",
-        "x": 162,
-        "y": 139
+        "x": 165,
+        "y": 142
       }
     },
     {
       "fields": {
         "farm": [
-          162,
-          139
+          165,
+          142
         ],
         "tiles": [
           [
-            165,
-            140
+            168,
+            142
           ],
           [
-            165,
-            137
+            166,
+            139
           ],
           [
-            162,
-            136
+            169,
+            139
           ]
         ]
       }
@@ -1333,6 +1331,14 @@
     {
       "advance": {
         "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 156,
+        "y": 136
       }
     },
     {
@@ -1344,25 +1350,7 @@
       "place": {
         "rotation": 90,
         "type": "weaver_wool",
-        "x": 156,
-        "y": 136
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 153,
+        "x": 152,
         "y": 135
       }
     },
@@ -1372,10 +1360,15 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 150,
+        "x": 149,
         "y": 135
       }
     },
@@ -1398,6 +1391,16 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "rotation": 0,
         "type": "quarry",
@@ -1412,7 +1415,7 @@
           97
         ],
         "to": [
-          146,
+          140,
           97
         ],
         "type": "road_dirt"
@@ -1421,64 +1424,7 @@
     {
       "road": {
         "from": [
-          146,
-          106
-        ],
-        "to": [
-          149,
-          106
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          146,
-          98
-        ],
-        "to": [
-          146,
-          105
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          149,
-          107
-        ],
-        "to": [
-          149,
-          137
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 138,
-        "y": 144
-      }
-    },
-    {
-      "road": {
-        "from": [
-          141,
+          140,
           146
         ],
         "to": [
@@ -1486,6 +1432,24 @@
           146
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          140,
+          98
+        ],
+        "to": [
+          140,
+          145
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1557,6 +1521,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "rotation": 0,
         "type": "weaver_wool",
@@ -1583,45 +1552,19 @@
       "place": {
         "rotation": 0,
         "type": "sheep_farm",
-        "x": 140,
-        "y": 140
+        "x": 143,
+        "y": 137
       }
     },
     {
       "road": {
         "from": [
-          145,
+          141,
           137
         ],
         "to": [
-          148,
-          137
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
           142,
-          139
-        ],
-        "to": [
-          145,
-          139
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          145,
-          138
-        ],
-        "to": [
-          145,
-          138
+          137
         ],
         "type": "road_dirt"
       }
@@ -1629,21 +1572,21 @@
     {
       "fields": {
         "farm": [
-          140,
-          140
+          143,
+          137
         ],
         "tiles": [
           [
-            137,
-            141
+            146,
+            135
           ],
           [
-            139,
-            137
+            143,
+            134
           ],
           [
-            142,
-            136
+            146,
+            132
           ]
         ]
       }
@@ -1662,8 +1605,8 @@
       "place": {
         "rotation": 0,
         "type": "weaver_wool",
-        "x": 168,
-        "y": 141
+        "x": 137,
+        "y": 143
       }
     },
     {
@@ -1708,6 +1651,11 @@
           145
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1926,11 +1874,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "rotation": 0,
@@ -1964,6 +1907,11 @@
         "type": "charcoal_burner",
         "x": 205,
         "y": 116
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -2181,6 +2129,16 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-02",
         "rotation": 90,
@@ -2259,6 +2217,31 @@
         "type": "toolmaker",
         "x": 211,
         "y": 101
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {

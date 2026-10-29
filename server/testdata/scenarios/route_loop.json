@@ -1,6 +1,6 @@
 {
   "name": "route_loop",
-  "description": "(p) A route carries wood from the start island (lumberjack running) to island 2 and planks back; loop time 2 x 38 s handling (10 s + 140 units x 0.2 s) + 2 x 60 s travel = 196 s; three loops; goods are conserved exactly across both islands and the cargo aboard.",
+  "description": "(p) A route carries wood from the start island (lumberjack running) to island 2 and planks back; loop time 2 x 38 s handling (10 s + 140 units x 0.2 s) + 70.017 s + 71.606 s travel between the harbours around the start island's west end (D-058 \u00a75) = 217.623 s; three loops; goods are conserved exactly across both islands and the cargo aboard.",
   "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
@@ -112,7 +112,7 @@
     },
     {
       "advance": {
-        "duration": "1m20s"
+        "duration": "1m35s"
       }
     },
     {
@@ -164,17 +164,17 @@
     },
     {
       "advance": {
-        "duration": "3m16s"
+        "duration": "3m37.623s"
       }
     },
     {
       "advance": {
-        "duration": "3m16s"
+        "duration": "3m37.623s"
       }
     },
     {
       "advance": {
-        "duration": "3m16s"
+        "duration": "3m37.623s"
       }
     }
   ]

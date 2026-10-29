@@ -231,7 +231,8 @@ func routeLoopMs(w *World, c *content.Catalogue, r *Route) int64 {
 		total += c.Region.Rules.ShipHandlingBaseMs
 		a, b := w.Island(st.IslandID), w.Island(r.Stops[(i+1)%len(r.Stops)].IslandID)
 		if a != nil && b != nil && a != b {
-			total += travelMs(c, 1000, a, b)
+			_, ms := travel(w, c, 1000, a, b)
+			total += ms
 		}
 	}
 	return total

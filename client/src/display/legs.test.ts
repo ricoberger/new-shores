@@ -4,12 +4,13 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { DisplayState, ShipDisplay } from "../api/client";
 import { serverTimeMs } from "./extrapolate";
-import { anchorSlots, berthAnchor, type Berths, islandAnchor, type IslandPlacement, shipPlacement, spreadOffset } from "./ships";
+import { alongPath, anchorSlots, berthAnchor, type Berths, islandAnchor, type IslandPlacement, legPath, seaPoint, shipPlacement, spreadOffset } from "./ships";
 
 // Leg interpolation of the ships against the server's display
 // fixtures (TestDisplayFixtures): positions are lerps of the leg
-// timestamps between island anchors (their centres, or their first harbour
-// berths when known).
+// timestamps along the leg's path around land (D-058 §5), its ends the
+// first harbour berths when known, else the server's harbour or shore
+// points.
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
 
@@ -26,15 +27,21 @@ describe("ship placement against the server fixtures", () => {
     expect(islandAnchor(pl.get("island2")!)).toEqual({ x: 45, y: 52 });
   });
 
-  it("a manual leg: at the origin before depart_at, lerped mid-leg, at the destination after arrive_at", () => {
+  it("a manual leg: at the origin before depart_at, along the path around land, at the destination after arrive_at", () => {
     const d = fixture("ship_display");
     const ship = d.ships[0]!;
     const pl = placements(d);
     const leg = ship.leg!;
     const depart = serverTimeMs(leg.depart_at);
     const arrive = serverTimeMs(leg.arrive_at);
-    const a = islandAnchor(pl.get(leg.from_island_id)!);
-    const b = islandAnchor(pl.get(leg.to_island_id)!);
+    // Without berths the ends are the server's points: the start island's
+    // harbour and island 2's shore; the start island lies in between.
+    const path = leg.path!;
+    expect(path.length).toBeGreaterThan(2);
+    const pts = legPath(leg, pl)!;
+    expect(pts).toEqual(path.map(seaPoint));
+    const a = pts[0]!;
+    const b = pts[pts.length - 1]!;
     // Handling: exactly at the origin's anchor (R-13), whatever its slot,
     // also immediately before departure; at depart_at the lerp starts there.
     expect(shipPlacement(ship, pl, depart - 5_000)).toMatchObject({ point: a, atSea: false });
@@ -44,17 +51,26 @@ describe("ship placement against the server fixtures", () => {
     expect(Math.hypot(justAfter.x - a.x, justAfter.y - a.y)).toBeLessThan(0.01);
     const mid = shipPlacement(ship, pl, (depart + arrive) / 2)!;
     expect(mid.atSea).toBe(true);
-    expect(mid.point.x).toBeCloseTo((a.x + b.x) / 2, 6);
-    expect(mid.point.y).toBeCloseTo((a.y + b.y) / 2, 6);
-    const quarter = shipPlacement(ship, pl, depart + (arrive - depart) / 4)!;
-    expect(quarter.point.x).toBeCloseTo(a.x + (b.x - a.x) / 4, 6);
+    expect(mid).toMatchObject(alongPath(pts, 0.5));
     expect(shipPlacement(ship, pl, arrive + 60_000)).toMatchObject({ point: b, atSea: false });
-    // Heading points from the origin to the destination.
-    expect(mid.heading).toBeCloseTo(Math.atan2(b.y - a.y, b.x - a.x), 9);
-    // At the payload's evaluated_at the ship is between the two anchors.
-    const now = shipPlacement(ship, pl, serverTimeMs(d.evaluated_at))!;
-    expect(now.point.x).toBeGreaterThan(a.x);
-    expect(now.point.x).toBeLessThan(b.x);
+    // Every point of the voyage lies on one of the path's segments, never inside the start island's land (x 1..28, y 1..12).
+    for (let i = 0; i <= 50; i++) {
+      const p = shipPlacement(ship, pl, depart + ((arrive - depart) * i) / 50)!.point;
+      expect(p.x >= 1 && p.x < 29 && p.y >= 1 && p.y < 13).toBe(false);
+    }
+  });
+
+  it("alongPath: constant speed over the segments, heading of the current segment", () => {
+    const pts = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 30 },
+    ];
+    expect(alongPath(pts, 0)).toEqual({ point: { x: 0, y: 0 }, heading: 0 });
+    expect(alongPath(pts, 0.125)).toEqual({ point: { x: 5, y: 0 }, heading: 0 });
+    expect(alongPath(pts, 0.5)).toEqual({ point: { x: 10, y: 10 }, heading: Math.PI / 2 });
+    expect(alongPath(pts, 2)).toEqual({ point: { x: 10, y: 30 }, heading: Math.PI / 2 });
+    expect(alongPath([{ x: 1, y: 2 }], 0.5)).toEqual({ point: { x: 1, y: 2 }, heading: 0 });
   });
 
   it("a route ship handling cargo stays at the origin anchor until depart_at", () => {
@@ -64,7 +80,7 @@ describe("ship placement against the server fixtures", () => {
     const pl = placements(d);
     const now = serverTimeMs(d.evaluated_at);
     expect(now).toBeLessThan(serverTimeMs(ship.leg!.depart_at));
-    expect(shipPlacement(ship, pl, now)!.point).toEqual(islandAnchor(pl.get(ship.leg!.from_island_id)!));
+    expect(shipPlacement(ship, pl, now)!.point).toEqual(seaPoint(ship.leg!.path![0]!));
   });
 
   it("idle and anchored_unpaid ships are at their island's anchor plus a deterministic spread", () => {
@@ -104,7 +120,7 @@ describe("ship placement against the server fixtures", () => {
     expect(new Set(offs.map((o) => `${o.x.toFixed(3)},${o.y.toFixed(3)}`)).size).toBe(offs.length);
   });
 
-  it("with harbour berths: legs run between the first berths, idle ships lie at the following berths", () => {
+  it("with harbour berths: legs run between the first berths along the path, idle ships lie at the following berths", () => {
     const d = fixture("ship_display");
     const ship = d.ships[0]!;
     const pl = placements(d);
@@ -120,10 +136,14 @@ describe("ship placement against the server fixtures", () => {
     const depart = serverTimeMs(leg.depart_at);
     const arrive = serverTimeMs(leg.arrive_at);
     expect(shipPlacement(ship, pl, depart - 1, 0, berths)!.point).toEqual(a);
+    // The berths replace the path's ends; the waypoints stay.
+    const pts = legPath(leg, pl, berths)!;
+    expect(pts).toEqual([a, ...leg.path!.slice(1, -1).map(seaPoint), b]);
     const mid = shipPlacement(ship, pl, (depart + arrive) / 2, 0, berths)!.point;
-    expect(mid.x).toBeCloseTo((a.x + b.x) / 2, 6);
-    expect(mid.y).toBeCloseTo((a.y + b.y) / 2, 6);
+    expect(mid).toEqual(alongPath(pts, 0.5).point);
     expect(shipPlacement(ship, pl, arrive + 1, 0, berths)!.point).toEqual(b);
+    // An older payload without a path: the straight line between the berths.
+    expect(legPath({ ...leg, path: undefined }, pl, berths)).toEqual([a, b]);
     // Idle ships: slot i at berth i + 1 (the first berth is the legs' anchor), the last berth when they run out.
     const idle = { island_id: leg.from_island_id, leg: null };
     expect(shipPlacement(idle, pl, 0, 0, berths)!.point).toEqual({ x: 5.5, y: 14.5 });

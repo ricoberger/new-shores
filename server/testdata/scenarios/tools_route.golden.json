@@ -1,7 +1,7 @@
 {
   "name": "tools_route",
   "content_version": "old_coast-0.9.0",
-  "boundary_count": 111,
+  "boundary_count": 110,
   "totals": {
     "island2": {
       "charcoal": {
@@ -51,7 +51,7 @@
         "produced": 28150,
         "consumed": 0,
         "lost": 0,
-        "loaded": 25725
+        "loaded": 23489
       },
       "wood": {
         "produced": 60000,
@@ -77,7 +77,7 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "unloaded": 21363
+        "unloaded": 23489
       }
     }
   },
@@ -244,7 +244,7 @@
             "in_transit": 0
           },
           "tools": {
-            "stock": 3501,
+            "stock": 2931,
             "in_transit": 733
           },
           "wood": {
@@ -262,7 +262,7 @@
             "in_transit": 0
           },
           "tools": {
-            "stock": 3916,
+            "stock": 4486,
             "in_transit": 0
           }
         }
@@ -290,7 +290,7 @@
     {
       "step": 37,
       "at": "2026-01-01T00:35:00.000Z",
-      "boundaries": 5,
+      "boundaries": 4,
       "inventory": {
         "island2": {
           "charcoal": {
@@ -318,7 +318,7 @@
             "in_transit": 0
           },
           "tools": {
-            "stock": 417,
+            "stock": 3431,
             "in_transit": 733
           },
           "wood": {
@@ -336,7 +336,7 @@
             "in_transit": 0
           },
           "tools": {
-            "stock": 12638,
+            "stock": 13986,
             "in_transit": 0
           }
         }
@@ -357,11 +357,7 @@
         {
           "id": 1,
           "state": "on_route",
-          "route_id": 1,
-          "stop_index": 1,
-          "cargo": {
-            "tools": 4362
-          }
+          "route_id": 1
         }
       ]
     },
@@ -396,7 +392,7 @@
             "in_transit": 0
           },
           "tools": {
-            "stock": 1692,
+            "stock": 3928,
             "in_transit": 733
           },
           "wood": {
@@ -414,7 +410,7 @@
             "in_transit": 0
           },
           "tools": {
-            "stock": 21363,
+            "stock": 23489,
             "in_transit": 0
           }
         }
@@ -435,11 +431,7 @@
         {
           "id": 1,
           "state": "on_route",
-          "route_id": 1,
-          "stop_index": 1,
-          "cargo": {
-            "tools": 4362
-          }
+          "route_id": 1
         }
       ]
     }
@@ -456,7 +448,7 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:45:00.000Z",
-    "next_change_at": "2026-01-01T00:45:29.423Z",
+    "next_change_at": "2026-01-01T00:45:49.418Z",
     "gold": 8596199,
     "balance_rate_per_min": 6160,
     "tax_rate_per_min": 20160,
@@ -600,7 +592,7 @@
             "in_transit_rate_per_min": 0
           },
           "tools": {
-            "stock": 1692,
+            "stock": 3928,
             "capacity": 300000,
             "in_transit": 733,
             "rate_per_min": 1000,
@@ -2195,7 +2187,7 @@
             "in_transit_rate_per_min": 0
           },
           "tools": {
-            "stock": 21363,
+            "stock": 23489,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -2276,20 +2268,33 @@
         "state": "on_route",
         "island_id": "",
         "route_id": 1,
-        "stop_index": 1,
+        "stop_index": 0,
         "leg": {
-          "from_island_id": "island2",
+          "from_island_id": "start",
           "from_position": null,
-          "to_island_id": "start",
-          "depart_at": "2026-01-01T00:43:29.423Z",
-          "arrive_at": "2026-01-01T00:45:29.423Z"
+          "to_island_id": "island2",
+          "depart_at": "2026-01-01T00:43:38.428Z",
+          "arrive_at": "2026-01-01T00:45:49.418Z",
+          "path": [
+            {
+              "x": 75,
+              "y": 94
+            },
+            {
+              "x": -2,
+              "y": 16
+            },
+            {
+              "x": -2,
+              "y": 0
+            },
+            {
+              "x": 3,
+              "y": -2
+            }
+          ]
         },
-        "cargo": [
-          {
-            "good": "tools",
-            "amount": 4362
-          }
-        ],
+        "cargo": [],
         "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
@@ -2326,19 +2331,19 @@
         "ship_ids": [
           1
         ],
-        "loop_ms": 260000,
+        "loop_ms": 283171,
         "effects": [
           {
             "island_id": "island2",
             "good": "tools",
             "per_loop": -50000,
-            "per_min": -11538
+            "per_min": -10594
           },
           {
             "island_id": "start",
             "good": "tools",
             "per_loop": 50000,
-            "per_min": 11538
+            "per_min": 10594
           }
         ]
       }

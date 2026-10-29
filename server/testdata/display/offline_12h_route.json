@@ -1,9 +1,9 @@
 {
   "scenario": "offline_12h_route",
   "base": {
-    "evaluated_at": "2026-01-01T12:04:30.000Z",
-    "next_change_at": "2026-01-01T12:05:36.434Z",
-    "gold": 16037753,
+    "evaluated_at": "2026-01-01T12:04:45.000Z",
+    "next_change_at": "2026-01-01T12:05:53.054Z",
+    "gold": 16036503,
     "balance_rate_per_min": -4400,
     "tax_rate_per_min": 1600,
     "upkeep_rate_per_min": 6000,
@@ -895,13 +895,31 @@
         "state": "on_route",
         "island_id": "",
         "route_id": 1,
-        "stop_index": 0,
+        "stop_index": 1,
         "leg": {
-          "from_island_id": "island2",
+          "from_island_id": "start",
           "from_position": null,
-          "to_island_id": "start",
-          "depart_at": "2026-01-01T12:03:36.434Z",
-          "arrive_at": "2026-01-01T12:05:36.434Z"
+          "to_island_id": "island2",
+          "depart_at": "2026-01-01T12:03:42.773Z",
+          "arrive_at": "2026-01-01T12:05:53.054Z",
+          "path": [
+            {
+              "x": 3,
+              "y": -1
+            },
+            {
+              "x": -2,
+              "y": 1
+            },
+            {
+              "x": -2,
+              "y": 17
+            },
+            {
+              "x": 75,
+              "y": 94
+            }
+          ]
         },
         "cargo": [
           {
@@ -956,31 +974,31 @@
         "ship_ids": [
           1
         ],
-        "loop_ms": 260000,
+        "loop_ms": 279426,
         "effects": [
           {
             "island_id": "start",
             "good": "fish",
             "per_loop": 50000,
-            "per_min": 11538
+            "per_min": 10736
           },
           {
             "island_id": "start",
             "good": "planks",
             "per_loop": -50000,
-            "per_min": -11538
+            "per_min": -10736
           },
           {
             "island_id": "island2",
             "good": "fish",
             "per_loop": -50000,
-            "per_min": -11538
+            "per_min": -10736
           },
           {
             "island_id": "island2",
             "good": "planks",
             "per_loop": 50000,
-            "per_min": 11538
+            "per_min": 10736
           }
         ]
       }
@@ -1030,15 +1048,15 @@
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T00:04:30.000Z"
+    "last_seen_at": "2026-01-01T00:04:45.000Z"
   },
   "samples": [
     {
       "offset_ms": 250,
       "display": {
-        "evaluated_at": "2026-01-01T12:04:30.250Z",
-        "next_change_at": "2026-01-01T12:05:36.434Z",
-        "gold": 16037735,
+        "evaluated_at": "2026-01-01T12:04:45.250Z",
+        "next_change_at": "2026-01-01T12:05:53.054Z",
+        "gold": 16036485,
         "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
         "upkeep_rate_per_min": 6000,
@@ -1930,13 +1948,31 @@
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
-            "stop_index": 0,
+            "stop_index": 1,
             "leg": {
-              "from_island_id": "island2",
+              "from_island_id": "start",
               "from_position": null,
-              "to_island_id": "start",
-              "depart_at": "2026-01-01T12:03:36.434Z",
-              "arrive_at": "2026-01-01T12:05:36.434Z"
+              "to_island_id": "island2",
+              "depart_at": "2026-01-01T12:03:42.773Z",
+              "arrive_at": "2026-01-01T12:05:53.054Z",
+              "path": [
+                {
+                  "x": 3,
+                  "y": -1
+                },
+                {
+                  "x": -2,
+                  "y": 1
+                },
+                {
+                  "x": -2,
+                  "y": 17
+                },
+                {
+                  "x": 75,
+                  "y": 94
+                }
+              ]
             },
             "cargo": [
               {
@@ -1991,31 +2027,31 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 260000,
+            "loop_ms": 279426,
             "effects": [
               {
                 "island_id": "start",
                 "good": "fish",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10736
               },
               {
                 "island_id": "start",
                 "good": "planks",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10736
               },
               {
                 "island_id": "island2",
                 "good": "fish",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10736
               },
               {
                 "island_id": "island2",
                 "good": "planks",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10736
               }
             ]
           }
@@ -2065,15 +2101,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:04:30.000Z"
+        "last_seen_at": "2026-01-01T00:04:45.000Z"
       }
     },
     {
       "offset_ms": 1000,
       "display": {
-        "evaluated_at": "2026-01-01T12:04:31.000Z",
-        "next_change_at": "2026-01-01T12:05:36.434Z",
-        "gold": 16037680,
+        "evaluated_at": "2026-01-01T12:04:46.000Z",
+        "next_change_at": "2026-01-01T12:05:53.054Z",
+        "gold": 16036430,
         "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
         "upkeep_rate_per_min": 6000,
@@ -2965,13 +3001,31 @@
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
-            "stop_index": 0,
+            "stop_index": 1,
             "leg": {
-              "from_island_id": "island2",
+              "from_island_id": "start",
               "from_position": null,
-              "to_island_id": "start",
-              "depart_at": "2026-01-01T12:03:36.434Z",
-              "arrive_at": "2026-01-01T12:05:36.434Z"
+              "to_island_id": "island2",
+              "depart_at": "2026-01-01T12:03:42.773Z",
+              "arrive_at": "2026-01-01T12:05:53.054Z",
+              "path": [
+                {
+                  "x": 3,
+                  "y": -1
+                },
+                {
+                  "x": -2,
+                  "y": 1
+                },
+                {
+                  "x": -2,
+                  "y": 17
+                },
+                {
+                  "x": 75,
+                  "y": 94
+                }
+              ]
             },
             "cargo": [
               {
@@ -3026,31 +3080,31 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 260000,
+            "loop_ms": 279426,
             "effects": [
               {
                 "island_id": "start",
                 "good": "fish",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10736
               },
               {
                 "island_id": "start",
                 "good": "planks",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10736
               },
               {
                 "island_id": "island2",
                 "good": "fish",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10736
               },
               {
                 "island_id": "island2",
                 "good": "planks",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10736
               }
             ]
           }
@@ -3100,15 +3154,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:04:30.000Z"
+        "last_seen_at": "2026-01-01T00:04:45.000Z"
       }
     },
     {
       "offset_ms": 5000,
       "display": {
-        "evaluated_at": "2026-01-01T12:04:35.000Z",
-        "next_change_at": "2026-01-01T12:05:36.434Z",
-        "gold": 16037386,
+        "evaluated_at": "2026-01-01T12:04:50.000Z",
+        "next_change_at": "2026-01-01T12:05:53.054Z",
+        "gold": 16036136,
         "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
         "upkeep_rate_per_min": 6000,
@@ -4000,13 +4054,31 @@
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
-            "stop_index": 0,
+            "stop_index": 1,
             "leg": {
-              "from_island_id": "island2",
+              "from_island_id": "start",
               "from_position": null,
-              "to_island_id": "start",
-              "depart_at": "2026-01-01T12:03:36.434Z",
-              "arrive_at": "2026-01-01T12:05:36.434Z"
+              "to_island_id": "island2",
+              "depart_at": "2026-01-01T12:03:42.773Z",
+              "arrive_at": "2026-01-01T12:05:53.054Z",
+              "path": [
+                {
+                  "x": 3,
+                  "y": -1
+                },
+                {
+                  "x": -2,
+                  "y": 1
+                },
+                {
+                  "x": -2,
+                  "y": 17
+                },
+                {
+                  "x": 75,
+                  "y": 94
+                }
+              ]
             },
             "cargo": [
               {
@@ -4061,31 +4133,31 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 260000,
+            "loop_ms": 279426,
             "effects": [
               {
                 "island_id": "start",
                 "good": "fish",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10736
               },
               {
                 "island_id": "start",
                 "good": "planks",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10736
               },
               {
                 "island_id": "island2",
                 "good": "fish",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10736
               },
               {
                 "island_id": "island2",
                 "good": "planks",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10736
               }
             ]
           }
@@ -4135,15 +4207,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:04:30.000Z"
+        "last_seen_at": "2026-01-01T00:04:45.000Z"
       }
     },
     {
       "offset_ms": 30000,
       "display": {
-        "evaluated_at": "2026-01-01T12:05:00.000Z",
-        "next_change_at": "2026-01-01T12:05:36.434Z",
-        "gold": 16035553,
+        "evaluated_at": "2026-01-01T12:05:15.000Z",
+        "next_change_at": "2026-01-01T12:05:53.054Z",
+        "gold": 16034303,
         "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
         "upkeep_rate_per_min": 6000,
@@ -5035,13 +5107,31 @@
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
-            "stop_index": 0,
+            "stop_index": 1,
             "leg": {
-              "from_island_id": "island2",
+              "from_island_id": "start",
               "from_position": null,
-              "to_island_id": "start",
-              "depart_at": "2026-01-01T12:03:36.434Z",
-              "arrive_at": "2026-01-01T12:05:36.434Z"
+              "to_island_id": "island2",
+              "depart_at": "2026-01-01T12:03:42.773Z",
+              "arrive_at": "2026-01-01T12:05:53.054Z",
+              "path": [
+                {
+                  "x": 3,
+                  "y": -1
+                },
+                {
+                  "x": -2,
+                  "y": 1
+                },
+                {
+                  "x": -2,
+                  "y": 17
+                },
+                {
+                  "x": 75,
+                  "y": 94
+                }
+              ]
             },
             "cargo": [
               {
@@ -5096,31 +5186,31 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 260000,
+            "loop_ms": 279426,
             "effects": [
               {
                 "island_id": "start",
                 "good": "fish",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10736
               },
               {
                 "island_id": "start",
                 "good": "planks",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10736
               },
               {
                 "island_id": "island2",
                 "good": "fish",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10736
               },
               {
                 "island_id": "island2",
                 "good": "planks",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10736
               }
             ]
           }
@@ -5170,7 +5260,7 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:04:30.000Z"
+        "last_seen_at": "2026-01-01T00:04:45.000Z"
       }
     }
   ]

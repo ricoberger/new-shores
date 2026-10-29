@@ -7,7 +7,7 @@ import { shipWhere } from "../ui/ShipsPanel";
 import { founderFor, pendingFoundingStep } from "./archipelago";
 import { serverTimeMs } from "./extrapolate";
 import { waterEdgeHint, waterRows } from "./geometry";
-import { anchorSlots, berthDock, dockPoints, islandAnchor, type ModelAnchor, pierHeading, pierLayout, pierPoint, shipLengthRatio, shipPlacement } from "./ships";
+import { anchorSlots, berthDock, dockPoints, type ModelAnchor, pierHeading, pierLayout, pierPoint, seaPoint, shipLengthRatio, shipPlacement } from "./ships";
 
 // The harbour displays of D-051 against the shared fixtures: water-edge
 // ghosts (the scenario's island rows and the shipped water_tiles), ships
@@ -82,8 +82,9 @@ describe("ships at sea and at the pier", () => {
     expect(shipPlacement(s, islands, depart)).toEqual(expect.objectContaining({ point: { x: from.x + 0.5, y: from.y + 0.5 } }));
     const mid = shipPlacement(s, islands, (depart + arrive) / 2)!;
     expect(mid.atSea).toBe(true);
+    // It ends at Home's shore nearest its spawn (the server's path end; no Trading Post yet).
     const end = shipPlacement(s, islands, arrive)!;
-    expect(end.point).toEqual(islandAnchor(islands.get(s.leg!.to_island_id)!));
+    expect(end.point).toEqual(seaPoint(s.leg!.path![s.leg!.path!.length - 1]!));
     expect(shipWhere(s, depart + 1, (id) => id)).toMatch(/^arrives in/);
     // Before it sails: idle at sea at its position.
     const atSea = { ...s, state: "idle" as const, leg: null, island_id: "", position: from };

@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_citizens_quests",
-  "description": "Tier-1/2 reference game with the intro quests (golden y): the plan of bootstrap_citizens in the same order, with a claim_quest step as soon as a quest is completed (goods to the start island; the intro chain and the tier-2 quests the plan completes: shipyard and second sloop) and every wait shortened to the whole minutes the plan needs. The quest rewards are the only change; island 2 is founded at minute 32 and the first Citizen house stands at minute 71.",
+  "description": "Tier-1/2 reference game with the intro quests (golden y): the plan of bootstrap_citizens in the same order, with a claim_quest step as soon as a quest is completed (goods to the start island; the intro chain and the tier-2 quests the plan completes: shipyard and second sloop) and every wait shortened to the whole minutes the plan needs. The quest rewards are the only change; island 2 is founded at minute 30 and the first Citizen house stands at minute 71.",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
     "archipelago": 1053001,
@@ -11,26 +11,6 @@
       "sail_ship": {
         "ship": 1,
         "to": "isle-01"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -726,40 +706,6 @@
       }
     },
     {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 146,
-        "y": 141
-      }
-    },
-    {
-      "road": {
-        "from": [
-          144,
-          143
-        ],
-        "to": [
-          145,
-          143
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          144,
-          144
-        ],
-        "to": [
-          144,
-          145
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
       "advance": {
         "duration": "1m"
       }
@@ -811,8 +757,47 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
+        "x": 146,
+        "y": 141
+      }
+    },
+    {
+      "road": {
+        "from": [
+          144,
+          143
+        ],
+        "to": [
+          145,
+          143
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          144,
+          144
+        ],
+        "to": [
+          144,
+          145
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
         "x": 149,
         "y": 139
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -842,14 +827,6 @@
         "type": "house_settlers",
         "x": 143,
         "y": 159
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 165,
-        "y": 146
       }
     },
     {
@@ -886,6 +863,14 @@
       "place": {
         "rotation": 0,
         "type": "chapel",
+        "x": 165,
+        "y": 146
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
         "x": 140,
         "y": 151
       }
@@ -1074,11 +1059,8 @@
       }
     },
     {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 143,
-        "y": 140
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1140,6 +1122,22 @@
       }
     },
     {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 143,
+        "y": 140
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 162,
+        "y": 139
+      }
+    },
+    {
       "advance": {
         "duration": "1m"
       }
@@ -1198,6 +1196,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "from": [
           138,
@@ -1246,8 +1249,8 @@
       "place": {
         "rotation": 0,
         "type": "sheep_farm",
-        "x": 162,
-        "y": 139
+        "x": 165,
+        "y": 142
       }
     },
     {
@@ -1263,23 +1266,31 @@
     {
       "fields": {
         "farm": [
-          162,
-          139
+          165,
+          142
         ],
         "tiles": [
           [
-            165,
-            140
+            168,
+            142
           ],
           [
-            165,
-            137
+            166,
+            139
           ],
           [
-            162,
-            136
+            169,
+            139
           ]
         ]
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 156,
+        "y": 136
       }
     },
     {
@@ -1296,8 +1307,8 @@
       "place": {
         "rotation": 90,
         "type": "weaver_wool",
-        "x": 156,
-        "y": 136
+        "x": 152,
+        "y": 135
       }
     },
     {
@@ -1337,15 +1348,7 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 153,
-        "y": 135
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 150,
+        "x": 149,
         "y": 135
       }
     },
@@ -1372,7 +1375,7 @@
           97
         ],
         "to": [
-          146,
+          140,
           97
         ],
         "type": "road_dirt"
@@ -1381,69 +1384,35 @@
     {
       "road": {
         "from": [
-          146,
-          106
-        ],
-        "to": [
-          149,
-          106
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          146,
-          98
-        ],
-        "to": [
-          146,
-          105
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          149,
-          107
-        ],
-        "to": [
-          149,
-          137
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 138,
-        "y": 144
-      }
-    },
-    {
-      "road": {
-        "from": [
-          141,
+          140,
           146
         ],
         "to": [
           142,
           146
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          140,
+          98
+        ],
+        "to": [
+          140,
+          145
         ],
         "type": "road_dirt"
       }
@@ -1477,6 +1446,11 @@
           164
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1538,45 +1512,19 @@
       "place": {
         "rotation": 0,
         "type": "sheep_farm",
-        "x": 140,
-        "y": 140
+        "x": 143,
+        "y": 137
       }
     },
     {
       "road": {
         "from": [
-          145,
+          141,
           137
         ],
         "to": [
-          148,
-          137
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
           142,
-          139
-        ],
-        "to": [
-          145,
-          139
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          145,
-          138
-        ],
-        "to": [
-          145,
-          138
+          137
         ],
         "type": "road_dirt"
       }
@@ -1589,21 +1537,21 @@
     {
       "fields": {
         "farm": [
-          140,
-          140
+          143,
+          137
         ],
         "tiles": [
           [
-            137,
-            141
+            146,
+            135
           ],
           [
-            139,
-            137
+            143,
+            134
           ],
           [
-            142,
-            136
+            146,
+            132
           ]
         ]
       }
@@ -1622,8 +1570,8 @@
       "place": {
         "rotation": 0,
         "type": "weaver_wool",
-        "x": 168,
-        "y": 141
+        "x": 137,
+        "y": 143
       }
     },
     {
@@ -1823,6 +1771,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "from": [
           212,
@@ -1848,16 +1801,6 @@
           122
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -1937,6 +1880,16 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-02",
         "rotation": 0,
@@ -1962,6 +1915,11 @@
           58
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -2018,11 +1976,6 @@
           62
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -2065,6 +2018,11 @@
           112
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -2218,12 +2176,37 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-02",
         "rotation": 0,
         "type": "toolmaker",
         "x": 211,
         "y": 101
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {

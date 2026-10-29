@@ -73,7 +73,7 @@
     },
     {
       "step": 5,
-      "at": "2026-01-01T00:03:30.000Z",
+      "at": "2026-01-01T00:03:45.000Z",
       "boundaries": 1,
       "inventory": {
         "island2": {},
@@ -85,7 +85,7 @@
         }
       },
       "statuses": {},
-      "gold": 1173500,
+      "gold": 1173250,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -104,7 +104,7 @@
     },
     {
       "step": 11,
-      "at": "2026-01-01T00:08:30.000Z",
+      "at": "2026-01-01T00:08:45.000Z",
       "boundaries": 5,
       "inventory": {
         "island2": {
@@ -127,7 +127,7 @@
       "statuses": {
         "ok": 1
       },
-      "gold": 906126,
+      "gold": 905876,
       "balance_rate_per_min": -1200,
       "population": {
         "settlers": 8000
@@ -155,9 +155,9 @@
     }
   ],
   "final": {
-    "evaluated_at": "2026-01-01T00:08:30.000Z",
-    "next_change_at": "2026-01-01T00:09:43.000Z",
-    "gold": 906126,
+    "evaluated_at": "2026-01-01T00:08:45.000Z",
+    "next_change_at": "2026-01-01T00:09:58.000Z",
+    "gold": 905876,
     "balance_rate_per_min": -1200,
     "tax_rate_per_min": 800,
     "upkeep_rate_per_min": 2000,
@@ -1005,6 +1005,6 @@
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T00:03:30.000Z"
+    "last_seen_at": "2026-01-01T00:03:45.000Z"
   }
 }

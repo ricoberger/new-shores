@@ -2,7 +2,7 @@
   "scenario": "ship_display",
   "base": {
     "evaluated_at": "2026-01-01T00:02:30.000Z",
-    "next_change_at": "2026-01-01T00:03:20.000Z",
+    "next_change_at": "2026-01-01T00:03:31.206Z",
     "gold": 1074500,
     "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
@@ -551,7 +551,25 @@
           "from_position": null,
           "to_island_id": "island2",
           "depart_at": "2026-01-01T00:02:20.000Z",
-          "arrive_at": "2026-01-01T00:03:20.000Z"
+          "arrive_at": "2026-01-01T00:03:31.206Z",
+          "path": [
+            {
+              "x": 3,
+              "y": -1
+            },
+            {
+              "x": -2,
+              "y": 1
+            },
+            {
+              "x": -2,
+              "y": 17
+            },
+            {
+              "x": 37,
+              "y": 48
+            }
+          ]
         },
         "cargo": [
           {
@@ -623,7 +641,7 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T00:02:30.250Z",
-        "next_change_at": "2026-01-01T00:03:20.000Z",
+        "next_change_at": "2026-01-01T00:03:31.206Z",
         "gold": 1074495,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
@@ -1172,7 +1190,25 @@
               "from_position": null,
               "to_island_id": "island2",
               "depart_at": "2026-01-01T00:02:20.000Z",
-              "arrive_at": "2026-01-01T00:03:20.000Z"
+              "arrive_at": "2026-01-01T00:03:31.206Z",
+              "path": [
+                {
+                  "x": 3,
+                  "y": -1
+                },
+                {
+                  "x": -2,
+                  "y": 1
+                },
+                {
+                  "x": -2,
+                  "y": 17
+                },
+                {
+                  "x": 37,
+                  "y": 48
+                }
+              ]
             },
             "cargo": [
               {
@@ -1244,7 +1280,7 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T00:02:31.000Z",
-        "next_change_at": "2026-01-01T00:03:20.000Z",
+        "next_change_at": "2026-01-01T00:03:31.206Z",
         "gold": 1074483,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
@@ -1793,7 +1829,25 @@
               "from_position": null,
               "to_island_id": "island2",
               "depart_at": "2026-01-01T00:02:20.000Z",
-              "arrive_at": "2026-01-01T00:03:20.000Z"
+              "arrive_at": "2026-01-01T00:03:31.206Z",
+              "path": [
+                {
+                  "x": 3,
+                  "y": -1
+                },
+                {
+                  "x": -2,
+                  "y": 1
+                },
+                {
+                  "x": -2,
+                  "y": 17
+                },
+                {
+                  "x": 37,
+                  "y": 48
+                }
+              ]
             },
             "cargo": [
               {
@@ -1865,7 +1919,7 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T00:02:35.000Z",
-        "next_change_at": "2026-01-01T00:03:20.000Z",
+        "next_change_at": "2026-01-01T00:03:31.206Z",
         "gold": 1074416,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
@@ -2414,7 +2468,25 @@
               "from_position": null,
               "to_island_id": "island2",
               "depart_at": "2026-01-01T00:02:20.000Z",
-              "arrive_at": "2026-01-01T00:03:20.000Z"
+              "arrive_at": "2026-01-01T00:03:31.206Z",
+              "path": [
+                {
+                  "x": 3,
+                  "y": -1
+                },
+                {
+                  "x": -2,
+                  "y": 1
+                },
+                {
+                  "x": -2,
+                  "y": 17
+                },
+                {
+                  "x": 37,
+                  "y": 48
+                }
+              ]
             },
             "cargo": [
               {
@@ -2486,7 +2558,7 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T00:03:00.000Z",
-        "next_change_at": "2026-01-01T00:03:20.000Z",
+        "next_change_at": "2026-01-01T00:03:31.206Z",
         "gold": 1074000,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
@@ -3035,7 +3107,25 @@
               "from_position": null,
               "to_island_id": "island2",
               "depart_at": "2026-01-01T00:02:20.000Z",
-              "arrive_at": "2026-01-01T00:03:20.000Z"
+              "arrive_at": "2026-01-01T00:03:31.206Z",
+              "path": [
+                {
+                  "x": 3,
+                  "y": -1
+                },
+                {
+                  "x": -2,
+                  "y": 1
+                },
+                {
+                  "x": -2,
+                  "y": 17
+                },
+                {
+                  "x": 37,
+                  "y": 48
+                }
+              ]
             },
             "cargo": [
               {

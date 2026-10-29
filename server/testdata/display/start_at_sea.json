@@ -1,9 +1,9 @@
 {
   "scenario": "start_at_sea",
   "base": {
-    "evaluated_at": "2026-01-01T00:01:29.000Z",
+    "evaluated_at": "2026-01-01T00:01:15.000Z",
     "next_change_at": "2026-01-01T13:45:00.000Z",
-    "gold": 823516,
+    "gold": 823750,
     "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 1000,
@@ -609,26 +609,26 @@
       "completed": [
         {
           "id": "intro_home_island",
-          "completed_at": "2026-01-01T00:00:29.000Z",
+          "completed_at": "2026-01-01T00:00:15.000Z",
           "claimed": true
         },
         {
           "id": "intro_first_road",
-          "completed_at": "2026-01-01T00:00:29.000Z",
+          "completed_at": "2026-01-01T00:00:15.000Z",
           "claimed": false
         }
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T00:00:29.000Z"
+    "last_seen_at": "2026-01-01T00:00:15.000Z"
   },
   "samples": [
     {
       "offset_ms": 250,
       "display": {
-        "evaluated_at": "2026-01-01T00:01:29.250Z",
+        "evaluated_at": "2026-01-01T00:01:15.250Z",
         "next_change_at": "2026-01-01T13:45:00.000Z",
-        "gold": 823512,
+        "gold": 823745,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -1234,26 +1234,26 @@
           "completed": [
             {
               "id": "intro_home_island",
-              "completed_at": "2026-01-01T00:00:29.000Z",
+              "completed_at": "2026-01-01T00:00:15.000Z",
               "claimed": true
             },
             {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:29.000Z",
+              "completed_at": "2026-01-01T00:00:15.000Z",
               "claimed": false
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:00:29.000Z"
+        "last_seen_at": "2026-01-01T00:00:15.000Z"
       }
     },
     {
       "offset_ms": 1000,
       "display": {
-        "evaluated_at": "2026-01-01T00:01:30.000Z",
+        "evaluated_at": "2026-01-01T00:01:16.000Z",
         "next_change_at": "2026-01-01T13:45:00.000Z",
-        "gold": 823500,
+        "gold": 823733,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -1859,26 +1859,26 @@
           "completed": [
             {
               "id": "intro_home_island",
-              "completed_at": "2026-01-01T00:00:29.000Z",
+              "completed_at": "2026-01-01T00:00:15.000Z",
               "claimed": true
             },
             {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:29.000Z",
+              "completed_at": "2026-01-01T00:00:15.000Z",
               "claimed": false
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:00:29.000Z"
+        "last_seen_at": "2026-01-01T00:00:15.000Z"
       }
     },
     {
       "offset_ms": 5000,
       "display": {
-        "evaluated_at": "2026-01-01T00:01:34.000Z",
+        "evaluated_at": "2026-01-01T00:01:20.000Z",
         "next_change_at": "2026-01-01T13:45:00.000Z",
-        "gold": 823433,
+        "gold": 823666,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -2484,26 +2484,26 @@
           "completed": [
             {
               "id": "intro_home_island",
-              "completed_at": "2026-01-01T00:00:29.000Z",
+              "completed_at": "2026-01-01T00:00:15.000Z",
               "claimed": true
             },
             {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:29.000Z",
+              "completed_at": "2026-01-01T00:00:15.000Z",
               "claimed": false
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:00:29.000Z"
+        "last_seen_at": "2026-01-01T00:00:15.000Z"
       }
     },
     {
       "offset_ms": 30000,
       "display": {
-        "evaluated_at": "2026-01-01T00:01:59.000Z",
+        "evaluated_at": "2026-01-01T00:01:45.000Z",
         "next_change_at": "2026-01-01T13:45:00.000Z",
-        "gold": 823016,
+        "gold": 823250,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -3109,26 +3109,26 @@
           "completed": [
             {
               "id": "intro_home_island",
-              "completed_at": "2026-01-01T00:00:29.000Z",
+              "completed_at": "2026-01-01T00:00:15.000Z",
               "claimed": true
             },
             {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:29.000Z",
+              "completed_at": "2026-01-01T00:00:15.000Z",
               "claimed": false
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:00:29.000Z"
+        "last_seen_at": "2026-01-01T00:00:15.000Z"
       }
     },
     {
       "offset_ms": 300000,
       "display": {
-        "evaluated_at": "2026-01-01T00:06:29.000Z",
+        "evaluated_at": "2026-01-01T00:06:15.000Z",
         "next_change_at": "2026-01-01T13:45:00.000Z",
-        "gold": 818516,
+        "gold": 818750,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -3734,18 +3734,18 @@
           "completed": [
             {
               "id": "intro_home_island",
-              "completed_at": "2026-01-01T00:00:29.000Z",
+              "completed_at": "2026-01-01T00:00:15.000Z",
               "claimed": true
             },
             {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:29.000Z",
+              "completed_at": "2026-01-01T00:00:15.000Z",
               "claimed": false
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:00:29.000Z"
+        "last_seen_at": "2026-01-01T00:00:15.000Z"
       }
     }
   ]

@@ -173,6 +173,10 @@ type LegDisplay struct {
 	ToIslandID   string           `json:"to_island_id"`
 	DepartAt     string           `json:"depart_at"`
 	ArriveAt     string           `json:"arrive_at"`
+	// Path is the voyage around land (archipelago tiles, D-058 §5): the
+	// origin's harbour, the waypoints, the destination's harbour; the
+	// ship covers it at constant speed between DepartAt and ArriveAt.
+	Path []PositionDisplay `json:"path,omitempty"`
 }
 
 // CargoDisplay is one occupied cargo slot (milli-units).
@@ -656,6 +660,9 @@ func displayShip(s *Ship, c *content.Catalogue) ShipDisplay {
 		d.Leg = &LegDisplay{FromIslandID: l.FromIsland, ToIslandID: l.ToIsland, DepartAt: formatMs(l.DepartAtMs), ArriveAt: formatMs(l.ArriveAtMs)}
 		if l.From != nil {
 			d.Leg.FromPosition = &PositionDisplay{X: l.From.X, Y: l.From.Y}
+		}
+		for _, p := range l.Path {
+			d.Leg.Path = append(d.Leg.Path, PositionDisplay(p))
 		}
 	}
 	if p := s.AtSea; p != nil {

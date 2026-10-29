@@ -73,7 +73,7 @@ func TestRouteLoop(t *testing.T) {
 	r := stepRunner(t, "route_loop")
 	r.runSteps(t, 0, len(r.s.Steps))
 	ds := r.mustDisplay(t)
-	if len(ds.Routes) != 1 || ds.Routes[0].LoopMs != 140_000 || !slices.Equal(ds.Routes[0].ShipIDs, []int64{1}) {
+	if len(ds.Routes) != 1 || ds.Routes[0].LoopMs != 161_623 || !slices.Equal(ds.Routes[0].ShipIDs, []int64{1}) {
 		t.Fatalf("routes %+v", ds.Routes)
 	}
 	now := r.w.LastEvaluatedAt.UnixMilli()

@@ -51,14 +51,14 @@
   "snapshots": [
     {
       "step": 2,
-      "at": "2026-01-01T00:00:28.000Z",
+      "at": "2026-01-01T00:00:14.000Z",
       "boundaries": 0,
       "inventory": {
         "home": {},
         "other": {}
       },
       "statuses": {},
-      "gold": 999533,
+      "gold": 999766,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -77,14 +77,14 @@
     },
     {
       "step": 3,
-      "at": "2026-01-01T00:00:29.000Z",
+      "at": "2026-01-01T00:00:15.000Z",
       "boundaries": 1,
       "inventory": {
         "home": {},
         "other": {}
       },
       "statuses": {},
-      "gold": 999516,
+      "gold": 999750,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -104,7 +104,7 @@
     },
     {
       "step": 11,
-      "at": "2026-01-01T00:01:29.000Z",
+      "at": "2026-01-01T00:01:15.000Z",
       "boundaries": 0,
       "inventory": {
         "home": {
@@ -120,7 +120,7 @@
         "other": {}
       },
       "statuses": {},
-      "gold": 823516,
+      "gold": 823750,
       "balance_rate_per_min": -1000,
       "population": {
         "settlers": 4000
@@ -140,18 +140,18 @@
   "quests": [
     {
       "id": "intro_home_island",
-      "completed_at": "2026-01-01T00:00:29.000Z",
-      "claimed_at": "2026-01-01T00:00:29.000Z"
+      "completed_at": "2026-01-01T00:00:15.000Z",
+      "claimed_at": "2026-01-01T00:00:15.000Z"
     },
     {
       "id": "intro_first_road",
-      "completed_at": "2026-01-01T00:00:29.000Z"
+      "completed_at": "2026-01-01T00:00:15.000Z"
     }
   ],
   "final": {
-    "evaluated_at": "2026-01-01T00:01:29.000Z",
+    "evaluated_at": "2026-01-01T00:01:15.000Z",
     "next_change_at": "2026-01-01T13:45:00.000Z",
-    "gold": 823516,
+    "gold": 823750,
     "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 1000,
@@ -757,17 +757,17 @@
       "completed": [
         {
           "id": "intro_home_island",
-          "completed_at": "2026-01-01T00:00:29.000Z",
+          "completed_at": "2026-01-01T00:00:15.000Z",
           "claimed": true
         },
         {
           "id": "intro_first_road",
-          "completed_at": "2026-01-01T00:00:29.000Z",
+          "completed_at": "2026-01-01T00:00:15.000Z",
           "claimed": false
         }
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T00:00:29.000Z"
+    "last_seen_at": "2026-01-01T00:00:15.000Z"
   }
 }

@@ -359,7 +359,7 @@ describe("HUD components", () => {
       const html = renderToStaticMarkup(createElement(RoutesPanel, { model, onEdit: noop, onClose: noop }));
       const name = (id: string) => model.islands.find((i) => i.id === id)?.name || id;
       const stops = route.stops.map((st) => name(st.island_id)).join(" → ");
-      expect(text(html)).toContain(`${route.name}${stops} (2:20 min)Ships: ${route.ship_ids.length}`);
+      expect(text(html)).toContain(`${route.name}${stops} (2:42 min)Ships: ${route.ship_ids.length}`);
       expect(html).toMatch(new RegExp(`<button[^>]*data-testid="route-${route.id}"`));
       expect(html).not.toContain("route-delete");
     });
@@ -425,15 +425,15 @@ describe("HUD components", () => {
       const html = editor(route.id);
       expect(text(html)).toContain("Net effect (estimated)");
       expect(html).not.toContain("route-loop");
-      // route_loop: wood out of start (−100 per loop, 42.9/min), planks back (+40, 17.1/min) over the 140 s estimated loop.
+      // route_loop: wood out of start (−100 per loop, 37.1/min), planks back (+40, 14.8/min) over the 161.6 s estimated loop.
       const row = (island: string, good: string) => {
         const m = html.match(new RegExp(`<tr data-testid="route-effect-${island}-${good}">(.*?)</tr>`));
         return m ? text(m[1]!) : "";
       };
-      expect(row("start", "wood")).toBe("StartWood−100−42.9");
-      expect(row("start", "planks")).toBe("StartPlanks+40+17.1");
-      expect(row("island2", "wood")).toBe("Island 2Wood+100+42.9");
-      expect(row("island2", "planks")).toBe("Island 2Planks−40−17.1");
+      expect(row("start", "wood")).toBe("StartWood−100−37.1");
+      expect(row("start", "planks")).toBe("StartPlanks+40+14.8");
+      expect(row("island2", "wood")).toBe("Island 2Wood+100+37.1");
+      expect(row("island2", "planks")).toBe("Island 2Planks−40−14.8");
       // Rows follow the server's order (first stop of the island, then good).
       expect(route.effects.map((e) => `${e.island_id}/${e.good}`)).toEqual(["start/planks", "start/wood", "island2/planks", "island2/wood"]);
       expect(html.indexOf("route-effect-start-planks")).toBeLessThan(html.indexOf("route-effect-island2-planks"));

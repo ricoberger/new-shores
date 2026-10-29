@@ -1569,7 +1569,7 @@ export interface components {
             /** @description Row (archipelago tiles). */
             y: number;
         };
-        /** @description The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; interpolate linearly in between. A leg from the sea has an empty `from_island_id` and its origin in `from_position`. */
+        /** @description The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; in between it covers `path` at constant speed (linear in its length). A leg from the sea has an empty `from_island_id` and its origin in `from_position`. */
         LegDisplay: {
             /** @description Origin island; empty for a leg from the sea. */
             from_island_id: string;
@@ -1580,6 +1580,8 @@ export interface components {
             depart_at: string;
             /** @description Arrival, a scheduled ship_arrived (RFC 3339, UTC, ms). */
             arrive_at: string;
+            /** @description The voyage around land (D-058 §5, archipelago tiles) — the origin's harbour (or sea position), the waypoints, the destination's harbour (a Trading Post's water edge, else the shore nearest the other end); its length sets the travel time. Absent on legs from before sea routing. */
+            path?: components["schemas"]["SeaPosition"][];
         };
         CargoDisplay: {
             good: string;

@@ -375,11 +375,61 @@ export function berthAnchor(id: string, islands: ReadonlyMap<string, IslandPlace
 }
 
 /**
+ * Point and heading (radians, atan2 in archipelago tiles) at fraction f
+ * (clamped to [0, 1]) of a polyline's length.
+ */
+export function alongPath(pts: readonly ArchPoint[], f: number): { point: ArchPoint; heading: number } {
+  const first = pts[0] ?? { x: 0, y: 0 };
+  if (pts.length < 2) return { point: first, heading: 0 };
+  let total = 0;
+  for (let i = 1; i < pts.length; i++) total += Math.hypot(pts[i]!.x - pts[i - 1]!.x, pts[i]!.y - pts[i - 1]!.y);
+  let rest = Math.min(1, Math.max(0, f)) * total;
+  let heading = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const p = pts[i - 1]!;
+    const q = pts[i]!;
+    const len = Math.hypot(q.x - p.x, q.y - p.y);
+    if (len === 0) continue;
+    heading = Math.atan2(q.y - p.y, q.x - p.x);
+    if (f < 1 && rest < len) {
+      const t = rest / len;
+      return { point: { x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t }, heading };
+    }
+    rest -= len;
+  }
+  // The end (f >= 1, or rounding past the last segment): exactly the last point.
+  return { point: pts[pts.length - 1]!, heading };
+}
+
+/**
+ * Polyline of a leg (archipelago tiles): the server's voyage around land
+ * (`path`, D-058 §5) with its ends replaced by the visual anchors — the
+ * origin `a` (sea position, pier slot or first berth) and the
+ * destination's first berth; an end without berths (no Trading Post)
+ * keeps the server's shore point. Without a path (older payloads) the
+ * straight line between the berth anchors. Null when an island is unknown.
+ */
+export function legPath(
+  leg: LegDisplay,
+  islands: ReadonlyMap<string, IslandPlacement>,
+  berths?: Berths,
+  dock?: Dock,
+): ArchPoint[] | null {
+  const path = leg.path ?? [];
+  const end = (id: string, p: { x: number; y: number } | undefined): ArchPoint | null =>
+    berths?.get(id)?.[0] ?? (p ? seaPoint(p) : berthAnchor(id, islands, berths));
+  const a = leg.from_position ? seaPoint(leg.from_position) : (dock?.point ?? end(leg.from_island_id, path[0]));
+  const b = end(leg.to_island_id, path[path.length - 1]);
+  if (!a || !b) return null;
+  return [a, ...path.slice(1, -1).map(seaPoint), b];
+}
+
+/**
  * Archipelago position of a ship at server time nowMs (D-027: a lerp of
  * the server's leg timestamps, no rule). On a leg it is at the origin's
- * berth anchor while handling (now < depart_at), on the straight line
- * between the two berth anchors while travelling (fraction clamped to
- * [0, 1]; the line may cross land) and at the destination's anchor after
+ * anchor while handling (now < depart_at), along the leg's path around
+ * land (legPath) at constant speed while travelling (fraction of the
+ * time clamped to [0, 1]) and at the destination's anchor after
  * arrive_at (until the next payload). Without a leg (idle,
  * anchored_unpaid) it lies at harbour berth `slot + 1` of its island (the
  * first berth is the anchor of the legs), or at the island centre plus
@@ -398,16 +448,15 @@ export function shipPlacement(
   if (leg) {
     // A leg from the sea (the start ship, D-051) starts at its sea position;
     // a ship handling at a Trading Post's pier starts at its pier slot.
-    const a = leg.from_position ? seaPoint(leg.from_position) : (dock?.point ?? berthAnchor(leg.from_island_id, islands, berths));
-    const b = berthAnchor(leg.to_island_id, islands, berths);
-    if (!a || !b) return null;
-    const heading = Math.atan2(b.y - a.y, b.x - a.x);
+    const pts = legPath(leg, islands, berths, dock);
+    if (!pts) return null;
     const depart = serverTimeMs(leg.depart_at);
     const arrive = serverTimeMs(leg.arrive_at);
     // Handling at the pier it lies bow out like the moored ships around it (D-054).
-    if (nowMs < depart) return { point: a, heading: dock && !leg.from_position ? dock.heading : heading, atSea: false };
+    if (nowMs < depart) return { point: pts[0]!, heading: dock && !leg.from_position ? dock.heading : alongPath(pts, 0).heading, atSea: false };
     const f = Math.min(1, Math.max(0, (nowMs - depart) / Math.max(1, arrive - depart)));
-    return { point: { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }, heading, atSea: f < 1 };
+    const at = alongPath(pts, f);
+    return { point: at.point, heading: at.heading, atSea: f < 1 };
   }
   // At sea without a leg: the start ship before it sails.
   if (!ship.island_id && ship.position) return { point: seaPoint(ship.position), heading: 0, atSea: true };

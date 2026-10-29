@@ -2303,7 +2303,7 @@ components:
     LegDisplay:
       type: object
       additionalProperties: false
-      description: The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; interpolate linearly in between. A leg from the sea has an empty `from_island_id` and its origin in `from_position`.
+      description: The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; in between it covers `path` at constant speed (linear in its length). A leg from the sea has an empty `from_island_id` and its origin in `from_position`.
       required: [from_island_id, from_position, to_island_id, depart_at, arrive_at]
       properties:
         from_island_id:
@@ -2322,6 +2322,11 @@ components:
         arrive_at:
           type: string
           description: Arrival, a scheduled ship_arrived (RFC 3339, UTC, ms).
+        path:
+          type: array
+          description: The voyage around land (D-058 §5, archipelago tiles) — the origin's harbour (or sea position), the waypoints, the destination's harbour (a Trading Post's water edge, else the shore nearest the other end); its length sets the travel time. Absent on legs from before sea routing.
+          items:
+            $ref: "#/components/schemas/SeaPosition"
     CargoDisplay:
       type: object
       additionalProperties: false

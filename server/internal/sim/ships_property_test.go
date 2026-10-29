@@ -235,8 +235,9 @@ func TestPropertyShips(t *testing.T) {
 		atSea += p.atSea
 	}
 	t.Logf("boundaries %v; deliberate splits %v; final ship states %v; berth waits seen %d; ships at sea seen %d", kinds, splitKinds, states, queued, atSea)
-	// Berth queues and ships at sea actually occur (D-051).
-	if queued < propertyCases/20 || atSea < propertyCases/10 {
+	// Berth queues and ships at sea actually occur (D-051; the voyages
+	// around the overlapping test islands spread the arrivals, D-058 §5).
+	if queued < propertyCases/40 || atSea < propertyCases/10 {
 		t.Errorf("berth waits seen %d, ships at sea seen %d", queued, atSea)
 	}
 	for _, k := range []string{BoundaryShipBuilt, BoundaryShipArrived, "ship_" + BoundaryAutoPause, "ship_" + BoundaryAutoResume} {
