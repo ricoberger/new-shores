@@ -375,7 +375,7 @@ func TestStallRecoveryOffline24h(t *testing.T) {
 	}
 	// Nothing destroyed: every placed building (and the seeded warehouse)
 	// still stands (the sheep farm of the opening has no fields: no gold to
-	// spare for pastures, D-051 part 4).
+	// spare for pastures, D-051 part 4; the lumberjack's tree plot is a field).
 	buildings, placed, fields := 0, 1, 0
 	for _, is := range rep.Final.Islands {
 		for _, b := range is.Buildings {
@@ -386,8 +386,8 @@ func TestStallRecoveryOffline24h(t *testing.T) {
 			buildings++
 		}
 	}
-	if fields != 0 {
-		t.Errorf("%d fields", fields)
+	if fields != 1 {
+		t.Errorf("%d fields, want the lumberjack's tree plot", fields)
 	}
 	for _, st := range s.Steps {
 		if st.Place != nil {

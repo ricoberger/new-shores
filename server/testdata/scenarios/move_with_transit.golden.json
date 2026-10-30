@@ -12,7 +12,7 @@
         "granted": 5000
       },
       "wood": {
-        "produced": 17660,
+        "produced": 21000,
         "consumed": 0,
         "lost": 0
       }
@@ -21,16 +21,16 @@
   "bottlenecks": [
     {
       "island_id": "main",
-      "building_id": 2,
-      "type": "lumberjack",
-      "status": "low_efficiency",
-      "reason": "Only 833 ‰ of the work area usable"
+      "building_id": 3,
+      "type": "tree_plot",
+      "status": "not_adjacent",
+      "reason": "Not connected to its farm"
     }
   ],
   "pause_events": [],
   "snapshots": [
     {
-      "step": 2,
+      "step": 3,
       "at": "2026-01-01T00:00:30.000Z",
       "boundaries": 1,
       "inventory": {
@@ -44,33 +44,60 @@
       "statuses": {
         "ok": 1
       },
-      "gold": 949500,
+      "gold": 950500,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 4,
+      "step": 6,
       "at": "2026-01-01T00:10:30.000Z",
       "boundaries": 2,
       "inventory": {
         "main": {
           "wood": {
-            "stock": 17216,
-            "in_transit": 444
+            "stock": 20467,
+            "in_transit": 533
           }
         }
       },
       "statuses": {
-        "low_efficiency": 1
+        "ok": 1
       },
       "gold": 939500,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 2,
+          "efficiency_permille": 1000,
+          "inactive": [
+            3
+          ]
+        }
       ]
     }
   ],
@@ -86,7 +113,7 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:10:30.000Z",
-    "next_change_at": "2026-01-01T02:59:58.307Z",
+    "next_change_at": "2026-01-01T02:30:00.000Z",
     "gold": 939500,
     "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
@@ -245,10 +272,10 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 17216,
+            "stock": 20467,
             "capacity": 300000,
-            "in_transit": 444,
-            "rate_per_min": 1666,
+            "in_transit": 533,
+            "rate_per_min": 2000,
             "in_transit_rate_per_min": 0
           },
           "wool": {
@@ -363,7 +390,7 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 55,
+            "load_permille": 66,
             "berths": {
               "total": 1,
               "busy": 0,
@@ -379,26 +406,63 @@
             "rotation": 90,
             "paused": false,
             "paused_reason": "",
-            "status": "low_efficiency",
-            "efficiency_permille": 833,
+            "status": "ok",
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1666
+                "wood": 2000
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 660,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 16000,
             "assigned_warehouse_id": 1,
             "road_distance": 6,
-            "cycle_rate_permille_per_min": 1666,
+            "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                3,
+                4
+              ]
             }
+          },
+          {
+            "id": 3,
+            "type": "tree_plot",
+            "x": 10,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "not_adjacent",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 2,
+            "active": false
+          },
+          {
+            "id": 4,
+            "type": "tree_plot",
+            "x": 11,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 2,
+            "active": true
           }
         ],
         "workforce": {

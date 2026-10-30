@@ -109,6 +109,7 @@ func insolventTown(t *testing.T, c *content.Catalogue) (w *World, fisher, weaver
 	sawmill = placeFree(t, w, c, "sawmill", 24, 2, 0)
 	sheep = placeFree(t, w, c, "sheep_farm", 24, 5, 180)
 	lumberjack = placeFree(t, w, c, "lumberjack", 27, 5, 180)
+	plantTreePlot(t, w, c, lumberjack)
 	return w, fisher, weaver, sawmill, sheep, lumberjack
 }
 

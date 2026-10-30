@@ -175,7 +175,7 @@ func buildingDisplay(t testing.TB, ds DisplayState, id int64) BuildingDisplay {
 func TestEnvelopeRoundTrip(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
+	placeLumberjack(t, w, c, 8, 2, 0)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "house_settlers", X: 3, Y: 5, Rotation: 180})
 	mustAdvance(t, w, c, 37*time.Second+123*time.Millisecond)
@@ -227,7 +227,6 @@ func TestApplyLeavesWorldUnchangedOnError(t *testing.T) {
 		{"occupied by road", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 3}, ErrOccupied},
 		{"not on water", PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 5}, ErrNotOnWater},
 		{"water-edge land row on water", PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2, Rotation: 180}, ErrTerrain},
-		{"no work area", PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 16, Y: 7}, ErrNoWorkArea},
 		{"bad rotation", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2, Rotation: 45}, ErrInvalidCommand},
 		{"road on road", PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{1, 7}, {2, 4}}}, ErrOccupied},
 		{"road on water", PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{1, 7}, {0, 7}}}, ErrTerrain},
@@ -463,9 +462,9 @@ func TestPauseAndResume(t *testing.T) {
 }
 
 func TestStarvationSharesInflow(t *testing.T) {
-	c := catalogue(t)
+	c := withTreePlots(catalogue(t), 4)
 	w := NewWorld(t0)
-	// Lumberjack with 18 forest tiles: efficiency 750 -> 1.5 wood/min.
+	// Lumberjack with 3 of 4 tree plots: efficiency 750 -> 1.5 wood/min.
 	w.Islands = []*Island{islandFromRows("main",
 		"~~~~~~~~~~~~~~~~~~~~",
 		"~~~~~...............",
@@ -489,12 +488,15 @@ func TestStarvationSharesInflow(t *testing.T) {
 		road = append(road, Pos{x, 4})
 	}
 	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: road})
+	ljID := w.NextBuildingID
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 10, Y: 2})
+	plantTreePlots(t, w, c, ljID, 3)
+	smID := w.NextBuildingID
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 16, Y: 2})
 	mustAdvance(t, w, c, 10*time.Minute)
 
 	ds := display(t, w, c)
-	lj, sm := buildingDisplay(t, ds, 2), buildingDisplay(t, ds, 3)
+	lj, sm := buildingDisplay(t, ds, ljID), buildingDisplay(t, ds, smID)
 	if lj.EfficiencyPermille != 750 || lj.Status != StatusLowEfficiency || lj.Rates.Outputs["wood"] != 1500 {
 		t.Errorf("lumberjack = %s eff %d rate %d", lj.Status, lj.EfficiencyPermille, lj.Rates.Outputs["wood"])
 	}
@@ -506,34 +508,14 @@ func TestStarvationSharesInflow(t *testing.T) {
 	}
 
 	// A second sawmill shares the same inflow: 0.75 wood/min each.
+	sm2ID := w.NextBuildingID
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 6, Y: 5, Rotation: 180})
 	mustAdvance(t, w, c, time.Minute)
 	ds = display(t, w, c)
-	for _, id := range []int64{3, 4} {
+	for _, id := range []int64{smID, sm2ID} {
 		if b := buildingDisplay(t, ds, id); b.Status != StatusInputStarved || b.Rates.Inputs["wood"] != 750 {
 			t.Errorf("sawmill %d = %s %+v", id, b.Status, b.Rates)
 		}
-	}
-}
-
-func TestEfficiencyRecomputedWhenNeighboursChange(t *testing.T) {
-	c := catalogue(t)
-	w := testWorld(t, c)
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
-	if eff := w.Islands[0].Building(2).Efficiency; eff != 1000 {
-		t.Fatalf("efficiency = %d", eff)
-	}
-	// Houses on forest tiles in the work area reduce the matching tiles.
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "house_settlers", X: 5, Y: 5, Rotation: 180})
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "house_settlers", X: 7, Y: 5, Rotation: 180})
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "house_settlers", X: 10, Y: 5, Rotation: 180})
-	reduced := w.Islands[0].Building(2).Efficiency
-	if reduced >= 1000 {
-		t.Fatalf("efficiency not reduced: %d", reduced)
-	}
-	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: 4})
-	if eff := w.Islands[0].Building(2).Efficiency; eff <= reduced {
-		t.Errorf("efficiency not restored: %d", eff)
 	}
 }
 
@@ -543,7 +525,7 @@ func TestEfficiencyRecomputedWhenNeighboursChange(t *testing.T) {
 func unconnectedLumberjack(t *testing.T, w *World, c *content.Catalogue) *Building {
 	t.Helper()
 	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{9, 8}, {10, 8}}})
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 9, Y: 6, Rotation: 0})
+	placeLumberjack(t, w, c, 9, 6, 0)
 	b := w.Islands[0].Building(2)
 	if b.AssignedWarehouseID != 0 {
 		t.Fatal("unexpectedly connected")
@@ -657,7 +639,7 @@ func TestIterationCapFallback(t *testing.T) {
 	c.Region.Rules.IterationCap = 3
 	w := testWorld(t, &c)
 	w.Gold = 1_000_000_000 // 90 days of upkeep (7 gold/min) without pauses
-	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
+	placeLumberjack(t, w, &c, 8, 2, 0)
 	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})
 	l := NewLedger()
 	bs, err := AdvanceWithLedger(w, &c, w.LastEvaluatedAt.Add(90*24*time.Hour), l)
@@ -690,7 +672,7 @@ func TestIterationCapFallback(t *testing.T) {
 func TestDisplayFieldsAndNextChange(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
+	placeLumberjack(t, w, c, 8, 2, 0)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "house_settlers", X: 3, Y: 5, Rotation: 180})
 	mustAdvance(t, w, c, 5*time.Second)
@@ -721,6 +703,8 @@ func TestDisplayFieldsAndNextChange(t *testing.T) {
 			requireKeys(t, "trading_post", b, "level", "capacity", "throughput_per_min", "load_permille")
 		case "house_settlers":
 			requireKeys(t, "house", b, "residents")
+		case "tree_plot":
+			requireKeys(t, "field", b, "farm_id")
 		default:
 			requireKeys(t, b["type"].(string), b, "rates", "cycle_seconds", "cycle_progress_permille", "transfer_delay_ms", "assigned_warehouse_id", "road_distance")
 		}
@@ -912,6 +896,7 @@ func TestMoveBuildingErrorsLeaveWorldUnchanged(t *testing.T) {
 		w := testWorld(t, c)
 		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2}) // ID 2
 		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})   // ID 3
+		plantTreePlot(t, w, c, 2)
 		return w
 	}
 	tests := []struct {
@@ -932,7 +917,6 @@ func TestMoveBuildingErrorsLeaveWorldUnchanged(t *testing.T) {
 		{"occupied by building", MoveBuilding{IslandID: "main", BuildingID: 3, X: 9, Y: 2}, ErrOccupied},
 		{"occupied by road", MoveBuilding{IslandID: "main", BuildingID: 3, X: 14, Y: 3}, ErrOccupied},
 		{"trading post not on water", MoveBuilding{IslandID: "main", BuildingID: 1, X: 1, Y: 5}, ErrNotOnWater},
-		{"no work area", MoveBuilding{IslandID: "main", BuildingID: 2, X: 16, Y: 7}, ErrNoWorkArea},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -967,7 +951,7 @@ func TestMoveBuildingErrorsLeaveWorldUnchanged(t *testing.T) {
 func TestMoveBuildingKeepsState(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
+	placeLumberjack(t, w, c, 8, 2, 0)
 	mustAdvance(t, w, c, 37*time.Second+500*time.Millisecond)
 	is := w.Islands[0]
 	b := is.Building(2)
@@ -1012,49 +996,6 @@ func TestMoveBuildingKeepsState(t *testing.T) {
 	clearRegimes(cw.Islands[0])
 	if !bytes.Equal(encode(t, cw), encode(t, w)) {
 		t.Error("no-op move changed the world")
-	}
-}
-
-// TestMoveZeroEfficiencyInPlace: a work-area building whose efficiency has
-// dropped to 0 (its forest covered by roads) can still be "moved" to its
-// identical position and rotation (a no-op) and turned on the same
-// footprint; a different position is still checked.
-func TestMoveZeroEfficiencyInPlace(t *testing.T) {
-	c := catalogue(t)
-	w := testWorld(t, c)
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
-	is := w.Islands[0]
-	occ := is.occupancy(c)
-	var road []Pos
-	for y := range is.Height {
-		for x := range is.Width {
-			i := is.index(x, y)
-			if is.Tiles[i].Terrain == content.TerrainForest && occ[i] == 0 && is.Roads[i] == "" {
-				road = append(road, Pos{x, y})
-			}
-		}
-	}
-	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: road})
-	b := is.Building(2)
-	if b.Efficiency != 0 {
-		t.Fatalf("efficiency = %d, want 0", b.Efficiency)
-	}
-	before := encode(t, w)
-	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 8, Y: 2})
-	if !bytes.Equal(before, encode(t, w)) {
-		t.Error("identical-position move changed the world")
-	}
-	// Same footprint rectangle, other rotation (2x2): allowed, still 0.
-	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 8, Y: 2, Rotation: 180})
-	if b.Rotation != 180 || b.Efficiency != 0 || b.X != 8 || b.Y != 2 {
-		t.Errorf("rotated in place = %+v", b)
-	}
-	before = encode(t, w)
-	if err := Apply(w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 15, Y: 6}); !errors.Is(err, ErrNoWorkArea) {
-		t.Fatalf("move elsewhere at zero efficiency: %v", err)
-	}
-	if !bytes.Equal(before, encode(t, w)) {
-		t.Error("world changed on error")
 	}
 }
 
@@ -1130,9 +1071,11 @@ func TestMoveWarehouseReassignsProducers(t *testing.T) {
 func TestFullWithConsumer(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 10, Y: 2})
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})  // ID 2
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 10, Y: 2}) // ID 3
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})    // ID 4
+	plantTreePlot(t, w, c, 2)
+	plantTreePlot(t, w, c, 3)
 	w.Islands[0].Inventory.setFine("planks", 0) // keep planks far from capacity
 	if err := AddStock(w, c, "main", "wood", 299_000, nil); err != nil {
 		t.Fatal(err)
@@ -1202,6 +1145,7 @@ func TestThroughputSharedOnlyAmongRunningProducers(t *testing.T) {
 	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
 	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})
 	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})
+	plantTreePlot(t, w, &c, 2)
 	for _, good := range []string{"wood", "planks"} {
 		free := 300_000 - w.Islands[0].Inventory.Stock[good]
 		if err := AddStock(w, &c, "main", good, free, nil); err != nil {

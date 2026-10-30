@@ -84,7 +84,20 @@
       "outputs": [{ "good": "wood", "amount": 1 }],
       "cycle_seconds": 30
     },
-    "work_area": { "radius": 4, "terrain": ["forest"], "required_tiles": 24 }
+    "fields": { "type": "tree_plot", "required": 1, "max": 2 }
+  },
+  {
+    "id": "tree_plot",
+    "name": "Tree plot",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 1 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "tree_plot", "farm": "lumberjack", "terrain": ["grass", "forest"] }
   },
   {
     "id": "sawmill",

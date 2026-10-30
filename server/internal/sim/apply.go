@@ -463,7 +463,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, cmd.Rotation)
 	}
 
-	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation, true); err != nil {
+	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
 		return err
 	}
 	if berths := def.InitialBerths(); berths > 0 {
@@ -507,14 +507,14 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 
 // CheckSite validates a site for a building on the island as placement
 // does (rotation, bounds, terrain, occupancy, water rows, coast, deposit,
-// fertility and work area; checkSite), without cost, tier, settlement or
+// fertility; checkSite), without cost, tier, settlement or
 // field rules. The archipelago generator uses it to verify Trading Post
 // and shipyard sites on fresh islands (D-053).
 func CheckSite(is *Island, c *content.Catalogue, def *content.Building, x, y, rotation int) error {
 	if !validRotation(rotation) {
 		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, rotation)
 	}
-	return checkSite(is, c, is.occupancy(c), def, x, y, rotation, true)
+	return checkSite(is, c, is.occupancy(c), def, x, y, rotation)
 }
 
 // SiteChecker is CheckSite for many sites of one unchanged island: the
@@ -563,7 +563,7 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 			}
 		}
 	}
-	return checkSite(is, s.c, s.occ, def, x, y, rotation, true) == nil
+	return checkSite(is, s.c, s.occ, def, x, y, rotation) == nil
 }
 
 // checkSite validates a building site, in this order: the footprint is on
@@ -571,11 +571,10 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 // mountain tiles) and free (per occ and roads) except the front rows of a
 // water-edge building, which must be free water tiles; a coastal building touches
 // the coast; a deposit building covers at least one tile with a deposit of
-// its kind; the island has the fertility of a work-area building; and,
-// with workArea set, a work-area building without a fields block has
-// efficiency > 0 (a farm with fields starts at 0 fields, D-049). A road is
-// never required (D-042). Fields are not sites of this check (fields.go).
-func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Building, x, y, rotation int, workArea bool) error {
+// its kind; and the island has the fertility of a work-area building. A
+// road is never required (D-042). Fields are not sites of this check
+// (fields.go).
+func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Building, x, y, rotation int) error {
 	fw, fh := footprint(def, rotation)
 	// Overflow-safe bounds check of the whole footprint before any tile
 	// arithmetic: x+fw could wrap for extreme anchors.
@@ -651,18 +650,12 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 			return err
 		}
 	}
-	if workArea && def.WorkArea != nil && def.Fields == nil && workAreaEfficiency(is, occ, def, x, y, rotation) == 0 {
-		return fmt.Errorf("%w: %s at (%d,%d)", ErrNoWorkArea, def.ID, x, y)
-	}
 	return nil
 }
 
 // moveBuilding moves a building. The building's own current footprint
 // counts as free land for the target (so a one-tile shift is valid, and the
-// identical position is a valid no-op). A target with the same footprint
-// rectangle as the current one skips the work-area check: it cannot change
-// the efficiency, and an existing building may legitimately have dropped to
-// 0. Nothing is charged or refunded.
+// identical position is a valid no-op). Nothing is charged or refunded.
 func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
 	is, err := lookupIsland(w, cmd.IslandID)
 	if err != nil {
@@ -691,10 +684,7 @@ func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
 			occ[i] = 0
 		}
 	}
-	w0, h0 := footprint(def, b.Rotation)
-	w1, h1 := footprint(def, cmd.Rotation)
-	sameRect := cmd.X == b.X && cmd.Y == b.Y && w0 == w1 && h0 == h1
-	if err := checkSite(is, c, occ, def, cmd.X, cmd.Y, cmd.Rotation, !sameRect); err != nil {
+	if err := checkSite(is, c, occ, def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
 		return err
 	}
 

@@ -2,8 +2,8 @@
   "scenario": "stall_recovery_manual",
   "base": {
     "evaluated_at": "2026-01-01T01:06:00.000Z",
-    "next_change_at": "2026-01-01T02:38:19.801Z",
-    "gold": 83721,
+    "next_change_at": "2026-01-01T02:38:24.851Z",
+    "gold": 83745,
     "balance_rate_per_min": 1400,
     "tax_rate_per_min": 6400,
     "upkeep_rate_per_min": 5000,
@@ -84,7 +84,7 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 65254,
+            "stock": 65128,
             "capacity": 300000,
             "in_transit": 1450,
             "rate_per_min": 1100,
@@ -126,7 +126,7 @@
             "in_transit_rate_per_min": 0
           },
           "planks": {
-            "stock": 114107,
+            "stock": 113938,
             "capacity": 300000,
             "in_transit": 1233,
             "rate_per_min": 2000,
@@ -845,7 +845,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 239,
+            "cycle_progress_permille": 71,
             "transfer_delay_ms": 57000,
             "assigned_warehouse_id": 1,
             "road_distance": 47,
@@ -854,10 +854,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                5
+              ]
             }
           },
           {
             "id": 5,
+            "type": "tree_plot",
+            "x": 43,
+            "y": 12,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 4,
+            "active": true
+          },
+          {
+            "id": 6,
             "type": "sawmill",
             "x": 31,
             "y": 5,
@@ -876,7 +898,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 339,
+            "cycle_progress_permille": 171,
             "transfer_delay_ms": 37000,
             "assigned_warehouse_id": 1,
             "road_distance": 27,
@@ -888,7 +910,7 @@
             }
           },
           {
-            "id": 6,
+            "id": 7,
             "type": "fisher",
             "x": 50,
             "y": 1,
@@ -905,7 +927,7 @@
               }
             },
             "cycle_seconds": 40,
-            "cycle_progress_permille": 4,
+            "cycle_progress_permille": 878,
             "transfer_delay_ms": 58000,
             "assigned_warehouse_id": 1,
             "road_distance": 48,
@@ -917,7 +939,7 @@
             }
           },
           {
-            "id": 7,
+            "id": 8,
             "type": "sheep_farm",
             "x": 14,
             "y": 21,
@@ -951,7 +973,7 @@
             }
           },
           {
-            "id": 9,
+            "id": 10,
             "type": "house_settlers",
             "x": 8,
             "y": 2,
@@ -1006,7 +1028,7 @@
             ]
           },
           {
-            "id": 10,
+            "id": 11,
             "type": "house_settlers",
             "x": 10,
             "y": 2,
@@ -1061,7 +1083,7 @@
             ]
           },
           {
-            "id": 11,
+            "id": 12,
             "type": "house_settlers",
             "x": 12,
             "y": 2,
@@ -1116,7 +1138,7 @@
             ]
           },
           {
-            "id": 12,
+            "id": 13,
             "type": "house_settlers",
             "x": 14,
             "y": 2,
@@ -1171,7 +1193,7 @@
             ]
           },
           {
-            "id": 13,
+            "id": 14,
             "type": "house_settlers",
             "x": 8,
             "y": 5,
@@ -1349,8 +1371,8 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T01:06:00.250Z",
-        "next_change_at": "2026-01-01T02:38:19.801Z",
-        "gold": 83727,
+        "next_change_at": "2026-01-01T02:38:24.851Z",
+        "gold": 83750,
         "balance_rate_per_min": 1400,
         "tax_rate_per_min": 6400,
         "upkeep_rate_per_min": 5000,
@@ -1431,7 +1453,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 65259,
+                "stock": 65132,
                 "capacity": 300000,
                 "in_transit": 1450,
                 "rate_per_min": 1100,
@@ -1473,7 +1495,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 114115,
+                "stock": 113947,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000,
@@ -2192,7 +2214,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 248,
+                "cycle_progress_permille": 79,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -2201,10 +2223,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    5
+                  ]
                 }
               },
               {
                 "id": 5,
+                "type": "tree_plot",
+                "x": 43,
+                "y": 12,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
+              },
+              {
+                "id": 6,
                 "type": "sawmill",
                 "x": 31,
                 "y": 5,
@@ -2223,7 +2267,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 348,
+                "cycle_progress_permille": 179,
                 "transfer_delay_ms": 37000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 27,
@@ -2235,7 +2279,7 @@
                 }
               },
               {
-                "id": 6,
+                "id": 7,
                 "type": "fisher",
                 "x": 50,
                 "y": 1,
@@ -2252,7 +2296,7 @@
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 11,
+                "cycle_progress_permille": 884,
                 "transfer_delay_ms": 58000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 48,
@@ -2264,7 +2308,7 @@
                 }
               },
               {
-                "id": 7,
+                "id": 8,
                 "type": "sheep_farm",
                 "x": 14,
                 "y": 21,
@@ -2298,7 +2342,7 @@
                 }
               },
               {
-                "id": 9,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 2,
@@ -2353,7 +2397,7 @@
                 ]
               },
               {
-                "id": 10,
+                "id": 11,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 2,
@@ -2408,7 +2452,7 @@
                 ]
               },
               {
-                "id": 11,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 12,
                 "y": 2,
@@ -2463,7 +2507,7 @@
                 ]
               },
               {
-                "id": 12,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 14,
                 "y": 2,
@@ -2518,7 +2562,7 @@
                 ]
               },
               {
-                "id": 13,
+                "id": 14,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -2696,8 +2740,8 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T01:06:01.000Z",
-        "next_change_at": "2026-01-01T02:38:19.801Z",
-        "gold": 83745,
+        "next_change_at": "2026-01-01T02:38:24.851Z",
+        "gold": 83768,
         "balance_rate_per_min": 1400,
         "tax_rate_per_min": 6400,
         "upkeep_rate_per_min": 5000,
@@ -2778,7 +2822,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 65272,
+                "stock": 65146,
                 "capacity": 300000,
                 "in_transit": 1450,
                 "rate_per_min": 1100,
@@ -2820,7 +2864,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 114140,
+                "stock": 113972,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000,
@@ -3539,7 +3583,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 273,
+                "cycle_progress_permille": 104,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -3548,10 +3592,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    5
+                  ]
                 }
               },
               {
                 "id": 5,
+                "type": "tree_plot",
+                "x": 43,
+                "y": 12,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
+              },
+              {
+                "id": 6,
                 "type": "sawmill",
                 "x": 31,
                 "y": 5,
@@ -3570,7 +3636,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 373,
+                "cycle_progress_permille": 204,
                 "transfer_delay_ms": 37000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 27,
@@ -3582,7 +3648,7 @@
                 }
               },
               {
-                "id": 6,
+                "id": 7,
                 "type": "fisher",
                 "x": 50,
                 "y": 1,
@@ -3599,7 +3665,7 @@
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 29,
+                "cycle_progress_permille": 903,
                 "transfer_delay_ms": 58000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 48,
@@ -3611,7 +3677,7 @@
                 }
               },
               {
-                "id": 7,
+                "id": 8,
                 "type": "sheep_farm",
                 "x": 14,
                 "y": 21,
@@ -3645,7 +3711,7 @@
                 }
               },
               {
-                "id": 9,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 2,
@@ -3700,7 +3766,7 @@
                 ]
               },
               {
-                "id": 10,
+                "id": 11,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 2,
@@ -3755,7 +3821,7 @@
                 ]
               },
               {
-                "id": 11,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 12,
                 "y": 2,
@@ -3810,7 +3876,7 @@
                 ]
               },
               {
-                "id": 12,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 14,
                 "y": 2,
@@ -3865,7 +3931,7 @@
                 ]
               },
               {
-                "id": 13,
+                "id": 14,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -4043,8 +4109,8 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T01:06:05.000Z",
-        "next_change_at": "2026-01-01T02:38:19.801Z",
-        "gold": 83838,
+        "next_change_at": "2026-01-01T02:38:24.851Z",
+        "gold": 83861,
         "balance_rate_per_min": 1400,
         "tax_rate_per_min": 6400,
         "upkeep_rate_per_min": 5000,
@@ -4125,7 +4191,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 65346,
+                "stock": 65220,
                 "capacity": 300000,
                 "in_transit": 1450,
                 "rate_per_min": 1100,
@@ -4167,7 +4233,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 114273,
+                "stock": 114105,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000,
@@ -4886,7 +4952,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 406,
+                "cycle_progress_permille": 238,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -4895,10 +4961,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    5
+                  ]
                 }
               },
               {
                 "id": 5,
+                "type": "tree_plot",
+                "x": 43,
+                "y": 12,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
+              },
+              {
+                "id": 6,
                 "type": "sawmill",
                 "x": 31,
                 "y": 5,
@@ -4917,7 +5005,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 506,
+                "cycle_progress_permille": 338,
                 "transfer_delay_ms": 37000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 27,
@@ -4929,7 +5017,7 @@
                 }
               },
               {
-                "id": 6,
+                "id": 7,
                 "type": "fisher",
                 "x": 50,
                 "y": 1,
@@ -4946,7 +5034,7 @@
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 129,
+                "cycle_progress_permille": 3,
                 "transfer_delay_ms": 58000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 48,
@@ -4958,7 +5046,7 @@
                 }
               },
               {
-                "id": 7,
+                "id": 8,
                 "type": "sheep_farm",
                 "x": 14,
                 "y": 21,
@@ -4992,7 +5080,7 @@
                 }
               },
               {
-                "id": 9,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 2,
@@ -5047,7 +5135,7 @@
                 ]
               },
               {
-                "id": 10,
+                "id": 11,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 2,
@@ -5102,7 +5190,7 @@
                 ]
               },
               {
-                "id": 11,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 12,
                 "y": 2,
@@ -5157,7 +5245,7 @@
                 ]
               },
               {
-                "id": 12,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 14,
                 "y": 2,
@@ -5212,7 +5300,7 @@
                 ]
               },
               {
-                "id": 13,
+                "id": 14,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -5390,8 +5478,8 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T01:06:30.000Z",
-        "next_change_at": "2026-01-01T02:38:19.801Z",
-        "gold": 84421,
+        "next_change_at": "2026-01-01T02:38:24.851Z",
+        "gold": 84445,
         "balance_rate_per_min": 1400,
         "tax_rate_per_min": 6400,
         "upkeep_rate_per_min": 5000,
@@ -5472,7 +5560,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 65804,
+                "stock": 65678,
                 "capacity": 300000,
                 "in_transit": 1450,
                 "rate_per_min": 1100,
@@ -5514,7 +5602,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 115107,
+                "stock": 114938,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000,
@@ -6233,7 +6321,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 239,
+                "cycle_progress_permille": 71,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -6242,10 +6330,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    5
+                  ]
                 }
               },
               {
                 "id": 5,
+                "type": "tree_plot",
+                "x": 43,
+                "y": 12,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
+              },
+              {
+                "id": 6,
                 "type": "sawmill",
                 "x": 31,
                 "y": 5,
@@ -6264,7 +6374,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 339,
+                "cycle_progress_permille": 171,
                 "transfer_delay_ms": 37000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 27,
@@ -6276,7 +6386,7 @@
                 }
               },
               {
-                "id": 6,
+                "id": 7,
                 "type": "fisher",
                 "x": 50,
                 "y": 1,
@@ -6293,7 +6403,7 @@
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 754,
+                "cycle_progress_permille": 628,
                 "transfer_delay_ms": 58000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 48,
@@ -6305,7 +6415,7 @@
                 }
               },
               {
-                "id": 7,
+                "id": 8,
                 "type": "sheep_farm",
                 "x": 14,
                 "y": 21,
@@ -6339,7 +6449,7 @@
                 }
               },
               {
-                "id": 9,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 2,
@@ -6394,7 +6504,7 @@
                 ]
               },
               {
-                "id": 10,
+                "id": 11,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 2,
@@ -6449,7 +6559,7 @@
                 ]
               },
               {
-                "id": 11,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 12,
                 "y": 2,
@@ -6504,7 +6614,7 @@
                 ]
               },
               {
-                "id": 12,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 14,
                 "y": 2,
@@ -6559,7 +6669,7 @@
                 ]
               },
               {
-                "id": 13,
+                "id": 14,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -6737,8 +6847,8 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T01:11:00.000Z",
-        "next_change_at": "2026-01-01T02:38:19.801Z",
-        "gold": 90721,
+        "next_change_at": "2026-01-01T02:38:24.851Z",
+        "gold": 90745,
         "balance_rate_per_min": 1400,
         "tax_rate_per_min": 6400,
         "upkeep_rate_per_min": 5000,
@@ -6819,7 +6929,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 70754,
+                "stock": 70628,
                 "capacity": 300000,
                 "in_transit": 1450,
                 "rate_per_min": 1100,
@@ -6861,7 +6971,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124107,
+                "stock": 123938,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000,
@@ -7580,7 +7690,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 239,
+                "cycle_progress_permille": 71,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -7589,10 +7699,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    5
+                  ]
                 }
               },
               {
                 "id": 5,
+                "type": "tree_plot",
+                "x": 43,
+                "y": 12,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
+              },
+              {
+                "id": 6,
                 "type": "sawmill",
                 "x": 31,
                 "y": 5,
@@ -7611,7 +7743,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 339,
+                "cycle_progress_permille": 171,
                 "transfer_delay_ms": 37000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 27,
@@ -7623,7 +7755,7 @@
                 }
               },
               {
-                "id": 6,
+                "id": 7,
                 "type": "fisher",
                 "x": 50,
                 "y": 1,
@@ -7640,7 +7772,7 @@
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 504,
+                "cycle_progress_permille": 378,
                 "transfer_delay_ms": 58000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 48,
@@ -7652,7 +7784,7 @@
                 }
               },
               {
-                "id": 7,
+                "id": 8,
                 "type": "sheep_farm",
                 "x": 14,
                 "y": 21,
@@ -7686,7 +7818,7 @@
                 }
               },
               {
-                "id": 9,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 2,
@@ -7741,7 +7873,7 @@
                 ]
               },
               {
-                "id": 10,
+                "id": 11,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 2,
@@ -7796,7 +7928,7 @@
                 ]
               },
               {
-                "id": 11,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 12,
                 "y": 2,
@@ -7851,7 +7983,7 @@
                 ]
               },
               {
-                "id": 12,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 14,
                 "y": 2,
@@ -7906,7 +8038,7 @@
                 ]
               },
               {
-                "id": 13,
+                "id": 14,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,

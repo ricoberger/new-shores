@@ -255,13 +255,9 @@ type serviceLevelJSON struct {
 	Cost *costJSON `json:"cost,omitempty"`
 }
 
-// workAreaJSON is a work area; a farm with fields (D-051 part 4) has no
-// radius, terrain or required tiles, only a fertility.
+// workAreaJSON is a work area: the fertility the building needs.
 type workAreaJSON struct {
-	Radius        int      `json:"radius,omitempty"`
-	Terrain       []string `json:"terrain,omitempty"`
-	RequiredTiles int      `json:"required_tiles,omitempty"`
-	Fertility     string   `json:"fertility,omitempty"`
+	Fertility string `json:"fertility,omitempty"`
 }
 
 type farmFieldsJSON struct {
@@ -537,10 +533,7 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		}
 	}
 	if wa := b.WorkArea; wa != nil {
-		bj.WorkArea = &workAreaJSON{Radius: wa.Radius, RequiredTiles: wa.RequiredTiles, Fertility: wa.Fertility}
-		if b.Fields == nil {
-			bj.WorkArea.Terrain = append([]string{}, wa.Terrain...)
-		}
+		bj.WorkArea = &workAreaJSON{Fertility: wa.Fertility}
 	}
 	if f := b.Fields; f != nil {
 		bj.Fields = &farmFieldsJSON{Type: f.Type, Required: f.Required, Max: f.Max}

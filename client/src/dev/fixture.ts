@@ -513,7 +513,8 @@ const FIXTURE_DEFS: FixtureDef[] = [
   ],
   ["market", "Market", "settlers", "public", 3, 3, { service: { radius: 10 } }],
   ["chapel", "Chapel", "settlers", "public", 2, 2, { service: { radius: 10 } }],
-  ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { work_area: { radius: 4, terrain: ["forest"] } }],
+  ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { work_area: { radius: 4, terrain: ["forest"] }, fields: { type: "tree_plot", required: 1, max: 2 } }],
+  ["tree_plot", "Tree plot", "settlers", "production", 1, 1, { requires_road: false, cost: { gold: 1000, materials: {} }, field: { type: "tree_plot", farm: "lumberjack", terrain: ["grass", "forest"] } }],
   ["sawmill", "Sawmill", "settlers", "production", 2, 2],
   ["fisher", "Fisher", "settlers", "production", 2, 2, { water_tiles: 1, boat: true }],
   ["sheep_farm", "Sheep farm", "settlers", "production", 3, 3, { fields: { type: "pasture", required: 4, max: 4 } }],
@@ -1086,6 +1087,11 @@ export function buildShowcaseFixture(nowMs: number): Built {
     for (let dy = 0; dy < h; dy++) for (let dx = 0; dx < w; dx++) taken.add(`${x + dx},${y + dy}`);
   }
   const grass = (x: number, y: number) => terrain[y * width + x] === "grass";
+  // The lumberjack's single tree plot lies south of it (fields chain to the farm's edge).
+  const lumberjack = placed.findIndex((p) => p[0] === "lumberjack");
+  const lj = placed[lumberjack] as (typeof placed)[number];
+  placed.push(["tree_plot", lj[1], lj[2] + 2, 0, { farm_id: 5001 + lumberjack, active: true }]);
+  lj[4] = { fields: { active: 1, required: 1, max: 2, ids: [5001 + placed.length - 1] }, status: "ok", efficiency_permille: 1000 };
   for (const farmType of ["wheat_farm", "orchard", "hemp_farm", "sheep_farm"]) {
     const farmIndex = placed.findIndex((p) => p[0] === farmType);
     const farm = placed[farmIndex] as (typeof placed)[number];

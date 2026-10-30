@@ -756,9 +756,6 @@ components:
           `harbour_blocked` (quay tiles, or a Trading Post moved onto
           them, would close the harbour point off from the open sea,
           D-060),
-          `no_work_area`
-          (lumberjack only: no matching tile in its work area; farms with
-          fields are placed at 0 fields),
           `no_fertility` (the island lacks the work area's or the field's
           fertility tag),
           `field_type_mismatch` (`place_field` with a type that is not a
@@ -798,7 +795,7 @@ components:
         `move_building` can fail with 400 `bad_request`, `invalid_command`
         (also for a road or an invalid rotation), `out_of_bounds`; 404
         `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-        `not_coastal`, `not_on_water`, `no_work_area`, `no_fertility`,
+        `not_coastal`, `not_on_water`, `no_fertility`,
         `no_deposit`. Moving a farm keeps its fields (they may become
         inactive); a field cannot be moved (`invalid_command`). Moving is
         free: it never fails for gold, materials or tier. Placement never
@@ -869,7 +866,6 @@ components:
         - not_coastal
         - not_on_water
         - harbour_blocked
-        - no_work_area
         - no_fertility
         - no_deposit
         - insufficient_gold
@@ -3695,21 +3691,25 @@ components:
           type: object
           additionalProperties: false
           description: |
-            Work radius. `radius`, `terrain` and `required_tiles` are present
-            for the implicit terrain rule (lumberjack) and absent for a farm
-            with `fields` (no radius, D-051 part 4), which has at most a
-            `fertility`.
+            Fertility requirement: the building can only be placed on an
+            island with the `fertility` tag. There is no work radius or
+            terrain rule any more (the harvester rule was removed);
+            `radius`, `terrain` and `required_tiles` are deprecated, never
+            sent, and only kept until the Almanac stops reading them.
           properties:
             radius:
               type: integer
-              description: Work-area radius (tiles).
+              deprecated: true
+              description: Never sent (removed work-area rule).
             terrain:
               type: array
+              deprecated: true
               items:
                 type: string
             required_tiles:
               type: integer
-              description: Matching tiles for full efficiency (count).
+              deprecated: true
+              description: Never sent (removed work-area rule).
             fertility:
               type: string
               description: Island fertility tag the building needs (absent for none).

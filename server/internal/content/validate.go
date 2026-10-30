@@ -486,9 +486,6 @@ func checkFields(c *Catalogue, col *collector) {
 			case !fb.Field.BelongsTo(b.ID):
 				col.add(FileBuildings, ent, "fields.type", "field type %q belongs to farm %v", f.Type, fb.Field.Farms)
 			}
-			if b.WorkArea != nil && b.WorkArea.Radius != 0 {
-				col.add(FileBuildings, ent, "work_area.radius", "a farm with fields has no work radius")
-			}
 			if b.Field != nil {
 				col.add(FileBuildings, ent, "field", "a farm cannot be a field")
 			}

@@ -1,6 +1,6 @@
 {
   "name": "move_with_transit",
-  "description": "A connected lumberjack (road distance 5) runs for 30 s, so that wood is in transit, and is then moved for free to the other side of the road and rotated (road distance 6, D-042): it keeps its ID, cycle progress and the goods in transit, which still arrive in full.",
+  "description": "A connected lumberjack (road distance 5) runs for 30 s, so that wood is in transit, and is then moved for free to the other side of the road and rotated (road distance 6, D-042): it keeps its ID, cycle progress and the goods in transit, which still arrive in full. Its tree plot stays behind (inactive), so a second plot is planted beside the new site.",
   "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
@@ -24,7 +24,7 @@
       "y": 0,
       "rotation": 0
     },
-    "gold": 1000,
+    "gold": 1002,
     "workforce": {
       "settlers": 1000
     },
@@ -55,6 +55,21 @@
       }
     },
     {
+      "fields": {
+        "farm": [
+          8,
+          2
+        ],
+        "rect": [
+          10,
+          2,
+          10,
+          3
+        ],
+        "count": 1
+      }
+    },
+    {
       "advance": {
         "duration": "30s"
       }
@@ -66,6 +81,21 @@
         "to_x": 9,
         "to_y": 5,
         "rotation": 90
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          9,
+          5
+        ],
+        "rect": [
+          11,
+          5,
+          11,
+          6
+        ],
+        "count": 1
       }
     },
     {

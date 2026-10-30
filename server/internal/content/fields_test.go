@@ -67,9 +67,6 @@ func TestLoadFields(t *testing.T) {
 		if b.Fields == nil || b.Fields.Type != w.field || b.Fields.Required != w.required || b.Fields.Max != w.max {
 			t.Errorf("%s fields %+v", farm, b.Fields)
 		}
-		if wa := b.WorkArea; wa != nil && (wa.Radius != 0 || len(wa.Terrain) != 0 || wa.RequiredTiles != 0) {
-			t.Errorf("%s work area %+v", farm, wa)
-		}
 		fb := c.FieldByType[w.field]
 		if fb == nil || fb.ID != w.field || fb.Field.Type != w.field || fb.Field.Farm != farm || !fb.Field.MatchesTerrain("grass") || fb.Field.MatchesTerrain("forest") ||
 			fb.Width != w.size || fb.Height != w.size || fb.UpkeepPerMin != 0 || fb.PauseCategory != "never" || fb.RequiresRoad || fb.Recipe != nil {
@@ -83,8 +80,8 @@ func TestLoadFields(t *testing.T) {
 			t.Errorf("%s fertility %q, field %s %q", farm, fert, w.field, fb.Field.Fertility)
 		}
 	}
-	if lj := c.BuildingByID["lumberjack"]; lj.Fields != nil || lj.WorkArea.Radius != 4 || lj.WorkArea.RequiredTiles != 24 || !lj.WorkArea.MatchesTerrain("forest") {
-		t.Errorf("lumberjack %+v", lj.WorkArea)
+	if lj := c.BuildingByID["lumberjack"]; lj.WorkArea != nil || lj.Fields == nil || lj.Fields.Type != "tree_plot" {
+		t.Errorf("lumberjack %+v fields %+v", lj.WorkArea, lj.Fields)
 	}
 }
 
@@ -124,13 +121,15 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 			[]string{FileBuildings, `building "hemp_farm"`, "fields.max", "must be >= fields.required"},
 		},
 		{
-			"work area without fields needs terrain",
-			[]string{`"work_area": { "radius": 4, "terrain": ["forest"], "required_tiles": 24 }`, `"work_area": { "radius": 4 }`},
+			"work area with a radius",
+			[]string{`"fields": { "type": "tree_plot", "required": 1, "max": 2 }`, `"fields": { "type": "tree_plot", "required": 1, "max": 2 },
+    "work_area": { "fertility": "wheat", "radius": 4 }`},
 			[]string{FileBuildings, `building "lumberjack"`, "schema violation"},
 		},
 		{
-			"work area without fields needs a radius",
-			[]string{`"work_area": { "radius": 4, "terrain": ["forest"], "required_tiles": 24 }`, `"work_area": { "terrain": ["forest"], "required_tiles": 24 }`},
+			"work area without a fertility",
+			[]string{`"fields": { "type": "tree_plot", "required": 1, "max": 2 }`, `"fields": { "type": "tree_plot", "required": 1, "max": 2 },
+    "work_area": {}`},
 			[]string{FileBuildings, `building "lumberjack"`, "schema violation"},
 		},
 		{
@@ -185,8 +184,8 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 		},
 		{
 			"field names a building that is no farm",
-			[]string{`"field": { "type": "hemp_field", "farm": "hemp_farm",`, `"field": { "type": "hemp_field", "farm": "lumberjack",`},
-			[]string{FileBuildings, `building "hemp_field"`, "field.farm", `"lumberjack" is not a farm with a fields block`},
+			[]string{`"field": { "type": "hemp_field", "farm": "hemp_farm",`, `"field": { "type": "hemp_field", "farm": "sawmill",`},
+			[]string{FileBuildings, `building "hemp_field"`, "field.farm", `"sawmill" is not a farm with a fields block`},
 		},
 		{
 			"field shared by two farms: the second farm's field type",
@@ -263,9 +262,6 @@ func TestShippedFields(t *testing.T) {
 		fert := ""
 		if b.WorkArea != nil {
 			fert = b.WorkArea.Fertility
-			if b.WorkArea.Radius != 0 {
-				t.Errorf("%s has a work radius", b.ID)
-			}
 		}
 		if !ok || b.Fields.Type != w.field || b.Fields.Required != w.required || b.Fields.Max != w.required || fert != w.fertility {
 			t.Errorf("%s fields %+v work area %+v", b.ID, b.Fields, b.WorkArea)

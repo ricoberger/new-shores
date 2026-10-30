@@ -161,7 +161,7 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 280244,
+            "stock": 300000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -369,7 +369,7 @@
             "paused": true,
             "paused_reason": "unpaid",
             "status": "paused",
-            "efficiency_permille": 750,
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
@@ -378,7 +378,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 946,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
@@ -386,6 +386,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                11
+              ]
             }
           },
           {
@@ -397,7 +405,7 @@
             "paused": true,
             "paused_reason": "unpaid",
             "status": "paused",
-            "efficiency_permille": 500,
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
@@ -406,7 +414,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 297,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 27000,
             "assigned_warehouse_id": 1,
             "road_distance": 17,
@@ -414,6 +422,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                12
+              ]
             }
           },
           {
@@ -677,6 +693,34 @@
             "served_by": [
               6
             ]
+          },
+          {
+            "id": 11,
+            "type": "tree_plot",
+            "x": 25,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 3,
+            "active": true
+          },
+          {
+            "id": 12,
+            "type": "tree_plot",
+            "x": 22,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 4,
+            "active": true
           }
         ],
         "workforce": {
@@ -966,7 +1010,7 @@
               "at_capacity": false
             },
             "planks": {
-              "produced": 158950,
+              "produced": 158900,
               "consumed": 0,
               "lost": 0,
               "stock_after": 300000,
@@ -974,12 +1018,12 @@
               "at_capacity": true
             },
             "wood": {
-              "produced": 423244,
-              "consumed": 158950,
+              "produced": 398000,
+              "consumed": 158900,
               "lost": 0,
-              "stock_after": 280244,
+              "stock_after": 300000,
               "capacity": 300000,
-              "at_capacity": false
+              "at_capacity": true
             }
           }
         },
@@ -1184,7 +1228,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 280244,
+                "stock": 300000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -1392,7 +1436,7 @@
                 "paused": true,
                 "paused_reason": "unpaid",
                 "status": "paused",
-                "efficiency_permille": 750,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
@@ -1401,7 +1445,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 946,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -1409,6 +1453,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    11
+                  ]
                 }
               },
               {
@@ -1420,7 +1472,7 @@
                 "paused": true,
                 "paused_reason": "unpaid",
                 "status": "paused",
-                "efficiency_permille": 500,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
@@ -1429,7 +1481,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 297,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -1437,6 +1489,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    12
+                  ]
                 }
               },
               {
@@ -1700,6 +1760,34 @@
                 "served_by": [
                   6
                 ]
+              },
+              {
+                "id": 11,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 12,
+                "type": "tree_plot",
+                "x": 22,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
               }
             ],
             "workforce": {
@@ -1989,7 +2077,7 @@
                   "at_capacity": false
                 },
                 "planks": {
-                  "produced": 158950,
+                  "produced": 158900,
                   "consumed": 0,
                   "lost": 0,
                   "stock_after": 300000,
@@ -1997,12 +2085,12 @@
                   "at_capacity": true
                 },
                 "wood": {
-                  "produced": 423244,
-                  "consumed": 158950,
+                  "produced": 398000,
+                  "consumed": 158900,
                   "lost": 0,
-                  "stock_after": 280244,
+                  "stock_after": 300000,
                   "capacity": 300000,
-                  "at_capacity": false
+                  "at_capacity": true
                 }
               }
             },
@@ -2207,7 +2295,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 280244,
+                "stock": 300000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -2415,7 +2503,7 @@
                 "paused": true,
                 "paused_reason": "unpaid",
                 "status": "paused",
-                "efficiency_permille": 750,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
@@ -2424,7 +2512,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 946,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -2432,6 +2520,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    11
+                  ]
                 }
               },
               {
@@ -2443,7 +2539,7 @@
                 "paused": true,
                 "paused_reason": "unpaid",
                 "status": "paused",
-                "efficiency_permille": 500,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
@@ -2452,7 +2548,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 297,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -2460,6 +2556,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    12
+                  ]
                 }
               },
               {
@@ -2723,6 +2827,34 @@
                 "served_by": [
                   6
                 ]
+              },
+              {
+                "id": 11,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 12,
+                "type": "tree_plot",
+                "x": 22,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
               }
             ],
             "workforce": {
@@ -3012,7 +3144,7 @@
                   "at_capacity": false
                 },
                 "planks": {
-                  "produced": 158950,
+                  "produced": 158900,
                   "consumed": 0,
                   "lost": 0,
                   "stock_after": 300000,
@@ -3020,12 +3152,12 @@
                   "at_capacity": true
                 },
                 "wood": {
-                  "produced": 423244,
-                  "consumed": 158950,
+                  "produced": 398000,
+                  "consumed": 158900,
                   "lost": 0,
-                  "stock_after": 280244,
+                  "stock_after": 300000,
                   "capacity": 300000,
-                  "at_capacity": false
+                  "at_capacity": true
                 }
               }
             },
@@ -3230,7 +3362,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 280244,
+                "stock": 300000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -3438,7 +3570,7 @@
                 "paused": true,
                 "paused_reason": "unpaid",
                 "status": "paused",
-                "efficiency_permille": 750,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
@@ -3447,7 +3579,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 946,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -3455,6 +3587,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    11
+                  ]
                 }
               },
               {
@@ -3466,7 +3606,7 @@
                 "paused": true,
                 "paused_reason": "unpaid",
                 "status": "paused",
-                "efficiency_permille": 500,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
@@ -3475,7 +3615,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 297,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -3483,6 +3623,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    12
+                  ]
                 }
               },
               {
@@ -3746,6 +3894,34 @@
                 "served_by": [
                   6
                 ]
+              },
+              {
+                "id": 11,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 12,
+                "type": "tree_plot",
+                "x": 22,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
               }
             ],
             "workforce": {
@@ -4035,7 +4211,7 @@
                   "at_capacity": false
                 },
                 "planks": {
-                  "produced": 158950,
+                  "produced": 158900,
                   "consumed": 0,
                   "lost": 0,
                   "stock_after": 300000,
@@ -4043,12 +4219,12 @@
                   "at_capacity": true
                 },
                 "wood": {
-                  "produced": 423244,
-                  "consumed": 158950,
+                  "produced": 398000,
+                  "consumed": 158900,
                   "lost": 0,
-                  "stock_after": 280244,
+                  "stock_after": 300000,
                   "capacity": 300000,
-                  "at_capacity": false
+                  "at_capacity": true
                 }
               }
             },
@@ -4253,7 +4429,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 280244,
+                "stock": 300000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -4461,7 +4637,7 @@
                 "paused": true,
                 "paused_reason": "unpaid",
                 "status": "paused",
-                "efficiency_permille": 750,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
@@ -4470,7 +4646,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 946,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -4478,6 +4654,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    11
+                  ]
                 }
               },
               {
@@ -4489,7 +4673,7 @@
                 "paused": true,
                 "paused_reason": "unpaid",
                 "status": "paused",
-                "efficiency_permille": 500,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
@@ -4498,7 +4682,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 297,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -4506,6 +4690,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    12
+                  ]
                 }
               },
               {
@@ -4769,6 +4961,34 @@
                 "served_by": [
                   6
                 ]
+              },
+              {
+                "id": 11,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 12,
+                "type": "tree_plot",
+                "x": 22,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
               }
             ],
             "workforce": {
@@ -5058,7 +5278,7 @@
                   "at_capacity": false
                 },
                 "planks": {
-                  "produced": 158950,
+                  "produced": 158900,
                   "consumed": 0,
                   "lost": 0,
                   "stock_after": 300000,
@@ -5066,12 +5286,12 @@
                   "at_capacity": true
                 },
                 "wood": {
-                  "produced": 423244,
-                  "consumed": 158950,
+                  "produced": 398000,
+                  "consumed": 158900,
                   "lost": 0,
-                  "stock_after": 280244,
+                  "stock_after": 300000,
                   "capacity": 300000,
-                  "at_capacity": false
+                  "at_capacity": true
                 }
               }
             },
@@ -5276,7 +5496,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 280244,
+                "stock": 300000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -5484,7 +5704,7 @@
                 "paused": true,
                 "paused_reason": "unpaid",
                 "status": "paused",
-                "efficiency_permille": 750,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
@@ -5493,7 +5713,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 946,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -5501,6 +5721,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    11
+                  ]
                 }
               },
               {
@@ -5512,7 +5740,7 @@
                 "paused": true,
                 "paused_reason": "unpaid",
                 "status": "paused",
-                "efficiency_permille": 500,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
@@ -5521,7 +5749,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 297,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -5529,6 +5757,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    12
+                  ]
                 }
               },
               {
@@ -5792,6 +6028,34 @@
                 "served_by": [
                   6
                 ]
+              },
+              {
+                "id": 11,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 12,
+                "type": "tree_plot",
+                "x": 22,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
               }
             ],
             "workforce": {
@@ -6081,7 +6345,7 @@
                   "at_capacity": false
                 },
                 "planks": {
-                  "produced": 158950,
+                  "produced": 158900,
                   "consumed": 0,
                   "lost": 0,
                   "stock_after": 300000,
@@ -6089,12 +6353,12 @@
                   "at_capacity": true
                 },
                 "wood": {
-                  "produced": 423244,
-                  "consumed": 158950,
+                  "produced": 398000,
+                  "consumed": 158900,
                   "lost": 0,
-                  "stock_after": 280244,
+                  "stock_after": 300000,
                   "capacity": 300000,
-                  "at_capacity": false
+                  "at_capacity": true
                 }
               }
             },

@@ -314,10 +314,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                3
+              ]
             }
           },
           {
             "id": 3,
+            "type": "tree_plot",
+            "x": 10,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 2,
+            "active": true
+          },
+          {
+            "id": 4,
             "type": "sawmill",
             "x": 14,
             "y": 2,
@@ -733,10 +755,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    3
+                  ]
                 }
               },
               {
                 "id": 3,
+                "type": "tree_plot",
+                "x": 10,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 2,
+                "active": true
+              },
+              {
+                "id": 4,
                 "type": "sawmill",
                 "x": 14,
                 "y": 2,
@@ -1152,10 +1196,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    3
+                  ]
                 }
               },
               {
                 "id": 3,
+                "type": "tree_plot",
+                "x": 10,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 2,
+                "active": true
+              },
+              {
+                "id": 4,
                 "type": "sawmill",
                 "x": 14,
                 "y": 2,
@@ -1571,10 +1637,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    3
+                  ]
                 }
               },
               {
                 "id": 3,
+                "type": "tree_plot",
+                "x": 10,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 2,
+                "active": true
+              },
+              {
+                "id": 4,
                 "type": "sawmill",
                 "x": 14,
                 "y": 2,
@@ -1990,10 +2078,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    3
+                  ]
                 }
               },
               {
                 "id": 3,
+                "type": "tree_plot",
+                "x": 10,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 2,
+                "active": true
+              },
+              {
+                "id": 4,
                 "type": "sawmill",
                 "x": 14,
                 "y": 2,
@@ -2409,10 +2519,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    3
+                  ]
                 }
               },
               {
                 "id": 3,
+                "type": "tree_plot",
+                "x": 10,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 2,
+                "active": true
+              },
+              {
+                "id": 4,
                 "type": "sawmill",
                 "x": 14,
                 "y": 2,

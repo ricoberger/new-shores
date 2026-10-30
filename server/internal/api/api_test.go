@@ -700,10 +700,7 @@ func TestHealthAndContent(t *testing.T) {
 			} `json:"shipyard"`
 			RequiresDeposit string `json:"requires_deposit"`
 			WorkArea        *struct {
-				Radius        int      `json:"radius"`
-				Fertility     string   `json:"fertility"`
-				Terrain       []string `json:"terrain"`
-				RequiredTiles int      `json:"required_tiles"`
+				Fertility string `json:"fertility"`
 			} `json:"work_area"`
 			Fields *struct {
 				Type     string `json:"type"`
@@ -754,7 +751,7 @@ func TestHealthAndContent(t *testing.T) {
 	if c.Region.Camera.MaxHalfExtent != 120 {
 		t.Errorf("camera %+v", c.Region.Camera)
 	}
-	if c.Region.Version != "old_coast-0.9.0" || len(c.Buildings) != 32 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
+	if c.Region.Version != "old_coast-0.9.0" || len(c.Buildings) != 33 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
 		t.Fatalf("content: version %s buildings %d goods %d tiers %d needs %d ships %d", c.Region.Version, len(c.Buildings), len(c.Goods), len(c.Tiers), len(c.Needs), len(c.Ships))
 	}
 	if sh := c.Ships[0]; sh.ID != "sloop" || sh.Slots != 4 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != catalogue(t).ShipByID["sloop"].Cost.Gold || sh.Cost.Materials["sails"] != 10_000 {
@@ -803,12 +800,11 @@ func TestHealthAndContent(t *testing.T) {
 				t.Errorf("%s requires_deposit %q", b.ID, b.RequiresDeposit)
 			}
 		case "wheat_farm", "orchard", "hemp_farm", "sheep_farm":
-			// Farms with fields (D-051 part 4): no radius, at most a fertility.
+			// Farms with fields (D-051 part 4): at most a fertility.
 			field := map[string]string{"wheat_farm": "wheat_field", "orchard": "orchard_plot", "hemp_farm": "hemp_field", "sheep_farm": "pasture"}[b.ID]
 			required := map[string]int{"wheat_farm": 16, "orchard": 16, "hemp_farm": 16, "sheep_farm": 4}[b.ID]
 			fert := map[string]string{"wheat_farm": "wheat", "orchard": "apple", "hemp_farm": "hemp"}[b.ID]
-			if (fert == "") != (b.WorkArea == nil) || (b.WorkArea != nil && (b.WorkArea.Fertility != fert || b.WorkArea.Radius != 0 ||
-				b.WorkArea.Terrain != nil || b.WorkArea.RequiredTiles != 0)) ||
+			if (fert == "") != (b.WorkArea == nil) || (b.WorkArea != nil && b.WorkArea.Fertility != fert) ||
 				b.Fields == nil || b.Fields.Type != field || b.Fields.Required != required || b.Fields.Max != required {
 				t.Errorf("%s work area %+v fields %+v", b.ID, b.WorkArea, b.Fields)
 			}
@@ -819,8 +815,8 @@ func TestHealthAndContent(t *testing.T) {
 				t.Errorf("%s field %+v", b.ID, b.Field)
 			}
 		case "lumberjack":
-			if b.WorkArea == nil || strings.Join(b.WorkArea.Terrain, ",") != "forest" || b.WorkArea.RequiredTiles != 24 || b.Fields != nil {
-				t.Errorf("lumberjack work area %+v", b.WorkArea)
+			if b.WorkArea != nil || b.Fields == nil || b.Fields.Type != "tree_plot" {
+				t.Errorf("lumberjack work area %+v fields %+v", b.WorkArea, b.Fields)
 			}
 		case "trading_post":
 			if l := b.TradingPost.Levels; b.WaterTiles != 2 || len(l) != 4 || l[0].Cost != nil || l[0].Capacity != 300_000 || l[0].Berths != 1 ||

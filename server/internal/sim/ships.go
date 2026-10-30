@@ -893,7 +893,7 @@ func foundIsland(w *World, c *content.Catalogue, cmd FoundIsland, l *Ledger) err
 	if !validRotation(cmd.Rotation) {
 		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, cmd.Rotation)
 	}
-	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation, true); err != nil {
+	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
 		return err
 	}
 	if def.Cost.Gold > w.Gold {
@@ -1163,7 +1163,7 @@ func foundingHarbour(w *World, c *content.Catalogue, is *Island, site *FoundingS
 	if !validRotation(site.Rotation) {
 		return Pos{}, false, fmt.Errorf("%w: rotation %d", ErrInvalidCommand, site.Rotation)
 	}
-	if err := checkSite(is, c, is.occupancy(c), def, site.X, site.Y, site.Rotation, true); err != nil {
+	if err := checkSite(is, c, is.occupancy(c), def, site.X, site.Y, site.Rotation); err != nil {
 		return Pos{}, false, err
 	}
 	return HarbourAt(is, def, site.X, site.Y, site.Rotation), true, nil

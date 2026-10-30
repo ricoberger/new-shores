@@ -126,7 +126,7 @@
             "in_transit_rate_per_min": 0
           },
           "planks": {
-            "stock": 119000,
+            "stock": 119001,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -161,7 +161,7 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 77,
+            "stock": 206,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -424,7 +424,7 @@
             }
           },
           {
-            "id": 8,
+            "id": 9,
             "type": "sheep_farm",
             "x": 24,
             "y": 6,
@@ -455,13 +455,13 @@
               "required": 4,
               "max": 4,
               "ids": [
-                9,
-                10
+                10,
+                11
               ]
             }
           },
           {
-            "id": 9,
+            "id": 10,
             "type": "pasture",
             "x": 22,
             "y": 6,
@@ -471,11 +471,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 8,
+            "farm_id": 9,
             "active": true
           },
           {
-            "id": 10,
+            "id": 11,
             "type": "pasture",
             "x": 20,
             "y": 6,
@@ -485,11 +485,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 8,
+            "farm_id": 9,
             "active": true
           },
           {
-            "id": 11,
+            "id": 12,
             "type": "house_settlers",
             "x": 3,
             "y": 6,
@@ -541,7 +541,7 @@
             ]
           },
           {
-            "id": 12,
+            "id": 13,
             "type": "house_settlers",
             "x": 5,
             "y": 6,
@@ -985,7 +985,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 119000,
+                "stock": 119001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -1020,7 +1020,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 77,
+                "stock": 206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -1283,7 +1283,7 @@
                 }
               },
               {
-                "id": 8,
+                "id": 9,
                 "type": "sheep_farm",
                 "x": 24,
                 "y": 6,
@@ -1314,13 +1314,13 @@
                   "required": 4,
                   "max": 4,
                   "ids": [
-                    9,
-                    10
+                    10,
+                    11
                   ]
                 }
               },
               {
-                "id": 9,
+                "id": 10,
                 "type": "pasture",
                 "x": 22,
                 "y": 6,
@@ -1330,11 +1330,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 8,
+                "farm_id": 9,
                 "active": true
               },
               {
-                "id": 10,
+                "id": 11,
                 "type": "pasture",
                 "x": 20,
                 "y": 6,
@@ -1344,11 +1344,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 8,
+                "farm_id": 9,
                 "active": true
               },
               {
-                "id": 11,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 3,
                 "y": 6,
@@ -1400,7 +1400,7 @@
                 ]
               },
               {
-                "id": 12,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 5,
                 "y": 6,
@@ -1844,7 +1844,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 119000,
+                "stock": 119001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -1879,7 +1879,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 77,
+                "stock": 206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -2142,7 +2142,7 @@
                 }
               },
               {
-                "id": 8,
+                "id": 9,
                 "type": "sheep_farm",
                 "x": 24,
                 "y": 6,
@@ -2173,13 +2173,13 @@
                   "required": 4,
                   "max": 4,
                   "ids": [
-                    9,
-                    10
+                    10,
+                    11
                   ]
                 }
               },
               {
-                "id": 9,
+                "id": 10,
                 "type": "pasture",
                 "x": 22,
                 "y": 6,
@@ -2189,11 +2189,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 8,
+                "farm_id": 9,
                 "active": true
               },
               {
-                "id": 10,
+                "id": 11,
                 "type": "pasture",
                 "x": 20,
                 "y": 6,
@@ -2203,11 +2203,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 8,
+                "farm_id": 9,
                 "active": true
               },
               {
-                "id": 11,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 3,
                 "y": 6,
@@ -2259,7 +2259,7 @@
                 ]
               },
               {
-                "id": 12,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 5,
                 "y": 6,
@@ -2703,7 +2703,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 119000,
+                "stock": 119001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -2738,7 +2738,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 77,
+                "stock": 206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -3001,7 +3001,7 @@
                 }
               },
               {
-                "id": 8,
+                "id": 9,
                 "type": "sheep_farm",
                 "x": 24,
                 "y": 6,
@@ -3032,13 +3032,13 @@
                   "required": 4,
                   "max": 4,
                   "ids": [
-                    9,
-                    10
+                    10,
+                    11
                   ]
                 }
               },
               {
-                "id": 9,
+                "id": 10,
                 "type": "pasture",
                 "x": 22,
                 "y": 6,
@@ -3048,11 +3048,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 8,
+                "farm_id": 9,
                 "active": true
               },
               {
-                "id": 10,
+                "id": 11,
                 "type": "pasture",
                 "x": 20,
                 "y": 6,
@@ -3062,11 +3062,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 8,
+                "farm_id": 9,
                 "active": true
               },
               {
-                "id": 11,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 3,
                 "y": 6,
@@ -3118,7 +3118,7 @@
                 ]
               },
               {
-                "id": 12,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 5,
                 "y": 6,
@@ -3562,7 +3562,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 119000,
+                "stock": 119001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -3597,7 +3597,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 77,
+                "stock": 206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -3860,7 +3860,7 @@
                 }
               },
               {
-                "id": 8,
+                "id": 9,
                 "type": "sheep_farm",
                 "x": 24,
                 "y": 6,
@@ -3891,13 +3891,13 @@
                   "required": 4,
                   "max": 4,
                   "ids": [
-                    9,
-                    10
+                    10,
+                    11
                   ]
                 }
               },
               {
-                "id": 9,
+                "id": 10,
                 "type": "pasture",
                 "x": 22,
                 "y": 6,
@@ -3907,11 +3907,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 8,
+                "farm_id": 9,
                 "active": true
               },
               {
-                "id": 10,
+                "id": 11,
                 "type": "pasture",
                 "x": 20,
                 "y": 6,
@@ -3921,11 +3921,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 8,
+                "farm_id": 9,
                 "active": true
               },
               {
-                "id": 11,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 3,
                 "y": 6,
@@ -3977,7 +3977,7 @@
                 ]
               },
               {
-                "id": 12,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 5,
                 "y": 6,
@@ -4421,7 +4421,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 119000,
+                "stock": 119001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -4456,7 +4456,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 77,
+                "stock": 206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -4719,7 +4719,7 @@
                 }
               },
               {
-                "id": 8,
+                "id": 9,
                 "type": "sheep_farm",
                 "x": 24,
                 "y": 6,
@@ -4750,13 +4750,13 @@
                   "required": 4,
                   "max": 4,
                   "ids": [
-                    9,
-                    10
+                    10,
+                    11
                   ]
                 }
               },
               {
-                "id": 9,
+                "id": 10,
                 "type": "pasture",
                 "x": 22,
                 "y": 6,
@@ -4766,11 +4766,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 8,
+                "farm_id": 9,
                 "active": true
               },
               {
-                "id": 10,
+                "id": 11,
                 "type": "pasture",
                 "x": 20,
                 "y": 6,
@@ -4780,11 +4780,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 8,
+                "farm_id": 9,
                 "active": true
               },
               {
-                "id": 11,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 3,
                 "y": 6,
@@ -4836,7 +4836,7 @@
                 ]
               },
               {
-                "id": 12,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 5,
                 "y": 6,

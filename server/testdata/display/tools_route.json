@@ -1460,10 +1460,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                22
+              ]
             }
           },
           {
             "id": 22,
+            "type": "tree_plot",
+            "x": 34,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 21,
+            "active": true
+          },
+          {
+            "id": 23,
             "type": "charcoal_burner",
             "x": 16,
             "y": 11,
@@ -1494,7 +1516,7 @@
             }
           },
           {
-            "id": 23,
+            "id": 24,
             "type": "iron_mine",
             "x": 11,
             "y": 7,
@@ -1523,7 +1545,7 @@
             }
           },
           {
-            "id": 24,
+            "id": 25,
             "type": "smelter",
             "x": 26,
             "y": 11,
@@ -1555,7 +1577,7 @@
             }
           },
           {
-            "id": 25,
+            "id": 26,
             "type": "toolmaker",
             "x": 29,
             "y": 11,
@@ -3453,10 +3475,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    22
+                  ]
                 }
               },
               {
                 "id": 22,
+                "type": "tree_plot",
+                "x": 34,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 21,
+                "active": true
+              },
+              {
+                "id": 23,
                 "type": "charcoal_burner",
                 "x": 16,
                 "y": 11,
@@ -3487,7 +3531,7 @@
                 }
               },
               {
-                "id": 23,
+                "id": 24,
                 "type": "iron_mine",
                 "x": 11,
                 "y": 7,
@@ -3516,7 +3560,7 @@
                 }
               },
               {
-                "id": 24,
+                "id": 25,
                 "type": "smelter",
                 "x": 26,
                 "y": 11,
@@ -3548,7 +3592,7 @@
                 }
               },
               {
-                "id": 25,
+                "id": 26,
                 "type": "toolmaker",
                 "x": 29,
                 "y": 11,
@@ -5446,10 +5490,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    22
+                  ]
                 }
               },
               {
                 "id": 22,
+                "type": "tree_plot",
+                "x": 34,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 21,
+                "active": true
+              },
+              {
+                "id": 23,
                 "type": "charcoal_burner",
                 "x": 16,
                 "y": 11,
@@ -5480,7 +5546,7 @@
                 }
               },
               {
-                "id": 23,
+                "id": 24,
                 "type": "iron_mine",
                 "x": 11,
                 "y": 7,
@@ -5509,7 +5575,7 @@
                 }
               },
               {
-                "id": 24,
+                "id": 25,
                 "type": "smelter",
                 "x": 26,
                 "y": 11,
@@ -5541,7 +5607,7 @@
                 }
               },
               {
-                "id": 25,
+                "id": 26,
                 "type": "toolmaker",
                 "x": 29,
                 "y": 11,
@@ -7439,10 +7505,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    22
+                  ]
                 }
               },
               {
                 "id": 22,
+                "type": "tree_plot",
+                "x": 34,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 21,
+                "active": true
+              },
+              {
+                "id": 23,
                 "type": "charcoal_burner",
                 "x": 16,
                 "y": 11,
@@ -7473,7 +7561,7 @@
                 }
               },
               {
-                "id": 23,
+                "id": 24,
                 "type": "iron_mine",
                 "x": 11,
                 "y": 7,
@@ -7502,7 +7590,7 @@
                 }
               },
               {
-                "id": 24,
+                "id": 25,
                 "type": "smelter",
                 "x": 26,
                 "y": 11,
@@ -7534,7 +7622,7 @@
                 }
               },
               {
-                "id": 25,
+                "id": 26,
                 "type": "toolmaker",
                 "x": 29,
                 "y": 11,
@@ -9432,10 +9520,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    22
+                  ]
                 }
               },
               {
                 "id": 22,
+                "type": "tree_plot",
+                "x": 34,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 21,
+                "active": true
+              },
+              {
+                "id": 23,
                 "type": "charcoal_burner",
                 "x": 16,
                 "y": 11,
@@ -9466,7 +9576,7 @@
                 }
               },
               {
-                "id": 23,
+                "id": 24,
                 "type": "iron_mine",
                 "x": 11,
                 "y": 7,
@@ -9495,7 +9605,7 @@
                 }
               },
               {
-                "id": 24,
+                "id": 25,
                 "type": "smelter",
                 "x": 26,
                 "y": 11,
@@ -9527,7 +9637,7 @@
                 }
               },
               {
-                "id": 25,
+                "id": 26,
                 "type": "toolmaker",
                 "x": 29,
                 "y": 11,

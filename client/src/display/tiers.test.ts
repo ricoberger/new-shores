@@ -20,7 +20,7 @@ const content = {
     { id: "house_citizens", name: "Citizen house", tier: "citizens", house: { tier: "citizens" } },
     { id: "market", name: "Small market", tier: "settlers" },
     { id: "chapel", name: "Chapel", tier: "settlers" },
-    { id: "wheat_farm", name: "Wheat farm", tier: "citizens", work_area: { radius: 4, terrain: ["grass"], required_tiles: 24, fertility: "wheat" } },
+    { id: "wheat_farm", name: "Wheat farm", tier: "citizens", work_area: { fertility: "wheat" } },
   ],
   needs: [],
 } as unknown as Content;

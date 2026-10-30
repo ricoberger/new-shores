@@ -219,7 +219,7 @@ old_coast_pre_d054` for the hand-made scenarios and mechanics tests.
 Every building entry carries: `footprint`, `coastal`/`slot` requirement,
 `requires_road`, `cost`, `upkeep_per_min`, `workforce {tier, amount}`,
 `recipes[]` (one entry at launch, D-041), `pause_category`, `work_area`
-(farms/gatherers) and `tier`.
+(a fertility requirement) and `tier`.
 
 Derivation (D-054): footprints are Anno 117 Latium's for the counterpart
 named in the reference column ("… class" = the nearest same-role Latium
@@ -504,7 +504,7 @@ it carries:
 | `warehouse` | `levels[] {throughput_per_min, cost?}` — collector only, no capacity (`upgrade_warehouse`) | inland Warehouse |
 | `road` | `seconds_per_tile`, `shallows?` (true: laid on the shallows instead of land, D-060) (building must be 1×1) | roads, quay |
 | `service` | `radius` | public buildings |
-| `work_area` | `radius`, `fertility?` (island-wide tag the island must carry, else `no_fertility`); harvesters also `terrain[]`, `required_tiles` | farms (radius only), gatherers (the lumberjack is a farm since D-059) |
+| `work_area` | `fertility` (island-wide tag the island must carry, else `no_fertility`); no radius or terrain rule | farms (the lumberjack is a farm since D-059) |
 | `fields` | `type` (a field building's `field.type`), `required`, `max` | farms (D-051 part 4), lumberjack (D-059) |
 | `field` | `type`, `farm` (the farm type that owns it, or a list of farm types sharing the module: `cattle_pasture` serves `dairy_farm` and `cattle_farm`), `terrain[]`, `fertility?` — 1×1 (crops) or a pasture module (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires every listed farm to exist with a matching `fields.type` | pasture, wheat_field, orchard_plot, hemp_field, pig_pen, meadow, cattle_pasture, hop_field, woad_field, vine_row, tree_plot |
 | `workforce` | `tier`, `amount` | producers only (D-035) |

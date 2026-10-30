@@ -12,25 +12,17 @@
         "granted": 5000
       },
       "wood": {
-        "produced": 19160,
+        "produced": 20000,
         "consumed": 0,
         "lost": 0
       }
     }
   },
-  "bottlenecks": [
-    {
-      "island_id": "main",
-      "building_id": 2,
-      "type": "lumberjack",
-      "status": "low_efficiency",
-      "reason": "Only 958 ‰ of the work area usable"
-    }
-  ],
+  "bottlenecks": [],
   "pause_events": [],
   "snapshots": [
     {
-      "step": 1,
+      "step": 2,
       "at": "2026-01-01T00:02:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -44,28 +36,52 @@
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 3,
+      "step": 4,
       "at": "2026-01-01T00:12:00.000Z",
       "boundaries": 1,
       "inventory": {
         "main": {
           "wood": {
-            "stock": 18617,
-            "in_transit": 543
+            "stock": 19433,
+            "in_transit": 567
           }
         }
       },
       "statuses": {
-        "low_efficiency": 1
+        "ok": 1
       },
       "gold": 938000,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     }
   ],
@@ -77,7 +93,7 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:12:00.000Z",
-    "next_change_at": "2026-01-01T02:38:34.572Z",
+    "next_change_at": "2026-01-01T02:32:00.000Z",
     "gold": 938000,
     "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
@@ -236,10 +252,10 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 18617,
+            "stock": 19433,
             "capacity": 300000,
-            "in_transit": 543,
-            "rate_per_min": 1916,
+            "in_transit": 567,
+            "rate_per_min": 2000,
             "in_transit_rate_per_min": 0
           },
           "wool": {
@@ -319,7 +335,7 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 63,
+            "load_permille": 66,
             "berths": {
               "total": 1,
               "busy": 0,
@@ -335,26 +351,48 @@
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
-            "status": "low_efficiency",
-            "efficiency_permille": 958,
+            "status": "ok",
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1916
+                "wood": 2000
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 160,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 17000,
             "assigned_warehouse_id": 1,
             "road_distance": 7,
-            "cycle_rate_permille_per_min": 1916,
+            "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                3
+              ]
             }
+          },
+          {
+            "id": 3,
+            "type": "tree_plot",
+            "x": 12,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 2,
+            "active": true
           }
         ],
         "workforce": {

@@ -223,7 +223,7 @@ func simSentinels(t *testing.T) map[string]string {
 	return out
 }
 
-// snake converts ErrNoWorkArea to no_work_area.
+// snake converts ErrNoFertility to no_fertility.
 func snake(name string) string {
 	name = strings.TrimPrefix(name, "Err")
 	var b strings.Builder

@@ -216,6 +216,9 @@ func (p *propCase) townWorld() *World {
 			free(sp.typ, sp.x, sp.y, sp.rot)
 		}
 	}
+	// The town's lumberjack stands on grass: its tree plots come from the
+	// chained fields below (a lumberjack is a farm, D-059).
+	free("lumberjack", 26, 8, 0)
 	// Chained fields around the town's farms (D-051 part 4), so that their
 	// chains run.
 	for _, farm := range slices.Clone(w.Islands[0].Buildings) {
@@ -230,6 +233,18 @@ func (p *propCase) townWorld() *World {
 				if err := PlaceFieldFree(w, p.c, PlaceField{IslandID: "main", FarmID: farm.ID, Type: def.ID, X: x, Y: y}, p.l); err != nil {
 					p.fail("town field: %v", err)
 				}
+			}
+		}
+	}
+	// Every lumberjack gets one tree plot without drawing random numbers,
+	// so that the town produces wood.
+	for _, farm := range slices.Clone(w.Islands[0].Buildings) {
+		if farm.Type != "lumberjack" || farm.Efficiency > 0 {
+			continue
+		}
+		for _, d := range []Pos{{-1, 0}, {2, 0}, {0, -1}, {0, 2}} {
+			if err := PlaceFieldFree(w, p.c, PlaceField{IslandID: "main", FarmID: farm.ID, Type: "tree_plot", X: farm.X + d.X, Y: farm.Y + d.Y}, p.l); err == nil {
+				break
 			}
 		}
 	}

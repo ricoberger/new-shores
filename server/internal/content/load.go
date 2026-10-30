@@ -331,10 +331,7 @@ type rawBuilding struct {
 		} `json:"levels"`
 	} `json:"service"`
 	WorkArea *struct {
-		Radius        int      `json:"radius"`
-		Terrain       []string `json:"terrain"`
-		RequiredTiles int      `json:"required_tiles"`
-		Fertility     string   `json:"fertility"`
+		Fertility string `json:"fertility"`
 	} `json:"work_area"`
 	Workforce *struct {
 		Tier   string `json:"tier"`
@@ -875,12 +872,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		b.Shipyard = &Shipyard{Ships: append([]string(nil), sy.Ships...)}
 	}
 	if wa := rb.WorkArea; wa != nil {
-		b.WorkArea = &WorkArea{Radius: wa.Radius, Terrain: wa.Terrain, RequiredTiles: wa.RequiredTiles, Fertility: wa.Fertility}
-		// A farm with a fields block has no implicit terrain rule: its
-		// work area only bounds its fields (D-049).
-		if rb.Fields == nil && wa.RequiredTiles < 1 {
-			col.add(file, ent, "work_area.required_tiles", "must be >= 1")
-		}
+		b.WorkArea = &WorkArea{Fertility: wa.Fertility}
 	}
 	if f := rb.Fields; f != nil {
 		b.Fields = &FarmFields{Type: f.Type, Required: f.Required, Max: f.Max}

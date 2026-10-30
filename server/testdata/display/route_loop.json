@@ -2,7 +2,7 @@
   "scenario": "route_loop",
   "base": {
     "evaluated_at": "2026-01-01T00:14:27.869Z",
-    "next_change_at": "2026-01-01T00:14:39.953Z",
+    "next_change_at": "2026-01-01T00:14:40.869Z",
     "gold": 898071,
     "balance_rate_per_min": -2000,
     "tax_rate_per_min": 0,
@@ -161,10 +161,10 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 3241,
+            "stock": 7929,
             "capacity": 300000,
-            "in_transit": 750,
-            "rate_per_min": 1500,
+            "in_transit": 1000,
+            "rate_per_min": 2000,
             "in_transit_rate_per_min": 0
           },
           "wool": {
@@ -339,7 +339,7 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 50,
+            "load_permille": 66,
             "berths": {
               "total": 1,
               "busy": 0,
@@ -368,26 +368,48 @@
             "rotation": 180,
             "paused": false,
             "paused_reason": "",
-            "status": "low_efficiency",
-            "efficiency_permille": 750,
+            "status": "ok",
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1500
+                "wood": 2000
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 696,
+            "cycle_progress_permille": 928,
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
-            "cycle_rate_permille_per_min": 1500,
+            "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                4
+              ]
             }
+          },
+          {
+            "id": 4,
+            "type": "tree_plot",
+            "x": 25,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 3,
+            "active": true
           }
         ],
         "workforce": {
@@ -528,7 +550,7 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 297706,
+            "stock": 300000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -552,7 +574,7 @@
         "roads": [],
         "buildings": [
           {
-            "id": 4,
+            "id": 5,
             "type": "trading_post",
             "x": 1,
             "y": 0,
@@ -579,7 +601,7 @@
         "workforce": {},
         "population": {},
         "capacity_source": {
-          "building_id": 4,
+          "building_id": 5,
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
@@ -613,8 +635,8 @@
           "from_island_id": "island2",
           "from_position": null,
           "to_island_id": "start",
-          "depart_at": "2026-01-01T00:14:39.953Z",
-          "arrive_at": "2026-01-01T00:15:49.970Z",
+          "depart_at": "2026-01-01T00:14:40.869Z",
+          "arrive_at": "2026-01-01T00:15:50.886Z",
           "path": [
             {
               "x": 39,
@@ -647,7 +669,7 @@
         "paused_reason": "",
         "position": null,
         "queued_at": null,
-        "berth_until": "2026-01-01T00:14:39.953Z"
+        "berth_until": "2026-01-01T00:14:40.869Z"
       }
     ],
     "routes": [
@@ -803,7 +825,7 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T00:14:28.119Z",
-        "next_change_at": "2026-01-01T00:14:39.953Z",
+        "next_change_at": "2026-01-01T00:14:40.869Z",
         "gold": 898062,
         "balance_rate_per_min": -2000,
         "tax_rate_per_min": 0,
@@ -962,10 +984,10 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 3247,
+                "stock": 7937,
                 "capacity": 300000,
-                "in_transit": 750,
-                "rate_per_min": 1500,
+                "in_transit": 1000,
+                "rate_per_min": 2000,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
@@ -1140,7 +1162,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 50,
+                "load_permille": 66,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -1169,26 +1191,48 @@
                 "rotation": 180,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 750,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1500
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 702,
+                "cycle_progress_permille": 937,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
-                "cycle_rate_permille_per_min": 1500,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    4
+                  ]
                 }
+              },
+              {
+                "id": 4,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
               }
             ],
             "workforce": {
@@ -1329,7 +1373,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 297706,
+                "stock": 300000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -1353,7 +1397,7 @@
             "roads": [],
             "buildings": [
               {
-                "id": 4,
+                "id": 5,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -1380,7 +1424,7 @@
             "workforce": {},
             "population": {},
             "capacity_source": {
-              "building_id": 4,
+              "building_id": 5,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
@@ -1414,8 +1458,8 @@
               "from_island_id": "island2",
               "from_position": null,
               "to_island_id": "start",
-              "depart_at": "2026-01-01T00:14:39.953Z",
-              "arrive_at": "2026-01-01T00:15:49.970Z",
+              "depart_at": "2026-01-01T00:14:40.869Z",
+              "arrive_at": "2026-01-01T00:15:50.886Z",
               "path": [
                 {
                   "x": 39,
@@ -1448,7 +1492,7 @@
             "paused_reason": "",
             "position": null,
             "queued_at": null,
-            "berth_until": "2026-01-01T00:14:39.953Z"
+            "berth_until": "2026-01-01T00:14:40.869Z"
           }
         ],
         "routes": [
@@ -1604,7 +1648,7 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T00:14:28.869Z",
-        "next_change_at": "2026-01-01T00:14:39.953Z",
+        "next_change_at": "2026-01-01T00:14:40.869Z",
         "gold": 898037,
         "balance_rate_per_min": -2000,
         "tax_rate_per_min": 0,
@@ -1763,10 +1807,10 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 3266,
+                "stock": 7962,
                 "capacity": 300000,
-                "in_transit": 750,
-                "rate_per_min": 1500,
+                "in_transit": 1000,
+                "rate_per_min": 2000,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
@@ -1941,7 +1985,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 50,
+                "load_permille": 66,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -1970,26 +2014,48 @@
                 "rotation": 180,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 750,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1500
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 721,
+                "cycle_progress_permille": 962,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
-                "cycle_rate_permille_per_min": 1500,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    4
+                  ]
                 }
+              },
+              {
+                "id": 4,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
               }
             ],
             "workforce": {
@@ -2130,7 +2196,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 297706,
+                "stock": 300000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -2154,7 +2220,7 @@
             "roads": [],
             "buildings": [
               {
-                "id": 4,
+                "id": 5,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -2181,7 +2247,7 @@
             "workforce": {},
             "population": {},
             "capacity_source": {
-              "building_id": 4,
+              "building_id": 5,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
@@ -2215,8 +2281,8 @@
               "from_island_id": "island2",
               "from_position": null,
               "to_island_id": "start",
-              "depart_at": "2026-01-01T00:14:39.953Z",
-              "arrive_at": "2026-01-01T00:15:49.970Z",
+              "depart_at": "2026-01-01T00:14:40.869Z",
+              "arrive_at": "2026-01-01T00:15:50.886Z",
               "path": [
                 {
                   "x": 39,
@@ -2249,7 +2315,7 @@
             "paused_reason": "",
             "position": null,
             "queued_at": null,
-            "berth_until": "2026-01-01T00:14:39.953Z"
+            "berth_until": "2026-01-01T00:14:40.869Z"
           }
         ],
         "routes": [
@@ -2405,7 +2471,7 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T00:14:32.869Z",
-        "next_change_at": "2026-01-01T00:14:39.953Z",
+        "next_change_at": "2026-01-01T00:14:40.869Z",
         "gold": 897904,
         "balance_rate_per_min": -2000,
         "tax_rate_per_min": 0,
@@ -2564,10 +2630,10 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 3366,
+                "stock": 8096,
                 "capacity": 300000,
-                "in_transit": 750,
-                "rate_per_min": 1500,
+                "in_transit": 1000,
+                "rate_per_min": 2000,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
@@ -2742,7 +2808,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 50,
+                "load_permille": 66,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -2771,26 +2837,48 @@
                 "rotation": 180,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 750,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1500
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 821,
+                "cycle_progress_permille": 95,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
-                "cycle_rate_permille_per_min": 1500,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    4
+                  ]
                 }
+              },
+              {
+                "id": 4,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
               }
             ],
             "workforce": {
@@ -2931,7 +3019,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 297706,
+                "stock": 300000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -2955,7 +3043,7 @@
             "roads": [],
             "buildings": [
               {
-                "id": 4,
+                "id": 5,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -2982,7 +3070,7 @@
             "workforce": {},
             "population": {},
             "capacity_source": {
-              "building_id": 4,
+              "building_id": 5,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
@@ -3016,8 +3104,8 @@
               "from_island_id": "island2",
               "from_position": null,
               "to_island_id": "start",
-              "depart_at": "2026-01-01T00:14:39.953Z",
-              "arrive_at": "2026-01-01T00:15:49.970Z",
+              "depart_at": "2026-01-01T00:14:40.869Z",
+              "arrive_at": "2026-01-01T00:15:50.886Z",
               "path": [
                 {
                   "x": 39,
@@ -3050,7 +3138,7 @@
             "paused_reason": "",
             "position": null,
             "queued_at": null,
-            "berth_until": "2026-01-01T00:14:39.953Z"
+            "berth_until": "2026-01-01T00:14:40.869Z"
           }
         ],
         "routes": [

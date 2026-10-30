@@ -22,7 +22,7 @@
   "pause_events": [],
   "snapshots": [
     {
-      "step": 3,
+      "step": 4,
       "at": "2026-01-01T00:00:14.000Z",
       "boundaries": 0,
       "inventory": {
@@ -42,10 +42,22 @@
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 4,
+      "step": 5,
       "at": "2026-01-01T00:00:16.000Z",
       "boundaries": 1,
       "inventory": {
@@ -68,10 +80,22 @@
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 5,
+      "step": 6,
       "at": "2026-01-01T00:00:36.000Z",
       "boundaries": 1,
       "inventory": {
@@ -94,10 +118,22 @@
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 6,
+      "step": 7,
       "at": "2026-01-01T00:00:37.000Z",
       "boundaries": 0,
       "inventory": {
@@ -120,10 +156,22 @@
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 7,
+      "step": 8,
       "at": "2026-01-01T00:10:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -146,6 +194,18 @@
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     }
   ],
@@ -477,10 +537,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                3
+              ]
             }
           },
           {
             "id": 3,
+            "type": "tree_plot",
+            "x": 10,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 2,
+            "active": true
+          },
+          {
+            "id": 4,
             "type": "sawmill",
             "x": 14,
             "y": 2,

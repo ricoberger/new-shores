@@ -430,7 +430,7 @@ func TestPlaceFieldErrors(t *testing.T) {
 }
 
 // TestFarmPlacementWithoutWorkArea: a farm with fields is placed and moved
-// where no grass is free (no no_work_area); the lumberjack keeps its rule.
+// where no grass is free.
 func TestFarmPlacementWithoutWorkArea(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
@@ -448,13 +448,6 @@ func TestFarmPlacementWithoutWorkArea(t *testing.T) {
 	if b := is.Building(id); b.Efficiency != 0 {
 		t.Errorf("efficiency %d", b.Efficiency)
 	}
-	// The lumberjack still needs forest.
-	for i := range is.Tiles {
-		if is.Tiles[i].Terrain == content.TerrainForest {
-			is.Tiles[i].Terrain = content.TerrainGrass
-		}
-	}
-	expectApplyErr(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 6, Y: 5}, ErrNoWorkArea)
 }
 
 // TestDiagonalOnlyFieldIsInactive: a farm moved so that it meets its field
@@ -474,4 +467,72 @@ func TestDiagonalOnlyFieldIsInactive(t *testing.T) {
 	if is.Building(f).Inactive || is.Building(farm).Efficiency != 250 {
 		t.Fatalf("edge contact: inactive %v, efficiency %d", is.Building(f).Inactive, is.Building(farm).Efficiency)
 	}
+}
+
+// withTreePlots returns a copy of the catalogue whose lumberjack needs
+// `required` tree plots (and allows as many) for full efficiency.
+func withTreePlots(base *content.Catalogue, required int) *content.Catalogue {
+	c := *base
+	c.BuildingByID = maps.Clone(base.BuildingByID)
+	b := *base.BuildingByID["lumberjack"]
+	f := *b.Fields
+	f.Required, f.Max = required, required
+	b.Fields = &f
+	c.BuildingByID["lumberjack"] = &b
+	return &c
+}
+
+// plantTreePlots places n tree plots on the free grass or forest tiles that
+// share an edge with the lumberjack's footprint (the test content's
+// lumberjack is a farm). The plots are free: the world's gold is unchanged.
+func plantTreePlots(t testing.TB, w *World, c *content.Catalogue, farm int64, n int) {
+	t.Helper()
+	gold := w.Gold
+	w.Gold += 1_000_000
+	defer func() { w.Gold = gold }()
+	is := w.Islands[0]
+	b := is.Building(farm)
+	if b == nil || b.Type != "lumberjack" {
+		t.Fatalf("building %d is no lumberjack", farm)
+	}
+	fw, fh := footprint(c.BuildingByID[b.Type], b.Rotation)
+	occ := is.occupancy(c)
+	var edge []Pos
+	for x := b.X; x < b.X+fw; x++ {
+		edge = append(edge, Pos{x, b.Y - 1}, Pos{x, b.Y + fh})
+	}
+	for y := b.Y; y < b.Y+fh; y++ {
+		edge = append(edge, Pos{b.X - 1, y}, Pos{b.X + fw, y})
+	}
+	for _, p := range edge {
+		if n == 0 {
+			return
+		}
+		if !is.InBounds(p.X, p.Y) || occ[is.index(p.X, p.Y)] != 0 || is.Roads[is.index(p.X, p.Y)] != "" {
+			continue
+		}
+		if err := Apply(w, c, PlaceField{IslandID: is.ID, FarmID: farm, Type: "tree_plot", X: p.X, Y: p.Y}); err == nil {
+			n--
+		}
+	}
+	if n > 0 {
+		t.Fatalf("no tile left for %d tree plots next to lumberjack %d", n, farm)
+	}
+}
+
+// plantTreePlot places the single tree plot that gives the lumberjack of
+// the test content full efficiency.
+func plantTreePlot(t testing.TB, w *World, c *content.Catalogue, farm int64) {
+	t.Helper()
+	plantTreePlots(t, w, c, farm, 1)
+}
+
+// placeLumberjack places a lumberjack with its tree plot and returns the
+// lumberjack's ID (the plot has the next one).
+func placeLumberjack(t testing.TB, w *World, c *content.Catalogue, x, y, rot int) int64 {
+	t.Helper()
+	id := w.NextBuildingID
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: x, Y: y, Rotation: rot})
+	plantTreePlot(t, w, c, id)
+	return id
 }

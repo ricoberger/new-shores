@@ -139,7 +139,7 @@ type Island struct {
 	Buildings []*Building `json:"buildings,omitempty"`
 	Inventory Inventory   `json:"inventory"`
 	// Fertilities are the island-wide fertility tags (MECHANICS §2), sorted
-	// as seeded; a building whose work area needs a fertility can only be
+	// as seeded; a building whose work_area needs a fertility can only be
 	// placed on an island that has it.
 	Fertilities []string `json:"fertilities,omitempty"`
 	// WorkforceGrant holds phantom workers per tier (milli-residents)
@@ -202,8 +202,8 @@ type Building struct {
 	// can be auto-resumed only after that millisecond, which keeps settle
 	// idempotent at the pause instant.
 	PausedAtMs int64 `json:"paused_at_ms,omitempty"`
-	// Efficiency in per-mille from the work area or, for a farm with
-	// fields, from its assigned fields (1000 without either).
+	// Efficiency in per-mille: for a farm with fields from its assigned
+	// fields, 1000 for every other building.
 	Efficiency int64 `json:"efficiency"`
 	// FarmID is the farm instance a field belongs to (D-051 part 4,
 	// fields.go): the farm it was placed from, fixed at placement; 0 for

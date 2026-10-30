@@ -285,8 +285,7 @@ type Building struct {
 	Workforce *Workforce
 	Shipyard  *Shipyard
 	// Fields marks a farm whose efficiency comes from explicit fields
-	// (D-049, D-051 part 4); such a farm has at most a WorkArea with a
-	// Fertility.
+	// (D-049, D-051 part 4).
 	Fields *FarmFields
 	// Field marks a field placeable (1x1 crop tile or 2x2 animal field).
 	Field *Field
@@ -624,15 +623,11 @@ func (f *Field) MatchesTerrain(terrain string) bool {
 	return false
 }
 
-// WorkArea is the data-driven work-area rule (MECHANICS §2):
-// efficiency = min(1, matching tiles within Radius / RequiredTiles). A farm
-// with a Fields block has no radius: only Fertility is set (D-051 part 4).
+// WorkArea is the fertility requirement of a building (MECHANICS §2, §4):
+// it can only be placed on an island that has the fertility tag.
 type WorkArea struct {
-	Radius        int
-	Terrain       []string
-	RequiredTiles int
 	// Fertility is the island-wide fertility tag the building needs ("" for
-	// none, MECHANICS §2).
+	// none).
 	Fertility string
 }
 
@@ -717,13 +712,3 @@ func (n *Need) IsGoods() bool { return len(n.Goods) > 0 }
 
 // IsBuilding reports whether n is a building (services) need.
 func (n *Need) IsBuilding() bool { return len(n.Buildings) > 0 }
-
-// MatchesTerrain reports whether terrain counts for the work area.
-func (wa *WorkArea) MatchesTerrain(terrain string) bool {
-	for _, t := range wa.Terrain {
-		if t == terrain {
-			return true
-		}
-	}
-	return false
-}
