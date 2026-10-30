@@ -4,7 +4,6 @@
 // the same guest.
 import {
   ApiError,
-  type ErrorCode,
   getMe,
   type Player,
   postGuest,
@@ -15,6 +14,8 @@ import {
   postRegister,
   postVerifyEmail,
 } from "./client";
+import { errorText } from "./errors";
+import { t } from "../i18n";
 
 export const DEVICE_TOKEN_KEY = "newShores.deviceToken";
 
@@ -103,27 +104,12 @@ export function parseMailLink(search: string): MailLink {
   return null;
 }
 
-const MESSAGES: Partial<Record<ErrorCode, string>> = {
-  invalid_credentials: "Wrong email or password.",
-  email_taken: "This email address is already registered.",
-  already_registered: "This account is already registered.",
-  weak_password: "The password must be 8 to 128 bytes long (UTF-8; non-ASCII characters count as several bytes).",
-  rate_limited: "Too many attempts. Please wait a moment and try again.",
-  csrf_rejected: "The request was blocked (unexpected origin). Reload the page.",
-  unauthorized: "Your session has ended. Please log in again.",
-  service_unavailable: "The server is unavailable. Please try again shortly.",
-  bad_request: "Please check your input.",
-  invalid_token: "This link is invalid or has expired.",
-  not_found: "Accounts are not available on this server.",
-};
-
-/** User-facing text of an account error. */
+/** User-facing text of an account error (`error.<code>` in the catalogue). */
 export function authErrorText(err: unknown): string {
   if (err instanceof ApiError) {
-    const text = MESSAGES[err.code];
-    if (err.code === "bad_request" && /email/i.test(err.message)) return "Please enter a valid email address.";
-    if (err.code === "bad_request" && /display name/i.test(err.message)) return "The display name must be 1 to 32 characters.";
-    return text ?? err.message;
+    if (err.code === "bad_request" && /email/i.test(err.message)) return t("error.bad_request.email");
+    if (err.code === "bad_request" && /display name/i.test(err.message)) return t("error.bad_request.displayName");
+    return errorText(err.code, err.message);
   }
-  return "The server could not be reached.";
+  return t("error.unreachable");
 }

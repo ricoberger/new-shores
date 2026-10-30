@@ -3,6 +3,7 @@ import type { Content, DisplayState, Island } from "../api/client";
 import { units } from "../display/format";
 import { islandKind, islandResources } from "../display/hud";
 import { CloseButton } from "./CloseButton";
+import { t } from "../i18n";
 import styles from "./hud.module.css";
 import { toolIcon } from "../theme/iconSet";
 import { Icon } from "./Icon";
@@ -58,7 +59,7 @@ export function IslandCard({ islandId, model, content, statics, onClose, onRenam
             onChange={(name) => setDraft({ island: is.id, name })}
             onSubmit={submit}
             onCancel={() => setDraft(null)}
-            label="Island name"
+            label={t("islandCard.nameLabel")}
             testId="island-rename"
             busy={busy}
           />
@@ -72,8 +73,8 @@ export function IslandCard({ islandId, model, content, statics, onClose, onRenam
                 type="button"
                 className={styles.closeButton}
                 onClick={() => setDraft({ island: is.id, name: is.name })}
-                aria-label="Rename the island"
-                title="Rename the island"
+                aria-label={t("islandCard.rename")}
+                title={t("islandCard.rename")}
                 data-testid="island-rename"
               >
                 <Icon path={toolIcon("rename")} />
@@ -87,32 +88,32 @@ export function IslandCard({ islandId, model, content, statics, onClose, onRenam
       </div>
       {kind && (
         <div className={styles.small} data-testid="island-card-kind">
-          {is.rock ? kind : `${kind} island`}
+          {is.rock ? kind : t("islandCard.kindIsland", { kind })}
         </div>
       )}
       <div className={styles.panelBody}>
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>Population</div>
+          <div className={styles.sectionTitle}>{t("islandCard.population")}</div>
           <table className={styles.table}>
             <tbody>
-              {content.tiers.map((t) => (
-                <tr key={t.id}>
+              {content.tiers.map((tier) => (
+                <tr key={tier.id}>
                   <td>
                     <span className={styles.withIcon}>
                       <Icon path={toolIcon("population")} />
-                      {t.name}
+                      {tier.name}
                     </span>
                   </td>
-                  <td data-testid={`island-card-population-${t.id}`}>{units(is.population[t.id] ?? 0)}</td>
+                  <td data-testid={`island-card-population-${tier.id}`}>{units(is.population[tier.id] ?? 0)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <div className={`${styles.section} ${styles.divided}`}>
-          <div className={styles.sectionTitle}>Resources</div>
+          <div className={styles.sectionTitle}>{t("islandCard.resources")}</div>
           <div className={styles.small} data-testid="island-card-resources-row">
-            {resources ? <ResourceBadges resources={resources} prefix="island-card" stacked /> : <span data-testid="island-card-loading">Loading…</span>}
+            {resources ? <ResourceBadges resources={resources} prefix="island-card" stacked /> : <span data-testid="island-card-loading">{t("common.loading")}</span>}
           </div>
         </div>
       </div>

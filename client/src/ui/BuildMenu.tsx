@@ -1,21 +1,15 @@
 import { useState } from "react";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
+import { t } from "../i18n";
 import { footprintText } from "../display/fields";
 import { perMin, units } from "../display/format";
-import { depositText, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
+import { depositText, fertilityName, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
 import { categoryIcon, goodIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
 import type { Tool } from "./tools";
 
-const CATEGORIES: { id: ContentBuilding["category"]; label: string }[] = [
-  { id: "houses", label: "Houses" },
-  { id: "production", label: "Production" },
-  { id: "public", label: "Public" },
-  { id: "harbour", label: "Harbour" },
-  { id: "roads", label: "Roads" },
-  { id: "other", label: "Other" },
-];
+const CATEGORIES: ContentBuilding["category"][] = ["houses", "production", "public", "harbour", "roads", "other"];
 
 interface Props {
   content: Content | null;
@@ -33,6 +27,7 @@ interface Props {
   dense?: boolean;
 }
 
+// i18n-ignore: Roman numerals are the same in every language
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 
 /** Tier numeral (I, II, …) of a tier's position in the content tiers. */
@@ -59,9 +54,9 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
   if (!content) return null;
   // Fields are not listed: they are added from their farm's panel (D-051 part 4).
   const listed = content.buildings.filter((b) => listedInBuildMenu(b, content));
-  const present = CATEGORIES.filter((c) => listed.some((b) => b.category === c.id));
+  const present = CATEGORIES.filter((c) => listed.some((b) => b.category === c));
   // The first present category when the chosen one has no buildings.
-  const shown = present.some((c) => c.id === category) ? category : (present[0]?.id ?? category);
+  const shown = present.includes(category) ? category : (present[0] ?? category);
   const inventory = model?.islands.find((is) => is.id === islandId)?.inventory ?? {};
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
   const activeId = tool.kind === "build" ? tool.buildingType : tool.kind === "road" ? tool.roadType : null;
@@ -69,17 +64,17 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
   return (
     <div className={`${styles.buildMenu} ${dense ? styles.buildMenuDense : ""}`} data-testid="build-menu">
       <div className={styles.tabBar}>
-        <div className={styles.tabs} role="group" aria-label="Build categories">
+        <div className={styles.tabs} role="group" aria-label={t("build.categories")}>
           {present.map((c) => (
             <button
-              key={c.id}
+              key={c}
               type="button"
-              aria-pressed={c.id === shown}
-              className={`${styles.tab} ${c.id === shown ? styles.tabActive : ""}`}
-              onClick={() => setCategory(c.id)}
-              data-testid={`build-tab-${c.id}`}
+              aria-pressed={c === shown}
+              className={`${styles.tab} ${c === shown ? styles.tabActive : ""}`}
+              onClick={() => setCategory(c)}
+              data-testid={`build-tab-${c}`}
             >
-              <Icon path={categoryIcon(c.id)} /> {c.label}
+              <Icon path={categoryIcon(c)} /> {t(`build.category.${c}`)}
             </button>
           ))}
         </div>
@@ -89,8 +84,8 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
           className={`${styles.toolButton} ${tool.kind === "demolish" ? styles.itemActive : ""}`}
           onClick={onDemolishTool}
           aria-pressed={tool.kind === "demolish"}
-          aria-label="Demolish"
-          title="Demolish"
+          aria-label={t("infoPanel.demolish")}
+          title={t("infoPanel.demolish")}
           data-testid="tool-demolish"
         >
           <Icon path={toolIcon("demolish")} />
@@ -103,7 +98,7 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
             const tierLocked = !tierUnlocked(model, b.tier);
             const locked = tierLocked || loading;
             const fertility = fertilityNeed(b, fertilities);
-            const tierIndex = content.tiers.findIndex((t) => t.id === b.tier);
+            const tierIndex = content.tiers.findIndex((x) => x.id === b.tier);
             const tierName = content.tiers[tierIndex]?.name ?? b.tier;
             return (
               <button
@@ -116,7 +111,7 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                 data-testid={`build-${b.id}`}
               >
                 {tierIndex >= 0 && (
-                  <span className={styles.tierBadge} title={`${tierName} (tier ${tierIndex + 1})`}>
+                  <span className={styles.tierBadge} title={t("build.tierTitle", { name: tierName, tier: tierIndex + 1 })}>
                     <span aria-hidden="true">{tierNumeral(tierIndex)}</span>
                     <span className={styles.srOnly}>, {tierName}</span>
                   </span>
@@ -136,7 +131,7 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                 />
                 <span className={styles.itemName}>{b.name}</span>
                 <span className={styles.small}>
-                  {units(b.cost.gold)} gold · upkeep {perMin(b.upkeep_per_min)}/min
+                  {t("build.cost", { gold: units(b.cost.gold), upkeep: perMin(b.upkeep_per_min) })}
                 </span>
                 <span className={styles.small} data-testid={`build-size-${b.id}`}>
                   {footprintText(b, content)}
@@ -152,7 +147,7 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                     className={`${styles.small} ${fertility.present ? styles.ok : styles.lock}`}
                     data-testid={`build-fertility-${b.id}`}
                   >
-                    {fertility.present ? `✓ ${fertility.fertility} fertility` : missingFertilityText(fertility.fertility, fertilities)}
+                    {fertility.present ? t("build.fertilityOk", { name: fertilityName(fertility.fertility) }) : missingFertilityText(fertility.fertility, fertilities)}
                   </span>
                 )}
                 {b.requires_deposit && (
@@ -162,7 +157,7 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                 )}
                 {locked && (
                   <span className={styles.lock} data-testid={`build-lock-${b.id}`}>
-                    {loading ? "Loading island…" : lockReason(model, content, b.tier)}
+                    {loading ? t("build.loadingIsland") : lockReason(model, content, b.tier)}
                   </span>
                 )}
               </button>

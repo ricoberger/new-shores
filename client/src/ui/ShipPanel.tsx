@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
 import { perMin, speedFactor, units } from "../display/format";
+import { currentLocale, t, tRich } from "../i18n";
 import { ShipStatusLine } from "./ShipsPanel";
 import { goodIcon, toolIcon } from "../theme/iconSet";
 import { CloseButton } from "./CloseButton";
@@ -54,7 +55,7 @@ export function ShipPanel({
 }: Props) {
   const islandName = (id: string) => model.islands.find((i) => i.id === id)?.name || id;
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
-  const shipType = content.ships.find((t) => t.id === s.type);
+  const shipType = content.ships.find((x) => x.id === s.type);
   const type = shipType?.name ?? s.type;
   const idle = s.state === "idle";
   const [choosing, setChoosing] = useState(false);
@@ -83,7 +84,7 @@ export function ShipPanel({
             onChange={(name) => setDraft({ ship: s.id, name })}
             onSubmit={rename}
             onCancel={() => setDraft(null)}
-            label="Ship name"
+            label={t("shipPanel.nameLabel")}
             testId="ship-rename"
             busy={busy}
           />
@@ -96,8 +97,8 @@ export function ShipPanel({
               type="button"
               className={styles.closeButton}
               onClick={() => setDraft({ ship: s.id, name: s.name })}
-              aria-label="Rename the ship"
-              title="Rename the ship"
+              aria-label={t("shipPanel.rename")}
+              title={t("shipPanel.rename")}
               data-testid="ship-rename"
             >
               <Icon path={toolIcon("rename")} />
@@ -114,7 +115,7 @@ export function ShipPanel({
       <div className={styles.panelBody}>
         {/* The heading of the building panels' details (Trading Post, Warehouse) between the type line and the ship's state. */}
         <div className={`${styles.section} ${styles.sectionTitle}`} data-testid="ship-panel-details">
-          Details
+          {t("infoPanel.details")}
         </div>
         <ShipStatusLine ship={s} nowMs={nowMs} islandName={islandName} className={styles.small} stateTestId="ship-panel-state" etaTestId="ship-panel-eta" routeName={route?.name} />
         {s.leg && (
@@ -125,33 +126,33 @@ export function ShipPanel({
         {/* On a route the status line names it; any other state with a route (berth wait, unpaid) says so here. */}
         {route && s.state !== "on_route" && (
           <div className={styles.small} data-testid="ship-panel-route">
-            Route: {route.name}
+            {t("shipPanel.route", { name: route.name })}
           </div>
         )}
-        <div className={styles.small}>Upkeep {perMin(s.upkeep_per_min)} $/min</div>
+        <div className={styles.small}>{t("shipPanel.upkeep", { rate: perMin(s.upkeep_per_min) })}</div>
         {shipType && (
           <div className={styles.small} data-testid="ship-panel-speed">
-            Speed {speedFactor(shipType.speed_permille)}×
+            {t("shipPanel.speed", { factor: speedFactor(shipType.speed_permille) })}
           </div>
         )}
         <div className={styles.small} data-testid="ship-panel-capacity">
-          Capacity {s.slots} slots of {units(s.slot_size)} each
+          {t("shipPanel.capacity", { count: s.slots, size: units(s.slot_size) })}
         </div>
         {s.state === "waiting_for_berth" && (
           <div className={styles.small} data-testid="ship-panel-berth">
-            Waiting for a free berth at the Trading Post since {new Date(s.queued_at ?? 0).toLocaleTimeString()} — its cargo is handled when one frees.
+            {t("shipPanel.berthWait", { time: new Date(s.queued_at ?? 0).toLocaleTimeString(currentLocale()) })}
           </div>
         )}
         {pendingFounding && (
           <div className={styles.small} data-testid="ship-panel-pending-founding">
-            Sails to found {pendingFounding}.
+            {t("shipPanel.sailsToFound", { island: pendingFounding })}
           </div>
         )}
         {/* A "Slots" heading over the cargo slots (no divider: the details heading's style). */}
         <div className={`${styles.section} ${styles.sectionTitle}`} data-testid="ship-panel-slots-title">
-          Slots
+          {t("shipPanel.slots")}
         </div>
-        <div className={styles.slots} data-testid="ship-panel-cargo" aria-label={`Cargo, ${s.slots} slots`}>
+        <div className={styles.slots} data-testid="ship-panel-cargo" aria-label={t("shipPanel.cargoLabel", { count: s.slots })}>
           {Array.from({ length: s.slots }, (_, i) => {
             const c = s.cargo[i];
             return c ? (
@@ -164,21 +165,23 @@ export function ShipPanel({
               </div>
             ) : (
               <div key={i} className={`${styles.slot} ${styles.slotEmpty}`} data-testid={`ship-panel-slot-${i}`}>
-                <span className={styles.srOnly}>Empty slot</span>
+                <span className={styles.srOnly}>{t("shipPanel.emptySlot")}</span>
               </div>
             );
           })}
         </div>
         {choosing && idle && (
           <div className={styles.shipEntry} data-testid="ship-panel-route-picker">
-            <div className={styles.sectionTitle}>Assign to route</div>
+            <div className={styles.sectionTitle}>{t("shipPanel.assignTitle")}</div>
             {model.routes.length === 0 && (
               <div className={styles.small} data-testid="ship-panel-no-routes">
-                No routes yet. Create one in the{" "}
-                <button type="button" className={styles.link} onClick={onOpenRoutes}>
-                  Routes list
-                </button>
-                .
+                {tRich("shipPanel.noRoutes", {
+                  link: (
+                    <button type="button" className={styles.link} onClick={onOpenRoutes}>
+                      {t("shipPanel.routesList")}
+                    </button>
+                  ),
+                })}
               </div>
             )}
             {model.routes.map((r) => (
@@ -198,7 +201,7 @@ export function ShipPanel({
               </button>
             ))}
             <button type="button" className={styles.link} onClick={() => setChoosing(false)} data-testid="ship-panel-assign-cancel">
-              Cancel
+              {t("common.cancel")}
             </button>
           </div>
         )}
@@ -206,27 +209,27 @@ export function ShipPanel({
         <div className={`${styles.row} ${styles.shipEntry}`}>
           {idle && (
             <button type="button" className={styles.button} onClick={() => setChoosing(true)} data-testid="ship-panel-assign">
-              Assign to route…
+              {t("shipPanel.assign")}
             </button>
           )}
           {s.route_id !== 0 && (
             <button type="button" className={styles.button} onClick={onUnassign} data-testid="ship-panel-unassign">
-              Unassign
+              {t("shipPanel.unassign")}
             </button>
           )}
           {idle && here && (
             <button type="button" className={styles.button} onClick={onSend} data-testid="ship-panel-send">
-              Send…
+              {t("shipPanel.send")}
             </button>
           )}
           {idle && here && !here.settled && (
             <button type="button" className={styles.button} onClick={onFound} data-testid="ship-panel-found">
-              Found settlement
+              {t("placement.found")}
             </button>
           )}
           {(idle || s.state === "anchored_unpaid") && (
             <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onScrap} data-testid="ship-panel-scrap">
-              Scrap
+              {t("shipPanel.scrap")}
             </button>
           )}
         </div>

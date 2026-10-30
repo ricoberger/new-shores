@@ -1,4 +1,5 @@
 import styles from "./almanac.module.css";
+import { t } from "../i18n";
 import { A, BuildingLink, Row } from "./parts";
 import { needsByTier, num, ppmPercent, tierViews, type Index } from "./model";
 import { useScrollTo } from "./useScrollTo";
@@ -8,44 +9,45 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
   useScrollTo(id, "tier-");
   const tiers = tierViews(idx);
   const needs = needsByTier(idx);
-  const ladder = needs.flatMap((t) =>
-    t.servicesAdded.map((b) => ({ building: b, tier: t.name, radii: idx.building(b)?.service?.levels?.map((l) => l.radius) ?? [] })),
+  const ladder = needs.flatMap((tier) =>
+    tier.servicesAdded.map((b) => ({ building: b, tier: tier.name, radii: idx.building(b)?.service?.levels?.map((l) => l.radius) ?? [] })),
   );
   return (
     <>
-      <h2>Overview</h2>
+      <h2>{t("almanac.section.overview")}</h2>
       <p className={styles.lead}>
-        {idx.content.region?.name ? `${idx.content.region.name}: ` : ""}the tiers of your settlers, what unlocks them and what they ask for. Everything on these pages is read from the game&apos;s content.
+        {idx.content.region?.name ? `${idx.content.region.name}: ` : ""}
+        {t("almanac.o.lead")}
       </p>
 
-      <h3>Tiers</h3>
+      <h3>{t("almanac.o.tiers")}</h3>
       <div className={styles.cards}>
-        {tiers.map((t) => (
-          <section key={t.id} id={`tier-${t.id}`} className={styles.card} aria-labelledby={`tier-h-${t.id}`}>
-            <h4 id={`tier-h-${t.id}`}>
-              {t.index + 1}. {t.name}
+        {tiers.map((tier) => (
+          <section key={tier.id} id={`tier-${tier.id}`} className={styles.card} aria-labelledby={`tier-h-${tier.id}`}>
+            <h4 id={`tier-h-${tier.id}`}>
+              {tier.index + 1}. {tier.name}
             </h4>
             <dl className={styles.defs}>
-              <Row label="House">{t.house ? <BuildingLink idx={idx} id={t.house} /> : "Not built yet"}</Row>
-              <Row label="Residents">
-                {num(t.residentsFloor)}–{num(t.residentsMax)} per house
+              <Row label={t("almanac.o.house")}>{tier.house ? <BuildingLink idx={idx} id={tier.house} /> : t("almanac.o.notBuilt")}</Row>
+              <Row label={t("infoPanel.residents")}>
+                {t("almanac.o.perHouse", { min: num(tier.residentsFloor), max: num(tier.residentsMax) })}
               </Row>
-              <Row label="Tax">
-                {num(t.tax)} gold per resident per minute ({num(t.taxFullHouse)} per full house)
+              <Row label={t("almanac.o.tax")}>
+                {t("almanac.o.taxValue", { tax: num(tier.tax), full: num(tier.taxFullHouse) })}
               </Row>
-              <Row label="Unlocked by">
-                {t.unlock.population.length === 0 && t.unlock.buildings.length === 0 ? (
-                  "Available from the start"
+              <Row label={t("almanac.o.unlockedBy")}>
+                {tier.unlock.population.length === 0 && tier.unlock.buildings.length === 0 ? (
+                  t("almanac.o.fromStart")
                 ) : (
                   <>
-                    {t.unlock.population.map((p, i) => (
+                    {tier.unlock.population.map((p, i) => (
                       <span key={p.tier}>
                         {i > 0 && ", "}
                         {num(p.amount)} {idx.tierName(p.tier)}
                       </span>
                     ))}
-                    {t.unlock.population.length > 0 && t.unlock.buildings.length > 0 && ", "}
-                    {t.unlock.buildings.map((b, i) => (
+                    {tier.unlock.population.length > 0 && tier.unlock.buildings.length > 0 && ", "}
+                    {tier.unlock.buildings.map((b, i) => (
                       <span key={b}>
                         {i > 0 && ", "}
                         <BuildingLink idx={idx} id={b} />
@@ -59,19 +61,19 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
         ))}
       </div>
 
-      <h3>The services ladder</h3>
-      <p className={styles.lead}>Public buildings serve the houses within their radius; each tier adds more of them. Upgraded levels reach further.</p>
+      <h3>{t("almanac.o.ladder")}</h3>
+      <p className={styles.lead}>{t("almanac.o.ladderLead")}</p>
       {ladder.length === 0 ? (
-        <p className={styles.small}>No services in the content.</p>
+        <p className={styles.small}>{t("almanac.o.noServices")}</p>
       ) : (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th scope="col">Building</th>
-                <th scope="col">Asked by</th>
+                <th scope="col">{t("almanac.o.building")}</th>
+                <th scope="col">{t("almanac.o.askedBy")}</th>
                 <th scope="col" className={styles.num}>
-                  Radius per level
+                  {t("almanac.o.radiusPerLevel")}
                 </th>
               </tr>
             </thead>
@@ -90,33 +92,33 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
         </div>
       )}
 
-      <h3>What each tier asks for</h3>
+      <h3>{t("almanac.o.asks")}</h3>
       <p className={styles.lead}>
-        A need is a category with one or more alternatives. A category is covered by the sum of the shares of the alternatives that are supplied, at most 100 %: one of two alternatives covers 60 %, both cover it fully. Satisfaction is the weighted mean of the categories.
+        {t("almanac.o.asksLead")}
       </p>
-      {needs.map((t) => (
-        <section key={t.tier} id={`needs-${t.tier}`} aria-labelledby={`needs-h-${t.tier}`}>
-          <h4 id={`needs-h-${t.tier}`}>
-            <A section="needs" id={t.tier}>
-              {t.name}
+      {needs.map((tier) => (
+        <section key={tier.tier} id={`needs-${tier.tier}`} aria-labelledby={`needs-h-${tier.tier}`}>
+          <h4 id={`needs-h-${tier.tier}`}>
+            <A section="needs" id={tier.tier}>
+              {tier.name}
             </A>
           </h4>
-          {t.own.length === 0 ? (
-            <p className={styles.small}>No needs.</p>
+          {tier.own.length === 0 ? (
+            <p className={styles.small}>{t("almanac.o.noNeeds")}</p>
           ) : (
             <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th scope="col">Category</th>
+                    <th scope="col">{t("almanac.o.category")}</th>
                     <th scope="col" className={styles.num}>
-                      Weight
+                      {t("almanac.o.weight")}
                     </th>
-                    <th scope="col">Alternatives (share of the category)</th>
+                    <th scope="col">{t("almanac.o.alternatives")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {t.own.map((n) => (
+                  {tier.own.map((n) => (
                     <tr key={n.id}>
                       <td>{n.categoryName}</td>
                       <td className={styles.num}>{num(n.ownPercent, 0)} %</td>
@@ -134,8 +136,8 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
               </table>
             </div>
           )}
-          {t.carried.length > 0 && (
-            <p className={styles.small}>Also carries the categories of {t.carried.map((c) => idx.tierName(c)).join(", ")} at reduced rates.</p>
+          {tier.carried.length > 0 && (
+            <p className={styles.small}>{t("almanac.o.carries", { tiers: tier.carried.map((c) => idx.tierName(c)).join(", ") })}</p>
           )}
         </section>
       ))}

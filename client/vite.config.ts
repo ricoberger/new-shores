@@ -68,5 +68,7 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts", "e2e/tools/**/*.test.ts"],
     environment: "node",
+    // Tests assert English text: pin the language before each file (D-061).
+    setupFiles: ["src/i18n/test-setup.ts"],
   },
 });

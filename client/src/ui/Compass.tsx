@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { t } from "../i18n";
 import { angleDelta, COMPASS_DRAG_PX, compassTurn, headingDegrees, headingName, pointerAngle } from "../display/compass";
 import type { GameRenderer } from "../render/engine";
 import styles from "./hud.module.css";
@@ -81,7 +82,7 @@ export function Compass({ renderer, heading }: Props) {
   };
 
   const name = headingName(heading);
-  const label = `Reset view (camera heading ${Math.round(headingDegrees(heading))}°, ${name}); drag to turn, Q / E turn by 45°`;
+  const label = t("compass.label", { degrees: Math.round(headingDegrees(heading)), name: t(`compass.point.${name}`) });
   return (
     <button
       type="button"
@@ -92,7 +93,7 @@ export function Compass({ renderer, heading }: Props) {
       onPointerCancel={end}
       onClick={onClick}
       aria-label={label}
-      title="Reset view"
+      title={t("compass.reset")}
       data-testid="camera-compass"
       data-heading={heading}
     >

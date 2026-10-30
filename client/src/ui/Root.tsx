@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { t, useLanguage } from "../i18n";
 import { NetworkError, type Player, postDevReset } from "../api/client";
 import { authErrorText, currentPlayer, parseMailLink, verifyEmail } from "../api/auth";
 import { type FixtureId, FixtureSync, fixtureCamera, fixtureFromSearch, serverFixtureFromSearch } from "../dev/fixture";
@@ -27,6 +28,7 @@ const RETRY_MS = 2000;
 /** Dev/E2E builds only: the constant folds to false in production builds, which drops the fixture module. */
 const DEV_HOOKS = import.meta.env.DEV || import.meta.env.VITE_E2E === "1";
 
+// i18n-ignore: dev fixture data
 const FIXTURE_PLAYER: Player = { id: "fixture", display_name: "Fixture", guest: true, email_verified: false };
 
 /**
@@ -36,6 +38,7 @@ const FIXTURE_PLAYER: Player = { id: "fixture", display_name: "Fixture", guest: 
  * gate.
  */
 export function Root() {
+  useLanguage(); // every screen re-renders when the language changes (D-061)
   const [fixture] = useState(() => (DEV_HOOKS ? fixtureFromSearch(globalThis.location?.search ?? "") : null));
   const [serverFixture] = useState(() => (DEV_HOOKS ? serverFixtureFromSearch(globalThis.location?.search ?? "") : null));
   // The public almanac (/almanac/…) needs no session and no world; a pathname check is the whole router.
@@ -75,6 +78,7 @@ function ServerFixtureGate({ name }: { name: string }) {
     <div className={styles.screen} data-testid="fixture-reset">
       {state.kind === "failed" && (
         <div className={appStyles.banner} data-testid="fixture-reset-error">
+          {/* i18n-ignore: dev-only banner (the fixture endpoint exists in dev builds only) */}
           Dev fixture &apos;{name}&apos; failed: {state.message}
         </div>
       )}
@@ -103,7 +107,7 @@ function SessionRoot() {
   useEffect(() => {
     if (mailLink?.kind !== "verify_email") return;
     verifyEmail(mailLink.token).then(
-      () => setNotice("Your email address is confirmed."),
+      () => setNotice(t("auth.emailConfirmed")),
       (err: unknown) => setNotice(authErrorText(err)),
     );
   }, [mailLink]);
@@ -131,7 +135,7 @@ function SessionRoot() {
     };
   }, [state.kind, mailLink]);
 
-  const onSessionEnded = useCallback(() => setState({ kind: "start", notice: "Your session has ended. Please log in again." }), []);
+  const onSessionEnded = useCallback(() => setState({ kind: "start", notice: t("auth.sessionEnded") }), []);
   const onLoggedOut = useCallback(() => setState({ kind: "start" }), []);
   const onPlayer = useCallback((player: Player) => setState({ kind: "game", player }), []);
 
@@ -141,7 +145,7 @@ function SessionRoot() {
         <div className={styles.screen} data-testid="loading">
           {state.unreachable && (
             <div className={appStyles.banner} data-testid="unreachable-banner">
-              Server unreachable — retrying…
+              {t("common.unreachable")}
             </div>
           )}
         </div>

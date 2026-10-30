@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import styles from "./almanac.module.css";
 import { num, shipView, type Index } from "./model";
 import { BuildingLink, Cost, Row, Thumb } from "./parts";
@@ -9,9 +10,9 @@ export function Ships({ idx, id }: { idx: Index; id?: string }) {
   const ships = (idx.content.ships ?? []).map((s) => shipView(idx, s));
   return (
     <>
-      <h2>Ships</h2>
-      <p className={styles.lead}>Ships carry goods between your islands along routes. All of them are ordered at a shipyard once their tier is unlocked.</p>
-      {ships.length === 0 && <p className={styles.small}>No ships in the content.</p>}
+      <h2>{t("almanac.section.ships")}</h2>
+      <p className={styles.lead}>{t("almanac.s.lead")}</p>
+      {ships.length === 0 && <p className={styles.small}>{t("almanac.s.none")}</p>}
       <div className={styles.cards}>
         {ships.map((s) => (
           <article key={s.id} id={`ship-${s.id}`} className={styles.card} aria-labelledby={`ship-h-${s.id}`}>
@@ -23,19 +24,19 @@ export function Ships({ idx, id }: { idx: Index; id?: string }) {
               </div>
             </div>
             <dl className={styles.defs}>
-              <Row label="Cargo">
-                {s.slots} slots × {num(s.slotSize)} ({num(s.totalCapacity)} in all)
+              <Row label={t("almanac.s.cargo")}>
+                {t("almanac.s.cargoValue", { slots: s.slots, size: num(s.slotSize), total: num(s.totalCapacity) })}
               </Row>
-              <Row label="Speed">{num(s.speed)} × the reference speed</Row>
-              <Row label="Cost">
+              <Row label={t("almanac.s.speed")}>{t("almanac.s.speedValue", { factor: num(s.speed) })}</Row>
+              <Row label={t("almanac.b.cost")}>
                 <Cost idx={idx} parts={s.cost} />
               </Row>
-              <Row label="Upkeep">{num(s.upkeep)} gold/min</Row>
-              <Row label="Build time">{num(s.buildMinutes)} min</Row>
-              {s.lengthTiles !== undefined && <Row label="Length">{num(s.lengthTiles)} tiles</Row>}
-              <Row label="Unlocked with">{idx.tierName(s.tier)}</Row>
+              <Row label={t("infoPanel.upkeep")}>{t("almanac.b.goldPerMin", { amount: num(s.upkeep) })}</Row>
+              <Row label={t("almanac.s.buildTime")}>{t("routes.minutes", { time: num(s.buildMinutes) })}</Row>
+              {s.lengthTiles !== undefined && <Row label={t("almanac.s.length")}>{t("infoPanel.tiles", { count: num(s.lengthTiles) })}</Row>}
+              <Row label={t("almanac.s.unlockedWith")}>{idx.tierName(s.tier)}</Row>
               {s.shipyards.length > 0 && (
-                <Row label="Built at">
+                <Row label={t("almanac.s.builtAt")}>
                   {s.shipyards.map((b, i) => (
                     <span key={b}>
                       {i > 0 && ", "}

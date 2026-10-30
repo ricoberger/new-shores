@@ -1,4 +1,5 @@
 import { type KeyboardEvent, type PointerEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { t } from "../i18n";
 import { nextSnap, SHEET_SNAPS, type SheetSnap, snapFor } from "../display/layout";
 import { modalOpen, trapTab } from "./DialogPanel";
 import styles from "./sheet.module.css";
@@ -96,7 +97,7 @@ export function Sheet({ title, onClose, children }: Props) {
       <button
         type="button"
         className={styles.handle}
-        aria-label={`Resize panel (now ${snap})`}
+        aria-label={t("sheet.resize", { snap: t(`sheet.snap.${snap}`) })}
         data-testid="sheet-handle"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

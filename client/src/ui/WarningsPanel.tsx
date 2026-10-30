@@ -1,4 +1,5 @@
 import type { Content, DisplayState } from "../api/client";
+import { t } from "../i18n";
 import { statusText } from "../display/status";
 import { StatusIcon } from "./InfoPanel";
 import { CloseButton } from "./CloseButton";
@@ -17,12 +18,12 @@ export function WarningsPanel({ model, content, onFocus, onClose }: Props) {
   return (
     <div className={`${styles.panel} ${styles.shipsPanel}`} data-testid="warnings-panel">
       <div className={styles.row}>
-        <h2 className={styles.title}>Warnings</h2>
+        <h2 className={styles.title}>{t("warnings.title")}</h2>
         <div className={styles.spacer} />
         <CloseButton onClick={onClose} testId="warnings-close" />
       </div>
       <div className={styles.panelBody}>
-        {entries.length === 0 && <p className={styles.small}>No warnings.</p>}
+        {entries.length === 0 && <p className={styles.small}>{t("warnings.none")}</p>}
         <ul className={styles.trayList}>
           {entries.map(({ b, text }) => (
             <li key={b.id} className={styles.shipEntry}>

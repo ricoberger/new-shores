@@ -5,6 +5,7 @@ import { units } from "../display/format";
 import { declutterLabels, type LabelBox } from "../display/labels";
 import type { GameRenderer } from "../render/engine";
 import { shipWhere } from "./ShipsPanel";
+import { t } from "../i18n";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -140,10 +141,10 @@ export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland, d
       <div ref={tip} className={`${styles.panel} ${styles.tooltip}`} style={{ display: hovered ? "block" : "none" }} data-testid="island-tooltip">
         {hovered && sum && (
           <>
-            <strong>{hovered.name || hovered.id}</strong> {hovered.settled ? "" : "(unsettled)"}
-            <div className={styles.small}>Population {units(sum.population)}</div>
-            <div className={styles.small}>Trading Post {sum.fillPercent === null ? "—" : `${sum.fillPercent} %`}</div>
-            <div className={styles.small}>Warnings {sum.warnings}</div>
+            <strong>{hovered.name || hovered.id}</strong> {hovered.settled ? "" : t("overlay.unsettled")}
+            <div className={styles.small}>{t("overlay.population", { amount: units(sum.population) })}</div>
+            <div className={styles.small}>{t("overlay.tradingPost", { fill: sum.fillPercent === null ? "—" : `${sum.fillPercent} %` })}</div>
+            <div className={styles.small}>{t("overlay.warnings", { count: sum.warnings })}</div>
           </>
         )}
       </div>

@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { useEffect, useRef } from "react";
 import type { Quality } from "../display/quality";
 import { GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
@@ -95,7 +96,7 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialCamera, qual
         className={styles.canvas}
         tabIndex={0}
         role="application"
-        aria-label="Game view: drag to pan, pinch or wheel to zoom, Q and E rotate, tap to select"
+        aria-label={t("game.canvasLabel")}
         data-testid="game-canvas"
       />
       {/* Slight warm grading ("high") and the soft vignette (every quality, ART_DIRECTION §8): composited over the canvas, never shaded per pixel. */}

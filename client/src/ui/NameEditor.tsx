@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { t } from "../i18n";
 import { toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
@@ -48,10 +49,10 @@ export function NameEditor({ value, onChange, onSubmit, onCancel, label, testId,
         disabled={busy}
         data-testid={`${testId}-input`}
       />
-      <button type="submit" className={styles.closeButton} disabled={busy} aria-label="Rename" title="Rename" data-testid={`${testId}-save`}>
+      <button type="submit" className={styles.closeButton} disabled={busy} aria-label={t("nameEditor.rename")} title={t("nameEditor.rename")} data-testid={`${testId}-save`}>
         <Icon path={toolIcon("confirm")} />
       </button>
-      <button type="button" className={styles.closeButton} onClick={onCancel} aria-label="Cancel renaming" title="Cancel renaming" data-testid={`${testId}-cancel`}>
+      <button type="button" className={styles.closeButton} onClick={onCancel} aria-label={t("nameEditor.cancel")} title={t("nameEditor.cancel")} data-testid={`${testId}-cancel`}>
         <Icon path={toolIcon("cancel")} />
       </button>
     </form>

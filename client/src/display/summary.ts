@@ -1,6 +1,7 @@
 // Formatting of the "while you were away" summary (server data only).
 import type { Content } from "../api/client";
 import type { components } from "../api/schema";
+import { currentLocale, t } from "../i18n";
 import { units } from "./format";
 import { questTitle } from "./quests";
 import { unlockText } from "./tiers";
@@ -63,7 +64,7 @@ export function durationText(from: string, to: string): string {
  * undefined): { day: "25 Oct", time: "21:36", key: "2026-10-25" }.
  */
 export function dayAndTime(ts: string, timeZone?: string): { day: string; time: string; key: string } {
-  const parts = new Intl.DateTimeFormat("en-GB", { timeZone, year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date(ts));
+  const parts = new Intl.DateTimeFormat(currentLocale(), { timeZone, year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date(ts));
   const part = (t: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === t)?.value ?? "";
   return { day: `${part("day")} ${part("month")}`, time: `${part("hour")}:${part("minute")}`, key: `${part("year")}-${part("month")}-${part("day")}` };
 }
@@ -91,7 +92,7 @@ export function arrivalLines(arrivals: AwaySummary["arrivals"], islandName: (id:
   return [...ships].map(([id, islands]) => {
     const n = [...islands.values()].reduce((sum, c) => sum + c, 0);
     const where = n === 1 ? islandName([...islands.keys()][0]!) : [...islands].map(([is, c]) => `${islandName(is)} ${c}`).join(", ");
-    return `${shipName(id)}: ${n} ${n === 1 ? "arrival" : "arrivals"} (${where})`;
+    return t("summary.arrivals", { ship: shipName(id), count: n, where });
   });
 }
 
@@ -100,7 +101,7 @@ export function summaryView(
   s: AwaySummary,
   content: Content,
   islandName: (id: string) => string,
-  shipName: (id: number) => string = (id) => `Ship #${id}`,
+  shipName: (id: number) => string = (id) => t("summary.shipFallback", { id }),
   /** Time zone of the times shown (tests); the player's when undefined. */
   timeZone?: string,
 ): SummaryView {

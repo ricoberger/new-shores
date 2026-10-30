@@ -133,8 +133,9 @@ export function getWorld(): Promise<WorldResponse> {
   return request<WorldResponse>("/api/v1/world");
 }
 
-export function getContent(): Promise<Content> {
-  return request<Content>("/api/v1/content");
+/** The content in a language (D-061); the text fields are in that language, ids and numbers are not. */
+export function getContent(lang?: string): Promise<Content> {
+  return request<Content>(lang ? `/api/v1/content?lang=${encodeURIComponent(lang)}` : "/api/v1/content");
 }
 
 /**

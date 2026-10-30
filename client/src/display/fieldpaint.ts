@@ -8,6 +8,7 @@
 // an anchor, until the farm's maximum. The server validates the command and
 // its per-tile results are what counts; nothing here is a rule.
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
+import { t } from "../i18n";
 import type { FieldHint, FieldHintData } from "./fields";
 import { rotatedFootprint, type TilePos, tileKey } from "./geometry";
 
@@ -146,8 +147,8 @@ export function planPaint(farm: BuildingDisplay, field: ContentBuilding, anchors
 export function paintCountText(plan: PaintPlan): string {
   const parts = [`${plan.placed + plan.adding} / ${plan.max}`];
   if (plan.adding > 0) parts.push(`+${plan.adding}`);
-  if (plan.overMax > 0) parts.push(`${plan.overMax} over the max`);
-  if (plan.clipped) parts.push(`clipped to ${MAX_PAINT_TILES} tiles`);
+  if (plan.overMax > 0) parts.push(t("paint.overMax", { count: plan.overMax }));
+  if (plan.clipped) parts.push(t("paint.clipped", { max: MAX_PAINT_TILES }));
   return parts.join(" · ");
 }
 

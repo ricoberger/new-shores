@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { t, tRich } from "../i18n";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -43,12 +44,10 @@ export function FoundingPanel({ name, seafaring, detail, pending, onCancelPendin
           <span className={styles.foundingLineText} data-testid="founding-line">
             {seafaring ? (
               <>
-                <strong>Choose your home island:</strong> {name}
+                <strong>{t("founding.chooseLine")}</strong> {name}
               </>
             ) : (
-              <>
-                <strong>{name}</strong> is not settled.
-              </>
+              <>{tRich("founding.unsettled", { name: <strong>{name}</strong> })}</>
             )}
           </span>
           <button
@@ -56,7 +55,7 @@ export function FoundingPanel({ name, seafaring, detail, pending, onCancelPendin
             className={styles.foundingChevron}
             onClick={() => setExpanded((e) => !e)}
             aria-expanded={expanded}
-            aria-label={expanded ? "Show less" : "Show more"}
+            aria-label={expanded ? t("founding.less") : t("founding.more")}
             data-testid="founding-expand"
           >
             <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
@@ -67,21 +66,19 @@ export function FoundingPanel({ name, seafaring, detail, pending, onCancelPendin
       )}
       {full && seafaring && (
         <div data-testid="seafaring-hint">
-          <strong>Choose your home island.</strong> Your sloop carries the planks and sails. Use the minimap to see the whole
-          archipelago and tap it to look around; look at the islands&apos; fertilities and deposits (tap one for its card) and found a
-          Trading Post where you want to start.
+          <strong>{t("founding.choose")}</strong> {t("founding.hint")}
         </div>
       )}
       {full && (
         <div>
-          <strong>{name}</strong> is not settled. {detail}
+          {tRich("founding.unsettled", { name: <strong>{name}</strong> })} {detail}
         </div>
       )}
       {pending && (
         <div className={styles.small} data-testid="pending-founding">
           {pending}{" "}
           <button type="button" className={styles.link} onClick={onCancelPending} data-testid="pending-founding-cancel">
-            cancel
+            {t("founding.cancelPending")}
           </button>
         </div>
       )}
@@ -89,12 +86,12 @@ export function FoundingPanel({ name, seafaring, detail, pending, onCancelPendin
         <div className={`${styles.buttons} ${placement === "docked" ? "" : styles.centred}`}>
           {onFound && !pending && (
             <button type="button" className={styles.button} onClick={onFound} data-testid="found-settlement-here">
-              Found settlement here
+              {t("founding.found")}
             </button>
           )}
           {onReroll && (
             <button type="button" className={styles.button} onClick={onReroll} data-testid="reroll-archipelago">
-              Another archipelago
+              {t("founding.reroll")}
             </button>
           )}
         </div>

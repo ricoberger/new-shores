@@ -10,7 +10,8 @@ import { Quests } from "./Quests";
 import { Ships } from "./Ships";
 import { buildIndex, search, searchEntries, type Index, type SectionId } from "./model";
 import { A } from "./parts";
-import { navigate, SECTIONS, routePath, useRoute, type Route } from "./route";
+import { t, useLanguage } from "../i18n";
+import { navigate, SECTIONS, sectionLabel, routePath, useRoute, type Route } from "./route";
 
 /** Pages by section; a section without a page is not listed in the navigation. */
 const PAGES: Partial<Record<SectionId, ComponentType<{ idx: Index; id?: string }>>> = {
@@ -31,6 +32,10 @@ interface ViewProps {
   exitHref?: string;
 }
 
+function setDocumentTitle(title: string): void {
+  document.title = title;
+}
+
 /** The almanac for loaded content: header with search, section navigation, the page, the footer. */
 export function AlmanacView({ content, route: forced, exitHref = "/" }: ViewProps) {
   const current = useRoute();
@@ -42,10 +47,10 @@ export function AlmanacView({ content, route: forced, exitHref = "/" }: ViewProp
   const top = useRef<HTMLDivElement>(null);
   const sections = SECTIONS.filter((s) => PAGES[s.id]);
   const Page = PAGES[route.section] ?? Overview;
-  const label = sections.find((s) => s.id === route.section)?.label ?? "Overview";
+  const label = sectionLabel(sections.find((s) => s.id === route.section)?.id ?? "overview");
 
   useEffect(() => {
-    document.title = `${label} – The New Shores Almanac`;
+    setDocumentTitle(t("almanac.documentTitle", { section: label }));
   }, [label]);
   // A new page starts at the top; a deep link to an entry scrolls to it itself.
   useEffect(() => {
@@ -58,10 +63,10 @@ export function AlmanacView({ content, route: forced, exitHref = "/" }: ViewProp
     <div className={styles.root} ref={top} data-testid="almanac">
       <div className={styles.book}>
         <header className={styles.head}>
-          <h1 className={styles.title}>The New Shores Almanac</h1>
+          <h1 className={styles.title}>{t("almanac.title")}</h1>
           <div className={styles.spacer} />
           <a className={styles.exit} href={exitHref}>
-            ← New Shores
+            {t("almanac.back")}
           </a>
           <div className={styles.searchBox}>
             <input
@@ -76,13 +81,13 @@ export function AlmanacView({ content, route: forced, exitHref = "/" }: ViewProp
                   setQuery("");
                 }
               }}
-              placeholder="Search buildings, goods, ships, quests…"
-              aria-label="Search the almanac"
+              placeholder={t("almanac.search.placeholder")}
+              aria-label={t("almanac.search.label")}
               data-testid="almanac-search"
             />
             {query.trim() !== "" && (
-              <ul className={styles.results} aria-label="Search results">
-                {results.length === 0 && <li className={styles.small}>Nothing found.</li>}
+              <ul className={styles.results} aria-label={t("almanac.search.results")}>
+                {results.length === 0 && <li className={styles.small}>{t("almanac.search.none")}</li>}
                 {results.map((r) => (
                   <li key={`${r.section}/${r.id}`} onClick={() => setQuery("")}>
                     <A section={r.section} id={r.id}>
@@ -94,7 +99,7 @@ export function AlmanacView({ content, route: forced, exitHref = "/" }: ViewProp
             )}
           </div>
         </header>
-        <nav className={styles.nav} aria-label="Almanac sections">
+        <nav className={styles.nav} aria-label={t("almanac.sections")}>
           {sections.map((s) => (
             <a
               key={s.id}
@@ -107,7 +112,7 @@ export function AlmanacView({ content, route: forced, exitHref = "/" }: ViewProp
                 navigate(routePath(s.id));
               }}
             >
-              {s.label}
+              {sectionLabel(s.id)}
             </a>
           ))}
         </nav>
@@ -115,9 +120,9 @@ export function AlmanacView({ content, route: forced, exitHref = "/" }: ViewProp
           <Page idx={idx} id={route.id} key={route.section} />
         </main>
         <footer className={styles.foot}>
-          {region?.name ?? "Content"}
-          {region?.version ? ` · content ${region.version}` : ""}
-          {schema ? ` · schema ${schema}` : ""}
+          {region?.name ?? t("almanac.footer.content")}
+          {region?.version ? t("almanac.footer.version", { version: region.version }) : ""}
+          {schema ? t("almanac.footer.schema", { version: schema }) : ""}
         </footer>
       </div>
     </div>
@@ -138,31 +143,32 @@ type Load = { kind: "loading" } | { kind: "error" } | { kind: "ready"; content: 
 export function Almanac({ exitHref }: { exitHref?: string }) {
   const [state, setState] = useState<Load>({ kind: "loading" });
   const [attempt, setAttempt] = useState(0);
+  const [language] = useLanguage();
   useEffect(() => {
     let cancelled = false;
-    getContent().then(
+    getContent(language).then(
       (content) => !cancelled && setState({ kind: "ready", content }),
       () => !cancelled && setState({ kind: "error" }),
     );
     return () => {
       cancelled = true;
     };
-  }, [attempt]);
+  }, [attempt, language]);
   if (state.kind === "ready") return <AlmanacView content={state.content} exitHref={exitHref} />;
   return (
     <div className={styles.root} data-testid="almanac">
       <div className={styles.book}>
         <header className={styles.head}>
-          <h1 className={styles.title}>The New Shores Almanac</h1>
+          <h1 className={styles.title}>{t("almanac.title")}</h1>
         </header>
         <main className={styles.main} style={{ gridColumn: "1 / -1" }}>
           {state.kind === "loading" ? (
             <p className={styles.status} role="status">
-              Opening the almanac…
+              {t("almanac.loading")}
             </p>
           ) : (
             <p className={styles.status} role="alert">
-              The almanac could not be loaded.{" "}
+              {t("almanac.failed")}{" "}
               <button
                 type="button"
                 className={styles.retry}
@@ -171,7 +177,7 @@ export function Almanac({ exitHref }: { exitHref?: string }) {
                   setAttempt((n) => n + 1);
                 }}
               >
-                Try again
+                {t("common.tryAgain")}
               </button>
             </p>
           )}

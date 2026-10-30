@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
 import { units } from "../display/format";
+import { t } from "../i18n";
 import { draftChanged, effectRows } from "../display/routes";
 import type { Draft, DraftStop } from "../display/view";
 import { toolIcon } from "../theme/iconSet";
@@ -154,23 +155,23 @@ export function RouteEditor(p: Props) {
             onChange={(name) => setNaming({ routeId, name })}
             onSubmit={applyName}
             onCancel={() => setNaming(null)}
-            label="Route name"
+            label={t("routeEditor.nameLabel")}
             testId="route-rename"
             maxLength={40}
-            placeholder="Route name"
+            placeholder={t("routeEditor.nameLabel")}
           />
         ) : (
           <>
             <h2 className={styles.title} data-testid="route-editor-title">
               {draft.name.trim() ||
-                (routeId === null ? "New route" : `Route #${routeId}`)}
+                (routeId === null ? t("routeEditor.new") : t("routeEditor.numbered", { id: routeId }))}
             </h2>
             <button
               type="button"
               className={styles.closeButton}
               onClick={() => setNaming({ routeId, name: draft.name })}
-              aria-label="Rename the route"
-              title="Rename the route"
+              aria-label={t("routeEditor.rename")}
+              title={t("routeEditor.rename")}
               data-testid="route-rename"
             >
               <Icon path={toolIcon("rename")} />
@@ -192,13 +193,13 @@ export function RouteEditor(p: Props) {
                 onChange={(e) =>
                   e.target.value && setStop(i, { island: e.target.value })
                 }
-                aria-label={`Stop ${i + 1}: island`}
+                aria-label={t("routeEditor.stopIsland", { n: i + 1 })}
                 data-testid={`route-stop-island-${i}`}
               >
                 {model.islands.filter((is) => !is.scenic).map((is) => (
                   <option key={is.id} value={is.id}>
                     {is.name || is.id}
-                    {is.settled ? "" : " (unsettled)"}
+                    {is.settled ? "" : ` ${t("overlay.unsettled")}`}
                   </option>
                 ))}
               </select>
@@ -207,7 +208,7 @@ export function RouteEditor(p: Props) {
                 className={styles.link}
                 disabled={i === 0}
                 onClick={() => p.onMoveStop(i, -1)}
-                aria-label={`Move stop ${i + 1} up`}
+                aria-label={t("routeEditor.moveUp", { n: i + 1 })}
                 data-testid={`route-stop-up-${i}`}
               >
                 ↑
@@ -217,7 +218,7 @@ export function RouteEditor(p: Props) {
                 className={styles.link}
                 disabled={i === draft.stops.length - 1}
                 onClick={() => p.onMoveStop(i, 1)}
-                aria-label={`Move stop ${i + 1} down`}
+                aria-label={t("routeEditor.moveDown", { n: i + 1 })}
                 data-testid={`route-stop-down-${i}`}
               >
                 ↓
@@ -226,7 +227,7 @@ export function RouteEditor(p: Props) {
                 type="button"
                 className={styles.link}
                 onClick={() => p.onRemoveStop(i)}
-                aria-label={`Remove stop ${i + 1}`}
+                aria-label={t("routeEditor.removeStop", { n: i + 1 })}
                 data-testid={`route-stop-remove-${i}`}
               >
                 <Icon path={toolIcon("close")} />
@@ -238,7 +239,7 @@ export function RouteEditor(p: Props) {
                   className={styles.input}
                   value={r.good}
                   onChange={(e) => setGood(i, r, { good: e.target.value })}
-                  aria-label={`Stop ${i + 1}: good`}
+                  aria-label={t("routeEditor.stopGood", { n: i + 1 })}
                   data-testid={`route-good-${i}-${r.key}`}
                 >
                   {content.goods.map((g) => (
@@ -253,11 +254,11 @@ export function RouteEditor(p: Props) {
                   onChange={(e) =>
                     setGood(i, r, { mode: e.target.value as GoodRow["mode"] })
                   }
-                  aria-label={`Stop ${i + 1}: load or unload`}
+                  aria-label={t("routeEditor.stopMode", { n: i + 1 })}
                   data-testid={`route-mode-${i}-${r.key}`}
                 >
-                  <option value="load">Load</option>
-                  <option value="unload">Unload</option>
+                  <option value="load">{t("routeEditor.load")}</option>
+                  <option value="unload">{t("routeEditor.unload")}</option>
                 </select>
                 {r.mode === "load" ? (
                   <input
@@ -274,12 +275,12 @@ export function RouteEditor(p: Props) {
                         ),
                       })
                     }
-                    aria-label={`Stop ${i + 1}: top up to (units)`}
+                    aria-label={t("routeEditor.topUp", { n: i + 1 })}
                     data-testid={`route-load-max-${i}-${r.index}`}
                   />
                 ) : (
                   <span className={`${styles.small} ${styles.amount}`}>
-                    all
+                    {t("routeEditor.all")}
                   </span>
                 )}
                 <span
@@ -292,7 +293,7 @@ export function RouteEditor(p: Props) {
                   type="button"
                   className={styles.link}
                   onClick={() => removeGood(i, r)}
-                  aria-label="Remove good"
+                  aria-label={t("routeEditor.removeGood")}
                   data-testid={`route-good-remove-${i}-${r.key}`}
                 >
                   <Icon path={toolIcon("close")} />
@@ -307,7 +308,7 @@ export function RouteEditor(p: Props) {
               }
               data-testid={`route-good-add-${i}`}
             >
-              + good
+              {t("routeEditor.addGood")}
             </button>
           </div>
         ))}
@@ -316,16 +317,16 @@ export function RouteEditor(p: Props) {
             className={styles.input}
             value=""
             onChange={(e) => e.target.value && p.onAddStop(e.target.value)}
-            aria-label="Add a stop"
+            aria-label={t("routeEditor.addStop")}
             data-testid="route-stop-add"
           >
             <option value="">
-              {draft.stops.length === 0 ? "+ first stop…" : "+ stop…"}
+              {draft.stops.length === 0 ? t("routeEditor.firstStop") : t("routeEditor.stop")}
             </option>
             {model.islands.filter((is) => !is.scenic).map((is) => (
               <option key={is.id} value={is.id}>
                 {is.name || is.id}
-                {is.settled ? "" : " (unsettled)"}
+                {is.settled ? "" : ` ${t("overlay.unsettled")}`}
               </option>
             ))}
           </select>
@@ -344,19 +345,19 @@ export function RouteEditor(p: Props) {
               className={`${styles.section} ${styles.divided}`}
               data-testid="route-effects"
             >
-              <div className={styles.sectionTitle}>Net effect (estimated)</div>
+              <div className={styles.sectionTitle}>{t("routeEditor.netEffect")}</div>
               {route.effects.length === 0 ? (
                 <div className={styles.small}>
-                  estimated: the route moves no goods
+                  {t("routeEditor.noGoods")}
                 </div>
               ) : (
                 <table className={styles.table}>
                   <thead>
                     <tr>
-                      <th>Island</th>
-                      <th>Good</th>
-                      <th>per loop</th>
-                      <th>per min</th>
+                      <th>{t("routeEditor.island")}</th>
+                      <th>{t("away.good")}</th>
+                      <th>{t("routeEditor.perLoop")}</th>
+                      <th>{t("routeEditor.perMin")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -375,11 +376,9 @@ export function RouteEditor(p: Props) {
                 </table>
               )}
               <div className={styles.small}>
-                estimated at the reference speed with full stocks
-                {route.ship_ids.length === 0
-                  ? "; per minute needs an assigned ship"
-                  : ""}
-                {dirty ? " (saved version)" : ""}
+                {t("routeEditor.estimateNote")}
+                {route.ship_ids.length === 0 ? t("routeEditor.needsShip") : ""}
+                {dirty ? t("routeEditor.savedVersion") : ""}
               </div>
             </div>
           </>
@@ -389,23 +388,23 @@ export function RouteEditor(p: Props) {
             className={`${styles.section} ${styles.divided}`}
             data-testid="route-ships"
           >
-            <div className={styles.sectionTitle}>Ships</div>
+            <div className={styles.sectionTitle}>{t("ships.title")}</div>
             {route.ship_ids.length === 0 && (
-              <div className={styles.small}>none assigned</div>
+              <div className={styles.small}>{t("routeEditor.noneAssigned")}</div>
             )}
             {route.ship_ids.map((id) => {
               const s = model.ships.find((x) => x.id === id);
               return (
                 <div key={id} className={styles.row}>
                   <span className={styles.small}>
-                    {s ? shipName(s) : `Ship #${id}`}
+                    {s ? shipName(s) : t("routeEditor.shipNumbered", { id })}
                   </span>
                   <div className={styles.spacer} />
                   <button
                     type="button"
                     className={styles.link}
                     onClick={() => p.onUnassign(id)}
-                    aria-label={`Unassign ${s ? shipName(s) : `Ship #${id}`}`}
+                    aria-label={t("routeEditor.unassign", { ship: s ? shipName(s) : t("routeEditor.shipNumbered", { id }) })}
                     data-testid={`route-unassign-${id}`}
                   >
                     <Icon path={toolIcon("close")} />
@@ -422,15 +421,16 @@ export function RouteEditor(p: Props) {
                     e.target.value &&
                     p.onAssign(Number(e.target.value), route.id)
                   }
-                  aria-label="Assign a ship"
+                  aria-label={t("routeEditor.assignShip")}
                   data-testid="route-assign-add"
                 >
-                  <option value="">+ assign…</option>
+                  <option value="">{t("routeEditor.assign")}</option>
                   {idleShips.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {shipName(s)} at{" "}
-                      {model.islands.find((i) => i.id === s.island_id)?.name ||
-                        s.island_id}
+                      {t("routeEditor.shipAt", {
+                        ship: shipName(s),
+                        island: model.islands.find((i) => i.id === s.island_id)?.name || s.island_id,
+                      })}
                     </option>
                   ))}
                 </select>
@@ -446,7 +446,7 @@ export function RouteEditor(p: Props) {
           onClick={p.onSave}
           data-testid="route-save"
         >
-          Save
+          {t("common.save")}
         </button>
         {route && route.ship_ids.length === 0 && (
           <button
@@ -455,7 +455,7 @@ export function RouteEditor(p: Props) {
             onClick={p.onDelete}
             data-testid="route-delete"
           >
-            Delete
+            {t("common.delete")}
           </button>
         )}
       </div>

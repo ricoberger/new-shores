@@ -1,3 +1,5 @@
+import { t } from "../i18n";
+import { depositName, fertilityName } from "../display/tiers";
 import type { IslandResources } from "../display/hud";
 import { resourceIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
@@ -42,17 +44,17 @@ export function ResourceBadges({ resources, prefix, short = false, only, stacked
   );
   return (
     <span className={`${styles.resourceBadges} ${stacked ? styles.resourceStacked : ""}`} data-testid={only ? undefined : `${prefix}-resources`}>
-      {show("fertilities") && resources.fertilities.map((f) => badge(`f-${f}`, `${prefix}-fertility-${f}`, resourceIcon("fertility", f), `${cap(f)} fertility`))}
+      {show("fertilities") && resources.fertilities.map((f) => badge(`f-${f}`, `${prefix}-fertility-${f}`, resourceIcon("fertility", f), t("resource.fertility", { name: cap(fertilityName(f)) })))}
       {show("deposits") &&
         resources.deposits.map((d) =>
-        badge(`d-${d.kind}`, `${prefix}-deposit-${d.kind}`, resourceIcon("deposit", d.kind), `${cap(d.kind)} deposit (${d.tiles} ${d.tiles === 1 ? "tile" : "tiles"})`, String(d.tiles)),
+        badge(`d-${d.kind}`, `${prefix}-deposit-${d.kind}`, resourceIcon("deposit", d.kind), t("resource.deposit", { name: cap(depositName(d.kind)), count: d.tiles }), String(d.tiles)),
       )}
-      {show("coast") && badge("coast", `${prefix}-coast`, resourceIcon("coast"), `Free coast: ${resources.coast.free} of ${resources.coast.tiles} tiles`, String(resources.coast.free))}
+      {show("coast") && badge("coast", `${prefix}-coast`, resourceIcon("coast"), t("resource.coast", { free: resources.coast.free, count: resources.coast.tiles }), String(resources.coast.free))}
       {!only && resources.fertilities.length === 0 && resources.deposits.length === 0 && !short && (
-        <span className={styles.small}>No fertility or deposit</span>
+        <span className={styles.small}>{t("resource.none")}</span>
       )}
-      {only?.includes("fertilities") && resources.fertilities.length === 0 && "none"}
-      {only?.includes("deposits") && resources.deposits.length === 0 && "none"}
+      {only?.includes("fertilities") && resources.fertilities.length === 0 && t("resource.noneShort")}
+      {only?.includes("deposits") && resources.deposits.length === 0 && t("resource.noneShort")}
     </span>
   );
 }

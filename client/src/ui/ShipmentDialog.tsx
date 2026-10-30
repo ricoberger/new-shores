@@ -3,6 +3,7 @@ import type { CargoDisplay, Content, DisplayState, ShipDisplay } from "../api/cl
 import { units } from "../display/format";
 import { cargoTotals, slotsFor } from "../display/ships";
 import { DialogPanel } from "./DialogPanel";
+import { t } from "../i18n";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -42,15 +43,15 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className={styles.title} id="shipment-dialog-title">
-          Send {ship.name}
+          {t("shipment.title", { ship: ship.name })}
         </h2>
         <div className={styles.row}>
-          <label htmlFor="shipment-dest">To</label>
+          <label htmlFor="shipment-dest">{t("shipment.to")}</label>
           <select id="shipment-dest" className={styles.input} value={to} onChange={(e) => setTo(e.target.value)} data-testid="shipment-dest">
             {destinations.map((i) => (
               <option key={i.id} value={i.id}>
                 {i.name || i.id}
-                {i.settled ? "" : " (unsettled)"}
+                {i.settled ? "" : ` ${t("overlay.unsettled")}`}
               </option>
             ))}
           </select>
@@ -58,9 +59,9 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
         <table className={`${styles.table} ${styles.section}`}>
           <thead>
             <tr>
-              <th>Good</th>
-              <th>Stock</th>
-              <th>Load</th>
+              <th>{t("shipment.good")}</th>
+              <th>{t("shipment.stock")}</th>
+              <th>{t("shipment.load")}</th>
             </tr>
           </thead>
           <tbody>
@@ -79,7 +80,7 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
                       className={`${styles.input} ${styles.number}`}
                       value={amounts[g.id] ?? 0}
                       onChange={(e) => setAmounts({ ...amounts, [g.id]: Math.max(0, Math.min(max, Math.floor(Number(e.target.value) || 0))) })}
-                      aria-label={`Load ${g.name} (units)`}
+                      aria-label={t("shipment.loadLabel", { good: g.name })}
                       data-testid={`shipment-amount-${g.id}`}
                     />
                   </td>
@@ -89,7 +90,7 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
           </tbody>
         </table>
         <div className={`${styles.small} ${slots > ship.slots ? styles.warn : ""}`} data-testid="shipment-slots">
-          Slots {slots}/{ship.slots} (slot size {units(ship.slot_size)})
+          {t("shipment.slots", { used: slots, total: ship.slots, size: units(ship.slot_size) })}
         </div>
         <div className={styles.buttons}>
           <button
@@ -102,10 +103,10 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
             }}
             data-testid="shipment-send"
           >
-            Send
+            {t("shipment.send")}
           </button>
           <button type="button" className={styles.button} onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </button>
         </div>
       </DialogPanel>

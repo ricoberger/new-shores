@@ -1,6 +1,7 @@
 import type { Content } from "../api/client";
 import { type AwaySummary, summaryView } from "../display/summary";
 import { goodIcon } from "../theme/iconSet";
+import { t, tRich } from "../i18n";
 import { DialogPanel } from "./DialogPanel";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
@@ -23,18 +24,18 @@ export function AwayDialog({ summary, content, islandName, shipName, timeZone, o
   return (
     <div className={styles.backdrop}>
       <DialogPanel className={`${styles.panel} ${styles.dialog} ${styles.awayDialog} ${styles.letter}`} labelledBy="away-dialog-title" testId="away-dialog">
-        <div className={styles.letterFrom}>A letter from your advisor</div>
+        <div className={styles.letterFrom}>{t("away.letterFrom")}</div>
         <h2 className={styles.title} id="away-dialog-title">
-          While you were away
+          {t("away.title")}
         </h2>
         <div className={styles.small}>
           <span data-testid="away-from">{v.from}</span> – <span data-testid="away-to">{v.to}</span> ({v.duration})
         </div>
         {/* Gold and the population of each tier as a list: was → is (the ships list's style). */}
         <div className={styles.section} data-testid="away-overview">
-          <div className={styles.sectionTitle}>Overview</div>
+          <div className={styles.sectionTitle}>{t("away.overview")}</div>
           <div className={styles.small} data-testid="away-gold">
-            Gold: {v.gold.before} → {v.gold.after} (<span data-testid="away-gold-change">{v.gold.change}</span>)
+            {tRich("away.gold", { before: v.gold.before, after: v.gold.after, change: <span data-testid="away-gold-change">{v.gold.change}</span> })}
           </div>
           {v.population.map((p) => (
             <div key={p.tier} className={styles.small} data-testid={`away-population-${p.tier}`}>
@@ -50,11 +51,11 @@ export function AwayDialog({ summary, content, islandName, shipName, timeZone, o
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Good</th>
-                  <th>Produced</th>
-                  <th>Consumed</th>
-                  <th>Lost</th>
-                  <th>Stock</th>
+                  <th>{t("away.good")}</th>
+                  <th>{t("away.produced")}</th>
+                  <th>{t("away.consumed")}</th>
+                  <th>{t("away.lost")}</th>
+                  <th>{t("shipment.stock")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -78,13 +79,13 @@ export function AwayDialog({ summary, content, islandName, shipName, timeZone, o
         ))}
         {(v.paused > 0 || v.resumed > 0 || v.stillPaused.length > 0) && (
           <div className={styles.section} data-testid="away-paused">
-            Paused for unpaid upkeep: {v.paused}, resumed: {v.resumed}
-            {v.stillPaused.length > 0 && <div className={styles.warn}>Still paused: {v.stillPaused.join(", ")}</div>}
+            {t("away.paused", { paused: v.paused, resumed: v.resumed })}
+            {v.stillPaused.length > 0 && <div className={styles.warn}>{t("away.stillPaused", { list: v.stillPaused.join(", ") })}</div>}
           </div>
         )}
         {v.shipsArrived > 0 && (
           <div className={styles.section} data-testid="away-ships">
-            <div className={styles.sectionTitle}>Ships arrived ({v.shipsArrived})</div>
+            <div className={styles.sectionTitle}>{t("away.shipsArrived", { count: v.shipsArrived })}</div>
             <div className={styles.arrivals}>
               {v.arrivals.map((a, i) => (
                 <div key={i} className={styles.small}>
@@ -101,11 +102,11 @@ export function AwayDialog({ summary, content, islandName, shipName, timeZone, o
             ))}
           </div>
         )}
-        {v.quests.length > 0 && <div className={styles.section}>Quests completed: {v.quests.join(", ")}</div>}
+        {v.quests.length > 0 && <div className={styles.section}>{t("away.questsCompleted", { list: v.quests.join(", ") })}</div>}
         <div className={`${styles.buttons} ${styles.letterEnd}`} data-testid="away-end">
-          <span className={styles.letterSign}>Your humble advisor</span>
+          <span className={styles.letterSign}>{t("away.sign")}</span>
           <button type="button" className={`${styles.button} ${styles.primary}`} onClick={onDismiss} data-testid="away-dismiss">
-            Continue
+            {t("common.continue")}
           </button>
         </div>
       </DialogPanel>
