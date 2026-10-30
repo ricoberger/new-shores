@@ -26,8 +26,8 @@ CONTENT = content.load()
 EXTRA = ("grain_distillery",)
 #: Roles with no authored shade steps: adjacent voxels of one role mostly share one colour.
 FLAT_ROLES = ("plaster", "brass")
-#: Model files with a sway group among tier 3: the dyers' frames and the tailor's washing line.
-SWAY_ALLOWED = {"dyer.glb", "dyer_works.glb", "tailor.glb"}
+#: Model files with a sway group among tier 3: the dyers' frames, the tailor's washing line and the surgery's awning (D-060).
+SWAY_ALLOWED = {"dyer.glb", "dyer_works.glb", "tailor.glb", "surgery.glb"}
 
 
 def tier_ids():

@@ -3128,6 +3128,75 @@
       },
       "kind": "building"
     },
+    "city_guard": {
+      "anchors": {
+        "door": [
+          -0.375,
+          0.0,
+          -0.625
+        ],
+        "status": [
+          0.0,
+          2.625,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.5,
+          2.375,
+          1.5
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.5,
+            2.375,
+            1.5
+          ],
+          "min": [
+            -1.5,
+            0.0,
+            -1.5
+          ]
+        },
+        "budget": 4500,
+        "bytes": 88420,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.5,
+              2.5,
+              1.5
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -1.5
+            ]
+          },
+          "budget": 360,
+          "bytes": 9020,
+          "path": "city_guard.lite.glb",
+          "sha256": "121b642543172ec03908f581a08d30b87512732ef0b2851d160d37e23fee1fa3",
+          "triangles": 228
+        },
+        "path": "city_guard.glb",
+        "sha256": "485bc99747b0680b5180b6fc543198e593a8df6fd970b50a99c644f958aa406a",
+        "triangles": 2900
+      },
+      "footprint": {
+        "h": 3,
+        "w": 3
+      },
+      "kind": "building"
+    },
     "clay_pit": {
       "anchors": {
         "cart": [
@@ -3602,6 +3671,123 @@
       },
       "kind": "building"
     },
+    "depot": {
+      "anchors": {
+        "cart": [
+          -0.1,
+          0.125,
+          -1.75
+        ],
+        "door": [
+          0.0,
+          0.0,
+          -2.0
+        ],
+        "status": [
+          0.0,
+          3.375,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          2.0,
+          3.125,
+          1.75
+        ],
+        "min": [
+          -2.0,
+          -0.375,
+          -2.125
+        ]
+      },
+      "footprint": {
+        "h": 4,
+        "w": 4
+      },
+      "kind": "building",
+      "levels": {
+        "1": {
+          "bounds": {
+            "max": [
+              2.0,
+              2.375,
+              1.75
+            ],
+            "min": [
+              -2.0,
+              -0.375,
+              -2.0
+            ]
+          },
+          "budget": 8000,
+          "bytes": 71640,
+          "lite": {
+            "bounds": {
+              "max": [
+                2.0,
+                2.5,
+                2.0
+              ],
+              "min": [
+                -2.0,
+                -0.5,
+                -2.0
+              ]
+            },
+            "budget": 640,
+            "bytes": 8004,
+            "path": "depot.l1.lite.glb",
+            "sha256": "092508e12083c96c6d1cc2dd03363dc770e683dfdca8d453391bb660c423e880",
+            "triangles": 220
+          },
+          "path": "depot.l1.glb",
+          "sha256": "ab88a5a9df38fea42acdcf428fddbbc0c31dfe337bc9b96d0a947ff6e97d79eb",
+          "triangles": 2310
+        },
+        "2": {
+          "bounds": {
+            "max": [
+              2.0,
+              3.125,
+              1.75
+            ],
+            "min": [
+              -2.0,
+              -0.375,
+              -2.125
+            ]
+          },
+          "budget": 8000,
+          "bytes": 116192,
+          "lite": {
+            "bounds": {
+              "max": [
+                2.0,
+                3.5,
+                2.0
+              ],
+              "min": [
+                -2.0,
+                -0.5,
+                -2.5
+              ]
+            },
+            "budget": 640,
+            "bytes": 13440,
+            "path": "depot.l2.lite.glb",
+            "sha256": "2096044cec29e56e6d030345c59406bb432884b05d395583e6f23b62a25266fb",
+            "triangles": 352
+          },
+          "path": "depot.l2.glb",
+          "sha256": "baa28f9ab6d1a8fcb1c9c6c2cbb9fe88e8b6bbbd47b73825584ed9bc9faa8fb4",
+          "triangles": 3794
+        }
+      },
+      "sway": [
+        "cloth"
+      ]
+    },
     "distillery": {
       "anchors": {
         "cart": [
@@ -3931,6 +4117,75 @@
       "footprint": {
         "h": 7,
         "w": 5
+      },
+      "kind": "building"
+    },
+    "fire_station": {
+      "anchors": {
+        "door": [
+          0.25,
+          0.0,
+          -1.0
+        ],
+        "status": [
+          0.0,
+          4.625,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.625,
+          4.375,
+          2.0
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -2.0
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.625,
+            4.375,
+            2.0
+          ],
+          "min": [
+            -1.5,
+            0.0,
+            -2.0
+          ]
+        },
+        "budget": 6000,
+        "bytes": 113040,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.5,
+              4.0,
+              2.0
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -2.0
+            ]
+          },
+          "budget": 480,
+          "bytes": 11700,
+          "path": "fire_station.lite.glb",
+          "sha256": "c167cca64e4601178bd418e1c4662f161b41cfd6187e5306304466ea07a02bab",
+          "triangles": 308
+        },
+        "path": "fire_station.glb",
+        "sha256": "c721e1968118a6053429bc9690b5ded96aade939d0ac5129db8782569fecfe37",
+        "triangles": 3594
+      },
+      "footprint": {
+        "h": 4,
+        "w": 3
       },
       "kind": "building"
     },
@@ -8257,6 +8512,78 @@
       },
       "kind": "building"
     },
+    "surgery": {
+      "anchors": {
+        "door": [
+          -0.25,
+          0.0,
+          -0.625
+        ],
+        "status": [
+          0.0,
+          3.125,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.5,
+          2.875,
+          1.5
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.5,
+            2.875,
+            1.5
+          ],
+          "min": [
+            -1.5,
+            0.0,
+            -1.5
+          ]
+        },
+        "budget": 4500,
+        "bytes": 85732,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.5,
+              3.0,
+              1.5
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -1.5
+            ]
+          },
+          "budget": 360,
+          "bytes": 8716,
+          "path": "surgery.lite.glb",
+          "sha256": "9cf2962c3dab2f03cdad9b7e20bc4d791ab0128ac9b45df2499fb523b6ff432c",
+          "triangles": 218
+        },
+        "path": "surgery.glb",
+        "sha256": "0f9b1e48f8fc868bf5e751030d1a838fea719941f8ffa7f2695da596e0b17ac7",
+        "triangles": 2834
+      },
+      "footprint": {
+        "h": 3,
+        "w": 3
+      },
+      "kind": "building",
+      "sway": [
+        "cloth"
+      ]
+    },
     "tailor": {
       "anchors": {
         "cart": [
@@ -8714,6 +9041,90 @@
       },
       "kind": "building"
     },
+    "trading_pier": {
+      "anchors": {
+        "berth_1": [
+          -1.65,
+          0.06,
+          0.5
+        ],
+        "berth_2": [
+          1.65,
+          0.06,
+          0.5
+        ],
+        "cart": [
+          -0.225,
+          0.125,
+          -1.5
+        ],
+        "door": [
+          -0.25,
+          0.0,
+          -2.0
+        ],
+        "status": [
+          0.0,
+          2.0,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.5,
+          1.75,
+          1.875
+        ],
+        "min": [
+          -1.5,
+          -1.0,
+          -2.0
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.5,
+            1.75,
+            1.875
+          ],
+          "min": [
+            -1.5,
+            -1.0,
+            -2.0
+          ]
+        },
+        "budget": 6000,
+        "bytes": 60392,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.5,
+              1.5,
+              2.0
+            ],
+            "min": [
+              -1.5,
+              -1.0,
+              -2.0
+            ]
+          },
+          "budget": 480,
+          "bytes": 7276,
+          "path": "trading_pier.lite.glb",
+          "sha256": "5d98baff2db59ec65e29688bd22ba6c7a1a5ce2cf9f8eff1b7031461b313bcd5",
+          "triangles": 184
+        },
+        "path": "trading_pier.glb",
+        "sha256": "1450beac1c40182efd17e00ea9e4fcdd2279aa5d0568c6ffc5730b47649c1ddf",
+        "triangles": 1924
+      },
+      "footprint": {
+        "h": 4,
+        "w": 3
+      },
+      "kind": "building"
+    },
     "trading_post": {
       "anchors": {
         "berth_1": [
@@ -8926,6 +9337,56 @@
       "sway": [
         "flag"
       ]
+    },
+    "tree_plot": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          1.125,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          0.875,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            0.875,
+            0.5
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 410,
+        "bytes": 11896,
+        "path": "tree_plot.glb",
+        "sha256": "c14ae813a827551b9c60fc9eaac88e75c705fdc56610a68bd9cea097878a4235",
+        "triangles": 362
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "field"
     },
     "university": {
       "anchors": {
