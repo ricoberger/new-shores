@@ -3,19 +3,25 @@
 // small router with route objects, worth it only when the app gets more
 // routes than the game and the almanac.
 import { useSyncExternalStore } from "react";
+import { t } from "../i18n";
 import type { SectionId } from "./model";
 
 export const ALMANAC_BASE = "/almanac";
 
-export const SECTIONS: { id: SectionId; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "buildings", label: "Buildings" },
-  { id: "goods", label: "Goods" },
-  { id: "needs", label: "Needs" },
-  { id: "ships", label: "Ships" },
-  { id: "quests", label: "Quests" },
-  { id: "islands", label: "Islands" },
+export const SECTIONS: { id: SectionId }[] = [
+  { id: "overview" },
+  { id: "buildings" },
+  { id: "goods" },
+  { id: "needs" },
+  { id: "ships" },
+  { id: "quests" },
+  { id: "islands" },
 ];
+
+/** A section's name in the navigation and the page title. */
+export function sectionLabel(id: SectionId): string {
+  return t(`almanac.section.${id}`);
+}
 
 export interface Route {
   section: SectionId;

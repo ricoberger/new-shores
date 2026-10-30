@@ -11,6 +11,7 @@ import { toolIcon } from "../theme/iconSet";
 import { TERRAIN, UI } from "../theme/palette";
 import { Compass } from "./Compass";
 import { Icon } from "./Icon";
+import { t } from "../i18n";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -180,7 +181,7 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
           className={styles.minimapCanvas}
           style={{ width: size.width, height: size.height }}
           role="img"
-          aria-label="Minimap of the archipelago: click to move the camera there"
+          aria-label={t("minimap.label")}
           onPointerDown={onPointerDown}
           data-testid="minimap"
         />
@@ -201,7 +202,7 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
           setCollapsed(next);
         }}
         aria-expanded={!collapsed}
-        aria-label={collapsed ? "Show minimap" : "Hide minimap"}
+        aria-label={collapsed ? t("minimap.show") : t("minimap.hide")}
         data-testid="minimap-toggle"
       >
         <Icon path={toolIcon("minimap")} />

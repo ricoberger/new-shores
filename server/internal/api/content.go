@@ -36,6 +36,20 @@ type contentPayload struct {
 	// generator (islands.json) in content order: the display names of
 	// an island's size_class.
 	SizeClasses []sizeClassJSON `json:"size_classes"`
+	// Language is the language of the text fields (D-061); Languages
+	// every shipped language, "en" first.
+	Language  string   `json:"language"`
+	Languages []string `json:"languages"`
+	// IslandNames lists the generator's island names: Source is the
+	// English name stored in a world, Name its text in Language. A
+	// generated island keeps the English name in the world until the
+	// player renames it; clients show Name for a matching Source.
+	IslandNames []islandNameJSON `json:"island_names"`
+}
+
+type islandNameJSON struct {
+	Source string `json:"source"`
+	Name   string `json:"name"`
 }
 
 type sizeClassJSON struct {
@@ -99,8 +113,12 @@ type rewardsJSON struct {
 }
 
 type shipJSONOut struct {
-	ID            string   `json:"id"`
-	Name          string   `json:"name"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	// SourceName is the English name where Name is another language's:
+	// the server composes a ship's default name ("Sloop 2") from the
+	// English type name, so clients match it to show the translation.
+	SourceName    string   `json:"source_name,omitempty"`
 	Tier          string   `json:"tier"`
 	Slots         int      `json:"slots"`
 	SlotSize      int64    `json:"slot_size"`
@@ -373,11 +391,30 @@ func goodAmounts(in []content.GoodAmount) []goodAmountJSON {
 	return out
 }
 
-func newContentPayload(c *content.Catalogue) contentPayload {
+// texts resolves content texts in one language.
+type texts struct {
+	c    *content.Catalogue
+	lang string
+}
+
+func (t texts) name(file, id, english string) string {
+	return t.c.Translate(t.lang, content.TextKey(file, id, "name"), english)
+}
+
+// sourceIfDifferent is the English name when the language's differs, else "".
+func (t texts) sourceIfDifferent(file, id, english string) string {
+	if t.name(file, id, english) == english {
+		return ""
+	}
+	return english
+}
+
+func newContentPayload(c *content.Catalogue, lang string) contentPayload {
+	tx := texts{c, lang}
 	r := c.Region.Rules
 	p := contentPayload{
 		Region: regionJSON{
-			ID: c.Region.ID, Name: c.Region.Name, Version: c.Region.Version,
+			ID: c.Region.ID, Name: tx.name("region", c.Region.ID, c.Region.Name), Version: c.Region.Version,
 			Camera: cameraJSON{MaxHalfExtent: c.Region.Camera.MaxHalfExtent},
 			Rules: rulesJSON{
 				TransferBaseMs: r.TransferBaseMs, UnconnectedBuffer: r.UnconnectedBuffer,
@@ -392,10 +429,11 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 		},
 		Tiers: []tierJSON{}, Goods: []goodJSON{}, Buildings: []buildingJSON{}, Needs: []needJSON{}, NeedCategories: []needCategoryJSON{}, Ships: []shipJSONOut{},
 		Quests: []questJSON{}, SizeClasses: []sizeClassJSON{},
+		Language: lang, Languages: c.Languages(), IslandNames: []islandNameJSON{},
 	}
 	for _, sc := range c.Islands.SizeClasses {
 		p.SizeClasses = append(p.SizeClasses, sizeClassJSON{
-			ID: sc.ID, Name: sc.Name, Rock: sc.Rock, Scenic: sc.Scenic, Size: sc.Size,
+			ID: sc.ID, Name: tx.name("islands", sc.ID, sc.Name), Rock: sc.Rock, Scenic: sc.Scenic, Size: sc.Size,
 			Count: newRangeJSON(sc.Count), Fertilities: newRangeJSON(sc.Fertilities), Deposits: newRangeJSON(sc.Deposits),
 			Shape: shapeJSON{
 				Arms: newRangeJSON(sc.Shape.Arms), Plain: sc.Shape.Plain, Rivers: newRangeJSON(sc.Shape.Rivers),
@@ -406,7 +444,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 	}
 	for _, q := range c.Quests {
 		qj := questJSON{
-			ID: q.ID, Title: q.Title, Text: q.Text, Objectives: []objectiveJSON{},
+			ID: q.ID, Title: c.Translate(lang, content.TextKey("quests", q.ID, "title"), q.Title), Text: c.Translate(lang, content.TextKey("quests", q.ID, "text"), q.Text), Objectives: []objectiveJSON{},
 			Rewards:       rewardsJSON{Gold: q.Rewards.Gold, Goods: map[string]int64{}},
 			Prerequisites: append([]string{}, q.Prerequisites...),
 		}
@@ -422,7 +460,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 	}
 	for _, sh := range c.Ships {
 		sj := shipJSONOut{
-			ID: sh.ID, Name: sh.Name, Tier: sh.Tier, Slots: sh.Slots, SlotSize: sh.SlotSize, SpeedPermille: sh.SpeedPermille, LengthMilliTiles: sh.LengthMilliTiles,
+			ID: sh.ID, Name: tx.name("ships", sh.ID, sh.Name), SourceName: tx.sourceIfDifferent("ships", sh.ID, sh.Name), Tier: sh.Tier, Slots: sh.Slots, SlotSize: sh.SlotSize, SpeedPermille: sh.SpeedPermille, LengthMilliTiles: sh.LengthMilliTiles,
 			BuildMs: sh.BuildMs, Cost: costJSON{Gold: sh.Cost.Gold, Materials: map[string]int64{}}, UpkeepPerMin: sh.UpkeepPerMin,
 		}
 		for _, m := range sh.Cost.Materials {
@@ -432,7 +470,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 	}
 	for _, t := range c.Tiers {
 		tj := tierJSON{
-			ID: t.ID, Name: t.Name, Index: t.Index,
+			ID: t.ID, Name: tx.name("tiers", t.ID, t.Name), Index: t.Index,
 			ResidentsFloor: t.ResidentsFloor, ResidentsMax: t.ResidentsMax,
 			TaxPerResidentPerMin: t.TaxPerResidentPerMin,
 			Unlock: unlockJSON{
@@ -449,25 +487,28 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 		p.Tiers = append(p.Tiers, tj)
 	}
 	for _, g := range c.Goods {
-		p.Goods = append(p.Goods, goodJSON{ID: g.ID, Name: g.Name, Type: g.Type})
+		p.Goods = append(p.Goods, goodJSON{ID: g.ID, Name: tx.name("goods", g.ID, g.Name), Type: g.Type})
 	}
 	for _, b := range c.Buildings {
-		p.Buildings = append(p.Buildings, newBuildingJSON(b))
+		p.Buildings = append(p.Buildings, newBuildingJSON(b, tx))
 	}
 	for _, t := range c.Tiers {
 		for _, n := range c.NeedsByTier[t.ID] {
-			p.Needs = append(p.Needs, newNeedJSON(n))
+			p.Needs = append(p.Needs, newNeedJSON(n, tx))
 		}
 	}
 	for _, nc := range c.NeedCategories {
-		p.NeedCategories = append(p.NeedCategories, needCategoryJSON{ID: nc.ID, Name: nc.Name, Icon: nc.Icon})
+		p.NeedCategories = append(p.NeedCategories, needCategoryJSON{ID: nc.ID, Name: tx.name("need_categories", nc.ID, nc.Name), Icon: nc.Icon})
+	}
+	for i, n := range c.IslandNames {
+		p.IslandNames = append(p.IslandNames, islandNameJSON{Source: n, Name: c.Translate(lang, content.IslandNameKey(i), n)})
 	}
 	return p
 }
 
-func newBuildingJSON(b *content.Building) buildingJSON {
+func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 	bj := buildingJSON{
-		ID: b.ID, Name: b.Name, Tier: b.Tier, Category: buildingCategory(b),
+		ID: b.ID, Name: tx.name("buildings", b.ID, b.Name), Tier: b.Tier, Category: buildingCategory(b),
 		Width: b.Width, Height: b.Height, Coastal: b.Coastal, WaterTiles: b.WaterTiles, RequiresRoad: b.RequiresRoad,
 		Cost:         newCostJSON(b.Cost),
 		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit, Smoke: b.Smoke, Boat: b.Boat,
@@ -558,8 +599,8 @@ func newCostJSON(c content.Cost) costJSON {
 	return out
 }
 
-func newNeedJSON(n *content.Need) needJSON {
-	nj := needJSON{ID: n.ID, Name: n.Name, Tier: n.Tier, FromTier: n.FromTier, Kind: n.Kind, WeightPpm: n.Weight}
+func newNeedJSON(n *content.Need, tx texts) needJSON {
+	nj := needJSON{ID: n.ID, Name: tx.name("needs", n.ID, n.Name), Tier: n.Tier, FromTier: n.FromTier, Kind: n.Kind, WeightPpm: n.Weight}
 	if n.IsGoods() {
 		nj.Category = n.Category
 		for _, g := range n.Goods {

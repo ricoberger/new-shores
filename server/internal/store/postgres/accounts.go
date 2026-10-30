@@ -20,6 +20,7 @@ var ErrEmailTaken = errors.New("email taken")
 type Player struct {
 	ID              string
 	DisplayName     string
+	Language        *string
 	Email           *string
 	EmailVerifiedAt *time.Time
 	PasswordHash    *string
@@ -30,11 +31,11 @@ type Player struct {
 // Guest reports whether the player has not registered yet.
 func (p *Player) Guest() bool { return p.Email == nil }
 
-const playerColumns = "id::text, display_name, email, email_verified_at, password_hash, created_at, last_login_at"
+const playerColumns = "id::text, display_name, language, email, email_verified_at, password_hash, created_at, last_login_at"
 
 func scanPlayer(row pgx.Row) (*Player, error) {
 	var p Player
-	err := row.Scan(&p.ID, &p.DisplayName, &p.Email, &p.EmailVerifiedAt, &p.PasswordHash, &p.CreatedAt, &p.LastLoginAt)
+	err := row.Scan(&p.ID, &p.DisplayName, &p.Language, &p.Email, &p.EmailVerifiedAt, &p.PasswordHash, &p.CreatedAt, &p.LastLoginAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrNotFound
 	}
@@ -47,6 +48,14 @@ func scanPlayer(row pgx.Row) (*Player, error) {
 // CreatePlayer inserts a guest player.
 func CreatePlayer(ctx context.Context, q Querier, displayName string) (*Player, error) {
 	return scanPlayer(q.QueryRow(ctx, "INSERT INTO players (display_name) VALUES ($1) RETURNING "+playerColumns, displayName))
+}
+
+// SetPlayerLanguage stores the player's interface language.
+func SetPlayerLanguage(ctx context.Context, q Querier, id, language string) (*Player, error) {
+	if !validUUID(id) {
+		return nil, ErrNotFound
+	}
+	return scanPlayer(q.QueryRow(ctx, "UPDATE players SET language = $2 WHERE id = $1 AND archived_at IS NULL RETURNING "+playerColumns, id, language))
 }
 
 // PlayerByID returns a player (not archived).

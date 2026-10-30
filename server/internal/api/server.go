@@ -53,6 +53,7 @@ type Accounts interface {
 	Login(ctx context.Context, cur *auth.Session, email, password string) (*auth.Issued, error)
 	Logout(ctx context.Context, cur *auth.Session) error
 	Me(ctx context.Context, cur *auth.Session) (auth.Player, error)
+	SetLanguage(ctx context.Context, cur *auth.Session, language string) (auth.Player, error)
 	VerifyEmail(ctx context.Context, token string) error
 	RequestPasswordReset(ctx context.Context, email string) error
 	ConfirmPasswordReset(ctx context.Context, token, password string) error
@@ -124,8 +125,9 @@ type Config struct {
 
 // Server is the API handler.
 type Server struct {
-	cfg     Config
-	content []byte
+	cfg Config
+	// content holds the encoded content payload per shipped language.
+	content map[string][]byte
 	routes  map[string]map[string]route
 }
 
@@ -160,11 +162,15 @@ func New(cfg Config) (*Server, error) {
 	if cfg.Logger == nil {
 		cfg.Logger = slog.New(slog.NewTextHandler(io.Discard, nil))
 	}
-	body, err := json.Marshal(newContentPayload(cfg.Catalogue))
-	if err != nil {
-		return nil, fmt.Errorf("api: encode content: %w", err)
+	bodies := map[string][]byte{}
+	for _, lang := range cfg.Catalogue.Languages() {
+		body, err := json.Marshal(newContentPayload(cfg.Catalogue, lang))
+		if err != nil {
+			return nil, fmt.Errorf("api: encode content: %w", err)
+		}
+		bodies[lang] = append(body, '\n')
 	}
-	s := &Server{cfg: cfg, content: append(body, '\n')}
+	s := &Server{cfg: cfg, content: bodies}
 	s.routes = map[string]map[string]route{
 		"/api/v1/world":                       {http.MethodGet: {s.getWorld, requireSession}},
 		"/api/v1/world/commands":              {http.MethodPost: {s.postCommand, requireSession}},
@@ -175,7 +181,7 @@ func New(cfg Config) (*Server, error) {
 		"/api/v1/auth/register":               {http.MethodPost: {s.postRegister, optionalSession}},
 		"/api/v1/auth/login":                  {http.MethodPost: {s.postLogin, optionalSession}},
 		"/api/v1/auth/logout":                 {http.MethodPost: {s.postLogout, requireSession}},
-		"/api/v1/auth/me":                     {http.MethodGet: {s.getMe, requireSession}},
+		"/api/v1/auth/me":                     {http.MethodGet: {s.getMe, requireSession}, http.MethodPatch: {s.patchMe, requireSession}},
 		"/api/v1/auth/verify-email":           {http.MethodPost: {s.postVerifyEmail, public}},
 		"/api/v1/auth/password-reset/request": {http.MethodPost: {s.postResetRequest, public}},
 		"/api/v1/auth/password-reset/confirm": {http.MethodPost: {s.postResetConfirm, public}},
@@ -284,7 +290,7 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 			h.Set("Access-Control-Allow-Credentials", "true")
 		}
 		if r.Method == http.MethodOptions {
-			h.Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			h.Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
 			allow := "Content-Type"
 			if s.cfg.Accounts != nil {
 				allow = "Content-Type, Authorization"
@@ -643,10 +649,61 @@ func (s *Server) getIslandTiles(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(append(body, '\n'))
 }
 
-func (s *Server) getContent(w http.ResponseWriter, _ *http.Request) {
+// getContent serves the catalogue in the language of the "lang" query
+// parameter (an unknown language is a bad request) or, without it, the
+// best match of Accept-Language (English when nothing matches).
+func (s *Server) getContent(w http.ResponseWriter, r *http.Request) {
+	var lang string
+	if q, ok := r.URL.Query()["lang"]; ok {
+		if len(q) != 1 || !s.cfg.Catalogue.HasLanguage(q[0]) {
+			s.writeError(w, r, &apiError{code: CodeBadRequest, status: http.StatusBadRequest, message: "unknown language"})
+			return
+		}
+		lang = q[0]
+	} else {
+		lang = negotiateLanguage(s.cfg.Catalogue, r.Header.Get("Accept-Language"))
+	}
 	setJSONHeaders(w)
+	w.Header().Set("Content-Language", lang)
+	w.Header().Add("Vary", "Accept-Language")
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(s.content)
+	_, _ = w.Write(s.content[lang])
+}
+
+// negotiateLanguage picks the shipped language an Accept-Language header
+// prefers: highest q first, header order among equals; a region subtag
+// ("de-AT") matches its language; English when nothing matches.
+func negotiateLanguage(c *content.Catalogue, header string) string {
+	type cand struct {
+		lang string
+		q    float64
+	}
+	var cands []cand
+	for part := range strings.SplitSeq(header, ",") {
+		tag, params, _ := strings.Cut(strings.TrimSpace(part), ";")
+		q := 1.0
+		if k, v, ok := strings.Cut(strings.TrimSpace(params), "="); ok && strings.TrimSpace(k) == "q" {
+			f, err := strconv.ParseFloat(strings.TrimSpace(v), 64)
+			if err != nil {
+				continue
+			}
+			q = f
+		}
+		primary, _, _ := strings.Cut(strings.ToLower(strings.TrimSpace(tag)), "-")
+		if q > 0 && c.HasLanguage(primary) {
+			cands = append(cands, cand{primary, q})
+		}
+	}
+	if len(cands) == 0 {
+		return content.SourceLanguage
+	}
+	best := cands[0]
+	for _, x := range cands[1:] {
+		if x.q > best.q {
+			best = x
+		}
+	}
+	return best.lang
 }
 
 // healthResponse is the body of /healthz. Version and instance identify the

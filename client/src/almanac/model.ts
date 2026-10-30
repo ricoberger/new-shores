@@ -5,6 +5,8 @@
 // yield empty lists, never exceptions.
 import type { Content, ContentBuilding, ContentShip, ContentTier } from "../api/client";
 import type { components } from "../api/schema";
+import { depositName, fertilityName } from "../display/tiers";
+import { currentLocale, percentSpace, t, tOr } from "../i18n";
 
 export type ContentNeed = components["schemas"]["ContentNeed"];
 export type ContentQuest = components["schemas"]["ContentQuest"];
@@ -14,21 +16,17 @@ export type ContentNeedCategory = components["schemas"]["ContentNeedCategory"];
 
 /** Build-menu group order of the buildings page. */
 export const CATEGORY_ORDER: ContentBuilding["category"][] = ["houses", "production", "public", "harbour", "roads", "other"];
-export const CATEGORY_NAMES: Record<ContentBuilding["category"], string> = {
-  houses: "Houses",
-  production: "Production",
-  public: "Public buildings",
-  harbour: "Harbour",
-  roads: "Roads",
-  other: "Other",
-};
+/** A build-menu group's name on the buildings page. */
+export function categoryName(category: ContentBuilding["category"]): string {
+  return tOr(`almanac.category.${category}`, titleCase(category));
+}
 
 /** Number with at most `max` decimals, trailing zeros trimmed ("1.5", "30"). */
 export function num(n: number, max = 2): string {
   if (!Number.isFinite(n)) return "";
   const f = 10 ** max;
   const r = Math.round(n * f) / f;
-  return String(r);
+  return new Intl.NumberFormat(currentLocale(), { maximumFractionDigits: max, useGrouping: false }).format(r);
 }
 
 /** Whole or fractional units of a milli quantity ("0.5", "45"). */
@@ -43,7 +41,7 @@ export function perMinute(amountMilli: number, cycleMs: number): number {
 
 /** Share or weight in ppm (1 000 000 = 100 %) as percent. */
 export function ppmPercent(ppm: number): string {
-  return `${num(ppm / 10000, 1)} %`;
+  return `${num(ppm / 10000, 1)}${percentSpace()}%`;
 }
 
 export interface CostPart {
@@ -328,12 +326,12 @@ export interface BuildingView {
 export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   const r = b.recipe;
   const needsSite: string[] = [];
-  if (b.requires_deposit) needsSite.push(`${titleCase(b.requires_deposit)} deposit under the footprint`);
-  if (b.work_area?.fertility) needsSite.push(`${titleCase(b.work_area.fertility)} fertility on the island`);
+  if (b.requires_deposit) needsSite.push(t("almanac.site.deposit", { name: titleCase(depositName(b.requires_deposit)) }));
+  if (b.work_area?.fertility) needsSite.push(t("almanac.site.fertility", { name: titleCase(fertilityName(b.work_area.fertility)) }));
   if (b.work_area?.terrain?.length && b.work_area.radius !== undefined)
-    needsSite.push(`${b.work_area.required_tiles ?? 1}+ ${b.work_area.terrain.join("/")} tiles within ${b.work_area.radius} tiles`);
-  if (b.field?.terrain?.length) needsSite.push(`On ${b.field.terrain.join("/")} tiles`);
-  if (b.field?.fertility) needsSite.push(`${titleCase(b.field.fertility)} fertility on the island`);
+    needsSite.push(t("almanac.site.tiles", { count: b.work_area.required_tiles ?? 1, terrain: b.work_area.terrain.map(terrainName).join("/"), radius: b.work_area.radius }));
+  if (b.field?.terrain?.length) needsSite.push(t("almanac.site.on", { terrain: b.field.terrain.map(terrainName).join("/") }));
+  if (b.field?.fertility) needsSite.push(t("almanac.site.fertility", { name: titleCase(fertilityName(b.field.fertility)) }));
   const levels: LevelView[] = [];
   b.trading_post?.levels?.forEach((l, i) =>
     levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, throughput: l.throughput_per_min / 1000, berths: l.berths }),
@@ -352,7 +350,7 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
     width: b.width,
     height: b.height,
     waterTiles: b.water_tiles ?? 0,
-    footprint: `${b.width} × ${b.height}${b.water_tiles ? `, ${b.water_tiles} ${b.water_tiles === 1 ? "row" : "rows"} on water` : ""}`,
+    footprint: b.water_tiles ? t("almanac.footprintWater", { width: b.width, height: b.height, count: b.water_tiles }) : `${b.width} × ${b.height}`,
     requiresRoad: b.requires_road,
     cost: costParts(b.cost),
     upkeep: (b.upkeep_per_min ?? 0) / 1000,
@@ -393,11 +391,21 @@ export function buildingGroups(idx: Index): BuildingGroup[] {
         tier,
         tierName: idx.tierName(tier),
         categories: cats
-          .map((category) => ({ category, name: CATEGORY_NAMES[category] ?? titleCase(category), buildings: mine.filter((b) => b.category === category) }))
+          .map((category) => ({ category, name: categoryName(category), buildings: mine.filter((b) => b.category === category) }))
           .filter((c) => c.buildings.length > 0),
       };
     })
     .filter((g) => g.categories.length > 0);
+}
+
+/** A terrain's name ("grass"); the id itself for one the catalogue lacks. */
+export function terrainName(id: string): string {
+  return tOr(`almanac.terrain.${id}`, id);
+}
+
+/** A goods type's name ("Food"). */
+export function goodTypeName(type: string): string {
+  return tOr(`almanac.goodType.${type}`, titleCase(type));
 }
 
 export function titleCase(id: string): string {
@@ -461,8 +469,8 @@ export function chain(idx: Index, good: string, path: string[] = [], depth = 8):
       perMin: perMinute(b.recipe?.outputs.find((o) => o.good === good)?.amount ?? 0, b.recipe?.cycle_ms ?? 0),
       site: [
         ...(b.fields ? idx.modulesOf(b.id).map((m) => `${b.fields?.required} × ${m.name}`) : []),
-        ...(b.requires_deposit ? [`${titleCase(b.requires_deposit)} deposit`] : []),
-        ...(b.work_area?.fertility ? [`${titleCase(b.work_area.fertility)} fertility`] : []),
+        ...(b.requires_deposit ? [t("almanac.chain.deposit", { name: titleCase(depositName(b.requires_deposit)) })] : []),
+        ...(b.work_area?.fertility ? [t("almanac.chain.fertility", { name: titleCase(fertilityName(b.work_area.fertility)) })] : []),
       ],
       inputs: (b.recipe?.inputs ?? []).map((i) => ({
         perMin: perMinute(i.amount, b.recipe?.cycle_ms ?? 0),
@@ -545,15 +553,15 @@ const rec = (v: unknown): Record<string, unknown> => (typeof v === "object" && v
 function shapeText(v: unknown): string | undefined {
   const s = rec(v);
   const parts: string[] = [];
-  const counted = (r: unknown, one: string, many: string) => {
+  const counted = (r: unknown, key: "arms" | "rivers" | "islets") => {
     const x = asRange(r);
-    if (x && x.max > 0) parts.push(`${x.min === x.max ? x.min : `${x.min}–${x.max}`} ${x.max === 1 ? one : many}`);
+    if (x && x.max > 0) parts.push(t(`almanac.shape.${key}`, { range: x.min === x.max ? String(x.min) : `${x.min}–${x.max}`, count: x.max }));
   };
-  counted(s.arms, "arm", "arms");
-  if (typeof s.plain === "number" && s.plain > 0) parts.push(`plain ${s.plain}×${s.plain}`);
-  counted(s.rivers, "river", "rivers");
-  if (typeof s.levels === "number" && s.levels > 0) parts.push(`${s.levels} ${s.levels === 1 ? "terrace" : "terraces"}`);
-  counted(s.islets, "islet", "islets");
+  counted(s.arms, "arms");
+  if (typeof s.plain === "number" && s.plain > 0) parts.push(t("almanac.shape.plain", { size: s.plain }));
+  counted(s.rivers, "rivers");
+  if (typeof s.levels === "number" && s.levels > 0) parts.push(t("almanac.shape.terraces", { count: s.levels }));
+  counted(s.islets, "islets");
   return parts.length > 0 ? parts.join(", ") : undefined;
 }
 
@@ -586,16 +594,15 @@ export function islandsView(content: Content): IslandsView {
   const deposits = pool(c.deposits);
   const home = rec(c.home);
   const homeRows: IslandsView["home"] = [];
-  const row = (label: string, v: unknown) => {
-    const items = strings(v);
+  const row = (label: string, items: string[]) => {
     if (items.length) homeRows.push({ label, items });
   };
-  if (typeof home.size_class === "string") homeRows.push({ label: "Size class", items: [home.size_class] });
-  row("Terrain", home.terrain);
-  row("Deposits", home.deposits);
-  row("At least one fertility of", home.fertilities_any);
-  row("No fertility of", home.fertilities_none);
-  row("No deposits of", home.deposits_none);
+  if (typeof home.size_class === "string") homeRows.push({ label: t("almanac.home.sizeClass"), items: [classes.find((c) => c.id === home.size_class)?.name ?? home.size_class] });
+  row(t("almanac.home.terrain"), strings(home.terrain).map(terrainName));
+  row(t("almanac.home.deposits"), strings(home.deposits).map(depositName));
+  row(t("almanac.home.fertilitiesAny"), strings(home.fertilities_any).map(fertilityName));
+  row(t("almanac.home.fertilitiesNone"), strings(home.fertilities_none).map(fertilityName));
+  row(t("almanac.home.depositsNone"), strings(home.deposits_none).map(depositName));
   return {
     sizeClasses: classes,
     fertilities,
@@ -622,7 +629,7 @@ export function searchEntries(idx: Index): SearchEntry[] {
     ...idx.tiers.map((t) => ({ section: "overview" as const, id: t.id, name: t.name })),
     ...(c.buildings ?? []).map((b) => ({ section: "buildings" as const, id: b.id, name: b.name })),
     ...(c.goods ?? []).map((g) => ({ section: "goods" as const, id: g.id, name: g.name })),
-    ...idx.tiers.map((t) => ({ section: "needs" as const, id: t.id, name: `${t.name} needs` })),
+    ...idx.tiers.map((x) => ({ section: "needs" as const, id: x.id, name: t("almanac.search.needs", { tier: x.name }) })),
     ...(c.ships ?? []).map((s) => ({ section: "ships" as const, id: s.id, name: s.name })),
     ...(c.quests ?? []).map((q) => ({ section: "quests" as const, id: q.id, name: q.title })),
     ...(c.size_classes ?? []).map((s) => ({ section: "islands" as const, id: s.id, name: s.name })),

@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { Content, DisplayState, Island, IslandDisplay } from "../api/client";
 import { perMin, units } from "../display/format";
+import { percentSpace, t } from "../i18n";
 import { constructionGoods, islandResources, type TierRow, tierRows, worstNeedText } from "../display/hud";
 import { needCategory, needLabel } from "../display/needs";
 import { goodIcon, needIcon, toolIcon } from "../theme/iconSet";
@@ -74,18 +75,18 @@ export function GoldDetails({ model }: { model: DisplayState | null }) {
   const tone = balance < 0 ? styles.negative : balance > 0 ? styles.positive : "";
   return (
     <>
-      <strong>Gold</strong>
+      <strong>{t("topBar.gold")}</strong>
       <div className={`${styles.stat} ${styles.noWrap}`}>
-        <span className={styles.label}>Current</span>
+        <span className={styles.label}>{t("topBar.current")}</span>
         <span className={styles.value} data-testid="hud-gold-current">
           {model ? units(model.gold) : "…"}
         </span>
       </div>
       <div className={`${styles.stat} ${styles.noWrap}`}>
-        <span className={styles.label}>Balance</span>
+        <span className={styles.label}>{t("topBar.balance")}</span>
         <span className={`${styles.value} ${tone}`} data-testid="hud-balance">
           {balance < 0 ? "▼ " : balance > 0 ? "▲ " : ""}
-          {perMin(balance, true)}/min
+          {t("infoPanel.perMinute", { rate: perMin(balance, true) })}
         </span>
       </div>
     </>
@@ -94,10 +95,10 @@ export function GoldDetails({ model }: { model: DisplayState | null }) {
 
 /** Population popup: per tier employed / total, the satisfaction, unfilled jobs (when residents fall short) and the worst unmet need. */
 export function PopulationDetails({ rows, content, islandName }: { rows: TierRow[]; content: Content | null; islandName: string }) {
-  if (rows.length === 0) return <span className={styles.small}>No residents on {islandName}.</span>;
+  if (rows.length === 0) return <span className={styles.small}>{t("topBar.noResidents", { island: islandName })}</span>;
   return (
     <>
-      <strong>Population of {islandName}</strong>
+      <strong>{t("topBar.populationOf", { island: islandName })}</strong>
       {rows.map((r) => {
         const worst = worstNeedText(r.worst, (n) => needLabel(content, n));
         const w = r.worst;
@@ -106,21 +107,21 @@ export function PopulationDetails({ rows, content, islandName }: { rows: TierRow
             <span className={`${styles.label} ${styles.withIcon}`}>
               <Icon path={toolIcon("population")} />
               {r.name}
-              <span className={styles.srOnly}> employed of residents</span>
+              <span className={styles.srOnly}> {t("topBar.employedOfResidents")}</span>
             </span>
             <span className={styles.value} data-testid={`hud-population-${r.tier}`}>
               {units(r.employed)} / {units(r.total)}
             </span>
             {r.satisfactionPermille !== null && (
               <span className={styles.satisfaction} data-testid={`hud-satisfaction-${r.tier}`}>
-                <span className={styles.srOnly}>, satisfaction </span>
-                {Math.round(r.satisfactionPermille / 10)} %
+                <span className={styles.srOnly}>{t("topBar.satisfaction")} </span>
+                {Math.round(r.satisfactionPermille / 10)}{percentSpace()}%
               </span>
             )}
             {r.short > 0 && (
               <span className={styles.shortOfWorkers} data-testid={`hud-short-${r.tier}`}>
                 <Icon path={toolIcon("warnings")} />
-                Short of workers: {units(r.short)} jobs unfilled ({units(r.required)} needed)
+                {t("topBar.shortOfWorkers", { short: units(r.short), required: units(r.required) })}
               </span>
             )}
             {r.satisfactionPermille !== null && (
@@ -140,7 +141,7 @@ export function PopulationDetails({ rows, content, islandName }: { rows: TierRow
 export function MaterialsDetails({ goods, island, goodName }: { goods: string[]; island: IslandDisplay | undefined; goodName: (id: string) => string }) {
   return (
     <>
-      <strong>Construction materials</strong>
+      <strong>{t("topBar.materials")}</strong>
       {goods.map((g) => (
         <div key={g} className={`${styles.stat} ${styles.popupStat}`} data-testid={`hud-material-${g}-detail`}>
           <span className={`${styles.label} ${styles.withIcon}`}>
@@ -192,7 +193,7 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, accoun
         <div className={styles.hudGroup}>
           <HudChip
             testId="hud-gold-chip"
-            label="Gold"
+            label={t("topBar.gold")}
             trigger={
               <>
                 <Icon path={toolIcon("gold")} />
@@ -206,7 +207,7 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, accoun
           </HudChip>
           <HudChip
             testId="hud-population-chip"
-            label={`Residents on ${name}`}
+            label={t("topBar.residentsOn", { island: name })}
             trigger={
               <>
                 <Icon path={toolIcon("population")} />
@@ -223,7 +224,7 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, accoun
           <div className={styles.hudGroup}>
             <HudChip
               testId="hud-materials-chip"
-              label={`Construction materials on ${name}`}
+              label={t("topBar.materialsOn", { island: name })}
               trigger={goods.map((g) => (
                 <span key={g} className={styles.hudMaterial} data-testid={`hud-material-${g}`}>
                   <Icon path={goodIcon(g)} />
@@ -237,7 +238,7 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, accoun
         )}
       </div>
       <div className={styles.hudMiddle} data-testid="hud-island" data-island={island?.id ?? ""}>
-        <button type="button" className={styles.hudIslandButton} onClick={onOpenIsland} title="Open the island card" data-testid="hud-island-name">
+        <button type="button" className={styles.hudIslandButton} onClick={onOpenIsland} title={t("topBar.openIsland")} data-testid="hud-island-name">
           <span className={styles.hudIslandName}>{name}</span>
           {resources && <ResourceBadges resources={resources} prefix="hud" short />}
         </button>

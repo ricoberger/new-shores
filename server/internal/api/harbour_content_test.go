@@ -9,7 +9,7 @@ import (
 // trading pier's berths, the depot's levels and the quay's shallows flag,
 // all in the Harbour or Roads build tab.
 func TestHarbourContentPayload(t *testing.T) {
-	p := newContentPayload(shippedCatalogue(t))
+	p := newContentPayload(shippedCatalogue(t), "en")
 	byID := map[string]buildingJSON{}
 	for _, b := range p.Buildings {
 		byID[b.ID] = b

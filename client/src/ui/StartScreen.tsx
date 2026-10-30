@@ -1,17 +1,19 @@
 import { useState } from "react";
 import type { Player } from "../api/client";
 import { authErrorText, playAsGuest } from "../api/auth";
+import { t } from "../i18n";
 import styles from "./account.module.css";
 import { AuthForm } from "./AuthForm";
+import { LanguageSwitch } from "./LanguageSwitch";
 import { ForgotPasswordForm, ResetPasswordForm } from "./PasswordForms";
 
 type Mode = "login" | "register" | "forgot" | "reset" | null;
 
-const TITLES: Record<Exclude<Mode, null>, string> = {
-  login: "Log in",
-  register: "Create an account",
-  forgot: "Reset your password",
-  reset: "Choose a new password",
+const TITLES: Record<Exclude<Mode, null>, () => string> = {
+  login: () => t("start.title.login"),
+  register: () => t("start.title.register"),
+  forgot: () => t("start.title.forgot"),
+  reset: () => t("start.title.reset"),
 };
 
 interface Props {
@@ -51,8 +53,9 @@ export function StartScreen({ onPlayer, notice: incomingNotice, resetToken }: Pr
   return (
     <div className={styles.screen} data-testid="start-screen">
       <div className={styles.card}>
+        {/* i18n-ignore: the game's name is not translated */}
         <h1 className={styles.heading}>New Shores</h1>
-        <p className={styles.sub}>{mode ? TITLES[mode] : "Settle a new archipelago."}</p>
+        <p className={styles.sub}>{mode ? TITLES[mode]() : t("start.tagline")}</p>
         {notice && !mode && (
           <p className={styles.notice} data-testid="start-notice">
             {notice}
@@ -66,13 +69,13 @@ export function StartScreen({ onPlayer, notice: incomingNotice, resetToken }: Pr
         {!mode && (
           <div className={styles.stack}>
             <button type="button" className={styles.primary} onClick={() => void guest()} disabled={busy} data-testid="play-guest">
-              Play as guest
+              {t("start.guest")}
             </button>
             <button type="button" className={styles.secondary} onClick={() => setMode("login")} data-testid="show-login">
-              Log in
+              {t("auth.login")}
             </button>
             <button type="button" className={styles.secondary} onClick={() => setMode("register")} data-testid="show-register">
-              Register
+              {t("auth.register")}
             </button>
             {error && (
               <p className={styles.error} role="alert">
@@ -80,10 +83,13 @@ export function StartScreen({ onPlayer, notice: incomingNotice, resetToken }: Pr
               </p>
             )}
             <a href="/almanac" style={{ textAlign: "center", padding: "6px 0" }} data-testid="show-almanac">
-              Almanac
+              {t("start.almanac")}
             </a>
           </div>
         )}
+        <div className={styles.footer}>
+          <LanguageSwitch />
+        </div>
       </div>
     </div>
   );

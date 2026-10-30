@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Content, DisplayState } from "../api/client";
+import { t } from "../i18n";
 import { units } from "../display/format";
 import { objectiveText, questDef, questTitle, rewardText, rewardsGoods } from "../display/quests";
 import { CloseButton } from "./CloseButton";
@@ -19,7 +20,7 @@ export function QuestsPanel({ model, content, onClaim, onClose }: Props) {
   return (
     <div className={`${styles.panel} ${styles.shipsPanel}`} data-testid="quests-panel">
       <div className={styles.row}>
-        <h2 className={styles.title}>Quests</h2>
+        <h2 className={styles.title}>{t("quests.title")}</h2>
         <div className={styles.spacer} />
         <CloseButton onClick={onClose} testId="quests-close" />
       </div>
@@ -30,10 +31,10 @@ export function QuestsPanel({ model, content, onClaim, onClose }: Props) {
             <div key={id} className={styles.shipEntry} data-testid={`quest-claimable-${id}`}>
               <div className={styles.row}>
                 <strong>{questTitle(content, id)}</strong>
-                <span className={styles.ok}>✓ completed</span>
+                <span className={styles.ok}>{t("quests.completed")}</span>
               </div>
               {q && <p className={styles.small}>{q.text}</p>}
-              {q && <div className={styles.small}>Reward: {rewardText(q, content)}</div>}
+              {q && <div className={styles.small}>{t("quests.reward", { reward: rewardText(q, content) })}</div>}
               {choosing === id ? (
                 <ClaimIsland
                   model={model}
@@ -52,7 +53,7 @@ export function QuestsPanel({ model, content, onClaim, onClose }: Props) {
                   onClick={() => (rewardsGoods(q) ? setChoosing(id) : onClaim(id, null))}
                   data-testid={`quest-claim-${id}`}
                 >
-                  Claim
+                  {t("quests.claim")}
                 </button>
               )}
             </div>
@@ -64,7 +65,7 @@ export function QuestsPanel({ model, content, onClaim, onClose }: Props) {
             <div key={aq.id} className={styles.shipEntry} data-testid={`quest-active-${aq.id}`}>
               <strong>{questTitle(content, aq.id)}</strong>
               {q && <p className={styles.small}>{q.text}</p>}
-              {q && <div className={styles.small}>Reward: {rewardText(q, content)}</div>}
+              {q && <div className={styles.small}>{t("quests.reward", { reward: rewardText(q, content) })}</div>}
               <ul className={styles.trayList}>
                 {aq.objectives.map((o, i) => (
                   <li key={i} data-testid="quest-objective">
@@ -77,7 +78,7 @@ export function QuestsPanel({ model, content, onClaim, onClose }: Props) {
           );
         })}
         {model.quests.active.length === 0 && model.quests.claimable.length === 0 && (
-          <div className={styles.small}>No open quests.</div>
+          <div className={styles.small}>{t("quests.none")}</div>
         )}
       </div>
     </div>
@@ -103,7 +104,7 @@ function ClaimIsland({ model, content, questId, onClaim, onCancel }: ClaimIsland
     <div className={styles.stop} data-testid="quest-claim-island">
       <div className={styles.row}>
         <label>
-          Deliver to{" "}
+          {t("quests.deliverTo")}{" "}
           <select className={styles.input} value={islandId} onChange={(e) => setIslandId(e.target.value)} data-testid="quest-claim-island-select">
             {settled.map((is) => (
               <option key={is.id} value={is.id}>
@@ -118,17 +119,17 @@ function ClaimIsland({ model, content, questId, onClaim, onCancel }: ClaimIsland
           const g = island.inventory[good];
           return (
             <div key={good} className={styles.small} data-testid={`quest-claim-stock-${good}`}>
-              +{units(amount)} {goodName(good)} · in stock {units(g?.stock ?? 0)}/{units(g?.capacity ?? 0)}
+              {t("quests.claimStock", { amount: units(amount), good: goodName(good), stock: units(g?.stock ?? 0), capacity: units(g?.capacity ?? 0) })}
             </div>
           );
         })}
-      <div className={`${styles.small} ${styles.warn}`}>Goods beyond the Trading Post capacity are lost.</div>
+      <div className={`${styles.small} ${styles.warn}`}>{t("quests.lostBeyondCapacity")}</div>
       <div className={styles.buttons}>
         <button type="button" className={styles.button} disabled={!island} onClick={() => onClaim(islandId)} data-testid="quest-claim-confirm">
-          Claim
+          {t("quests.claim")}
         </button>
         <button type="button" className={styles.button} onClick={onCancel}>
-          Cancel
+          {t("common.cancel")}
         </button>
       </div>
     </div>

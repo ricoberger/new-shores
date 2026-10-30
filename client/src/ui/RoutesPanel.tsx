@@ -1,4 +1,5 @@
 import type { DisplayState, RouteDisplay } from "../api/client";
+import { t } from "../i18n";
 import { CloseButton } from "./CloseButton";
 import { RouteSummary } from "./RouteSummary";
 import styles from "./hud.module.css";
@@ -16,12 +17,12 @@ export function RoutesPanel({ model, onEdit, onClose }: Props) {
   return (
     <div className={`${styles.panel} ${styles.shipsPanel}`} data-testid="routes-panel">
       <div className={styles.row}>
-        <h2 className={styles.title}>Routes</h2>
+        <h2 className={styles.title}>{t("routes.title")}</h2>
         <div className={styles.spacer} />
         <CloseButton onClick={onClose} testId="routes-close" />
       </div>
       <div className={styles.panelBody}>
-        {model.routes.length === 0 && <div className={styles.small}>No routes yet.</div>}
+        {model.routes.length === 0 && <div className={styles.small}>{t("routes.none")}</div>}
         {model.routes.map((r) => (
           <button key={r.id} type="button" className={`${styles.trayEntry} ${styles.shipEntry}`} onClick={() => onEdit(r)} data-testid={`route-${r.id}`}>
             <span>
@@ -31,7 +32,7 @@ export function RoutesPanel({ model, onEdit, onClose }: Props) {
         ))}
         <div className={`${styles.buttons} ${styles.shipEntry}`}>
           <button type="button" className={styles.button} onClick={() => onEdit(null)} data-testid="route-new">
-            + New route
+            {t("routes.new")}
           </button>
         </div>
       </div>

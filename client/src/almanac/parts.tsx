@@ -1,5 +1,6 @@
 // Small shared pieces of the almanac pages: links, thumbnails, icons, costs.
 import { useState, type MouseEvent, type ReactNode } from "react";
+import { t } from "../i18n";
 import { goodIcon } from "../theme/iconSet";
 import { Icon } from "../ui/Icon";
 import styles from "./almanac.module.css";
@@ -51,7 +52,7 @@ export function GoodAlternatives({ idx, goods }: { idx: Index; goods: string[] }
     <>
       {goods.map((g, i) => (
         <span key={g}>
-          {i > 0 && <span className={styles.or}> or </span>}
+          {i > 0 && <span className={styles.or}> {t("almanac.or")} </span>}
           <GoodLink idx={idx} id={g} />
         </span>
       ))}
@@ -72,7 +73,7 @@ export function Cost({ idx, parts }: { idx: Index; parts: CostPart[] }) {
               {num(p.amount)} × <GoodLink idx={idx} id={p.good} />
             </>
           ) : (
-            <>{num(p.amount)} gold</>
+            <>{t("almanac.goldAmount", { amount: num(p.amount) })}</>
           )}
         </span>
       ))}

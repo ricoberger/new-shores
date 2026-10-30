@@ -1,4 +1,5 @@
 import { ICON_AUTHORS, ICON_LICENSE } from "../theme/icons";
+import { t, tRich } from "../i18n";
 import styles from "./account.module.css";
 import { DialogPanel } from "./DialogPanel";
 import hud from "./hud.module.css";
@@ -23,31 +24,35 @@ export function CreditsDialog({ onClose }: { onClose: () => void }) {
     >
       <DialogPanel className={`${hud.panel} ${hud.dialog}`} labelledBy="credits-dialog-title" testId="credits-dialog" onClick={(e) => e.stopPropagation()}>
         <h2 className={hud.title} id="credits-dialog-title">
-          Credits
+          {t("credits.title")}
         </h2>
         <div className={hud.section}>
-          <div className={hud.sectionTitle}>Icons</div>
+          <div className={hud.sectionTitle}>{t("credits.icons")}</div>
           <p className={hud.small}>
-            Icons from{" "}
-            <a href="https://game-icons.net" target="_blank" rel="noreferrer">
-              game-icons.net
-            </a>{" "}
-            by {ICON_AUTHORS.join(", ")}, licensed under{" "}
-            <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">
-              {ICON_LICENSE}
-            </a>
-            ; recoloured, coordinates rounded.
+            {tRich("credits.icon", {
+              site: (
+                <a href="https://game-icons.net" target="_blank" rel="noreferrer">
+                  {"game-icons.net"}
+                </a>
+              ),
+              authors: ICON_AUTHORS.join(", "),
+              license: (
+                <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">
+                  {ICON_LICENSE}
+                </a>
+              ),
+            })}
           </p>
         </div>
         <div className={hud.section}>
-          <div className={hud.sectionTitle}>Fonts</div>
+          <div className={hud.sectionTitle}>{t("credits.fonts")}</div>
           <p className={hud.small}>
-            Cinzel by Natanael Gama and Source Sans 3 by Paul D. Hunt (Adobe), both under the SIL Open Font License 1.1.
+            {t("credits.fonts.text")}
           </p>
         </div>
         <div className={hud.buttons}>
           <button type="button" className={`${hud.button} ${hud.primary}`} onClick={onClose} data-testid="credits-close">
-            Close
+            {t("common.close")}
           </button>
         </div>
       </DialogPanel>

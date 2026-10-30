@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { needIcon } from "../theme/iconSet";
 import { Icon } from "../ui/Icon";
 import styles from "./almanac.module.css";
@@ -13,20 +14,21 @@ function Need({ idx, n }: { idx: Index; n: NeedView }) {
           <h5 style={{ margin: "8px 0 2px", fontSize: "1rem" }}>
             <Icon path={needIcon({ category: n.category }, n.icon)} /> {n.categoryName}{" "}
             <span className={styles.small}>
-              — {num(n.ownPercent, 0)} % of the tier&apos;s needs{n.kind === "optional" ? ", optional" : ""}
+              — {t("almanac.n.share", { percent: num(n.ownPercent, 0) })}
+              {n.kind === "optional" ? t("almanac.n.optional") : ""}
             </span>
           </h5>
         </caption>
         <thead>
           <tr>
-            <th scope="col">{n.services ? "Building" : "Good"}</th>
+            <th scope="col">{n.services ? t("almanac.o.building") : t("away.good")}</th>
             <th scope="col" className={styles.num}>
-              Covers
+              {t("almanac.n.covers")}
             </th>
             <th scope="col" className={styles.num}>
-              {n.services ? "Radius" : "Per resident/min"}
+              {n.services ? t("infoPanel.radius") : t("almanac.n.perResident")}
             </th>
-            <th scope="col">{n.services ? "Levels" : "Made by"}</th>
+            <th scope="col">{n.services ? t("almanac.b.levels") : t("almanac.goods.madeByTitle")}</th>
           </tr>
         </thead>
         <tbody>
@@ -34,7 +36,7 @@ function Need({ idx, n }: { idx: Index; n: NeedView }) {
             <tr key={a.id}>
               <td>{a.kind === "good" ? <GoodLink idx={idx} id={a.id} /> : <BuildingLink idx={idx} id={a.id} />}</td>
               <td className={styles.num}>{ppmPercent(a.share * 1_000_000)}</td>
-              <td className={styles.num}>{a.kind === "good" ? num(a.perResident ?? 0, 4) : a.radius === undefined ? "—" : `${a.radius} tiles`}</td>
+              <td className={styles.num}>{a.kind === "good" ? num(a.perResident ?? 0, 4) : a.radius === undefined ? "—" : t("infoPanel.tiles", { count: a.radius })}</td>
               <td>
                 {a.kind === "good"
                   ? a.providers.map((b, i) => (
@@ -58,21 +60,21 @@ export function Needs({ idx, id }: { idx: Index; id?: string }) {
   useScrollTo(id, "needs-page-");
   return (
     <>
-      <h2>Needs</h2>
+      <h2>{t("almanac.section.needs")}</h2>
       <p className={styles.lead}>
-        A category is covered by the sum of the shares of its supplied alternatives, at most 100 %. Services cover a house when the building stands within its radius and is connected. Rates are per resident and minute.
+        {t("almanac.n.lead")}
       </p>
-      {needsByTier(idx).map((t) => (
-        <section key={t.tier} id={`needs-page-${t.tier}`} className={styles.card} style={{ marginBottom: 12 }} aria-labelledby={`needs-page-h-${t.tier}`}>
-          <h3 id={`needs-page-h-${t.tier}`} style={{ marginTop: 0 }}>
-            {t.name}
+      {needsByTier(idx).map((tier) => (
+        <section key={tier.tier} id={`needs-page-${tier.tier}`} className={styles.card} style={{ marginBottom: 12 }} aria-labelledby={`needs-page-h-${tier.tier}`}>
+          <h3 id={`needs-page-h-${tier.tier}`} style={{ marginTop: 0 }}>
+            {tier.name}
           </h3>
-          {t.own.length === 0 && <p className={styles.small}>No needs.</p>}
-          {t.own.map((n) => (
+          {tier.own.length === 0 && <p className={styles.small}>{t("almanac.o.noNeeds")}</p>}
+          {tier.own.map((n) => (
             <Need key={n.id} idx={idx} n={n} />
           ))}
-          {t.carried.length > 0 && (
-            <p className={styles.small}>Also carries the goods categories of {t.carried.map((c) => idx.tierName(c)).join(", ")} at reduced rates.</p>
+          {tier.carried.length > 0 && (
+            <p className={styles.small}>{t("almanac.n.carries", { tiers: tier.carried.map((c) => idx.tierName(c)).join(", ") })}</p>
           )}
         </section>
       ))}

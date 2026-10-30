@@ -88,11 +88,19 @@ func LoadWithSchemas(dir, schemaDir string) (*Catalogue, error) {
 		return nil, err
 	}
 	normaliseNeedWeights(c)
+	if err := loadLocales(c, dir, schemaDir); err != nil {
+		return nil, err
+	}
 	return c, nil
 }
 
 func validateSchema(schemaDir, name string, data []byte) error {
-	schemaName := name[:len(name)-len(".json")] + ".schema.json"
+	return validateSchemaAs(schemaDir, name[:len(name)-len(".json")]+".schema.json", name, data)
+}
+
+// validateSchemaAs validates data (the file name) against the schema file
+// schemaName in schemaDir.
+func validateSchemaAs(schemaDir, schemaName, name string, data []byte) error {
 	schemaPath, err := filepath.Abs(filepath.Join(schemaDir, schemaName))
 	if err != nil {
 		return &Error{File: name, Msg: err.Error()}

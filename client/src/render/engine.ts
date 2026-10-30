@@ -53,6 +53,7 @@ import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
 import { RoadPreview } from "./roads";
 import { PaintPreview, type PaintMark } from "./paint";
+import { t } from "../i18n";
 
 /**
  * Render resolution cap (render pixels per CSS pixel). High-DPR phones
@@ -335,22 +336,22 @@ export class GameRenderer {
   }
 
   private renderFrame(): void {
-    const t = performance.now();
+    const tl = performance.now();
     if (this.lastFrameAt > 0) {
-      this.frameTimes[this.frameCount % FRAME_RING] = t - this.lastFrameAt;
+      this.frameTimes[this.frameCount % FRAME_RING] = tl - this.lastFrameAt;
       this.frameCount++;
     }
-    this.lastFrameAt = t;
+    this.lastFrameAt = tl;
     const now = this.frozenAt ?? this.sync.serverNowMs();
-    this.rig.tick(t);
+    this.rig.tick(tl);
     this.updateView();
     // Island builds run under the frame's time budget, never before the first frame.
     this.drainBuild();
     // Loaded models swap in once the requests in flight have settled (or
     // every MODEL_REFRESH_MS while many load): each swap re-merges chunks.
-    if (this.modelsDirty && (this.models.status().pending.length === 0 || t - this.modelsRefreshedAt >= MODEL_REFRESH_MS)) {
+    if (this.modelsDirty && (this.models.status().pending.length === 0 || tl - this.modelsRefreshedAt >= MODEL_REFRESH_MS)) {
       this.modelsDirty = false;
-      this.modelsRefreshedAt = t;
+      this.modelsRefreshedAt = tl;
       if (!this.docksAnchored && this.lastServer && this.models.manifest()) {
         this.docksAnchored = true;
         this.arch.setDocks(this.docks(this.lastServer.display));
@@ -370,7 +371,7 @@ export class GameRenderer {
     this.updateGhost();
     this.updatePaint();
     // A pinned clock (shots) holds the flash of rejected tiles.
-    this.paintPreview.tick(t, this.frozenAt !== null);
+    this.paintPreview.tick(tl, this.frozenAt !== null);
     this.updateGrid();
     this.updateMarks();
     this.engine._drawCalls.fetchNewFrame();
@@ -974,7 +975,7 @@ export class GameRenderer {
       if (!st) continue;
       berths.set(
         is.id,
-        islandBerths(is, st, this.defs).map((t) => ({ x: is.position.x + t.x + 0.5, y: is.position.y + t.y + 0.5 })),
+        islandBerths(is, st, this.defs).map((tl) => ({ x: is.position.x + tl.x + 0.5, y: is.position.y + tl.y + 0.5 })),
       );
     }
     // Ships at a Trading Post's pier moor at its berth anchors and queue beyond them (D-051, D-054).
@@ -1285,9 +1286,9 @@ export class GameRenderer {
       if (id) this.events.inspectIsland(id);
       return;
     }
-    const t = this.tileAt(p);
-    const is = t ? this.displayIsland(t.island) : undefined;
-    const b = t && is ? buildingAt(is.buildings, this.defs, t.x, t.y) : undefined;
+    const tl = this.tileAt(p);
+    const is = tl ? this.displayIsland(tl.island) : undefined;
+    const b = tl && is ? buildingAt(is.buildings, this.defs, tl.x, tl.y) : undefined;
     if (b) this.events.inspectBuilding(b.id);
   }
 
@@ -1321,43 +1322,43 @@ export class GameRenderer {
         this.events.tapIsland(id);
         return;
       }
-      const t = this.tileOn(id, p);
+      const tl = this.tileOn(id, p);
       const is = this.displayIsland(id);
-      const b = t && is ? buildingAt(is.buildings, this.defs, t.x, t.y) : undefined;
+      const b = tl && is ? buildingAt(is.buildings, this.defs, tl.x, tl.y) : undefined;
       this.events.tapIsland(id, b?.id ?? null);
       return;
     }
     // A tool acts on the island whose rectangle is under the pointer.
-    const t = this.tileAt(p);
-    if (!t) return;
+    const tl = this.tileAt(p);
+    if (!tl) return;
     // Removing fields acts at once (mouse and touch), like the Demolish tool.
     if (tool.kind === "field" && tool.remove) {
-      this.removeFieldsAt(t.island, [t], tool.farmId, false);
+      this.removeFieldsAt(tl.island, [tl], tool.farmId, false);
       return;
     }
     // Touch has no hover: a tap only positions the ghost; Confirm places it.
     if (kind === "touch" && isGhostTool(tool)) {
-      this.events.pend(t);
+      this.events.pend(tl);
       return;
     }
     switch (tool.kind) {
       case "build":
-        this.events.place(t);
+        this.events.place(tl);
         return;
       case "move":
-        this.events.move(t);
+        this.events.move(tl);
         return;
       case "found":
-        this.events.found(t);
+        this.events.found(tl);
         return;
       case "road":
-        this.events.road(t.island, t, t);
+        this.events.road(tl.island, tl, tl);
         return;
       case "field":
-        this.events.placeField(t);
+        this.events.placeField(tl);
         return;
       case "demolish":
-        this.events.demolish(t);
+        this.events.demolish(tl);
     }
   }
 
@@ -1376,8 +1377,8 @@ export class GameRenderer {
     if (tool.kind === "road") this.roadStart = this.tileAt(p);
     // Field tool: paint (or remove) a rectangle; the Demolish tool removes the fields under one.
     if (tool.kind === "field" || tool.kind === "demolish") {
-      const t = this.tileAt(p);
-      if (t) this.paint = { island: t.island, start: t, end: t, mode: tool.kind === "field" && !tool.remove ? "place" : "remove" };
+      const tl = this.tileAt(p);
+      if (tl) this.paint = { island: tl.island, start: tl, end: tl, mode: tool.kind === "field" && !tool.remove ? "place" : "remove" };
     }
   }
 
@@ -1385,14 +1386,14 @@ export class GameRenderer {
     if (this.blocked()) return;
     if (this.touchDrag) this.lastTouch = this.groundPoint(cur) ?? this.lastTouch;
     if (this.paint && button === 0) {
-      const t = this.tileOn(this.paint.island, cur);
-      if (t) this.paint.end = { x: t.x, y: t.y };
+      const tl = this.tileOn(this.paint.island, cur);
+      if (tl) this.paint.end = { x: tl.x, y: tl.y };
       return;
     }
     if (this.roadStart && button === 0) {
-      const t = this.tileOn(this.roadStart.island, cur);
+      const tl = this.tileOn(this.roadStart.island, cur);
       const pl = this.arch.placement(this.roadStart.island);
-      if (t && pl) this.roadPreview.set(lPath(this.roadStart, t).map((q) => ({ x: q.x + pl.position.x, y: q.y + pl.position.y })));
+      if (tl && pl) this.roadPreview.set(lPath(this.roadStart, tl).map((q) => ({ x: q.x + pl.position.x, y: q.y + pl.position.y })));
       return;
     }
     // Right-drag turns the camera about its target: dragging right turns the map counter-clockwise on screen.
@@ -1430,18 +1431,18 @@ export class GameRenderer {
     }
     if (this.paint && button === 0) {
       const paint = this.paint;
-      const t = this.tileOn(paint.island, p);
-      if (t) paint.end = { x: t.x, y: t.y };
+      const tl = this.tileOn(paint.island, p);
+      if (tl) paint.end = { x: tl.x, y: tl.y };
       this.paint = null;
       this.commitPaint(paint);
       return;
     }
     if (this.roadStart && button === 0) {
       const start = this.roadStart;
-      const t = this.tileOn(start.island, p);
+      const tl = this.tileOn(start.island, p);
       this.roadStart = null;
       this.roadPreview.set([]);
-      if (t && this.tool().kind === "road") this.events.road(start.island, start, t);
+      if (tl && this.tool().kind === "road") this.events.road(start.island, start, tl);
     }
   }
 
@@ -1523,12 +1524,12 @@ export class GameRenderer {
     const def = ghostTool ? this.defs.get(tool.buildingType) : undefined;
     // Touch: the pending tile; mouse or pen: the tile under the pointer.
     const hovered = this.hover ? this.tileAt(this.hover) : null;
-    const t = !ghostTool || !def ? null : this.precise ? hovered : (tool.pending ?? hovered);
-    const l = t ? this.lookup(t.island) : undefined;
-    const pl = t ? this.arch.placement(t.island) : undefined;
+    const tl = !ghostTool || !def ? null : this.precise ? hovered : (tool.pending ?? hovered);
+    const l = tl ? this.lookup(tl.island) : undefined;
+    const pl = tl ? this.arch.placement(tl.island) : undefined;
     // A painted rectangle and the removal mode have their own preview (updatePaint).
     const painting = this.paint !== null || (tool.kind === "field" && tool.remove === true);
-    if (!ghostTool || !def || !t || !pl || painting) {
+    if (!ghostTool || !def || !tl || !pl || painting) {
       this.ghost.hide();
       this.ghostValid = null;
       this.setGhostHint(null);
@@ -1539,21 +1540,21 @@ export class GameRenderer {
     let hint: string | null = null;
     if (fertility && !fertility.present) {
       hint = missingFertilityText(fertility.fertility, fertilities);
-    } else if (missingDepositHint(def, l?.deposits ?? new Map(), t.x, t.y, tool.rotation)) {
+    } else if (missingDepositHint(def, l?.deposits ?? new Map(), tl.x, tl.y, tool.rotation)) {
       hint = depositText(def.requires_deposit ?? "");
     } else if (l?.statics && def.water_tiles) {
       const st = l.statics;
       const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
-      const edge = waterEdgeHint(def, withQuays(terrain, l.roads), t.x, t.y, tool.rotation);
+      const edge = waterEdgeHint(def, withQuays(terrain, l.roads), tl.x, tl.y, tool.rotation);
       if (edge) hint = waterEdgeText(edge, def.water_tiles);
     }
     // A field is checked against its farm's chain (a hint; the server validates).
     if (tool.kind === "field" && !hint) {
       const farm = this.findBuilding(tool.farmId);
-      if (!farm || farm.island.id !== t.island) {
-        hint = "Fields are added on the island of their farm";
+      if (!farm || farm.island.id !== tl.island) {
+        hint = t("field.hint.otherIsland");
       } else if (l?.statics) {
-        const h = fieldPlacementHint(farm.b, def, t.x, t.y, tool.rotation, {
+        const h = fieldPlacementHint(farm.b, def, tl.x, tl.y, tool.rotation, {
           island: l.statics,
           buildings: l.display.buildings,
           roads: l.display.roads,
@@ -1563,7 +1564,7 @@ export class GameRenderer {
       }
     }
     // Founding needs no road (the island has none yet); a field has none either.
-    const noRoad = tool.kind !== "found" && missingRoadHint(def, l?.roads ?? new Set(), t.x, t.y, tool.rotation);
+    const noRoad = tool.kind !== "found" && missingRoadHint(def, l?.roads ?? new Set(), tl.x, tl.y, tool.rotation);
     this.ghostValid = hint ? "invalid" : noRoad ? "no_road" : "ok";
     const color = this.ghostValid === "invalid" ? GHOST_INVALID : this.ghostValid === "no_road" ? GHOST_NO_ROAD : GHOST;
     const moved = tool.kind === "move" ? this.findBuilding(tool.buildingId)?.b : undefined;
@@ -1571,11 +1572,11 @@ export class GameRenderer {
       {
         def,
         island: pl.position,
-        x: t.x,
-        y: t.y,
+        x: tl.x,
+        y: tl.y,
         rotation: tool.rotation,
-        waterRows: waterRows(def, t.x, t.y, tool.rotation),
-        base: this.details.get(t.island)?.baseOf({ x: t.x, y: t.y, type: def.id, rotation: tool.rotation }, def) ?? 0,
+        waterRows: waterRows(def, tl.x, tl.y, tool.rotation),
+        base: this.details.get(tl.island)?.baseOf({ x: tl.x, y: tl.y, type: def.id, rotation: tool.rotation }, def) ?? 0,
         ...(moved ? { buildingId: moved.id, level: moved.level ?? 1 } : {}),
       },
       color,
@@ -1596,8 +1597,8 @@ export class GameRenderer {
     const server = this.sync.getSnapshot().server;
     let drag = this.paint;
     if (!drag && tool.kind === "field" && tool.remove && this.precise && this.hover) {
-      const t = this.tileAt(this.hover);
-      if (t) drag = { island: t.island, start: t, end: t, mode: "remove" };
+      const tl = this.tileAt(this.hover);
+      if (tl) drag = { island: tl.island, start: tl, end: tl, mode: "remove" };
     }
     const toolKey = tool.kind === "field" ? `${tool.farmId}|${tool.buildingType}|${tool.rotation}|${tool.remove ? 1 : 0}` : tool.kind;
     // The quay tool tints the free shallows of the island under the pointer (D-060).
@@ -1614,7 +1615,7 @@ export class GameRenderer {
     if (ql?.statics && qpl) {
       const base = this.details.get(quayIsland as string);
       const shallows = freeShallows(ql.statics, ql.roads).map(
-        (t): PaintMark => ({ cx: qpl.position.x + t.x + 0.5, cz: -(qpl.position.y + t.y + 0.5), w: 1, h: 1, kind: "ok", base: base?.baseOf({ x: t.x, y: t.y, type: "", rotation: 0 }, { width: 1, height: 1 }) ?? 0 }),
+        (tl): PaintMark => ({ cx: qpl.position.x + tl.x + 0.5, cz: -(qpl.position.y + tl.y + 0.5), w: 1, h: 1, kind: "ok", base: base?.baseOf({ x: tl.x, y: tl.y, type: "", rotation: 0 }, { width: 1, height: 1 }) ?? 0 }),
       );
       this.paintPreview.set(shallows);
       this.setPaintStatus(null);
@@ -1643,8 +1644,8 @@ export class GameRenderer {
         return;
       }
       const { plan } = p;
-      this.paintPreview.set(plan.tiles.map((t) => mark(t.x, t.y, plan.w, plan.h, t.hint === null ? "ok" : t.hint === "max_reached" ? "max" : "bad")));
-      this.setPaintStatus(p.wrongIsland ? "Fields are added on the island of their farm" : paintCountText(plan));
+      this.paintPreview.set(plan.tiles.map((tl) => mark(tl.x, tl.y, plan.w, plan.h, tl.hint === null ? "ok" : tl.hint === "max_reached" ? "max" : "bad")));
+      this.setPaintStatus(p.wrongIsland ? t("field.hint.otherIsland") : paintCountText(plan));
       return;
     }
     const { tiles, clipped } = paintTiles(drag);
@@ -1666,8 +1667,8 @@ export class GameRenderer {
       this.setPaintStatus(null);
       return;
     }
-    const name = tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? "field").toLowerCase() : "field";
-    this.setPaintStatus(`Remove ${n} ${n === 1 ? name : `${name}s`}${clipped ? " · clipped to 512 tiles" : ""}`);
+    const name = tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? t("field.generic")).toLowerCase() : t("field.generic");
+    this.setPaintStatus(t("paint.remove", { count: n, name, Name: tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? t("field.generic")) : t("field.generic"), clipped: clipped ? t("paint.removeClipped") : "" }));
   }
 
   /** The anchors of a painted rectangle and their hint for the field tool (null: no field tool or its farm is gone). */
@@ -1682,7 +1683,7 @@ export class GameRenderer {
     const { anchors, clipped } = paintAnchors(drag, w, h);
     const plan = planPaint(farm.b, def, anchors, tool.rotation, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs }, clipped);
     const wrongIsland = farm.island.id !== drag.island;
-    if (wrongIsland) for (const t of plan.tiles) t.hint = "not_adjacent";
+    if (wrongIsland) for (const tl of plan.tiles) tl.hint = "not_adjacent";
     return { plan, wrongIsland };
   }
 
@@ -1699,7 +1700,7 @@ export class GameRenderer {
     if (tool.kind !== "field" || !p || p.wrongIsland || !pl) return;
     const { plan } = p;
     void this.events
-      .paintFields({ island: paint.island, farmId: tool.farmId, buildingType: tool.buildingType, rotation: tool.rotation, tiles: plan.tiles.map((t) => ({ x: t.x, y: t.y })), clipped: plan.clipped })
+      .paintFields({ island: paint.island, farmId: tool.farmId, buildingType: tool.buildingType, rotation: tool.rotation, tiles: plan.tiles.map((tl) => ({ x: tl.x, y: tl.y })), clipped: plan.clipped })
       .then((results) => {
         if (!results) return;
         const rejected = results.filter((r) => !r.ok);
@@ -1746,9 +1747,9 @@ export class GameRenderer {
       if (this.grid.visible()) this.grid.set(null);
       return;
     }
-    const toArch = (island: string, t: TilePos): ArchPoint | null => {
+    const toArch = (island: string, tl: TilePos): ArchPoint | null => {
       const pl = this.arch.placement(island);
-      return pl ? { x: pl.position.x + t.x + 0.5, y: pl.position.y + t.y + 0.5 } : null;
+      return pl ? { x: pl.position.x + tl.x + 0.5, y: pl.position.y + tl.y + 0.5 } : null;
     };
     const mouse = this.precise && this.hover ? this.groundPoint(this.hover) : null;
     let at: ArchPoint | null = null;

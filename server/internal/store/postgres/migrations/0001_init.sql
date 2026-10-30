@@ -6,6 +6,10 @@
 CREATE TABLE players (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   display_name      text NOT NULL,
+  -- The player's chosen interface language (D-061), a content language
+  -- code such as "de"; NULL until chosen (the client then follows the
+  -- browser). Validated by the API against the served languages.
+  language          text,
   coat_of_arms      jsonb,
   -- Registered players only (NULL for guests); stored trimmed and
   -- lower-cased, unique case-insensitively.

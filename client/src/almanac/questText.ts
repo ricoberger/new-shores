@@ -2,39 +2,38 @@
 // kind of MECHANICS §12a; an unlisted kind falls back to a generic line.
 // (The in-game `display/quests.ts` formats progress of a running world; the
 // almanac has no world, only the target of the content.)
+import { t } from "../i18n";
 import { milli, num, type ContentObjective, type ContentQuest, type Index } from "./model";
-
-const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 
 /** One objective as a sentence fragment, e.g. "Lay 10 tiles of Dirt road". */
 export function objectiveSentence(o: ContentObjective, idx: Index): string {
-  const where = o.island ? ` on island ${o.island}` : "";
+  const where = o.island ? t("almanac.obj.on", { island: o.island }) : "";
   const n = o.target;
   switch (o.kind) {
     case "building_count": {
       const b = idx.building(o.type);
       const name = idx.buildingName(o.type);
-      if (b?.road) return `Lay ${n} ${plural(n, "tile", "tiles")} of ${name}${where}`;
-      return `Have ${n} × ${name}${where}`;
+      if (b?.road) return t("almanac.obj.road", { count: n, name }) + where;
+      return t("almanac.obj.have", { count: n, name }) + where;
     }
     case "connected":
-      return `Connect ${idx.buildingName(o.type)} to the Trading Post or a Warehouse${where}`;
+      return t("almanac.obj.connected", { name: idx.buildingName(o.type) }) + where;
     case "population":
-      return `Reach ${milli(n)} ${idx.tierName(o.tier)}`;
+      return t("almanac.obj.population", { amount: milli(n), tier: idx.tierName(o.tier) });
     case "stock":
-      return `Have ${milli(n)} ${idx.goodName(o.good)} in stock${where}`;
+      return t("almanac.obj.stock", { amount: milli(n), good: idx.goodName(o.good) }) + where;
     case "route_exists":
-      return "Send a ship along a route";
+      return t("almanac.obj.route");
     case "island_settled":
-      return `Settle ${n} ${plural(n, "island", "islands")}`;
+      return t("almanac.obj.settle", { count: n });
     case "tier_unlocked":
-      return `Unlock ${idx.tierName(o.tier)}`;
+      return t("almanac.obj.unlock", { tier: idx.tierName(o.tier) });
     case "ship_count":
-      return o.type ? `Own ${n} ${idx.shipName(o.type)}${n === 1 ? "" : "s"}` : `Own ${n} ${plural(n, "ship", "ships")}`;
+      return o.type ? t("almanac.obj.ownShip", { count: n, name: idx.shipName(o.type) }) : t("almanac.obj.ownShips", { count: n });
     case "satisfaction":
-      return `Keep ${idx.tierName(o.tier)} satisfaction at ${num(n / 10, 1)} % or more`;
+      return t("almanac.obj.satisfaction", { tier: idx.tierName(o.tier), percent: num(n / 10, 1) });
   }
-  return `Complete a “${String((o as { kind: string }).kind)}” objective`;
+  return t("almanac.obj.unknown", { kind: String((o as { kind: string }).kind) });
 }
 
 export interface QuestView {

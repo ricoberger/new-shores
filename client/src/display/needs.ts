@@ -4,6 +4,8 @@
 // (content drift, fixtures without needs) fall back to the ID, never a
 // crash.
 import type { Content } from "../api/client";
+import { t } from "../i18n";
+import { listOr } from "./format";
 
 /** The parts of the content the lookups read; every list is optional (older or partial catalogues). */
 export type NeedContent = Partial<Pick<Content, "needs" | "need_categories" | "buildings" | "tiers">> | null | undefined;
@@ -83,7 +85,7 @@ export function needAlternatives(content: (NeedContent & Partial<Pick<Content, "
     ...(n?.buildings ?? []).map((b) => content?.buildings?.find((x) => x.id === b.building)?.name || b.building),
   ];
   if (names.length < 2) return undefined;
-  return `${names.slice(0, -1).join(", ")} or ${names[names.length - 1]}`;
+  return listOr(names);
 }
 
 /**
@@ -96,15 +98,15 @@ export function upgradeReasonText(content: NeedContent, reason: string): string 
   const [code, category] = reason.split(":") as [string, string | undefined];
   switch (code) {
     case "tier_locked":
-      return "The next tier is not unlocked yet";
+      return t("reason.tier_locked");
     case "not_full":
-      return "The house is not full yet";
+      return t("reason.not_full");
     case "needs_below_threshold":
-      return category ? `${needCategory(content, category).name} is not supplied well enough` : "A need is not supplied well enough";
+      return category ? t("reason.needs_below_threshold", { category: needCategory(content, category).name }) : t("reason.needs_below_threshold_any");
     case "cannot_afford":
-      return "Not enough gold or materials";
+      return t("reason.cannot_afford");
     case "no_house":
-      return "There is no house of a next tier";
+      return t("reason.no_house");
     default:
       return reason;
   }

@@ -14,6 +14,8 @@
 // response with a lower version than the current state means the world was
 // reset (dev-server restart) and replaces the state.
 import { type TileFailure, TileQueue } from "./tiles";
+import { currentLanguage, subscribe as subscribeLanguage } from "../i18n";
+import { localizeNames } from "../display/names";
 import { clockOffsetMs, extrapolate, serverTimeMs } from "../display/extrapolate";
 import {
   ApiError,
@@ -127,6 +129,7 @@ export class GameSync {
   /** Incremented by stop(): queued jobs of an earlier generation never run. */
   private generation = 0;
   private unauthorizedListeners = new Set<() => void>();
+  private unsubscribeLanguage: (() => void) | null = null;
   private socket: { start(): void; stop(): void } | null = null;
 
   constructor(private readonly socketFactory: SocketFactory = defaultSocketFactory) {}
@@ -143,6 +146,7 @@ export class GameSync {
     document.addEventListener("visibilitychange", this.onVisible);
     window.addEventListener("focus", this.onFocus);
     void this.loadContent();
+    this.unsubscribeLanguage = subscribeLanguage(() => void this.loadContent());
     void this.refresh();
     this.socket = this.socketFactory({
       changed: () => void this.refresh(),
@@ -166,6 +170,8 @@ export class GameSync {
     // start -> stop -> start on the same instance).
     this.lastGet = null;
     this.contentRequest = false;
+    this.unsubscribeLanguage?.();
+    this.unsubscribeLanguage = null;
     this.tiles.clear();
     this.socket?.stop();
     this.socket = null;
@@ -218,11 +224,16 @@ export class GameSync {
     for (const l of this.listeners) l();
   }
 
+  /** The extrapolated display with island and ship names in the content's language (D-061). */
+  private view(display: DisplayState, nowMs: number): DisplayState {
+    return localizeNames(extrapolate(display, nowMs), this.snapshot.content);
+  }
+
   private recompute(): void {
     const server = this.snapshot.server;
     if (server) {
       const nowMs = this.serverNowMs();
-      this.set({ model: extrapolate(server.display, nowMs), nowMs });
+      this.set({ model: this.view(server.display, nowMs), nowMs });
     }
   }
 
@@ -308,16 +319,22 @@ export class GameSync {
     if (this.contentRequest || this.stopped) return;
     const generation = this.generation;
     this.contentRequest = true;
+    let again = false;
     try {
-      const content = await getContent();
+      const language = currentLanguage();
+      const content = await getContent(language);
       if (generation !== this.generation) return;
       this.set({ content });
+      this.recompute();
       this.succeeded("content");
+      again = language !== currentLanguage();
     } catch (err) {
       if (generation === this.generation) this.failed("content", err, () => void this.loadContent());
     } finally {
       if (generation === this.generation) this.contentRequest = false;
     }
+    // The language changed while the request was in flight.
+    if (again) void this.loadContent();
   }
 
   /** Fetches and stores one island's full tiles (the tile queue's loader; rejects on failure). */
@@ -417,7 +434,7 @@ export class GameSync {
     const nowMs = this.serverNowMs();
     this.set({
       server: res,
-      model: extrapolate(res.display, nowMs),
+      model: this.view(res.display, nowMs),
       nowMs,
       ...(dropIslands ? { islands: new Map<string, Island>() } : {}),
     });

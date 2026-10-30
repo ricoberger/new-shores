@@ -83,6 +83,11 @@ type Catalogue struct {
 	Islands IslandRules
 	// IslandNames is the generator's name list (island_names.json).
 	IslandNames []string
+	// Locales are the translations of the content texts by language
+	// (i18n/<lang>.json, D-061): language → text key → text. English is
+	// the source in the main files and not listed; every shipped
+	// language is complete (Texts).
+	Locales map[string]map[string]string
 }
 
 // Objective kinds (quests.json): a closed vocabulary of generic predicates

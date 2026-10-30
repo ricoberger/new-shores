@@ -3,6 +3,7 @@
 // whether a quest is complete).
 import type { Content, DisplayState } from "../api/client";
 import type { components } from "../api/schema";
+import { percentSpace, t } from "../i18n";
 import { units } from "./format";
 
 export type ContentQuest = components["schemas"]["ContentQuest"];
@@ -33,7 +34,7 @@ export function objectiveProgress(o: ObjectiveDisplay): string {
     case "stock":
       return `${units(Math.max(o.current, 0))}/${units(o.target)}`;
     case "satisfaction":
-      return `${o.current < 0 ? "–" : Math.round(o.current / 10)}/${Math.round(o.target / 10)} %`;
+      return `${o.current < 0 ? "–" : Math.round(o.current / 10)}/${Math.round(o.target / 10)}${percentSpace()}%`;
     default:
       return `${o.current}/${o.target}`;
   }
@@ -41,29 +42,30 @@ export function objectiveProgress(o: ObjectiveDisplay): string {
 
 /** One line per objective, e.g. "Dirt road (tiles) 10/10". */
 export function objectiveText(o: ObjectiveDisplay, content: Content): string {
-  const where = o.island ? ` on ${o.island}` : "";
+  const where = o.island ? t("quest.where", { island: o.island }) : "";
   const building = name(content.buildings, o.type);
   const tier = name(content.tiers, o.tier);
+  const progress = objectiveProgress(o);
   switch (o.kind) {
     case "building_count":
-      return `${building}${content.buildings.find((b) => b.id === o.type)?.road ? " (tiles)" : ""}${where} ${objectiveProgress(o)}`;
+      return t("quest.building_count", { building, tiles: content.buildings.find((b) => b.id === o.type)?.road ? t("quest.tiles") : "", where, progress });
     case "connected":
-      return `${building} connected to the Trading Post or a Warehouse${where}`;
+      return t("quest.connected", { building, where });
     case "population":
-      return `${tier} ${objectiveProgress(o)}`;
+      return t("quest.population", { tier, progress });
     case "stock":
-      return `${name(content.goods, o.good)} in stock${where} ${objectiveProgress(o)}`;
+      return t("quest.stock", { good: name(content.goods, o.good), where, progress });
     case "route_exists":
-      return "A route with a ship";
+      return t("quest.route_exists");
     case "island_settled":
-      return `Settled islands ${objectiveProgress(o)}`;
+      return t("quest.island_settled", { progress });
     case "tier_unlocked":
-      return `${tier} unlocked`;
+      return t("quest.tier_unlocked", { tier });
     case "ship_count":
       // A ship type (D-056 C4: "Galleon 0/1") or every ship.
-      return o.type ? `${name(content.ships, o.type)} ${objectiveProgress(o)}` : `Ships ${objectiveProgress(o)}`;
+      return o.type ? t("quest.ship_type", { ship: name(content.ships, o.type), progress }) : t("quest.ship_count", { progress });
     case "satisfaction":
-      return `${tier} satisfaction ${objectiveProgress(o)}`;
+      return t("quest.satisfaction", { tier, progress });
   }
   return o.kind;
 }
@@ -71,7 +73,7 @@ export function objectiveText(o: ObjectiveDisplay, content: Content): string {
 /** Reward description, e.g. "25 gold, 45 Planks". */
 export function rewardText(q: ContentQuest, content: Content): string {
   const parts: string[] = [];
-  if (q.rewards.gold > 0) parts.push(`${units(q.rewards.gold)} gold`);
+  if (q.rewards.gold > 0) parts.push(t("quest.reward.gold", { amount: units(q.rewards.gold) }));
   for (const [good, amount] of Object.entries(q.rewards.goods)) {
     parts.push(`${units(amount)} ${name(content.goods, good)}`);
   }

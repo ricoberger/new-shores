@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
@@ -21,30 +22,30 @@ interface Props {
  * reason is repeated here.
  */
 export function PlacementBar({ tool, hint, paintStatus = null, onConfirm, onRotate, onCancel }: Props) {
-  const what = tool.kind === "move" ? "Move" : tool.kind === "found" ? "Found settlement" : tool.kind === "field" ? "Add field" : "Place";
+  const what = tool.kind === "move" ? t("placement.move") : tool.kind === "found" ? t("placement.found") : tool.kind === "field" ? t("placement.field") : t("placement.place");
   const removing = tool.kind === "field" && tool.remove === true;
   let text = removing
-    ? "Tap a field or drag over fields to remove them"
+    ? t("placement.removeFields")
     : tool.kind === "field"
-      ? "Tap next to the farm or one of its fields, or drag a rectangle"
-      : "Tap the map to position the building";
-  if (tool.pending && !removing) text = hint ?? `${what} at ${tool.pending.x}, ${tool.pending.y}?`;
+      ? t("placement.addFields")
+      : t("placement.tap");
+  if (tool.pending && !removing) text = hint ?? t("placement.ask", { what, x: tool.pending.x, y: tool.pending.y });
   // A rectangle being painted: its live count.
   if (paintStatus) text = paintStatus;
   return (
-    <div className={`${styles.panel} ${styles.toolBar}`} role="toolbar" aria-label="Placement" data-testid="placement-bar">
+    <div className={`${styles.panel} ${styles.toolBar}`} role="toolbar" aria-label={t("placement.label")} data-testid="placement-bar">
       <span className={`${styles.toolBarText} ${tool.pending && hint && !paintStatus && !removing ? styles.lock : ""}`} data-testid="placement-hint">
         {text}
       </span>
       <div className={styles.toolBarButtons}>
         <button type="button" className={`${styles.button} ${styles.primary}`} onClick={onConfirm} disabled={!tool.pending} data-testid="placement-confirm">
-          <Icon path={toolIcon("confirm")} /> Confirm
+          <Icon path={toolIcon("confirm")} /> {t("common.confirm")}
         </button>
-        <button type="button" className={styles.button} onClick={onRotate} aria-label={`Rotate (now ${tool.rotation}°)`} data-testid="placement-rotate">
+        <button type="button" className={styles.button} onClick={onRotate} aria-label={t("placement.rotate", { degrees: tool.rotation })} data-testid="placement-rotate">
           <Icon path={toolIcon("rotate")} /> {tool.rotation}°
         </button>
         <button type="button" className={styles.button} onClick={onCancel} data-testid="placement-cancel">
-          <Icon path={toolIcon("cancel")} /> Cancel
+          <Icon path={toolIcon("cancel")} /> {t("common.cancel")}
         </button>
       </div>
     </div>
@@ -59,10 +60,10 @@ export function DemolishBar({ onDone }: { onDone: () => void }) {
   return (
     <div className={`${styles.toolBar} ${styles.demolishBar}`} role="status" data-testid="demolish-bar">
       <span className={styles.toolBarText}>
-        <Icon path={toolIcon("demolish")} /> Demolish mode — tap a building, field or road
+        <Icon path={toolIcon("demolish")} /> {t("placement.demolishMode")}
       </span>
       <button type="button" className={`${styles.button} ${styles.demolishDone}`} onClick={onDone} data-testid="demolish-done">
-        Done
+        {t("common.done")}
       </button>
     </div>
   );
@@ -72,9 +73,9 @@ export function DemolishBar({ onDone }: { onDone: () => void }) {
 export function RoadBar({ onDone }: { onDone: () => void }) {
   return (
     <div className={`${styles.panel} ${styles.toolBar}`} role="status" data-testid="road-bar">
-      <span className={styles.toolBarText}>Drag along the ground to draw a road</span>
+      <span className={styles.toolBarText}>{t("placement.road")}</span>
       <button type="button" className={styles.button} onClick={onDone} data-testid="road-done">
-        Done
+        {t("common.done")}
       </button>
     </div>
   );

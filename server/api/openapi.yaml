@@ -271,6 +271,20 @@ paths:
     get:
       operationId: getContent
       summary: The content catalogue in the units of the display payload.
+      description: |
+        Player-facing texts (names, quest titles and texts, size class
+        names) are in the requested language, English per key where a
+        language lacks one (D-061). `lang` wins over `Accept-Language`; the
+        server never sends prose elsewhere, errors and reasons are codes.
+        The response carries `Content-Language` and `Vary: Accept-Language`.
+      parameters:
+        - name: lang
+          in: query
+          required: false
+          description: A shipped language (`Content.languages`). Unknown languages are a `bad_request`.
+          schema:
+            type: string
+            pattern: "^[a-z]{2,3}$"
       responses:
         "200":
           description: The catalogue.
@@ -278,6 +292,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Content"
+        "400":
+          $ref: "#/components/responses/Error"
         "405":
           $ref: "#/components/responses/Error"
     options:
@@ -503,6 +519,45 @@ paths:
         "401":
           $ref: "#/components/responses/Error"
         "405":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+    patch:
+      operationId: patchMe
+      summary: Change the current player's settings (the interface language).
+      description: |
+        Stores the language (D-061) so that every device of the account
+        starts in it. An unknown language is 400 `bad_request`. In dev mode
+        nothing is stored and the fixed player answers.
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [language]
+              properties:
+                language:
+                  type: string
+                  description: A code of `languages` in `GET /content`.
+      responses:
+        "200":
+          $ref: "#/components/responses/Auth"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "405":
+          $ref: "#/components/responses/Error"
+        "413":
           $ref: "#/components/responses/Error"
         "500":
           $ref: "#/components/responses/Error"
@@ -938,6 +993,11 @@ components:
           description: Player ID (UUID; "dev" in dev mode).
         display_name:
           type: string
+        language:
+          type: string
+          description: |
+            The player's chosen interface language (a code of `languages` in
+            `GET /content`, e.g. `de`); absent until chosen (D-061).
         guest:
           type: boolean
           description: True until the player registers.
@@ -3014,8 +3074,31 @@ components:
     Content:
       type: object
       additionalProperties: false
-      required: [region, tiers, goods, buildings, needs, need_categories, ships, quests, size_classes]
+      required: [region, tiers, goods, buildings, needs, need_categories, ships, quests, size_classes, language, languages, island_names]
       properties:
+        language:
+          type: string
+          description: The language of the text fields.
+        languages:
+          type: array
+          description: Every shipped language, "en" (the source) first.
+          items:
+            type: string
+        island_names:
+          type: array
+          description: |
+            The archipelago generator's island names. A generated island keeps
+            the English `source` name in the world until renamed; show `name`
+            for an island whose name equals a `source`.
+          items:
+            type: object
+            additionalProperties: false
+            required: [source, name]
+            properties:
+              source:
+                type: string
+              name:
+                type: string
         region:
           $ref: "#/components/schemas/ContentRegion"
         quests:
@@ -3194,6 +3277,13 @@ components:
           type: string
         name:
           type: string
+        source_name:
+          type: string
+          description: |
+            The English name, present when `name` is in another language. A
+            ship's default name ("Sloop 2") is composed from the English type
+            name when the ship is created; clients replace that prefix with
+            `name` to show it translated.
         tier:
           type: string
         slots:

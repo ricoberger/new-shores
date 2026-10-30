@@ -621,7 +621,7 @@ func TestPreflight(t *testing.T) {
 			t.Fatalf("%s: %d", path, res.status)
 		}
 		h := res.header
-		if h.Get("Access-Control-Allow-Origin") != testOrigin || h.Get("Access-Control-Allow-Methods") != "GET, POST, OPTIONS" || h.Get("Access-Control-Allow-Headers") != "Content-Type" {
+		if h.Get("Access-Control-Allow-Origin") != testOrigin || h.Get("Access-Control-Allow-Methods") != "GET, POST, PATCH, OPTIONS" || h.Get("Access-Control-Allow-Headers") != "Content-Type" {
 			t.Fatalf("%s: headers %v", path, h)
 		}
 	}

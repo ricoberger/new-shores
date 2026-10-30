@@ -1,4 +1,5 @@
 import { toolIcon, type ToolIcon } from "../theme/iconSet";
+import { t } from "../i18n";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
 
@@ -15,11 +16,11 @@ interface Props {
   onToggleBuild: () => void;
 }
 
-const ITEMS: { id: DockPanel; label: string; icon: ToolIcon }[] = [
-  { id: "warnings", label: "Warnings", icon: "warnings" },
-  { id: "quests", label: "Quests", icon: "quests" },
-  { id: "ships", label: "Ships", icon: "ships" },
-  { id: "routes", label: "Routes", icon: "routes" },
+const ITEMS: { id: DockPanel; label: () => string; icon: ToolIcon }[] = [
+  { id: "warnings", label: () => t("dock.warnings"), icon: "warnings" },
+  { id: "quests", label: () => t("dock.quests"), icon: "quests" },
+  { id: "ships", label: () => t("dock.ships"), icon: "ships" },
+  { id: "routes", label: () => t("dock.routes"), icon: "routes" },
 ];
 
 /**
@@ -30,19 +31,21 @@ const ITEMS: { id: DockPanel; label: string; icon: ToolIcon }[] = [
  */
 export function SideDock({ active, onToggle, counts, buildOpen, onToggleBuild }: Props) {
   return (
-    <nav className={styles.dock} aria-label="Lists" data-testid="side-dock">
+    <nav className={styles.dock} aria-label={t("dock.lists")} data-testid="side-dock">
       <button
         type="button"
         className={`${styles.dockButton} ${buildOpen ? styles.dockActive : ""}`}
         aria-pressed={buildOpen}
-        aria-label="Build menu"
-        title="Build menu"
+        aria-label={t("dock.build")}
+        title={t("dock.build")}
         onClick={onToggleBuild}
         data-testid="dock-build"
       >
         <Icon path={toolIcon("build")} />
       </button>
-      {ITEMS.map(({ id, label, icon }) => (
+      {ITEMS.map(({ id, label: labelOf, icon }) => {
+        const label = labelOf();
+        return (
         <button
           key={id}
           type="button"
@@ -60,7 +63,8 @@ export function SideDock({ active, onToggle, counts, buildOpen, onToggleBuild }:
             </span>
           )}
         </button>
-      ))}
+        );
+      })}
     </nav>
   );
 }

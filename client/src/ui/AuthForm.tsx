@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from "react";
 import type { Player } from "../api/client";
 import { authErrorText, login, register } from "../api/auth";
+import { t } from "../i18n";
 import styles from "./account.module.css";
 
 export type AuthMode = "login" | "register";
@@ -37,11 +38,11 @@ export function AuthForm({ mode, onDone, onCancel, onForgot }: Props) {
   return (
     <form className={styles.stack} onSubmit={(e) => void submit(e)} data-testid={`${mode}-form`}>
       <label className={styles.field}>
-        Email
+        {t("auth.email")}
         <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} data-testid="auth-email" />
       </label>
       <label className={styles.field}>
-        Password {mode === "register" && "(8–128 bytes)"}
+        {mode === "register" ? t("auth.passwordNew") : t("auth.password")}
         <input
           type="password"
           autoComplete={mode === "login" ? "current-password" : "new-password"}
@@ -53,7 +54,7 @@ export function AuthForm({ mode, onDone, onCancel, onForgot }: Props) {
       </label>
       {mode === "register" && (
         <label className={styles.field}>
-          Display name (optional)
+          {t("auth.displayName")}
           <input maxLength={32} value={displayName} onChange={(e) => setDisplayName(e.target.value)} data-testid="auth-display-name" />
         </label>
       )}
@@ -63,15 +64,15 @@ export function AuthForm({ mode, onDone, onCancel, onForgot }: Props) {
         </p>
       )}
       <button type="submit" className={styles.primary} disabled={busy} data-testid="auth-submit">
-        {mode === "login" ? "Log in" : "Register"}
+        {mode === "login" ? t("auth.login") : t("auth.register")}
       </button>
       {mode === "login" && onForgot && (
         <button type="button" className={styles.secondary} onClick={onForgot} disabled={busy} data-testid="show-forgot">
-          Forgot password?
+          {t("auth.forgot")}
         </button>
       )}
       <button type="button" className={styles.secondary} onClick={onCancel} disabled={busy}>
-        Back
+        {t("common.back")}
       </button>
     </form>
   );

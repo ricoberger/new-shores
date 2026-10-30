@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { DialogPanel } from "./DialogPanel";
 import styles from "./hud.module.css";
 
@@ -29,7 +30,7 @@ export function ConfirmDialog({ request, onClose }: { request: ConfirmRequest; o
             {request.confirmLabel}
           </button>
           <button type="button" className={styles.button} onClick={onClose} data-testid="dialog-cancel">
-            Cancel
+            {t("common.cancel")}
           </button>
         </div>
       </DialogPanel>

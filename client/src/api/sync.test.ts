@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Command, DisplayState, WorldResponse } from "./client";
+import { setLanguage } from "../i18n";
 import { GameSync, type SyncError, SyncStoppedError } from "./sync";
 
 function world(version: number, evaluatedAt: string, nextChangeAt: string | null, islands: string[] = [], roll = 0): WorldResponse {
@@ -547,6 +548,25 @@ describe("GameSync restart (React Strict Mode: start -> stop -> start)", () => {
     );
     return counts;
   }
+
+  it("loads the content in the current language and again when the language changes (D-061)", async () => {
+    const langs: (string | null)[] = [];
+    stubServer();
+    const inner = fetch as unknown as (url: string) => Promise<Response>;
+    vi.stubGlobal("fetch", async (url: string) => {
+      if (new URL(url).pathname === "/api/v1/content") langs.push(new URL(url).searchParams.get("lang"));
+      return inner(url);
+    });
+    const sync = new GameSync(noSocket);
+    const stop = sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(langs).toEqual(["en"]);
+    setLanguage("de", false);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(langs).toEqual(["en", "de"]);
+    setLanguage("en", false);
+    stop();
+  });
 
   it("loads the world, content and islands over HTTP after an immediate restart without push", async () => {
     const counts = stubServer();

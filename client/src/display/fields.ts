@@ -9,6 +9,7 @@
 // No ownership, activity or efficiency is computed here; the farm and its
 // fields show the server's `fields`, `farm_id` and `active`.
 import type { BuildingDisplay, Content, ContentBuilding, Island } from "../api/client";
+import { inSentence, t } from "../i18n";
 import { rotatedFootprint, type TilePos, tileKey } from "./geometry";
 
 /**
@@ -28,15 +29,12 @@ export function fieldBuildingOf(content: Content, farmType: string): ContentBuil
  */
 export function footprintText(def: Pick<ContentBuilding, "id" | "width" | "height" | "water_tiles" | "fields">, content: Pick<Content, "buildings">): string {
   let text = `${def.width}×${def.height}`;
-  if (def.water_tiles) text += ` (${def.water_tiles} ${def.water_tiles === 1 ? "row" : "rows"} on water)`;
+  if (def.water_tiles) text += t("field.onWater", { count: def.water_tiles });
   if (def.fields) {
     const field = fieldBuildingOf(content as Content, def.id);
     const max = def.fields.max;
-    if (!field || (field.width === 1 && field.height === 1)) text += ` + ${max} ${max === 1 ? "field" : "fields"}`;
-    else {
-      const name = field.name.toLowerCase();
-      text += ` + ${max} ${max === 1 ? name : `${name}s`} of ${field.width}×${field.height}`;
-    }
+    if (!field || (field.width === 1 && field.height === 1)) text += t("field.plain", { count: max });
+    else text += t("field.modules", { count: max, name: inSentence(field.name), Name: field.name, w: field.width, h: field.height });
   }
   return text;
 }
@@ -104,21 +102,9 @@ export function fieldPlacementHint(farm: BuildingDisplay, field: ContentBuilding
 
 /** Hint text of a rejected ghost. */
 export function fieldHintText(hint: FieldHint, fieldName: string, farmName: string): string {
-  const name = fieldName.toLowerCase();
-  switch (hint) {
-    case "max_reached":
-      return `${farmName} has the most ${name}s it can use`;
-    case "bounds":
-      return `A ${name} needs to stay on the island`;
-    case "terrain":
-      return `A ${name} needs grass`;
-    case "occupied":
-      return "Something is in the way";
-    case "fertility":
-      return `This island is not fertile for a ${name}`;
-    case "not_adjacent":
-      return `A ${name} must touch ${farmName.toLowerCase()} or one of its active ${name}s`;
-  }
+  // `name` is lower case for English sentences; German nouns keep their capital (`Name`, `Farm`).
+  const params = { name: inSentence(fieldName), Name: fieldName, farm: inSentence(farmName), Farm: farmName };
+  return t(`field.hint.${hint}`, params);
 }
 
 /** The farm of a field or the farm itself, and the farm's fields: the chain a selection highlights. */

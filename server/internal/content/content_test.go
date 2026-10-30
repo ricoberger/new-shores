@@ -359,6 +359,9 @@ func copyContent(t *testing.T, file string, replace ...string) string {
 		t.Fatal(err)
 	}
 	for _, e := range entries {
+		if e.IsDir() { // the i18n locale files are not part of the copies
+			continue
+		}
 		data, err := os.ReadFile(filepath.Join(src, e.Name())) // #nosec G304 -- test fixture path.
 		if err != nil {
 			t.Fatal(err)

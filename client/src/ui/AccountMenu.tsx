@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import type { Player } from "../api/client";
-import { authErrorText, logout } from "../api/auth";
+import { authErrorText, logout, saveAccountLanguage } from "../api/auth";
+import { t } from "../i18n";
 import styles from "./account.module.css";
 import hud from "./hud.module.css";
 import { AuthForm } from "./AuthForm";
 import { CreditsDialog } from "./Credits";
 import { DialogPanel } from "./DialogPanel";
 import { Icon } from "./Icon";
+import { LanguageSwitch } from "./LanguageSwitch";
+import language from "./language.module.css";
 import { toolIcon } from "../theme/iconSet";
 import { installPrompt } from "../pwa";
 import { useInstallAvailable } from "./PwaUi";
@@ -43,7 +46,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut }: Props) {
     };
   }, [open]);
 
-  const name = `${player.display_name}${player.guest ? " (guest)" : ""}`;
+  const name = player.guest ? t("account.guestName", { name: player.display_name }) : player.display_name;
 
   const doLogout = async () => {
     setError(null);
@@ -80,7 +83,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut }: Props) {
               }}
               data-testid="account-register"
             >
-              <Icon path={toolIcon("register")} /> Register (keeps your island)
+              <Icon path={toolIcon("register")} /> {t("account.register")}
             </button>
           )}
           {canInstall && (
@@ -92,7 +95,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut }: Props) {
               }}
               data-testid="install-app"
             >
-              <Icon path={toolIcon("install")} /> Install app
+              <Icon path={toolIcon("install")} /> {t("account.install")}
             </button>
           )}
           <button
@@ -103,10 +106,14 @@ export function AccountMenu({ player, onRegistered, onLoggedOut }: Props) {
             }}
             data-testid="account-credits"
           >
-            <Icon path={toolIcon("credits")} /> Credits
+            <Icon path={toolIcon("credits")} /> {t("account.credits")}
           </button>
+          <div className={language.row}>
+            <span className={language.rowLabel}>{t("language.label")}</span>
+            <LanguageSwitch onChange={(l) => void saveAccountLanguage(l)} />
+          </div>
           <button type="button" onClick={() => void doLogout()} data-testid="account-logout">
-            <Icon path={toolIcon("logout")} /> Log out
+            <Icon path={toolIcon("logout")} /> {t("account.logout")}
           </button>
           {error && <span className={styles.error}>{error}</span>}
         </div>
@@ -116,7 +123,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut }: Props) {
         <div className={styles.modal} onClick={() => setRegistering(false)}>
           <DialogPanel className={`${hud.panel} ${hud.dialog}`} labelledBy="register-dialog-title" onClick={(e) => e.stopPropagation()}>
             <h2 className={hud.title} id="register-dialog-title">
-              Register
+              {t("account.registerTitle")}
             </h2>
             <AuthForm
               mode="register"

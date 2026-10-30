@@ -1,3 +1,5 @@
+import { depositName, fertilityName } from "../display/tiers";
+import { t } from "../i18n";
 import styles from "./almanac.module.css";
 import { islandsView, titleCase, type Index } from "./model";
 import { useScrollTo } from "./useScrollTo";
@@ -11,21 +13,21 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
   const has = (k: "size" | "count" | "fertilities" | "deposits" | "shape") => v.sizeClasses.some((s) => s[k] !== undefined);
   return (
     <>
-      <h2>Islands</h2>
-      <p className={styles.lead}>Every archipelago is generated; its islands come in these size classes. Every island can be settled from the start; skerries are scenery.</p>
-      {v.sizeClasses.length === 0 && <p className={styles.small}>No island classes in the content.</p>}
+      <h2>{t("almanac.section.islands")}</h2>
+      <p className={styles.lead}>{t("almanac.i.lead")}</p>
+      {v.sizeClasses.length === 0 && <p className={styles.small}>{t("almanac.i.none")}</p>}
       {v.sizeClasses.length > 0 && (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th scope="col">Class</th>
-                {has("size") && <th scope="col" className={styles.num}>Size (tiles)</th>}
-                {has("count") && <th scope="col" className={styles.num}>Per archipelago</th>}
-                {has("fertilities") && <th scope="col" className={styles.num}>Fertilities</th>}
-                {has("deposits") && <th scope="col" className={styles.num}>Deposit slots</th>}
-                {has("shape") && <th scope="col">Shape</th>}
-                <th scope="col">Notes</th>
+                <th scope="col">{t("almanac.i.class")}</th>
+                {has("size") && <th scope="col" className={styles.num}>{t("almanac.i.size")}</th>}
+                {has("count") && <th scope="col" className={styles.num}>{t("almanac.i.perArchipelago")}</th>}
+                {has("fertilities") && <th scope="col" className={styles.num}>{t("almanac.i.fertilities")}</th>}
+                {has("deposits") && <th scope="col" className={styles.num}>{t("almanac.i.depositSlots")}</th>}
+                {has("shape") && <th scope="col">{t("almanac.i.shape")}</th>}
+                <th scope="col">{t("almanac.i.notes")}</th>
               </tr>
             </thead>
             <tbody>
@@ -38,8 +40,8 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
                   {has("deposits") && <td className={styles.num}>{range(s.deposits)}</td>}
                   {has("shape") && <td>{s.shape ?? "—"}</td>}
                   <td>
-                    {s.rock ? "Mines and the Trading Post only; no houses or fields" : s.scenic ? "Scenery only (skerries); cannot be settled or sailed to" : ""}
-                    {s.home ? "The home island is one of these" : ""}
+                    {s.rock ? t("almanac.i.rock") : s.scenic ? t("almanac.i.scenic") : ""}
+                    {s.home ? t("almanac.i.home") : ""}
                   </td>
                 </tr>
               ))}
@@ -49,12 +51,12 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
       )}
       {v.fertilities.length > 0 && (
         <>
-          <h3>Fertilities</h3>
-          <p className={styles.lead}>Islands that carry a fertility can grow the crops that need it. Islands per archipelago:</p>
+          <h3>{t("almanac.i.fertilities")}</h3>
+          <p className={styles.lead}>{t("almanac.i.fertilitiesLead")}</p>
           <ul className={styles.tags}>
             {v.fertilities.map((f) => (
               <li key={f.id}>
-                {titleCase(f.id)} {f.count ? `(${range(f.count)})` : ""}
+                {titleCase(fertilityName(f.id))} {f.count ? `(${range(f.count)})` : ""}
               </li>
             ))}
           </ul>
@@ -62,12 +64,12 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
       )}
       {v.deposits.length > 0 && (
         <>
-          <h3>Deposits</h3>
-          <p className={styles.lead}>Mines and quarries need a deposit under them. Slots per archipelago:</p>
+          <h3>{t("almanac.home.deposits")}</h3>
+          <p className={styles.lead}>{t("almanac.i.depositsLead")}</p>
           <ul className={styles.tags}>
             {v.deposits.map((f) => (
               <li key={f.id}>
-                {titleCase(f.id)} {f.count ? `(${range(f.count)})` : ""}
+                {titleCase(depositName(f.id))} {f.count ? `(${range(f.count)})` : ""}
               </li>
             ))}
           </ul>
@@ -75,7 +77,7 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
       )}
       {v.home.length > 0 && (
         <>
-          <h3>The home island</h3>
+          <h3>{t("almanac.i.homeIsland")}</h3>
           <dl className={styles.defs}>
             {v.home.map((h) => (
               <div key={h.label} className={styles.row}>
@@ -86,7 +88,7 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
           </dl>
         </>
       )}
-      {v.basicOnly && <p className={styles.small}>Counts, pools and the home island&apos;s guarantees are not part of the served content.</p>}
+      {v.basicOnly && <p className={styles.small}>{t("almanac.i.basicOnly")}</p>}
     </>
   );
 }

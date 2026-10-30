@@ -11,6 +11,8 @@ import {
   type WorldResponse,
 } from "../api/client";
 import { GameSync, type SyncError, SyncStoppedError } from "../api/sync";
+import { errorText } from "../api/errors";
+import { inSentence, t, tOr } from "../i18n";
 import { founderFor, type PendingFounding, pendingFoundingStep } from "../display/archipelago";
 import { serverTimeMs } from "../display/extrapolate";
 import { units } from "../display/format";
@@ -69,6 +71,8 @@ export interface TestHook {
   /** Viewport position of the centre of an island tile, any island at any LOD (NaN for unknown islands and during a camera animation). */
   tileToScreen(islandId: string, x: number, y: number): { x: number; y: number };
   getServer(): WorldResponse | null;
+  /** The display name of a building type in the current language (shots find a building's panel by it). */
+  buildingName(type: string): string | null;
   /** The level of detail of the last frame. */
   lod(): Lod;
   /**
@@ -227,7 +231,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const toast = useCallback((text: string) => {
     const id = ++toastId.current;
     setToasts((ts) => [...ts, { id, text }]);
-    setTimeout(() => setToasts((ts) => ts.filter((t) => t.id !== id)), TOAST_MS);
+    setTimeout(() => setToasts((ts) => ts.filter((tl) => tl.id !== id)), TOAST_MS);
   }, []);
 
   /** Sends a command; errors are toasts. Resolves to ok, the API error and the response. */
@@ -238,10 +242,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     } catch (err) {
       if (err instanceof SyncStoppedError) return { ok: false, error: null, res: null }; // logged out meanwhile
       if (err instanceof ApiError) {
-        toast(err.message);
+        toast(errorText(err.code, err.message));
         return { ok: false, error: err, res: null };
       }
-      toast(err instanceof NetworkError ? "Server unreachable" : String(err));
+      toast(err instanceof NetworkError ? t("app.unreachable") : String(err));
       return { ok: false, error: null, res: null };
     }
   };
@@ -252,9 +256,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     const err = await send({ type: "demolish", island_id: islandId, building_id: b.id, accept_surplus_loss: acceptSurplusLoss });
     if (err?.code === "surplus_loss") {
       setConfirm({
-        title: "Goods would be lost",
-        body: `${err.message}. Without the Trading Post the island cannot hold its goods; the excess will be lost.`,
-        confirmLabel: "Demolish and lose goods",
+        title: t("app.surplus.title"),
+        body: t("app.surplus.body", { reason: errorText(err.code, err.message) }),
+        confirmLabel: t("app.surplus.confirm"),
         onConfirm: () => void demolish(islandId, b, true),
       });
     } else if (!err && selected === b.id) {
@@ -269,9 +273,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         .map(([g, n]) => `${units(n)} ${content?.goods.find((x) => x.id === g)?.name ?? g}`)
         .join(", ");
       setConfirm({
-        title: `Demolish ${def.name}?`,
-        body: `It cost ${units(def.cost.gold)} gold${materials ? ` and ${materials}` : ""}.`,
-        confirmLabel: "Demolish",
+        title: t("app.demolish.title", { name: def.name }),
+        body: materials
+          ? t("app.demolish.bodyMaterials", { gold: units(def.cost.gold), materials })
+          : t("app.demolish.body", { gold: units(def.cost.gold) }),
+        confirmLabel: t("infoPanel.demolish"),
         onConfirm: () => void demolish(islandId, b, false),
       });
       return;
@@ -320,7 +326,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         : { type: "update_route", route_id: ed.routeId, name: ed.draft.name, stops };
     const r = await sendCommand(cmd);
     if (!r.ok || !r.res) {
-      dispatch({ type: "saveFailed", session: ed.session, error: r.error?.message ?? "The route could not be saved." });
+      dispatch({ type: "saveFailed", session: ed.session, error: r.error ? errorText(r.error.code, r.error.message) : t("app.routeNotSaved") });
       return;
     }
     const id = ed.routeId ?? createdRouteId(before, r.res.display.routes);
@@ -334,56 +340,56 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
    * a pending tile) for the next building; move and found end on success.
    * On an error the tool stays so the player can retry.
    */
-  const placeGhost = (t: GhostTool, at: IslandTile) => {
+  const placeGhost = (tl: GhostTool, at: IslandTile) => {
     const { island: islandId, x, y } = at;
-    if (t.kind === "found") {
-      const ship = model?.ships.find((s) => s.id === t.shipId);
+    if (tl.kind === "found") {
+      const ship = model?.ships.find((s) => s.id === tl.shipId);
       if (ship && !(ship.state === "idle" && ship.island_id === islandId)) {
         // Two steps: sail now (to the site's harbour, D-058), found when the ship is idle at the island.
-        const site = { building_type: t.buildingType, x, y, rotation: t.rotation };
-        void sendCommand({ type: "sail_ship", ship_id: t.shipId, to_island_id: islandId, site }).then(({ ok }) => {
+        const site = { building_type: tl.buildingType, x, y, rotation: tl.rotation };
+        void sendCommand({ type: "sail_ship", ship_id: tl.shipId, to_island_id: islandId, site }).then(({ ok }) => {
           if (!ok) return;
-          setPendingFound({ shipId: t.shipId, islandId, x, y, rotation: t.rotation });
-          setTool((cur) => (cur === t ? NO_TOOL : cur));
-          toast(`${ship.name} sails to ${islandName(islandId)} and founds the Trading Post on arrival`);
+          setPendingFound({ shipId: tl.shipId, islandId, x, y, rotation: tl.rotation });
+          setTool((cur) => (cur === tl ? NO_TOOL : cur));
+          toast(t("app.sailsToFound", { ship: ship.name, island: islandName(islandId) }));
         });
         return;
       }
     }
     const cmd: Command =
-      t.kind === "build"
-        ? { type: "place_building", island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation }
-        : t.kind === "field"
-          ? { type: "place_field", island_id: islandId, farm_id: t.farmId, building_type: t.buildingType, x, y, rotation: t.rotation }
-          : t.kind === "move"
-            ? { type: "move_building", island_id: islandId, building_id: t.buildingId, x, y, rotation: t.rotation }
-            : { type: "found_island", ship_id: t.shipId, island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation };
+      tl.kind === "build"
+        ? { type: "place_building", island_id: islandId, building_type: tl.buildingType, x, y, rotation: tl.rotation }
+        : tl.kind === "field"
+          ? { type: "place_field", island_id: islandId, farm_id: tl.farmId, building_type: tl.buildingType, x, y, rotation: tl.rotation }
+          : tl.kind === "move"
+            ? { type: "move_building", island_id: islandId, building_id: tl.buildingId, x, y, rotation: tl.rotation }
+            : { type: "found_island", ship_id: tl.shipId, island_id: islandId, building_type: tl.buildingType, x, y, rotation: tl.rotation };
     void sendCommand(cmd).then(({ ok, error, res }) => {
       // A rejected field means the hint's data was stale: the world is re-fetched.
       if (!ok) {
-        if (t.kind === "field" && error) void sync.refresh();
+        if (tl.kind === "field" && error) void sync.refresh();
         return;
       }
-      if (t.kind === "field") {
+      if (tl.kind === "field") {
         // The tool stays for the next field until the farm has its maximum.
-        afterFields(t, res);
+        afterFields(tl, res);
         return;
       }
       // Build stays active (without a pending tile) for the next building;
       // move and found end on success. On a move the building stays selected
       // at its new position.
-      if (t.kind === "build") setTool((cur) => (cur === t && cur.kind === "build" && cur.pending ? { ...cur, pending: undefined } : cur));
-      else setTool((cur) => (cur === t ? NO_TOOL : cur));
+      if (tl.kind === "build") setTool((cur) => (cur === tl && cur.kind === "build" && cur.pending ? { ...cur, pending: undefined } : cur));
+      else setTool((cur) => (cur === tl ? NO_TOOL : cur));
     });
   };
 
   /** The field tool ends when its farm has the maximum (after a field or a painted rectangle); else it stays. */
-  const afterFields = (t: Extract<Tool, { kind: "field" }>, res: WorldResponse | null) => {
-    const farm = res?.display.islands.flatMap((is) => is.buildings).find((b) => b.id === t.farmId);
+  const afterFields = (tl: Extract<Tool, { kind: "field" }>, res: WorldResponse | null) => {
+    const farm = res?.display.islands.flatMap((is) => is.buildings).find((b) => b.id === tl.farmId);
     if (!farm || (farm.fields && farm.fields.ids.length >= farm.fields.max)) {
-      setTool((cur) => (cur === t || (cur.kind === "field" && cur.farmId === t.farmId) ? NO_TOOL : cur));
-      if (farm) toast(`${defs.get(farm.type)?.name ?? "The farm"} has all the ${(defs.get(t.buildingType)?.name ?? "field").toLowerCase()}s it can use`);
-    } else setTool((cur) => (cur === t && cur.pending ? { ...cur, pending: undefined } : cur));
+      setTool((cur) => (cur === tl || (cur.kind === "field" && cur.farmId === tl.farmId) ? NO_TOOL : cur));
+      if (farm) toast(t("app.fieldsFull", { farm: defs.get(farm.type)?.name ?? t("app.theFarm"), field: defs.get(tl.buildingType)?.name ?? t("app.theField") }));
+    } else setTool((cur) => (cur === tl && cur.pending ? { ...cur, pending: undefined } : cur));
   };
 
   /**
@@ -393,9 +399,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
    * world is re-fetched, the hint's data was stale).
    */
   const paintFields = async (p: FieldPaint) => {
-    const t = tool;
-    if (t.kind !== "field" || t.remove || t.farmId !== p.farmId) return null;
-    if (p.clipped) toast(`A rectangle takes at most ${MAX_PAINT_TILES} tiles: it was clipped`);
+    const tl = tool;
+    if (tl.kind !== "field" || tl.remove || tl.farmId !== p.farmId) return null;
+    if (p.clipped) toast(t("app.clipped", { count: MAX_PAINT_TILES }));
     const { ok, error, res } = await sendCommand({
       type: "place_fields",
       island_id: p.island,
@@ -408,13 +414,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       if (error) void sync.refresh();
       return null;
     }
-    afterFields(t, res);
+    afterFields(tl, res);
     return res?.tile_results ?? null;
   };
 
   /** A removal rectangle or click: one demolish_fields for the farm (the server answers every tile; nothing to flash). */
   const removeFields = (islandId: string, farmId: number, tiles: TilePos[], clipped: boolean) => {
-    if (clipped) toast(`A rectangle takes at most ${MAX_PAINT_TILES} tiles: it was clipped`);
+    if (clipped) toast(t("app.clipped", { count: MAX_PAINT_TILES }));
     void sendCommand({ type: "demolish_fields", island_id: islandId, farm_id: farmId, tiles }).then(({ ok, error }) => {
       if (!ok && error) void sync.refresh();
     });
@@ -429,11 +435,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     const next = !buildOpen;
     setBuildOpen(next);
     saveBuildOpen(next);
-    if (!next) setTool((t) => (t.kind === "build" || t.kind === "road" || t.kind === "demolish" ? NO_TOOL : t));
+    if (!next) setTool((tl) => (tl.kind === "build" || tl.kind === "road" || tl.kind === "demolish" ? NO_TOOL : tl));
   };
 
   const rotateTool = (steps: number) =>
-    setTool((t) => (isGhostTool(t) ? { ...t, rotation: rotateSteps(t.rotation, steps) } : t));
+    setTool((tl) => (isGhostTool(tl) ? { ...tl, rotation: rotateSteps(tl.rotation, steps) } : tl));
 
   /**
    * Opens a list panel (or closes it when it is open). Opening one deselects
@@ -472,8 +478,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     paintFields,
     removeFields,
     paintStatus: (text: string | null) => setPaintStatus(text),
-    pend: (at: IslandTile) => setTool((t) => (isGhostTool(t) ? { ...t, pending: at } : t)),
-    unpend: () => setTool((t) => (isGhostTool(t) && t.pending ? { ...t, pending: undefined } : t)),
+    pend: (at: IslandTile) => setTool((tl) => (isGhostTool(tl) ? { ...tl, pending: at } : tl)),
+    unpend: () => setTool((tl) => (isGhostTool(tl) && tl.pending ? { ...tl, pending: undefined } : tl)),
     rotateGhost: rotateTool,
     move: (at: IslandTile) => {
       if (tool.kind === "move") placeGhost(tool, at);
@@ -485,12 +491,12 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       const is = model?.islands.find((x) => x.id === islandId);
       if (tool.kind !== "road" || !is) return;
       const existing = new Set(is.roads.map((r) => `${r.x},${r.y}`));
-      const tiles = lPath(from, to).filter((t) => !existing.has(`${t.x},${t.y}`));
+      const tiles = lPath(from, to).filter((tl) => !existing.has(`${tl.x},${tl.y}`));
       if (tiles.length === 0) return;
       // A quay off the shallows would be rejected (display mirror of the rule, D-060).
       const st = renderer?.islandStatics().get(islandId);
       if (isQuayType(defs, tool.roadType) && st && offShallows(st, tiles).length > 0) {
-        toast(`A quay stands on shallow water, at most ${SHALLOWS_REACH} tiles from the island's shore`);
+        toast(t("app.quayShallows", { count: SHALLOWS_REACH }));
         return;
       }
       void send({ type: "place_road", island_id: islandId, road_type: tool.roadType, tiles });
@@ -563,7 +569,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   // Background request failures (GET world, content, island) are toasts too
   // (G.41); GameSync keeps retrying them.
   useEffect(
-    () => sync.subscribeErrors(({ what, error }) => toast(`Could not load ${what}: ${error.message} (retrying)`)),
+    () =>
+      sync.subscribeErrors(({ what, error }) => {
+        // i18n-ignore: "island <id>" is the sync layer's own key, not text
+        const island = what.startsWith("island ") ? what.slice(7) : null;
+        const subject = island !== null ? t("app.what.island", { id: island }) : tOr(`app.what.${what}`, what);
+        toast(t("app.loadFailed", { what: subject, message: error.message }));
+      }),
     [sync, toast],
   );
 
@@ -589,8 +601,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const t = e.target;
-      if (t instanceof HTMLInputElement || t instanceof HTMLSelectElement || t instanceof HTMLTextAreaElement) return;
+      const tl = e.target;
+      if (tl instanceof HTMLInputElement || tl instanceof HTMLSelectElement || tl instanceof HTMLTextAreaElement) return;
       const cur = latest.current;
       if (e.key === "Escape") {
         // A dragged rectangle or road is dropped first; the tool stays.
@@ -602,7 +614,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         else if (cur.sheets && cur.panel !== "none") setPanel("none");
         else dispatch({ type: "escape" });
       } else if (e.key === "Enter") {
-        if (t instanceof HTMLButtonElement || t instanceof HTMLAnchorElement) return;
+        if (tl instanceof HTMLButtonElement || tl instanceof HTMLAnchorElement) return;
         if (cur.selection.kind === "island") rendererRef.current?.jumpToIsland(cur.selection.id);
       } else if (e.key === "q" || e.key === "Q") {
         if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -624,6 +636,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       window.__newShores = {
         tileToScreen: (id, x, y) => rendererRef.current?.tileToScreen(id, x, y) ?? nan,
         getServer: () => sync.getSnapshot().server,
+        buildingName: (type) => sync.getSnapshot().content?.buildings.find((b) => b.id === type)?.name ?? null,
         lod: () => rendererRef.current?.currentLod() ?? "near",
         camera: () => {
           const v = rendererRef.current?.cameraView() ?? { x: NaN, y: NaN, half: NaN, rotation: 0 };
@@ -666,9 +679,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const scrap = (ship: ShipDisplay) =>
     setConfirm({
-      title: `Scrap ${ship.name}?`,
-      body: "Its cargo is unloaded where it lies (above capacity it is lost); half of its materials are refunded, no gold.",
-      confirmLabel: "Scrap",
+      title: t("app.scrap.title", { name: ship.name }),
+      body: t("app.scrap.body"),
+      confirmLabel: t("shipPanel.scrap"),
       onConfirm: () => void send({ type: "scrap_ship", ship_id: ship.id }),
     });
 
@@ -679,9 +692,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
    */
   const requestReroll = () =>
     setConfirm({
-      title: "Another archipelago?",
-      body: "These islands are replaced by a new archipelago of the same size and resources; your sloop and its cargo move to its centre. You cannot come back to this one.",
-      confirmLabel: "Another archipelago",
+      title: t("app.reroll.title"),
+      body: t("app.reroll.body"),
+      confirmLabel: t("founding.reroll"),
       onConfirm: () => {
         setPendingFound(null);
         setTool(NO_TOOL);
@@ -701,9 +714,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const pendingShip = pendingFound ? model?.ships.find((s) => s.id === pendingFound.shipId) : undefined;
   const pendingText =
     pendingFound && pendingShip
-      ? `${pendingShip.name} sails to ${islandName(pendingFound.islandId)} to found the Trading Post${
-          pendingShip.leg ? ` · arrives in ${countdown(Math.max(0, serverTimeMs(pendingShip.leg.arrive_at) - snap.nowMs))}` : ""
-        }`
+      ? t("app.pending", { ship: pendingShip.name, island: islandName(pendingFound.islandId) }) +
+        (pendingShip.leg ? t("app.pendingArrives", { time: countdown(Math.max(0, serverTimeMs(pendingShip.leg.arrive_at) - snap.nowMs)) }) : "")
       : null;
   const awaySummary = model?.away_summary;
   const dismissSummary = (id: number) => {
@@ -721,17 +733,17 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   if (model && content) {
     if (panel === "warnings") {
       rightKey = "warnings";
-      rightTitle = "Warnings";
+      rightTitle = t("dock.warnings");
       rightClose = () => setPanel("none");
       right = <WarningsPanel model={model} content={content} onFocus={focus} onClose={() => setPanel("none")} />;
     } else if (panel === "ships") {
       rightKey = "ships";
-      rightTitle = "Ships";
+      rightTitle = t("dock.ships");
       rightClose = () => setPanel("none");
       right = <ShipsPanel model={model} nowMs={snap.nowMs} onSelect={selectShipFromList} onClose={() => setPanel("none")} />;
     } else if (panel === "quests") {
       rightKey = "quests";
-      rightTitle = "Quests";
+      rightTitle = t("dock.quests");
       rightClose = () => setPanel("none");
       right = (
         <QuestsPanel
@@ -745,7 +757,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       );
     } else if (panel === "routes") {
       rightKey = "routes";
-      rightTitle = "Routes";
+      rightTitle = t("dock.routes");
       rightClose = () => setPanel("none");
       right = (
         <RoutesPanel
@@ -756,7 +768,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       );
     } else if (editor?.active) {
       rightKey = "editor";
-      rightTitle = editor.routeId === null ? "New route" : `Route #${editor.routeId}`;
+      rightTitle = editor.routeId === null ? t("routeEditor.new") : t("routeEditor.numbered", { id: editor.routeId });
       rightClose = () => dispatch({ type: "closeEditor" });
       right = (
         <RouteEditor
@@ -875,12 +887,12 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     <div className={`${hud.panel} ${hud.resumeBar}`}>
       <div className={hud.row}>
         <h2 className={`${hud.title} ${hud.resumeTitle}`} data-testid="route-editor-paused-title">
-          {editor.draft.name.trim() || (editor.routeId === null ? "New route" : `Route #${editor.routeId}`)}
+          {editor.draft.name.trim() || (editor.routeId === null ? t("routeEditor.new") : t("routeEditor.numbered", { id: editor.routeId }))}
         </h2>
         <div className={hud.spacer} />
         <CloseButton onClick={() => dispatch({ type: "closeEditor" })} testId="route-editor-paused-close" />
       </div>
-      <span className={hud.small}>Route editor paused</span>
+      <span className={hud.small}>{t("app.editorPaused")}</span>
       <button
         type="button"
         className={hud.button}
@@ -891,13 +903,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         }}
         data-testid="route-editor-resume"
       >
-        Back to route editor
+        {t("app.backToEditor")}
       </button>
     </div>
   );
   if (resumeBar && !right) {
     rightKey = "editor-paused";
-    rightTitle = "Route editor paused";
+    rightTitle = t("app.editorPaused");
     rightClose = () => dispatch({ type: "closeEditor" });
   }
 
@@ -933,26 +945,27 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     banner: insolvencyBanner(model) !== null,
     hint: hintShown,
   });
-  const fieldPlural = tool.kind === "field" ? `${(defs.get(tool.buildingType)?.name ?? "field").toLowerCase()}s` : "";
+  const fieldName = tool.kind === "field" ? inSentence(defs.get(tool.buildingType)?.name ?? t("app.theField")) : "";
   const toolHint = !tightLandscape && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && (
     <div className={phone ? styles.hintInline : styles.hint} data-testid="tool-hint">
-      {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
-      {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
+      {tool.kind === "build" && t("app.hint.build", { degrees: tool.rotation })}
+      {tool.kind === "move" && t("app.hint.move", { degrees: tool.rotation })}
       {tool.kind === "found" &&
-        `Click to place the Trading Post (its pier on the water) — ${shipName(model?.ships ?? [], tool.shipId)} ${
+        t(
           model?.ships.find((s) => s.id === tool.shipId)?.state === "idle" && model?.ships.find((s) => s.id === tool.shipId)?.island_id === cam.focus
-            ? "founds it at once"
-            : "sails there and founds it on arrival"
-        } (${tool.rotation}°) · R rotate · Esc cancel`}
+            ? "app.hint.foundNow"
+            : "app.hint.foundSail",
+          { ship: shipName(model?.ships ?? [], tool.shipId), degrees: tool.rotation },
+        )}
       {tool.kind === "road" &&
         (isQuayType(defs, tool.roadType)
-          ? `Drag over shallow water (at most ${SHALLOWS_REACH} tiles from the shore) to build a quay · Esc / right click cancel`
-          : "Drag to draw a road · Esc / right click cancel")}
+          ? t("app.hint.quay", { count: SHALLOWS_REACH })
+          : t("app.hint.road"))}
       {tool.kind === "field" &&
         (tool.remove
-          ? `Click or drag over ${fieldPlural} to remove them · Esc / right click leave`
-          : `Click to add a ${fieldPlural.slice(0, -1)}, drag to paint a rectangle next to the farm or its fields (${tool.rotation}°) · R rotate · Esc / right click leave`)}
-      {tool.kind === "demolish" && "Click a building, field or road to demolish, drag over fields to remove them · Esc / right click cancel"}
+          ? t("app.hint.fieldsRemove", { name: fieldName })
+          : t("app.hint.fieldsAdd", { name: fieldName, degrees: tool.rotation }))}
+      {tool.kind === "demolish" && t("app.hint.demolish")}
       {paintStatus && (tool.kind === "field" || tool.kind === "demolish") && (
         <div className={styles.hintCount} data-testid="paint-count">
           {paintStatus}
@@ -967,7 +980,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   );
   const unreachable = snap.unreachable && (
     <div className={phone ? styles.bannerInline : styles.banner} data-testid="unreachable-banner">
-      Server unreachable — retrying…
+      {t("common.unreachable")}
     </div>
   );
 
@@ -1019,10 +1032,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
               seafaring={nothingSettled}
               detail={
                 founderHere
-                  ? `"Found settlement here" lets you place the Trading Post with its pier on the water; ${founderHere.name} ${
-                      founderHere.island_id === focused.id ? "is here" : "sails there first"
-                    }.`
-                  : "Send a ship with the Trading Post's materials to found a settlement."
+                  ? t(founderHere.island_id === focused.id ? "app.found.here" : "app.found.sails", { ship: founderHere.name })
+                  : t("app.found.send")
               }
               pending={pendingText || null}
               onCancelPending={() => setPendingFound(null)}
@@ -1040,7 +1051,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
                 loading={!staticFocused}
                 tool={tool}
                 onSelect={selectBuildItem}
-                onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
+                onDemolishTool={() => setTool((tl) => (tl.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
                 dense={layout.mode === "phone-landscape"}
               />
             )
@@ -1058,7 +1069,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       </div>
       {!phone && toolHint}
       {!phone && unreachable}
-      <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((t) => t.id !== id))} phone={phone} />
+      <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((tl) => tl.id !== id))} phone={phone} />
       {confirm && <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />}
       {awaySummary && content && shouldShowSummary(awaySummary, closedSummaries) && (
         <AwayDialog summary={awaySummary} content={content} islandName={islandName} shipName={(id) => shipName(model?.ships ?? [], id)} onDismiss={() => dismissSummary(awaySummary.id)} />

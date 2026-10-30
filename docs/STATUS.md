@@ -29,7 +29,7 @@ in the sync after a task unless the task says otherwise; nobody adds the
 - **D-059** lumberjack plants tree plots, ship speeds 1.2/1.0/0.85,
   one fixture list + `played`; **D-060** civic services as needs
   (guard/fire/surgery), quay/pier/depot (crane deferred); **D-061**
-  translation en/de (content locale files + client catalogue)
+  translation en/de (content locale files + client catalogue; UI.md §10)
 - **D-058** island shapes: skeleton coasts, ridge mountains, rivers with
   bridges, visual-only terraces (no buildability lost), sea routing
 - **D-057** procedural voxel art (supersedes D-050's kit-bash); warm
@@ -59,8 +59,8 @@ in the sync after a task unless the task says otherwise; nobody adds the
      (#45); ~~D-059/D-060 content + sim~~ (#49), ~~D-060 models~~
      (#47) and ~~render polish part 1~~ (#48: massif noise, moorings
      incl. flank berths, one smoke draw, jitter on scaled decor, wake
-     from the anchor, 90 k far mask cap) merged; **next:** D-061
-     translation pass, then **V6** polish round with the tier 2–4
+     from the anchor, 90 k far mask cap) merged; **next:** ~~D-061
+     translation pass~~ (PR open), then **V6** polish round with the tier 2–4
      playtest (second chains, market levels, services ladder, unlock
      toasts, quest chains, long house cards, brig/galleon at the piers)
      plus the open items: idle ship `position` from the server
@@ -93,7 +93,8 @@ in the sync after a task unless the task says otherwise; nobody adds the
   `server/testdata/content/old_coast_pre_d054` (hand-made scenarios,
   mechanics tests, two client tests) — see the PR #27 notes.
 - Local dev databases older than schema 7 must be recreated (`make down
-  VOLUMES=1 && make up`); 7→8 migrates (ship names).
+  VOLUMES=1 && make up`); 7→8 migrates (ship names). D-061 added
+  `players.language` to `0001_init.sql` (no migration): recreate the same way.
 - **First frame** ≈ 200 ms cold / 115 ms warm on desktop (PR #30 notes):
   the world and content requests start only after the engine is set up
   (~117 ms); fetching them in parallel saves ≈ 35–40 ms — client

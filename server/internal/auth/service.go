@@ -97,13 +97,14 @@ type Session struct {
 type Player struct {
 	ID            string
 	DisplayName   string
+	Language      *string
 	Guest         bool
 	Email         *string
 	EmailVerified bool
 }
 
 func playerView(p *postgres.Player) Player {
-	return Player{ID: p.ID, DisplayName: p.DisplayName, Guest: p.Guest(), Email: p.Email, EmailVerified: p.EmailVerifiedAt != nil}
+	return Player{ID: p.ID, DisplayName: p.DisplayName, Language: p.Language, Guest: p.Guest(), Email: p.Email, EmailVerified: p.EmailVerifiedAt != nil}
 }
 
 // Issued is the result of an operation that may start a session.
@@ -425,6 +426,19 @@ func (s *Service) Logout(ctx context.Context, cur *Session) error {
 // Me returns the session's player.
 func (s *Service) Me(ctx context.Context, cur *Session) (Player, error) {
 	p, err := postgres.PlayerByID(ctx, s.cfg.Store.Pool(), cur.PlayerID)
+	if errors.Is(err, postgres.ErrNotFound) {
+		return Player{}, ErrUnauthorized
+	}
+	if err != nil {
+		return Player{}, err
+	}
+	return playerView(p), nil
+}
+
+// SetLanguage stores the session player's interface language (D-061); the
+// caller has validated it against the served languages.
+func (s *Service) SetLanguage(ctx context.Context, cur *Session, language string) (Player, error) {
+	p, err := postgres.SetPlayerLanguage(ctx, s.cfg.Store.Pool(), cur.PlayerID, language)
 	if errors.Is(err, postgres.ErrNotFound) {
 		return Player{}, ErrUnauthorized
 	}

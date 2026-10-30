@@ -1,3 +1,4 @@
+import { t, tOr } from "../i18n";
 import styles from "./almanac.module.css";
 import { num, titleCase, type Index } from "./model";
 import { A, GoodLink } from "./parts";
@@ -11,12 +12,12 @@ export function Quests({ idx, id }: { idx: Index; id?: string }) {
   const chains = [...new Set(quests.map((q) => q.chain))];
   return (
     <>
-      <h2>Quests</h2>
-      <p className={styles.lead}>Quests are optional and pay gold or goods. A quest opens when the quests before it are done.</p>
-      {quests.length === 0 && <p className={styles.small}>No quests in the content.</p>}
+      <h2>{t("almanac.section.quests")}</h2>
+      <p className={styles.lead}>{t("almanac.quests.lead")}</p>
+      {quests.length === 0 && <p className={styles.small}>{t("almanac.quests.none")}</p>}
       {chains.map((c) => (
         <section key={c} aria-labelledby={`qc-${c}`}>
-          <h3 id={`qc-${c}`}>{idx.tier(c)?.name ?? titleCase(c)}</h3>
+          <h3 id={`qc-${c}`}>{idx.tier(c)?.name ?? tOr(`almanac.questChain.${c}`, titleCase(c))}</h3>
           <div className={styles.cards}>
             {quests
               .filter((q) => q.chain === c)
@@ -26,13 +27,13 @@ export function Quests({ idx, id }: { idx: Index; id?: string }) {
                     {i + 1}. {q.title}
                   </h4>
                   <p style={{ margin: "0 0 6px" }}>{q.text}</p>
-                  <ul className={styles.list} aria-label="Conditions">
-                    {q.conditions.map((t) => (
-                      <li key={t}>{t}</li>
+                  <ul className={styles.list} aria-label={t("almanac.quests.conditions")}>
+                    {q.conditions.map((c2) => (
+                      <li key={c2}>{c2}</li>
                     ))}
                   </ul>
                   <p style={{ margin: "6px 0 0" }}>
-                    <strong>Reward:</strong> {q.gold > 0 ? `${num(q.gold)} gold` : ""}
+                    <strong>{t("almanac.quests.reward")}</strong> {q.gold > 0 ? t("almanac.goldAmount", { amount: num(q.gold) }) : ""}
                     {q.gold > 0 && q.goods.length > 0 ? ", " : ""}
                     {q.goods.map((g, k) => (
                       <span key={g.good}>
@@ -40,11 +41,11 @@ export function Quests({ idx, id }: { idx: Index; id?: string }) {
                         {num(g.amount)} × <GoodLink idx={idx} id={g.good} />
                       </span>
                     ))}
-                    {q.gold === 0 && q.goods.length === 0 ? "none" : ""}
+                    {q.gold === 0 && q.goods.length === 0 ? t("almanac.none") : ""}
                   </p>
                   {q.prerequisites.length > 0 && (
                     <p className={styles.small} style={{ margin: "4px 0 0" }}>
-                      After:{" "}
+                      {t("almanac.quests.after")}{" "}
                       {q.prerequisites.map((p, k) => (
                         <span key={p.id}>
                           {k > 0 && ", "}
@@ -57,7 +58,7 @@ export function Quests({ idx, id }: { idx: Index; id?: string }) {
                   )}
                   {q.unlocks.length > 0 && (
                     <p className={styles.small} style={{ margin: "2px 0 0" }}>
-                      Opens:{" "}
+                      {t("almanac.quests.opens")}{" "}
                       {q.unlocks.map((p, k) => (
                         <span key={p.id}>
                           {k > 0 && ", "}

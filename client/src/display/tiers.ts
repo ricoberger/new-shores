@@ -3,6 +3,7 @@
 // conditions the server reports in DisplayState.tiers; nothing here
 // evaluates an unlock rule.
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
+import { t, tOr } from "../i18n";
 import { units } from "./format";
 
 /** Total residents per tier over all islands (milli-residents). */
@@ -30,7 +31,7 @@ export function lockReason(model: DisplayState | null, content: Content, tierId:
   const tier = model?.tiers.find((t) => t.id === tierId);
   if (tier?.unlocked) return null;
   const tierName = (id: string) => content.tiers.find((t) => t.id === id)?.name ?? id;
-  const head = `Needs ${tierName(tierId)}`;
+  const head = t("tier.needs", { tier: tierName(tierId) });
   if (!tier) return head;
   const parts: string[] = [];
   for (const [id, p] of Object.entries(tier.population)) {
@@ -39,7 +40,7 @@ export function lockReason(model: DisplayState | null, content: Content, tierId:
   for (const [id, built] of Object.entries(tier.buildings)) {
     if (!built) parts.push(content.buildings.find((b) => b.id === id)?.name ?? id);
   }
-  return parts.length > 0 ? `${head} — ${parts.join(", ")}` : head;
+  return parts.length > 0 ? t("tier.needsWith", { head, parts: parts.join(", ") }) : head;
 }
 
 /**
@@ -65,21 +66,30 @@ export function fertilityNeed(b: ContentBuilding, fertilities: readonly string[]
   return { fertility: f, present: (fertilities ?? []).includes(f) };
 }
 
+/** The display name of a fertility ("wheat" → "wheat"; "Weizen" in German), the ID when the catalogue lacks it. */
+export function fertilityName(id: string): string {
+  return tOr(`fertility.${id}`, id);
+}
+
+/** The display name of a deposit kind, the ID when the catalogue lacks it. */
+export function depositName(id: string): string {
+  return tOr(`deposit.${id}`, id);
+}
+
 /** "Needs wheat fertility — this island has hemp" (or "has none"). */
 export function missingFertilityText(fertility: string, fertilities: readonly string[] | undefined): string {
-  const have = fertilities && fertilities.length > 0 ? fertilities.join(", ") : "none";
-  return `Needs ${fertility} fertility — this island has ${have}`;
+  const have = fertilities && fertilities.length > 0 ? fertilities.map(fertilityName).join(", ") : t("tier.noFertility");
+  return t("tier.missingFertility", { fertility: fertilityName(fertility), have });
+}
+
+/** Ghost hint text of a water-edge site that does not fit (D-051): its front rows on land, or its back rows on water. */
+export function waterEdgeText(problem: "front" | "land", waterTiles: number): string {
+  return problem === "front" ? t("tier.waterEdge.front", { count: waterTiles }) : t("tier.waterEdge.land");
 }
 
 /** "Must cover a stone deposit" / "Must cover an iron deposit" (the article follows the deposit's name). */
-/** Ghost hint text of a water-edge site that does not fit (D-051): its front rows on land, or its back rows on water. */
-export function waterEdgeText(problem: "front" | "land", waterTiles: number): string {
-  const rows = waterTiles === 1 ? "front row" : `${waterTiles} front rows`;
-  return problem === "front" ? `Its ${rows} must stand on the water — rotate it (R) to face the sea` : "Only its front rows may stand on the water";
-}
-
 export function depositText(kind: string): string {
-  return `Must cover ${/^[aeiou]/i.test(kind) ? "an" : "a"} ${kind} deposit`;
+  return tOr(`deposit.cover.${kind}`, t("deposit.cover", { kind: depositName(kind) }));
 }
 
 /**
@@ -104,5 +114,5 @@ export function unlockToasts(prev: DisplayState | null, next: DisplayState | nul
 
 /** "Citizens unlocked — 15 new buildings" (just the name when no building is new). */
 export function unlockText(name: string, buildings: number): string {
-  return buildings > 0 ? `${name} unlocked — ${buildings} new building${buildings === 1 ? "" : "s"}` : `${name} unlocked`;
+  return buildings > 0 ? t("tier.unlockedWith", { name, count: buildings }) : t("tier.unlocked", { name });
 }

@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from "react";
 import { authErrorText, confirmPasswordReset, requestPasswordReset } from "../api/auth";
+import { t } from "../i18n";
 import styles from "./account.module.css";
 
 interface Props {
@@ -18,7 +19,7 @@ export function ForgotPasswordForm({ onDone, onCancel }: Props) {
     setError(null);
     try {
       await requestPasswordReset(email);
-      onDone("If the address is registered, a reset link is on its way.");
+      onDone(t("auth.resetSent"));
     } catch (err) {
       setError(authErrorText(err));
     } finally {
@@ -28,15 +29,15 @@ export function ForgotPasswordForm({ onDone, onCancel }: Props) {
   return (
     <form className={styles.stack} onSubmit={(e) => void submit(e)}>
       <label className={styles.field}>
-        Email
+        {t("auth.email")}
         <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       {error && <p className={styles.error}>{error}</p>}
       <button type="submit" className={styles.primary} disabled={busy}>
-        Send reset link
+        {t("auth.sendReset")}
       </button>
       <button type="button" className={styles.secondary} onClick={onCancel} disabled={busy}>
-        Back
+        {t("common.back")}
       </button>
     </form>
   );
@@ -53,7 +54,7 @@ export function ResetPasswordForm({ token, onDone, onCancel }: Props & { token: 
     setError(null);
     try {
       await confirmPasswordReset(token, password);
-      onDone("Your password was changed. Please log in.");
+      onDone(t("auth.resetDone"));
     } catch (err) {
       setError(authErrorText(err));
     } finally {
@@ -63,15 +64,15 @@ export function ResetPasswordForm({ token, onDone, onCancel }: Props & { token: 
   return (
     <form className={styles.stack} onSubmit={(e) => void submit(e)}>
       <label className={styles.field}>
-        New password (8–128 bytes)
+        {t("auth.newPassword")}
         <input type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
       </label>
       {error && <p className={styles.error}>{error}</p>}
       <button type="submit" className={styles.primary} disabled={busy}>
-        Set password
+        {t("auth.setPassword")}
       </button>
       <button type="button" className={styles.secondary} onClick={onCancel} disabled={busy}>
-        Back
+        {t("common.back")}
       </button>
     </form>
   );

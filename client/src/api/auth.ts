@@ -4,8 +4,8 @@
 // the same guest.
 import {
   ApiError,
-  type ErrorCode,
   getMe,
+  patchMe,
   type Player,
   postGuest,
   postLogin,
@@ -15,6 +15,8 @@ import {
   postRegister,
   postVerifyEmail,
 } from "./client";
+import { errorText } from "./errors";
+import { chosenThisVisit, currentLanguage, hasStoredChoice, isLanguage, languageOverridden, setLanguage, t } from "../i18n";
 
 export const DEVICE_TOKEN_KEY = "newShores.deviceToken";
 
@@ -29,10 +31,37 @@ function defaultStore(): KeyValueStore {
   return globalThis.localStorage;
 }
 
+/** Saves the language on the account; a failure is ignored (the browser keeps the choice). */
+export async function saveAccountLanguage(language: string = currentLanguage()): Promise<Player | null> {
+  try {
+    return (await patchMe(language)).player;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Brings the interface language and the account's together (D-061), once a
+ * session exists. `interactive` is a login, registration or guest start on
+ * this page: a language picked here (the start screen's switch) goes to the
+ * account; otherwise, and when restoring a session, the account's language
+ * applies here. An account without one takes the browser's stored choice.
+ * `?lang=` leaves everything alone.
+ */
+export async function syncAccountLanguage(player: Player, interactive: boolean): Promise<Player> {
+  if (languageOverridden()) return player;
+  const account = isLanguage(player.language) ? player.language : null;
+  const here = currentLanguage();
+  if (account === here) return player;
+  if (interactive ? chosenThisVisit() : account === null && hasStoredChoice()) return (await saveAccountLanguage(here)) ?? player;
+  if (account) setLanguage(account, true, false);
+  return player;
+}
+
 /** The player of the current session, or null without one (401). */
 export async function currentPlayer(): Promise<Player | null> {
   try {
-    return (await getMe()).player;
+    return await syncAccountLanguage((await getMe()).player, false);
   } catch (err) {
     if (err instanceof ApiError && err.status === 401) return null;
     throw err;
@@ -47,7 +76,7 @@ export async function playAsGuest(store: KeyValueStore = defaultStore()): Promis
   const token = store.getItem(DEVICE_TOKEN_KEY);
   if (token) {
     try {
-      return (await postGuest({ device_token: token })).player;
+      return await syncAccountLanguage((await postGuest({ device_token: token })).player, true);
     } catch (err) {
       if (!(err instanceof ApiError && err.status === 401)) throw err;
       store.removeItem(DEVICE_TOKEN_KEY);
@@ -55,7 +84,7 @@ export async function playAsGuest(store: KeyValueStore = defaultStore()): Promis
   }
   const res = await postGuest({});
   if (res.device_token) store.setItem(DEVICE_TOKEN_KEY, res.device_token);
-  return res.player;
+  return syncAccountLanguage(res.player, true);
 }
 
 /**
@@ -71,11 +100,11 @@ export async function register(
   const name = displayName.trim();
   const res = await postRegister(name ? { email, password, display_name: name } : { email, password });
   store.removeItem(DEVICE_TOKEN_KEY);
-  return res.player;
+  return syncAccountLanguage(res.player, true);
 }
 
 export async function login(email: string, password: string): Promise<Player> {
-  return (await postLogin({ email, password })).player;
+  return syncAccountLanguage((await postLogin({ email, password })).player, true);
 }
 
 export async function logout(): Promise<void> {
@@ -103,27 +132,12 @@ export function parseMailLink(search: string): MailLink {
   return null;
 }
 
-const MESSAGES: Partial<Record<ErrorCode, string>> = {
-  invalid_credentials: "Wrong email or password.",
-  email_taken: "This email address is already registered.",
-  already_registered: "This account is already registered.",
-  weak_password: "The password must be 8 to 128 bytes long (UTF-8; non-ASCII characters count as several bytes).",
-  rate_limited: "Too many attempts. Please wait a moment and try again.",
-  csrf_rejected: "The request was blocked (unexpected origin). Reload the page.",
-  unauthorized: "Your session has ended. Please log in again.",
-  service_unavailable: "The server is unavailable. Please try again shortly.",
-  bad_request: "Please check your input.",
-  invalid_token: "This link is invalid or has expired.",
-  not_found: "Accounts are not available on this server.",
-};
-
-/** User-facing text of an account error. */
+/** User-facing text of an account error (`error.<code>` in the catalogue). */
 export function authErrorText(err: unknown): string {
   if (err instanceof ApiError) {
-    const text = MESSAGES[err.code];
-    if (err.code === "bad_request" && /email/i.test(err.message)) return "Please enter a valid email address.";
-    if (err.code === "bad_request" && /display name/i.test(err.message)) return "The display name must be 1 to 32 characters.";
-    return text ?? err.message;
+    if (err.code === "bad_request" && /email/i.test(err.message)) return t("error.bad_request.email");
+    if (err.code === "bad_request" && /display name/i.test(err.message)) return t("error.bad_request.displayName");
+    return errorText(err.code, err.message);
   }
-  return "The server could not be reached.";
+  return t("error.unreachable");
 }

@@ -3,6 +3,7 @@
 // slot rules are the server's; the slot count here is only a display
 // bound for the shipment dialog (the server validates).
 import type { BuildingDisplay, CargoDisplay, LegDisplay, ShipDisplay, ShipOrderDisplay } from "../api/client";
+import { t } from "../i18n";
 import { serverTimeMs } from "./extrapolate";
 import { rotatedFootprint, waterRows } from "./geometry";
 
@@ -11,7 +12,7 @@ import { rotatedFootprint, waterRows } from "./geometry";
  * the model no longer has (scrapped since a summary or a toast).
  */
 export function shipName(ships: readonly Pick<ShipDisplay, "id" | "name">[], id: number): string {
-  return ships.find((s) => s.id === id)?.name || `Ship #${id}`;
+  return ships.find((s) => s.id === id)?.name || t("routeEditor.shipNumbered", { id });
 }
 
 export type LegPhase = "handling" | "travelling" | "arrived";

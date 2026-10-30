@@ -5,6 +5,7 @@
 // and per tier the workforce ("employed / total") and an island
 // satisfaction aggregate with the worst unmet need.
 import type { BuildingDisplay, Content, ContentBuilding, ContentSizeClass, Island, IslandDisplay, NeedDisplay } from "../api/client";
+import { t } from "../i18n";
 import { depositCounts } from "./archipelago";
 import type { NeedRef } from "./needs";
 import { blockedTiles } from "./scatter";
@@ -123,18 +124,13 @@ export function tierRows(island: IslandDisplay, content: Pick<Content, "tiers">,
   });
 }
 
-const REASONS: Record<NeedDisplay["reason"], string> = {
-  ok: "met",
-  short_supply: "short supply",
-  no_supply: "no supply on the island",
-  out_of_range: "out of range",
-  not_connected: "not connected",
-  paused: "paused",
-};
+/** The words of a need's reason code ("short_supply" → "short supply"). */
+export function reasonText(reason: NeedDisplay["reason"]): string {
+  return t(`reason.${reason}`);
+}
 
 /** "Worst unmet need: Food 40 % (short supply)" or "All needs met" (the satisfaction tooltip); label names the need (display/needs needLabel). */
 export function worstNeedText(w: WorstNeed | null, label: (n: NeedRef) => string): string {
-  if (!w) return "All needs met";
-  const name = label(w);
-  return `Worst unmet need: ${name} ${Math.round(w.fulfilmentPermille / 10)} % (${REASONS[w.reason]})`;
+  if (!w) return t("hud.allNeedsMet");
+  return t("hud.worstNeed", { name: label(w), percent: Math.round(w.fulfilmentPermille / 10), reason: reasonText(w.reason) });
 }
