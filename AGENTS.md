@@ -35,6 +35,11 @@ the referenced documents before changing anything.
 - **Content is data.** New buildings/goods/needs/tiers go into `content/`,
   validated by schema; code changes only for new mechanics. Never reuse a
   content ID.
+- **Translation (D-061):** player-facing text in `client/src/ui` and
+  `client/src/almanac` comes from the catalogue (`t("key")`, English in
+  `i18n/en.ts`, German in `i18n/de.ts`); content text goes into the locale
+  files `content/<region>/i18n/<lang>.json` in the same change. The server
+  sends codes, IDs and numbers, never prose. The lint rule enforces it.
 - **Pacing rules (D-006 – D-009):** no construction timers, warehouse
   capacity caps production, gold never negative (auto-pause order in
   MECHANICS §7), offline stall-don't-ruin.

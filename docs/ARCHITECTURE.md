@@ -288,8 +288,11 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   payload); `GET /world/islands/{id}/tiles?v=<seed>-<roll>` → the full
   rows, `ETag` = sha256(seed, roll, island id), `Cache-Control: private,
   max-age=31536000, immutable`, 304 on `If-None-Match`, `no-store` when
-  `v` names another roll; `GET /content` → catalogue in the same fixed-point units
-  as the display payload; `GET /healthz`.
+  `v` names another roll; `GET /content[?lang=<code>]` → catalogue in the same fixed-point units
+  as the display payload, with its text fields in the requested language
+  (D-061: `lang` or `Accept-Language`, an unknown `lang` is 400; the
+  payload names `language`, `languages`, `island_names` and carries
+  `Content-Language`); `GET /healthz`.
 - Errors: `{error: {code, message}}`; `code` is a stable snake_case
   enumeration listed in the OpenAPI file (one per sim sentinel error plus
   `bad_request`, `not_found`, `method_not_allowed`, `internal`); malformed
@@ -298,7 +301,7 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `shipyard_busy`, `ship_not_idle`, `route_in_use`, `island_not_settled`,
   `cargo_insufficient`, `last_warehouse`), internal-only sim errors 500.
 - Implemented (M2): `POST /auth/guest`, `/auth/register`, `/auth/login`,
-  `/auth/logout`, `GET /auth/me`, `POST /auth/verify-email`,
+  `/auth/logout`, `GET /auth/me`, `PATCH /auth/me {language}` (D-061), `POST /auth/verify-email`,
   `/auth/password-reset/request`, `/auth/password-reset/confirm`;
   `GET /ws` (101). `/healthz` reports `version`, `instance`, `postgres`,
   `redis`. Security schemes `cookieAuth` (`ns_session`) and `bearerAuth`.
@@ -356,6 +359,11 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   password-reset requests always return 204 and send in the background.
 - Ownership: every `/world` and `/ws` request resolves the player from the
   session; another player's world is simply not addressable (404).
+- **Language (D-061):** `players.language` (nullable text, a served content
+  language) is set by `PATCH /auth/me {language}` (400 for an unknown one)
+  and returned as `player.language` once chosen, so every device of the
+  account starts in it. It is a column of `0001_init.sql`, not a migration:
+  recreate a development database with `make down VOLUMES=1 && make up`.
 - Optional later: Sign in with Apple / Google (required by App Store if any
   third-party login exists).
 
@@ -379,6 +387,11 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   listeners); a pure, clock-free gesture recogniser (`render/gestures.ts`)
   emits tap, long-press, drag, pinch, rotate, hover and wheel; the DOM
   adapter feeds it; the UI layer stops propagation.
+- **Language (D-061):** `client/src/i18n/` is the message catalogue (own
+  helper, no library: placeholders, `one`/`other` plurals via
+  Intl.PluralRules, rich text). Content text arrives in the requested
+  language from the server's locale files; everything else is a client
+  key, enforced by the `i18n/no-hardcoded-strings` ESLint rule (UI.md §10).
 - **Layout:** a pure `layoutMode(width, height, coarsePointer)` picks
   desktop / tablet / phone-portrait / phone-landscape (UI.md §6).
 - **PWA:** web manifest and placeholder icons; a hand-written service

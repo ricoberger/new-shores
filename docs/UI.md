@@ -507,3 +507,53 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   `server/testdata/content` fixtures (every building, good, need, ship and
   quest exactly once, every reference resolves, every quest condition
   formats) and a rendering smoke test of every page.
+
+## 10. Language (D-061)
+
+English is the source language and the key; German is the first
+translation. Two sources, one switch:
+
+- **Content text** (names of tiers, goods, buildings, needs, ships, size
+  classes, the region; quest titles and texts; island names) comes from
+  `GET /api/v1/content?lang=<code>` (CONTENT §11, "Locale files"); the
+  client asks in its current language and fetches again when it changes
+  (`GameSync.loadContent`, the almanac's `useEffect`). Island names and
+  ships' default names ("Sloop 2") are stored in English in the world;
+  `display/names.ts` shows them in the language through the served
+  `island_names[{source, name}]` and `ships[].source_name`. A name the
+  player chose is shown as typed.
+- **Client text** is the catalogue `client/src/i18n/`: `en.ts` holds every
+  key (`as const`, so keys are typed), `de.ts` is typed to have every key
+  (a missing German text is a compile error), `index.ts` has `t(key,
+  params)`, `tOr` (server codes: `error.<code>`, `reason.<code>`, `quest.<kind>`,
+  `ship.state.<state>`; the fallback is the server's message), `tRich`
+  (elements inside a text, `{link}`) and `inSentence` (see below). Texts
+  take `{name}` placeholders and `{count, one{…} other{…}}` plurals
+  (Intl.PluralRules; only the forms English and German share). German
+  capitalises nouns, English lowercases a content name mid-sentence: a
+  text that puts a name in a sentence takes `{name}` (lowercased in
+  English through `inSentence`) and, if German needs it capitalised,
+  `{Name}`; the caller passes both. Numbers, durations and dates use the
+  language's locale (`currentLocale()`, `display/format.ts`).
+- **Choosing the language:** `?lang=` (dev and testing) → the browser's
+  stored choice (the switch) → the account's → `navigator.languages` →
+  English. The switch (`ui/LanguageSwitch.tsx`, one button per language,
+  named in its own language) is in the account menu, on the start screen
+  below the card and in the almanac footer; on the phone the account menu
+  is the same dropdown. A change applies at once (`<html lang>`, every
+  screen re-renders through `useLanguage`) and is stored in the browser;
+  in the account menu it is also saved with `PATCH /auth/me {language}`
+  (ARCHITECTURE §4.4). After a login the account's language applies here
+  unless the player picked one on this page, which then goes to the
+  account (`api/auth.ts syncAccountLanguage`). Tests run in English
+  (`i18n/test-setup.ts`).
+- **Adding text:** add the key to `en.ts` and `de.ts` in the same change
+  (the German one is required to compile) and use `t()`. The ESLint rule
+  `i18n/no-hardcoded-strings` fails on JSX text, prose string literals
+  and text attributes (`title`, `alt`, `placeholder`, `aria-*`) in
+  `src/ui` and `src/almanac`; a justified exception is marked
+  `// i18n-ignore: <why>` (today: the game's title, Roman numerals, dev
+  fixture data and the sync layer's `"island <id>"` key). German texts
+  are longer: layouts must not rely on English widths (flex-wrap,
+  `min-width: 0`, no fixed-width buttons); check with
+  `make shots QUERY=lang=de`.
