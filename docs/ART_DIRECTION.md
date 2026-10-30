@@ -185,7 +185,11 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   level under their footprint, lower columns filled with dressed-stone
   plinths; a road tile next to a road one level lower ramps across the
   upper tile (never on a river); carts, walkers, animals, the ghost, the
-  grid and picking follow the ground height. Boats stay on the sea.
+  grid and picking follow the ground height. Boats stay on the sea. The
+  placement ghost of a building across a terrace edge gets a translucent
+  stepped plinth in the same validity tint: each footprint tile below the
+  base is filled up to it from its own level, with walls toward the outside
+  (the tile levels are the renderer's, `IslandGround.tile`).
 - **Skerries** (D-058) are tiny islands of rock with a grass or sand
   top: drawn like islands (minimap and far view included), never
   labelled, focused or picked. Their shallows, like every island's

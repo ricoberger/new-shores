@@ -9,7 +9,8 @@
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
-import type { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding } from "../api/client";
 import type { ArchPoint } from "../display/ships";
@@ -17,6 +18,8 @@ import { type Rotation, rotatedFootprint } from "../display/geometry";
 import { ghostOffset, previewOffset, skyFill } from "./lighting";
 import { GHOST, WATER_ROWS } from "./palette";
 import { modelFileFor, modelMesh, type ModelRegistry, placement, worldData } from "./models";
+import { LEVEL_HEIGHT, LEVEL_STEPS } from "./terraces";
+import { BUILDINGS } from "../theme/palette";
 
 /** Opacity of the box ghost and of the model ghost. */
 const BOX_ALPHA = 0.45;
@@ -47,6 +50,8 @@ export interface GhostSpec {
   def: ContentBuilding;
   /** The ground under the footprint (tiles; the highest terrace level, D-058). */
   base?: number;
+  /** The ground height (tiles) of an island tile, the terrace renderer's tile level: lower tiles of the footprint get plinth walls up to `base`. */
+  ground?: (x: number, y: number) => number;
   /** Archipelago position of the island's tile (0, 0). */
   island: ArchPoint;
   x: number;
@@ -55,6 +60,69 @@ export interface GhostSpec {
   /** The moved building (its variant or level); undefined: a new one (a fixed variant, level 1). */
   buildingId?: number;
   level?: number;
+}
+
+/** The plinth's stone, shaded by course like the built plinths (terraces.ts). */
+const PLINTH_STONE = Color3.FromHexString(BUILDINGS.stone);
+
+/** The plinth walls of a ghost footprint over lower terrace tiles (island tiles; y = tiles above the sea, GHOST_LIFT included). */
+export interface PlinthMesh {
+  positions: number[];
+  normals: number[];
+  colors: number[];
+  indices: number[];
+}
+
+/**
+ * The stepped plinth under a ghost: every footprint tile below the
+ * footprint's base (the highest tile level, where the model stands) is
+ * filled up to it, as the built plinths are (D-058). Each tile's column
+ * starts at that tile's own level; walls stand only on the sides toward
+ * tiles outside the footprint, from the higher of the two grounds to the
+ * base, in courses of one terrace step with every other course darker.
+ * A footprint on one level has none. Coordinates: x, z = island tile
+ * units with z = −y (the mesh sits at the island's position).
+ */
+export function ghostPlinth(foot: { x: number; y: number; w: number; h: number }, base: number, ground: (x: number, y: number) => number): PlinthMesh | null {
+  const out: PlinthMesh = { positions: [], normals: [], colors: [], indices: [] };
+  const step = LEVEL_HEIGHT / LEVEL_STEPS;
+  const inside = (x: number, y: number) => x >= foot.x && y >= foot.y && x < foot.x + foot.w && y < foot.y + foot.h;
+  // Wall sides: [dx, dy] of the neighbour and the quad's corners (x, z offsets inside the tile, counter-clockwise seen from outside).
+  const sides = [
+    { d: [1, 0], n: [1, 0], c: [[1, 0], [1, -1]] },
+    { d: [-1, 0], n: [-1, 0], c: [[0, -1], [0, 0]] },
+    { d: [0, 1], n: [0, -1], c: [[1, -1], [0, -1]] },
+    { d: [0, -1], n: [0, 1], c: [[0, 0], [1, 0]] },
+  ] as const;
+  for (let ty = foot.y; ty < foot.y + foot.h; ty++) {
+    for (let tx = foot.x; tx < foot.x + foot.w; tx++) {
+      const own = ground(tx, ty);
+      if (own >= base - 1e-6) continue;
+      for (const side of sides) {
+        const nx = tx + side.d[0];
+        const ny = ty + side.d[1];
+        if (inside(nx, ny)) continue;
+        const from = Math.max(own, ground(nx, ny));
+        if (from >= base - 1e-6) continue;
+        const courses = Math.max(1, Math.round((base - from) / step));
+        for (let k = 0; k < courses; k++) {
+          const y0 = base - k * step + GHOST_LIFT;
+          const y1 = k === courses - 1 ? from : base - (k + 1) * step + GHOST_LIFT;
+          const shade = (courses - 1 - k) % 2 === 0 ? 0.86 : 1;
+          const at = out.positions.length / 3;
+          const [a, b] = side.c;
+          for (const [cx, cz, y] of [[a[0], a[1], y1], [b[0], b[1], y1], [b[0], b[1], y0], [a[0], a[1], y0]] as const) {
+            out.positions.push(tx + cx, y, -ty + cz);
+            out.normals.push(side.n[0], 0, side.n[1]);
+            out.colors.push(PLINTH_STONE.r * shade, PLINTH_STONE.g * shade, PLINTH_STONE.b * shade, 1);
+          }
+          // Both windings: the material culls back faces, so only the outward one draws, whatever the winding convention.
+          out.indices.push(at, at + 1, at + 2, at, at + 2, at + 3, at, at + 2, at + 1, at, at + 3, at + 2);
+        }
+      }
+    }
+  }
+  return out.indices.length > 0 ? out : null;
 }
 
 /** Diffuse multiplier and emissive lift of a validity colour on a model ghost (GHOST is the neutral one). */
@@ -72,6 +140,9 @@ export class PlacementGhost {
   private shown: Mesh | null = null;
   private color: Color3 | null = null;
   private readonly water: Mesh;
+  /** The plinth under the shown model ghost (terrace edges) and the key of what it was built for. */
+  private plinth: Mesh | null = null;
+  private plinthKey = "";
   private waterShown: { x: number; y: number; w: number; h: number } | null = null;
 
   constructor(
@@ -117,7 +188,9 @@ export class PlacementGhost {
       mesh.position.set(spec.island.x + p.cx, (spec.base ?? 0) + GHOST_LIFT, -spec.island.y + p.cz);
       mesh.rotation.y = p.yaw;
       mesh.scaling.set(p.sx, 1, p.sz);
+      this.showPlinth(spec, entry.kind);
     } else {
+      this.plinth?.setEnabled(false);
       const [w, h] = rotatedFootprint(spec.def.width, spec.def.height, spec.rotation);
       this.box.scaling.set(w, 0.6, h);
       this.box.position.set(spec.island.x + spec.x + w / 2, (spec.base ?? 0) + 0.3 + GHOST_LIFT, -(spec.island.y + spec.y + h / 2));
@@ -132,7 +205,45 @@ export class PlacementGhost {
     this.water.setEnabled(rows !== null);
   }
 
+  /** The stepped plinth of a building ghost across a terrace edge (fields and flat ground have none). */
+  private showPlinth(spec: GhostSpec, kind: string): void {
+    const [w, h] = rotatedFootprint(spec.def.width, spec.def.height, spec.rotation);
+    const base = spec.base ?? 0;
+    const ground = spec.ground;
+    let data: PlinthMesh | null = null;
+    let key = "";
+    if (kind === "building" && ground && base > 0) {
+      const levels: number[] = [];
+      for (let y = spec.y - 1; y <= spec.y + h; y++) for (let x = spec.x - 1; x <= spec.x + w; x++) levels.push(ground(x, y));
+      key = `${spec.x},${spec.y},${w},${h},${base}|${levels.join(",")}`;
+      if (key !== this.plinthKey) data = ghostPlinth({ x: spec.x, y: spec.y, w, h }, base, ground);
+    }
+    if (key !== this.plinthKey) {
+      this.plinth?.dispose();
+      this.plinth = null;
+      this.plinthKey = key;
+      if (data) {
+        const mesh = new Mesh("ghost_plinth", this.scene);
+        const vd = new VertexData();
+        vd.positions = data.positions;
+        vd.normals = data.normals;
+        vd.colors = data.colors;
+        vd.indices = data.indices;
+        vd.applyToMesh(mesh);
+        mesh.material = this.modelMaterial;
+        mesh.isPickable = false;
+        mesh.alwaysSelectAsActiveMesh = true;
+        this.plinth = mesh;
+      }
+    }
+    if (this.plinth) {
+      this.plinth.position.set(spec.island.x, 0, -spec.island.y);
+      this.plinth.setEnabled(true);
+    }
+  }
+
   hide(): void {
+    this.plinth?.setEnabled(false);
     this.shown?.setEnabled(false);
     this.shown = null;
     this.water.setEnabled(false);

@@ -5,7 +5,7 @@ import type { StandardMaterial } from "@babylonjs/core/Materials/standardMateria
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { ContentBuilding } from "../api/client";
-import { GHOST_LIFT, ghostTint, PlacementGhost } from "./ghost";
+import { GHOST_LIFT, ghostPlinth, ghostTint, PlacementGhost } from "./ghost";
 import { type ModelData, ModelRegistry, parseGlb } from "./models";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD } from "./palette";
 
@@ -102,5 +102,63 @@ describe("PlacementGhost", () => {
     expect(Math.min(neutral.diffuse.r, neutral.diffuse.g, neutral.diffuse.b)).toBeGreaterThan(0.9);
     // Warnings tint harder than the neutral ghost.
     expect(ghostTint(GHOST_NO_ROAD).emissive.r).toBeGreaterThan(neutral.emissive.r);
+  });
+});
+
+describe("ghost plinth on terrace edges", () => {
+  const foot = { x: 2, y: 3, w: 2, h: 2 };
+  // Level 1 (0.5 tiles) on the tile (3, 3), the rest of the island flat at 0.
+  const ground = (x: number, y: number) => (x === 3 && y === 3 ? 0.5 : 0);
+
+  it("has none on a single level", () => {
+    expect(ghostPlinth(foot, 0, () => 0)).toBeNull();
+    expect(ghostPlinth(foot, 0.5, () => 0.5)).toBeNull();
+  });
+
+  it("fills every lower tile up to the highest level, with walls only on the sides toward the outside", () => {
+    // One tile of four at 0.5: the three lower tiles each have two sides toward the outside → 6 walls of 4 courses (0.5 / 0.125), 4 vertices each.
+    const p = ghostPlinth(foot, 0.5, ground)!;
+    expect(p.positions.length / 3).toBe(6 * 4 * 4);
+    // Everything lies between the lower ground and the model's lifted base.
+    const ys = p.positions.filter((_, i) => i % 3 === 1);
+    expect(Math.min(...ys)).toBeCloseTo(0);
+    expect(Math.max(...ys)).toBeCloseTo(0.5 + GHOST_LIFT);
+    // Walls stay inside the footprint's rectangle.
+    const xs = p.positions.filter((_, i) => i % 3 === 0);
+    const zs = p.positions.filter((_, i) => i % 3 === 2);
+    expect(Math.min(...xs)).toBeCloseTo(2);
+    expect(Math.max(...xs)).toBeCloseTo(4);
+    expect(Math.min(...zs)).toBeCloseTo(-5);
+    expect(Math.max(...zs)).toBeCloseTo(-3);
+  });
+
+  it("starts a wall at the outside tile's higher ground", () => {
+    // The tile west of the footprint stands at 0.25: the wall of tile (2, 3) toward it starts there.
+    const p = ghostPlinth({ x: 2, y: 3, w: 1, h: 1 }, 0.5, (x, y) => (x === 1 && y === 3 ? 0.25 : x === 2 && y === 3 ? 0 : 0.5))!;
+    const west = [];
+    for (let i = 0; i < p.positions.length; i += 3) if (p.positions[i] === 2 && p.normals[i] === -1) west.push(p.positions[i + 1] as number);
+    expect(Math.min(...west)).toBeCloseTo(0.25);
+  });
+
+  it("shows under a building ghost across an edge only, and goes with the ghost", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const ghost = new PlacementGhost(scene, reg);
+    const spec = { def: sawmill, island: { x: 10, y: 20 }, x: 2, y: 3, rotation: 0 as const, base: 0.5, ground };
+    ghost.show(spec, GHOST);
+    await loaded(reg);
+    ghost.show(spec, GHOST);
+    const plinth = scene.meshes.find((m) => m.name === "ghost_plinth")!;
+    expect(plinth.isEnabled()).toBe(true);
+    expect(plinth.position.x).toBe(10);
+    expect(plinth.position.z).toBe(-20);
+    // On one level there is none.
+    ghost.show({ ...spec, base: 0, ground: () => 0 }, GHOST);
+    expect(scene.meshes.find((m) => m.name === "ghost_plinth")).toBeUndefined();
+    ghost.show(spec, GHOST);
+    ghost.hide();
+    expect(scene.meshes.find((m) => m.name === "ghost_plinth")!.isEnabled()).toBe(false);
+    scene.dispose();
   });
 });
