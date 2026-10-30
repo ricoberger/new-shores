@@ -547,6 +547,12 @@ func patricians(f *fixture) {
 	}
 	f.apply(sim.AssignShip{ShipID: ship, RouteID: f.w.Routes[len(f.w.Routes)-1].ID})
 	f.advance(time.Minute)
+	// The harbour shot builds its extensions through the normal API; reserve
+	// their materials in this explicitly seeded dev fixture, never a replay.
+	for _, typ := range []string{"trading_pier", "depot"} {
+		f.grant(home, &f.c.BuildingByID[typ].Cost)
+	}
+	f.grant(home, &content.Cost{Materials: []content.GoodAmount{{Good: "stone", Amount: 20_000}}})
 }
 
 // grant adds a cost's gold and materials to the world and the island's
