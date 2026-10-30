@@ -2511,13 +2511,13 @@
             ]
           },
           "budget": 7680,
-          "bytes": 85436,
+          "bytes": 84412,
           "path": "cathedral.lite.glb",
-          "sha256": "72b5a17fc1f8bb3a0c8b174773fdca86bb402022fb781c090dbd42397878428d",
-          "triangles": 2860
+          "sha256": "a850a43dcd7e2836ea8f5bb3936358aedb5bdfd9457944b5b5b9c6a269cb5235",
+          "triangles": 2852
         },
         "path": "cathedral.glb",
-        "sha256": "d85bd3b8f77480e853cdcf76e268614563fc6df1e2dd4b2b98615b1864575879",
+        "sha256": "7f7bba6e66d0fd37389a072eca17b70a88ec2548df3a4f0288411dd09cfc2d46",
         "triangles": 21448
       },
       "footprint": {
@@ -9331,13 +9331,13 @@
             ]
           },
           "budget": 5760,
-          "bytes": 52640,
+          "bytes": 52928,
           "path": "university.lite.glb",
-          "sha256": "93722f45a52c68ca265e6aad2bfe3dab0d387a80d5a10875d8605f934f9b8956",
-          "triangles": 1586
+          "sha256": "e1ce09738fe7f97214c42daed146c3d4c8771a71451dcc42b277fd1ea1d15282",
+          "triangles": 1594
         },
         "path": "university.glb",
-        "sha256": "efa3b039c3ee20f4ffd0b928bb0c4ef3fffb5cf0d7ff1ecb15c8bdb9770c1efd",
+        "sha256": "c4a82b2cd77687ccd9b9df3f4173795cd168a3cf2cf2f0c89d43b3aa1a15b4a1",
         "triangles": 19944
       },
       "footprint": {

@@ -16,8 +16,9 @@ from nsvoxel import parts as P
 from nsvoxel.grid import mat
 from nsvoxel.mats import BRASS, DYE_BLUE, IRON, TIMBER_DARK
 
-WALL = mat("ochre", 1.16)
-ROOF = mat("terracotta", 0.86)
+#: Brick walls and dark brown tile (Hanse, D-063): ochre plaster under a terracotta roof read Italian.
+WALL = mat("terracotta", 0.88)
+ROOF = mat("timber", 0.7)
 WATER = mat("shallows")
 
 
@@ -45,7 +46,7 @@ def build(ctx):
     for x in (14, 82):
         P.roof_chimney(v, hall.roof, x, 12, above=3, brick=True, pots=2)
     # The library wing down the west side.
-    lib = Q.palazzo(v, 6, 26, 26, 76, (12, 11), upper=mat("ochre", 1.06), roof=ROOF, along="y", seed=seed + 1)
+    lib = Q.palazzo(v, 6, 26, 26, 76, (12, 11), upper=mat("terracotta", 0.82), roof=ROOF, along="y", seed=seed + 1)
     fl = lib.face("x-")
     for a in range(29, 74, 6):
         Q.window(fl, a, 3, 2, 8, hood="key", surround=True)
