@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { chunkAt } from "../display/chunks";
-import { fieldBase, fieldGround, paintFields, paintRoads, ROAD_H, touchedChunks } from "./roadvoxels";
-import { type Field, TERRAIN_VPT } from "./voxelterrain";
+import { BOLLARD_H, fieldBase, fieldGround, paintFields, paintRoads, QUAY_H, ROAD_H, touchedChunks } from "./roadvoxels";
+import { type Field, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
 
 /** A flat grass field of w × h tiles at TERRAIN_VPT columns per tile. */
 function flat(w: number, h: number): Field {
@@ -22,6 +22,30 @@ function tileRows(f: Field, x: number, y: number): string[] {
 }
 
 describe("voxel roads", () => {
+  it("builds quays as stone decks on the water with fenders and a bollard every third tile (D-060)", () => {
+    // Land in row 0 (level 0), sea (seabed -6) below.
+    const f = flat(6, 3);
+    for (let j = TERRAIN_VPT; j < f.ny; j++) for (let i = 0; i < f.nx; i++) f.h[j * f.nx + i] = -6;
+    const base = fieldBase(f);
+    const quay = [0, 1, 2, 3].map((x) => ({ x, y: 1, type: "quay" }));
+    paintRoads(f, base, quay, 5);
+    const col = (x: number, y: number, a: number, b: number) => (y * TERRAIN_VPT + b) * f.nx + x * TERRAIN_VPT + a;
+    // The deck covers the whole tile at the shore's level, with stone walls.
+    expect(f.h[col(1, 1, 1, 1)]).toBe(QUAY_H);
+    expect(f.kind?.[col(1, 1, 1, 1)]).toBe(SIDE_ROCK);
+    // A bollard on the open (south) edge of every third tile ((x + y) % 3 === 0: tile 2 of 0..3).
+    const bollards = (x: number) => [0, 1, 2, 3].filter((a) => f.h[col(x, 1, a, TERRAIN_VPT - 1)] === BOLLARD_H).length;
+    expect([0, 1, 2, 3].map(bollards)).toEqual([0, 0, 1, 0]);
+    // The fender (south edge) is timber, not the deck's stone; no fender toward the land (north).
+    expect(f.top[col(1, 1, 1, TERRAIN_VPT - 1)]).not.toBe(f.top[col(1, 1, 1, 1)]);
+    // The sea next to the quay stays.
+    expect(f.h[col(4, 1, 1, 1)]).toBe(-6);
+    // Repainting without the quay restores heights and side kinds.
+    paintRoads(f, base, [], 5);
+    expect(Array.from(f.h)).toEqual(Array.from(base.h));
+    expect(Array.from(f.kind ?? [])).toEqual(new Array(f.nx * f.ny).fill(0));
+  });
+
   it("sinks a two-column path one voxel with arms to the road neighbours (joins and junctions are unions)", () => {
     const f = flat(4, 4);
     const base = fieldBase(f);

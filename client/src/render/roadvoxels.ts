@@ -9,15 +9,19 @@
 // ramp cut into the terrace edge). River tiles carry bridges instead
 // (render/terraces.ts). Dirt roads are packed earth with jittered
 // stones; the paved road is cobbles in three shades with a kerb of light
-// stone. Heights and top colours change; the island's terrain mesh and
-// ground texture are rebuilt from them (render/terrain.ts).
+// stone. Quays (D-060) stand on the water: the whole tile is a stone
+// wharf deck at the level of the shore, its walls stone into the water
+// below; toward open water a timber fender runs along the edge, with an
+// iron bollard on it every third tile. Heights, side kinds and top
+// colours change; the island's terrain mesh and ground texture are
+// rebuilt from them (render/terrain.ts).
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { hash2 } from "../display/noise";
 import { ISLAND, TERRAIN } from "../theme/palette";
 import { c3 } from "./palette";
 import type { RoadTile } from "./roads";
 import { LEVEL_STEPS } from "./terraces";
-import { type Field, pack, TERRAIN_VPT } from "./voxelterrain";
+import { type Field, pack, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
 
 /** Directions to a road neighbour (x, y). */
 const RAMP_DIRS = [
@@ -36,18 +40,30 @@ const KERB = c3(TERRAIN.road_border);
 const STONE = c3(ISLAND.rock_light);
 const STONE_DARK = c3(ISLAND.rock);
 const LUSH = c3(TERRAIN.grass_a).scale(0.92);
+const TIMBER = c3(TERRAIN.road_dirt).scale(0.55);
+const IRON = c3(ISLAND.rock).scale(0.45);
+
+/** Height of a quay's deck (steps): the shore's level 0. */
+export const QUAY_H = 0;
+/** Height of a bollard on a quay's fender (steps). */
+export const BOLLARD_H = QUAY_H + 2;
+/** A bollard stands on every this many quay tiles (by tile position). */
+export const BOLLARD_EVERY = 3;
 
 /** Whether a road tile is the paved (cobbled) road. */
 const paved = (t: RoadTile) => t.type === "road_paved";
+/** Whether a road tile is a quay (D-060). */
+export const isQuayTile = (t: RoadTile) => t.type === "quay";
 
-/** The base (roadless) heights and top colours of a field, kept to repaint from. */
+/** The base (roadless) heights, top colours and side kinds of a field, kept to repaint from. */
 export interface FieldBase {
   h: Int8Array;
   top: Uint32Array;
+  kind?: Uint8Array;
 }
 
 export function fieldBase(f: Field): FieldBase {
-  return { h: f.h.slice(), top: f.top.slice() };
+  return { h: f.h.slice(), top: f.top.slice(), kind: f.kind?.slice() };
 }
 
 /**
@@ -61,6 +77,10 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   const before = f.h.slice();
   f.h.set(base.h);
   f.top.set(base.top);
+  if (f.kind) {
+    if (base.kind) f.kind.set(base.kind);
+    else f.kind.fill(0);
+  }
   const set = new Map(tiles.map((t) => [`${t.x},${t.y}`, t]));
   const has = (x: number, y: number) => set.has(`${x},${y}`);
   // Road columns: kind 1 dirt, 2 paved.
@@ -68,6 +88,7 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   const lo = Math.floor(vpt / 2) - 1;
   const hi = Math.ceil(vpt / 2);
   for (const t of tiles) {
+    if (isQuayTile(t)) continue;
     const kind = paved(t) ? 2 : 1;
     const put = (a: number, b: number) => {
       const i = t.x * vpt + a;
@@ -138,6 +159,42 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
     } else {
       // Packed earth with stones.
       f.top[k] = pack(r < 0.05 ? STONE_DARK : r < 0.13 ? STONE : DIRT.scale(0.93 + 0.1 * hash2(i, j, seed + 62)));
+    }
+  }
+  // Quays: a stone deck over the whole tile, a timber fender along the edges toward open water, a bollard every third tile.
+  const quays = tiles.filter(isQuayTile);
+  if (quays.length > 0 && !f.kind) f.kind = new Uint8Array(nx * ny);
+  for (const t of quays) {
+    // An edge toward open water: the neighbour tile is no road and its ground (base) is below the shore.
+    const open = (dx: number, dy: number) => {
+      if (has(t.x + dx, t.y + dy)) return false;
+      const i = (t.x + dx) * vpt + (dx < 0 ? vpt - 1 : 0);
+      const j = (t.y + dy) * vpt + (dy < 0 ? vpt - 1 : 0);
+      return i < 0 || j < 0 || i >= nx || j >= ny || (base.h[j * nx + i] as number) < QUAY_H - 1;
+    };
+    const edges = { n: open(0, -1), s: open(0, 1), w: open(-1, 0), e: open(1, 0) };
+    const bollard = (t.x + t.y) % BOLLARD_EVERY === 0;
+    for (let b = 0; b < vpt; b++) {
+      for (let a = 0; a < vpt; a++) {
+        const i = t.x * vpt + a;
+        const j = t.y * vpt + b;
+        if (i < 0 || j < 0 || i >= nx || j >= ny) continue;
+        const k = j * nx + i;
+        const fender = (edges.n && b === 0) || (edges.s && b === vpt - 1) || (edges.w && a === 0) || (edges.e && a === vpt - 1);
+        // The bollard: the fender column at the middle of the tile's first open edge.
+        const mid = (edges.n && b === 0 && a === lo) || (!edges.n && edges.e && a === vpt - 1 && b === lo) || (!edges.n && !edges.e && edges.s && b === vpt - 1 && a === hi) || (!edges.n && !edges.e && !edges.s && edges.w && a === 0 && b === hi);
+        f.h[k] = bollard && mid ? BOLLARD_H : QUAY_H;
+        (f.kind as Uint8Array)[k] = SIDE_ROCK;
+        painted.add(k);
+        const r = hash2(i, j, seed + 64);
+        if (bollard && mid) f.top[k] = pack(IRON);
+        else if (fender) f.top[k] = pack(TIMBER.scale(0.9 + 0.15 * r));
+        else {
+          // Stone slabs of 2 × 2 columns in two shades, a darker joint now and then.
+          const slab = ((Math.floor(i / 2) + Math.floor(j / 2)) & 1) === 0;
+          f.top[k] = pack(r > 0.94 ? STONE_DARK : STONE.scale((slab ? 0.92 : 1.0) + 0.05 * r));
+        }
+      }
     }
   }
   // Worn edges: the ground columns next to a road column.

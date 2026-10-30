@@ -750,8 +750,12 @@ components:
           `unknown_island`, `building_not_found`, `ship_not_found`,
           `route_not_found`, `quest_not_found`;
         - 405: `method_not_allowed`;
-        - 409: `occupied`, `terrain`, `not_coastal`, `not_on_water` (a
+        - 409: `occupied`, `terrain` (also a quay off the shallows,
+          D-060), `not_coastal`, `not_on_water` (a
           water-edge building's front rows are not on water, D-051),
+          `harbour_blocked` (quay tiles, or a Trading Post moved onto
+          them, would close the harbour point off from the open sea,
+          D-060),
           `no_work_area`
           (lumberjack only: no matching tile in its work area; farms with
           fields are placed at 0 fields),
@@ -864,6 +868,7 @@ components:
         - terrain
         - not_coastal
         - not_on_water
+        - harbour_blocked
         - no_work_area
         - no_fertility
         - no_deposit
@@ -3531,12 +3536,18 @@ components:
         road:
           type: object
           additionalProperties: false
-          required: [ms_per_tile]
+          required: [ms_per_tile, shallows]
           properties:
             ms_per_tile:
               type: integer
               format: int64
               description: Transfer time per road tile (ms).
+            shallows:
+              type: boolean
+              description: >-
+                A quay (D-060): placed on shallow water — water (not
+                river) within 3 tiles (Chebyshev) of the island's own land
+                — instead of land.
         service:
           type: object
           additionalProperties: false

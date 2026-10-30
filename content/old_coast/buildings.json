@@ -284,6 +284,19 @@
     "road": { "seconds_per_tile": 0.6 }
   },
   {
+    "id": "quay",
+    "name": "Quay",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 5, "stone": 2 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "road": { "seconds_per_tile": 1.0, "shallows": true }
+  },
+  {
     "id": "tavern",
     "name": "Tavern",
     "region": "old_coast",

@@ -2,6 +2,7 @@ package sim
 
 import (
 	"fmt"
+	"maps"
 	"math"
 	"strings"
 
@@ -465,6 +466,12 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation, true); err != nil {
 		return err
 	}
+	if def.Collector() && def.TradingPostLevelAt(1).Berths > 0 {
+		at := &Building{ID: -1, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: def.TradingPostLevelAt(1).Berths}
+		if err := checkHarbourAfter(is, c, def, at, -1); err != nil {
+			return err
+		}
+	}
 	if charge {
 		if err := checkCost(w, is, def.Cost, 1); err != nil {
 			return err
@@ -490,6 +497,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 		}
 	}
 	is.Buildings = append(is.Buildings, b)
+	clearQuay(is, c, def, b)
 	afterChange(is, c)
 	return nil
 }
@@ -542,9 +550,11 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 			case s.occ[i] != 0:
 				return false
 			case WaterTile(def, x, y, rotation, tx, ty):
-				if t != content.TerrainWater {
+				if t != content.TerrainWater || is.Roads[i] != "" {
 					return false
 				}
+			case standsOnQuay(def) && quayAt(is, s.c, i):
+				// A quay counts as coast (D-060).
 			case is.Roads[i] != "" || (!buildableTerrain(t) && (!mountain || t != content.TerrainMountain)):
 				return false
 			}
@@ -570,11 +580,17 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 		return fmt.Errorf("%w: %s footprint at (%d,%d)", ErrOutOfBounds, def.ID, x, y)
 	}
 	tiles := make([]Pos, 0, fw*fh)
-	var water []Pos
+	var water, quay []Pos
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
 			if WaterTile(def, x, y, rotation, tx, ty) {
 				water = append(water, Pos{tx, ty})
+				continue
+			}
+			// A coastal or water-edge building may stand on a quay: it
+			// counts as coast and is replaced (D-060).
+			if standsOnQuay(def) && quayAt(is, c, is.index(tx, ty)) {
+				quay = append(quay, Pos{tx, ty})
 				continue
 			}
 			tiles = append(tiles, Pos{tx, ty})
@@ -587,18 +603,24 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 	if err := checkTiles(is, occ, tiles, also); err != nil {
 		return err
 	}
-	// Water-edge buildings (D-051): the front rows stand on free water.
+	for _, p := range quay {
+		if occ[is.index(p.X, p.Y)] != 0 {
+			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
+		}
+	}
+	// Water-edge buildings (D-051): the front rows stand on free water
+	// (no quay either).
 	for _, p := range water {
 		i := is.index(p.X, p.Y)
 		if is.Tiles[i].Terrain != content.TerrainWater {
 			return fmt.Errorf("%w: %s at (%d,%d): front tile (%d,%d) is %s", ErrNotOnWater, def.ID, x, y, p.X, p.Y, is.Tiles[i].Terrain)
 		}
-		if occ[i] != 0 {
+		if occ[i] != 0 || is.Roads[i] != "" {
 			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
 		}
 	}
 	if def.Coastal {
-		coastal := false
+		coastal := len(quay) > 0
 		for _, p := range tiles {
 			if is.Tile(p.X, p.Y).Terrain == content.TerrainCoast {
 				coastal = true
@@ -673,8 +695,16 @@ func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
 		return err
 	}
 
+	if b.Berths > 0 {
+		at := &Building{ID: b.ID, Type: b.Type, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: b.Berths}
+		if err := checkHarbourAfter(is, c, def, at, b.ID); err != nil {
+			return err
+		}
+	}
+
 	// Validation complete: mutate.
 	b.X, b.Y, b.Rotation = cmd.X, cmd.Y, cmd.Rotation
+	clearQuay(is, c, def, b)
 	afterChange(is, c)
 	return nil
 }
@@ -707,11 +737,30 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 		}
 		seen[p] = true
 	}
-	if err := checkTiles(is, is.occupancy(c), cmd.Tiles, allowRiver); err != nil {
-		return err
-	}
-	if err := checkBridges(is, cmd.Tiles); err != nil {
-		return err
+	if def.Road.Shallows {
+		// A quay (D-060) stands on free shallows and keeps the harbour
+		// open (quay.go).
+		if err := checkQuayTiles(is, is.occupancy(c), cmd.Tiles); err != nil {
+			return err
+		}
+		tmp := *is
+		tmp.Roads = maps.Clone(is.Roads)
+		if tmp.Roads == nil {
+			tmp.Roads = map[int]string{}
+		}
+		for _, p := range cmd.Tiles {
+			tmp.Roads[is.index(p.X, p.Y)] = def.ID
+		}
+		if !harbourRoutable(c, &tmp) {
+			return fmt.Errorf("%w: the quay would close the harbour of %q", ErrHarbourBlocked, is.ID)
+		}
+	} else {
+		if err := checkTiles(is, is.occupancy(c), cmd.Tiles, allowRiver); err != nil {
+			return err
+		}
+		if err := checkBridges(is, cmd.Tiles); err != nil {
+			return err
+		}
 	}
 	n := int64(len(cmd.Tiles))
 	if err := checkCost(w, is, def.Cost, n); err != nil {

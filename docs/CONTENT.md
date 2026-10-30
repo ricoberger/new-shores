@@ -135,7 +135,7 @@ ship is a sloop; the shipyard unlocks at tier 2 (D-056).
 | construction | stone, tools | `quarry` (stone slot → stone, 45 s) [8 S]; `iron_mine` (iron slot → iron_ore, 60 s) [10 S], `charcoal_burner` (wood → charcoal, 45 s) [4 S], `smelter` (iron_ore + charcoal → iron, 60 s) [8 S], `toolmaker` (iron → tools, 60 s) [8 S] | tools 1 : 1.3 : 1 : 1 |
 | ships | sails | `sailmaker` (hemp → sails, 60 s) [6 C] | — |
 
-Infrastructure: `trading_post` lvl 2, `road_paved`, `tavern`, `school`,
+Infrastructure: `trading_post` lvl 2, `road_paved`, `quay` (D-060), `tavern`, `school`,
 `city_guard` (D-060), `shipyard` (sloop, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
 The construction chains (quarry, tool chain) are **Settler-staffed** per the
 bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
@@ -255,6 +255,7 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `shipyard` | 2 | 8×12, 4 water rows | Shipyard | 300 / 45 / 0 | 0 | — | R, never auto-paused; tier 2 since D-056; builds every unlocked ship type |
 | `house_citizens` | 2 | 3×3 | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | road | see text | 0 | — | 3 gold / 1 stone |
+| `quay` | 2 | 1×1 on shallows | road (D-060) | see text | 0 | — | 5 gold / 2 stone; 1 s/tile; water-edge buildings stand on it |
 | `quarry` | 2 | 3×8 on a stone slot | Limestone Quarry | 120 / 9 / 0 | 3 | 8 S | R; strip into the mountain |
 | `iron_mine` | 2 | 3×8 on an iron slot | Iron Mine | 180 / 6 / 6 | 2 | 10 S | R |
 | `charcoal_burner` | 2 | 5×6 | Charcoal Burner | 90 / 9 / 0 | 2 | 4 S | R, forest nearby (visual) |
@@ -344,7 +345,8 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `studio` (reserve) | 4 | 5×5 | Gilder | 680 / 5 / 6 / 9 / 6 | 4 | 6 P | R |
 | `luthier` | 4 | 5×5 | Lythier | 870 / 6 / 9 / 9 / 9 | 8 | 8 P | R |
 
-Roads: `road_dirt` 1 gold; `road_paved` 3 gold / 1 stone. Trading Post
+Roads: `road_dirt` 1 gold; `road_paved` 3 gold / 1 stone; `quay` 5 gold /
+2 stone on the shallows (D-060, MECHANICS §3). Trading Post
 founding cost 200 gold / 15 planks (start stock, D-051) — the levels below.
 
 Trading Post levels (provisional): lvl 1 cap 300 / T 30 / 1 berth; lvl 2

@@ -194,6 +194,7 @@ type warehouseJSON struct {
 
 type roadJSON struct {
 	MsPerTile int64 `json:"ms_per_tile"`
+	Shallows  bool  `json:"shallows"`
 }
 
 // serviceJSON is a public building: radius is the first level's, levels
@@ -454,7 +455,7 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		}
 	}
 	if rd := b.Road; rd != nil {
-		bj.Road = &roadJSON{MsPerTile: rd.MsPerTile}
+		bj.Road = &roadJSON{MsPerTile: rd.MsPerTile, Shallows: rd.Shallows}
 	}
 	if s := b.Service; s != nil {
 		bj.Service = &serviceJSON{Radius: s.RadiusAt(1), Levels: []serviceLevelJSON{}}

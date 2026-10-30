@@ -131,7 +131,11 @@
         "additionalProperties": false,
         "required": ["seconds_per_tile"],
         "properties": {
-          "seconds_per_tile": { "type": "number", "minimum": 0 }
+          "seconds_per_tile": { "type": "number", "minimum": 0 },
+          "shallows": {
+            "description": "A quay (D-060): placed on shallow water (water within 3 tiles of the island's own land, not river) instead of land.",
+            "type": "boolean"
+          }
         }
       },
       "service": {

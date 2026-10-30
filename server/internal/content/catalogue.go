@@ -486,6 +486,9 @@ func (b *Building) TradingPostLevelAt(level int) TradingPostLevel {
 type Road struct {
 	// MsPerTile is the transfer time per road tile.
 	MsPerTile int64
+	// Shallows marks a quay (D-060): the road stands on shallow water
+	// (MECHANICS §3) instead of land.
+	Shallows bool
 }
 
 // Service marks a public building with a service radius (building needs).

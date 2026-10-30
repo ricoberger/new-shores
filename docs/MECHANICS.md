@@ -202,7 +202,22 @@ handlers only.
   (Trading Post or Warehouse) footprint on the same island (D-042). This is the single connectivity
   rule for producers, public buildings and houses alike; a house on a road
   stub that does not reach a warehouse is *not* connected. Roads are tiles;
-  dirt roads (tier 1) and paved roads (tier 2, +speed) are the two types.
+  dirt roads (tier 1), paved roads (tier 2, +speed) and quays (tier 2,
+  D-060) are the types.
+- **Quays** (D-060) are roads on the island's **shallows**: water tiles
+  of its grid, not river, within 3 tiles (Chebyshev) of its own land
+  (any tile but water, river and islet; derived from the tiles, no
+  generator field). A quay tile must be free (no road, no footprint —
+  the water rows of water-edge buildings included). A quay is a road for
+  connection and carts like any other; for a **water-edge or coastal
+  building** it counts as coast: the building's land rows may stand on
+  quay tiles, which it replaces (no refund), while its water rows need
+  free water without quay. Other buildings never stand on a quay. For
+  ships a quay tile is **land** (sea grid, approach, harbour point,
+  §9.1). Quay tiles, or a berth holder moved onto them, must leave the
+  island's harbour point a 4-connected way over water to the edge of
+  the island's grid (`harbour_blocked`). Cost and speed are content
+  (provisional 5 gold / 2 stone per tile, 1 s/tile).
 - Each connected producer is **assigned** to the nearest collector by road
   distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile

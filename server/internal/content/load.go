@@ -310,6 +310,7 @@ type rawBuilding struct {
 	} `json:"warehouse"`
 	Road *struct {
 		SecondsPerTile json.Number `json:"seconds_per_tile"`
+		Shallows       bool        `json:"shallows"`
 	} `json:"road"`
 	Service *struct {
 		Radius int `json:"radius"`
@@ -821,7 +822,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		b.Warehouse = wh
 	}
 	if r := rb.Road; r != nil {
-		b.Road = &Road{MsPerTile: col.fixed(file, ent, "road.seconds_per_tile", r.SecondsPerTile, 3)}
+		b.Road = &Road{MsPerTile: col.fixed(file, ent, "road.seconds_per_tile", r.SecondsPerTile, 3), Shallows: r.Shallows}
 	}
 	if s := rb.Service; s != nil {
 		// A service has either one radius or levels (schema); the radius

@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { DisplayState, Island } from "../api/client";
 import { archipelagoRect, type Rect } from "../display/camera";
+import { roadsOnWater } from "../display/quay";
 import { decodeMask, MASK_BLOCK, MASK_WATER } from "../display/mask";
 import { fromMinimap, islandsBounds, minimapCollapsedAtStart, minimapLandKey, minimapProjection, minimapSize, rememberMinimapCollapsed, toMinimap } from "../display/minimap";
 import type { GameRenderer } from "../render/engine";
 import { reliefOf } from "../render/terraces";
-import { MAP_SEA, mapLandColor, mapTileRgb } from "../render/mapcolors";
+import { MAP_SEA, mapLandColor, mapTileRgb, rgbOf } from "../render/mapcolors";
 import { toolIcon } from "../theme/iconSet";
-import { UI } from "../theme/palette";
+import { TERRAIN, UI } from "../theme/palette";
 import { Compass } from "./Compass";
 import { Icon } from "./Icon";
 import styles from "./hud.module.css";
@@ -34,6 +35,8 @@ const REFRESH_MS = 50;
 const SEA = MAP_SEA;
 const SHIP = UI.map_ship;
 const VIEW = UI.map_view;
+/** Quays: the paved road's stone. */
+const QUAY = rgbOf(TERRAIN.road_paved);
 
 /**
  * Minimap (D-048): a north-up 2D canvas of the islands' land (the voxel
@@ -67,7 +70,14 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
   // Islands whose tiles are loaded draw their relief (terraces, rivers, rock) instead of the mask.
   const statics = renderer?.islandStatics();
   const tilesKey = statics ? [...statics.values()].map((s) => `${s.id}:${s.revision}`).join(",") : "";
-  const landKey = `${minimapLandKey(islands)}|${tilesKey}`;
+  // Quays (D-060): the roads on water tiles, drawn in the road colour.
+  const quays = new Map<string, Set<string>>();
+  for (const is of islands) {
+    const st = statics?.get(is.id);
+    if (st) quays.set(is.id, roadsOnWater(st, is.roads));
+  }
+  const quayKey = [...quays].map(([id, q]) => `${id}:${[...q].join(";")}`).join(",");
+  const landKey = `${minimapLandKey(islands)}|${tilesKey}|${quayKey}`;
   // The payload's archipelago bounds (D-053); the islands' own for an older payload without extent.
   const ab = model.archipelago.bounds;
   // eslint-disable-next-line react-hooks/exhaustive-deps -- landKey stands for the islands' geometry
@@ -89,7 +99,7 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
     for (const is of islands) {
       const st = statics?.get(is.id);
       if (st && st.width === is.width && st.height === is.height && st.terrain.length === st.width * st.height) {
-        drawTiles(ctx, m, is.position, st);
+        drawTiles(ctx, m, is.position, st, quays.get(is.id));
         continue;
       }
       const mask = decodeMask(is.terrain_mask, is.width, is.height);
@@ -202,7 +212,7 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
 }
 
 /** Draws an island's loaded tiles: one sample per minimap pixel (the tile at its centre), shaded by terrace level and rock. */
-function drawTiles(ctx: CanvasRenderingContext2D, m: ReturnType<typeof minimapProjection>, pos: { x: number; y: number }, st: Island): void {
+function drawTiles(ctx: CanvasRenderingContext2D, m: ReturnType<typeof minimapProjection>, pos: { x: number; y: number }, st: Island, quays?: ReadonlySet<string>): void {
   const p = toMinimap(m, pos);
   const q = toMinimap(m, { x: pos.x + st.width, y: pos.y + st.height });
   const x0 = Math.floor(p.x);
@@ -218,7 +228,7 @@ function drawTiles(ctx: CanvasRenderingContext2D, m: ReturnType<typeof minimapPr
       const ty = Math.floor(pt.y - pos.y);
       if (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height) continue;
       const t = ty * st.width + tx;
-      const c = mapTileRgb(st.terrain[t] as string, r.level[t] as number, r.rock[t] as number);
+      const c = quays?.has(`${tx},${ty}`) ? QUAY : mapTileRgb(st.terrain[t] as string, r.level[t] as number, r.rock[t] as number);
       if (!c) continue;
       const o = (j * w + i) * 4;
       img.data[o] = Math.round(c[0] * 255);

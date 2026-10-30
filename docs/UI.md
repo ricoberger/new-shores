@@ -188,7 +188,11 @@ UI shows the same numbers the server uses.
   e.g. missing deposit or fertility) with the reason as a tooltip. A new
   house may come out as a different variant than the ghost showed (variant
   by building ID; follow-up: a server-side preview hint).
-- Roads: drag to draw; auto-connect; cost preview.
+- Roads: drag to draw; auto-connect; cost preview. The quay (D-060) is
+  drawn the same way over shallow water; a drag that leaves the shallows
+  is not sent (toast; display mirror of the rule, `display/quay.ts`).
+  Quays render as a stone wharf with a timber fender and a bollard every
+  third tile, and in the paved road's colour on the minimap.
 - **Fields** (D-051 part 4): fields are not in the build menu. The farm
   card has a fields block (active / required with a bar, placed and max, a
   warning line when fields are not connected; no field list) and **"Add field"**, which enters a field tool bound to that

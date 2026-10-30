@@ -55,6 +55,7 @@ import { warningEntries, WarningsPanel } from "./WarningsPanel";
 import { SideDock, type DockPanel } from "./SideDock";
 import { claimableCount } from "../display/quests";
 import { unlockToasts } from "../display/tiers";
+import { isQuayType, offShallows, SHALLOWS_REACH } from "../display/quay";
 import { WorldOverlay } from "./WorldOverlay";
 import { StatsBadge } from "./StatsBadge";
 import { statsRequested } from "../dev/stats";
@@ -486,6 +487,12 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       const existing = new Set(is.roads.map((r) => `${r.x},${r.y}`));
       const tiles = lPath(from, to).filter((t) => !existing.has(`${t.x},${t.y}`));
       if (tiles.length === 0) return;
+      // A quay off the shallows would be rejected (display mirror of the rule, D-060).
+      const st = renderer?.islandStatics().get(islandId);
+      if (isQuayType(defs, tool.roadType) && st && offShallows(st, tiles).length > 0) {
+        toast(`A quay stands on shallow water, at most ${SHALLOWS_REACH} tiles from the island's shore`);
+        return;
+      }
       void send({ type: "place_road", island_id: islandId, road_type: tool.roadType, tiles });
     },
     demolish: (at: IslandTile) => {
@@ -937,7 +944,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             ? "founds it at once"
             : "sails there and founds it on arrival"
         } (${tool.rotation}°) · R rotate · Esc cancel`}
-      {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
+      {tool.kind === "road" &&
+        (isQuayType(defs, tool.roadType)
+          ? `Drag over shallow water (at most ${SHALLOWS_REACH} tiles from the shore) to build a quay · Esc / right click cancel`
+          : "Drag to draw a road · Esc / right click cancel")}
       {tool.kind === "field" &&
         (tool.remove
           ? `Click or drag over ${fieldPlural} to remove them · Esc / right click leave`
