@@ -2327,7 +2327,7 @@ components:
           description: Island where the ship is; empty while travelling or at sea.
         position:
           nullable: true
-          description: Archipelago position of an idle or anchored ship at sea or at an island without berths (the start ship of a new world, D-051; a founding ship before its Trading Post, the end of the leg that brought it; `island_id` stays set there); null at an island with berths or on a leg.
+          description: Archipelago position of an idle or anchored ship at sea or at an island without berths (the start ship of a new world, D-051; a founding ship before its Trading Post, the end of the leg that brought it, or the harbour point of the Trading Post demolished under it; `island_id` stays set there); null at an island with berths or on a leg.
           allOf:
             - $ref: "#/components/schemas/SeaPosition"
         route_id:

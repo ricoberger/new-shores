@@ -94,7 +94,9 @@ type Ship struct {
 	// of a founding voyage, else the shore point towards the origin). It is
 	// what Display sends as the position of an idle or anchored ship at an
 	// island without berths; cleared when the ship departs, is granted a
-	// berth or a berth source appears (unmoor); nil otherwise.
+	// berth or a berth source appears (unmoor); nil otherwise. When the last
+	// berth source of an island is demolished it is set, for the ships there,
+	// to the harbour point of the demolished building (moorOffshore).
 	Offshore *Pos `json:"offshore,omitempty"`
 	// RouteID is the assigned route (0 when none).
 	RouteID int64 `json:"route_id,omitempty"`
@@ -612,6 +614,21 @@ func unmoor(w *World, islandID string) {
 	for _, s := range w.Ships {
 		if s.IslandID == islandID {
 			s.Offshore = nil
+		}
+	}
+}
+
+// moorOffshore gives the ships at an island that has just lost its last
+// berth source the sea position they would have had arriving there: the
+// harbour point of the demolished building (computed from its footprint,
+// which no longer stands). Ships that are on a leg (loading for a
+// departure) keep none; the departure clears it anyway.
+func moorOffshore(w *World, is *Island, def *content.Building, b *Building) {
+	at := HarbourAt(is, def, b.X, b.Y, b.Rotation)
+	for _, s := range w.Ships {
+		if s.IslandID == is.ID && s.Leg == nil && s.Offshore == nil {
+			p := at
+			s.Offshore = &p
 		}
 	}
 }

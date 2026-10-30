@@ -126,7 +126,35 @@ func TestSeaOnly(t *testing.T) {
 					}
 				}
 			}
-			t.Logf("%d steps, %d legs checked, %d ports", len(s.Steps), legs, len(ports))
+			// A ship left idle at each port whose Trading Post is demolished
+			// (the island stripped to it first): its harbour point is sea.
+			moored := 0
+			for _, is := range ports {
+				var tp *sim.Building
+				for _, b := range is.Buildings {
+					if def := c.BuildingByID[b.Type]; def != nil && def.TradingPost != nil {
+						tp = b
+						break
+					}
+				}
+				if tp == nil {
+					continue
+				}
+				is.Buildings = []*sim.Building{tp}
+				ship := &sim.Ship{ID: int64(9000 + moored), Type: "sloop", State: sim.ShipIdle, IslandID: is.ID}
+				r.w.Ships = append(r.w.Ships, ship)
+				if err := sim.Apply(r.w, c, sim.Demolish{IslandID: is.ID, BuildingID: tp.ID, AcceptSurplusLoss: true}); err != nil {
+					t.Fatalf("demolish the Trading Post of %s: %v", is.ID, err)
+				}
+				if ship.Offshore == nil {
+					t.Fatalf("idle ship at %s has no sea position after the demolition", is.ID)
+				}
+				if err := seaOnly(r.w, seen); err != nil {
+					t.Error(err)
+				}
+				moored++
+			}
+			t.Logf("%d steps, %d legs checked, %d ports, %d demolished", len(s.Steps), legs, len(ports), moored)
 		})
 	}
 }

@@ -842,6 +842,9 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 		l.flow(is.ID, good).Lost += b.bufferFine(good)
 	}
 	removeBuilding(is, b.ID)
+	if b.Berths > 0 && !hasBerthSource(w, is.ID) {
+		moorOffshore(w, is, def, b)
+	}
 
 	for _, good := range surplus {
 		// Accepted surplus loss: deliver the good's remaining transit
