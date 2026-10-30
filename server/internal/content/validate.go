@@ -212,18 +212,8 @@ func checkReferences(c *Catalogue) error {
 			}
 		}
 		if d := b.Depot; d != nil {
-			for i, l := range d.Levels {
-				field := fmt.Sprintf("depot.levels[%d]", i)
-				if l.Capacity <= 0 {
-					col.add(FileBuildings, ent, field+".capacity", "must be > 0")
-				}
-				checkLevelCost(col, ent, field+".cost", i, l.Cost)
-				switch {
-				case i == 0 && l.Tier != "":
-					col.add(FileBuildings, ent, field+".tier", "the first level has no tier condition")
-				case l.Tier != "":
-					tier(FileBuildings, ent, field+".tier", l.Tier)
-				}
+			if d.Capacity <= 0 {
+				col.add(FileBuildings, ent, "depot.capacity", "must be > 0")
 			}
 			if b.TradingPost != nil || b.Warehouse != nil || b.Service != nil || b.Pier != nil {
 				col.add(FileBuildings, ent, "depot", "a depot is neither a collector, a public building nor a pier")

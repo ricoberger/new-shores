@@ -288,7 +288,7 @@ type Building struct {
 	Warehouse *Warehouse
 	// Pier marks a trading pier (D-060): water-edge, adds berths.
 	Pier *Pier
-	// Depot marks a depot (D-060): adds island capacity per level.
+	// Depot marks a depot (D-062): adds island capacity without levels.
 	Depot     *Depot
 	Road      *Road
 	Service   *Service
@@ -414,20 +414,10 @@ type Pier struct {
 	Berths int
 }
 
-// Depot adds capacity per good to its island per level (D-060,
-// MECHANICS §5).
+// Depot adds capacity per good to its island, without levels (D-062).
 type Depot struct {
-	Levels []DepotLevel
-}
-
-// DepotLevel is one level of a depot.
-type DepotLevel struct {
-	// Capacity per good in milli-units the depot adds at this level.
+	// Capacity per good in milli-units.
 	Capacity Qty
-	// Tier must be unlocked to upgrade into the level ("" for none).
-	Tier string
-	// Cost is the upgrade cost into this level; nil for the first level.
-	Cost *Cost
 }
 
 // InitialBerths is the number of berths of a newly placed building: a
@@ -454,7 +444,7 @@ func (b *Building) CapacityAt(level int) Qty {
 	case b.TradingPost != nil:
 		return b.TradingPostLevelAt(level).Capacity
 	case b.Depot != nil:
-		return b.Depot.Levels[clampLevel(level, len(b.Depot.Levels))].Capacity
+		return b.Depot.Capacity
 	}
 	return 0
 }
@@ -487,8 +477,6 @@ func (b *Building) LevelCount() int {
 		return len(b.Warehouse.Levels)
 	case b.Service != nil:
 		return len(b.Service.Levels)
-	case b.Depot != nil:
-		return len(b.Depot.Levels)
 	}
 	return 0
 }
@@ -507,8 +495,6 @@ func (b *Building) LevelTier(level int) string {
 	switch {
 	case b.Service != nil:
 		return b.Service.Levels[level-1].Tier
-	case b.Depot != nil:
-		return b.Depot.Levels[level-1].Tier
 	}
 	return ""
 }
@@ -541,8 +527,6 @@ func (b *Building) LevelCost(level int) *Cost {
 		return b.TradingPost.Levels[level-1].Cost
 	case b.Warehouse != nil:
 		return b.Warehouse.Levels[level-1].Cost
-	case b.Depot != nil:
-		return b.Depot.Levels[level-1].Cost
 	}
 	return b.Service.Levels[level-1].Cost
 }

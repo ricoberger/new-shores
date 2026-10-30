@@ -36,6 +36,10 @@ func quayCoast() []string {
 // (tpX, 6), the Citizens unlocked, gold and stone.
 func quayWorld(t *testing.T, c *content.Catalogue, tpX int, rows ...string) *World {
 	t.Helper()
+	// Pin the original synthetic bays; shipped sizes are tested separately.
+	c.BuildingByID["trading_post"].Width = 6
+	c.BuildingByID["trading_post"].Height = 9
+	c.BuildingByID["trading_post"].WaterRows = &content.WaterRows{Min: 3, Max: 3}
 	w := NewWorld(t0)
 	w.Islands = []*Island{islandFromRows("main", rows...)}
 	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: tpX, Y: 6}, nil); err != nil {

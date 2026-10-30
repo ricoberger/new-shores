@@ -296,7 +296,7 @@ describe("orientation and anchors", () => {
   it("puts the model front (door anchor) on frontOffset's edge at all four rotations", () => {
     for (const [entry, d] of [
       [house, def("house_settlers", 3, 3)],
-      [warehouse, def("trading_post", 6, 9)],
+      [warehouse, def("trading_post", 6, 6)],
     ] as const) {
       for (const rotation of [0, 90, 180, 270] as const) {
         const box = footprintBox(10, 20, d.width, d.height, rotation);
@@ -341,7 +341,7 @@ describe("orientation and anchors", () => {
 
   it("lays the harbour anchors (berths, slip, boat) on the water rows at every rotation (D-054)", () => {
     for (const [id, w, h, water, names] of [
-      ["trading_post", 6, 9, 3, ["berth_1", "berth_2", "berth_3", "berth_4"]],
+      ["trading_post", 6, 6, 2, ["berth_1", "berth_2", "berth_3", "berth_4"]],
       ["shipyard", 8, 12, 4, ["slip"]],
       ["fisher", 3, 8, 3, ["boat"]],
     ] as const) {

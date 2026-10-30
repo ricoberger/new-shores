@@ -493,7 +493,7 @@ func patricians(f *fixture) {
 		})
 	}
 	market := f.placePaid(home, "market", f.streetEnd(home))
-	for _, typ := range []string{"chapel", "tavern", "school", "church", "theatre", "university", "cathedral"} {
+	for _, typ := range []string{"chapel", "tavern", "school", "church", "playhouse", "university", "cathedral"} {
 		f.placePaid(home, typ, f.streetEnd(home))
 	}
 	for lv := 2; lv <= 3 && f.err == nil; lv++ {

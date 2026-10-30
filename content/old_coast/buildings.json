@@ -30,8 +30,8 @@
     "name": "Trading Post",
     "region": "old_coast",
     "tier": "settlers",
-    "footprint": [6, 9],
-    "water_rows": { "min": 3, "max": 3 },
+    "footprint": [6, 6],
+    "water_rows": { "min": 1, "max": 2 },
     "coastal": false,
     "requires_road": false,
     "cost": { "gold": 200, "planks": 15 },
@@ -110,7 +110,7 @@
     "name": "Chapel",
     "region": "old_coast",
     "tier": "settlers",
-    "footprint": [3, 3],
+    "footprint": [3, 5],
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 100, "planks": 6 },
@@ -176,7 +176,7 @@
     "region": "old_coast",
     "tier": "settlers",
     "footprint": [3, 8],
-    "water_rows": { "min": 3, "max": 3 },
+    "water_rows": { "min": 2, "max": 3 },
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },
@@ -249,7 +249,7 @@
     "region": "old_coast",
     "tier": "citizens",
     "footprint": [8, 12],
-    "water_rows": { "min": 4, "max": 4 },
+    "water_rows": { "min": 3, "max": 4 },
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 300, "planks": 45 },
@@ -301,8 +301,8 @@
     "name": "Trading Pier",
     "region": "old_coast",
     "tier": "citizens",
-    "footprint": [3, 4],
-    "water_rows": { "min": 3, "max": 3 },
+    "footprint": [6, 9],
+    "water_rows": { "min": 5, "max": 6 },
     "coastal": false,
     "requires_road": false,
     "cost": { "gold": 250, "planks": 20, "stone": 10 },
@@ -315,19 +315,14 @@
     "name": "Depot",
     "region": "old_coast",
     "tier": "citizens",
-    "footprint": [4, 4],
-    "water_rows": { "min": 1, "max": 1 },
+    "footprint": [11, 4],
+    "water_rows": { "min": 0, "max": 1 },
     "coastal": false,
     "requires_road": false,
     "cost": { "gold": 280, "planks": 20, "stone": 10 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "depot": {
-      "levels": [
-        { "capacity": 150 },
-        { "capacity": 300, "tier": "merchants", "cost": { "gold": 500, "planks": 20, "stone": 20, "bricks": 10 } }
-      ]
-    }
+    "depot": { "capacity": 150 }
   },
   {
     "id": "tavern",
@@ -360,13 +355,18 @@
     "name": "City guard",
     "region": "old_coast",
     "tier": "citizens",
-    "footprint": [3, 3],
+    "footprint": [4, 4],
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 200, "planks": 10, "stone": 6 },
     "upkeep_per_min": 2,
     "pause_category": "public",
-    "service": { "radius": 16 }
+    "service": {
+      "levels": [
+        { "radius": 16 },
+        { "radius": 20, "tier": "merchants", "cost": { "gold": 200, "planks": 10, "stone": 6 } }
+      ]
+    }
   },
   {
     "id": "wheat_farm",
@@ -845,8 +845,8 @@
     "service": { "radius": 20 }
   },
   {
-    "id": "theatre",
-    "name": "Theatre",
+    "id": "playhouse",
+    "name": "Playhouse",
     "region": "old_coast",
     "tier": "merchants",
     "footprint": [11, 14],
@@ -862,26 +862,31 @@
     "name": "Fire station",
     "region": "old_coast",
     "tier": "merchants",
-    "footprint": [3, 4],
+    "footprint": [4, 5],
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 400, "planks": 15, "stone": 15, "bricks": 5 },
     "upkeep_per_min": 4,
     "pause_category": "public",
-    "service": { "radius": 16 }
+    "service": {
+      "levels": [
+        { "radius": 16 },
+        { "radius": 20, "tier": "merchants", "cost": { "gold": 400, "planks": 15, "stone": 15, "bricks": 5 } }
+      ]
+    }
   },
   {
     "id": "surgery",
     "name": "Surgery",
     "region": "old_coast",
-    "tier": "merchants",
-    "footprint": [3, 3],
+    "tier": "patricians",
+    "footprint": [4, 6],
     "coastal": false,
     "requires_road": true,
-    "cost": { "gold": 450, "planks": 10, "stone": 15, "bricks": 5 },
+    "cost": { "gold": 450, "planks": 10, "stone": 15, "glass": 5 },
     "upkeep_per_min": 4,
     "pause_category": "public",
-    "service": { "radius": 16 }
+    "service": { "radius": 20 }
   },
   {
     "id": "butcher",
@@ -1199,7 +1204,7 @@
     "region": "old_coast",
     "tier": "merchants",
     "footprint": [5, 9],
-    "water_rows": { "min": 3, "max": 3 },
+    "water_rows": { "min": 2, "max": 3 },
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 180, "planks": 6, "stone": 6 },
@@ -1371,7 +1376,7 @@
     "region": "old_coast",
     "tier": "patricians",
     "footprint": [6, 12],
-    "water_rows": { "min": 4, "max": 4 },
+    "water_rows": { "min": 3, "max": 4 },
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 480, "planks": 12, "stone": 9, "bricks": 6 },

@@ -469,7 +469,7 @@ type BuildingDisplay struct {
 	Workforce               *BuildingWorkforce `json:"workforce,omitempty"`
 
 	// Collectors; Level also for public buildings with levels (D-056),
-	// Level and Capacity (its own share) for depots (D-060).
+	// Capacity (its own share) for depots (D-062; no levels).
 	Level            *int   `json:"level,omitempty"`
 	Capacity         *Qty   `json:"capacity,omitempty"`
 	ThroughputPerMin *Qty   `json:"throughput_per_min,omitempty"`
@@ -816,8 +816,7 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, wr *worldRates, r
 			bd.Level = ptr(min(max(b.Level, 1), def.LevelCount()))
 		}
 		if def.Depot != nil {
-			level := min(max(b.Level, 1), def.LevelCount())
-			bd.Level, bd.Capacity = &level, ptr(def.CapacityAt(level))
+			bd.Capacity = ptr(def.Depot.Capacity)
 		}
 		if def.Collector() {
 			level := min(max(b.Level, 1), def.LevelCount())

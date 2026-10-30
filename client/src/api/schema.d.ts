@@ -2514,36 +2514,13 @@ export interface components {
                 /** @description Berths the pier adds (count). */
                 berths: number;
             };
-            /**
-             * @description A depot (D-060): adds capacity per good to its island
-             *     (MECHANICS §5); later levels via `upgrade_building`.
-             */
+            /** @description A depot adds island capacity per good; no levels (D-062). */
             depot?: {
-                levels: {
-                    /**
-                     * Format: int64
-                     * @description Capacity per good the depot adds at this level (milli-units).
-                     */
-                    capacity: number;
-                    /** @description Tier that must be unlocked to upgrade into this level. */
-                    tier?: string;
-                    /**
-                     * @description Upgrade cost into this level (`upgrade_building`);
-                     *     absent on the first level, which the building cost
-                     *     places.
-                     */
-                    cost?: {
-                        /**
-                         * Format: int64
-                         * @description Gold cost (milli-gold).
-                         */
-                        gold: number;
-                        /** @description Material cost per good (milli-units). */
-                        materials: {
-                            [key: string]: number;
-                        };
-                    };
-                }[];
+                /**
+                 * Format: int64
+                 * @description Capacity per good the depot adds (milli-units).
+                 */
+                capacity: number;
             };
             road?: {
                 /**

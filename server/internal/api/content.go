@@ -241,17 +241,9 @@ type pierJSON struct {
 	Berths int `json:"berths"`
 }
 
-type depotLevelJSON struct {
-	// Capacity is the capacity per good the depot adds at the level.
-	Capacity int64  `json:"capacity"`
-	Tier     string `json:"tier,omitempty"`
-	// Cost is the upgrade cost into the level (absent on the first level).
-	Cost *costJSON `json:"cost,omitempty"`
-}
-
-// depotJSON is a depot (D-060): capacity per good by level.
+// depotJSON is a depot (D-062): fixed capacity per good, no levels.
 type depotJSON struct {
-	Levels []depotLevelJSON `json:"levels"`
+	Capacity int64 `json:"capacity"`
 }
 
 type roadJSON struct {
@@ -549,15 +541,7 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 		bj.Pier = &pierJSON{Berths: pr.Berths}
 	}
 	if d := b.Depot; d != nil {
-		bj.Depot = &depotJSON{Levels: []depotLevelJSON{}}
-		for _, l := range d.Levels {
-			lj := depotLevelJSON{Capacity: l.Capacity, Tier: l.Tier}
-			if l.Cost != nil {
-				cost := newCostJSON(*l.Cost)
-				lj.Cost = &cost
-			}
-			bj.Depot.Levels = append(bj.Depot.Levels, lj)
-		}
+		bj.Depot = &depotJSON{Capacity: d.Capacity}
 	}
 	if rd := b.Road; rd != nil {
 		bj.Road = &roadJSON{MsPerTile: rd.MsPerTile, Shallows: rd.Shallows}

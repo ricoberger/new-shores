@@ -487,7 +487,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	}
 	b := &Building{ID: w.NextBuildingID, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Efficiency: 1000}
 	w.NextBuildingID++
-	if def.Collector() || def.Depot != nil {
+	if def.Collector() {
 		b.Level = 1
 	}
 	b.Berths = def.InitialBerths()

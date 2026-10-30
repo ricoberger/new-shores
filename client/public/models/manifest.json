@@ -3085,26 +3085,17 @@
           -2.0
         ]
       },
-      "file": {
-        "bounds": {
-          "max": [
-            2.0,
-            2.625,
-            2.0
-          ],
-          "min": [
-            -2.0,
-            0.0,
-            -2.0
-          ]
-        },
-        "budget": 8000,
-        "bytes": 106648,
-        "lite": {
+      "footprint": {
+        "h": 4,
+        "w": 4
+      },
+      "kind": "building",
+      "levels": {
+        "1": {
           "bounds": {
             "max": [
               2.0,
-              2.5,
+              2.625,
               2.0
             ],
             "min": [
@@ -3113,21 +3104,70 @@
               -2.0
             ]
           },
-          "budget": 640,
-          "bytes": 12124,
-          "path": "city_guard.lite.glb",
-          "sha256": "5f1c93b4ce2761aeab7293c5dbbfa079b5af8d4f7cfd42ae1bbc428f2600c0e9",
-          "triangles": 326
+          "budget": 8000,
+          "bytes": 106648,
+          "lite": {
+            "bounds": {
+              "max": [
+                2.0,
+                2.5,
+                2.0
+              ],
+              "min": [
+                -2.0,
+                0.0,
+                -2.0
+              ]
+            },
+            "budget": 640,
+            "bytes": 12124,
+            "path": "city_guard.l1.lite.glb",
+            "sha256": "5f1c93b4ce2761aeab7293c5dbbfa079b5af8d4f7cfd42ae1bbc428f2600c0e9",
+            "triangles": 326
+          },
+          "path": "city_guard.l1.glb",
+          "sha256": "1b9cdfbe25bbcf0acd67efbc3f9eb978cec87fe3b5e32f3b5b4199f038c874c7",
+          "triangles": 3492
         },
-        "path": "city_guard.glb",
-        "sha256": "1b9cdfbe25bbcf0acd67efbc3f9eb978cec87fe3b5e32f3b5b4199f038c874c7",
-        "triangles": 3492
-      },
-      "footprint": {
-        "h": 4,
-        "w": 4
-      },
-      "kind": "building"
+        "2": {
+          "bounds": {
+            "max": [
+              2.0,
+              2.625,
+              2.0
+            ],
+            "min": [
+              -2.0,
+              0.0,
+              -2.0
+            ]
+          },
+          "budget": 8000,
+          "bytes": 106648,
+          "lite": {
+            "bounds": {
+              "max": [
+                2.0,
+                2.5,
+                2.0
+              ],
+              "min": [
+                -2.0,
+                0.0,
+                -2.0
+              ]
+            },
+            "budget": 640,
+            "bytes": 12124,
+            "path": "city_guard.l2.lite.glb",
+            "sha256": "5f1c93b4ce2761aeab7293c5dbbfa079b5af8d4f7cfd42ae1bbc428f2600c0e9",
+            "triangles": 326
+          },
+          "path": "city_guard.l2.glb",
+          "sha256": "1b9cdfbe25bbcf0acd67efbc3f9eb978cec87fe3b5e32f3b5b4199f038c874c7",
+          "triangles": 3492
+        }
+      }
     },
     "clay_pit": {
       "anchors": {
@@ -4034,26 +4074,17 @@
           -2.5
         ]
       },
-      "file": {
-        "bounds": {
-          "max": [
-            2.0,
-            4.625,
-            2.5
-          ],
-          "min": [
-            -2.0,
-            0.0,
-            -2.5
-          ]
-        },
-        "budget": 10000,
-        "bytes": 141488,
-        "lite": {
+      "footprint": {
+        "h": 5,
+        "w": 4
+      },
+      "kind": "building",
+      "levels": {
+        "1": {
           "bounds": {
             "max": [
               2.0,
-              4.5,
+              4.625,
               2.5
             ],
             "min": [
@@ -4062,21 +4093,70 @@
               -2.5
             ]
           },
-          "budget": 800,
-          "bytes": 13568,
-          "path": "fire_station.lite.glb",
-          "sha256": "8d53a02f3f547acb77b59c791945c171a9a4ca08d0923a7400b9c0d71e4beb73",
-          "triangles": 350
+          "budget": 10000,
+          "bytes": 141488,
+          "lite": {
+            "bounds": {
+              "max": [
+                2.0,
+                4.5,
+                2.5
+              ],
+              "min": [
+                -2.0,
+                0.0,
+                -2.5
+              ]
+            },
+            "budget": 800,
+            "bytes": 13568,
+            "path": "fire_station.l1.lite.glb",
+            "sha256": "8d53a02f3f547acb77b59c791945c171a9a4ca08d0923a7400b9c0d71e4beb73",
+            "triangles": 350
+          },
+          "path": "fire_station.l1.glb",
+          "sha256": "12c844a7ae0c4ce516bdd73e765bbf1433d83b00b7d33a950ba75294288037df",
+          "triangles": 4482
         },
-        "path": "fire_station.glb",
-        "sha256": "12c844a7ae0c4ce516bdd73e765bbf1433d83b00b7d33a950ba75294288037df",
-        "triangles": 4482
-      },
-      "footprint": {
-        "h": 5,
-        "w": 4
-      },
-      "kind": "building"
+        "2": {
+          "bounds": {
+            "max": [
+              2.0,
+              4.625,
+              2.5
+            ],
+            "min": [
+              -2.0,
+              0.0,
+              -2.5
+            ]
+          },
+          "budget": 10000,
+          "bytes": 141488,
+          "lite": {
+            "bounds": {
+              "max": [
+                2.0,
+                4.5,
+                2.5
+              ],
+              "min": [
+                -2.0,
+                0.0,
+                -2.5
+              ]
+            },
+            "budget": 800,
+            "bytes": 13568,
+            "path": "fire_station.l2.lite.glb",
+            "sha256": "8d53a02f3f547acb77b59c791945c171a9a4ca08d0923a7400b9c0d71e4beb73",
+            "triangles": 350
+          },
+          "path": "fire_station.l2.glb",
+          "sha256": "12c844a7ae0c4ce516bdd73e765bbf1433d83b00b7d33a950ba75294288037df",
+          "triangles": 4482
+        }
+      }
     },
     "fisher": {
       "anchors": {
@@ -7122,6 +7202,78 @@
       },
       "kind": "field"
     },
+    "playhouse": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -7.0
+        ],
+        "status": [
+          0.0,
+          7.375,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          5.5,
+          7.125,
+          7.0
+        ],
+        "min": [
+          -5.5,
+          0.0,
+          -7.0
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            5.5,
+            7.125,
+            7.0
+          ],
+          "min": [
+            -5.5,
+            0.0,
+            -7.0
+          ]
+        },
+        "budget": 77000,
+        "bytes": 923764,
+        "lite": {
+          "bounds": {
+            "max": [
+              5.5,
+              6.5,
+              7.0
+            ],
+            "min": [
+              -5.5,
+              0.0,
+              -7.0
+            ]
+          },
+          "budget": 6160,
+          "bytes": 87676,
+          "path": "playhouse.lite.glb",
+          "sha256": "e56d3da8e7e6117c13eb40c4fa543ea67aa79686697979f1741806e18d2b4e3a",
+          "triangles": 2644
+        },
+        "path": "playhouse.glb",
+        "sha256": "f6c1f22c6795445a87f2b203d4d7b1e780c128a260a5dc2712f92040b2f955d6",
+        "triangles": 29490
+      },
+      "footprint": {
+        "h": 14,
+        "w": 11
+      },
+      "kind": "building",
+      "sway": [
+        "flag"
+      ]
+    },
     "printing_press": {
       "anchors": {
         "cart": [
@@ -8703,75 +8855,6 @@
       },
       "kind": "building"
     },
-    "theatre": {
-      "anchors": {
-        "door": [
-          0.0,
-          0.0,
-          -7.0
-        ],
-        "status": [
-          0.0,
-          5.25,
-          0.0
-        ]
-      },
-      "bounds": {
-        "max": [
-          5.5,
-          5.0,
-          7.0
-        ],
-        "min": [
-          -5.5,
-          0.0,
-          -7.0
-        ]
-      },
-      "file": {
-        "bounds": {
-          "max": [
-            5.5,
-            5.0,
-            7.0
-          ],
-          "min": [
-            -5.5,
-            0.0,
-            -7.0
-          ]
-        },
-        "budget": 77000,
-        "bytes": 298240,
-        "lite": {
-          "bounds": {
-            "max": [
-              5.5,
-              5.0,
-              7.0
-            ],
-            "min": [
-              -5.5,
-              0.0,
-              -7.0
-            ]
-          },
-          "budget": 6160,
-          "bytes": 19320,
-          "path": "theatre.lite.glb",
-          "sha256": "a9485ec97a6ffa437819e0bb7e80968b03a991787f89ca98e01d6aac66d187e6",
-          "triangles": 544
-        },
-        "path": "theatre.glb",
-        "sha256": "d25d5cab6424b0dfabee904a3544263dfe6f165ef63ee9efa60ca09b5c47d959",
-        "triangles": 8784
-      },
-      "footprint": {
-        "h": 14,
-        "w": 11
-      },
-      "kind": "building"
-    },
     "thread_spinner": {
       "anchors": {
         "cart": [
@@ -10147,9 +10230,7 @@
     }
   },
   "palette_sha256": "bbef71c2109fa8f9700b86b9d21f09f8a59573fffbf86e27b21877fdcaf21126",
-  "placeholders": [
-    "theatre"
-  ],
+  "placeholders": [],
   "version": 1,
   "voxels_per_tile": 8
 }

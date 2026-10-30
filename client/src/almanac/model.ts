@@ -319,6 +319,8 @@ export interface BuildingView {
   roadSecondsPerTile?: number;
   /** Berths a trading pier adds to its island (D-060). */
   pierBerths?: number;
+  /** Fixed capacity a depot adds per good, in whole units. */
+  depotCapacity?: number;
   /** A quay: a road on the shallow water (D-060). */
   shallows: boolean;
 }
@@ -336,7 +338,6 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   );
   b.warehouse?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), throughput: l.throughput_per_min / 1000 }));
   b.service?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), radius: l.radius, tier: l.tier }));
-  b.depot?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, tier: l.tier }));
   const cycle = r?.cycle_ms ?? 0;
   const modules = idx.modulesOf(b.id).map((m) => ({ building: m.id }));
   const mods = b.fields ? modules.map((m) => ({ ...m, required: b.fields?.required, max: b.fields?.max })) : modules;
@@ -347,6 +348,7 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
     category: b.category,
     width: b.width,
     height: b.height,
+    depotCapacity: b.depot ? b.depot.capacity / 1000 : undefined,
     waterRows: b.water_rows,
     footprint: b.water_rows
       ? b.water_rows.min === b.water_rows.max

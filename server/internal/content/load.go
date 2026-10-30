@@ -320,11 +320,7 @@ type rawBuilding struct {
 		Berths int `json:"berths"`
 	} `json:"pier"`
 	Depot *struct {
-		Levels []struct {
-			Capacity json.Number            `json:"capacity"`
-			Tier     string                 `json:"tier"`
-			Cost     map[string]json.Number `json:"cost"`
-		} `json:"levels"`
+		Capacity json.Number `json:"capacity"`
 	} `json:"depot"`
 	Road *struct {
 		SecondsPerTile json.Number `json:"seconds_per_tile"`
@@ -840,19 +836,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		b.Pier = &Pier{Berths: pr.Berths}
 	}
 	if d := rb.Depot; d != nil {
-		dp := &Depot{}
-		for i, l := range d.Levels {
-			lvl := DepotLevel{Capacity: col.fixed(file, ent, fmt.Sprintf("depot.levels[%d].capacity", i), l.Capacity, 3), Tier: l.Tier}
-			if l.Cost != nil {
-				cost := decodeCost(col, file, ent, l.Cost, goods)
-				lvl.Cost = &cost
-			}
-			dp.Levels = append(dp.Levels, lvl)
-		}
-		if len(dp.Levels) == 0 {
-			col.add(file, ent, "depot.levels", "must not be empty")
-		}
-		b.Depot = dp
+		b.Depot = &Depot{Capacity: col.fixed(file, ent, "depot.capacity", d.Capacity, 3)}
 	}
 	if r := rb.Road; r != nil {
 		b.Road = &Road{MsPerTile: col.fixed(file, ent, "road.seconds_per_tile", r.SecondsPerTile, 3), Shallows: r.Shallows}

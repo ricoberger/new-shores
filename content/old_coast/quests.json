@@ -229,8 +229,8 @@
   },
   {
     "id": "merchants_bricks",
-    "title": "Bricks for the theatre",
-    "text": "A theatre needs thirty bricks. Store thirty bricks in a Trading Post.",
+    "title": "Bricks for the playhouse",
+    "text": "A playhouse needs thirty bricks. Store thirty bricks in a Trading Post.",
     "objectives": [
       { "kind": "stock", "good": "bricks", "min": 30 }
     ],

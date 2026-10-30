@@ -3693,45 +3693,13 @@ components:
         depot:
           type: object
           additionalProperties: false
-          required: [levels]
-          description: |
-            A depot (D-060): adds capacity per good to its island
-            (MECHANICS §5); later levels via `upgrade_building`.
+          required: [capacity]
+          description: A depot adds island capacity per good; no levels (D-062).
           properties:
-            levels:
-              type: array
-              items:
-                type: object
-                additionalProperties: false
-                required: [capacity]
-                properties:
-                  capacity:
-                    type: integer
-                    format: int64
-                    description: Capacity per good the depot adds at this level (milli-units).
-                  tier:
-                    type: string
-                    description: Tier that must be unlocked to upgrade into this level.
-                  cost:
-                    type: object
-                    additionalProperties: false
-                    required: [gold, materials]
-                    description: |
-                      Upgrade cost into this level (`upgrade_building`);
-                      absent on the first level, which the building cost
-                      places.
-                    properties:
-                      gold:
-                        type: integer
-                        format: int64
-                        description: Gold cost (milli-gold).
-                      materials:
-                        type: object
-                        description: Material cost per good (milli-units).
-                        additionalProperties:
-                          type: integer
-                          format: int64
-                          description: Amount (milli-units).
+            capacity:
+              type: integer
+              format: int64
+              description: Capacity per good the depot adds (milli-units).
         road:
           type: object
           additionalProperties: false

@@ -232,8 +232,8 @@ describe("footprintText (D-054)", () => {
   it("names the size, the rows on water and a farm's fields at the maximum", () => {
     expect(of("wheat_farm")).toBe("3×4 + 140 fields");
     expect(of("sheep_farm")).toBe("3×3 + 3 pastures of 3×3");
-    expect(of("trading_post")).toBe("6×9 (3 rows on water)");
-    expect(of("shipyard")).toBe("8×12 (4 rows on water)");
+    expect(of("trading_post")).toBe("6×6 (1–2 rows on water)");
+    expect(of("shipyard")).toBe("8×12 (3–4 rows on water)");
     expect(of("house_settlers")).toBe("3×3");
     expect(of("wheat_field")).toBe("1×1");
   });

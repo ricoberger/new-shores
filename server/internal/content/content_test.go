@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.15.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.16.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 120 {
@@ -76,7 +76,7 @@ func TestLoadOldCoast(t *testing.T) {
 		"hemp_farm", "hemp_field", "weaver_linen", "pig_farm", "pig_pen", "tannery", "sailmaker", "quarry", "iron_mine",
 		"charcoal_burner", "smelter", "toolmaker",
 		// Tier 3 (D-056 C3).
-		"house_merchants", "church", "theatre", "fire_station", "surgery", "butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
+		"house_merchants", "church", "playhouse", "fire_station", "surgery", "butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
 		"woad_farm", "woad_field", "dyer_works", "dyer", "paper_mill", "printing_press", "clay_pit", "rendering_house",
 		"soap_maker", "salt_pans", "salt_mine", "salt_works", "brickworks", "coal_mine",
 		// Tier 4 (D-056 C4).
@@ -100,7 +100,7 @@ func TestLoadOldCoast(t *testing.T) {
 		wantHouse, wantNeeds := "", 0
 		switch id {
 		case "merchants":
-			wantHouse, wantNeeds = "house_merchants", 13
+			wantHouse, wantNeeds = "house_merchants", 12
 		case "patricians":
 			wantHouse, wantNeeds = "house_patricians", 18
 		}
@@ -198,10 +198,10 @@ func TestLoadOldCoast(t *testing.T) {
 	want := map[string]costs{
 		"house_settlers": {0, 5_000, 0, 3, 3, "never"},
 		"road_dirt":      {1_000, 0, 0, 1, 1, "never"},
-		"trading_post":   {200_000, 15_000, 0, 6, 9, "never"},
+		"trading_post":   {200_000, 15_000, 0, 6, 6, "never"},
 		"warehouse":      {50_000, 6_000, 0, 6, 6, "never"},
 		"market":         {250_000, 15_000, 0, 5, 6, "never"},
-		"chapel":         {100_000, 6_000, 0, 3, 3, "never"},
+		"chapel":         {100_000, 6_000, 0, 3, 5, "never"},
 		"lumberjack":     {60_000, 6_000, 1_000, 3, 3, "intermediate"},
 		"sawmill":        {120_000, 9_000, 2_000, 4, 6, "intermediate"},
 		"fisher":         {60_000, 6_000, 2_000, 3, 8, "food_basic"},
@@ -282,7 +282,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Error("fisher recipe/water-edge mismatch")
 	}
 	tp := c.BuildingByID["trading_post"]
-	if tp.TradingPost == nil || waterRange(tp).Max != 3 || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 30_000, Berths: 1}) {
+	if tp.TradingPost == nil || waterRange(tp) != (WaterRows{Min: 1, Max: 2}) || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 30_000, Berths: 1}) {
 		t.Errorf("trading post = %+v", tp.TradingPost)
 	}
 	var berths []int
@@ -569,7 +569,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"water rows cover the whole footprint", FileBuildings,
-			[]string{`"water_rows": { "min": 3, "max": 3 },
+			[]string{`"water_rows": { "min": 2, "max": 3 },
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },`, `"water_rows": { "min": 8, "max": 8 },
@@ -580,10 +580,10 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"water-edge building also coastal", FileBuildings,
-			[]string{`"water_rows": { "min": 3, "max": 3 },
+			[]string{`"water_rows": { "min": 2, "max": 3 },
     "coastal": false,
     "requires_road": true,
-    "cost": { "gold": 60, "planks": 6 },`, `"water_rows": { "min": 3, "max": 3 },
+    "cost": { "gold": 60, "planks": 6 },`, `"water_rows": { "min": 2, "max": 3 },
     "coastal": true,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },`},
@@ -591,7 +591,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"trading post without water rows", FileBuildings,
-			[]string{`"water_rows": { "min": 3, "max": 3 },
+			[]string{`"water_rows": { "min": 1, "max": 2 },
     "coastal": false,
     "requires_road": false,
     "cost": { "gold": 200, "planks": 15 },`, `"coastal": false,
@@ -918,7 +918,7 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 		"settlers_food": "Food", "settlers_clothing": "Clothing", "settlers_services": "Services",
 		"citizens_food": "Food", "citizens_drink": "Drink", "citizens_clothing": "Clothing", "citizens_services": "Services",
 		"citizens_safety": "Safety", "merchants_safety": "Safety", "patricians_safety": "Safety",
-		"merchants_fire_protection": "Fire protection", "merchants_health": "Health",
+		"merchants_fire_protection":  "Fire protection",
 		"patricians_fire_protection": "Fire protection", "patricians_health": "Health",
 		"citizens_settlers_food": "Food", "citizens_settlers_clothing": "Clothing",
 		"merchants_food": "Food", "merchants_drink": "Drink", "merchants_clothing": "Clothing", "merchants_comfort": "Comfort",

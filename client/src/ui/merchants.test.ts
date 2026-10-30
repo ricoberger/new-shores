@@ -134,7 +134,6 @@ describe("tier 3 in the cards (D-056)", () => {
       "merchants_services",
       "merchants_safety",
       "merchants_fire_protection",
-      "merchants_health",
       "merchants_settlers_food",
       "merchants_settlers_clothing",
       "merchants_citizens_food",
@@ -150,7 +149,6 @@ describe("tier 3 in the cards (D-056)", () => {
     for (const [id, label] of [
       ["merchants_safety", "Safety100 %"],
       ["merchants_fire_protection", "Fire protection100 %"],
-      ["merchants_health", "Health100 %"],
     ]) {
       const row = html.match(new RegExp(`data-testid="house-need-${id}"[^>]*>(.*?)</tr>`))![1]!;
       expect(text(row)).toBe(label);

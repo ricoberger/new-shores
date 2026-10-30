@@ -164,7 +164,7 @@ interface LevelDef {
 /** The next level of a Trading Post, Warehouse, depot or levelled public building (content), undefined at the last level. */
 function nextLevelOf(content: Content, b: BuildingDisplay): LevelDef | undefined {
   const def = content.buildings.find((d) => d.id === b.type);
-  const levels: LevelDef[] = def?.trading_post?.levels ?? def?.warehouse?.levels ?? def?.depot?.levels ?? def?.service?.levels ?? [];
+  const levels: LevelDef[] = def?.trading_post?.levels ?? def?.warehouse?.levels ?? def?.service?.levels ?? [];
   return b.level !== undefined ? levels[b.level] : undefined;
 }
 
@@ -341,39 +341,22 @@ function PierSection({ def, island, content }: { def: Content["buildings"][numbe
   );
 }
 
-/** A depot (D-060): its level, the capacity it adds and the island's capacity, then its upgrade. Display only. */
-function DepotSection({
-  building: b,
-  def,
-  island,
-  model,
-  content,
-}: {
+/** A depot adds fixed capacity, without an upgrade block (D-062). */
+function DepotSection({ building: b, def, island, content }: {
   building: BuildingDisplay;
   def: Content["buildings"][number];
   island: IslandDisplay;
-  model: DisplayState;
   content: Content;
 }) {
-  const levels = def.depot?.levels ?? [];
-  const level = b.level ?? 1;
   return (
     <div data-testid="depot-panel">
       <div className={styles.section}>
         <div className={styles.sectionTitle}>{t("infoPanel.details")}</div>
         <table className={styles.table}>
           <tbody>
-            {levels.length > 1 && (
-              <tr>
-                <td>{t("infoPanel.level")}</td>
-                <td data-testid="depot-level">
-                  {level} / {levels.length}
-                </td>
-              </tr>
-            )}
             <tr>
               <td>{t("infoPanel.adds")}</td>
-              <td data-testid="depot-capacity">{t("infoPanel.capacityPerGood", { amount: units(b.capacity ?? levels[level - 1]?.capacity ?? 0) })}</td>
+              <td data-testid="depot-capacity">{t("infoPanel.capacityPerGood", { amount: units(b.capacity ?? def.depot?.capacity ?? 0) })}</td>
             </tr>
             <tr>
               <td>{t("infoPanel.islandCapacity")}</td>
@@ -383,7 +366,6 @@ function DepotSection({
           </tbody>
         </table>
       </div>
-      <UpgradePreview building={b} island={island} model={model} content={content} testId="depot-upgrade" />
     </div>
   );
 }
@@ -800,7 +782,7 @@ export function InfoPanel({
           />
         )}
         {def?.pier && <PierSection def={def} island={island} content={content} />}
-        {def?.depot && <DepotSection building={b} def={def} island={island} model={model} content={content} />}
+        {def?.depot && <DepotSection building={b} def={def} island={island} content={content} />}
         {b.level !== undefined && def?.warehouse && (
           <div data-testid="warehouse-panel">
             <div className={styles.section}>
