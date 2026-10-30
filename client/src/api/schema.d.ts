@@ -1548,7 +1548,7 @@ export interface components {
             state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map";
             /** @description Island where the ship is; empty while travelling or at sea. */
             island_id: string;
-            /** @description Archipelago position of an idle or anchored ship at sea (the start ship of a new world, D-051); null at an island or on a leg. */
+            /** @description Archipelago position of an idle or anchored ship at sea or at an island without berths (the start ship of a new world, D-051; a founding ship before its Trading Post, the end of the leg that brought it; `island_id` stays set there); null at an island with berths or on a leg. */
             position: components["schemas"]["SeaPosition"] | null;
             /**
              * Format: int64

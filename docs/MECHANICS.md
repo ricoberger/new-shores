@@ -632,6 +632,11 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   visual position is interpolated from the leg timers; arrival is a due
   moment (`ship_arrived`, §1.3) that applies unload/load and schedules the
   next leg.
+- An idle or anchored ship at an island without berths (a founding ship
+  before `found_island`, a ship left at an island whose Trading Post is
+  gone) keeps a sea position, the end of the leg that brought it
+  (`Ship.Offshore`, sent as `position` with `island_id` set); it is cleared
+  when the ship departs, is granted a berth or a berth source is placed.
 - `update_route` is always allowed: assigned ships finish their current
   leg, then continue at the first stop (searched cyclically from their
   current index) on their arrival island, otherwise sail a positioning leg

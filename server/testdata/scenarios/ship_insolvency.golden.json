@@ -1421,7 +1421,10 @@
         "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": "",
-        "position": null,
+        "position": {
+          "x": 37,
+          "y": 48
+        },
         "queued_at": null,
         "berth_until": null
       }

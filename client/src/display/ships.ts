@@ -455,11 +455,12 @@ export function legPath(
  * land (legPath) at constant speed while travelling (fraction of the
  * time clamped to [0, 1]) and at the destination's anchor after
  * arrive_at (until the next payload). Without a leg (idle,
- * anchored_unpaid) it lies at harbour berth `slot + 1` of its island (the
- * first berth is the anchor of the legs); at an island without berths
- * (unsettled: the founding ship before found_island) at `arrived`, the
- * end of its last leg, when known, else at the island centre plus the
- * spread offset of `slot`. Null when an island is unknown.
+ * anchored_unpaid) it lies at the server's `position` (at sea, or at an
+ * island without berths: the founding ship before found_island), else at
+ * harbour berth `slot + 1` of its island (the first berth is the anchor of
+ * the legs); at an island without berths and without a position (an older
+ * server) at `arrived`, the end of its last leg, when known, else at the
+ * island centre plus the spread offset of `slot`. Null when an island is unknown.
  */
 export function shipPlacement(
   ship: Pick<ShipDisplay, "island_id" | "leg"> & { position?: ShipDisplay["position"] },
@@ -484,8 +485,9 @@ export function shipPlacement(
     const at = alongPath(pts, f);
     return { point: at.point, heading: at.heading, atSea: f < 1 };
   }
-  // At sea without a leg: the start ship before it sails.
-  if (!ship.island_id && ship.position) return { point: seaPoint(ship.position), heading: 0, atSea: true };
+  // A sea position from the server: the start ship before it sails, or a ship
+  // idle at an island without berths (island_id set; the end of its last leg).
+  if (ship.position) return { point: seaPoint(ship.position), heading: 0, atSea: !ship.island_id };
   // At a Trading Post's pier: unloading at its slot, or queued further out.
   if (dock) return { point: dock.point, heading: dock.heading, atSea: false };
   const is = islands.get(ship.island_id);

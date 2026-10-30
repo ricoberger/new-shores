@@ -491,6 +491,9 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 		b.Level = 1
 	}
 	b.Berths = def.InitialBerths()
+	if b.Berths > 0 {
+		unmoor(w, is.ID)
+	}
 	if def.House != nil {
 		if tier := c.TierByID[def.House.Tier]; tier != nil {
 			b.House = &HouseState{Residents: tier.ResidentsFloor}

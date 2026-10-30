@@ -93,12 +93,24 @@ describe("ship placement against the server fixtures", () => {
     expect(shipPlacement(idle, pl, 0)).toEqual({ point: { x: a.x + o0.x, y: a.y + o0.y }, heading: 0, atSea: false });
     // The berth is off the anchor (the island label sits there).
     expect(Math.hypot(o0.x, o0.y)).toBeGreaterThan(3);
-    const anchored: ShipDisplay = { ...fixture("ship_insolvency").ships[0]!, state: "anchored_unpaid", paused: true, paused_reason: "unpaid" };
+    // The server's fixture has a sea position for it; without one (older payloads) the spread applies.
+    const anchored: ShipDisplay = { ...fixture("ship_insolvency").ships[0]!, state: "anchored_unpaid", paused: true, paused_reason: "unpaid", position: null };
     const pl2 = placements(fixture("ship_insolvency"));
     const b = islandAnchor(pl2.get(anchored.island_id)!);
     const o = spreadOffset(1);
     expect(shipPlacement(anchored, pl2, 0, 1)!.point).toEqual({ x: b.x + o.x, y: b.y + o.y });
     expect(o).not.toEqual(o0);
+  });
+
+  it("an idle ship at an island without berths lies at the server's sea position, before the island centre and the remembered leg end", () => {
+    const d = fixture("manual_shipment_excess");
+    const idle: ShipDisplay = { ...d.ships[0]!, state: "idle", leg: null, position: { x: 7, y: 14 } };
+    expect(idle.island_id).not.toBe("");
+    const pl = placements(d);
+    expect(shipPlacement(idle, pl, 0, 2)).toEqual({ point: seaPoint({ x: 7, y: 14 }), heading: 0, atSea: false });
+    expect(shipPlacement(idle, pl, 0, 2, undefined, undefined, { x: 1, y: 1 })!.point).toEqual({ x: 7.5, y: 14.5 });
+    // Without a position the fallbacks apply.
+    expect(shipPlacement({ ...idle, position: null }, pl, 0, 0, undefined, undefined, { x: 1, y: 1 })!.point).toEqual({ x: 1, y: 1 });
   });
 
   it("spread slots are per island by ascending ID; ships with a leg get none", () => {
