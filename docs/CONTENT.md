@@ -433,6 +433,37 @@ values, naming file, entity and field; the client gets generated TypeScript
 types for display only. Decimals have at most 3 places (weights 6), no
 exponent notation; they are converted to fixed point at load time.
 
+### Locale files (D-061)
+
+The main JSON files are the **English source**. Every other language is
+one flat file `content/<region>/i18n/<lang>.json` (schema
+`content/schema/locale.schema.json`): `"<file>.<id>.<field>": "text"`.
+`i18n/de.json` is the first; English has no file. The translatable
+fields (everything the server sends that is prose; errors and reasons
+are codes and stay in the client):
+
+| Key | Source |
+|---|---|
+| `region.<id>.name` | `region.json` name |
+| `tiers.<id>.name`, `goods.<id>.name`, `buildings.<id>.name`, `need_categories.<id>.name`, `needs.<id>.name`, `ships.<id>.name` | `name` of each entry |
+| `quests.<id>.title`, `quests.<id>.text` | quest title and advisor text |
+| `islands.<size class id>.name` | `islands.json` size class name |
+| `island_names.<index>` | entry of `island_names.json`; the index is **zero-based** (`island_names.0` is the first entry) |
+
+The loader enforces **completeness**: a language with a file must have
+every key and no unknown key (a content error, naming file and key);
+names obey the English limits (1–32 characters, island names 1–24),
+other texts 1–2000. `Catalogue.Languages()` is `["en", …]`. Fertility,
+deposit, terrain and category *display* words that the client composes
+itself are client keys, not content. Island names are chosen at world
+creation and stored in English; the content payload lists
+`island_names[{source, name}]` so the client shows the translation until
+the player renames the island (ship default names such as "Sloop 2" are
+mapped the same way by the type's `source_name`). Storing the list index or
+ship type in the world instead would be a schema change and is left to a
+future decision. A new translatable field must be added to
+`Catalogue.Texts` (and to every locale file) in the same change.
+
 ### region.json — region-wide rule constants only
 
 ```json

@@ -128,7 +128,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The content catalogue in the units of the display payload. */
+        /**
+         * The content catalogue in the units of the display payload.
+         * @description Player-facing texts (names, quest titles and texts, size class
+         *     names) are in the requested language, English per key where a
+         *     language lacks one (D-061). `lang` wins over `Accept-Language`; the
+         *     server never sends prose elsewhere, errors and reasons are codes.
+         *     The response carries `Content-Language` and `Vary: Accept-Language`.
+         */
         get: operations["getContent"];
         put?: never;
         post?: never;
@@ -2078,6 +2085,19 @@ export interface components {
             active?: boolean;
         };
         Content: {
+            /** @description The language of the text fields. */
+            language: string;
+            /** @description Every shipped language, "en" (the source) first. */
+            languages: string[];
+            /**
+             * @description The archipelago generator's island names. A generated island keeps
+             *     the English `source` name in the world until renamed; show `name`
+             *     for an island whose name equals a `source`.
+             */
+            island_names: {
+                source: string;
+                name: string;
+            }[];
             region: components["schemas"]["ContentRegion"];
             /** @description Quests in content order (a quest is active when its prerequisites are completed). */
             quests: components["schemas"]["ContentQuest"][];
@@ -2172,6 +2192,13 @@ export interface components {
         ContentShip: {
             id: string;
             name: string;
+            /**
+             * @description The English name, present when `name` is in another language. A
+             *     ship's default name ("Sloop 2") is composed from the English type
+             *     name when the ship is created; clients replace that prefix with
+             *     `name` to show it translated.
+             */
+            source_name?: string;
             tier: string;
             /** @description Cargo slots (count). */
             slots: number;
@@ -2873,7 +2900,10 @@ export interface operations {
     };
     getContent: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description A shipped language (`Content.languages`). Unknown languages are a `bad_request`. */
+                lang?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2889,6 +2919,7 @@ export interface operations {
                     "application/json": components["schemas"]["Content"];
                 };
             };
+            400: components["responses"]["Error"];
             405: components["responses"]["Error"];
         };
     };

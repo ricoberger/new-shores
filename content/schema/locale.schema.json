@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/locale.schema.json",
+  "title": "Content locale",
+  "description": "Translation of the player-facing content texts into one language (D-061), content/<region>/i18n/<lang>.json. A flat map from text key to text; English is the source in the main content files and has no locale file. Keys are \"<file>.<id>.<field>\" (buildings.lumberjack.name, quests.q01.text, islands.large.name) or \"<file>.<index>\" for list entries (island_names.12, zero-based). A shipped language must have every key; the loader reports missing and unknown keys.",
+  "type": "object",
+  "propertyNames": { "pattern": "^[a-z][a-z_]*\\.([a-z0-9_]+\\.[a-z_]+|[0-9]+)$" },
+  "additionalProperties": { "type": "string", "minLength": 1, "maxLength": 2000 }
+}

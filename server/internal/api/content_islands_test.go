@@ -5,7 +5,7 @@ import "testing"
 // The size classes of the content payload carry the generator's numbers:
 // size, count, the per-island pool ranges, the shape and the home class.
 func TestSizeClassPayload(t *testing.T) {
-	p := newContentPayload(shippedCatalogue(t))
+	p := newContentPayload(shippedCatalogue(t), "en")
 	if len(p.SizeClasses) == 0 {
 		t.Fatal("no size classes")
 	}
