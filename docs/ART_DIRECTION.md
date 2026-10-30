@@ -62,6 +62,10 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   (`nsvoxel/jitter.py`; tuned in V3b once the recipes exported flat
   colours): stone ±10.5 %, roofs ±8.5 %, wood ±7 %, foliage ±7 %,
   ground ±6 %, metal ±3 %, plaster ±3.5 %, glass and water none.
+  Merged decor (trees, scatter, crags, bridges) bakes each copy's scale
+  and place into its vertices, so the meshes carry the copy's origin and
+  scale (1/32 steps) as a vertex attribute and the shader recovers the
+  model's own voxel cells, whatever the copy's scale.
   The terrain keeps its own column jitter at the ground strength. Off at
   far LOD (a voxel is below a pixel) and with `?jitter=0` for A/B; WebGL 2
   only.
@@ -136,7 +140,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   off-screen islands are left out of the merged mesh. At far a built
   island's columns keep whole levels, one rock tier, flat rivers and 12
   colour levels, nearest the view first while the merged mesh stays
-  within 100 k triangles (the others fall back to their mask); the
+  within 90 k triangles (the others fall back to their mask); far tops
+  carry no corner occlusion (a step's shading is below a pixel, and it
+  split the rectangles); the
   focused island's lite terrain keeps at most two rock tiers and flat
   rivers (D-048's far budget).
 - **Terraces (D-058):** each land tile's level (0–2, from the tiles
@@ -152,7 +158,10 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   centres at eight steps per height (a large island's spine up to 32
   steps, four tiles), rising three steps per column from a ragged rim
   (noise at column resolution, never outside rock tiles) and roughened by
-  low-frequency noise in pairs of steps — uneven tops, not plates.
+  low-frequency noise in pairs of steps plus a per-column grain of four
+  columns to the tile; the pair lattice shifts half a step from level to
+  level and the rim and the terrace edges beside rock follow noise
+  (about a column) — uneven tops, not stacked plates.
   **Warm grey** rock with sandstone and ochre strata (the cliff bands)
   in its walls, darker at the foot, moss only on the lowest rim; the
   ground around it is grey **scree** with small boulders. A big crag

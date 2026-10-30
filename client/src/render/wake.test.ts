@@ -13,7 +13,7 @@ describe("ship wake", () => {
     expect(wake.count()).toBe(0);
     expect(wake.mesh.isVisible).toBe(false);
     // Heading east (0): the wake lies to the west of the stern.
-    wake.frame([{ id: 3, x: 10, y: 5, heading: 0, stern: 2, scale: 1 }], 1000);
+    wake.frame([{ id: 3, x: 10, y: 5, heading: 0, stern: 2, beam: 0.4, scale: 1 }], 1000);
     const n = wake.count();
     expect(n).toBeGreaterThan(WAKE_FLECKS);
     expect(n).toBeLessThanOrEqual(WAKE_FLECKS * 3);
@@ -27,10 +27,35 @@ describe("ship wake", () => {
     }
     // Stepped: the same within a step, re-rolled in the next.
     const at = (t: number) => {
-      wake.frame([{ id: 3, x: 10, y: 5, heading: 0, stern: 2, scale: 1 }], t);
+      wake.frame([{ id: 3, x: 10, y: 5, heading: 0, stern: 2, beam: 0.4, scale: 1 }], t);
       return Array.from(m.subarray(0, wake.count() * 16)).join();
     };
     expect(at(1000)).toBe(at(1010));
     expect([at(1300), at(1600), at(1900)].some((s) => s !== at(1000))).toBe(true);
+  });
+
+  it("starts at the stern anchor, as wide as the hull, and grows with the ship", () => {
+    const wake = new ShipWake(new Scene(engine), -0.6);
+    const extent = (ship: { stern: number; beam: number; scale: number }) => {
+      let nearest = Infinity;
+      let widest = 0;
+      for (let step = 0; step < 6; step++) {
+        wake.frame([{ id: 1, x: 0, y: 0, heading: 0, ...ship }], step * 300);
+        const mm = (wake as unknown as { matrices: Float32Array }).matrices;
+        for (let i = 0; i < wake.count(); i++) {
+          nearest = Math.min(nearest, Math.abs(mm[i * 16 + 12] as number));
+          widest = Math.max(widest, Math.abs(mm[i * 16 + 14] as number));
+        }
+      }
+      return { nearest, widest };
+    };
+    const small = extent({ stern: 1, beam: 0.2, scale: 1 });
+    const big = extent({ stern: 1.6, beam: 0.32, scale: 1.6 });
+    // Nothing between the hull centre and the stern.
+    expect(small.nearest).toBeGreaterThan(0.9);
+    expect(big.nearest).toBeGreaterThan(1.5);
+    // The arms leave the hull's sides at the stern: at least the beam out.
+    expect(small.widest).toBeGreaterThan(0.2);
+    expect(big.widest).toBeGreaterThan(small.widest * 1.5);
   });
 });

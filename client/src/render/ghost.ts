@@ -14,7 +14,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding } from "../api/client";
 import type { ArchPoint } from "../display/ships";
 import { type Rotation, rotatedFootprint } from "../display/geometry";
-import { previewOffset, skyFill } from "./lighting";
+import { ghostOffset, previewOffset, skyFill } from "./lighting";
 import { GHOST, WATER_ROWS } from "./palette";
 import { modelFileFor, modelMesh, type ModelRegistry, placement, worldData } from "./models";
 
@@ -33,6 +33,8 @@ const LIFT = { neutral: 0.12, warn: 0.42 };
 /** Opacity and height (above the ground plane) of the water-rows strip of a water-edge ghost. */
 const WATER_ROWS_ALPHA = 0.55;
 const WATER_ROWS_Y = 0.03;
+/** The ghost stands this much above its ground (tiles): its plinth never shares a plane with a terrace top (height bias beside the polygon offset). */
+export const GHOST_LIFT = 0.012;
 
 /** What the ghost shows: the building at a tile of an island, its rotation and (move tool) the building ID. */
 export interface GhostSpec {
@@ -77,12 +79,12 @@ export class PlacementGhost {
     private readonly registry: ModelRegistry | null,
   ) {
     this.box = CreateBox("ghost", { size: 1 }, scene);
-    this.boxMaterial = previewOffset(skyFill(new StandardMaterial("ghost", scene)));
+    this.boxMaterial = ghostOffset(skyFill(new StandardMaterial("ghost", scene)));
     this.boxMaterial.alpha = BOX_ALPHA;
     this.box.material = this.boxMaterial;
     this.box.isPickable = false;
     this.box.setEnabled(false);
-    this.modelMaterial = previewOffset(skyFill(new StandardMaterial("ghost_model", scene)));
+    this.modelMaterial = ghostOffset(skyFill(new StandardMaterial("ghost_model", scene)));
     this.modelMaterial.specularColor = Color3.Black();
     this.modelMaterial.alpha = MODEL_ALPHA;
     this.modelMaterial.needDepthPrePass = true;
@@ -112,13 +114,13 @@ export class PlacementGhost {
       const entry = this.registry?.entry(spec.def.id);
       if (!entry) return;
       const p = placement(entry, spec.def, { x: spec.x, y: spec.y, rotation: spec.rotation });
-      mesh.position.set(spec.island.x + p.cx, spec.base ?? 0, -spec.island.y + p.cz);
+      mesh.position.set(spec.island.x + p.cx, (spec.base ?? 0) + GHOST_LIFT, -spec.island.y + p.cz);
       mesh.rotation.y = p.yaw;
       mesh.scaling.set(p.sx, 1, p.sz);
     } else {
       const [w, h] = rotatedFootprint(spec.def.width, spec.def.height, spec.rotation);
       this.box.scaling.set(w, 0.6, h);
-      this.box.position.set(spec.island.x + spec.x + w / 2, (spec.base ?? 0) + 0.3, -(spec.island.y + spec.y + h / 2));
+      this.box.position.set(spec.island.x + spec.x + w / 2, (spec.base ?? 0) + 0.3 + GHOST_LIFT, -(spec.island.y + spec.y + h / 2));
     }
     this.shown.setEnabled(true);
     const rows = spec.waterRows ?? null;

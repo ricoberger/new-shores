@@ -124,6 +124,8 @@ export interface Field {
   textured?: boolean;
   /** Colour levels per channel of untextured tops (default QUANT). */
   quant?: number;
+  /** No corner occlusion on the tops (the far view: a step's shading is below a pixel there, and it splits the rectangles). */
+  flatTops?: boolean;
   /** Distance of sea columns to the land (columns, capped at COAST_REACH; 0 on land). */
   toLand?: Uint8Array;
   /** The lowest step of a column's walls toward an empty neighbour (default: bottom). */
@@ -535,6 +537,7 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
         return d >= 2 ? 1 : d === 1 ? 0.5 : 0;
       };
       const o: number[] = [];
+      if (f.flatTops) o.push(0, 0, 0, 0);
       // Corners (i, j), (i+1, j), (i+1, j+1), (i, j+1).
       for (const [di, dj] of [
         [-1, -1],
@@ -542,6 +545,7 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
         [1, 1],
         [-1, 1],
       ] as const) {
+        if (f.flatTops) break;
         const a = up(di, 0);
         const c = up(0, dj);
         o.push(a && c ? Math.max(a + c + up(di, dj), 1.5 * Math.max(a, c)) : a + c + up(di, dj));

@@ -19,6 +19,7 @@ import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
 import { BUILDINGS, WATER } from "../theme/palette";
 import { addJitter, LIFE_VPT } from "./jitter";
+import { addVariants, VARIANT_INSTANCE, VARIANT_VERTEX } from "./variants";
 import { skyFill } from "./lighting";
 import { lifeModel, type ModelData, type ModelRegistry } from "./models";
 import { c4, mix } from "./palette";
@@ -52,7 +53,7 @@ export function writeMatrix(out: Float32Array, i: number, x: number, y: number, 
 }
 
 /** Vertex attributes a model swap keeps (thin-instance buffers) or sets anew. */
-const KEEP_KINDS = new Set(["position", "normal", "color", "world0", "world1", "world2", "world3", "instanceColor"]);
+const KEEP_KINDS = new Set(["position", "normal", "color", "world0", "world1", "world2", "world3", "instanceColor", VARIANT_INSTANCE]);
 
 /** One element class: a mesh drawn with thin instances (matrix + colour), refilled every frame. */
 export class LifeMesh {
@@ -61,10 +62,15 @@ export class LifeMesh {
   private cap = 0;
   private n = 0;
   private uploaded = -1;
+  /** Per-instance variant (the class draws several geometries in one mesh, variants.ts). */
+  private sels = new Float32Array(0);
   /** Whether the model replaced the placeholder geometry. */
   modelled = false;
 
-  constructor(readonly mesh: Mesh) {
+  constructor(
+    readonly mesh: Mesh,
+    private readonly variants = false,
+  ) {
     mesh.isPickable = false;
     mesh.alwaysSelectAsActiveMesh = true;
     mesh.doNotSyncBoundingInfo = true;
@@ -75,10 +81,11 @@ export class LifeMesh {
     this.n = 0;
   }
 
-  push(x: number, y: number, z: number, yaw: number, k: number, color: readonly number[], roll: number): void {
+  push(x: number, y: number, z: number, yaw: number, k: number, color: readonly number[], roll: number, variant = 0): void {
     if (this.n >= this.cap) this.grow();
     writeMatrix(this.matrices, this.n, x, y, z, yaw, k, roll);
     this.colors.set(color, this.n * 4);
+    if (this.variants) this.sels[this.n] = variant;
     this.n++;
   }
 
@@ -93,6 +100,12 @@ export class LifeMesh {
     this.cap = cap;
     this.mesh.thinInstanceSetBuffer("matrix", this.matrices, 16, false);
     this.mesh.thinInstanceSetBuffer("color", this.colors, 4, false);
+    if (this.variants) {
+      const v = new Float32Array(cap);
+      v.set(this.sels);
+      this.sels = v;
+      this.mesh.thinInstanceSetBuffer(VARIANT_INSTANCE, this.sels, 1, false);
+    }
   }
 
   /** Uploads this frame's instances (hidden when there are none). */
@@ -105,6 +118,7 @@ export class LifeMesh {
     this.mesh.thinInstanceCount = this.n;
     this.mesh.thinInstanceBufferUpdated("matrix");
     this.mesh.thinInstanceBufferUpdated("color");
+    if (this.variants) this.mesh.thinInstanceBufferUpdated(VARIANT_INSTANCE);
     this.mesh.isVisible = true;
     this.uploaded = this.n;
   }
@@ -132,6 +146,37 @@ export class LifeMesh {
     vd.indices = data.indices;
     vd.applyToMesh(this.mesh);
   }
+
+  /** Replaces the geometry by the variants' geometries in one mesh, each vertex tagged with its variant (variants.ts). */
+  setVariants(datas: readonly ModelData[]): void {
+    for (const kind of this.mesh.getVerticesDataKinds()) if (!KEEP_KINDS.has(kind)) this.mesh.removeVerticesData(kind);
+    const nv = datas.reduce((s, d) => s + d.positions.length / 3, 0);
+    const ni = datas.reduce((s, d) => s + d.indices.length, 0);
+    const positions = new Float32Array(nv * 3);
+    const normals = new Float32Array(nv * 3);
+    const colors = new Float32Array(nv * 4);
+    const indices = new Uint32Array(ni);
+    const tag = new Float32Array(nv);
+    let v = 0;
+    let i = 0;
+    datas.forEach((d, variant) => {
+      const vc = d.positions.length / 3;
+      positions.set(d.positions, v * 3);
+      normals.set(d.normals, v * 3);
+      colors.set(d.colors, v * 4);
+      for (let k = 0; k < d.indices.length; k++) indices[i + k] = (d.indices[k] as number) + v;
+      tag.fill(variant, v, v + vc);
+      v += vc;
+      i += d.indices.length;
+    });
+    const vd = new VertexData();
+    vd.positions = positions;
+    vd.normals = normals;
+    vd.colors = colors;
+    vd.indices = indices;
+    vd.applyToMesh(this.mesh);
+    this.mesh.setVerticesData(VARIANT_VERTEX, tag, false, 1);
+  }
 }
 
 /** Builds the placeholder geometry of a class (procedural, until or without a model). */
@@ -139,9 +184,15 @@ export type LifeGeometry = (scene: Scene, name: string) => Mesh;
 
 /** A class: its placeholder, its model (manifest life entry and variant) and whether it counts as particles. */
 export interface LifeClassDef {
-  geometry: LifeGeometry;
+  geometry?: LifeGeometry;
   model?: { id: string; variant?: number };
   particle?: boolean;
+  /**
+   * The class draws one of this many geometries per instance in a single
+   * mesh (variants.ts): `geometry` builds a placeholder per variant (its
+   * argument), `model.id` has that many variants.
+   */
+  variants?: { count: number; placeholder: (variant: number) => ModelData };
 }
 
 /**
@@ -153,6 +204,8 @@ export class LifeLayer {
   private readonly particleClasses = new Set<string>();
   private readonly models = new Map<string, { id: string; variant?: number }>();
   private readonly material: StandardMaterial;
+  private variantMaterial: StandardMaterial | null = null;
+  private readonly variantCounts = new Map<string, number>();
   private quality: Quality;
   private enabled: boolean;
   private stats: LifeStats = { instances: 0, particles: 0 };
@@ -180,7 +233,7 @@ export class LifeLayer {
         const r = LIFE_ROUTES[cls];
         if (r) {
           const to = r(k, yaw);
-          this.classes.get(to.cls)?.push(this.origin.x + x, h, -(this.origin.y + y), to.yaw, to.k, color, roll);
+          this.classes.get(to.cls)?.push(this.origin.x + x, h, -(this.origin.y + y), to.yaw, to.k, color, roll, to.variant);
           return;
         }
         this.classes.get(cls)?.push(this.origin.x + x, h, -(this.origin.y + y), yaw, k, color, roll);
@@ -189,7 +242,20 @@ export class LifeLayer {
   }
 
   private define(id: string, def: LifeClassDef): void {
-    const mesh = def.geometry(this.scene, `life_${id}`);
+    const mesh = def.geometry ? def.geometry(this.scene, `life_${id}`) : new Mesh(`life_${id}`, this.scene);
+    if (def.variants) {
+      // One mesh for all variants: its own material (the variant plugin) and the placeholders of every variant.
+      this.variantMaterial ??= addVariants(addJitter(skyFill(new StandardMaterial("life_variants", this.scene)), LIFE_VPT));
+      this.variantMaterial.specularColor = Color3.Black();
+      mesh.material = this.variantMaterial;
+      const lm = new LifeMesh(mesh, true);
+      lm.setVariants(Array.from({ length: def.variants.count }, (_, v) => (def.variants as NonNullable<LifeClassDef["variants"]>).placeholder(v)));
+      this.classes.set(id, lm);
+      if (def.particle) this.particleClasses.add(id);
+      if (def.model) this.models.set(id, def.model);
+      this.variantCounts.set(id, def.variants.count);
+      return;
+    }
     if (!mesh.material) mesh.material = this.material;
     this.classes.set(id, new LifeMesh(mesh));
     if (def.particle) this.particleClasses.add(id);
@@ -202,6 +268,16 @@ export class LifeLayer {
     for (const [id, m] of this.models) {
       const c = this.classes.get(id) as LifeMesh;
       if (c.modelled || c.count() === 0) continue;
+      const variants = this.variantCounts.get(id);
+      if (variants) {
+        // Every variant's model, or the placeholders stay.
+        const all = Array.from({ length: variants }, (_, v) => lifeModel(this.registry as ModelRegistry, m.id, v));
+        if (all.every((d): d is ModelData => !!d)) {
+          c.setVariants(all);
+          c.modelled = true;
+        }
+        continue;
+      }
       const data = lifeModel(this.registry, m.id, m.variant);
       if (!data) continue;
       c.setGeometry(data);
@@ -329,13 +405,32 @@ function gull(lift: number): LifeGeometry {
   };
 }
 
-/** A cube puff (`size` tiles, 12 triangles) in one colour: smoke. */
-function puff(color: Color4, size = 0.8): LifeGeometry {
-  return (scene, name) => {
-    const m = CreateBox(name, { size }, scene);
-    m.setVerticesData("color", new Array(m.getTotalVertices()).fill([color.r, color.g, color.b, 1]).flat());
-    return m;
-  };
+/** The placeholder of a smoke puff: a cube (`size` tiles, 12 triangles) in one colour, centred on the origin. */
+function cubeData(size: number, color: Color4): ModelData {
+  const h = size / 2;
+  const positions: number[] = [];
+  const normals: number[] = [];
+  const indices: number[] = [];
+  // Face normal, then the face's u and v axes (u × v = normal).
+  const faces: [number[], number[], number[]][] = [
+    [[1, 0, 0], [0, 0, -1], [0, 1, 0]],
+    [[-1, 0, 0], [0, 0, 1], [0, 1, 0]],
+    [[0, 1, 0], [1, 0, 0], [0, 0, -1]],
+    [[0, -1, 0], [1, 0, 0], [0, 0, 1]],
+    [[0, 0, 1], [1, 0, 0], [0, 1, 0]],
+    [[0, 0, -1], [-1, 0, 0], [0, 1, 0]],
+  ];
+  for (const [n, u, v] of faces as [number[], number[], number[]][]) {
+    const base = positions.length / 3;
+    for (const [a, b] of [[-1, -1], [1, -1], [1, 1], [-1, 1]] as const) {
+      for (let k = 0; k < 3; k++) positions.push(((n[k] as number) + a * (u[k] as number) + b * (v[k] as number)) * h);
+      normals.push(...n);
+    }
+    indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
+  }
+  const colors = new Float32Array(24 * 4);
+  for (let i = 0; i < 24; i++) colors.set([color.r, color.g, color.b, 1], i * 4);
+  return { positions: new Float32Array(positions), normals: new Float32Array(normals), colors, indices: new Uint32Array(indices) };
 }
 
 const TIMBER = c4(BUILDINGS.timber);
@@ -362,17 +457,19 @@ function villagers(tier: "settlers" | "citizens", color: Color4): Record<string,
  */
 export const SMOKE_SIZES = [2, 3, 4, 6].map((d) => d / 16);
 const SMOKE_BASE = 0.8;
-const smokeClass = (v: number) => `smoke_${v}`;
 
-export function smokeRoute(k: number, yaw: number): { cls: string; k: number; yaw: number } {
+/** The one class all puffs are drawn in (variants.ts: the size variants share a mesh). */
+export const SMOKE_CLASS = "smoke";
+
+export function smokeRoute(k: number, yaw: number): { cls: string; variant: number; k: number; yaw: number } {
   const size = SMOKE_BASE * k;
   let v = 0;
   for (let i = 1; i < SMOKE_SIZES.length; i++) if (Math.abs(Math.log((SMOKE_SIZES[i] as number) / size)) < Math.abs(Math.log((SMOKE_SIZES[v] as number) / size))) v = i;
-  return { cls: smokeClass(v), k: size / (SMOKE_SIZES[v] as number), yaw: Math.round(yaw / (Math.PI / 2)) * (Math.PI / 2) };
+  return { cls: SMOKE_CLASS, variant: v, k: size / (SMOKE_SIZES[v] as number), yaw: Math.round(yaw / (Math.PI / 2)) * (Math.PI / 2) };
 }
 
 /** Classes the plan names that are drawn as another class (the smoke's size variants). */
-const LIFE_ROUTES: Readonly<Record<string, (k: number, yaw: number) => { cls: string; k: number; yaw: number }>> = { [CLS.smoke]: smokeRoute };
+const LIFE_ROUTES: Readonly<Record<string, (k: number, yaw: number) => { cls: string; variant?: number; k: number; yaw: number }>> = { [CLS.smoke]: smokeRoute };
 
 /** The element classes of the life layer: placeholder and model (assets/voxel/recipes/_life.py). */
 export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
@@ -381,7 +478,7 @@ export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
   [CLS.axle]: { geometry: box(0.57, 0.18, 0.18, TIMBER, true), model: { id: "life_cart_axle" } },
   ...villagers("settlers", c4(BUILDINGS.thatch)),
   ...villagers("citizens", c4(BUILDINGS.terracotta)),
-  ...Object.fromEntries(SMOKE_SIZES.map((d, v) => [smokeClass(v), { geometry: puff(SMOKE, d), particle: true, model: { id: "life_smoke", variant: v } }])),
+  [SMOKE_CLASS]: { particle: true, model: { id: "life_smoke" }, variants: { count: SMOKE_SIZES.length, placeholder: (v) => cubeData(SMOKE_SIZES[v] as number, SMOKE) } },
   [CLS.boat]: { geometry: box(0.3, 0.12, 0.8, TIMBER), model: { id: "life_boat" } },
   [CLS.crate]: { geometry: box(0.24, 0.24, 0.24, TIMBER), model: { id: "life_crate" } },
   [CLS.sheep]: { geometry: box(0.12, 0.18, 0.18, c4(BUILDINGS.canvas)), model: { id: "life_sheep" } },

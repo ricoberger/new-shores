@@ -30,10 +30,11 @@ import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, t
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
-import { type ArchPoint, dockPoints, seaPoint, shipLengthRatio } from "../display/ships";
+import { type ArchPoint, dockPoints, type ModelAnchor, seaPoint, shipLengthRatio } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
+import { flankDocks, isFlankAnchor, withIdleAtPier } from "./moorings";
 import { ArchipelagoLayer, type ArchSelection, DOCK_STERN } from "./archipelago";
 import { CameraRig } from "./camera";
 import { footprintBox } from "./coords";
@@ -927,18 +928,28 @@ export class GameRenderer {
   private docksAnchored = false;
 
   /** Pier and queue points of the ships at the Trading Posts (the berth anchors of the loaded models, else the front row). */
-  private docks(d: { islands: readonly IslandDisplay[]; ships: readonly { id: number; type: string }[] }) {
+  private docks(d: { islands: readonly IslandDisplay[]; ships: readonly { id: number; type: string; state?: string; island_id?: string; leg?: unknown }[] }) {
     const types = new Map(d.ships.map((s) => [s.id, s.type]));
-    return dockPoints(
-      d.islands,
+    const islands = withIdleAtPier(d.islands, d.ships);
+    const anchorOf: ModelAnchor = (b, def, name) => {
+      const entry = this.models.entry(b.type);
+      return entry ? buildingAnchor(entry, def, b, name) : null;
+    };
+    const ratio = (id: number) => this.shipLengths.get(types.get(id) ?? "") ?? 1;
+    // Flank berths (the pier's long sides) are laid by moorings.ts; front berths by dockPoints (which skips the flank anchors).
+    const entryOf = (type: string) => this.models.entry(type) ?? null;
+    const docks = dockPoints(
+      islands,
       this.defs,
       (b, def, name) => {
-        const entry = this.models.entry(b.type);
-        return entry ? buildingAnchor(entry, def, b, name) : null;
+        const entry = entryOf(b.type);
+        return entry && isFlankAnchor(entry, name) ? null : anchorOf(b, def, name);
       },
       DOCK_STERN,
-      (id) => this.shipLengths.get(types.get(id) ?? "") ?? 1,
+      ratio,
     );
+    for (const [id, dock] of flankDocks(islands, this.defs, entryOf, anchorOf, DOCK_STERN, ratio)) docks.set(id, dock);
+    return docks;
   }
 
   private onSnapshot(snap: SyncSnapshot): void {

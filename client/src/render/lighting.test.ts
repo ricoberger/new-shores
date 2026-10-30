@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { CameraRig } from "./camera";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { LIGHT, LIGHT_VALUES, WATER } from "../theme/palette";
-import { previewOffset, SceneLighting, SHADOW_LEAN, skyFillColor, SUN_DIRECTION } from "./lighting";
+import { ghostOffset, previewOffset, SceneLighting, SHADOW_LEAN, skyFillColor, SUN_DIRECTION } from "./lighting";
 import { c3 } from "./palette";
 import { seaDeep } from "./water";
 
@@ -80,5 +80,9 @@ describe("sky fill and sea (D-057 V2)", () => {
     const m = previewOffset(new StandardMaterial("p", rig.camera.getScene()));
     expect(m.zOffset).toBeLessThan(0);
     expect(m.zOffsetUnits).toBeLessThan(0);
+    // The placement ghost (terrace edges, plinths) is pulled further than the flat previews.
+    const g = ghostOffset(new StandardMaterial("g", rig.camera.getScene()));
+    expect(g.zOffset).toBeLessThan(m.zOffset);
+    expect(g.zOffsetUnits).toBeLessThan(m.zOffsetUnits);
   });
 });

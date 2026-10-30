@@ -118,13 +118,15 @@ describe("relief columns", () => {
     const rel = reliefOf(island(r, l, h));
     const c = reliefColumns(rel, 4, 1);
     const centre = 18 * c.nx + 18;
-    // One rock level is ROCK_STEPS steps, roughened by noise (± ROCK_ROUGH / 2) in pairs of steps.
-    expect(c.rock[centre]! % 2).toBe(0);
-    expect(Math.abs(c.rock[centre]! - ROCK_STEPS)).toBeLessThanOrEqual(4);
+    // One rock level is ROCK_STEPS steps, roughened by noise (± ROCK_ROUGH / 2) and per-column grain.
+    expect(Math.abs(c.rock[centre]! - ROCK_STEPS)).toBeLessThanOrEqual(6);
     // Uneven tops: the inner columns are not one plate.
     const inner = new Set<number>();
     for (let j = 12; j < 24; j++) for (let i = 12; i < 24; i++) inner.add(c.rock[j * c.nx + i]!);
-    expect(inner.size).toBeGreaterThan(1);
+    expect(inner.size).toBeGreaterThan(2);
+    // The pair lattice alternates its half-step offset per level: odd tops occur next to even ones.
+    expect([...inner].some((v) => v % 2 === 1)).toBe(true);
+    expect([...inner].some((v) => v % 2 === 0)).toBe(true);
     expect(c.rim[centre]).toBeGreaterThan(2);
     // No rock outside the mountain tiles (erosion only removes).
     for (let k = 0; k < c.rock.length; k++) {

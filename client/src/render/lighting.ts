@@ -84,6 +84,18 @@ export function previewOffset<T extends StandardMaterial>(m: T): T {
   return m;
 }
 
+/**
+ * The placement ghost's offset: its model stands on terrace edges and on
+ * plinths, where its base faces meet terrain walls and tops at grazing
+ * angles — a plain constant offset is not enough there, the slope-scaled
+ * part (zOffset) and a larger constant pull it clear of the terrain.
+ */
+export function ghostOffset<T extends StandardMaterial>(m: T): T {
+  m.zOffset = -4;
+  m.zOffsetUnits = -32;
+  return m;
+}
+
 /** A lit material takes the sky fill (the scene's ambient colour); unlit materials must not. */
 export function skyFill<T extends StandardMaterial>(m: T): T {
   m.ambientColor = Color3.White();

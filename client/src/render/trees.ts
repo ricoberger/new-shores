@@ -13,6 +13,7 @@
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
+import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
@@ -25,7 +26,7 @@ import { decorModel, type ModelData, type ModelRegistry } from "./models";
 import type { DetailPlaced } from "./decorscatter";
 import { c3, SHADOW } from "./palette";
 import { BLOB_Y } from "./shadows";
-import { addJitter, MODEL_VPT } from "./jitter";
+import { addJitter, JIT_ATTRIBUTE, JIT_SCALE_STEPS, jitterOrigin, jitterScale, MODEL_VPT } from "./jitter";
 import { addSway } from "./sway";
 
 const TRUNK = c3(BUILDINGS.timber);
@@ -98,6 +99,8 @@ export class ModelMerger {
   private normals = new Float32Array(512 * 3);
   private colors = new Float32Array(512 * 4);
   private indices = new Uint32Array(1024);
+  /** Jitter origin and scale per vertex (jitter.ts JIT_ATTRIBUTE); procedural triangles keep scale 1 and no offset. */
+  private jit = new Uint8Array(512 * 4);
   private nv = 0;
   private ni = 0;
 
@@ -114,6 +117,9 @@ export class ModelMerger {
       const c = new Float32Array(v * 4);
       c.set(this.colors);
       this.colors = c;
+      const j = new Uint8Array(v * 4);
+      j.set(this.jit);
+      this.jit = j;
     }
     if (this.ni + indices > this.indices.length) {
       const i = new Uint32Array(Math.max(this.ni + indices, this.indices.length * 2));
@@ -126,6 +132,8 @@ export class ModelMerger {
   add(d: ModelData, x: number, y: number, z: number, s: number, yaw: number, shade = 1): void {
     // Quarter turns only, so the voxels stay on the grid's axes.
     yaw = Math.round(yaw / (Math.PI / 2)) * (Math.PI / 2);
+    s = jitterScale(s);
+    const jo = jitterOrigin(x, y, z, s, MODEL_VPT);
     const vc = d.positions.length / 3;
     this.grow(vc, d.indices.length);
     const cos = Math.cos(yaw);
@@ -150,6 +158,7 @@ export class ModelMerger {
       this.colors[c + 2] = (d.colors[v * 4 + 2] as number) * shade;
       // Alpha is the sway mask (canopies): kept.
       this.colors[c + 3] = d.colors[v * 4 + 3] as number;
+      this.jit.set(jo, c);
     }
     for (let i = 0; i < d.indices.length; i++) this.indices[this.ni + i] = base + (d.indices[i] as number);
     this.nv += vc;
@@ -165,6 +174,7 @@ export class ModelMerger {
     this.positions.set(t.positions, base * 3);
     this.normals.set(t.normals, base * 3);
     this.colors.set(t.colors, base * 4);
+    for (let i = 0; i < vc; i++) this.jit.set([0, 0, 0, JIT_SCALE_STEPS], (base + i) * 4);
     for (let i = 0; i < vc; i++) this.indices[this.ni + i] = base + i;
     this.nv += vc;
     this.ni += vc;
@@ -189,6 +199,7 @@ export class ModelMerger {
     data.colors = this.colors.subarray(0, this.nv * 4);
     data.indices = this.indices.subarray(0, this.ni);
     data.applyToMesh(mesh);
+    mesh.setVerticesBuffer(new VertexBuffer(mesh.getEngine(), this.jit.slice(0, this.nv * 4), JIT_ATTRIBUTE, { updatable: false, stride: 4, size: 4, type: VertexBuffer.UNSIGNED_BYTE, normalized: true }));
     mesh.material = material;
     mesh.parent = parent;
     mesh.isPickable = false;

@@ -394,6 +394,21 @@ export function lifeAnchor(registry: ModelRegistry | null, id: string, name: str
   return a ? toWorld("building", a) : null;
 }
 
+/**
+ * Where a ship's wake starts and how wide it is, per unit of hull length
+ * (the ship layers scale the instance by length): the distance from the
+ * origin back to the manifest's `wake` anchor (the stern) and the hull's
+ * half-beam from its bounds. Null without the entry or the anchor.
+ */
+export function shipWakeSpec(registry: ModelRegistry | null, type: string): { stern: number; beam: number } | null {
+  const entry = registry?.entry(type);
+  const a = entry?.anchors["wake"];
+  if (!entry || entry.kind !== "ship" || !a) return null;
+  const length = entry.ship?.length_tiles ?? 1;
+  const beam = Math.max(-entry.bounds.min[2], entry.bounds.max[2]);
+  return { stern: Math.abs(a[0]) / length, beam: beam / length };
+}
+
 /** Meshes of a ship model (thin-instanced by the caller; always active, the instances move). */
 export function shipMeshes(scene: Scene, name: string, model: { hull: ModelData; cargo: ModelData | null }): { hull: Mesh; cargo: Mesh | null } {
   const hull = modelMesh(scene, name, model.hull);

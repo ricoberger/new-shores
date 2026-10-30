@@ -23,6 +23,7 @@
  * comparisons). Render-only; no state.
  */
 import type { Material } from "@babylonjs/core/Materials/material";
+import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import { MaterialPluginBase } from "@babylonjs/core/Materials/materialPluginBase";
 import type { UniformBuffer } from "@babylonjs/core/Materials/uniformBuffer";
 
@@ -30,6 +31,33 @@ import type { UniformBuffer } from "@babylonjs/core/Materials/uniformBuffer";
 export const MODEL_VPT = 8;
 export const LITE_VPT = 2;
 export const LIFE_VPT = 16;
+
+/**
+ * Merged meshes (ModelMerger) bake each copy's scale and position into the
+ * vertices, so `position × vpt` would no longer be the model's own voxel
+ * grid. They carry a per-vertex attribute `jitO` (4 normalised bytes): the
+ * fraction of the copy's origin in voxel cells (xyz) and its scale in
+ * 1/JIT_SCALE_STEPS (w, scales are quantised to it). The shader divides
+ * the position by the copy's scale and subtracts that offset, so the cells
+ * are the model's voxels whatever the copy's scale and place. No attribute:
+ * the old behaviour (the mesh's own units).
+ */
+export const JIT_ATTRIBUTE = "jitO";
+export const JIT_SCALE_STEPS = 32;
+
+/** A copy's scale as the merged meshes store it (multiples of 1 / JIT_SCALE_STEPS, at least one step, at most 255 steps). */
+export function jitterScale(s: number): number {
+  return Math.min(255, Math.max(1, Math.round(s * JIT_SCALE_STEPS))) / JIT_SCALE_STEPS;
+}
+
+/** The `jitO` bytes of a copy at origin (x, y, z) (mesh units) with scale s (as jitterScale returns it) of a model with `vpt` voxels per unit. */
+export function jitterOrigin(x: number, y: number, z: number, s: number, vpt: number): [number, number, number, number] {
+  const f = (v: number) => {
+    const c = (v * vpt) / s;
+    return Math.round((c - Math.floor(c)) * 255) % 256;
+  };
+  return [f(x), f(y), f(z), Math.round(s * JIT_SCALE_STEPS)];
+}
 
 /**
  * Value (± per step) and hue amplitude per class (nsvoxel/jitter.py: 0 none,
@@ -75,12 +103,17 @@ export class JitterPlugin extends MaterialPluginBase {
     material: Material,
     private readonly vpt: number,
   ) {
-    super(material, "Jitter", 220, { VOXJITTER: false });
+    super(material, "Jitter", 220, { VOXJITTER: false, VOXJITO: false });
     this._enable(true);
   }
 
-  override prepareDefines(defines: Record<string, unknown>): void {
+  override prepareDefines(defines: Record<string, unknown>, _scene?: unknown, mesh?: AbstractMesh): void {
     defines["VOXJITTER"] = true;
+    defines["VOXJITO"] = !!mesh?.isVerticesDataPresent(JIT_ATTRIBUTE);
+  }
+
+  override getAttributes(attributes: string[], _scene?: unknown, mesh?: AbstractMesh): void {
+    if (mesh?.isVerticesDataPresent(JIT_ATTRIBUTE)) attributes.push(JIT_ATTRIBUTE);
   }
 
   override getClassName(): string {
@@ -106,10 +139,14 @@ export class JitterPlugin extends MaterialPluginBase {
   override getCustomCode(shaderType: string): Record<string, string> | null {
     if (shaderType === "vertex") {
       return {
-        CUSTOM_VERTEX_DEFINITIONS: "varying vec3 vJitP;\nvarying vec3 vJitN;\nvarying vec2 vJitS;",
+        CUSTOM_VERTEX_DEFINITIONS: "varying vec3 vJitP;\nvarying vec3 vJitN;\nvarying vec2 vJitS;\n#ifdef VOXJITO\nattribute vec4 jitO;\n#endif",
         CUSTOM_VERTEX_MAIN_END: `
 #if defined(VOXJITTER) && defined(VERTEXCOLOR) && defined(WEBGL2)
+#ifdef VOXJITO
+  vJitP = positionUpdated * (jitVpt / (max(jitO.w * 255.0, 1.0) / ${JIT_SCALE_STEPS}.0)) - jitO.xyz;
+#else
   vJitP = positionUpdated * jitVpt;
+#endif
   vJitN = normalUpdated;
   int jitC = int(floor((1.0 - color.a) * 255.0 + 0.5));
   vec2 jitTable[9] = vec2[9](${TABLE});

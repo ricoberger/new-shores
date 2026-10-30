@@ -25,8 +25,10 @@ export interface WakeShip {
   x: number;
   y: number;
   heading: number;
-  /** Distance from the ship's origin back to its stern (tiles). */
+  /** Distance from the ship's origin back to its stern, the manifest's `wake` anchor (tiles). */
   stern: number;
+  /** Half-beam of the hull (tiles): the arms leave the stern this far to each side. */
+  beam: number;
   /** The ship's instance scale: its voxels are that much larger than the world's, and so are the wake's. */
   scale: number;
 }
@@ -81,16 +83,20 @@ export class ShipWake {
     for (const s of ships) {
       const bx = -Math.cos(s.heading);
       const by = -Math.sin(s.heading);
+      const nx = -by;
+      const ny = bx;
       for (let i = 0; i < WAKE_FLECKS; i++) {
-        const d = s.stern + i * SPACING * s.scale;
+        // Behind the stern anchor.
+        const t = i * SPACING * s.scale;
         const fade = 1 - i / WAKE_FLECKS;
         for (const arm of [-1, 0, 1]) {
           // The keel trail is short; the arms open out.
           if (arm === 0 && i > WAKE_FLECKS / 2) continue;
           if (hash01(s.id, i, arm, step) > 0.35 + 0.6 * fade) continue;
-          const a = Math.atan2(by, bx) + arm * WAKE_SPREAD;
-          const x = s.x + Math.cos(a) * d;
-          const y = s.y + Math.sin(a) * d;
+          // The arms leave the hull's sides at the stern and open out from there.
+          const side = arm * (s.beam + t * Math.tan(WAKE_SPREAD));
+          const x = s.x + bx * (s.stern + t) + nx * side;
+          const y = s.y + by * (s.stern + t) + ny * side;
           // Quarter turns only, so the voxels stay on the world's axes; snapped to the ship's voxel grid.
           const yaw = (Math.floor(hash01(s.id, i, arm, "yaw") * 4) * Math.PI) / 2;
           const g = 16 / s.scale;

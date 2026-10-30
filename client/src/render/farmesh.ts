@@ -29,9 +29,12 @@ import { islandField, meshField } from "./voxelterrain";
  * columns (terraces, rock, rivers) nearest first while the whole mesh
  * stays within it, the rest their coarser mask (D-048's far budget of
  * 250 k at the zoom cap; the focused island's lite terrain, far trees and
- * models take the rest; D-058).
+ * models take the rest; D-058). Their sum varies with which islands have
+ * tiles when the view is taken, so the mask's cap is what holds the total:
+ * 90 k leaves the rest of the far view (≈ 150 k on the densest fixture) its
+ * room under the 250 k.
  */
-export const MASK_TRIS = 100_000;
+export const MASK_TRIS = 90_000;
 
 /** One island of the mask mesh. */
 export interface MaskIsland {
@@ -66,7 +69,7 @@ export function maskMeshData(mask: DecodedMask, seed: number): Builder {
     }
   }
   const pseudo = { width, height, terrain };
-  const f = { ...islandField(pseudo, coastline(pseudo), seed, 1), quant: FAR_QUANT };
+  const f = { ...islandField(pseudo, coastline(pseudo), seed, 1), quant: FAR_QUANT, flatTops: true };
   meshField(b, f, 0, 0, f.nx, f.ny);
   return b;
 }
