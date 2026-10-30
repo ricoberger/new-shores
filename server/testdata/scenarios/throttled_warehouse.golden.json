@@ -247,7 +247,7 @@
   "pause_events": [],
   "snapshots": [
     {
-      "step": 2,
+      "step": 34,
       "at": "2026-01-01T00:02:00.000Z",
       "boundaries": 32,
       "inventory": {
@@ -266,6 +266,328 @@
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 3,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 5,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 6,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 7,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 8,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 9,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 10,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 11,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 12,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 13,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 14,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 15,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 16,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 17,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 18,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 19,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 20,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 21,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 22,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 23,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 24,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 25,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 26,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 27,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 28,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 29,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 30,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 31,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 32,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 33,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     }
   ],
@@ -888,6 +1210,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                34
+              ]
             }
           },
           {
@@ -917,6 +1247,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                35
+              ]
             }
           },
           {
@@ -946,6 +1284,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                36
+              ]
             }
           },
           {
@@ -975,6 +1321,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                37
+              ]
             }
           },
           {
@@ -1004,6 +1358,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                38
+              ]
             }
           },
           {
@@ -1033,6 +1395,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                39
+              ]
             }
           },
           {
@@ -1062,6 +1432,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                40
+              ]
             }
           },
           {
@@ -1091,6 +1469,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                41
+              ]
             }
           },
           {
@@ -1120,6 +1506,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                42
+              ]
             }
           },
           {
@@ -1149,6 +1543,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                43
+              ]
             }
           },
           {
@@ -1178,6 +1580,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                44
+              ]
             }
           },
           {
@@ -1207,6 +1617,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                45
+              ]
             }
           },
           {
@@ -1236,6 +1654,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                46
+              ]
             }
           },
           {
@@ -1265,6 +1691,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                47
+              ]
             }
           },
           {
@@ -1294,6 +1728,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                48
+              ]
             }
           },
           {
@@ -1323,6 +1765,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                49
+              ]
             }
           },
           {
@@ -1352,6 +1802,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                50
+              ]
             }
           },
           {
@@ -1381,6 +1839,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                51
+              ]
             }
           },
           {
@@ -1410,6 +1876,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                52
+              ]
             }
           },
           {
@@ -1439,6 +1913,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                53
+              ]
             }
           },
           {
@@ -1468,6 +1950,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                54
+              ]
             }
           },
           {
@@ -1497,6 +1987,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                55
+              ]
             }
           },
           {
@@ -1526,6 +2024,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                56
+              ]
             }
           },
           {
@@ -1555,6 +2061,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                57
+              ]
             }
           },
           {
@@ -1584,6 +2098,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                58
+              ]
             }
           },
           {
@@ -1613,6 +2135,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                59
+              ]
             }
           },
           {
@@ -1642,6 +2172,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                60
+              ]
             }
           },
           {
@@ -1671,6 +2209,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                61
+              ]
             }
           },
           {
@@ -1700,6 +2246,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                62
+              ]
             }
           },
           {
@@ -1729,6 +2283,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                63
+              ]
             }
           },
           {
@@ -1758,6 +2320,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                64
+              ]
             }
           },
           {
@@ -1787,7 +2357,463 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                65
+              ]
             }
+          },
+          {
+            "id": 34,
+            "type": "tree_plot",
+            "x": 9,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 2,
+            "active": true
+          },
+          {
+            "id": 35,
+            "type": "tree_plot",
+            "x": 11,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 3,
+            "active": true
+          },
+          {
+            "id": 36,
+            "type": "tree_plot",
+            "x": 13,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 4,
+            "active": true
+          },
+          {
+            "id": 37,
+            "type": "tree_plot",
+            "x": 15,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 5,
+            "active": true
+          },
+          {
+            "id": 38,
+            "type": "tree_plot",
+            "x": 17,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 6,
+            "active": true
+          },
+          {
+            "id": 39,
+            "type": "tree_plot",
+            "x": 19,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 7,
+            "active": true
+          },
+          {
+            "id": 40,
+            "type": "tree_plot",
+            "x": 21,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 8,
+            "active": true
+          },
+          {
+            "id": 41,
+            "type": "tree_plot",
+            "x": 23,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 9,
+            "active": true
+          },
+          {
+            "id": 42,
+            "type": "tree_plot",
+            "x": 25,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 10,
+            "active": true
+          },
+          {
+            "id": 43,
+            "type": "tree_plot",
+            "x": 27,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 11,
+            "active": true
+          },
+          {
+            "id": 44,
+            "type": "tree_plot",
+            "x": 29,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 12,
+            "active": true
+          },
+          {
+            "id": 45,
+            "type": "tree_plot",
+            "x": 31,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 13,
+            "active": true
+          },
+          {
+            "id": 46,
+            "type": "tree_plot",
+            "x": 33,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 14,
+            "active": true
+          },
+          {
+            "id": 47,
+            "type": "tree_plot",
+            "x": 35,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 15,
+            "active": true
+          },
+          {
+            "id": 48,
+            "type": "tree_plot",
+            "x": 37,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 16,
+            "active": true
+          },
+          {
+            "id": 49,
+            "type": "tree_plot",
+            "x": 39,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 17,
+            "active": true
+          },
+          {
+            "id": 50,
+            "type": "tree_plot",
+            "x": 41,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 18,
+            "active": true
+          },
+          {
+            "id": 51,
+            "type": "tree_plot",
+            "x": 43,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 19,
+            "active": true
+          },
+          {
+            "id": 52,
+            "type": "tree_plot",
+            "x": 45,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20,
+            "active": true
+          },
+          {
+            "id": 53,
+            "type": "tree_plot",
+            "x": 47,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 21,
+            "active": true
+          },
+          {
+            "id": 54,
+            "type": "tree_plot",
+            "x": 49,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 22,
+            "active": true
+          },
+          {
+            "id": 55,
+            "type": "tree_plot",
+            "x": 51,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 23,
+            "active": true
+          },
+          {
+            "id": 56,
+            "type": "tree_plot",
+            "x": 53,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 24,
+            "active": true
+          },
+          {
+            "id": 57,
+            "type": "tree_plot",
+            "x": 55,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 25,
+            "active": true
+          },
+          {
+            "id": 58,
+            "type": "tree_plot",
+            "x": 57,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 26,
+            "active": true
+          },
+          {
+            "id": 59,
+            "type": "tree_plot",
+            "x": 59,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 27,
+            "active": true
+          },
+          {
+            "id": 60,
+            "type": "tree_plot",
+            "x": 61,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 28,
+            "active": true
+          },
+          {
+            "id": 61,
+            "type": "tree_plot",
+            "x": 63,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 29,
+            "active": true
+          },
+          {
+            "id": 62,
+            "type": "tree_plot",
+            "x": 65,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 30,
+            "active": true
+          },
+          {
+            "id": 63,
+            "type": "tree_plot",
+            "x": 67,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 31,
+            "active": true
+          },
+          {
+            "id": 64,
+            "type": "tree_plot",
+            "x": 69,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 32,
+            "active": true
+          },
+          {
+            "id": 65,
+            "type": "tree_plot",
+            "x": 71,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 33,
+            "active": true
           }
         ],
         "workforce": {

@@ -114,7 +114,7 @@
         "start": {}
       },
       "statuses": {},
-      "gold": 9638599,
+      "gold": 9639599,
       "balance_rate_per_min": 20160,
       "population": {
         "settlers": 120000
@@ -150,7 +150,7 @@
         "start": {}
       },
       "statuses": {},
-      "gold": 9353919,
+      "gold": 9354919,
       "balance_rate_per_min": 19160,
       "population": {
         "settlers": 120000
@@ -193,7 +193,7 @@
         "start": {}
       },
       "statuses": {},
-      "gold": 9411399,
+      "gold": 9412399,
       "balance_rate_per_min": 19160,
       "population": {
         "settlers": 120000
@@ -214,7 +214,7 @@
       ]
     },
     {
-      "step": 36,
+      "step": 37,
       "at": "2026-01-01T00:25:00.000Z",
       "boundaries": 9,
       "inventory": {
@@ -285,10 +285,22 @@
           "state": "on_route",
           "route_id": 1
         }
+      ],
+      "farms": [
+        {
+          "island": "island2",
+          "id": 21,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 37,
+      "step": 38,
       "at": "2026-01-01T00:35:00.000Z",
       "boundaries": 4,
       "inventory": {
@@ -359,10 +371,22 @@
           "state": "on_route",
           "route_id": 1
         }
+      ],
+      "farms": [
+        {
+          "island": "island2",
+          "id": 21,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 38,
+      "step": 39,
       "at": "2026-01-01T00:45:00.000Z",
       "boundaries": 4,
       "inventory": {
@@ -432,6 +456,18 @@
           "id": 1,
           "state": "on_route",
           "route_id": 1
+        }
+      ],
+      "farms": [
+        {
+          "island": "island2",
+          "id": 21,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
         }
       ]
     }
@@ -1906,10 +1942,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                22
+              ]
             }
           },
           {
             "id": 22,
+            "type": "tree_plot",
+            "x": 34,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 21,
+            "active": true
+          },
+          {
+            "id": 23,
             "type": "charcoal_burner",
             "x": 16,
             "y": 11,
@@ -1940,7 +1998,7 @@
             }
           },
           {
-            "id": 23,
+            "id": 24,
             "type": "iron_mine",
             "x": 11,
             "y": 7,
@@ -1969,7 +2027,7 @@
             }
           },
           {
-            "id": 24,
+            "id": 25,
             "type": "smelter",
             "x": 26,
             "y": 11,
@@ -2001,7 +2059,7 @@
             }
           },
           {
-            "id": 25,
+            "id": 26,
             "type": "toolmaker",
             "x": 29,
             "y": 11,

@@ -26,7 +26,7 @@
         "granted": 10000
       },
       "wood": {
-        "produced": 498244,
+        "produced": 518000,
         "consumed": 218000,
         "lost": 0
       },
@@ -170,9 +170,9 @@
   ],
   "snapshots": [
     {
-      "step": 11,
+      "step": 13,
       "at": "2026-01-01T00:30:00.000Z",
-      "boundaries": 29,
+      "boundaries": 28,
       "inventory": {
         "island2": {},
         "start": {
@@ -181,18 +181,17 @@
             "in_transit": 0
           },
           "planks": {
-            "stock": 190283,
+            "stock": 190333,
             "in_transit": 767
           },
           "wood": {
-            "stock": 14750,
-            "in_transit": 1200
+            "stock": 59000,
+            "in_transit": 1900
           }
         }
       },
       "statuses": {
-        "low_efficiency": 2,
-        "ok": 1
+        "ok": 3
       },
       "gold": 258800,
       "balance_rate_per_min": 120,
@@ -208,12 +207,34 @@
           "state": "idle",
           "island_id": "start"
         }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 3,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 13,
+      "step": 15,
       "at": "2026-01-01T12:30:00.000Z",
-      "boundaries": 53,
+      "boundaries": 54,
       "inventory": {
         "island2": {},
         "start": {
@@ -222,7 +243,7 @@
             "in_transit": 0
           },
           "wood": {
-            "stock": 280244,
+            "stock": 300000,
             "in_transit": 0
           }
         }
@@ -246,6 +267,28 @@
           "cargo": {
             "planks": 50000
           }
+        }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 3,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
         }
       ]
     }
@@ -294,7 +337,7 @@
               "at_capacity": false
             },
             "planks": {
-              "produced": 158950,
+              "produced": 158900,
               "consumed": 0,
               "lost": 0,
               "stock_after": 300000,
@@ -302,12 +345,12 @@
               "at_capacity": true
             },
             "wood": {
-              "produced": 423244,
-              "consumed": 158950,
+              "produced": 398000,
+              "consumed": 158900,
               "lost": 0,
-              "stock_after": 280244,
+              "stock_after": 300000,
               "capacity": 300000,
-              "at_capacity": false
+              "at_capacity": true
             }
           }
         },
@@ -508,7 +551,7 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 280244,
+            "stock": 300000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -716,7 +759,7 @@
             "paused": true,
             "paused_reason": "unpaid",
             "status": "paused",
-            "efficiency_permille": 750,
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
@@ -725,7 +768,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 946,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
@@ -733,6 +776,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                11
+              ]
             }
           },
           {
@@ -744,7 +795,7 @@
             "paused": true,
             "paused_reason": "unpaid",
             "status": "paused",
-            "efficiency_permille": 500,
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
@@ -753,7 +804,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 297,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 27000,
             "assigned_warehouse_id": 1,
             "road_distance": 17,
@@ -761,6 +812,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                12
+              ]
             }
           },
           {
@@ -1024,6 +1083,34 @@
             "served_by": [
               6
             ]
+          },
+          {
+            "id": 11,
+            "type": "tree_plot",
+            "x": 25,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 3,
+            "active": true
+          },
+          {
+            "id": 12,
+            "type": "tree_plot",
+            "x": 22,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 4,
+            "active": true
           }
         ],
         "workforce": {
@@ -1229,7 +1316,10 @@
         "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": "",
-        "position": null,
+        "position": {
+          "x": 73,
+          "y": 96
+        },
         "queued_at": null,
         "berth_until": null
       }
@@ -1310,7 +1400,7 @@
               "at_capacity": false
             },
             "planks": {
-              "produced": 158950,
+              "produced": 158900,
               "consumed": 0,
               "lost": 0,
               "stock_after": 300000,
@@ -1318,12 +1408,12 @@
               "at_capacity": true
             },
             "wood": {
-              "produced": 423244,
-              "consumed": 158950,
+              "produced": 398000,
+              "consumed": 158900,
               "lost": 0,
-              "stock_after": 280244,
+              "stock_after": 300000,
               "capacity": 300000,
-              "at_capacity": false
+              "at_capacity": true
             }
           }
         },

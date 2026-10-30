@@ -28,7 +28,7 @@
     },
     {
       "island_id": "main",
-      "building_id": 3,
+      "building_id": 4,
       "type": "sawmill",
       "status": "warehouse_full",
       "reason": "planks at capacity (300/300)"
@@ -37,7 +37,7 @@
   "pause_events": [],
   "snapshots": [
     {
-      "step": 3,
+      "step": 4,
       "at": "2026-01-01T12:00:00.000Z",
       "boundaries": 6,
       "inventory": {
@@ -60,6 +60,18 @@
       "population": {},
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 2,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     }
   ],
@@ -393,10 +405,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                3
+              ]
             }
           },
           {
             "id": 3,
+            "type": "tree_plot",
+            "x": 10,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 2,
+            "active": true
+          },
+          {
+            "id": 4,
             "type": "sawmill",
             "x": 14,
             "y": 2,

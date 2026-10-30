@@ -149,6 +149,9 @@ func arriveAt(w *World, c *content.Catalogue, s *Ship, island string, now int64,
 func grantBerth(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
 	island := s.IslandID
 	s.QueuedAtMs = 0
+	if is := w.Island(island); is != nil && berthTotal(is) > 0 {
+		s.Offshore = nil
+	}
 	if s.Paused {
 		s.State = ShipAnchoredUnpaid
 		return

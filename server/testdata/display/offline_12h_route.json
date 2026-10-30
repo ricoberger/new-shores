@@ -369,7 +369,7 @@
             "paused": false,
             "paused_reason": "",
             "status": "warehouse_full",
-            "efficiency_permille": 750,
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "status_goods": [
               "wood"
@@ -381,7 +381,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 400,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
@@ -389,10 +389,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                4
+              ]
             }
           },
           {
             "id": 4,
+            "type": "tree_plot",
+            "x": 25,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 3,
+            "active": true
+          },
+          {
+            "id": 5,
             "type": "lumberjack",
             "x": 20,
             "y": 6,
@@ -400,7 +422,7 @@
             "paused": false,
             "paused_reason": "",
             "status": "warehouse_full",
-            "efficiency_permille": 500,
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "status_goods": [
               "wood"
@@ -412,7 +434,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 600,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 27000,
             "assigned_warehouse_id": 1,
             "road_distance": 17,
@@ -420,10 +442,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                6
+              ]
             }
           },
           {
-            "id": 5,
+            "id": 6,
+            "type": "tree_plot",
+            "x": 22,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 5,
+            "active": true
+          },
+          {
+            "id": 7,
             "type": "sawmill",
             "x": 16,
             "y": 6,
@@ -699,7 +743,7 @@
         ],
         "buildings": [
           {
-            "id": 6,
+            "id": 8,
             "type": "trading_post",
             "x": 1,
             "y": 0,
@@ -721,7 +765,7 @@
             }
           },
           {
-            "id": 7,
+            "id": 9,
             "type": "house_settlers",
             "x": 8,
             "y": 5,
@@ -773,7 +817,7 @@
             ]
           },
           {
-            "id": 8,
+            "id": 10,
             "type": "house_settlers",
             "x": 10,
             "y": 5,
@@ -825,7 +869,7 @@
             ]
           },
           {
-            "id": 9,
+            "id": 11,
             "type": "fisher",
             "x": 6,
             "y": 2,
@@ -847,7 +891,7 @@
             "cycle_seconds": 40,
             "cycle_progress_permille": 325,
             "transfer_delay_ms": 13000,
-            "assigned_warehouse_id": 6,
+            "assigned_warehouse_id": 8,
             "road_distance": 3,
             "cycle_rate_permille_per_min": 160,
             "workforce_factor_permille": 1000,
@@ -868,7 +912,7 @@
           "settlers": 16000
         },
         "capacity_source": {
-          "building_id": 6,
+          "building_id": 8,
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
@@ -1462,7 +1506,7 @@
                 "paused": false,
                 "paused_reason": "",
                 "status": "warehouse_full",
-                "efficiency_permille": 750,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "status_goods": [
                   "wood"
@@ -1474,7 +1518,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 400,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -1482,10 +1526,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    4
+                  ]
                 }
               },
               {
                 "id": 4,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 5,
                 "type": "lumberjack",
                 "x": 20,
                 "y": 6,
@@ -1493,7 +1559,7 @@
                 "paused": false,
                 "paused_reason": "",
                 "status": "warehouse_full",
-                "efficiency_permille": 500,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "status_goods": [
                   "wood"
@@ -1505,7 +1571,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 600,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -1513,10 +1579,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    6
+                  ]
                 }
               },
               {
-                "id": 5,
+                "id": 6,
+                "type": "tree_plot",
+                "x": 22,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 5,
+                "active": true
+              },
+              {
+                "id": 7,
                 "type": "sawmill",
                 "x": 16,
                 "y": 6,
@@ -1792,7 +1880,7 @@
             ],
             "buildings": [
               {
-                "id": 6,
+                "id": 8,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -1814,7 +1902,7 @@
                 }
               },
               {
-                "id": 7,
+                "id": 9,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -1866,7 +1954,7 @@
                 ]
               },
               {
-                "id": 8,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 5,
@@ -1918,7 +2006,7 @@
                 ]
               },
               {
-                "id": 9,
+                "id": 11,
                 "type": "fisher",
                 "x": 6,
                 "y": 2,
@@ -1940,7 +2028,7 @@
                 "cycle_seconds": 40,
                 "cycle_progress_permille": 325,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 6,
+                "assigned_warehouse_id": 8,
                 "road_distance": 3,
                 "cycle_rate_permille_per_min": 160,
                 "workforce_factor_permille": 1000,
@@ -1961,7 +2049,7 @@
               "settlers": 16000
             },
             "capacity_source": {
-              "building_id": 6,
+              "building_id": 8,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
@@ -2555,7 +2643,7 @@
                 "paused": false,
                 "paused_reason": "",
                 "status": "warehouse_full",
-                "efficiency_permille": 750,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "status_goods": [
                   "wood"
@@ -2567,7 +2655,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 400,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -2575,10 +2663,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    4
+                  ]
                 }
               },
               {
                 "id": 4,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 5,
                 "type": "lumberjack",
                 "x": 20,
                 "y": 6,
@@ -2586,7 +2696,7 @@
                 "paused": false,
                 "paused_reason": "",
                 "status": "warehouse_full",
-                "efficiency_permille": 500,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "status_goods": [
                   "wood"
@@ -2598,7 +2708,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 600,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -2606,10 +2716,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    6
+                  ]
                 }
               },
               {
-                "id": 5,
+                "id": 6,
+                "type": "tree_plot",
+                "x": 22,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 5,
+                "active": true
+              },
+              {
+                "id": 7,
                 "type": "sawmill",
                 "x": 16,
                 "y": 6,
@@ -2885,7 +3017,7 @@
             ],
             "buildings": [
               {
-                "id": 6,
+                "id": 8,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -2907,7 +3039,7 @@
                 }
               },
               {
-                "id": 7,
+                "id": 9,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -2959,7 +3091,7 @@
                 ]
               },
               {
-                "id": 8,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 5,
@@ -3011,7 +3143,7 @@
                 ]
               },
               {
-                "id": 9,
+                "id": 11,
                 "type": "fisher",
                 "x": 6,
                 "y": 2,
@@ -3033,7 +3165,7 @@
                 "cycle_seconds": 40,
                 "cycle_progress_permille": 327,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 6,
+                "assigned_warehouse_id": 8,
                 "road_distance": 3,
                 "cycle_rate_permille_per_min": 160,
                 "workforce_factor_permille": 1000,
@@ -3054,7 +3186,7 @@
               "settlers": 16000
             },
             "capacity_source": {
-              "building_id": 6,
+              "building_id": 8,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
@@ -3648,7 +3780,7 @@
                 "paused": false,
                 "paused_reason": "",
                 "status": "warehouse_full",
-                "efficiency_permille": 750,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "status_goods": [
                   "wood"
@@ -3660,7 +3792,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 400,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -3668,10 +3800,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    4
+                  ]
                 }
               },
               {
                 "id": 4,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 5,
                 "type": "lumberjack",
                 "x": 20,
                 "y": 6,
@@ -3679,7 +3833,7 @@
                 "paused": false,
                 "paused_reason": "",
                 "status": "warehouse_full",
-                "efficiency_permille": 500,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "status_goods": [
                   "wood"
@@ -3691,7 +3845,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 600,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -3699,10 +3853,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    6
+                  ]
                 }
               },
               {
-                "id": 5,
+                "id": 6,
+                "type": "tree_plot",
+                "x": 22,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 5,
+                "active": true
+              },
+              {
+                "id": 7,
                 "type": "sawmill",
                 "x": 16,
                 "y": 6,
@@ -3978,7 +4154,7 @@
             ],
             "buildings": [
               {
-                "id": 6,
+                "id": 8,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -4000,7 +4176,7 @@
                 }
               },
               {
-                "id": 7,
+                "id": 9,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -4052,7 +4228,7 @@
                 ]
               },
               {
-                "id": 8,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 5,
@@ -4104,7 +4280,7 @@
                 ]
               },
               {
-                "id": 9,
+                "id": 11,
                 "type": "fisher",
                 "x": 6,
                 "y": 2,
@@ -4126,7 +4302,7 @@
                 "cycle_seconds": 40,
                 "cycle_progress_permille": 338,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 6,
+                "assigned_warehouse_id": 8,
                 "road_distance": 3,
                 "cycle_rate_permille_per_min": 160,
                 "workforce_factor_permille": 1000,
@@ -4147,7 +4323,7 @@
               "settlers": 16000
             },
             "capacity_source": {
-              "building_id": 6,
+              "building_id": 8,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
@@ -4741,7 +4917,7 @@
                 "paused": false,
                 "paused_reason": "",
                 "status": "warehouse_full",
-                "efficiency_permille": 750,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "status_goods": [
                   "wood"
@@ -4753,7 +4929,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 400,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -4761,10 +4937,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    4
+                  ]
                 }
               },
               {
                 "id": 4,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 5,
                 "type": "lumberjack",
                 "x": 20,
                 "y": 6,
@@ -4772,7 +4970,7 @@
                 "paused": false,
                 "paused_reason": "",
                 "status": "warehouse_full",
-                "efficiency_permille": 500,
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "status_goods": [
                   "wood"
@@ -4784,7 +4982,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 600,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -4792,10 +4990,32 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    6
+                  ]
                 }
               },
               {
-                "id": 5,
+                "id": 6,
+                "type": "tree_plot",
+                "x": 22,
+                "y": 6,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 5,
+                "active": true
+              },
+              {
+                "id": 7,
                 "type": "sawmill",
                 "x": 16,
                 "y": 6,
@@ -5071,7 +5291,7 @@
             ],
             "buildings": [
               {
-                "id": 6,
+                "id": 8,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -5093,7 +5313,7 @@
                 }
               },
               {
-                "id": 7,
+                "id": 9,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -5145,7 +5365,7 @@
                 ]
               },
               {
-                "id": 8,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 5,
@@ -5197,7 +5417,7 @@
                 ]
               },
               {
-                "id": 9,
+                "id": 11,
                 "type": "fisher",
                 "x": 6,
                 "y": 2,
@@ -5219,7 +5439,7 @@
                 "cycle_seconds": 40,
                 "cycle_progress_permille": 405,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 6,
+                "assigned_warehouse_id": 8,
                 "road_distance": 3,
                 "cycle_rate_permille_per_min": 160,
                 "workforce_factor_permille": 1000,
@@ -5240,7 +5460,7 @@
               "settlers": 16000
             },
             "capacity_source": {
-              "building_id": 6,
+              "building_id": 8,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000

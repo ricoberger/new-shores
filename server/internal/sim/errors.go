@@ -15,7 +15,6 @@ var (
 	ErrNotCoastal            = errors.New("building must touch the coast")
 	ErrNotOnWater            = errors.New("front rows of a water-edge building must be on water")
 	ErrHarbourBlocked        = errors.New("harbour closed off from the open sea")
-	ErrNoWorkArea            = errors.New("no usable tiles in work area")
 	ErrNoFertility           = errors.New("island lacks fertility")
 	ErrNoDeposit             = errors.New("no deposit under the footprint")
 	ErrInsufficientGold      = errors.New("insufficient gold")

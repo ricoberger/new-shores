@@ -605,7 +605,7 @@ func TestWorkforceShort(t *testing.T) {
 		k++
 	}
 	rep := runScenario(t, "workforce_short")
-	if got := rep.Snapshots[0].StatusesCount[sim.StatusShortOfWorkers]; got != 2 {
+	if got := rep.Snapshots[0].StatusesCount[sim.StatusShortOfWorkers]; got != 3 {
 		t.Errorf("short_of_workers producers = %d", got)
 	}
 }
@@ -846,7 +846,7 @@ func (r *runner) mustDisplay(t *testing.T) sim.DisplayState {
 // footprint edge it is assigned, the buffer drains and nothing is lost.
 func TestPlaceThenRoad(t *testing.T) {
 	r := stepRunner(t, "place_then_road")
-	r.runSteps(t, 0, 2) // place without road, advance 2 min
+	r.runSteps(t, 0, 3) // place without road, plant the tree plot, advance 2 min
 	lj := r.island().Building(2)
 	if lj == nil || lj.Type != "lumberjack" || lj.AssignedWarehouseID != 0 || lj.Buffer["wood"] <= 0 {
 		t.Fatalf("before the road: %+v", lj)
@@ -854,11 +854,11 @@ func TestPlaceThenRoad(t *testing.T) {
 	if b := r.mustDisplay(t).Islands[0].Buildings[1]; b.Status != sim.StatusNotConnected || *b.AssignedWarehouseID != 0 {
 		t.Errorf("before the road: status %s assigned %d", b.Status, *b.AssignedWarehouseID)
 	}
-	r.runSteps(t, 2, 3) // road to the west edge of the footprint
+	r.runSteps(t, 3, 4) // road to the west edge of the footprint
 	if lj.AssignedWarehouseID != 1 || lj.RoadDistance != 7 {
 		t.Fatalf("after the road: assigned %d distance %d", lj.AssignedWarehouseID, lj.RoadDistance)
 	}
-	r.runSteps(t, 3, len(r.s.Steps))
+	r.runSteps(t, 4, len(r.s.Steps))
 	if lj.Buffer != nil || lj.BufferSub != nil {
 		t.Errorf("buffer not drained: %v %v", lj.Buffer, lj.BufferSub)
 	}
@@ -881,7 +881,7 @@ func TestPlaceThenRoad(t *testing.T) {
 // new road distance and delay.
 func TestMoveWithTransit(t *testing.T) {
 	r := stepRunner(t, "move_with_transit")
-	r.runSteps(t, 0, 3) // road, place, advance 30 s
+	r.runSteps(t, 0, 4) // road, place, tree plot, advance 30 s
 	lj := r.island().Building(2)
 	if lj == nil || lj.Type != "lumberjack" || lj.RoadDistance != 5 || lj.TransferDelayMs != 15_000 {
 		t.Fatalf("before the move: %+v", lj)
@@ -894,14 +894,15 @@ func TestMoveWithTransit(t *testing.T) {
 	}
 	gold := r.w.Gold
 
-	r.runSteps(t, 3, 4) // move
+	r.runSteps(t, 4, 5) // move
 	moved := r.island().Building(2)
 	if moved != lj || lj.X != 9 || lj.Y != 5 || lj.Rotation != 90 || lj.Progress != progress ||
-		!reflect.DeepEqual(lj.Transit, transit) || !maps.Equal(lj.Buffer, buffer) || len(r.island().Buildings) != 2 {
+		!reflect.DeepEqual(lj.Transit, transit) || !maps.Equal(lj.Buffer, buffer) || len(r.island().Buildings) != 3 {
 		t.Fatalf("after the move: %+v", lj)
 	}
-	// The in-transit rate follows the producer's rate at its new site
-	// (the work area there is smaller: 833 ‰ efficiency), so it is not compared.
+	// The tree plot stays behind and is no longer connected to the lumberjack
+	// (the move step is followed by a new plot), so the in-transit rate, which
+	// follows the producer's efficiency, is not compared.
 	after := r.mustDisplay(t).Islands[0].Inventory["wood"]
 	after.InTransitRatePerMin = before.InTransitRatePerMin
 	if after != before || r.w.Gold != gold {
@@ -911,7 +912,7 @@ func TestMoveWithTransit(t *testing.T) {
 		t.Errorf("connection after the move: %d d %d delay %d", lj.AssignedWarehouseID, lj.RoadDistance, lj.TransferDelayMs)
 	}
 
-	r.runSteps(t, 4, len(r.s.Steps))
+	r.runSteps(t, 5, len(r.s.Steps)) // second tree plot, advance 10 min
 	final := r.mustDisplay(t)
 	if got := final.Islands[0].Inventory["wood"].Stock - before.Stock; got < before.InTransit {
 		t.Errorf("stock increased by %d, want >= %d in transit at the move", got, before.InTransit)

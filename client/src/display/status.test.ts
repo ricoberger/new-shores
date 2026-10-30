@@ -76,7 +76,7 @@ describe("field statuses (D-049)", () => {
     buildings: [
       { id: "sheep_farm", name: "Sheep farm", fields: { type: "pasture", required: 4, max: 4 } },
       { id: "pasture", name: "Pasture", field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } },
-      { id: "lumberjack", name: "Lumberjack", work_area: { radius: 4, terrain: ["forest"], required_tiles: 24 } },
+      { id: "lumberjack", name: "Lumberjack" },
     ],
   } as unknown as Content;
   const first = <T>(xs: T[]): T => {

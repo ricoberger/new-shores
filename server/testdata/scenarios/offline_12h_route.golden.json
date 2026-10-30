@@ -1,7 +1,7 @@
 {
   "name": "offline_12h_route",
   "content_version": "old_coast-0.9.0",
-  "boundary_count": 333,
+  "boundary_count": 334,
   "totals": {
     "island2": {
       "fish": {
@@ -62,21 +62,21 @@
     },
     {
       "island_id": "start",
-      "building_id": 4,
+      "building_id": 5,
       "type": "lumberjack",
       "status": "warehouse_full",
       "reason": "wood at capacity (300/300)"
     },
     {
       "island_id": "start",
-      "building_id": 5,
+      "building_id": 7,
       "type": "sawmill",
       "status": "warehouse_full",
       "reason": "planks at capacity (300/300)"
     },
     {
       "island_id": "island2",
-      "building_id": 9,
+      "building_id": 11,
       "type": "fisher",
       "status": "warehouse_full",
       "reason": "fish at capacity (300/300)"
@@ -85,25 +85,24 @@
   "pause_events": [],
   "snapshots": [
     {
-      "step": 6,
+      "step": 8,
       "at": "2026-01-01T00:02:00.000Z",
-      "boundaries": 5,
+      "boundaries": 4,
       "inventory": {
         "island2": {},
         "start": {
           "planks": {
-            "stock": 189283,
+            "stock": 189333,
             "in_transit": 767
           },
           "wood": {
-            "stock": 750,
-            "in_transit": 1200
+            "stock": 3000,
+            "in_transit": 1900
           }
         }
       },
       "statuses": {
-        "low_efficiency": 2,
-        "ok": 1
+        "ok": 3
       },
       "gold": 19487000,
       "balance_rate_per_min": -5000,
@@ -117,28 +116,49 @@
           "state": "idle",
           "island_id": "start"
         }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 3,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 5,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 8,
+      "step": 10,
       "at": "2026-01-01T00:04:45.000Z",
       "boundaries": 1,
       "inventory": {
         "island2": {},
         "start": {
           "planks": {
-            "stock": 94783,
+            "stock": 94833,
             "in_transit": 767
           },
           "wood": {
-            "stock": 2125,
-            "in_transit": 1200
+            "stock": 8500,
+            "in_transit": 1900
           }
         }
       },
       "statuses": {
-        "low_efficiency": 2,
-        "ok": 1
+        "ok": 3
       },
       "gold": 19473250,
       "balance_rate_per_min": -5000,
@@ -155,12 +175,34 @@
             "planks": 100000
           }
         }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 3,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 5,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
-      "step": 16,
+      "step": 18,
       "at": "2026-01-01T12:04:45.000Z",
-      "boundaries": 327,
+      "boundaries": 329,
       "inventory": {
         "island2": {
           "fish": {
@@ -208,6 +250,28 @@
             "fish": 50000,
             "planks": 50000
           }
+        }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 3,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 5,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
         }
       ]
     }
@@ -595,7 +659,7 @@
             "paused": false,
             "paused_reason": "",
             "status": "warehouse_full",
-            "efficiency_permille": 750,
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "status_goods": [
               "wood"
@@ -607,7 +671,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 400,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
@@ -615,10 +679,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                4
+              ]
             }
           },
           {
             "id": 4,
+            "type": "tree_plot",
+            "x": 25,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 3,
+            "active": true
+          },
+          {
+            "id": 5,
             "type": "lumberjack",
             "x": 20,
             "y": 6,
@@ -626,7 +712,7 @@
             "paused": false,
             "paused_reason": "",
             "status": "warehouse_full",
-            "efficiency_permille": 500,
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "status_goods": [
               "wood"
@@ -638,7 +724,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 600,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 27000,
             "assigned_warehouse_id": 1,
             "road_distance": 17,
@@ -646,10 +732,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                6
+              ]
             }
           },
           {
-            "id": 5,
+            "id": 6,
+            "type": "tree_plot",
+            "x": 22,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 5,
+            "active": true
+          },
+          {
+            "id": 7,
             "type": "sawmill",
             "x": 16,
             "y": 6,
@@ -925,7 +1033,7 @@
         ],
         "buildings": [
           {
-            "id": 6,
+            "id": 8,
             "type": "trading_post",
             "x": 1,
             "y": 0,
@@ -947,7 +1055,7 @@
             }
           },
           {
-            "id": 7,
+            "id": 9,
             "type": "house_settlers",
             "x": 8,
             "y": 5,
@@ -999,7 +1107,7 @@
             ]
           },
           {
-            "id": 8,
+            "id": 10,
             "type": "house_settlers",
             "x": 10,
             "y": 5,
@@ -1051,7 +1159,7 @@
             ]
           },
           {
-            "id": 9,
+            "id": 11,
             "type": "fisher",
             "x": 6,
             "y": 2,
@@ -1073,7 +1181,7 @@
             "cycle_seconds": 40,
             "cycle_progress_permille": 325,
             "transfer_delay_ms": 13000,
-            "assigned_warehouse_id": 6,
+            "assigned_warehouse_id": 8,
             "road_distance": 3,
             "cycle_rate_permille_per_min": 160,
             "workforce_factor_permille": 1000,
@@ -1094,7 +1202,7 @@
           "settlers": 16000
         },
         "capacity_source": {
-          "building_id": 6,
+          "building_id": 8,
           "type": "trading_post",
           "level": 1,
           "capacity": 300000

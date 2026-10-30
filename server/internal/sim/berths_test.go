@@ -226,3 +226,61 @@ func TestStartAtSeaFounding(t *testing.T) {
 	expectErr(t, w, c, PlaceBuilding{IslandID: "b", Type: "trading_post", X: 6, Y: 0}, ErrIslandAlreadySettled)
 	expectErr(t, w, c, PlaceBuilding{IslandID: "b", Type: "trading_post", X: 6, Y: 0, Rotation: 90}, ErrIslandAlreadySettled)
 }
+
+// TestIdleShipOffshorePosition: a ship idle at an island without berths
+// keeps the end of the leg that brought it as its position (display), also
+// after an envelope round trip, and loses it when it departs or the island
+// gets its Trading Post.
+func TestIdleShipOffshorePosition(t *testing.T) {
+	c := catalogue(t)
+	w := shipWorld(t, c)
+	s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
+	if err != nil {
+		t.Fatal(err)
+	}
+	pos := func(w *World) *PositionDisplay { return display(t, w, c).Ships[0].Position }
+	if p := pos(w); p == nil || *p != (PositionDisplay{6, 20}) {
+		t.Fatalf("at sea position = %v", p)
+	}
+	mustApply(t, w, c, SailShip{ShipID: s.ID, ToIslandID: "b"})
+	if pos(w) != nil {
+		t.Fatalf("position on a leg = %v", pos(w))
+	}
+	end := s.Leg.Path[len(s.Leg.Path)-1]
+	mustAdvance(t, w, c, time.Hour)
+	if s.State != ShipIdle || s.IslandID != "b" || s.Offshore == nil || *s.Offshore != end {
+		t.Fatalf("arrived = %+v end %v", s, end)
+	}
+	if p := pos(w); p == nil || *p != (PositionDisplay(end)) || display(t, w, c).Ships[0].IslandID != "b" {
+		t.Fatalf("idle position = %v", p)
+	}
+	w2, _, _, err := Decode(encode(t, w), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p := pos(w2); p == nil || *p != (PositionDisplay(end)) {
+		t.Fatalf("position after reload = %v", p)
+	}
+	mustApply(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0})
+	if s.Offshore != nil || pos(w) != nil {
+		t.Fatalf("position after founding = %v", pos(w))
+	}
+}
+
+// TestFoundingVoyagePosition: a founding voyage ends at the harbour point of
+// the pending site, which is the idle ship's position.
+func TestFoundingVoyagePosition(t *testing.T) {
+	c := catalogue(t)
+	w := shipWorld(t, c)
+	s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
+	if err != nil {
+		t.Fatal(err)
+	}
+	site := &FoundingSite{BuildingType: "trading_post", X: 1, Y: 0}
+	mustApply(t, w, c, SailShip{ShipID: s.ID, ToIslandID: "b", Site: site})
+	end := s.Leg.Path[len(s.Leg.Path)-1]
+	mustAdvance(t, w, c, time.Hour)
+	if p := display(t, w, c).Ships[0].Position; s.Offshore == nil || *s.Offshore != end || p == nil || *p != (PositionDisplay(end)) {
+		t.Fatalf("position = %v offshore %v end %v", p, s.Offshore, end)
+	}
+}

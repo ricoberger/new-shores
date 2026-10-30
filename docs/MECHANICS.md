@@ -132,14 +132,9 @@ handlers only.
   depot 1 of 4 (D-060). Other coastal buildings
   need at least one footprint tile on `coast`. Quays count as coast for
   both (§3).
-- **Work area** = a Euclidean disc of radius `r` around the footprint
-  centre (tile centres inside count). Two rules use it:
-  - **Harvesters** (later trapper; the lumberjack was one until D-059)
-    keep the implicit rule: a
-    tile matches when its terrain is in `work_area.terrain` and carries
-    neither a building nor a road; `efficiency = min(1, matching /
-    required_tiles)`; placement with efficiency 0 is rejected
-    (`no_work_area`).
+- **Work area** = a fertility tag only (`work_area.fertility`, above); there
+  is no work radius or terrain rule. The efficiency of a building comes
+  from its fields:
   - **Farms** (D-049, D-051) have **fields**: placeables of the farm's
     `fields.type` — crops (`wheat_field`, `hemp_field`, `orchard_plot`,
     `meadow`, later hop/woad/vineyard) and the lumberjack's
@@ -255,7 +250,7 @@ cycle:   seconds               at 100 % efficiency
 
 - **Rate** = `amount / cycle × efficiency × throughput_factor ×
   workforce_factor`, where efficiency comes from the fields (farms, the
-  lumberjack's tree plots since D-059) or the work area (harvesters),
+  lumberjack's tree plots since D-059; 1000 for every other building),
   `throughput_factor` from the assigned warehouse (section 5) and
   `workforce_factor` from the island's workforce pool (below).
 - Inputs are drawn from the island inventory continuously at the same rate
@@ -632,6 +627,11 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   visual position is interpolated from the leg timers; arrival is a due
   moment (`ship_arrived`, §1.3) that applies unload/load and schedules the
   next leg.
+- An idle or anchored ship at an island without berths (a founding ship
+  before `found_island`, a ship left at an island whose Trading Post is
+  gone) keeps a sea position, the end of the leg that brought it
+  (`Ship.Offshore`, sent as `position` with `island_id` set); it is cleared
+  when the ship departs, is granted a berth or a berth source is placed.
 - `update_route` is always allowed: assigned ships finish their current
   leg, then continue at the first stop (searched cyclically from their
   current index) on their arrival island, otherwise sail a positioning leg

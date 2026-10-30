@@ -265,7 +265,7 @@ func TestUpgradeWarehouseThroughput(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, x := range []int{5, 7, 9, 11} {
-		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: x, Y: 5})
+		placeLumberjack(t, w, c, x, 5, 0)
 	}
 	before := display(t, w, c)
 	mustApply(t, w, c, UpgradeTradingPost{IslandID: "main", BuildingID: 1})

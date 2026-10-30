@@ -37,14 +37,14 @@
   "bottlenecks": [
     {
       "island_id": "start",
-      "building_id": 7,
+      "building_id": 8,
       "type": "sheep_farm",
       "status": "low_efficiency",
       "reason": "0 / 4 fields"
     },
     {
       "island_id": "start",
-      "building_id": 8,
+      "building_id": 9,
       "type": "weaver_wool",
       "status": "input_starved",
       "reason": "Missing: wool (0/min)"
@@ -52,45 +52,45 @@
   ],
   "pause_events": [
     {
-      "at": "2026-01-01T00:06:40.000Z",
+      "at": "2026-01-01T00:06:30.000Z",
       "action": "auto_pause",
       "island_id": "start",
-      "building_id": 8,
+      "building_id": 9,
       "type": "weaver_wool"
     },
     {
-      "at": "2026-01-01T00:06:40.000Z",
+      "at": "2026-01-01T00:06:30.000Z",
       "action": "auto_pause",
       "island_id": "start",
       "building_id": 4,
       "type": "lumberjack"
     },
     {
-      "at": "2026-01-01T00:06:40.000Z",
+      "at": "2026-01-01T00:06:30.000Z",
       "action": "auto_pause",
       "island_id": "start",
-      "building_id": 7,
+      "building_id": 8,
       "type": "sheep_farm"
     },
     {
-      "at": "2026-01-01T00:06:40.000Z",
-      "action": "auto_pause",
-      "island_id": "start",
-      "building_id": 5,
-      "type": "sawmill"
-    },
-    {
-      "at": "2026-01-01T00:06:40.000Z",
+      "at": "2026-01-01T00:06:30.000Z",
       "action": "auto_pause",
       "island_id": "start",
       "building_id": 6,
+      "type": "sawmill"
+    },
+    {
+      "at": "2026-01-01T00:06:30.000Z",
+      "action": "auto_pause",
+      "island_id": "start",
+      "building_id": 7,
       "type": "fisher"
     },
     {
       "at": "2026-01-01T00:56:50.000Z",
       "action": "auto_resume",
       "island_id": "start",
-      "building_id": 6,
+      "building_id": 7,
       "type": "fisher",
       "trial": true
     },
@@ -98,14 +98,14 @@
       "at": "2026-01-01T01:00:18.000Z",
       "action": "auto_resume",
       "island_id": "start",
-      "building_id": 5,
+      "building_id": 6,
       "type": "sawmill"
     },
     {
       "at": "2026-01-01T01:00:18.000Z",
       "action": "auto_resume",
       "island_id": "start",
-      "building_id": 7,
+      "building_id": 8,
       "type": "sheep_farm",
       "trial": true
     },
@@ -121,14 +121,14 @@
       "at": "2026-01-01T01:00:18.002Z",
       "action": "auto_resume",
       "island_id": "start",
-      "building_id": 8,
+      "building_id": 9,
       "type": "weaver_wool",
       "trial": true
     }
   ],
   "snapshots": [
     {
-      "step": 13,
+      "step": 14,
       "at": "2026-01-01T00:06:50.000Z",
       "boundaries": 6,
       "inventory": {
@@ -155,7 +155,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -166,7 +176,7 @@
       ]
     },
     {
-      "step": 19,
+      "step": 20,
       "at": "2026-01-01T00:07:50.000Z",
       "boundaries": 0,
       "inventory": {
@@ -195,7 +205,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -206,7 +226,7 @@
       ]
     },
     {
-      "step": 20,
+      "step": 21,
       "at": "2026-01-01T00:08:50.000Z",
       "boundaries": 0,
       "inventory": {
@@ -235,7 +255,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -246,7 +276,7 @@
       ]
     },
     {
-      "step": 21,
+      "step": 22,
       "at": "2026-01-01T00:09:50.000Z",
       "boundaries": 0,
       "inventory": {
@@ -275,7 +305,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -286,7 +326,7 @@
       ]
     },
     {
-      "step": 22,
+      "step": 23,
       "at": "2026-01-01T00:11:50.000Z",
       "boundaries": 0,
       "inventory": {
@@ -315,7 +355,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -326,7 +376,7 @@
       ]
     },
     {
-      "step": 23,
+      "step": 24,
       "at": "2026-01-01T00:16:50.000Z",
       "boundaries": 0,
       "inventory": {
@@ -355,7 +405,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -366,7 +426,7 @@
       ]
     },
     {
-      "step": 24,
+      "step": 25,
       "at": "2026-01-01T00:26:50.000Z",
       "boundaries": 0,
       "inventory": {
@@ -395,7 +455,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -406,7 +476,7 @@
       ]
     },
     {
-      "step": 25,
+      "step": 26,
       "at": "2026-01-01T00:36:50.000Z",
       "boundaries": 0,
       "inventory": {
@@ -435,7 +505,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -446,7 +526,7 @@
       ]
     },
     {
-      "step": 26,
+      "step": 27,
       "at": "2026-01-01T00:46:50.000Z",
       "boundaries": 0,
       "inventory": {
@@ -475,7 +555,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -486,7 +576,7 @@
       ]
     },
     {
-      "step": 27,
+      "step": 28,
       "at": "2026-01-01T00:56:50.000Z",
       "boundaries": 2,
       "inventory": {
@@ -516,7 +606,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -527,7 +627,7 @@
       ]
     },
     {
-      "step": 28,
+      "step": 29,
       "at": "2026-01-01T01:06:50.000Z",
       "boundaries": 47,
       "inventory": {
@@ -566,7 +666,17 @@
       "farms": [
         {
           "island": "start",
-          "id": 7,
+          "id": 4,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "start",
+          "id": 8,
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
@@ -1461,10 +1571,32 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                5
+              ]
             }
           },
           {
             "id": 5,
+            "type": "tree_plot",
+            "x": 43,
+            "y": 12,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 4,
+            "active": true
+          },
+          {
+            "id": 6,
             "type": "sawmill",
             "x": 31,
             "y": 5,
@@ -1495,7 +1627,7 @@
             }
           },
           {
-            "id": 6,
+            "id": 7,
             "type": "fisher",
             "x": 50,
             "y": 1,
@@ -1524,7 +1656,7 @@
             }
           },
           {
-            "id": 7,
+            "id": 8,
             "type": "sheep_farm",
             "x": 14,
             "y": 21,
@@ -1558,7 +1690,7 @@
             }
           },
           {
-            "id": 8,
+            "id": 9,
             "type": "weaver_wool",
             "x": 26,
             "y": 18,
@@ -1591,7 +1723,7 @@
             }
           },
           {
-            "id": 9,
+            "id": 10,
             "type": "house_settlers",
             "x": 8,
             "y": 2,
@@ -1646,7 +1778,7 @@
             ]
           },
           {
-            "id": 10,
+            "id": 11,
             "type": "house_settlers",
             "x": 10,
             "y": 2,
@@ -1701,7 +1833,7 @@
             ]
           },
           {
-            "id": 11,
+            "id": 12,
             "type": "house_settlers",
             "x": 12,
             "y": 2,
@@ -1756,7 +1888,7 @@
             ]
           },
           {
-            "id": 12,
+            "id": 13,
             "type": "house_settlers",
             "x": 14,
             "y": 2,
@@ -1811,7 +1943,7 @@
             ]
           },
           {
-            "id": 13,
+            "id": 14,
             "type": "house_settlers",
             "x": 8,
             "y": 5,

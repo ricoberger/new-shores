@@ -21,12 +21,16 @@ func landTile(islands []*sim.Island, x, y int) bool {
 }
 
 // seaOnly returns an error for a ship of w whose position the server sends
-// lies on land: a sea position (AtSea) or a point of a leg's path, sampled
+// lies on land: a sea position (AtSea), the offshore position of an idle
+// ship at an island (Offshore) or a point of a leg's path, sampled
 // every 1/8 tile along the ship's centre line (tile centres).
 func seaOnly(w *sim.World, seen map[string]bool) error {
 	for _, s := range w.Ships {
 		if p := s.AtSea; p != nil && landTile(w.Islands, p.X, p.Y) {
 			return fmt.Errorf("ship %d at sea on land at %v", s.ID, *p)
+		}
+		if p := s.Offshore; p != nil && landTile(w.Islands, p.X, p.Y) {
+			return fmt.Errorf("ship %d idle at island %s on land at %v", s.ID, s.IslandID, *p)
 		}
 		if s.Leg == nil || len(s.Leg.Path) == 0 {
 			continue

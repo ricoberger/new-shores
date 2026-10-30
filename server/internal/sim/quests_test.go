@@ -202,7 +202,7 @@ func TestQuestStockThresholdBoundary(t *testing.T) {
 			is.Tiles[is.index(x, y)].Terrain = content.TerrainForest
 		}
 	}
-	placeFree(t, w, c, "lumberjack", 27, 5, 180)
+	plantTreePlot(t, w, c, placeFree(t, w, c, "lumberjack", 27, 5, 180))
 	single := w.Clone()
 	bs := mustAdvance(t, single, c, time.Hour)
 	var thr, done *Boundary

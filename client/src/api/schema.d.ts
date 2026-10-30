@@ -429,9 +429,6 @@ export interface components {
          *       `harbour_blocked` (quay tiles, or a Trading Post moved onto
          *       them, would close the harbour point off from the open sea,
          *       D-060),
-         *       `no_work_area`
-         *       (lumberjack only: no matching tile in its work area; farms with
-         *       fields are placed at 0 fields),
          *       `no_fertility` (the island lacks the work area's or the field's
          *       fertility tag),
          *       `field_type_mismatch` (`place_field` with a type that is not a
@@ -471,7 +468,7 @@ export interface components {
          *     `move_building` can fail with 400 `bad_request`, `invalid_command`
          *     (also for a road or an invalid rotation), `out_of_bounds`; 404
          *     `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-         *     `not_coastal`, `not_on_water`, `no_work_area`, `no_fertility`,
+         *     `not_coastal`, `not_on_water`, `no_fertility`,
          *     `no_deposit`. Moving a farm keeps its fields (they may become
          *     inactive); a field cannot be moved (`invalid_command`). Moving is
          *     free: it never fails for gold, materials or tier. Placement never
@@ -529,7 +526,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "harbour_blocked" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -1548,7 +1545,7 @@ export interface components {
             state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map";
             /** @description Island where the ship is; empty while travelling or at sea. */
             island_id: string;
-            /** @description Archipelago position of an idle or anchored ship at sea (the start ship of a new world, D-051); null at an island or on a leg. */
+            /** @description Archipelago position of an idle or anchored ship at sea or at an island without berths (the start ship of a new world, D-051; a founding ship before its Trading Post, the end of the leg that brought it; `island_id` stays set there); null at an island with berths or on a leg. */
             position: components["schemas"]["SeaPosition"] | null;
             /**
              * Format: int64
@@ -2541,16 +2538,24 @@ export interface components {
                 }[];
             };
             /**
-             * @description Work radius. `radius`, `terrain` and `required_tiles` are present
-             *     for the implicit terrain rule (lumberjack) and absent for a farm
-             *     with `fields` (no radius, D-051 part 4), which has at most a
-             *     `fertility`.
+             * @description Fertility requirement: the building can only be placed on an
+             *     island with the `fertility` tag. There is no work radius or
+             *     terrain rule any more (the harvester rule was removed);
+             *     `radius`, `terrain` and `required_tiles` are deprecated, never
+             *     sent, and only kept until the Almanac stops reading them.
              */
             work_area?: {
-                /** @description Work-area radius (tiles). */
+                /**
+                 * @deprecated
+                 * @description Never sent (removed work-area rule).
+                 */
                 radius?: number;
+                /** @deprecated */
                 terrain?: string[];
-                /** @description Matching tiles for full efficiency (count). */
+                /**
+                 * @deprecated
+                 * @description Never sent (removed work-area rule).
+                 */
                 required_tiles?: number;
                 /** @description Island fertility tag the building needs (absent for none). */
                 fertility?: string;

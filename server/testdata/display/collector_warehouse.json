@@ -161,10 +161,10 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 209286,
+            "stock": 210800,
             "capacity": 300000,
-            "in_transit": 25041,
-            "rate_per_min": 63164,
+            "in_transit": 25200,
+            "rate_per_min": 64000,
             "in_transit_rate_per_min": 0
           },
           "wool": {
@@ -609,6 +609,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                34
+              ]
             }
           },
           {
@@ -638,6 +646,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                35
+              ]
             }
           },
           {
@@ -667,6 +683,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                36
+              ]
             }
           },
           {
@@ -696,6 +720,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                37
+              ]
             }
           },
           {
@@ -725,6 +757,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                38
+              ]
             }
           },
           {
@@ -754,6 +794,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                39
+              ]
             }
           },
           {
@@ -783,6 +831,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                40
+              ]
             }
           },
           {
@@ -812,6 +868,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                41
+              ]
             }
           },
           {
@@ -841,6 +905,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                42
+              ]
             }
           },
           {
@@ -870,6 +942,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                43
+              ]
             }
           },
           {
@@ -899,6 +979,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                44
+              ]
             }
           },
           {
@@ -928,6 +1016,14 @@
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                45
+              ]
             }
           },
           {
@@ -948,15 +1044,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 37000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 27,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                46
+              ]
             }
           },
           {
@@ -977,15 +1081,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 35000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 25,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                47
+              ]
             }
           },
           {
@@ -1006,15 +1118,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 33000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 23,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                48
+              ]
             }
           },
           {
@@ -1035,15 +1155,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 31000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 21,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                49
+              ]
             }
           },
           {
@@ -1064,15 +1192,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 29000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 19,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                50
+              ]
             }
           },
           {
@@ -1093,15 +1229,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 27000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 17,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                51
+              ]
             }
           },
           {
@@ -1122,15 +1266,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 25000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 15,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                52
+              ]
             }
           },
           {
@@ -1151,15 +1303,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 23000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 13,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                53
+              ]
             }
           },
           {
@@ -1180,15 +1340,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 21000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 11,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                54
+              ]
             }
           },
           {
@@ -1209,15 +1377,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 19000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 9,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                55
+              ]
             }
           },
           {
@@ -1238,15 +1414,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 17000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 7,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                56
+              ]
             }
           },
           {
@@ -1267,15 +1451,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 15000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 5,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                57
+              ]
             }
           },
           {
@@ -1286,25 +1478,33 @@
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
-            "status": "low_efficiency",
-            "efficiency_permille": 958,
+            "status": "ok",
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1916
+                "wood": 2000
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 767,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 13000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 3,
-            "cycle_rate_permille_per_min": 1916,
+            "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                58
+              ]
             }
           },
           {
@@ -1315,25 +1515,33 @@
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
-            "status": "low_efficiency",
-            "efficiency_permille": 833,
+            "status": "ok",
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1666
+                "wood": 2000
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 884,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 11000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 1,
-            "cycle_rate_permille_per_min": 1666,
+            "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                59
+              ]
             }
           },
           {
@@ -1344,25 +1552,33 @@
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
-            "status": "low_efficiency",
-            "efficiency_permille": 833,
+            "status": "ok",
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1666
+                "wood": 2000
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 884,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 11000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 1,
-            "cycle_rate_permille_per_min": 1666,
+            "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                60
+              ]
             }
           },
           {
@@ -1373,25 +1589,33 @@
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
-            "status": "low_efficiency",
-            "efficiency_permille": 958,
+            "status": "ok",
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1916
+                "wood": 2000
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 767,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 13000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 3,
-            "cycle_rate_permille_per_min": 1916,
+            "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                61
+              ]
             }
           },
           {
@@ -1412,15 +1636,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 15000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 5,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                62
+              ]
             }
           },
           {
@@ -1441,15 +1673,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 17000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 7,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                63
+              ]
             }
           },
           {
@@ -1470,15 +1710,23 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 19000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 9,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                64
+              ]
             }
           },
           {
@@ -1499,19 +1747,475 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 64,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 21000,
-            "assigned_warehouse_id": 34,
+            "assigned_warehouse_id": 66,
             "road_distance": 11,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                65
+              ]
             }
           },
           {
             "id": 34,
+            "type": "tree_plot",
+            "x": 9,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 2,
+            "active": true
+          },
+          {
+            "id": 35,
+            "type": "tree_plot",
+            "x": 11,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 3,
+            "active": true
+          },
+          {
+            "id": 36,
+            "type": "tree_plot",
+            "x": 13,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 4,
+            "active": true
+          },
+          {
+            "id": 37,
+            "type": "tree_plot",
+            "x": 15,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 5,
+            "active": true
+          },
+          {
+            "id": 38,
+            "type": "tree_plot",
+            "x": 17,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 6,
+            "active": true
+          },
+          {
+            "id": 39,
+            "type": "tree_plot",
+            "x": 19,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 7,
+            "active": true
+          },
+          {
+            "id": 40,
+            "type": "tree_plot",
+            "x": 21,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 8,
+            "active": true
+          },
+          {
+            "id": 41,
+            "type": "tree_plot",
+            "x": 23,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 9,
+            "active": true
+          },
+          {
+            "id": 42,
+            "type": "tree_plot",
+            "x": 25,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 10,
+            "active": true
+          },
+          {
+            "id": 43,
+            "type": "tree_plot",
+            "x": 27,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 11,
+            "active": true
+          },
+          {
+            "id": 44,
+            "type": "tree_plot",
+            "x": 29,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 12,
+            "active": true
+          },
+          {
+            "id": 45,
+            "type": "tree_plot",
+            "x": 31,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 13,
+            "active": true
+          },
+          {
+            "id": 46,
+            "type": "tree_plot",
+            "x": 33,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 14,
+            "active": true
+          },
+          {
+            "id": 47,
+            "type": "tree_plot",
+            "x": 35,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 15,
+            "active": true
+          },
+          {
+            "id": 48,
+            "type": "tree_plot",
+            "x": 37,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 16,
+            "active": true
+          },
+          {
+            "id": 49,
+            "type": "tree_plot",
+            "x": 39,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 17,
+            "active": true
+          },
+          {
+            "id": 50,
+            "type": "tree_plot",
+            "x": 41,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 18,
+            "active": true
+          },
+          {
+            "id": 51,
+            "type": "tree_plot",
+            "x": 43,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 19,
+            "active": true
+          },
+          {
+            "id": 52,
+            "type": "tree_plot",
+            "x": 45,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20,
+            "active": true
+          },
+          {
+            "id": 53,
+            "type": "tree_plot",
+            "x": 47,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 21,
+            "active": true
+          },
+          {
+            "id": 54,
+            "type": "tree_plot",
+            "x": 49,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 22,
+            "active": true
+          },
+          {
+            "id": 55,
+            "type": "tree_plot",
+            "x": 51,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 23,
+            "active": true
+          },
+          {
+            "id": 56,
+            "type": "tree_plot",
+            "x": 53,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 24,
+            "active": true
+          },
+          {
+            "id": 57,
+            "type": "tree_plot",
+            "x": 55,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 25,
+            "active": true
+          },
+          {
+            "id": 58,
+            "type": "tree_plot",
+            "x": 57,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 26,
+            "active": true
+          },
+          {
+            "id": 59,
+            "type": "tree_plot",
+            "x": 59,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 27,
+            "active": true
+          },
+          {
+            "id": 60,
+            "type": "tree_plot",
+            "x": 61,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 28,
+            "active": true
+          },
+          {
+            "id": 61,
+            "type": "tree_plot",
+            "x": 63,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 29,
+            "active": true
+          },
+          {
+            "id": 62,
+            "type": "tree_plot",
+            "x": 65,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 30,
+            "active": true
+          },
+          {
+            "id": 63,
+            "type": "tree_plot",
+            "x": 67,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 31,
+            "active": true
+          },
+          {
+            "id": 64,
+            "type": "tree_plot",
+            "x": 69,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 32,
+            "active": true
+          },
+          {
+            "id": 65,
+            "type": "tree_plot",
+            "x": 71,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 33,
+            "active": true
+          },
+          {
+            "id": 66,
             "type": "warehouse",
             "x": 60,
             "y": 6,
@@ -1523,7 +2227,7 @@
             "throughput_factor_permille": 1000,
             "level": 2,
             "throughput_per_min": 55000,
-            "load_permille": 712
+            "load_permille": 727
           }
         ],
         "workforce": {
@@ -1759,10 +2463,10 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 209549,
+                "stock": 211067,
                 "capacity": 300000,
-                "in_transit": 25041,
-                "rate_per_min": 63164,
+                "in_transit": 25200,
+                "rate_per_min": 64000,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
@@ -2207,6 +2911,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    34
+                  ]
                 }
               },
               {
@@ -2236,6 +2948,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    35
+                  ]
                 }
               },
               {
@@ -2265,6 +2985,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    36
+                  ]
                 }
               },
               {
@@ -2294,6 +3022,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    37
+                  ]
                 }
               },
               {
@@ -2323,6 +3059,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    38
+                  ]
                 }
               },
               {
@@ -2352,6 +3096,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    39
+                  ]
                 }
               },
               {
@@ -2381,6 +3133,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    40
+                  ]
                 }
               },
               {
@@ -2410,6 +3170,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    41
+                  ]
                 }
               },
               {
@@ -2439,6 +3207,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    42
+                  ]
                 }
               },
               {
@@ -2468,6 +3244,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    43
+                  ]
                 }
               },
               {
@@ -2497,6 +3281,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    44
+                  ]
                 }
               },
               {
@@ -2526,6 +3318,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    45
+                  ]
                 }
               },
               {
@@ -2546,15 +3346,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 37000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 27,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    46
+                  ]
                 }
               },
               {
@@ -2575,15 +3383,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 35000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 25,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    47
+                  ]
                 }
               },
               {
@@ -2604,15 +3420,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 33000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 23,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    48
+                  ]
                 }
               },
               {
@@ -2633,15 +3457,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 31000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 21,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    49
+                  ]
                 }
               },
               {
@@ -2662,15 +3494,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 29000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 19,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    50
+                  ]
                 }
               },
               {
@@ -2691,15 +3531,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 27000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 17,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    51
+                  ]
                 }
               },
               {
@@ -2720,15 +3568,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 25000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 15,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    52
+                  ]
                 }
               },
               {
@@ -2749,15 +3605,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 23000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 13,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    53
+                  ]
                 }
               },
               {
@@ -2778,15 +3642,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 21000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    54
+                  ]
                 }
               },
               {
@@ -2807,15 +3679,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 19000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 9,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    55
+                  ]
                 }
               },
               {
@@ -2836,15 +3716,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 17000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 7,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    56
+                  ]
                 }
               },
               {
@@ -2865,15 +3753,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 15000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    57
+                  ]
                 }
               },
               {
@@ -2884,25 +3780,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 958,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1916
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 775,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 1916,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    58
+                  ]
                 }
               },
               {
@@ -2913,25 +3817,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 833,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1666
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 891,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 11000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 1,
-                "cycle_rate_permille_per_min": 1666,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    59
+                  ]
                 }
               },
               {
@@ -2942,25 +3854,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 833,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1666
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 891,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 11000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 1,
-                "cycle_rate_permille_per_min": 1666,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    60
+                  ]
                 }
               },
               {
@@ -2971,25 +3891,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 958,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1916
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 775,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 1916,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    61
+                  ]
                 }
               },
               {
@@ -3010,15 +3938,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 15000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    62
+                  ]
                 }
               },
               {
@@ -3039,15 +3975,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 17000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 7,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    63
+                  ]
                 }
               },
               {
@@ -3068,15 +4012,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 19000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 9,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    64
+                  ]
                 }
               },
               {
@@ -3097,19 +4049,475 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 72,
+                "cycle_progress_permille": 8,
                 "transfer_delay_ms": 21000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    65
+                  ]
                 }
               },
               {
                 "id": 34,
+                "type": "tree_plot",
+                "x": 9,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 2,
+                "active": true
+              },
+              {
+                "id": 35,
+                "type": "tree_plot",
+                "x": 11,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 36,
+                "type": "tree_plot",
+                "x": 13,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
+              },
+              {
+                "id": 37,
+                "type": "tree_plot",
+                "x": 15,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 5,
+                "active": true
+              },
+              {
+                "id": 38,
+                "type": "tree_plot",
+                "x": 17,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 6,
+                "active": true
+              },
+              {
+                "id": 39,
+                "type": "tree_plot",
+                "x": 19,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 7,
+                "active": true
+              },
+              {
+                "id": 40,
+                "type": "tree_plot",
+                "x": 21,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 8,
+                "active": true
+              },
+              {
+                "id": 41,
+                "type": "tree_plot",
+                "x": 23,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 9,
+                "active": true
+              },
+              {
+                "id": 42,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 10,
+                "active": true
+              },
+              {
+                "id": 43,
+                "type": "tree_plot",
+                "x": 27,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 11,
+                "active": true
+              },
+              {
+                "id": 44,
+                "type": "tree_plot",
+                "x": 29,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 12,
+                "active": true
+              },
+              {
+                "id": 45,
+                "type": "tree_plot",
+                "x": 31,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 13,
+                "active": true
+              },
+              {
+                "id": 46,
+                "type": "tree_plot",
+                "x": 33,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 14,
+                "active": true
+              },
+              {
+                "id": 47,
+                "type": "tree_plot",
+                "x": 35,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 15,
+                "active": true
+              },
+              {
+                "id": 48,
+                "type": "tree_plot",
+                "x": 37,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 16,
+                "active": true
+              },
+              {
+                "id": 49,
+                "type": "tree_plot",
+                "x": 39,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 17,
+                "active": true
+              },
+              {
+                "id": 50,
+                "type": "tree_plot",
+                "x": 41,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 18,
+                "active": true
+              },
+              {
+                "id": 51,
+                "type": "tree_plot",
+                "x": 43,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 19,
+                "active": true
+              },
+              {
+                "id": 52,
+                "type": "tree_plot",
+                "x": 45,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 20,
+                "active": true
+              },
+              {
+                "id": 53,
+                "type": "tree_plot",
+                "x": 47,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 21,
+                "active": true
+              },
+              {
+                "id": 54,
+                "type": "tree_plot",
+                "x": 49,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 22,
+                "active": true
+              },
+              {
+                "id": 55,
+                "type": "tree_plot",
+                "x": 51,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 23,
+                "active": true
+              },
+              {
+                "id": 56,
+                "type": "tree_plot",
+                "x": 53,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 24,
+                "active": true
+              },
+              {
+                "id": 57,
+                "type": "tree_plot",
+                "x": 55,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 25,
+                "active": true
+              },
+              {
+                "id": 58,
+                "type": "tree_plot",
+                "x": 57,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 26,
+                "active": true
+              },
+              {
+                "id": 59,
+                "type": "tree_plot",
+                "x": 59,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 27,
+                "active": true
+              },
+              {
+                "id": 60,
+                "type": "tree_plot",
+                "x": 61,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 28,
+                "active": true
+              },
+              {
+                "id": 61,
+                "type": "tree_plot",
+                "x": 63,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 29,
+                "active": true
+              },
+              {
+                "id": 62,
+                "type": "tree_plot",
+                "x": 65,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 30,
+                "active": true
+              },
+              {
+                "id": 63,
+                "type": "tree_plot",
+                "x": 67,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 31,
+                "active": true
+              },
+              {
+                "id": 64,
+                "type": "tree_plot",
+                "x": 69,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 32,
+                "active": true
+              },
+              {
+                "id": 65,
+                "type": "tree_plot",
+                "x": 71,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 33,
+                "active": true
+              },
+              {
+                "id": 66,
                 "type": "warehouse",
                 "x": 60,
                 "y": 6,
@@ -3121,7 +4529,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "throughput_per_min": 55000,
-                "load_permille": 712
+                "load_permille": 727
               }
             ],
             "workforce": {
@@ -3357,10 +4765,10 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 210339,
+                "stock": 211867,
                 "capacity": 300000,
-                "in_transit": 25041,
-                "rate_per_min": 63164,
+                "in_transit": 25200,
+                "rate_per_min": 64000,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
@@ -3805,6 +5213,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    34
+                  ]
                 }
               },
               {
@@ -3834,6 +5250,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    35
+                  ]
                 }
               },
               {
@@ -3863,6 +5287,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    36
+                  ]
                 }
               },
               {
@@ -3892,6 +5324,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    37
+                  ]
                 }
               },
               {
@@ -3921,6 +5361,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    38
+                  ]
                 }
               },
               {
@@ -3950,6 +5398,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    39
+                  ]
                 }
               },
               {
@@ -3979,6 +5435,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    40
+                  ]
                 }
               },
               {
@@ -4008,6 +5472,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    41
+                  ]
                 }
               },
               {
@@ -4037,6 +5509,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    42
+                  ]
                 }
               },
               {
@@ -4066,6 +5546,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    43
+                  ]
                 }
               },
               {
@@ -4095,6 +5583,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    44
+                  ]
                 }
               },
               {
@@ -4124,6 +5620,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    45
+                  ]
                 }
               },
               {
@@ -4144,15 +5648,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 37000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 27,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    46
+                  ]
                 }
               },
               {
@@ -4173,15 +5685,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 35000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 25,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    47
+                  ]
                 }
               },
               {
@@ -4202,15 +5722,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 33000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 23,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    48
+                  ]
                 }
               },
               {
@@ -4231,15 +5759,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 31000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 21,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    49
+                  ]
                 }
               },
               {
@@ -4260,15 +5796,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 29000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 19,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    50
+                  ]
                 }
               },
               {
@@ -4289,15 +5833,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 27000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 17,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    51
+                  ]
                 }
               },
               {
@@ -4318,15 +5870,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 25000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 15,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    52
+                  ]
                 }
               },
               {
@@ -4347,15 +5907,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 23000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 13,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    53
+                  ]
                 }
               },
               {
@@ -4376,15 +5944,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 21000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    54
+                  ]
                 }
               },
               {
@@ -4405,15 +5981,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 19000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 9,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    55
+                  ]
                 }
               },
               {
@@ -4434,15 +6018,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 17000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 7,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    56
+                  ]
                 }
               },
               {
@@ -4463,15 +6055,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 15000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    57
+                  ]
                 }
               },
               {
@@ -4482,25 +6082,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 958,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1916
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 799,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 1916,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    58
+                  ]
                 }
               },
               {
@@ -4511,25 +6119,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 833,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1666
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 912,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 11000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 1,
-                "cycle_rate_permille_per_min": 1666,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    59
+                  ]
                 }
               },
               {
@@ -4540,25 +6156,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 833,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1666
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 912,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 11000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 1,
-                "cycle_rate_permille_per_min": 1666,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    60
+                  ]
                 }
               },
               {
@@ -4569,25 +6193,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 958,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1916
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 799,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 1916,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    61
+                  ]
                 }
               },
               {
@@ -4608,15 +6240,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 15000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    62
+                  ]
                 }
               },
               {
@@ -4637,15 +6277,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 17000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 7,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    63
+                  ]
                 }
               },
               {
@@ -4666,15 +6314,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 19000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 9,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    64
+                  ]
                 }
               },
               {
@@ -4695,19 +6351,475 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 97,
+                "cycle_progress_permille": 33,
                 "transfer_delay_ms": 21000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    65
+                  ]
                 }
               },
               {
                 "id": 34,
+                "type": "tree_plot",
+                "x": 9,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 2,
+                "active": true
+              },
+              {
+                "id": 35,
+                "type": "tree_plot",
+                "x": 11,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 36,
+                "type": "tree_plot",
+                "x": 13,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
+              },
+              {
+                "id": 37,
+                "type": "tree_plot",
+                "x": 15,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 5,
+                "active": true
+              },
+              {
+                "id": 38,
+                "type": "tree_plot",
+                "x": 17,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 6,
+                "active": true
+              },
+              {
+                "id": 39,
+                "type": "tree_plot",
+                "x": 19,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 7,
+                "active": true
+              },
+              {
+                "id": 40,
+                "type": "tree_plot",
+                "x": 21,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 8,
+                "active": true
+              },
+              {
+                "id": 41,
+                "type": "tree_plot",
+                "x": 23,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 9,
+                "active": true
+              },
+              {
+                "id": 42,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 10,
+                "active": true
+              },
+              {
+                "id": 43,
+                "type": "tree_plot",
+                "x": 27,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 11,
+                "active": true
+              },
+              {
+                "id": 44,
+                "type": "tree_plot",
+                "x": 29,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 12,
+                "active": true
+              },
+              {
+                "id": 45,
+                "type": "tree_plot",
+                "x": 31,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 13,
+                "active": true
+              },
+              {
+                "id": 46,
+                "type": "tree_plot",
+                "x": 33,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 14,
+                "active": true
+              },
+              {
+                "id": 47,
+                "type": "tree_plot",
+                "x": 35,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 15,
+                "active": true
+              },
+              {
+                "id": 48,
+                "type": "tree_plot",
+                "x": 37,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 16,
+                "active": true
+              },
+              {
+                "id": 49,
+                "type": "tree_plot",
+                "x": 39,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 17,
+                "active": true
+              },
+              {
+                "id": 50,
+                "type": "tree_plot",
+                "x": 41,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 18,
+                "active": true
+              },
+              {
+                "id": 51,
+                "type": "tree_plot",
+                "x": 43,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 19,
+                "active": true
+              },
+              {
+                "id": 52,
+                "type": "tree_plot",
+                "x": 45,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 20,
+                "active": true
+              },
+              {
+                "id": 53,
+                "type": "tree_plot",
+                "x": 47,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 21,
+                "active": true
+              },
+              {
+                "id": 54,
+                "type": "tree_plot",
+                "x": 49,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 22,
+                "active": true
+              },
+              {
+                "id": 55,
+                "type": "tree_plot",
+                "x": 51,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 23,
+                "active": true
+              },
+              {
+                "id": 56,
+                "type": "tree_plot",
+                "x": 53,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 24,
+                "active": true
+              },
+              {
+                "id": 57,
+                "type": "tree_plot",
+                "x": 55,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 25,
+                "active": true
+              },
+              {
+                "id": 58,
+                "type": "tree_plot",
+                "x": 57,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 26,
+                "active": true
+              },
+              {
+                "id": 59,
+                "type": "tree_plot",
+                "x": 59,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 27,
+                "active": true
+              },
+              {
+                "id": 60,
+                "type": "tree_plot",
+                "x": 61,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 28,
+                "active": true
+              },
+              {
+                "id": 61,
+                "type": "tree_plot",
+                "x": 63,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 29,
+                "active": true
+              },
+              {
+                "id": 62,
+                "type": "tree_plot",
+                "x": 65,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 30,
+                "active": true
+              },
+              {
+                "id": 63,
+                "type": "tree_plot",
+                "x": 67,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 31,
+                "active": true
+              },
+              {
+                "id": 64,
+                "type": "tree_plot",
+                "x": 69,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 32,
+                "active": true
+              },
+              {
+                "id": 65,
+                "type": "tree_plot",
+                "x": 71,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 33,
+                "active": true
+              },
+              {
+                "id": 66,
                 "type": "warehouse",
                 "x": 60,
                 "y": 6,
@@ -4719,7 +6831,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "throughput_per_min": 55000,
-                "load_permille": 712
+                "load_permille": 727
               }
             ],
             "workforce": {
@@ -4955,10 +7067,10 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 214550,
+                "stock": 216133,
                 "capacity": 300000,
-                "in_transit": 25041,
-                "rate_per_min": 63164,
+                "in_transit": 25200,
+                "rate_per_min": 64000,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
@@ -5403,6 +7515,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    34
+                  ]
                 }
               },
               {
@@ -5432,6 +7552,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    35
+                  ]
                 }
               },
               {
@@ -5461,6 +7589,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    36
+                  ]
                 }
               },
               {
@@ -5490,6 +7626,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    37
+                  ]
                 }
               },
               {
@@ -5519,6 +7663,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    38
+                  ]
                 }
               },
               {
@@ -5548,6 +7700,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    39
+                  ]
                 }
               },
               {
@@ -5577,6 +7737,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    40
+                  ]
                 }
               },
               {
@@ -5606,6 +7774,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    41
+                  ]
                 }
               },
               {
@@ -5635,6 +7811,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    42
+                  ]
                 }
               },
               {
@@ -5664,6 +7848,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    43
+                  ]
                 }
               },
               {
@@ -5693,6 +7885,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    44
+                  ]
                 }
               },
               {
@@ -5722,6 +7922,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    45
+                  ]
                 }
               },
               {
@@ -5742,15 +7950,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 37000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 27,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    46
+                  ]
                 }
               },
               {
@@ -5771,15 +7987,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 35000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 25,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    47
+                  ]
                 }
               },
               {
@@ -5800,15 +8024,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 33000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 23,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    48
+                  ]
                 }
               },
               {
@@ -5829,15 +8061,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 31000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 21,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    49
+                  ]
                 }
               },
               {
@@ -5858,15 +8098,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 29000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 19,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    50
+                  ]
                 }
               },
               {
@@ -5887,15 +8135,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 27000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 17,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    51
+                  ]
                 }
               },
               {
@@ -5916,15 +8172,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 25000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 15,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    52
+                  ]
                 }
               },
               {
@@ -5945,15 +8209,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 23000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 13,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    53
+                  ]
                 }
               },
               {
@@ -5974,15 +8246,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 21000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    54
+                  ]
                 }
               },
               {
@@ -6003,15 +8283,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 19000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 9,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    55
+                  ]
                 }
               },
               {
@@ -6032,15 +8320,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 17000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 7,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    56
+                  ]
                 }
               },
               {
@@ -6061,15 +8357,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 15000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    57
+                  ]
                 }
               },
               {
@@ -6080,25 +8384,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 958,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1916
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 927,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 1916,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    58
+                  ]
                 }
               },
               {
@@ -6109,25 +8421,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 833,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1666
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 23,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 11000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 1,
-                "cycle_rate_permille_per_min": 1666,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    59
+                  ]
                 }
               },
               {
@@ -6138,25 +8458,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 833,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1666
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 23,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 11000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 1,
-                "cycle_rate_permille_per_min": 1666,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    60
+                  ]
                 }
               },
               {
@@ -6167,25 +8495,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 958,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1916
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 927,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 1916,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    61
+                  ]
                 }
               },
               {
@@ -6206,15 +8542,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 15000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    62
+                  ]
                 }
               },
               {
@@ -6235,15 +8579,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 17000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 7,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    63
+                  ]
                 }
               },
               {
@@ -6264,15 +8616,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 19000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 9,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    64
+                  ]
                 }
               },
               {
@@ -6293,19 +8653,475 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 230,
+                "cycle_progress_permille": 166,
                 "transfer_delay_ms": 21000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    65
+                  ]
                 }
               },
               {
                 "id": 34,
+                "type": "tree_plot",
+                "x": 9,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 2,
+                "active": true
+              },
+              {
+                "id": 35,
+                "type": "tree_plot",
+                "x": 11,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 36,
+                "type": "tree_plot",
+                "x": 13,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
+              },
+              {
+                "id": 37,
+                "type": "tree_plot",
+                "x": 15,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 5,
+                "active": true
+              },
+              {
+                "id": 38,
+                "type": "tree_plot",
+                "x": 17,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 6,
+                "active": true
+              },
+              {
+                "id": 39,
+                "type": "tree_plot",
+                "x": 19,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 7,
+                "active": true
+              },
+              {
+                "id": 40,
+                "type": "tree_plot",
+                "x": 21,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 8,
+                "active": true
+              },
+              {
+                "id": 41,
+                "type": "tree_plot",
+                "x": 23,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 9,
+                "active": true
+              },
+              {
+                "id": 42,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 10,
+                "active": true
+              },
+              {
+                "id": 43,
+                "type": "tree_plot",
+                "x": 27,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 11,
+                "active": true
+              },
+              {
+                "id": 44,
+                "type": "tree_plot",
+                "x": 29,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 12,
+                "active": true
+              },
+              {
+                "id": 45,
+                "type": "tree_plot",
+                "x": 31,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 13,
+                "active": true
+              },
+              {
+                "id": 46,
+                "type": "tree_plot",
+                "x": 33,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 14,
+                "active": true
+              },
+              {
+                "id": 47,
+                "type": "tree_plot",
+                "x": 35,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 15,
+                "active": true
+              },
+              {
+                "id": 48,
+                "type": "tree_plot",
+                "x": 37,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 16,
+                "active": true
+              },
+              {
+                "id": 49,
+                "type": "tree_plot",
+                "x": 39,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 17,
+                "active": true
+              },
+              {
+                "id": 50,
+                "type": "tree_plot",
+                "x": 41,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 18,
+                "active": true
+              },
+              {
+                "id": 51,
+                "type": "tree_plot",
+                "x": 43,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 19,
+                "active": true
+              },
+              {
+                "id": 52,
+                "type": "tree_plot",
+                "x": 45,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 20,
+                "active": true
+              },
+              {
+                "id": 53,
+                "type": "tree_plot",
+                "x": 47,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 21,
+                "active": true
+              },
+              {
+                "id": 54,
+                "type": "tree_plot",
+                "x": 49,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 22,
+                "active": true
+              },
+              {
+                "id": 55,
+                "type": "tree_plot",
+                "x": 51,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 23,
+                "active": true
+              },
+              {
+                "id": 56,
+                "type": "tree_plot",
+                "x": 53,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 24,
+                "active": true
+              },
+              {
+                "id": 57,
+                "type": "tree_plot",
+                "x": 55,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 25,
+                "active": true
+              },
+              {
+                "id": 58,
+                "type": "tree_plot",
+                "x": 57,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 26,
+                "active": true
+              },
+              {
+                "id": 59,
+                "type": "tree_plot",
+                "x": 59,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 27,
+                "active": true
+              },
+              {
+                "id": 60,
+                "type": "tree_plot",
+                "x": 61,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 28,
+                "active": true
+              },
+              {
+                "id": 61,
+                "type": "tree_plot",
+                "x": 63,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 29,
+                "active": true
+              },
+              {
+                "id": 62,
+                "type": "tree_plot",
+                "x": 65,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 30,
+                "active": true
+              },
+              {
+                "id": 63,
+                "type": "tree_plot",
+                "x": 67,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 31,
+                "active": true
+              },
+              {
+                "id": 64,
+                "type": "tree_plot",
+                "x": 69,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 32,
+                "active": true
+              },
+              {
+                "id": 65,
+                "type": "tree_plot",
+                "x": 71,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 33,
+                "active": true
+              },
+              {
+                "id": 66,
                 "type": "warehouse",
                 "x": 60,
                 "y": 6,
@@ -6317,7 +9133,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "throughput_per_min": 55000,
-                "load_permille": 712
+                "load_permille": 727
               }
             ],
             "workforce": {
@@ -6553,10 +9369,10 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 240868,
+                "stock": 242800,
                 "capacity": 300000,
-                "in_transit": 25041,
-                "rate_per_min": 63164,
+                "in_transit": 25200,
+                "rate_per_min": 64000,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
@@ -7001,6 +9817,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    34
+                  ]
                 }
               },
               {
@@ -7030,6 +9854,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    35
+                  ]
                 }
               },
               {
@@ -7059,6 +9891,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    36
+                  ]
                 }
               },
               {
@@ -7088,6 +9928,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    37
+                  ]
                 }
               },
               {
@@ -7117,6 +9965,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    38
+                  ]
                 }
               },
               {
@@ -7146,6 +10002,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    39
+                  ]
                 }
               },
               {
@@ -7175,6 +10039,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    40
+                  ]
                 }
               },
               {
@@ -7204,6 +10076,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    41
+                  ]
                 }
               },
               {
@@ -7233,6 +10113,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    42
+                  ]
                 }
               },
               {
@@ -7262,6 +10150,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    43
+                  ]
                 }
               },
               {
@@ -7291,6 +10187,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    44
+                  ]
                 }
               },
               {
@@ -7320,6 +10224,14 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    45
+                  ]
                 }
               },
               {
@@ -7340,15 +10252,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 37000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 27,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    46
+                  ]
                 }
               },
               {
@@ -7369,15 +10289,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 35000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 25,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    47
+                  ]
                 }
               },
               {
@@ -7398,15 +10326,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 33000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 23,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    48
+                  ]
                 }
               },
               {
@@ -7427,15 +10363,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 31000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 21,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    49
+                  ]
                 }
               },
               {
@@ -7456,15 +10400,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 29000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 19,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    50
+                  ]
                 }
               },
               {
@@ -7485,15 +10437,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 27000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 17,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    51
+                  ]
                 }
               },
               {
@@ -7514,15 +10474,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 25000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 15,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    52
+                  ]
                 }
               },
               {
@@ -7543,15 +10511,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 23000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 13,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    53
+                  ]
                 }
               },
               {
@@ -7572,15 +10548,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 21000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    54
+                  ]
                 }
               },
               {
@@ -7601,15 +10585,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 19000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 9,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    55
+                  ]
                 }
               },
               {
@@ -7630,15 +10622,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 17000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 7,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    56
+                  ]
                 }
               },
               {
@@ -7659,15 +10659,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 15000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    57
+                  ]
                 }
               },
               {
@@ -7678,25 +10686,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 958,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1916
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 725,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 1916,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    58
+                  ]
                 }
               },
               {
@@ -7707,25 +10723,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 833,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1666
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 717,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 11000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 1,
-                "cycle_rate_permille_per_min": 1666,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    59
+                  ]
                 }
               },
               {
@@ -7736,25 +10760,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 833,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1666
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 717,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 11000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 1,
-                "cycle_rate_permille_per_min": 1666,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    60
+                  ]
                 }
               },
               {
@@ -7765,25 +10797,33 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "low_efficiency",
-                "efficiency_permille": 958,
+                "status": "ok",
+                "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wood": 1916
+                    "wood": 2000
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 725,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 13000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 1916,
+                "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    61
+                  ]
                 }
               },
               {
@@ -7804,15 +10844,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 15000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    62
+                  ]
                 }
               },
               {
@@ -7833,15 +10881,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 17000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 7,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    63
+                  ]
                 }
               },
               {
@@ -7862,15 +10918,23 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 19000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 9,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    64
+                  ]
                 }
               },
               {
@@ -7891,19 +10955,475 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 64,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 21000,
-                "assigned_warehouse_id": 34,
+                "assigned_warehouse_id": 66,
                 "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                },
+                "fields": {
+                  "active": 1,
+                  "required": 1,
+                  "max": 2,
+                  "ids": [
+                    65
+                  ]
                 }
               },
               {
                 "id": 34,
+                "type": "tree_plot",
+                "x": 9,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 2,
+                "active": true
+              },
+              {
+                "id": 35,
+                "type": "tree_plot",
+                "x": 11,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 3,
+                "active": true
+              },
+              {
+                "id": 36,
+                "type": "tree_plot",
+                "x": 13,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 4,
+                "active": true
+              },
+              {
+                "id": 37,
+                "type": "tree_plot",
+                "x": 15,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 5,
+                "active": true
+              },
+              {
+                "id": 38,
+                "type": "tree_plot",
+                "x": 17,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 6,
+                "active": true
+              },
+              {
+                "id": 39,
+                "type": "tree_plot",
+                "x": 19,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 7,
+                "active": true
+              },
+              {
+                "id": 40,
+                "type": "tree_plot",
+                "x": 21,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 8,
+                "active": true
+              },
+              {
+                "id": 41,
+                "type": "tree_plot",
+                "x": 23,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 9,
+                "active": true
+              },
+              {
+                "id": 42,
+                "type": "tree_plot",
+                "x": 25,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 10,
+                "active": true
+              },
+              {
+                "id": 43,
+                "type": "tree_plot",
+                "x": 27,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 11,
+                "active": true
+              },
+              {
+                "id": 44,
+                "type": "tree_plot",
+                "x": 29,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 12,
+                "active": true
+              },
+              {
+                "id": 45,
+                "type": "tree_plot",
+                "x": 31,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 13,
+                "active": true
+              },
+              {
+                "id": 46,
+                "type": "tree_plot",
+                "x": 33,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 14,
+                "active": true
+              },
+              {
+                "id": 47,
+                "type": "tree_plot",
+                "x": 35,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 15,
+                "active": true
+              },
+              {
+                "id": 48,
+                "type": "tree_plot",
+                "x": 37,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 16,
+                "active": true
+              },
+              {
+                "id": 49,
+                "type": "tree_plot",
+                "x": 39,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 17,
+                "active": true
+              },
+              {
+                "id": 50,
+                "type": "tree_plot",
+                "x": 41,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 18,
+                "active": true
+              },
+              {
+                "id": 51,
+                "type": "tree_plot",
+                "x": 43,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 19,
+                "active": true
+              },
+              {
+                "id": 52,
+                "type": "tree_plot",
+                "x": 45,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 20,
+                "active": true
+              },
+              {
+                "id": 53,
+                "type": "tree_plot",
+                "x": 47,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 21,
+                "active": true
+              },
+              {
+                "id": 54,
+                "type": "tree_plot",
+                "x": 49,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 22,
+                "active": true
+              },
+              {
+                "id": 55,
+                "type": "tree_plot",
+                "x": 51,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 23,
+                "active": true
+              },
+              {
+                "id": 56,
+                "type": "tree_plot",
+                "x": 53,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 24,
+                "active": true
+              },
+              {
+                "id": 57,
+                "type": "tree_plot",
+                "x": 55,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 25,
+                "active": true
+              },
+              {
+                "id": 58,
+                "type": "tree_plot",
+                "x": 57,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 26,
+                "active": true
+              },
+              {
+                "id": 59,
+                "type": "tree_plot",
+                "x": 59,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 27,
+                "active": true
+              },
+              {
+                "id": 60,
+                "type": "tree_plot",
+                "x": 61,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 28,
+                "active": true
+              },
+              {
+                "id": 61,
+                "type": "tree_plot",
+                "x": 63,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 29,
+                "active": true
+              },
+              {
+                "id": 62,
+                "type": "tree_plot",
+                "x": 65,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 30,
+                "active": true
+              },
+              {
+                "id": 63,
+                "type": "tree_plot",
+                "x": 67,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 31,
+                "active": true
+              },
+              {
+                "id": 64,
+                "type": "tree_plot",
+                "x": 69,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 32,
+                "active": true
+              },
+              {
+                "id": 65,
+                "type": "tree_plot",
+                "x": 71,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "farm_id": 33,
+                "active": true
+              },
+              {
+                "id": 66,
                 "type": "warehouse",
                 "x": 60,
                 "y": 6,
@@ -7915,7 +11435,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "throughput_per_min": 55000,
-                "load_permille": 712
+                "load_permille": 727
               }
             ],
             "workforce": {

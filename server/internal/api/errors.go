@@ -107,7 +107,6 @@ var simErrors = []simError{
 	{sim.ErrNotCoastal, "not_coastal", http.StatusConflict},
 	{sim.ErrNotOnWater, "not_on_water", http.StatusConflict},
 	{sim.ErrHarbourBlocked, "harbour_blocked", http.StatusConflict},
-	{sim.ErrNoWorkArea, "no_work_area", http.StatusConflict},
 	{sim.ErrNoFertility, "no_fertility", http.StatusConflict},
 	{sim.ErrNoDeposit, "no_deposit", http.StatusConflict},
 	{sim.ErrInsufficientGold, "insufficient_gold", http.StatusConflict},

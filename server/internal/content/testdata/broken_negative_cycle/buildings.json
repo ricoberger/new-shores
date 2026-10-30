@@ -83,8 +83,7 @@
       "inputs": [],
       "outputs": [{ "good": "wood", "amount": 1 }],
       "cycle_seconds": -30
-    },
-    "work_area": { "radius": 4, "terrain": ["forest"], "required_tiles": 24 }
+    }
   },
   {
     "id": "sawmill",
@@ -139,8 +138,7 @@
       "inputs": [],
       "outputs": [{ "good": "wool", "amount": 1 }],
       "cycle_seconds": 60
-    },
-    "work_area": { "radius": 4, "terrain": ["grass"], "required_tiles": 24 }
+    }
   },
   {
     "id": "weaver_wool",

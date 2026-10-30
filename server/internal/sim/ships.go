@@ -89,6 +89,13 @@ type Ship struct {
 	// AtSea is the archipelago position (tiles) of an idle ship that is at
 	// no island: the start ship of a new world (D-051); nil otherwise.
 	AtSea *Pos `json:"at_sea,omitempty"`
+	// Offshore is the sea position (tiles) of a ship that ended a leg at
+	// IslandID: the leg's last waypoint (the pending site's harbour point
+	// of a founding voyage, else the shore point towards the origin). It is
+	// what Display sends as the position of an idle or anchored ship at an
+	// island without berths; cleared when the ship departs, is granted a
+	// berth or a berth source appears (unmoor); nil otherwise.
+	Offshore *Pos `json:"offshore,omitempty"`
 	// RouteID is the assigned route (0 when none).
 	RouteID int64 `json:"route_id,omitempty"`
 	// StopIndex is the index of the route stop the ship is heading to.
@@ -147,6 +154,10 @@ func (s *Ship) clone() *Ship {
 	if s.AtSea != nil {
 		p := *s.AtSea
 		c.AtSea = &p
+	}
+	if s.Offshore != nil {
+		p := *s.Offshore
+		c.Offshore = &p
 	}
 	if s.Cargo != nil {
 		c.Cargo = append([]Slot(nil), s.Cargo...)
@@ -352,6 +363,7 @@ func unloadAll(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) Qt
 // departure, nothing afterwards).
 func depart(s *Ship, leg Leg, now int64) {
 	s.Leg = &leg
+	s.Offshore = nil
 	s.IslandID = leg.FromIsland
 	if leg.DepartAtMs <= now {
 		s.IslandID = ""
@@ -575,6 +587,10 @@ func applyShipBuilt(w *World, c *content.Catalogue, is *Island, b *Building) {
 func applyShipArrival(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
 	dest := s.Leg.ToIsland
 	w.Away.addArrival(s, dest, now)
+	s.Offshore = nil
+	if p := s.Leg.Path; len(p) > 0 && !hasBerthSource(w, dest) {
+		s.Offshore = &Pos{p[len(p)-1].X, p[len(p)-1].Y}
+	}
 	s.Leg = nil
 	s.IslandID = dest
 	if s.RouteID != 0 && w.Route(s.RouteID) == nil {
@@ -587,6 +603,16 @@ func applyShipArrival(w *World, c *content.Catalogue, s *Ship, now int64, l *Led
 	}
 	if is := w.Island(dest); is != nil {
 		clearRegimes(is)
+	}
+}
+
+// unmoor clears the sea position of the ships at an island that has
+// berths now (a Trading Post or pier appeared): they are berthed there.
+func unmoor(w *World, islandID string) {
+	for _, s := range w.Ships {
+		if s.IslandID == islandID {
+			s.Offshore = nil
+		}
 	}
 }
 
@@ -867,7 +893,7 @@ func foundIsland(w *World, c *content.Catalogue, cmd FoundIsland, l *Ledger) err
 	if !validRotation(cmd.Rotation) {
 		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, cmd.Rotation)
 	}
-	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation, true); err != nil {
+	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
 		return err
 	}
 	if def.Cost.Gold > w.Gold {
@@ -1137,7 +1163,7 @@ func foundingHarbour(w *World, c *content.Catalogue, is *Island, site *FoundingS
 	if !validRotation(site.Rotation) {
 		return Pos{}, false, fmt.Errorf("%w: rotation %d", ErrInvalidCommand, site.Rotation)
 	}
-	if err := checkSite(is, c, is.occupancy(c), def, site.X, site.Y, site.Rotation, true); err != nil {
+	if err := checkSite(is, c, is.occupancy(c), def, site.X, site.Y, site.Rotation); err != nil {
 		return Pos{}, false, err
 	}
 	return HarbourAt(is, def, site.X, site.Y, site.Rotation), true, nil

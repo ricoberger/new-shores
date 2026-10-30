@@ -151,7 +151,9 @@ type ShipDisplay struct {
 	Paused       bool   `json:"paused"`
 	PausedReason string `json:"paused_reason"`
 	// Position is the archipelago position (tiles) of an idle or anchored
-	// ship at sea (the start ship, D-051); null at an island or on a leg.
+	// ship at sea (the start ship, D-051) or at an island without berths
+	// (the end of the leg that brought it, Ship.Offshore); null at a
+	// berthed island or on a leg.
 	Position *PositionDisplay `json:"position"`
 	// QueuedAt is when a ship waiting for a berth (state
 	// waiting_for_berth) joined its island's queue; null otherwise.
@@ -585,7 +587,7 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		ds.NextChangeAt = &s
 	}
 	for _, s := range cw.Ships {
-		ds.Ships = append(ds.Ships, displayShip(s, c))
+		ds.Ships = append(ds.Ships, displayShip(s, c, hasBerthSource(cw, s.IslandID)))
 	}
 	for _, r := range cw.Routes {
 		ds.Routes = append(ds.Routes, displayRoute(cw, c, r))
@@ -652,7 +654,13 @@ func displayInsolvency(w *World, c *content.Catalogue, wr *worldRates, now int64
 
 func formatMs(ms int64) string { return time.UnixMilli(ms).UTC().Format(timeLayout) }
 
-func displayShip(s *Ship, c *content.Catalogue) ShipDisplay {
+// hasBerthSource reports whether the island has berths (Trading Post or pier).
+func hasBerthSource(w *World, islandID string) bool {
+	is := w.Island(islandID)
+	return is != nil && berthTotal(is) > 0
+}
+
+func displayShip(s *Ship, c *content.Catalogue, hasBerths bool) ShipDisplay {
 	d := ShipDisplay{
 		ID: s.ID, Type: s.Type, Name: s.Name, State: s.State, IslandID: s.IslandID, RouteID: s.RouteID, StopIndex: s.StopIndex,
 		Cargo: []CargoDisplay{}, Paused: s.Paused, PausedReason: s.PausedReason,
@@ -673,6 +681,9 @@ func displayShip(s *Ship, c *content.Catalogue) ShipDisplay {
 		}
 	}
 	if p := s.AtSea; p != nil {
+		d.Position = &PositionDisplay{X: p.X, Y: p.Y}
+	}
+	if p := s.Offshore; p != nil && (s.State == ShipIdle || s.State == ShipAnchoredUnpaid) && s.Leg == nil && !hasBerths {
 		d.Position = &PositionDisplay{X: p.X, Y: p.Y}
 	}
 	if s.State == ShipWaitingForBerth {

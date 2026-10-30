@@ -1048,7 +1048,7 @@ func Sentinels() map[string]error {
 		"unknown_island": sim.ErrUnknownIsland, "unknown_building": sim.ErrUnknownBuilding,
 		"building_not_found": sim.ErrBuildingNotFound, "invalid_command": sim.ErrInvalidCommand,
 		"out_of_bounds": sim.ErrOutOfBounds, "occupied": sim.ErrOccupied, "terrain": sim.ErrTerrain,
-		"not_coastal": sim.ErrNotCoastal, "not_on_water": sim.ErrNotOnWater, "harbour_blocked": sim.ErrHarbourBlocked, "no_work_area": sim.ErrNoWorkArea, "no_fertility": sim.ErrNoFertility,
+		"not_coastal": sim.ErrNotCoastal, "not_on_water": sim.ErrNotOnWater, "harbour_blocked": sim.ErrHarbourBlocked, "no_fertility": sim.ErrNoFertility,
 		"no_deposit": sim.ErrNoDeposit, "insufficient_gold": sim.ErrInsufficientGold,
 		"insufficient_materials": sim.ErrInsufficientMaterials, "surplus_loss": sim.ErrSurplusLoss,
 		"not_pausable": sim.ErrNotPausable, "no_road": sim.ErrNoRoad, "over_capacity": sim.ErrOverCapacity,

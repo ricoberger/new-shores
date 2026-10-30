@@ -24,7 +24,7 @@
       "y": 0,
       "rotation": 0
     },
-    "gold": 5171,
+    "gold": 5172,
     "workforce": {
       "settlers": 1000
     },
@@ -52,6 +52,21 @@
         "x": 8,
         "y": 2,
         "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          8,
+          2
+        ],
+        "rect": [
+          10,
+          2,
+          10,
+          3
+        ],
+        "count": 1
       }
     },
     {

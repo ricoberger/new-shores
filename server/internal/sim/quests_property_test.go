@@ -137,7 +137,9 @@ func TestPropertyQuests(t *testing.T) {
 		}
 	}
 	t.Logf("quest completions at boundaries %d, stock thresholds %d, claims %d", completions, thresholds, claims)
-	if completions < propertyCases || thresholds < propertyCases/5 || claims < propertyCases {
+	// Wood needs explicit tree plots since the work-area rule is gone, so
+	// the random games reach fewer stock thresholds than they once did.
+	if completions < propertyCases || thresholds < propertyCases/8 || claims < propertyCases {
 		t.Errorf("vacuous: %d completions, %d thresholds, %d claims", completions, thresholds, claims)
 	}
 }

@@ -123,6 +123,7 @@ func TestAwaySummaryAcrossWorkerEvent(t *testing.T) {
 		sim.PlaceBuilding{IslandID: "start", Type: "house_settlers", X: 8, Y: 5, Rotation: 180},
 		sim.PlaceBuilding{IslandID: "start", Type: "house_settlers", X: 10, Y: 5, Rotation: 180},
 		sim.PlaceBuilding{IslandID: "start", Type: "lumberjack", X: 35, Y: 5, Rotation: 180},
+		sim.PlaceField{IslandID: "start", FarmID: 4, Type: "tree_plot", X: 34, Y: 5},
 		sim.PlaceBuilding{IslandID: "start", Type: "sawmill", X: 20, Y: 5, Rotation: 180},
 	} {
 		if err := sim.Apply(w, c, cmd); err != nil {

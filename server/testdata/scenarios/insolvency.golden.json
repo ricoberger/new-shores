@@ -11,7 +11,7 @@
         "granted": 120000
       },
       "planks": {
-        "produced": 102,
+        "produced": 350,
         "consumed": 0,
         "lost": 0,
         "spent": 74000,
@@ -19,8 +19,8 @@
         "granted": 140000
       },
       "wood": {
-        "produced": 5922,
-        "consumed": 102,
+        "produced": 20350,
+        "consumed": 350,
         "lost": 0
       },
       "wool": {
@@ -46,7 +46,7 @@
     },
     {
       "island_id": "main",
-      "building_id": 7,
+      "building_id": 8,
       "type": "sheep_farm",
       "status": "low_efficiency",
       "reason": "3 / 4 fields"
@@ -71,14 +71,14 @@
       "at": "2026-01-01T00:00:57.692Z",
       "action": "auto_pause",
       "island_id": "main",
-      "building_id": 7,
+      "building_id": 8,
       "type": "sheep_farm"
     },
     {
       "at": "2026-01-01T00:00:57.692Z",
       "action": "auto_pause",
       "island_id": "main",
-      "building_id": 6,
+      "building_id": 7,
       "type": "sawmill"
     },
     {
@@ -99,14 +99,14 @@
       "at": "2026-01-01T00:06:51.783Z",
       "action": "auto_resume",
       "island_id": "main",
-      "building_id": 6,
+      "building_id": 7,
       "type": "sawmill"
     },
     {
       "at": "2026-01-01T00:33:00.000Z",
       "action": "auto_resume",
       "island_id": "main",
-      "building_id": 7,
+      "building_id": 8,
       "type": "sheep_farm"
     },
     {
@@ -126,7 +126,7 @@
   ],
   "snapshots": [
     {
-      "step": 11,
+      "step": 12,
       "at": "2026-01-01T00:01:00.000Z",
       "boundaries": 12,
       "inventory": {
@@ -137,11 +137,11 @@
           },
           "planks": {
             "stock": 66000,
-            "in_transit": 42
+            "in_transit": 144
           },
           "wood": {
-            "stock": 4,
-            "in_transit": 56
+            "stock": 14,
+            "in_transit": 192
           },
           "wool": {
             "stock": 3,
@@ -167,7 +167,17 @@
       "farms": [
         {
           "island": "main",
-          "id": 7,
+          "id": 5,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 8,
           "type": "sheep_farm",
           "active": 3,
           "required": 4,
@@ -178,7 +188,7 @@
       ]
     },
     {
-      "step": 12,
+      "step": 13,
       "at": "2026-01-01T00:03:00.000Z",
       "boundaries": 10,
       "inventory": {
@@ -188,11 +198,11 @@
             "in_transit": 0
           },
           "planks": {
-            "stock": 66042,
+            "stock": 66144,
             "in_transit": 0
           },
           "wood": {
-            "stock": 60,
+            "stock": 206,
             "in_transit": 0
           },
           "wool": {
@@ -219,7 +229,17 @@
       "farms": [
         {
           "island": "main",
-          "id": 7,
+          "id": 5,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 8,
           "type": "sheep_farm",
           "active": 3,
           "required": 4,
@@ -230,7 +250,7 @@
       ]
     },
     {
-      "step": 13,
+      "step": 14,
       "at": "2026-01-01T00:33:00.000Z",
       "boundaries": 14,
       "inventory": {
@@ -240,7 +260,7 @@
             "in_transit": 350
           },
           "planks": {
-            "stock": 66102,
+            "stock": 66350,
             "in_transit": 0
           },
           "wool": {
@@ -269,7 +289,17 @@
       "farms": [
         {
           "island": "main",
-          "id": 7,
+          "id": 5,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 8,
           "type": "sheep_farm",
           "active": 3,
           "required": 4,
@@ -280,7 +310,7 @@
       ]
     },
     {
-      "step": 15,
+      "step": 16,
       "at": "2026-01-01T00:43:00.000Z",
       "boundaries": 4,
       "inventory": {
@@ -290,12 +320,12 @@
             "in_transit": 350
           },
           "planks": {
-            "stock": 70102,
+            "stock": 70350,
             "in_transit": 0
           },
           "wood": {
-            "stock": 5490,
-            "in_transit": 330
+            "stock": 18867,
+            "in_transit": 1133
           },
           "wool": {
             "stock": 4789,
@@ -308,8 +338,8 @@
         }
       },
       "statuses": {
-        "low_efficiency": 2,
-        "ok": 1,
+        "low_efficiency": 1,
+        "ok": 2,
         "paused": 1
       },
       "gold": 17227,
@@ -323,7 +353,17 @@
       "farms": [
         {
           "island": "main",
-          "id": 7,
+          "id": 5,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        },
+        {
+          "island": "main",
+          "id": 8,
           "type": "sheep_farm",
           "active": 3,
           "required": 4,
@@ -334,7 +374,7 @@
       ]
     },
     {
-      "step": 17,
+      "step": 18,
       "at": "2026-01-01T01:13:00.000Z",
       "boundaries": 4,
       "inventory": {
@@ -344,11 +384,11 @@
             "in_transit": 350
           },
           "planks": {
-            "stock": 72102,
+            "stock": 72350,
             "in_transit": 0
           },
           "wood": {
-            "stock": 5820,
+            "stock": 20000,
             "in_transit": 0
           },
           "wool": {
@@ -377,7 +417,7 @@
       "farms": [
         {
           "island": "main",
-          "id": 7,
+          "id": 8,
           "type": "sheep_farm",
           "active": 3,
           "required": 4,
@@ -528,7 +568,7 @@
             "in_transit_rate_per_min": 0
           },
           "planks": {
-            "stock": 72102,
+            "stock": 72350,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -563,7 +603,7 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 5820,
+            "stock": 20000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -825,7 +865,7 @@
             }
           },
           {
-            "id": 7,
+            "id": 8,
             "type": "sheep_farm",
             "x": 24,
             "y": 5,
@@ -857,14 +897,14 @@
               "required": 4,
               "max": 4,
               "ids": [
-                8,
                 9,
-                10
+                10,
+                11
               ]
             }
           },
           {
-            "id": 8,
+            "id": 9,
             "type": "pasture",
             "x": 22,
             "y": 5,
@@ -874,11 +914,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 7,
+            "farm_id": 8,
             "active": true
           },
           {
-            "id": 9,
+            "id": 10,
             "type": "pasture",
             "x": 20,
             "y": 6,
@@ -888,11 +928,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 7,
+            "farm_id": 8,
             "active": true
           },
           {
-            "id": 10,
+            "id": 11,
             "type": "pasture",
             "x": 18,
             "y": 7,
@@ -902,11 +942,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 7,
+            "farm_id": 8,
             "active": true
           },
           {
-            "id": 11,
+            "id": 12,
             "type": "house_settlers",
             "x": 9,
             "y": 2,
@@ -961,7 +1001,7 @@
             ]
           },
           {
-            "id": 12,
+            "id": 13,
             "type": "house_settlers",
             "x": 11,
             "y": 2,
