@@ -13,9 +13,12 @@ if VOXEL_DIR not in sys.path:
     sys.path.insert(0, VOXEL_DIR)
 
 import build  # noqa: E402
-from nsvoxel import config, content, model  # noqa: E402
+from nsvoxel import config, content, model, palette  # noqa: E402
+from nsvoxel import detail_d062 as H  # noqa: E402
+from nsvoxel.grid import Vox  # noqa: E402
 
 CONTENT = content.load()
+ROLES = palette.load()[0]
 
 #: id → (footprint w × d tiles, water rows the model stands over, anchors beyond status, model files).
 D062 = {
@@ -26,11 +29,102 @@ D062 = {
     "surgery": ((4, 6), 0, ("door",), 1),
     "trading_pier": ((6, 9), 5, ("berth_1", "berth_2", "cart"), 1),
     "depot": ((11, 4), 1, ("cart", "door"), 1),
+    "playhouse": ((11, 14), 0, ("door",), 1),
 }
 #: Voxels of the model's water rows: the deck of the pier (all six), the front row of the depot (D-062: 5–6 and 0–1 in the content).
 MODEL_WATER = {"trading_post": 8, "trading_pier": 48, "depot": 8}
 #: Model files that carry a sway group (cloth) and the group.
-SWAY = {"trading_post.l4.glb": ["flag"], "surgery.glb": ["cloth"]}
+SWAY = {"trading_post.l4.glb": ["flag"], "surgery.glb": ["cloth"], "playhouse.glb": ["flag"]}
+
+
+def bounds_ok(v, lo, hi):
+    """Whether every cell lies inside lo..hi (inclusive corners, voxels)."""
+    return all(lo[i] <= k[i] <= hi[i] for k in v.cells for i in range(3))
+
+
+class HelperTest(unittest.TestCase):
+    def fresh(self):
+        return Vox(96, 96, "t")
+
+    def check(self, v):
+        self.assertTrue(v.cells)
+        for m in set(v.cells.values()):
+            self.assertIn(m[0], ROLES, m)
+
+    def test_the_octagon_is_regular_symmetric_and_the_right_size(self):
+        cells = H.octagon_cells(48, 48, -1, 20)
+        self.assertAlmostEqual(len(cells) / (8 * 20 * 20 * 0.41421356), 1.0, delta=0.03)
+        s = set(cells)
+        for x, y in cells:
+            self.assertIn((95 - x, y), s)
+            self.assertIn((x, 95 - y), s)
+            self.assertIn((y, x), s)
+        self.assertEqual(H.octagon_cells(48, 48, 20, 20), [])
+        ring = H.edge_cells(cells)
+        self.assertTrue(set(ring) < s)
+        self.assertLess(len(ring), len(cells) / 3)
+
+    def test_sectors_cover_eight_facets_evenly(self):
+        counts = {}
+        for x, y in H.octagon_cells(48, 48, 10, 30):
+            counts[H.sector(x, y, 48, 48)] = counts.get(H.sector(x, y, 48, 48), 0) + 1
+        self.assertEqual(sorted(counts), list(range(8)))
+        self.assertLess(max(counts.values()) / min(counts.values()), 1.15)
+
+    def test_gallery_ring_floor_posts_balustrade_and_skip(self):
+        v = self.fresh()
+        inner = H.gallery_ring(v, 48, 48, 14, 28, 5, h=6, skip=lambda x, y: y < 40)
+        self.check(v)
+        floor = {(x, y) for (x, y, z) in v.cells if z == 5}
+        self.assertTrue(floor)
+        self.assertTrue(all(y >= 40 for _, y in floor))
+        self.assertTrue(all(14 < H.oct_r(x, y, 48, 48) <= 28 for x, y in floor))
+        self.assertTrue(bounds_ok(v, (0, 0, 5), (95, 95, 10)))
+        posts = [c for c in inner if (c[0], c[1], 10) in v.cells]
+        self.assertTrue(posts)
+        self.assertTrue(all((x, y, 7) in v.cells for x, y in inner))  # the rail at z + 2
+        v2 = self.fresh()
+        self.assertEqual(H.gallery_ring(v2, 48, 48, 14, 28, 5, h=6, skip=lambda x, y: y < 40), inner)
+        self.assertEqual(v2.cells, v.cells)
+
+    def test_banner_pole_sways_as_a_flag_and_hangs_under_its_arm(self):
+        v = self.fresh()
+        top = H.banner_pole(v, 10, 10, 1, h=14, drop=8, width=4)
+        self.check(v)
+        self.assertEqual(top, 16)
+        groups = {m[2] for m in v.cells.values() if len(m) > 2}
+        self.assertEqual(groups, {"flag"})
+        self.assertTrue(bounds_ok(v, (10, 10, 1), (15, 10, 15)))
+        self.assertIn((12, 10, 14 - 3), v.cells)  # banner under the arm at z 14
+        self.assertNotIn((12, 10, 14 - 9), v.cells)
+
+    def test_lantern_is_a_cage_on_a_post(self):
+        v = self.fresh()
+        top = H.lantern(v, 10, 10, 1, h=9)
+        self.check(v)
+        self.assertEqual(top, 1 + 9 - 4 + 5)
+        self.assertTrue(bounds_ok(v, (9, 9, 1), (13, 11, top)))
+        self.assertFalse(any(len(m) > 2 for m in v.cells.values()))
+
+    def test_cupola_is_a_glazed_turret_with_a_pennant(self):
+        v = self.fresh()
+        top = H.cupola(v, 48, 48, 20, size=8, h=7)
+        self.check(v)
+        self.assertTrue(bounds_ok(v, (42, 42, 20), (54, 54, top)))  # the roof overhangs the walls by two
+        self.assertTrue(any(m[0] == "window" for m in v.cells.values()))
+        self.assertEqual({m[2] for m in v.cells.values() if len(m) > 2}, {"flag"})
+        self.assertEqual(H.cupola(self.fresh(), 48, 48, 20, flag=False), top - 4)
+
+    def test_helpers_are_deterministic(self):
+        def make():
+            v = self.fresh()
+            H.gallery_ring(v, 48, 48, 14, 28, 5)
+            H.banner_pole(v, 10, 10, 1)
+            H.lantern(v, 20, 10, 1)
+            H.cupola(v, 48, 48, 20)
+            return v.cells
+
+        self.assertEqual(make(), make())
 
 
 class D062Test(unittest.TestCase):
@@ -125,6 +219,27 @@ class D062Test(unittest.TestCase):
                         self.assertLess(y, rows + 2, (cid, f[0], x, y, z))
                     if y < rows and z > 4:
                         self.assertIn(m[0], ("timber", "iron", "brass", "canvas"), (cid, f[0], x, y, z, m))
+
+    def test_the_playhouse_roof_is_mostly_dark_and_brown_with_little_terracotta(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("pl", os.path.join(config.RECIPES_DIR, "playhouse.py"))
+        pl = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(pl)
+        terra = set(pl.TERRA) | {pl.RIDGE_TERRA}
+        roof = set(pl.DARK_TILE) | set(pl.BROWN_SLATE) | {pl.RIDGE_DARK, pl.RIDGE_SLATE, pl.HIP} | terra
+        files, _, _ = self.built("playhouse")
+        v = [f[3] for f in files if f[0] == "playhouse.glb"][0]
+        top = {}
+        for (x, y, z), m in v.cells.items():
+            if z >= top.get((x, y), (-99, None))[0]:
+                top[(x, y)] = (z, m)
+        seen = [m for _, m in top.values() if m in roof]
+        self.assertGreater(len(seen), 2500)
+        share = sum(1 for m in seen if m in terra) / len(seen)
+        self.assertLess(share, 0.2)
+        self.assertGreater(share, 0.0)  # the porch, the booth and the cupola keep a little warmth
+        # No Mediterranean cues: nothing of the roles reserved for a southern region is used.
+        self.assertFalse({m[0] for m in v.cells.values()} & {"whitewash", "travertine"})
 
     def test_deterministic(self):
         for cid in D062:

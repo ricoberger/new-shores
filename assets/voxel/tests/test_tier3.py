@@ -26,8 +26,8 @@ CONTENT = content.load()
 EXTRA = ("grain_distillery",)
 #: Roles with no authored shade steps: adjacent voxels of one role mostly share one colour.
 FLAT_ROLES = ("plaster", "brass")
-#: Model files with a sway group among tier 3: the dyers' frames, the tailor's washing line and the surgery's awning (D-060).
-SWAY_ALLOWED = {"dyer.glb", "dyer_works.glb", "tailor.glb", "surgery.glb"}
+#: Model files with a sway group among tier 3: the dyers' frames, the tailor's washing line, the surgery's awning (D-060) and the playhouse banners (D-063).
+SWAY_ALLOWED = {"dyer.glb", "dyer_works.glb", "tailor.glb", "surgery.glb", "playhouse.glb"}
 
 
 def tier_ids():
@@ -53,7 +53,7 @@ class Tier3Test(unittest.TestCase):
         ids = tier_ids()
         self.assertGreaterEqual(len(ids), 26)
         # `theatre` is retired (D-063; its recipe is _south_theatre.py): it stays a placeholder only while the content still lists it.
-        self.assertEqual([cid for cid in ids if cid not in self.recipes and cid not in ("theatre", "playhouse")], [])
+        self.assertEqual([cid for cid in ids if cid not in self.recipes and cid != "theatre"], [])
 
     def test_anchors_budgets_and_footprint(self):
         for cid in tier_ids():
@@ -131,7 +131,7 @@ class Tier3Test(unittest.TestCase):
             self.assertEqual(entry.get("sway", []), sorted(swaying), cid)
 
     def test_deterministic(self):
-        for cid in ("house_merchants", "theatre", "salt_mine", "hop_field"):
+        for cid in ("house_merchants", "playhouse", "salt_mine", "hop_field"):
             kind = build.kind_for(CONTENT, cid)
             recipe, _ = build.recipe_for(cid, kind, self.recipes)
             a = model.build_id(cid, kind, recipe, CONTENT)[0]
