@@ -181,6 +181,11 @@ export function getMe(): Promise<AuthResponse> {
   return request<AuthResponse>("/api/v1/auth/me");
 }
 
+/** Stores the player's interface language on the account (D-061). */
+export function patchMe(language: string): Promise<AuthResponse> {
+  return request<AuthResponse>("/api/v1/auth/me", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ language }) });
+}
+
 export function postGuest(body: GuestRequest): Promise<AuthResponse> {
   return post<AuthResponse>("/api/v1/auth/guest", body);
 }

@@ -108,6 +108,7 @@ func TestDevWebSocketPush(t *testing.T) {
 // to the dev world; everything else is unauthorized.
 type fakeAccounts struct {
 	mu      sync.Mutex
+	lang    string
 	logins  int
 	loggedO int
 }
@@ -142,7 +143,20 @@ func (f *fakeAccounts) Logout(context.Context, *auth.Session) error {
 }
 
 func (f *fakeAccounts) Me(context.Context, *auth.Session) (auth.Player, error) {
-	return auth.Player{ID: "p", DisplayName: "P", Guest: true}, nil
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	p := auth.Player{ID: "p", DisplayName: "P", Guest: true}
+	if f.lang != "" {
+		p.Language = &f.lang
+	}
+	return p, nil
+}
+
+func (f *fakeAccounts) SetLanguage(ctx context.Context, _ *auth.Session, language string) (auth.Player, error) {
+	f.mu.Lock()
+	f.lang = language
+	f.mu.Unlock()
+	return f.Me(ctx, nil)
 }
 func (f *fakeAccounts) VerifyEmail(context.Context, string) error          { return auth.ErrInvalidToken }
 func (f *fakeAccounts) RequestPasswordReset(context.Context, string) error { return nil }

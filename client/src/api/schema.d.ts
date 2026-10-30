@@ -300,7 +300,13 @@ export interface paths {
         /** CORS preflight. */
         options: operations["preflightMe"];
         head?: never;
-        patch?: never;
+        /**
+         * Change the current player's settings (the interface language).
+         * @description Stores the language (D-061) so that every device of the account
+         *     starts in it. An unknown language is 400 `bad_request`. In dev mode
+         *     nothing is stored and the fixed player answers.
+         */
+        patch: operations["patchMe"];
         trace?: never;
     };
     "/api/v1/auth/verify-email": {
@@ -545,6 +551,11 @@ export interface components {
             /** @description Player ID (UUID; "dev" in dev mode). */
             id: string;
             display_name: string;
+            /**
+             * @description The player's chosen interface language (a code of `languages` in
+             *     `GET /content`, e.g. `de`); absent until chosen (D-061).
+             */
+            language?: string;
             /** @description True until the player registers. */
             guest: boolean;
             /** @description Registered email (lower-cased); only ever returned to its owner. */
@@ -3177,6 +3188,32 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    patchMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description A code of `languages` in `GET /content`. */
+                    language: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["Auth"];
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            405: components["responses"]["Error"];
+            413: components["responses"]["Error"];
+            500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
         };
     };
     postVerifyEmail: {

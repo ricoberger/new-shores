@@ -171,13 +171,14 @@ func (s *Server) clearCookie(w http.ResponseWriter) {
 type playerJSON struct {
 	ID            string  `json:"id"`
 	DisplayName   string  `json:"display_name"`
+	Language      *string `json:"language,omitempty"`
 	Guest         bool    `json:"guest"`
 	Email         *string `json:"email,omitempty"`
 	EmailVerified bool    `json:"email_verified"`
 }
 
 func toPlayerJSON(p auth.Player) playerJSON {
-	return playerJSON{ID: p.ID, DisplayName: p.DisplayName, Guest: p.Guest, Email: p.Email, EmailVerified: p.EmailVerified}
+	return playerJSON{ID: p.ID, DisplayName: p.DisplayName, Language: p.Language, Guest: p.Guest, Email: p.Email, EmailVerified: p.EmailVerified}
 }
 
 // devPlayer is the fixed player of the --dev facade.
@@ -205,6 +206,10 @@ type loginRequest struct {
 	Email     *string `json:"email"`
 	Password  *string `json:"password"`
 	Transport *string `json:"transport"`
+}
+
+type patchMeRequest struct {
+	Language *string `json:"language"`
 }
 
 type tokenRequest struct {
@@ -411,6 +416,37 @@ func (s *Server) getMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	p, err := s.cfg.Accounts.Me(r.Context(), info(r.Context()).session)
+	if err != nil {
+		s.writeError(w, r, err)
+		return
+	}
+	s.writeJSON(w, http.StatusOK, authResponse{Player: toPlayerJSON(p)})
+}
+
+// patchMe changes the session player's settings; today the interface
+// language (D-061), which must be one of the served content languages.
+func (s *Server) patchMe(w http.ResponseWriter, r *http.Request) {
+	var req patchMeRequest
+	if err := readBody(w, r, &req, false); err != nil {
+		s.writeError(w, r, err)
+		return
+	}
+	if err := required("language", req.Language); err != nil {
+		s.writeError(w, r, err)
+		return
+	}
+	if !s.cfg.Catalogue.HasLanguage(*req.Language) {
+		s.writeError(w, r, badRequest("unknown language"))
+		return
+	}
+	if s.cfg.Accounts == nil {
+		// Dev mode has no accounts: nothing to store; the fixed player answers.
+		p := devPlayer
+		p.Language = req.Language
+		s.writeJSON(w, http.StatusOK, authResponse{Player: p})
+		return
+	}
+	p, err := s.cfg.Accounts.SetLanguage(r.Context(), info(r.Context()).session, *req.Language)
 	if err != nil {
 		s.writeError(w, r, err)
 		return

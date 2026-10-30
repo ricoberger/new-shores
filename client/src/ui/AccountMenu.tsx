@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Player } from "../api/client";
-import { authErrorText, logout } from "../api/auth";
+import { authErrorText, logout, saveAccountLanguage } from "../api/auth";
 import { t } from "../i18n";
 import styles from "./account.module.css";
 import hud from "./hud.module.css";
@@ -110,7 +110,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut }: Props) {
           </button>
           <div className={language.row}>
             <span className={language.rowLabel}>{t("language.label")}</span>
-            <LanguageSwitch />
+            <LanguageSwitch onChange={(l) => void saveAccountLanguage(l)} />
           </div>
           <button type="button" onClick={() => void doLogout()} data-testid="account-logout">
             <Icon path={toolIcon("logout")} /> {t("account.logout")}

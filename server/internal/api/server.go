@@ -53,6 +53,7 @@ type Accounts interface {
 	Login(ctx context.Context, cur *auth.Session, email, password string) (*auth.Issued, error)
 	Logout(ctx context.Context, cur *auth.Session) error
 	Me(ctx context.Context, cur *auth.Session) (auth.Player, error)
+	SetLanguage(ctx context.Context, cur *auth.Session, language string) (auth.Player, error)
 	VerifyEmail(ctx context.Context, token string) error
 	RequestPasswordReset(ctx context.Context, email string) error
 	ConfirmPasswordReset(ctx context.Context, token, password string) error
@@ -180,7 +181,7 @@ func New(cfg Config) (*Server, error) {
 		"/api/v1/auth/register":               {http.MethodPost: {s.postRegister, optionalSession}},
 		"/api/v1/auth/login":                  {http.MethodPost: {s.postLogin, optionalSession}},
 		"/api/v1/auth/logout":                 {http.MethodPost: {s.postLogout, requireSession}},
-		"/api/v1/auth/me":                     {http.MethodGet: {s.getMe, requireSession}},
+		"/api/v1/auth/me":                     {http.MethodGet: {s.getMe, requireSession}, http.MethodPatch: {s.patchMe, requireSession}},
 		"/api/v1/auth/verify-email":           {http.MethodPost: {s.postVerifyEmail, public}},
 		"/api/v1/auth/password-reset/request": {http.MethodPost: {s.postResetRequest, public}},
 		"/api/v1/auth/password-reset/confirm": {http.MethodPost: {s.postResetConfirm, public}},
@@ -289,7 +290,7 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 			h.Set("Access-Control-Allow-Credentials", "true")
 		}
 		if r.Method == http.MethodOptions {
-			h.Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			h.Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
 			allow := "Content-Type"
 			if s.cfg.Accounts != nil {
 				allow = "Content-Type, Authorization"

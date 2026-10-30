@@ -71,6 +71,7 @@ function initialLanguage(): Language {
 }
 
 let current: Language = initialLanguage();
+let chosen = false;
 const listeners = new Set<() => void>();
 
 export function currentLanguage(): Language {
@@ -86,8 +87,13 @@ export function localeOf(language: Language): string {
   return LOCALES[language];
 }
 
-/** Switches the language; `persist` stores the choice (the switch; not ?lang= or tests). */
-export function setLanguage(language: Language, persist = true): void {
+/**
+ * Switches the language; `persist` stores the choice (the switch; not ?lang=
+ * or tests). `byPlayer` (default: as `persist`) marks it as picked by the
+ * player on this page; adopting the account's language is not.
+ */
+export function setLanguage(language: Language, persist = true, byPlayer = persist): void {
+  if (byPlayer) chosen = true;
   if (persist) {
     try {
       globalThis.localStorage?.setItem(LANGUAGE_KEY, language);
@@ -100,6 +106,21 @@ export function setLanguage(language: Language, persist = true): void {
   const lang = globalThis.document?.documentElement;
   if (lang) lang.lang = language;
   for (const l of [...listeners]) l();
+}
+
+/** The player picked a language with the switch since this page loaded. */
+export function chosenThisVisit(): boolean {
+  return chosen;
+}
+
+/** A language choice is stored in this browser (an earlier visit's switch). */
+export function hasStoredChoice(): boolean {
+  return isLanguage(readStored());
+}
+
+/** `?lang=` fixes the language for this page (dev and testing); the account does not change it. */
+export function languageOverridden(search: string = globalThis.location?.search ?? ""): boolean {
+  return isLanguage(new URLSearchParams(search).get("lang"));
 }
 
 /** Calls `l` whenever the language changes; returns the unsubscribe function. */

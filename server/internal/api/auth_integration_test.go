@@ -480,3 +480,61 @@ func TestSchemaVersionIsA500(t *testing.T) {
 		t.Fatalf("schema error not logged with the world ID:\n%s", env.logs.String())
 	}
 }
+
+// TestAccountLanguage (D-061): the language is stored on the player, comes
+// back from /auth/me on every device (also after logout and login), survives
+// registration and an unknown one is refused.
+func TestAccountLanguage(t *testing.T) {
+	env := newPGEnv(t, nil)
+	// The content with its locale files decides which languages exist.
+	srv, err := New(Config{
+		Store: env.st, Catalogue: shippedCatalogue(t), Clock: WallClock{}, Accounts: env.accts,
+		CORSOrigins: []string{testOrigin}, Logger: slog.New(slog.DiscardHandler),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	env.srv = srv
+
+	guest := &client{env: env}
+	out := guest.must(http.MethodPost, "/api/v1/auth/guest", `{}`, 200)
+	if _, ok := playerOf(out)["language"]; ok {
+		t.Fatalf("a new player has a language: %v", out)
+	}
+	device := out["device_token"].(string)
+
+	out = guest.must(http.MethodPatch, "/api/v1/auth/me", `{"language":"de"}`, 200)
+	if playerOf(out)["language"] != "de" {
+		t.Fatalf("patch: %v", out)
+	}
+	if rec, _ := guest.do(http.MethodPatch, "/api/v1/auth/me", `{"language":"xx"}`); rec.Code != 400 {
+		t.Fatalf("unknown language: %d", rec.Code)
+	}
+	if me := guest.must(http.MethodGet, "/api/v1/auth/me", "", 200); playerOf(me)["language"] != "de" {
+		t.Fatalf("me: %v", me)
+	}
+
+	// A second device of the guest sees it.
+	other := &client{env: env}
+	out = other.must(http.MethodPost, "/api/v1/auth/guest", `{"device_token":"`+device+`"}`, 200)
+	if playerOf(out)["language"] != "de" {
+		t.Fatalf("second device: %v", out)
+	}
+
+	// Registering keeps it; logging in again returns it.
+	out = guest.must(http.MethodPost, "/api/v1/auth/register", `{"email":"`+testEmail+`","password":"`+testPassword+`"}`, 200)
+	if playerOf(out)["language"] != "de" {
+		t.Fatalf("register: %v", out)
+	}
+	guest.must(http.MethodPost, "/api/v1/auth/logout", "", 204)
+	again := &client{env: env}
+	out = again.must(http.MethodPost, "/api/v1/auth/login", `{"email":"`+testEmail+`","password":"`+testPassword+`"}`, 200)
+	if playerOf(out)["language"] != "de" {
+		t.Fatalf("login: %v", out)
+	}
+	// Another player is unaffected.
+	stranger := &client{env: env}
+	if out := stranger.must(http.MethodPost, "/api/v1/auth/guest", `{}`, 200); playerOf(out)["language"] != nil {
+		t.Fatalf("stranger: %v", out)
+	}
+}

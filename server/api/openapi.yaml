@@ -524,6 +524,45 @@ paths:
           $ref: "#/components/responses/Error"
         "503":
           $ref: "#/components/responses/Error"
+    patch:
+      operationId: patchMe
+      summary: Change the current player's settings (the interface language).
+      description: |
+        Stores the language (D-061) so that every device of the account
+        starts in it. An unknown language is 400 `bad_request`. In dev mode
+        nothing is stored and the fixed player answers.
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [language]
+              properties:
+                language:
+                  type: string
+                  description: A code of `languages` in `GET /content`.
+      responses:
+        "200":
+          $ref: "#/components/responses/Auth"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "405":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
     options:
       operationId: preflightMe
       summary: CORS preflight.
@@ -954,6 +993,11 @@ components:
           description: Player ID (UUID; "dev" in dev mode).
         display_name:
           type: string
+        language:
+          type: string
+          description: |
+            The player's chosen interface language (a code of `languages` in
+            `GET /content`, e.g. `de`); absent until chosen (D-061).
         guest:
           type: boolean
           description: True until the player registers.
