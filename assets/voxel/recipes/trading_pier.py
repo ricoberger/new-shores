@@ -3,8 +3,9 @@ Trading pier (3 × 4, front 3 rows over water; D-060, Citizens): a plank
 pier on piles with bollards, crates, barrels and sacks, a small cargo
 crane with a hanging crate and a lantern post; on the land row a dressed
 stone quay edge with mooring rings, a paved landing and a toll hut with a
-tiled roof. Berth anchors `berth_1`/`berth_2` sit on the pier front, 1.5
-tiles apart either side of its centre like the Trading Post's.
+tiled roof. Berth anchors `berth_1`/`berth_2` sit one and a bit voxels
+off the two long flanks (x = -1.2 and W + 1.2) at the middle of the
+water rows, so a ship lies alongside the pier.
 """
 
 from nsvoxel import parts as P
@@ -53,8 +54,9 @@ def build(ctx):
         D.mooring_ring(v, x, land - 1, -2)
     P.yard(v, 0, land + 2, W, D_, "dirt", seed=seed)
     P.path(v, [(x, y) for x in range(8, 13) for y in range(land + 2, D_)], kind="paved")
-    for k, x in enumerate((W // 2 - 6, W // 2 + 6)):
-        v.anchor(f"berth_{k + 1}", x, 1.2, 0.48)
+    # The berths on the two long flanks, mid-flank of the water rows, so a ship lies alongside.
+    for k, x in enumerate((-1.2, W + 1.2)):
+        v.anchor(f"berth_{k + 1}", x, land / 2, 0.48)
     # Goods on the pier, the crane and the lantern.
     P.box_crate(v, 6, 8, 1)
     P.box_crate(v, 6, 10, 1)

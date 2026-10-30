@@ -199,6 +199,18 @@ class RecipeTest(unittest.TestCase):
                 for a, b in zip(self.built(cid)[0], again[0]):
                     self.assertEqual(a[1], b[1], a[0])
 
+    def test_pier_berths_are_on_the_flanks(self):
+        _, entry, _ = self.built("trading_pier")
+        a = entry["anchors"] if isinstance(entry, dict) and "anchors" in entry else None
+        self.assertIsNotNone(a)
+        w = 3 * config.VOXELS_PER_TILE
+        scale = config.VOXELS_PER_TILE
+        # Anchors are in tiles about the footprint centre; berth_1 west, berth_2 east, same depth.
+        b1, b2 = a["berth_1"], a["berth_2"]
+        self.assertAlmostEqual(b1[0], (-1.2 - w / 2) / scale, places=2)
+        self.assertAlmostEqual(b2[0], (w + 1.2 - w / 2) / scale, places=2)
+        self.assertAlmostEqual(b1[2], b2[2])
+
     def test_warm_stone_halls(self):
         for cid, name in (("city_guard", "city_guard.glb"), ("depot", "depot.l2.glb")):
             files, _, _ = self.built(cid)
