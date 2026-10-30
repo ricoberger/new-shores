@@ -109,6 +109,10 @@ that name". All motion is procedural.
   instanced draw (the sizes share one mesh, the instance names its size;
   `render/variants.ts`); every producer recipe must declare
   `anchors.smoke` or `chimney` (recipe test).
+- Villagers (both tiers, all variants) and carts (cart, merchant cart and
+  their axles) are likewise one instanced draw each (`render/variants.ts`,
+  `render/life.ts`); the instance keeps its roll (wheel spin) and names its
+  variant, so tier and cart kind stay per instance.
 - Sway: sails, ship canvas, `flag_*` and cloth marked in a recipe
   (`P.cloth`): the wool weaver's drying line, the linen weaver's hung
   sheets, the sailmaker's sail on its frame, the warehouse level 3 awning

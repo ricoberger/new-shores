@@ -128,6 +128,11 @@ export class LifeMesh {
     return Math.max(0, this.uploaded);
   }
 
+  /** The variant of each instance drawn in the last frame (variant classes; tests). */
+  selected(): number[] {
+    return Array.from(this.sels.slice(0, this.count()));
+  }
+
   /** Archipelago positions (tiles: x, y = −world z) and heights of the instances drawn in the last frame. */
   positions(): { x: number; y: number; h: number }[] {
     const out: { x: number; y: number; h: number }[] = [];
@@ -190,9 +195,11 @@ export interface LifeClassDef {
   /**
    * The class draws one of this many geometries per instance in a single
    * mesh (variants.ts): `geometry` builds a placeholder per variant (its
-   * argument), `model.id` has that many variants.
+   * argument), `model.id` has that many variants — or `models` names the
+   * model of every variant (a family of different props: villagers of
+   * both tiers, the carts and their axles).
    */
-  variants?: { count: number; placeholder: (variant: number) => ModelData };
+  variants?: { count: number; placeholder: (variant: number) => ModelData; models?: readonly { id: string; variant?: number }[] };
 }
 
 /**
@@ -205,7 +212,8 @@ export class LifeLayer {
   private readonly models = new Map<string, { id: string; variant?: number }>();
   private readonly material: StandardMaterial;
   private variantMaterial: StandardMaterial | null = null;
-  private readonly variantCounts = new Map<string, number>();
+  /** The model of every variant of a variant class. */
+  private readonly variantModels = new Map<string, readonly { id: string; variant?: number }[]>();
   private quality: Quality;
   private enabled: boolean;
   private stats: LifeStats = { instances: 0, particles: 0 };
@@ -252,8 +260,10 @@ export class LifeLayer {
       lm.setVariants(Array.from({ length: def.variants.count }, (_, v) => (def.variants as NonNullable<LifeClassDef["variants"]>).placeholder(v)));
       this.classes.set(id, lm);
       if (def.particle) this.particleClasses.add(id);
-      if (def.model) this.models.set(id, def.model);
-      this.variantCounts.set(id, def.variants.count);
+      const { count, models } = def.variants;
+      const one = def.model;
+      const list = models ?? (one ? Array.from({ length: count }, (_, v) => ({ id: one.id, variant: v })) : []);
+      if (list.length > 0) this.variantModels.set(id, list);
       return;
     }
     if (!mesh.material) mesh.material = this.material;
@@ -264,21 +274,22 @@ export class LifeLayer {
 
   /** Replaces the placeholder of the classes drawn with their model once it has loaded (requested on first use). */
   private swapModels(): void {
-    if (!this.registry) return;
+    const registry = this.registry;
+    if (!registry) return;
+    for (const [id, models] of this.variantModels) {
+      const c = this.classes.get(id) as LifeMesh;
+      if (c.modelled || c.count() === 0) continue;
+      // Every variant's model, or the placeholders stay.
+      const all = models.map((m) => lifeModel(registry, m.id, m.variant));
+      if (all.every((d): d is ModelData => !!d)) {
+        c.setVariants(all);
+        c.modelled = true;
+      }
+    }
     for (const [id, m] of this.models) {
       const c = this.classes.get(id) as LifeMesh;
       if (c.modelled || c.count() === 0) continue;
-      const variants = this.variantCounts.get(id);
-      if (variants) {
-        // Every variant's model, or the placeholders stay.
-        const all = Array.from({ length: variants }, (_, v) => lifeModel(this.registry as ModelRegistry, m.id, v));
-        if (all.every((d): d is ModelData => !!d)) {
-          c.setVariants(all);
-          c.modelled = true;
-        }
-        continue;
-      }
-      const data = lifeModel(this.registry, m.id, m.variant);
+      const data = lifeModel(registry, m.id, m.variant);
       if (!data) continue;
       c.setGeometry(data);
       c.modelled = true;
@@ -407,7 +418,13 @@ function gull(lift: number): LifeGeometry {
 
 /** The placeholder of a smoke puff: a cube (`size` tiles, 12 triangles) in one colour, centred on the origin. */
 function cubeData(size: number, color: Color4): ModelData {
-  const h = size / 2;
+  return boxData(size, size, size, color, true);
+}
+
+/** A box placeholder as model data (12 triangles) in one colour, centred on the origin or standing on y = 0. */
+function boxData(w: number, h: number, d: number, color: Color4, centred = false): ModelData {
+  const half = [w / 2, h / 2, d / 2];
+  const lift = centred ? 0 : h / 2;
   const positions: number[] = [];
   const normals: number[] = [];
   const indices: number[] = [];
@@ -423,7 +440,7 @@ function cubeData(size: number, color: Color4): ModelData {
   for (const [n, u, v] of faces as [number[], number[], number[]][]) {
     const base = positions.length / 3;
     for (const [a, b] of [[-1, -1], [1, -1], [1, 1], [-1, 1]] as const) {
-      for (let k = 0; k < 3; k++) positions.push(((n[k] as number) + a * (u[k] as number) + b * (v[k] as number)) * h);
+      for (let k = 0; k < 3; k++) positions.push(((n[k] as number) + a * (u[k] as number) + b * (v[k] as number)) * (half[k] as number) + (k === 1 ? lift : 0));
       normals.push(...n);
     }
     indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
@@ -441,13 +458,14 @@ const GULL_TIP = mix(BUILDINGS.stone, WATER.foam, 0.2).toColor4(1);
 const GULL_BODY = mix(BUILDINGS.stone, WATER.foam, 0.8).toColor4(1);
 const CANVAS = c4(BUILDINGS.canvas);
 
-function villagers(tier: "settlers" | "citizens", color: Color4): Record<string, LifeClassDef> {
-  const out: Record<string, LifeClassDef> = {};
-  for (let v = 0; v < VILLAGER_VARIANTS; v++) {
-    out[CLS.villager(tier, v)] = { geometry: box(0.16, 0.46, 0.12, color), model: { id: `life_villager_${tier}`, variant: v } };
-  }
-  return out;
-}
+const TIERS = ["settlers", "citizens"] as const;
+const VILLAGER_COLORS = { settlers: c4(BUILDINGS.thatch), citizens: c4(BUILDINGS.terracotta) } as const;
+
+/** The one class all villagers are drawn in (variants.ts): variant = tier index × VILLAGER_VARIANTS + the plan's variant. */
+export const VILLAGER_CLASS = "villagers";
+/** The one class the carts, the merchant carts and their axles are drawn in: variants 0, 1 and 2. */
+export const CART_CLASS = "carts";
+const CART_VARIANTS = { [CLS.cart]: 0, [CLS.cartLoaded]: 1, [CLS.axle]: 2 } as const;
 
 /**
  * Voxel smoke (D-057 V2): the plan's puff of size k (× 0.8 tiles, the
@@ -468,16 +486,33 @@ export function smokeRoute(k: number, yaw: number): { cls: string; variant: numb
   return { cls: SMOKE_CLASS, variant: v, k: size / (SMOKE_SIZES[v] as number), yaw: Math.round(yaw / (Math.PI / 2)) * (Math.PI / 2) };
 }
 
-/** Classes the plan names that are drawn as another class (the smoke's size variants). */
-const LIFE_ROUTES: Readonly<Record<string, (k: number, yaw: number) => { cls: string; variant?: number; k: number; yaw: number }>> = { [CLS.smoke]: smokeRoute };
+/** Classes the plan names that are drawn as a variant of another class: the smoke's sizes, the villagers of both tiers, the carts with their axles. */
+const LIFE_ROUTES: Readonly<Record<string, (k: number, yaw: number) => { cls: string; variant?: number; k: number; yaw: number }>> = {
+  [CLS.smoke]: smokeRoute,
+  ...Object.fromEntries(
+    TIERS.flatMap((tier, t) =>
+      Array.from({ length: VILLAGER_VARIANTS }, (_, v) => [CLS.villager(tier, v), (k: number, yaw: number) => ({ cls: VILLAGER_CLASS, variant: t * VILLAGER_VARIANTS + v, k, yaw })] as const),
+    ),
+  ),
+  ...Object.fromEntries(Object.entries(CART_VARIANTS).map(([cls, variant]) => [cls, (k: number, yaw: number) => ({ cls: CART_CLASS, variant, k, yaw })] as const)),
+};
 
 /** The element classes of the life layer: placeholder and model (assets/voxel/recipes/_life.py). */
 export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
-  [CLS.cart]: { geometry: box(0.46, 0.45, 1.0, TIMBER), model: { id: "life_cart" } },
-  [CLS.cartLoaded]: { geometry: box(0.46, 0.7, 1.0, CANVAS), model: { id: "life_cart_merchant" } },
-  [CLS.axle]: { geometry: box(0.57, 0.18, 0.18, TIMBER, true), model: { id: "life_cart_axle" } },
-  ...villagers("settlers", c4(BUILDINGS.thatch)),
-  ...villagers("citizens", c4(BUILDINGS.terracotta)),
+  [CART_CLASS]: {
+    variants: {
+      count: 3,
+      placeholder: (v) => [boxData(0.46, 0.45, 1.0, TIMBER), boxData(0.46, 0.7, 1.0, CANVAS), boxData(0.57, 0.18, 0.18, TIMBER, true)][v] as ModelData,
+      models: [{ id: "life_cart" }, { id: "life_cart_merchant" }, { id: "life_cart_axle" }],
+    },
+  },
+  [VILLAGER_CLASS]: {
+    variants: {
+      count: TIERS.length * VILLAGER_VARIANTS,
+      placeholder: (v) => boxData(0.16, 0.46, 0.12, VILLAGER_COLORS[TIERS[Math.floor(v / VILLAGER_VARIANTS)] as "settlers" | "citizens"]),
+      models: TIERS.flatMap((tier) => Array.from({ length: VILLAGER_VARIANTS }, (_, v) => ({ id: `life_villager_${tier}`, variant: v }))),
+    },
+  },
   [SMOKE_CLASS]: { particle: true, model: { id: "life_smoke" }, variants: { count: SMOKE_SIZES.length, placeholder: (v) => cubeData(SMOKE_SIZES[v] as number, SMOKE) } },
   [CLS.boat]: { geometry: box(0.3, 0.12, 0.8, TIMBER), model: { id: "life_boat" } },
   [CLS.crate]: { geometry: box(0.24, 0.24, 0.24, TIMBER), model: { id: "life_crate" } },
