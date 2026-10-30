@@ -1,4 +1,4 @@
-"""Decor models (trees, bushes, rocks, crags, stumps, tufts, deposit outcrops, river bridges) at 8 voxels per tile, centred on the origin."""
+"""Decor models (trees, bushes, rocks, crags, tufts, deposit outcrops, river bridges) at 8 voxels per tile, centred on the origin."""
 
 import math
 
@@ -214,16 +214,6 @@ def peak(seed, r, h):
     return b
 
 
-def stump(r):
-    def b(ctx):
-        v = _v(ctx)
-        v.box(0, 0, 0, r, r, 2, TIMBER)
-        v.box(0, 0, 1, r, r, 2, TIMBER_LIGHT)
-        return v
-
-    return b
-
-
 def tuft(seed):
     def b(ctx):
         v = _v(ctx)
@@ -381,8 +371,6 @@ RECIPES = {
     "decor_crag_c": {"build": crag(3, 6)},
     "decor_peak_a": {"build": peak(6, 4, 14)},
     "decor_peak_b": {"build": peak(2, 4, 12)},
-    "decor_stump_a": {"build": stump(2)},
-    "decor_stump_b": {"build": stump(1)},
     "decor_tuft_a": {"build": tuft(0), "scale": 16},
     "decor_tuft_b": {"build": tuft(1), "scale": 16},
     "decor_flowers_a": {"build": flowers((FLOWER, mat("canvas", 1.05), FLOWER), 1), "scale": 16},

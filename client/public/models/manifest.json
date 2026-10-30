@@ -850,74 +850,6 @@
       },
       "kind": "decor"
     },
-    "decor_stump_a": {
-      "bounds": {
-        "max": [
-          0.25,
-          0.25,
-          0.0
-        ],
-        "min": [
-          0.0,
-          0.0,
-          -0.25
-        ]
-      },
-      "file": {
-        "bounds": {
-          "max": [
-            0.25,
-            0.25,
-            0.0
-          ],
-          "min": [
-            0.0,
-            0.0,
-            -0.25
-          ]
-        },
-        "budget": 580,
-        "bytes": 1920,
-        "path": "decor_stump_a.glb",
-        "sha256": "53a8d2736c369b29029b482b64027f2519f19e61d53910c7e11e0823e201b86b",
-        "triangles": 18
-      },
-      "kind": "decor"
-    },
-    "decor_stump_b": {
-      "bounds": {
-        "max": [
-          0.125,
-          0.25,
-          0.0
-        ],
-        "min": [
-          0.0,
-          0.0,
-          -0.125
-        ]
-      },
-      "file": {
-        "bounds": {
-          "max": [
-            0.125,
-            0.25,
-            0.0
-          ],
-          "min": [
-            0.0,
-            0.0,
-            -0.125
-          ]
-        },
-        "budget": 580,
-        "bytes": 1920,
-        "path": "decor_stump_b.glb",
-        "sha256": "3cf38bdde7c8566d17a2945d6ee6b2586ceca3e320716587adb03af85dfb4498",
-        "triangles": 18
-      },
-      "kind": "decor"
-    },
     "decor_tree_a": {
       "bounds": {
         "max": [
@@ -8823,14 +8755,14 @@
         ],
         "status": [
           0.0,
-          4.875,
+          5.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
           5.5,
-          4.625,
+          5.0,
           7.0
         ],
         "min": [
@@ -8843,7 +8775,7 @@
         "bounds": {
           "max": [
             5.5,
-            4.625,
+            5.0,
             7.0
           ],
           "min": [
@@ -8853,12 +8785,12 @@
           ]
         },
         "budget": 77000,
-        "bytes": 590772,
+        "bytes": 298240,
         "lite": {
           "bounds": {
             "max": [
               5.5,
-              4.5,
+              5.0,
               7.0
             ],
             "min": [
@@ -8868,14 +8800,14 @@
             ]
           },
           "budget": 6160,
-          "bytes": 50868,
+          "bytes": 19320,
           "path": "theatre.lite.glb",
-          "sha256": "6f2b0754d78f0529469daf8d3f5e022f71173cf0bde069c2694ee45a9596eab5",
-          "triangles": 1620
+          "sha256": "a9485ec97a6ffa437819e0bb7e80968b03a991787f89ca98e01d6aac66d187e6",
+          "triangles": 544
         },
         "path": "theatre.glb",
-        "sha256": "86ab599f7f9f0a4b192df0bc7e8c99296a676933b081c3d26e5c4a9482a56b84",
-        "triangles": 19896
+        "sha256": "d25d5cab6424b0dfabee904a3544263dfe6f165ef63ee9efa60ca09b5c47d959",
+        "triangles": 8784
       },
       "footprint": {
         "h": 14,
@@ -10258,7 +10190,9 @@
     }
   },
   "palette_sha256": "bbef71c2109fa8f9700b86b9d21f09f8a59573fffbf86e27b21877fdcaf21126",
-  "placeholders": [],
+  "placeholders": [
+    "theatre"
+  ],
   "version": 1,
   "voxels_per_tile": 8
 }

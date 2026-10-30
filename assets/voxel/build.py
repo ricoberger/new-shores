@@ -29,9 +29,14 @@ from nsvoxel import auto, config, content as content_mod, export, model, render 
 OUT_DIR = config.MODELS_DIR
 
 
-def targets(content, recipes):
-    """[(id, kind)] of every model to build: the content IDs, then the decor and life recipes."""
-    out = [(cid, content_mod.kind_of(content, cid)) for cid in content_mod.required_ids(content)]
+def targets(content, recipes, held=False):
+    """
+    [(id, kind)] of every model to build: the content IDs, then the decor
+    and life recipes. Planned IDs on hold (planned/*.json `hold`, not yet in
+    the content) are only listed with held=True: they are built for sheets
+    and tests but not published.
+    """
+    out = [(cid, content_mod.kind_of(content, cid)) for cid in content_mod.required_ids(content, held=held)]
     out += [(cid, "decor") for cid in sorted(recipes) if cid.startswith(config.DECOR_PREFIX)]
     out += [(cid, "life") for cid in sorted(recipes) if cid.startswith(config.LIFE_PREFIX)]
     return out
@@ -153,13 +158,15 @@ def main(argv=None):
     args = parse(argv)
     _init()
     all_targets = targets(_CONTENT, _RECIPES)
+    listed = targets(_CONTENT, _RECIPES, held=True)
     if args.list:
-        for cid, kind in all_targets:
-            print(f"{cid:28s} {kind:8s} {'recipe' if cid in _RECIPES else 'auto'}")
+        for cid, kind in listed:
+            tag = "recipe" if cid in _RECIPES else "auto"
+            print(f"{cid:28s} {kind:8s} {tag}{' (held)' if cid in content_mod.held_ids(_CONTENT) else ''}")
         return 0
     only = [s for s in args.only.split(",") if s]
     if only:
-        known = {cid for cid, _ in all_targets}
+        known = {cid for cid, _ in listed}
         unknown = [cid for cid in only if cid not in known]
         if unknown:
             print(f"unknown model ID(s): {', '.join(unknown)} (see --list)", file=sys.stderr)

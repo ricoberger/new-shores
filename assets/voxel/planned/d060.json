@@ -1,8 +1,4 @@
 [
   {"id": "tree_plot", "kind": "field", "tier": 1, "footprint": [1, 1], "water_tiles": 0, "slot": null},
-  {"id": "city_guard", "kind": "service", "tier": 2, "footprint": [3, 3], "water_tiles": 0, "slot": null},
-  {"id": "fire_station", "kind": "service", "tier": 3, "footprint": [3, 4], "water_tiles": 0, "slot": null},
-  {"id": "surgery", "kind": "service", "tier": 3, "footprint": [3, 3], "water_tiles": 0, "slot": null},
-  {"id": "trading_pier", "kind": "service", "tier": 2, "footprint": [3, 4], "water_tiles": 3, "slot": null},
   {"id": "depot", "kind": "service", "tier": 2, "footprint": [4, 4], "water_tiles": 1, "slot": null, "levels": 2}
 ]

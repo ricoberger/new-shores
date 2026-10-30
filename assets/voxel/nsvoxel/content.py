@@ -93,6 +93,8 @@ def planned_def(e):
         d["field"] = {"type": e["id"]}
     if "levels" in e:
         d["planned_levels"] = e["levels"]
+    if e.get("hold"):
+        d["held"] = True
     return ("buildings", d)
 
 
@@ -101,13 +103,28 @@ def merge_planned(content, entries):
     Adds planned entries beneath content (in place): an ID the content does
     not define gets the planned definition; an ID it defines keeps the
     content's, except that a planned `levels` count is added while the
-    content declares no levels for it.
+    content declares no levels for it, and that an `override` entry
+    replaces the footprint and water rows of the content's definition
+    for as long as the content's footprint differs from the planned one
+    (D-062 re-fits: the content lands in a parallel change; once its
+    footprint equals the planned one the content wins entirely).
     """
     for e in entries:
         group, d = planned_def(e)
         own = content["buildings"].get(e["id"]) or content["ships"].get(e["id"])
         if own is None:
             content[group][e["id"]] = d
+        elif e.get("override") and group == "buildings" and list(own["footprint"]) != list(e["footprint"]):
+            fit = dict(own, footprint=list(e["footprint"]), tier=config.TIER_NAMES[e["tier"] - 1], refitted=True)
+            fit.pop("water_tiles", None)
+            fit.pop("water_rows", None)
+            if e["water_tiles"]:
+                fit["water_tiles"] = e["water_tiles"]
+            if "levels" in e:
+                fit["planned_levels"] = e["levels"]
+            else:
+                fit.pop("planned_levels", None)
+            content["buildings"][e["id"]] = fit
         elif "levels" in e and group == "buildings" and levels(content, e["id"]) == 0:
             content["buildings"][e["id"]] = dict(own, planned_levels=e["levels"])
     return content
@@ -116,6 +133,11 @@ def merge_planned(content, entries):
 def is_planned(content, cid):
     """Whether an ID comes from the planned footprints (the content does not define it yet)."""
     return bool((content["buildings"].get(cid) or content["ships"].get(cid) or {}).get("planned"))
+
+
+def held_ids(content):
+    """Planned IDs marked `hold`: built, checked and sheeted, but not published until the content defines them."""
+    return sorted(cid for cid, d in content["buildings"].items() if d.get("held"))
 
 
 def planned_ids(content):
@@ -210,15 +232,16 @@ def levels(content, cid):
     return n or b.get("planned_levels", 0)
 
 
-def required_ids(content):
+def required_ids(content, held=False):
     """
     Every ID that needs a model: tier 1–4 buildings except roads (fields
-    included), the listed ships and every planned building and ship.
+    included), the listed ships and every planned building and ship;
+    `held` planned IDs (not yet in the content) only with held=True.
     """
     ids = [
         b["id"]
         for b in content["buildings"].values()
-        if (b.get("tier") in config.MODEL_TIERS or b.get("planned")) and "road" not in b
+        if (b.get("tier") in config.MODEL_TIERS or b.get("planned")) and "road" not in b and (held or not b.get("held"))
     ]
     ids += [s["id"] for s in content["ships"].values() if s["id"] in config.MODEL_SHIPS or s.get("planned")]
     return sorted(ids)
