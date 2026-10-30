@@ -9062,32 +9062,32 @@
         "berth_1": [
           -0.75,
           0.06,
-          4.35
+          2.85
         ],
         "berth_2": [
           0.75,
           0.06,
-          4.35
+          2.85
         ],
         "berth_3": [
           -2.25,
           0.06,
-          4.35
+          2.85
         ],
         "berth_4": [
           2.25,
           0.06,
-          4.35
+          2.85
         ],
         "cart": [
           1.4,
           0.125,
-          -4.0
+          -2.5
         ],
         "door": [
           0.0,
           0.0,
-          -4.5
+          -3.0
         ],
         "status": [
           0.0,
@@ -9099,16 +9099,16 @@
         "max": [
           3.0,
           4.125,
-          4.375
+          3.125
         ],
         "min": [
           -3.0,
           -1.0,
-          -4.5
+          -3.0
         ]
       },
       "footprint": {
-        "h": 9,
+        "h": 6,
         "w": 6
       },
       "kind": "building",
@@ -9118,152 +9118,152 @@
             "max": [
               3.0,
               2.875,
-              4.375
+              2.875
             ],
             "min": [
               -3.0,
               -1.0,
-              -4.5
+              -3.0
             ]
           },
-          "budget": 27000,
-          "bytes": 114004,
+          "budget": 18000,
+          "bytes": 103028,
           "lite": {
             "bounds": {
               "max": [
                 3.0,
                 3.0,
-                4.5
+                3.0
               ],
               "min": [
                 -3.0,
                 -0.5,
-                -4.5
+                -3.0
               ]
             },
-            "budget": 2160,
-            "bytes": 8328,
+            "budget": 1440,
+            "bytes": 8120,
             "path": "trading_post.l1.lite.glb",
-            "sha256": "51764e72104f29d942c3b72577b6b189b46512cfe17b0e6dd11951ffe4c191aa",
-            "triangles": 226
+            "sha256": "4ed0d8fdd065340fad32a5fdbcb0b97e3dedee8e1dd34240e7495585cb3d9422",
+            "triangles": 218
           },
           "path": "trading_post.l1.glb",
-          "sha256": "4b1a0460236b1a589e28855e44fa424692449fc4e9e3a0e193a94cc1cfb42f31",
-          "triangles": 3832
+          "sha256": "544d745d84aed41b6b205cf165eea20d035b8ca4b829bcde89cd522efc0bc689",
+          "triangles": 3472
         },
         "2": {
           "bounds": {
             "max": [
               3.0,
               2.5,
-              4.375
+              3.125
             ],
             "min": [
               -3.0,
               -1.0,
-              -4.5
+              -3.0
             ]
           },
-          "budget": 27000,
-          "bytes": 119364,
+          "budget": 18000,
+          "bytes": 108764,
           "lite": {
             "bounds": {
               "max": [
                 3.0,
                 2.5,
-                4.5
+                3.0
               ],
               "min": [
                 -3.0,
                 -0.5,
-                -4.5
+                -3.0
               ]
             },
-            "budget": 2160,
-            "bytes": 9208,
+            "budget": 1440,
+            "bytes": 9740,
             "path": "trading_post.l2.lite.glb",
-            "sha256": "98a50c492d4a3ce38572ed41767d3451ef379a9b8bd282e6e22108e919c80e10",
-            "triangles": 266
+            "sha256": "e33f46cf86ebabf3e57fb4f38e59d4d92c571ccc12fdffd418184b01e8fab07b",
+            "triangles": 264
           },
           "path": "trading_post.l2.glb",
-          "sha256": "8682af60406c97e58590a48007ae25eac896406adfb8f447f214ff0fb71133bd",
-          "triangles": 3944
+          "sha256": "3136d1db1196128088e61099522bca8fdd43983821d89d7dc6d96d19e6e1d1d9",
+          "triangles": 3620
         },
         "3": {
           "bounds": {
             "max": [
               3.0,
               3.25,
-              4.375
+              3.125
             ],
             "min": [
               -3.0,
               -1.0,
-              -4.5
+              -3.0
             ]
           },
-          "budget": 27000,
-          "bytes": 143752,
+          "budget": 18000,
+          "bytes": 137700,
           "lite": {
             "bounds": {
               "max": [
                 3.0,
                 3.5,
-                4.5
+                3.0
               ],
               "min": [
                 -3.0,
                 -0.5,
-                -4.5
+                -3.0
               ]
             },
-            "budget": 2160,
-            "bytes": 10652,
+            "budget": 1440,
+            "bytes": 10448,
             "path": "trading_post.l3.lite.glb",
-            "sha256": "514f8599c242c484df6c062c6779148d5555fd80bb9043d620fa89e32c9f51cd",
-            "triangles": 296
+            "sha256": "1c100cced26875357060b0215ae1cd7abd62ea1c1b18029b2ce4fb43e618bea1",
+            "triangles": 302
           },
           "path": "trading_post.l3.glb",
-          "sha256": "0b213e27dae4a19bdbc15d98fe9f245fe4374dd267de9768d7aa0f21b8193865",
-          "triangles": 4694
+          "sha256": "b45e4fd4e0e1a331d5d4103a5c7d3504236f8d29d716c788f7db36c24ff761ca",
+          "triangles": 4544
         },
         "4": {
           "bounds": {
             "max": [
               3.0,
               4.125,
-              4.375
+              3.125
             ],
             "min": [
               -3.0,
               -1.0,
-              -4.5
+              -3.0
             ]
           },
-          "budget": 27000,
-          "bytes": 191308,
+          "budget": 18000,
+          "bytes": 182384,
           "lite": {
             "bounds": {
               "max": [
                 3.0,
                 3.5,
-                4.5
+                3.0
               ],
               "min": [
                 -3.0,
                 -0.5,
-                -4.5
+                -3.0
               ]
             },
-            "budget": 2160,
-            "bytes": 14800,
+            "budget": 1440,
+            "bytes": 13840,
             "path": "trading_post.l4.lite.glb",
-            "sha256": "7b305d53bd771a8ee9e679bb6399b9045412e45ec2613449ac3a10cd12d6e52b",
-            "triangles": 422
+            "sha256": "db09e883a0b7578c336f3e2895ee9f37127944649f2dfec7e218a7930d37f87c",
+            "triangles": 398
           },
           "path": "trading_post.l4.glb",
-          "sha256": "be63916e6a4775ee0c4751c7fcb69c5578c935c56538d7e98f808e7bf9b84275",
-          "triangles": 6228
+          "sha256": "1b2946c5785b2a0116318b24672404b208fa4ac2b2b717f5d1f3039503249f9d",
+          "triangles": 5962
         }
       },
       "sway": [

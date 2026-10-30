@@ -1,3 +1,4 @@
 [
+  {"id": "trading_post", "kind": "service", "tier": 1, "footprint": [6, 6], "water_tiles": 1, "slot": null, "override": true},
   {"id": "playhouse", "kind": "service", "tier": 3, "footprint": [11, 14], "water_tiles": 0, "slot": null, "hold": true}
 ]
