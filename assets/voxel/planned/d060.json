@@ -1,4 +1,3 @@
 [
-  {"id": "tree_plot", "kind": "field", "tier": 1, "footprint": [1, 1], "water_tiles": 0, "slot": null},
-  {"id": "depot", "kind": "service", "tier": 2, "footprint": [4, 4], "water_tiles": 1, "slot": null, "levels": 2}
+  {"id": "tree_plot", "kind": "field", "tier": 1, "footprint": [1, 1], "water_tiles": 0, "slot": null}
 ]

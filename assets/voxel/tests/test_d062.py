@@ -24,7 +24,11 @@ D062 = {
     "city_guard": ((4, 4), 0, ("door",), 1),
     "fire_station": ((4, 5), 0, ("door",), 1),
     "surgery": ((4, 6), 0, ("door",), 1),
+    "trading_pier": ((6, 9), 5, ("berth_1", "berth_2", "cart"), 1),
+    "depot": ((11, 4), 1, ("cart", "door"), 1),
 }
+#: Voxels of the model's water rows: the deck of the pier (all six), the front row of the depot (D-062: 5–6 and 0–1 in the content).
+MODEL_WATER = {"trading_post": 8, "trading_pier": 48, "depot": 8}
 #: Model files that carry a sway group (cloth) and the group.
 SWAY = {"trading_post.l4.glb": ["flag"], "surgery.glb": ["cloth"]}
 
@@ -91,6 +95,36 @@ class D062Test(unittest.TestCase):
         roles = [m[0] for m in v.cells.values()]
         self.assertGreater(roles.count("stone"), 1000)  # the ashlar ground floor
         self.assertGreater(roles.count("terracotta"), 500)  # the brick upper storey
+
+    def test_pier_berths_are_on_the_flanks_at_mid_deck(self):
+        _, entry, _ = self.built("trading_pier")
+        a = entry["anchors"]
+        w = 6 * config.VOXELS_PER_TILE
+        scale = config.VOXELS_PER_TILE
+        self.assertAlmostEqual(a["berth_1"][0], (-1.2 - w / 2) / scale, places=2)
+        self.assertAlmostEqual(a["berth_2"][0], (w + 1.2 - w / 2) / scale, places=2)
+        self.assertAlmostEqual(a["berth_1"][2], a["berth_2"][2])
+        # y at the middle of the deck's water rows (voxel 24 of 72); glTF +z points to the sea.
+        self.assertAlmostEqual(a["berth_1"][2], (9 * scale / 2 - MODEL_WATER["trading_pier"] / 2) / scale, places=2)
+
+    def test_the_depot_has_no_levels_and_no_cloth(self):
+        files, entry, _ = self.built("depot")
+        self.assertNotIn("levels", entry)
+        self.assertEqual([f[0] for f in files], ["depot.glb", "depot.lite.glb"])
+        self.assertEqual(entry.get("sway", []), [])
+
+    def test_nothing_solid_stands_over_the_water_rows_and_only_piles_reach_below_ground(self):
+        # The water rows hold decks, ramps, quay edges, posts and piles; walls and roofs stand on the land rows behind them.
+        for cid, rows in MODEL_WATER.items():
+            files, _, _ = self.built(cid)
+            for f in files:
+                if f[3] is None:
+                    continue
+                for (x, y, z), m in f[3].cells.items():
+                    if z < 0:
+                        self.assertLess(y, rows + 2, (cid, f[0], x, y, z))
+                    if y < rows and z > 4:
+                        self.assertIn(m[0], ("timber", "iron", "brass", "canvas"), (cid, f[0], x, y, z, m))
 
     def test_deterministic(self):
         for cid in D062:

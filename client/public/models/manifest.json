@@ -3606,9 +3606,9 @@
     "depot": {
       "anchors": {
         "cart": [
-          -0.1,
+          0.4,
           0.125,
-          -1.75
+          -1.5
         ],
         "door": [
           0.0,
@@ -3617,108 +3617,65 @@
         ],
         "status": [
           0.0,
-          3.375,
+          2.625,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.0,
-          3.125,
+          5.5,
+          2.375,
           1.75
         ],
         "min": [
-          -2.0,
+          -5.5,
           -0.375,
-          -2.125
+          -2.0
         ]
       },
-      "footprint": {
-        "h": 4,
-        "w": 4
-      },
-      "kind": "building",
-      "levels": {
-        "1": {
+      "file": {
+        "bounds": {
+          "max": [
+            5.5,
+            2.375,
+            1.75
+          ],
+          "min": [
+            -5.5,
+            -0.375,
+            -2.0
+          ]
+        },
+        "budget": 22000,
+        "bytes": 172820,
+        "lite": {
           "bounds": {
             "max": [
-              2.0,
-              2.375,
-              1.75
+              5.5,
+              2.5,
+              2.0
             ],
             "min": [
-              -2.0,
-              -0.375,
+              -5.5,
+              -0.5,
               -2.0
             ]
           },
-          "budget": 8000,
-          "bytes": 71640,
-          "lite": {
-            "bounds": {
-              "max": [
-                2.0,
-                2.5,
-                2.0
-              ],
-              "min": [
-                -2.0,
-                -0.5,
-                -2.0
-              ]
-            },
-            "budget": 640,
-            "bytes": 8004,
-            "path": "depot.l1.lite.glb",
-            "sha256": "092508e12083c96c6d1cc2dd03363dc770e683dfdca8d453391bb660c423e880",
-            "triangles": 220
-          },
-          "path": "depot.l1.glb",
-          "sha256": "ab88a5a9df38fea42acdcf428fddbbc0c31dfe337bc9b96d0a947ff6e97d79eb",
-          "triangles": 2310
+          "budget": 1760,
+          "bytes": 16268,
+          "path": "depot.lite.glb",
+          "sha256": "89704fd76a2fb9af704e79d393e62f20de056e118738977e03f1a5f065a7ff97",
+          "triangles": 466
         },
-        "2": {
-          "bounds": {
-            "max": [
-              2.0,
-              3.125,
-              1.75
-            ],
-            "min": [
-              -2.0,
-              -0.375,
-              -2.125
-            ]
-          },
-          "budget": 8000,
-          "bytes": 116192,
-          "lite": {
-            "bounds": {
-              "max": [
-                2.0,
-                3.5,
-                2.0
-              ],
-              "min": [
-                -2.0,
-                -0.5,
-                -2.5
-              ]
-            },
-            "budget": 640,
-            "bytes": 13440,
-            "path": "depot.l2.lite.glb",
-            "sha256": "2096044cec29e56e6d030345c59406bb432884b05d395583e6f23b62a25266fb",
-            "triangles": 352
-          },
-          "path": "depot.l2.glb",
-          "sha256": "baa28f9ab6d1a8fcb1c9c6c2cbb9fe88e8b6bbbd47b73825584ed9bc9faa8fb4",
-          "triangles": 3794
-        }
+        "path": "depot.glb",
+        "sha256": "18b6649c70fb7e9b7e96fff420a38d53449f7b499ad25f065273462f47498514",
+        "triangles": 5578
       },
-      "sway": [
-        "cloth"
-      ]
+      "footprint": {
+        "h": 4,
+        "w": 11
+      },
+      "kind": "building"
     },
     "distillery": {
       "anchors": {
@@ -8976,84 +8933,84 @@
     "trading_pier": {
       "anchors": {
         "berth_1": [
-          -1.65,
+          -3.15,
           0.06,
-          0.5
+          1.5
         ],
         "berth_2": [
-          1.65,
+          3.15,
           0.06,
-          0.5
+          1.5
         ],
         "cart": [
-          -0.225,
+          -0.475,
           0.125,
-          -1.5
+          -2.5
         ],
         "door": [
-          -0.25,
           0.0,
-          -2.0
+          0.0,
+          -4.5
         ],
         "status": [
           0.0,
-          2.0,
+          2.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.5,
-          1.75,
-          1.875
+          3.0,
+          2.0,
+          4.375
         ],
         "min": [
-          -1.5,
+          -3.0,
           -1.0,
-          -2.0
+          -4.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.5,
-            1.75,
-            1.875
+            3.0,
+            2.0,
+            4.375
           ],
           "min": [
-            -1.5,
+            -3.0,
             -1.0,
-            -2.0
+            -4.5
           ]
         },
-        "budget": 6000,
-        "bytes": 60392,
+        "budget": 27000,
+        "bytes": 169368,
         "lite": {
           "bounds": {
             "max": [
-              1.5,
-              1.5,
-              2.0
+              3.0,
+              2.0,
+              4.5
             ],
             "min": [
-              -1.5,
-              -1.0,
-              -2.0
+              -3.0,
+              -0.5,
+              -4.5
             ]
           },
-          "budget": 480,
-          "bytes": 7276,
+          "budget": 2160,
+          "bytes": 13672,
           "path": "trading_pier.lite.glb",
-          "sha256": "5d98baff2db59ec65e29688bd22ba6c7a1a5ce2cf9f8eff1b7031461b313bcd5",
-          "triangles": 184
+          "sha256": "5233c710360c01c8a5be2224af9db58b5a4596dd0e30d96a6239cbb03dbbcc29",
+          "triangles": 378
         },
         "path": "trading_pier.glb",
-        "sha256": "1450beac1c40182efd17e00ea9e4fcdd2279aa5d0568c6ffc5730b47649c1ddf",
-        "triangles": 1924
+        "sha256": "410b5efd2d759556b65bc754809aade88199786a5868172de82987b85ff37f6a",
+        "triangles": 5606
       },
       "footprint": {
-        "h": 4,
-        "w": 3
+        "h": 9,
+        "w": 6
       },
       "kind": "building"
     },
