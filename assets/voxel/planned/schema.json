@@ -72,6 +72,14 @@
           "maximum": 8,
           "description": "Ships: cargo slots (CONTENT §8); the cargo attachment shows one prop per slot."
         },
+        "override": {
+          "type": "boolean",
+          "description": "For an ID the content already defines: this footprint and water_tiles replace the content's while its footprint differs (D-062 re-fit before the content lands); omit `levels` to drop the content-less planned levels."
+        },
+        "hold": {
+          "type": "boolean",
+          "description": "The ID is built, checked and sheeted but not written to the models folder or manifest until the content defines it (the client checks the manifest's IDs against the content)."
+        },
         "levels": {
           "type": "integer",
           "minimum": 2,

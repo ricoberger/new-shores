@@ -7,8 +7,8 @@ window over a deep stepped portal. The nave with its clerestory of
 lancets rises over lower aisles with lean-to roofs and stepped
 buttresses; the transept crosses it with a rose window in each gable
 end; a slender flèche stands on the crossing; the choir closes the east
-end, lower, with tall lancets. Roofs are warm dark terracotta (not
-grey-dominant). A paved forecourt with steps, lamps, benches, trees,
+end, lower, with tall lancets. Roofs are dark slate (D-063: never
+terracotta-only). A paved forecourt with steps, lamps, benches, trees,
 flower beds and a low wall with gate piers.
 """
 
@@ -17,7 +17,7 @@ from nsvoxel import parts as P
 from nsvoxel.grid import mat
 from nsvoxel.mats import BRASS, TIMBER_DARK
 
-ROOF = mat("terracotta", 0.72)
+ROOF = mat("slate", 0.8)  # slate and lead over pale stone: Gothic/Hanse (D-063), not terracotta
 GLASS = mat("dye-blue", 0.85)
 WALL = Q.ASHLAR
 

@@ -28,7 +28,7 @@ FLAT_ROLES = ("plaster", "brass")
 #: Ground-plate roles (z = 0) that are one flat colour (grass keeps its two-grass patches as separate roles).
 FLAT_GROUND_ROLES = ("road-dirt", "sand")
 #: Model files with a sway group among tiers 1–2 (LIFE_LAYER §7): hung cloth, sails on frames, awnings and flags.
-SWAY_ALLOWED = {"weaver_wool.glb", "weaver_linen.glb", "sailmaker.glb", "warehouse.l3.glb", "trading_post.l4.glb", "depot.l2.glb"}
+SWAY_ALLOWED = {"weaver_wool.glb", "weaver_linen.glb", "sailmaker.glb", "warehouse.l3.glb", "trading_post.l4.glb"}
 
 
 def tier_ids():

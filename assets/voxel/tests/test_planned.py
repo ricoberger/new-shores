@@ -121,6 +121,43 @@ class PlannedTest(unittest.TestCase):
         self.assertEqual(content.levels(c, "trading_post"), content.levels(base, "trading_post"))
         self.assertEqual(content.required_ids(c), content.required_ids(base))
 
+    def test_override_replaces_the_content_footprint_until_the_content_matches(self):
+        base = content.load(config.CONTENT_DIR, planned_dir=None)
+        old = content.footprint(base, "fisher")
+        new = (old[0] + 1, old[1] + 2)
+        self.write("a.json", [entry("fisher", footprint=new, water_tiles=1, override=True)])
+        c = self.load()
+        self.assertEqual(content.footprint(c, "fisher"), new)
+        self.assertEqual(c["buildings"]["fisher"]["water_tiles"], 1)
+        self.assertFalse(content.is_planned(c, "fisher"))
+        self.assertEqual(c["buildings"]["fisher"]["recipe"], base["buildings"]["fisher"]["recipe"])
+        # Once the content has the planned footprint, its definition wins entirely (here: a copy of the content with water_rows).
+        landed = os.path.join(self.tmp, "content")
+        shutil.copytree(config.CONTENT_DIR, landed)
+        with open(os.path.join(landed, "buildings.json"), encoding="utf-8") as f:
+            blds = json.load(f)
+        for b in blds:
+            if b["id"] == "fisher":
+                b["footprint"] = list(new)
+                b.pop("water_tiles", None)
+                b["water_rows"] = {"min": 2, "max": 3}
+        with open(os.path.join(landed, "buildings.json"), "w", encoding="utf-8") as f:
+            json.dump(blds, f)
+        c2 = content.load(landed, planned_dir=self.tmp)
+        self.assertEqual(content.footprint(c2, "fisher"), new)
+        self.assertNotIn("water_tiles", c2["buildings"]["fisher"])
+        self.assertNotIn("refitted", c2["buildings"]["fisher"])
+        self.assertEqual(model.Ctx("fisher", "building", new[0], new[1], c2["buildings"]["fisher"]).water, 3)
+
+    def test_a_held_id_is_built_for_sheets_but_not_published(self):
+        self.write("a.json", [entry("hall_test", kind="service", footprint=(6, 8), hold=True)])
+        c = self.load()
+        self.assertIn("hall_test", content.held_ids(c))
+        self.assertNotIn("hall_test", content.required_ids(c))
+        self.assertIn("hall_test", content.required_ids(c, held=True))
+        self.assertNotIn("hall_test", [cid for cid, _ in build.targets(c, {})])
+        self.assertIn("hall_test", [cid for cid, _ in build.targets(c, {}, held=True)])
+
     def test_invalid_files_name_every_problem(self):
         self.write("a.json", [
             entry("x_one", footprint=None),

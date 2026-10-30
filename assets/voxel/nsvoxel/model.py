@@ -30,7 +30,8 @@ class Ctx:
         self.defn = defn or {}
         self.variant = variant
         self.level = level
-        self.water = int(self.defn.get("water_tiles", 0))
+        rows = self.defn.get("water_rows")
+        self.water = int(rows["max"] if isinstance(rows, dict) else self.defn.get("water_tiles", 0))
         #: First land row (voxels): rows below it stand over the sea.
         self.land = self.water * scale
         self.tier = self.defn.get("tier", "settlers")
@@ -59,6 +60,8 @@ def recipe_modules(recipes_dir=RECIPES_DIR):
             for cid, r in mod.RECIPES.items():
                 out[cid] = dict(r, file=fname)
         elif hasattr(mod, "build"):
+            if fname.startswith("_"):
+                continue  # kept for a later region (e.g. _south_theatre.py, D-063): not an ID's recipe
             cid = fname[:-3]
             out[cid] = {
                 "build": mod.build,

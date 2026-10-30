@@ -22,6 +22,5 @@
   {"id": "salt_works", "kind": "producer", "tier": 3, "footprint": [4, 6], "water_tiles": 0, "slot": null, "smoke": true},
   {"id": "brickworks", "kind": "producer", "tier": 3, "footprint": [4, 5], "water_tiles": 0, "slot": null, "smoke": true},
   {"id": "coal_mine", "kind": "producer", "tier": 3, "footprint": [3, 8], "water_tiles": 0, "slot": "coal"},
-  {"id": "church", "kind": "service", "tier": 3, "footprint": [6, 10], "water_tiles": 0, "slot": null},
-  {"id": "theatre", "kind": "service", "tier": 3, "footprint": [11, 14], "water_tiles": 0, "slot": null}
+  {"id": "church", "kind": "service", "tier": 3, "footprint": [6, 10], "water_tiles": 0, "slot": null}
 ]

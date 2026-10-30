@@ -1,5 +1,5 @@
 """
-Fire station (3 × 4; D-060, Merchants, civic): a coursed-stone ground
+Fire station (4 × 5, D-062; D-060, Merchants, civic): a coursed-stone ground
 floor with two wide arched gates and red doors under a jettied
 half-timber upper floor and a terracotta roof, a small open bell turret
 on the ridge, a ladder and hose rack on the west wall, leather buckets
@@ -69,28 +69,29 @@ def pump_cart(v, x, y, z=1):
 
 
 def build(ctx):
-    v = ctx.vox()  # 24 × 32
+    v = ctx.vox()  # 32 × 40
     seed = 84
-    P.yard(v, 0, 0, 24, 32, "grass", seed=seed)
-    P.yard(v, 5, 22, 24, 32, "paved", seed=seed)
-    x0, y0, x1, y1 = 5, 7, 23, 21
+    P.yard(v, 0, 0, 32, 40, "grass", seed=seed)
+    P.yard(v, 4, 27, 32, 40, "paved", seed=seed)
+    x0, y0, x1, y1 = 4, 8, 30, 26
     b = P.building(v, x0, y0, x1, y1, "citizen", along="x", height=16, kind="tiles", rise=0.6, seed=seed, upper=OCHRE)
     f = b.face("y+")
-    for a in (7, 15):
+    for a in (8, 18):
         P.entrance(f, a, 2, 6, 6, leaf=RED_DOOR, frame=P.DRESSED, step=None, arch=True, hinges=False, knob=IRON)
     fu = b.face("y+", upper=True)
-    for a in (8, 19):
+    for a in (9, 15, 23):
         P.casement(fu, a, 10, 2, 3, frame=TIMBER_LIGHT, sill=TIMBER_LIGHT, shutters=TERRACOTTA)
-    for a in (12, 15):
+    for a in (12, 19):
         bucket(fu, a, 10)
     wu = b.face("x-", upper=True)
-    for a in (9, 17):
+    for a in (11, 20):
         P.casement(wu, a, 10, 2, 3, frame=TIMBER_LIGHT, sill=TIMBER_LIGHT, shutters=TERRACOTTA)
-    bucket(wu, 13, 10)
+    bucket(wu, 15, 10)
     wf = b.face("x-")
-    hose_coil(wf, 11, 5, 3.0)
-    ladder_rack(wf, 15, 20, 3)
-    P.casement(P.Face(v, "x+", x1 - 1), 12, 4, 2, 3, frame=P.DRESSED, sill=P.DRESSED)
+    hose_coil(wf, 12, 5, 3.0)
+    ladder_rack(wf, 17, 24, 3)
+    for a in (12, 19):
+        P.casement(P.Face(v, "x+", x1 - 1), a, 4, 2, 3, frame=P.DRESSED, sill=P.DRESSED)
     # The bell turret on the ridge: a roof-coloured base block under it, then the open turret.
     r = b.roof
     cx, cy = (x0 + x1) // 2, (y0 + y1) // 2
@@ -101,10 +102,11 @@ def build(ctx):
                 v.set(x, y, z, TERRACOTTA_DARK)
     D.bell_turret(v, cx, cy, base, size=4, h=5)
     # Yard: the water barrel row, the red pump cart, a lamp between the gates.
-    for k, y in enumerate((22, 25, 28, 30)):
-        P.cask(v, 0, y, 1, h=4, m=TIMBER_LIGHT, lid=WATER)
-    pump_cart(v, 15, 26, 1)
-    P.lamp_post(v, 22, 24)
-    P.scatter(v, 0, 0, 24, 32, 0.02, seed=seed, kinds=("pebble", "tuft"))
-    v.anchor("door", 14, 24, 0)
+    for k, y in enumerate((28, 31, 34, 37)):
+        P.cask(v, 1, y, 1, h=4, m=TIMBER_LIGHT, lid=WATER)
+    pump_cart(v, 19, 33, 1)
+    P.lamp_post(v, 15, 29)
+    P.lamp_post(v, 29, 29)
+    P.scatter(v, 0, 0, 32, 40, 0.02, seed=seed, kinds=("pebble", "tuft"))
+    v.anchor("door", 16, 32, 0)
     return P.colour_jitter(v, seed=seed)

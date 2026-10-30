@@ -68,8 +68,10 @@ class CommittedTest(unittest.TestCase):
         # Decor and life come from the family recipe files only.
         self.assertEqual(set(self.manifest["decor"]), {c for c in self.recipes if c.startswith(config.DECOR_PREFIX)})
         self.assertEqual(set(self.manifest["life"]), {c for c in self.recipes if c.startswith(config.LIFE_PREFIX)})
-        # No orphan recipe (e.g. a content ID that was renamed).
-        self.assertEqual(sorted(set(self.recipes) - required - set(self.manifest["decor"]) - set(self.manifest["life"])), [])
+        # No orphan recipe (e.g. a content ID that was renamed); a held planned ID (not yet in the content) is built but not published.
+        held = set(content.held_ids(CONTENT))
+        self.assertTrue(held.isdisjoint(self.manifest["models"]))
+        self.assertEqual(sorted(set(self.recipes) - required - held - set(self.manifest["decor"]) - set(self.manifest["life"])), [])
 
     def test_every_file_matches_its_entry_and_the_export_profile(self):
         listed = set()
