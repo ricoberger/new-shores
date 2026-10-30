@@ -385,7 +385,7 @@ func merchants(f *fixture) {
 	// town's later buildings could close off.
 	yard := f.placePaid(home, "shipyard", f.streetEnd(home))
 	market := f.placePaid(home, "market", f.streetEnd(home))
-	for _, typ := range []string{"chapel", "tavern", "school", "church"} {
+	for _, typ := range []string{"chapel", "tavern", "school", "church", "city_guard", "fire_station"} {
 		f.placePaid(home, typ, f.streetEnd(home))
 	}
 	if f.err == nil {
@@ -493,7 +493,7 @@ func patricians(f *fixture) {
 		})
 	}
 	market := f.placePaid(home, "market", f.streetEnd(home))
-	for _, typ := range []string{"chapel", "tavern", "school", "church", "playhouse", "university", "cathedral"} {
+	for _, typ := range []string{"chapel", "tavern", "school", "church", "playhouse", "university", "cathedral", "city_guard", "fire_station", "surgery"} {
 		f.placePaid(home, typ, f.streetEnd(home))
 	}
 	for lv := 2; lv <= 3 && f.err == nil; lv++ {
