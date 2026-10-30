@@ -91,7 +91,11 @@ UI shows the same numbers the server uses.
   A ship handling at the Trading Post moors **stern-first at berth
   anchor i** of the Trading Post model (`berth_1..4` in the manifest; the
   middle pair first, bows fanned out to sea; PR #29) — the level unlocks
-  1–4 of them; ships `waiting_for_berth` sit out to sea past the moored
+  1–4 of them; with **trading piers** (D-060) ships beyond the Trading
+  Post's own berths moor at the piers (by building ID, at their
+  `berth_*` anchors or along the pier's front row; a display convention —
+  the server keeps one berth pool per island); ships `waiting_for_berth`
+  sit out to sea past the moored
   bows; idle ships take the island's harbour berths; the shipyard's hull
   under construction stands on its `slip` anchor and the finished ship
   appears at the harbour; `anchored_unpaid` ships greyed. Legs and ribbons are straight lines and may cross land
@@ -212,6 +216,12 @@ UI shows the same numbers the server uses.
   selecting a farm or a field tints its farm and fields green like a
   selected building; the field ghost is the field's translucent model; a field card says "Counts for its farm" (an inactive one keeps "Not connected to its farm" and its fix) and offers Demolish only (no
   Move).
+- The lumberjack (D-059) is a farm: its card has the fields block and
+  "Paint Tree plot" (1 gold each), painted on open land like crops.
+- The civic buildings (city guard, fire station, surgery; D-060) are
+  public buildings in the Public tab; the trading pier and depot are in
+  the Harbour tab, water-edge like the Trading Post (quays count as
+  coast; their ghost shows the free shallows tint with the quay tool).
 - Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the radius ring is not implemented.
 - Confirm on click/tap; the server validates and responds; the ghost becomes
   the building when the response arrives (round-trip ≈ 100 ms; show a brief
@@ -257,7 +267,9 @@ UI shows the same numbers the server uses.
 **Trading Post**
 
 - A "Details" heading with rows (no bars): Level `n / max`, Capacity `per
-  good`, Throughput `/min`, Load `%`, Berths `free / total free`.
+  good` (with depots: "+ n in depots", the island total is the
+  inventory's), Throughput `/min`, Load `%`, Berths `free / total free`
+  (with trading piers: "(n at piers)").
 - "Pier" (only with ships): one row per ship at the pier ("at the pier") or
   waiting for a berth ("waiting"), by name and ID.
 - "Inventory": one row per good, icon and name, `stock / capacity` and the
@@ -267,6 +279,18 @@ UI shows the same numbers the server uses.
   level's numbers ("500 capacity per good · 2 berths · 55.0/min
   throughput") and the cost line (gold, goods with icons, " · " between the
   items, red when short). The **Upgrade** button is pinned in the footer.
+
+**Trading pier** (D-060)
+
+- Rows: Berths "+n" (what the pier adds) and the island's berths free /
+  total; Move and Demolish in the footer (no levels, never paused).
+
+**Depot** (D-060)
+
+- Rows: Level `n / max`, Adds `capacity per good`, Island capacity (the
+  Trading Post's plus every depot's). "Upgrade to level n" like the
+  Warehouse's (the next level's capacity and cost; locked below its
+  tier); the **Upgrade** button is pinned in the footer.
 
 **Shipyard**
 
@@ -465,9 +489,13 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   payload into view models; the only arithmetic is the one of the
   CONTENT tables (per-minute rates from cycle times, a full house's tax,
   shares as percent). Unknown or missing fields render nothing.
-  `questText.ts` words every objective kind of MECHANICS §12a. Content
-  that the payload does not carry (island counts and pools, the schema
-  version) is read defensively and shown only when present.
+  `questText.ts` words every objective kind of MECHANICS §12a. The
+  Islands page shows each size class's size, count, per-island
+  fertility and deposit ranges, shape and the home class (served since
+  D-059's fixture step); content the payload does not carry (the
+  archipelago-wide pools, the home guarantees, the schema version) is
+  read defensively and shown only when present. Building pages show a
+  depot's level table, a pier's berths and the quay's site (shallows).
 - **Look:** the HUD's parchment in a dark-wood frame, Cinzel headings,
   brass accent; left navigation on desktop, sticky tabs on the phone;
   a search box filters buildings, goods, ships, quests, tiers and island

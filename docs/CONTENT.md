@@ -136,7 +136,7 @@ ship is a sloop; the shipyard unlocks at tier 2 (D-056).
 | ships | sails | `sailmaker` (hemp → sails, 60 s) [6 C] | — |
 
 Infrastructure: `trading_post` lvl 2, `road_paved`, `quay` (D-060), `tavern`, `school`,
-`city_guard` (D-060), `shipyard` (sloop, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
+`city_guard`, `trading_pier`, `depot` (D-060), `shipyard` (sloop, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
 The construction chains (quarry, tool chain) are **Settler-staffed** per the
 bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
 must be producible before any Citizen exists. Likewise bricks (tier 3) are
@@ -164,7 +164,7 @@ One recipe per building (D-041): `leather_works` is a separate building from
 Infrastructure: `trading_post` lvl 3, `market` lvl 2, `church`,
 `theatre`, `fire_station`, `surgery` (D-060; its cost has 5 bricks
 where the class reference has 5 glass — glass is a Patrician good, so the
-tier-3 clamp of §7 applies), `brig` (4 slots), `house_merchants`;
+tier-3 clamp of §7 applies), `depot` lvl 2, `brig` (4 slots), `house_merchants`;
 `harbourmaster_office` (world map, expeditions, contracts) is an ONLINE
 feature, not a tier gate, and not authored yet. Variety reserve
 (D-056): fur_coats (`trapper`, `furrier`), tableware (`potter`;
@@ -258,6 +258,8 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `house_citizens` | 2 | 3×3 | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | road | see text | 0 | — | 3 gold / 1 stone |
 | `quay` | 2 | 1×1 on shallows | road (D-060) | see text | 0 | — | 5 gold / 2 stone; 0.6 s/tile; water-edge buildings stand on it |
+| `trading_pier` | 2 | 3×4, 3 water rows | Pier class (ours) | 250 / 20 / 10 | 0 | — | R, never auto-paused; +2 berths for the island (D-060); no levels |
+| `depot` | 2 | 4×4, 1 water row | Depot class (ours) | 280 / 20 / 10 | 0 | — | R, never auto-paused; +150 capacity per good, lvl 2 +300 (Merchants, D-060) |
 | `quarry` | 2 | 3×8 on a stone slot | Limestone Quarry | 120 / 9 / 0 | 3 | 8 S | R; strip into the mountain |
 | `iron_mine` | 2 | 3×8 on an iron slot | Iron Mine | 180 / 6 / 6 | 2 | 10 S | R |
 | `charcoal_burner` | 2 | 5×6 | Charcoal Burner | 90 / 9 / 0 | 2 | 4 S | R, forest nearby (visual) |
@@ -360,6 +362,14 @@ radius rule in the sim): lvl 1 T 30; lvl 2 T 55 (150 gold / 10 planks /
 5 stone); lvl 3 T 80 (300 gold / 15 planks / 10 stone). A 6×6 hub earns
 its size with throughput (D-054); a reach rule would be a new decision.
 
+Harbour extensions (D-060, provisional, numbers ours — no Anno
+counterpart): the **trading pier** adds 2 berths to its island's pool
+(MECHANICS §9.3); the **depot** adds capacity per good to its island
+while a Trading Post stands (MECHANICS §5): lvl 1 150, lvl 2 300
+(Merchants; 500 gold / 20 planks / 20 stone / 10 bricks). Both have
+upkeep 0 and `pause_category: never` like the Trading Post (a paused
+depot would question its own capacity).
+
 ## 8. Ships
 
 | ID | Tier | Slots × size | Speed | Build | Cost | Upkeep |
@@ -376,8 +386,10 @@ Ships live in `ships.json` (`{ id, name, tier, slots, slot_size, speed,
 build_seconds, cost, upkeep_per_min, length_tiles? }`, schema under
 `content/schema/`); all three are authored. `length_tiles` is the hull
 length at model scale (sloop 2, brig 2.6, galleon 3.2; absent: 2), display
-only: the client draws each ship and spaces the Trading Post berths by it
-(MECHANICS §9.1). Ship positions and legs follow MECHANICS
+only: the client draws each ship and spaces the berths of Trading Posts
+and trading piers by it (MECHANICS §9.1). Speeds differ (D-059,
+supersedes D-056's equal speed): the sloop is small and fast for founding
+and short hops, the galleon large and slow for bulk. Ship positions and legs follow MECHANICS
 §9; the archipelago seed stores island positions in tile coordinates.
 
 ## 9. Islands (D-036, D-053, D-058)
@@ -391,6 +403,7 @@ only: the client draws each ship and spaces the Trading Post berths by it
 | Fertilities per habitable island | 2–4 from the pool (wheat, apple, hemp 3–5 times per archipelago; hops, woad, grapes 2–5 times; provisional) |
 | Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
+| Shallows | water tiles of an island's grid (not river) within 3 tiles (Chebyshev) of its own land, islets excluded; derived from the tiles, the quay's ground (D-060, MECHANICS §3) |
 | Spacing | ≥ 50 tiles between islands, nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
 | Buildable area | 91 000 tiles (coast, grass, forest) per archipelago ± 10 % (≈ 48 % of the 189 696-tile land extents, the share the shape rules give: ≈ 17.7 k per large island, D-054; provisional) |
 | Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
@@ -486,12 +499,14 @@ it carries:
 | `recipe` (later `recipes[]`, D-041) | `inputs[] {good, amount}` (may be empty), `outputs[] {good, amount}` (non-empty), `cycle_seconds` | producers |
 | `house` | `tier` | residences |
 | `trading_post` | `levels[] {capacity, throughput_per_min, berths, cost?}` — level 1 has no cost (founding places it), later levels have one (`upgrade_trading_post`); with `water_tiles` (front rows on water) | Trading Post, one per island |
+| `pier` | `berths` (≥ 1) — berths added to the island's pool; needs `water_tiles`; no collector, service or levels (D-060) | trading_pier |
+| `depot` | `levels[] {capacity, tier?, cost?}` — capacity per good added to the island; level 1 has no tier or cost, later levels have both (`upgrade_building`); no collector, service or pier (D-060) | depot |
 | `warehouse` | `levels[] {throughput_per_min, cost?}` — collector only, no capacity (`upgrade_warehouse`) | inland Warehouse |
-| `road` | `seconds_per_tile` (building must be 1×1) | roads |
+| `road` | `seconds_per_tile`, `shallows?` (true: laid on the shallows instead of land, D-060) (building must be 1×1) | roads, quay |
 | `service` | `radius` | public buildings |
-| `work_area` | `radius`, `fertility?` (island-wide tag the island must carry, else `no_fertility`); harvesters also `terrain[]`, `required_tiles` | farms (radius only), lumberjack, gatherers |
-| `fields` | `type` (a field building's `field.type`), `required`, `max` | farms (D-051 part 4) |
-| `field` | `type`, `farm` (the farm type that owns it, or a list of farm types sharing the module: `cattle_pasture` serves `dairy_farm` and `cattle_farm`), `terrain[]`, `fertility?` — 1×1 (crops) or a pasture module (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires every listed farm to exist with a matching `fields.type` | pasture, wheat_field, orchard_plot, hemp_field, pig_pen, meadow, cattle_pasture, hop_field, woad_field, vine_row |
+| `work_area` | `radius`, `fertility?` (island-wide tag the island must carry, else `no_fertility`); harvesters also `terrain[]`, `required_tiles` | farms (radius only), gatherers (the lumberjack is a farm since D-059) |
+| `fields` | `type` (a field building's `field.type`), `required`, `max` | farms (D-051 part 4), lumberjack (D-059) |
+| `field` | `type`, `farm` (the farm type that owns it, or a list of farm types sharing the module: `cattle_pasture` serves `dairy_farm` and `cattle_farm`), `terrain[]`, `fertility?` — 1×1 (crops) or a pasture module (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires every listed farm to exist with a matching `fields.type` | pasture, wheat_field, orchard_plot, hemp_field, pig_pen, meadow, cattle_pasture, hop_field, woad_field, vine_row, tree_plot |
 | `workforce` | `tier`, `amount` | producers only (D-035) |
 | `requires_deposit` | deposit type; the footprint must cover ≥ 1 tile with that deposit (`no_deposit`) and may cover mountain tiles | mines, quarries |
 | `slot` | typed deposit/harbour slots (D-036) — not yet implemented; `requires_deposit` is the interim rule | — |
@@ -549,7 +564,11 @@ deposits or shape (all zeros) and a `size` of 2–8: its skerries have
 `size` … ¾ · size² tiles; it can never be the home class. `spacing`:
 `min` and `nearest_max` apply between habitable islands and rocks
 (grid to grid), `strait_min` to every pair's land, `void_max` bounds the
-open sea inside the hull of the land.
+open sea inside the hull of the land. `home.terrain` lists `grass` only
+since D-059 (the lumberjack plants its trees; forest is decor). The
+content payload (`GET /api/v1/content`) serves every size class with
+its size, count, per-island fertility and deposit ranges, shape and
+whether it is the home class (the almanac's Islands table).
 
 ### tiers.json and goods.json
 

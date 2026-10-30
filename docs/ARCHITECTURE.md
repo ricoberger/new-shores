@@ -66,12 +66,14 @@ new-shores/
 │   ├── internal/ws/            WebSocket hub, Redis pub/sub
 │   ├── internal/auth/          sessions, argon2id, email verification
 │   ├── internal/payments/      ledger + provider adapters (stripe, appstore, play)
+│   ├── internal/devworld/      dev world and dev fixtures (--dev; one list, `Fixtures()`)
 │   └── testdata/               golden fixtures (shared with client tests)
 ├── client/                     Vite + React + Babylon.js
 │   ├── src/api/                generated types (openapi-typescript), fetch/ws client
 │   ├── src/display/            extrapolation + display model
 │   ├── src/render/             Babylon scene, voxel terrain, chunks, instancing, pickers
 │   ├── src/ui/                 React HUD, panels, build menu, world map
+│   ├── src/dev/                dev/E2E-only synthetic fixtures (dense, showcase, archipelago)
 │   ├── public/models/          voxel GLBs + manifest.json + thumbs/ (generated, committed)
 │   └── e2e/tools/              `make shots` script (Playwright as a library)
 ├── assets/
@@ -121,6 +123,8 @@ new-shores/
   (boundary counts add up the skipped steps). The replay still advances step
   by step, so the simulated game and every other part of the report are
   unchanged; the long reference games use 10 to keep their goldens small.
+  `RunSteps` replays the first n steps without a report (tests, the
+  `played` dev fixture).
 - Fixed-point integers; no `time.Now()`, no `math/rand` without the stored
   seed.
 - Migrations between `schema_version`s live here and are tested against stored
@@ -395,8 +399,18 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   (ART_DIRECTION §8, `?stats=1`); there is no CI perf guard (D-052).
 - **Dev reset:** `POST /api/v1/dev/reset` (dev mode only; 404 otherwise;
   not in the OpenAPI contract) reseeds the in-memory world from a named
-  fixture (`default`, `town`, `settled`, `seafaring`, `citizens`, `merchants`, `patricians`), clears pending dev events and
-  publishes; `make shots` uses it for the server fixtures.
+  fixture of the one list `devworld.Fixtures()` (`default`, `town`,
+  `settled`, `seafaring`, `citizens`, `merchants`, `patricians`,
+  `played`), clears pending dev events and publishes; `make shots` uses
+  it for the server fixtures. In dev and E2E builds `?fixture=<name>`
+  posts it from the page for any name that is not a synthetic client
+  fixture (`dense-2x400`, `dense-archipelago-8`, `archipelago-8x20`,
+  `showcase`; those render without a server), then opens the game.
+  `played` (D-059) replays `server/testdata/scenarios/
+  bootstrap_patricians.json` (dev server flag `--scenarios`, default
+  `testdata/scenarios`) so that it ends at now; the ~40 s replay is
+  cached per process and later resets advance the cached world to their
+  now (the dev server's write timeout is 3 min for the first one).
 
 ## 5a. Asset pipeline (D-057)
 
