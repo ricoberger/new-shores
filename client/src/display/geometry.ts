@@ -122,20 +122,22 @@ export function missingDepositHint(
   return true;
 }
 
+/** Per-column water depth (D-062); absent on inland buildings. */
+export interface WaterEdgeDef extends FootprintDef {
+  water_rows?: { min: number; max: number };
+}
+
 /**
- * The water rows of a water-edge building (content `water_tiles`, D-051)
- * at (x, y) and a rotation, as a tile rectangle: its front rows — at
- * rotation 0 the top rows, at 90 the rightmost columns, at 180 the bottom
- * rows, at 270 the leftmost columns (the server's sim.WaterTile). Null for
- * other buildings.
+ * The maximum water band, for pier display geometry only. This is not the
+ * actual coast: waterEdgeTiles resolves each column independently.
  */
 export function waterRows(
-  def: FootprintDef & { water_tiles?: number },
+  def: WaterEdgeDef,
   x: number,
   y: number,
   rotation: number,
 ): { x: number; y: number; w: number; h: number } | null {
-  const n = def.water_tiles ?? 0;
+  const n = def.water_rows?.max ?? 0;
   if (n <= 0) return null;
   const [w, h] = rotatedFootprint(def.width, def.height, rotation);
   switch (((rotation % 360) + 360) % 360) {
@@ -149,33 +151,68 @@ export function waterRows(
   return { x, y, w, h: n };
 }
 
+export interface WaterEdgeTile extends TilePos {
+  /** Whether this tile is in the column's chosen water prefix. */
+  water: boolean;
+  problem: "front" | "land" | null;
+}
+
 /**
- * Placement ghost hint of a water-edge building (UI.md §3, D-051), from the
- * island's static terrain: "front" when a tile of its water rows is not
- * water, "land" when a tile of its other rows is water (outside the island
- * counts as water); null when the site fits or for other buildings. A
- * lookup for the ghost colour and hint text, never a validity decision.
+ * Per-tile water-edge preview from server terrain (quays read as "quay").
+ * A column's contiguous water prefix is clamped to min..max. Non-water in
+ * that prefix is red; non-buildable terrain after it is red too. A river
+ * never counts as water, nor does water behind an intervening land tile.
+ * This is a display mirror, not placement authority.
  */
+export function waterEdgeTiles(
+  def: WaterEdgeDef,
+  terrain: (x: number, y: number) => string,
+  x: number,
+  y: number,
+  rotation: number,
+): WaterEdgeTile[] {
+  const rows = def.water_rows;
+  if (!rows) return [];
+  const r = ((rotation % 360) + 360) % 360;
+  const pos = (column: number, row: number): TilePos => {
+    switch (r) {
+      case 90: return { x: x + def.height - 1 - row, y: y + column };
+      case 180: return { x: x + column, y: y + def.height - 1 - row };
+      case 270: return { x: x + row, y: y + column };
+      default: return { x: x + column, y: y + row };
+    }
+  };
+  const out: WaterEdgeTile[] = [];
+  for (let column = 0; column < def.width; column++) {
+    let k = 0;
+    while (k < rows.max) {
+      const p = pos(column, k);
+      if (terrain(p.x, p.y) !== "water") break;
+      k++;
+    }
+    k = Math.max(k, rows.min);
+    for (let row = 0; row < def.height; row++) {
+      const p = pos(column, row);
+      const t = terrain(p.x, p.y);
+      const water = row < k;
+      const valid = water ? t === "water" : t === "coast" || t === "grass" || t === "forest" || t === "quay";
+      out.push({ ...p, water, problem: valid ? null : water ? "front" : "land" });
+    }
+  }
+  return out;
+}
+
+/** The legacy error precedence for the ghost text: required water first. */
 export function waterEdgeHint(
-  def: FootprintDef & { water_tiles?: number },
+  def: WaterEdgeDef,
   terrain: (x: number, y: number) => string,
   x: number,
   y: number,
   rotation: number,
 ): "front" | "land" | null {
-  const rows = waterRows(def, x, y, rotation);
-  if (!rows) return null;
-  const [w, h] = rotatedFootprint(def.width, def.height, rotation);
-  let land = false;
-  for (let ty = y; ty < y + h; ty++) {
-    for (let tx = x; tx < x + w; tx++) {
-      const wet = tx >= rows.x && tx < rows.x + rows.w && ty >= rows.y && ty < rows.y + rows.h;
-      const water = terrain(tx, ty) === "water";
-      if (wet && !water) return "front";
-      if (!wet && water) land = true;
-    }
-  }
-  return land ? "land" : null;
+  const tiles = waterEdgeTiles(def, terrain, x, y, rotation);
+  if (tiles.some((p) => p.problem === "front")) return "front";
+  return tiles.some((p) => p.problem === "land") ? "land" : null;
 }
 
 /** A run of road tiles drawn as one strip: from (x0, y0) to (x1, y1) inclusive, horizontal or vertical. */

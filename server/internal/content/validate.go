@@ -167,8 +167,8 @@ func checkReferences(c *Catalogue) error {
 				}
 				checkLevelCost(col, ent, fmt.Sprintf("trading_post.levels[%d].cost", i), i, l.Cost)
 			}
-			if b.WaterTiles < 1 {
-				col.add(FileBuildings, ent, "water_tiles", "a trading post is a water-edge building (water_tiles >= 1)")
+			if b.WaterRows == nil || b.WaterRows.Min < 1 {
+				col.add(FileBuildings, ent, "water_rows", "a trading post is a water-edge building (min >= 1)")
 			}
 			if b.Warehouse != nil {
 				col.add(FileBuildings, ent, "warehouse", "a building cannot be a trading post and a warehouse")
@@ -207,8 +207,8 @@ func checkReferences(c *Catalogue) error {
 			if pr.Berths < 1 {
 				col.add(FileBuildings, ent, "pier.berths", "must be >= 1")
 			}
-			if b.WaterTiles < 1 || b.TradingPost != nil || b.Warehouse != nil || b.Service != nil {
-				col.add(FileBuildings, ent, "pier", "a pier is a water-edge building (water_tiles >= 1) and neither a collector nor a public building")
+			if b.WaterRows == nil || b.WaterRows.Min < 1 || b.TradingPost != nil || b.Warehouse != nil || b.Service != nil {
+				col.add(FileBuildings, ent, "pier", "a pier is a water-edge building (min >= 1) and neither a collector nor a public building")
 			}
 		}
 		if d := b.Depot; d != nil {
@@ -229,14 +229,14 @@ func checkReferences(c *Catalogue) error {
 				col.add(FileBuildings, ent, "depot", "a depot is neither a collector, a public building nor a pier")
 			}
 		}
-		if b.WaterTiles != 0 {
+		if rows := b.WaterRows; rows != nil {
 			switch {
-			case b.WaterTiles < 0 || b.WaterTiles >= b.Height:
-				col.add(FileBuildings, ent, "water_tiles", "must be in [1, %d] (at least one land row)", max(b.Height-1, 1))
+			case rows.Min < 0 || rows.Max < rows.Min || rows.Max >= b.Height:
+				col.add(FileBuildings, ent, "water_rows", "must satisfy 0 <= min <= max < depth %d (at least one land row)", b.Height)
 			case b.Coastal:
-				col.add(FileBuildings, ent, "water_tiles", "a water-edge building is not also coastal")
+				col.add(FileBuildings, ent, "water_rows", "a water-edge building is not also coastal")
 			case b.RequiresDeposit != "":
-				col.add(FileBuildings, ent, "water_tiles", "a water-edge building cannot require a deposit")
+				col.add(FileBuildings, ent, "water_rows", "a water-edge building cannot require a deposit")
 			}
 		}
 		if sy := b.Shipyard; sy != nil {
@@ -258,8 +258,8 @@ func checkReferences(c *Catalogue) error {
 		if b.Smoke && (b.Recipe == nil || b.Field != nil) {
 			col.add(FileBuildings, ent, "smoke", "only producers (a recipe, not a field) can smoke")
 		}
-		if b.Boat && (b.Recipe == nil || b.WaterTiles < 1 || b.TradingPost != nil) {
-			col.add(FileBuildings, ent, "boat", "only water-edge producers (a recipe and water_tiles) can have a boat")
+		if b.Boat && (b.Recipe == nil || b.WaterRows == nil || b.WaterRows.Min < 1 || b.TradingPost != nil) {
+			col.add(FileBuildings, ent, "boat", "only water-edge producers (a recipe and water_rows.min >= 1) can have a boat")
 		}
 		if b.RequiresDeposit != "" && b.Recipe == nil {
 			col.add(FileBuildings, ent, "requires_deposit", "only buildings with a recipe can require a deposit")

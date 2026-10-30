@@ -296,7 +296,7 @@ export interface BuildingView {
   category: ContentBuilding["category"];
   width: number;
   height: number;
-  waterTiles: number;
+  waterRows?: { min: number; max: number };
   /** "3 × 4", plus "of which 3 rows on water" etc. */
   footprint: string;
   requiresRoad: boolean;
@@ -347,8 +347,12 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
     category: b.category,
     width: b.width,
     height: b.height,
-    waterTiles: b.water_tiles ?? 0,
-    footprint: b.water_tiles ? t("almanac.footprintWater", { width: b.width, height: b.height, count: b.water_tiles }) : `${b.width} × ${b.height}`,
+    waterRows: b.water_rows,
+    footprint: b.water_rows
+      ? b.water_rows.min === b.water_rows.max
+        ? t("almanac.footprintWater", { width: b.width, height: b.height, count: b.water_rows.min })
+        : t("almanac.footprintWaterRange", { width: b.width, height: b.height, ...b.water_rows })
+      : `${b.width} × ${b.height}`,
     requiresRoad: b.requires_road,
     cost: costParts(b.cost),
     upkeep: (b.upkeep_per_min ?? 0) / 1000,

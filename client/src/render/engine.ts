@@ -27,7 +27,7 @@ import { type MaskIsland, MaskLayer } from "./farmesh";
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { freeShallows, isQuayType, withQuays } from "../display/quay";
-import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
+import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
@@ -1538,15 +1538,23 @@ export class GameRenderer {
     const fertilities = l?.statics?.fertilities ?? [];
     const fertility = fertilityNeed(def, fertilities);
     let hint: string | null = null;
+    let waterTiles: WaterEdgeTile[] = [];
+    if (l?.statics && def.water_rows) {
+      const st = l.statics;
+      const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
+      waterTiles = waterEdgeTiles(def, withQuays(terrain, l.roads), tl.x, tl.y, tool.rotation);
+    }
+    let waterHint = false;
     if (fertility && !fertility.present) {
       hint = missingFertilityText(fertility.fertility, fertilities);
     } else if (missingDepositHint(def, l?.deposits ?? new Map(), tl.x, tl.y, tool.rotation)) {
       hint = depositText(def.requires_deposit ?? "");
-    } else if (l?.statics && def.water_tiles) {
-      const st = l.statics;
-      const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
-      const edge = waterEdgeHint(def, withQuays(terrain, l.roads), tl.x, tl.y, tool.rotation);
-      if (edge) hint = waterEdgeText(edge, def.water_tiles);
+    } else if (def.water_rows) {
+      const edge = waterTiles.some((p) => p.problem === "front") ? "front" : waterTiles.some((p) => p.problem === "land") ? "land" : null;
+      if (edge) {
+        hint = waterEdgeText(edge, def.water_rows);
+        waterHint = true;
+      }
     }
     // A field is checked against its farm's chain (a hint; the server validates).
     if (tool.kind === "field" && !hint) {
@@ -1566,7 +1574,8 @@ export class GameRenderer {
     // Founding needs no road (the island has none yet); a field has none either.
     const noRoad = tool.kind !== "found" && missingRoadHint(def, l?.roads ?? new Set(), tl.x, tl.y, tool.rotation);
     this.ghostValid = hint ? "invalid" : noRoad ? "no_road" : "ok";
-    const color = this.ghostValid === "invalid" ? GHOST_INVALID : this.ghostValid === "no_road" ? GHOST_NO_ROAD : GHOST;
+    // Water mismatches tint individual footprint tiles, not the whole model.
+    const color = hint && !waterHint ? GHOST_INVALID : noRoad ? GHOST_NO_ROAD : GHOST;
     const moved = tool.kind === "move" ? this.findBuilding(tool.buildingId)?.b : undefined;
     this.ghost.show(
       {
@@ -1575,7 +1584,7 @@ export class GameRenderer {
         x: tl.x,
         y: tl.y,
         rotation: tool.rotation,
-        waterRows: waterRows(def, tl.x, tl.y, tool.rotation),
+        waterTiles,
         base: this.details.get(tl.island)?.baseOf({ x: tl.x, y: tl.y, type: def.id, rotation: tool.rotation }, def) ?? 0,
         ground: (x, y) => this.details.get(tl.island)?.ground.tile(x, y) ?? 0,
         ...(moved ? { buildingId: moved.id, level: moved.level ?? 1 } : {}),

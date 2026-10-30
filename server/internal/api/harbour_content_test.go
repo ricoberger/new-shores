@@ -15,7 +15,7 @@ func TestHarbourContentPayload(t *testing.T) {
 		byID[b.ID] = b
 	}
 	pier, depot, quay := byID["trading_pier"], byID["depot"], byID["quay"]
-	if pier.Category != categoryHarbour || pier.Pier == nil || pier.Pier.Berths != 2 || pier.WaterTiles != 3 {
+	if pier.Category != categoryHarbour || pier.Pier == nil || pier.Pier.Berths != 2 || pier.WaterRows == nil || pier.WaterRows.Min != 3 || pier.WaterRows.Max != 3 {
 		t.Errorf("trading_pier = %+v", pier)
 	}
 	if depot.Category != categoryHarbour || depot.Depot == nil || len(depot.Depot.Levels) != 2 {

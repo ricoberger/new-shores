@@ -250,6 +250,13 @@ type GoodAmount struct {
 	Amount Qty
 }
 
+// WaterRows bounds the contiguous sea-water prefix of each footprint column
+// independently (D-062). Both bounds are inclusive; Max is below Height.
+type WaterRows struct {
+	Min int `json:"min"`
+	Max int `json:"max"`
+}
+
 // Building is a building definition. Behaviour is attached through the
 // optional capability blocks (Recipe, House, TradingPost, Warehouse, Road,
 // Service, WorkArea, Fields, Field); the simulation never switches on
@@ -263,10 +270,9 @@ type Building struct {
 	Width   int
 	Height  int
 	Coastal bool
-	// WaterTiles is the number of front rows of a water-edge building
-	// (D-051) that must lie on water (0 for every other building). At
-	// rotation 0 the front rows are the top rows (smallest y).
-	WaterTiles   int
+	// WaterRows is nil for inland buildings. At rotation 0 the front
+	// is the top row (smallest y); each column has its own water depth.
+	WaterRows    *WaterRows
 	RequiresRoad bool
 	Cost         Cost
 	// UpkeepPerMin is in milli-gold per minute.

@@ -147,7 +147,7 @@ export function seaPoint(p: { x: number; y: number }): ArchPoint {
  * sim.WaterTile). Visual placement only.
  */
 export function pierPoint(
-  def: { width: number; height: number; water_tiles?: number },
+  def: { width: number; height: number; water_rows?: { min: number; max: number } },
   b: Pick<BuildingDisplay, "x" | "y" | "rotation">,
   slot: number,
   queued: boolean,
@@ -335,7 +335,7 @@ export function berthDock(
  */
 export function dockPoints(
   islands: readonly Pick<IslandPlacement & { buildings: readonly BuildingDisplay[] }, "position" | "buildings">[],
-  defs: ReadonlyMap<string, { width: number; height: number; water_tiles?: number; trading_post?: unknown; pier?: { berths: number } }>,
+  defs: ReadonlyMap<string, { width: number; height: number; water_rows?: { min: number; max: number }; trading_post?: unknown; pier?: { berths: number } }>,
   anchor: ModelAnchor | null = null,
   stern = 0,
   ratio: (shipId: number) => number = () => 1,

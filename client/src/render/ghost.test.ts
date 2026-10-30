@@ -5,6 +5,7 @@ import type { StandardMaterial } from "@babylonjs/core/Materials/standardMateria
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { ContentBuilding } from "../api/client";
+import { waterEdgeTiles } from "../display/geometry";
 import { GHOST_LIFT, ghostPlinth, ghostTint, PlacementGhost } from "./ghost";
 import { type ModelData, ModelRegistry, parseGlb } from "./models";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD } from "./palette";
@@ -102,6 +103,40 @@ describe("PlacementGhost", () => {
     expect(Math.min(neutral.diffuse.r, neutral.diffuse.g, neutral.diffuse.b)).toBeGreaterThan(0.9);
     // Warnings tint harder than the neutral ghost.
     expect(ghostTint(GHOST_NO_ROAD).emissive.r).toBeGreaterThan(neutral.emissive.r);
+  });
+});
+
+describe("water-edge ghost tiles", () => {
+  it("colours mismatches red and valid tiles normally, refreshes after moving, and hides", () => {
+    const scene = new Scene(engine);
+    const ghost = new PlacementGhost(scene, null);
+    const def = { id: "fisher", width: 3, height: 8, water_rows: { min: 2, max: 3 } } as ContentBuilding;
+    // A diagonal coast; the first column is one row too far in.
+    const tiles = waterEdgeTiles(def, (x, y) => y < x + 1 ? "water" : "grass", 0, 0, 0);
+    const spec = { def, island: { x: 10, y: 20 }, x: 0, y: 0, rotation: 0 as const, waterTiles: tiles };
+    ghost.show(spec, GHOST_NO_ROAD);
+    const mesh = scene.meshes.find((m) => m.name === "ghost_water_rows")!;
+    const colors = mesh.getVerticesData("color")!;
+    expect(mesh.getTotalVertices()).toBe(24 * 4);
+    for (let i = 0; i < tiles.length; i++) {
+      const expected = tiles[i]!.problem ? GHOST_INVALID : GHOST_NO_ROAD;
+      for (let v = 0; v < 4; v++) {
+        const at = i * 16 + v * 4;
+        expect(colors[at]).toBeCloseTo(expected.r);
+        expect(colors[at + 1]).toBeCloseTo(expected.g);
+        expect(colors[at + 2]).toBeCloseTo(expected.b);
+      }
+    }
+    expect(tiles.filter((p) => p.problem)).toHaveLength(1);
+    expect(mesh.position.x).toBe(10);
+    expect(mesh.position.z).toBe(-20);
+    ghost.show({ ...spec, waterTiles: tiles.map((p) => ({ ...p, problem: null })) }, GHOST);
+    expect(mesh.getVerticesData("color")![4 * 4]).toBeCloseTo(GHOST.r);
+    ghost.hide();
+    expect(mesh.isEnabled()).toBe(false);
+    ghost.show({ ...spec, waterTiles: [] }, GHOST);
+    expect(mesh.isEnabled()).toBe(false);
+    scene.dispose();
   });
 });
 

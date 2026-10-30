@@ -259,7 +259,7 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 	}
 	sy := c.BuildingByID["shipyard"]
-	if sy.Shipyard == nil || sy.Tier != "citizens" || strings.Join(sy.Shipyard.Ships, ",") != "sloop,brig,galleon" || sy.Width != 8 || sy.Height != 12 || sy.WaterTiles != 4 || sy.Coastal || !sy.RequiresRoad ||
+	if sy.Shipyard == nil || sy.Tier != "citizens" || strings.Join(sy.Shipyard.Ships, ",") != "sloop,brig,galleon" || sy.Width != 8 || sy.Height != 12 || waterRange(sy).Max != 4 || sy.Coastal || !sy.RequiresRoad ||
 		sy.Cost.Gold != 300_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 45_000}) ||
 		sy.UpkeepPerMin != 0 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
 		t.Errorf("shipyard = %+v", sy)
@@ -278,11 +278,11 @@ func TestLoadOldCoast(t *testing.T) {
 	if lj.WorkArea != nil || lj.Fields == nil || lj.Fields.Type != "tree_plot" || lj.Fields.Required != 24 || lj.Fields.Max != 24 {
 		t.Errorf("lumberjack work area = %+v, fields = %+v", lj.WorkArea, lj.Fields)
 	}
-	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || f.WaterTiles != 3 || f.Coastal || !f.Boat || !f.Smoke {
+	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || waterRange(f).Max != 3 || f.Coastal || !f.Boat || !f.Smoke {
 		t.Error("fisher recipe/water-edge mismatch")
 	}
 	tp := c.BuildingByID["trading_post"]
-	if tp.TradingPost == nil || tp.WaterTiles != 3 || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 30_000, Berths: 1}) {
+	if tp.TradingPost == nil || waterRange(tp).Max != 3 || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 30_000, Berths: 1}) {
 		t.Errorf("trading post = %+v", tp.TradingPost)
 	}
 	var berths []int
@@ -293,7 +293,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("trading post berths = %v", berths)
 	}
 	wh := c.BuildingByID["warehouse"]
-	if wh.Warehouse == nil || wh.WaterTiles != 0 || wh.Coastal || wh.Tier != "settlers" || wh.Warehouse.Levels[0] != (WarehouseLevel{ThroughputPerMin: 30_000}) ||
+	if wh.Warehouse == nil || waterRange(wh).Max != 0 || wh.Coastal || wh.Tier != "settlers" || wh.Warehouse.Levels[0] != (WarehouseLevel{ThroughputPerMin: 30_000}) ||
 		len(wh.Warehouse.Levels) != 3 || wh.Warehouse.Levels[2].ThroughputPerMin != 80_000 {
 		t.Errorf("warehouse = %+v", wh.Warehouse)
 	}
@@ -569,35 +569,35 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"water rows cover the whole footprint", FileBuildings,
-			[]string{`"water_tiles": 3,
+			[]string{`"water_rows": { "min": 3, "max": 3 },
     "coastal": false,
     "requires_road": true,
-    "cost": { "gold": 60, "planks": 6 },`, `"water_tiles": 8,
+    "cost": { "gold": 60, "planks": 6 },`, `"water_rows": { "min": 8, "max": 8 },
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },`},
-			[]string{FileBuildings, `building "fisher"`, "water_tiles", "at least one land row"},
+			[]string{FileBuildings, `building "fisher"`, "water_rows", "at least one land row"},
 		},
 		{
 			"water-edge building also coastal", FileBuildings,
-			[]string{`"water_tiles": 3,
+			[]string{`"water_rows": { "min": 3, "max": 3 },
     "coastal": false,
     "requires_road": true,
-    "cost": { "gold": 60, "planks": 6 },`, `"water_tiles": 3,
+    "cost": { "gold": 60, "planks": 6 },`, `"water_rows": { "min": 3, "max": 3 },
     "coastal": true,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },`},
-			[]string{FileBuildings, `building "fisher"`, "water_tiles", "not also coastal"},
+			[]string{FileBuildings, `building "fisher"`, "water_rows", "not also coastal"},
 		},
 		{
 			"trading post without water rows", FileBuildings,
-			[]string{`"water_tiles": 3,
+			[]string{`"water_rows": { "min": 3, "max": 3 },
     "coastal": false,
     "requires_road": false,
     "cost": { "gold": 200, "planks": 15 },`, `"coastal": false,
     "requires_road": false,
     "cost": { "gold": 200, "planks": 15 },`},
-			[]string{FileBuildings, `building "trading_post"`, "water_tiles", "water-edge building"},
+			[]string{FileBuildings, `building "trading_post"`, "water_rows", "water-edge building"},
 		},
 		{
 			"quest unknown building", FileQuests,

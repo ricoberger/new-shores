@@ -63,7 +63,7 @@ func quayAt(is *Island, c *content.Catalogue, i int) bool {
 // standsOnQuay reports whether a building may stand on quay tiles: a
 // coastal or water-edge building (D-060).
 func standsOnQuay(def *content.Building) bool {
-	return def.Coastal || def.WaterTiles > 0
+	return def.Coastal || def.WaterRows != nil
 }
 
 // checkQuayTiles validates the tiles of a quay placement: on the island,

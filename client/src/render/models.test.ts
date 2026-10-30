@@ -44,7 +44,7 @@ interface ContentJson {
   field?: unknown;
   recipe?: unknown;
   smoke?: boolean;
-  water_tiles?: number;
+  water_rows?: { min: number; max: number };
   warehouse?: unknown;
   trading_post?: { levels: { berths?: number }[] };
   shipyard?: unknown;
@@ -134,7 +134,7 @@ describe("committed models are consistent with the manifest", () => {
       expect(a.smoke !== undefined, `${b.id} smoke`).toBe(producer && b.smoke === true);
       expect(a.chimney !== undefined, `${b.id} chimney`).toBe(producer && b.smoke === true);
       if (producer || b.warehouse || b.trading_post) expect(a.cart, b.id).toBeDefined();
-      expect(a.boat !== undefined, `${b.id} boat`).toBe(producer && (b.water_tiles ?? 0) > 0);
+      expect(a.boat !== undefined, `${b.id} boat`).toBe(producer && (b.water_rows?.max ?? 0) > 0);
       const berths = Math.max(0, ...(b.trading_post?.levels ?? []).map((l) => l.berths ?? 0));
       for (let i = 1; i <= berths; i++) expect(a[`berth_${i}`], `${b.id} berth_${i}`).toBeDefined();
       if (b.shipyard) expect(a.slip, b.id).toBeDefined();
@@ -346,7 +346,7 @@ describe("orientation and anchors", () => {
       ["fisher", 3, 8, 3, ["boat"]],
     ] as const) {
       const entry = manifest.models[id] as ModelEntry;
-      const d = { ...def(id, w, h), water_tiles: water };
+      const d = { ...def(id, w, h), water_rows: { min: water, max: water } };
       for (const rotation of [0, 90, 180, 270] as const) {
         const b = { x: 10, y: 20, rotation };
         const rows = waterRows(d, b.x, b.y, rotation)!;

@@ -119,7 +119,7 @@ func TestLoadPatriciansChains(t *testing.T) {
 		}
 	}
 	// Oyster beds: a harbour-slot producer with 4 water rows and a boat loop.
-	if ob := c.BuildingByID["oyster_beds"]; ob.WaterTiles != 4 || !ob.Boat || ob.Coastal {
+	if ob := c.BuildingByID["oyster_beds"]; waterRange(ob).Max != 4 || !ob.Boat || ob.Coastal {
 		t.Errorf("oyster_beds = %+v", ob)
 	}
 	// Fields: the vineyard's 100 vine rows; the cattle farm shares the
@@ -193,9 +193,9 @@ func TestTierFourMatchesPlannedModels(t *testing.T) {
 			continue // authored in a later step (houses, services)
 		}
 		seen[p.ID] = true
-		if b.Tier != "patricians" || b.Width != p.Footprint[0] || b.Height != p.Footprint[1] || b.WaterTiles != p.WaterTiles ||
+		if b.Tier != "patricians" || b.Width != p.Footprint[0] || b.Height != p.Footprint[1] || waterRange(b).Max != p.WaterTiles ||
 			b.RequiresDeposit != p.Slot || b.Smoke != p.Smoke {
-			t.Errorf("%s: content %dx%d water %d slot %q smoke %v, planned %+v", p.ID, b.Width, b.Height, b.WaterTiles, b.RequiresDeposit, b.Smoke, p)
+			t.Errorf("%s: content %dx%d water %d slot %q smoke %v, planned %+v", p.ID, b.Width, b.Height, waterRange(b).Max, b.RequiresDeposit, b.Smoke, p)
 		}
 	}
 	for _, b := range c.Buildings {

@@ -24,26 +24,61 @@ func footprint(def *content.Building, rotation int) (int, int) {
 
 func validRotation(r int) bool { return r == 0 || r == 90 || r == 180 || r == 270 }
 
-// WaterTile reports whether tile (tx, ty) lies in the water rows of a
-// water-edge building (content water_tiles, D-051) placed at (x, y) with
-// the given rotation. The water rows are the front rows: at rotation 0 the
-// top rows (smallest y), at 90 the rightmost columns, at 180 the bottom
-// rows and at 270 the leftmost columns. False for other buildings.
-func WaterTile(def *content.Building, x, y, rotation, tx, ty int) bool {
-	n := def.WaterTiles
-	if n <= 0 {
-		return false
-	}
-	w, h := footprint(def, rotation)
+// waterPosition maps a column and distance from the front row to an island
+// tile. Columns run along the front; rotation changes only the water-facing
+// side (0 north, 90 east, 180 south, 270 west).
+func waterPosition(def *content.Building, x, y, rotation, column, row int) Pos {
 	switch rotation {
 	case 90:
-		return tx >= x+w-n
+		return Pos{x + def.Height - 1 - row, y + column}
 	case 180:
-		return ty >= y+h-n
+		return Pos{x + column, y + def.Height - 1 - row}
 	case 270:
-		return tx < x+n
+		return Pos{x + row, y + column}
+	default:
+		return Pos{x + column, y + row}
 	}
-	return ty < y+n
+}
+
+// waterDepths chooses the contiguous water prefix of each column, clamped to
+// the content bounds. checkSite then rejects mismatches: too little water
+// remains required water, too much (or water after land) becomes invalid land.
+// Call only after footprint bounds validation. A quay terminates the prefix.
+func waterDepths(is *Island, c *content.Catalogue, def *content.Building, x, y, rotation int) []int {
+	if def.WaterRows == nil {
+		return nil
+	}
+	depths := make([]int, def.Width)
+	for column := range depths {
+		k := 0
+		for k < def.WaterRows.Max {
+			p := waterPosition(def, x, y, rotation, column, k)
+			i := is.index(p.X, p.Y)
+			if is.Tiles[i].Terrain != content.TerrainWater || quayAt(is, c, i) {
+				break
+			}
+			k++
+		}
+		depths[column] = max(k, def.WaterRows.Min)
+	}
+	return depths
+}
+
+// waterAt reports whether the tile belongs to its column's chosen prefix.
+func waterAt(def *content.Building, depths []int, x, y, rotation, tx, ty int) bool {
+	if depths == nil {
+		return false
+	}
+	column, row := tx-x, ty-y
+	switch rotation {
+	case 90:
+		column, row = ty-y, x+def.Height-1-tx
+	case 180:
+		row = y + def.Height - 1 - ty
+	case 270:
+		column, row = ty-y, tx-x
+	}
+	return row < depths[column]
 }
 
 // neighbours returns the offsets of the four 4-adjacent tiles.

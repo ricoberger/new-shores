@@ -10,7 +10,7 @@ import { waterEdgeHint, waterRows } from "./geometry";
 import { anchorSlots, berthDock, dockPoints, type ModelAnchor, pierHeading, pierLayout, pierPoint, seaPoint, shipLengthRatio, shipPlacement } from "./ships";
 
 // The harbour displays of D-051 against the shared fixtures: water-edge
-// ghosts (the scenario's island rows and the shipped water_tiles), ships
+// ghosts (the scenario's island rows and the shipped water_rows), ships
 // at sea and in the berth queue, and the client's chained founding.
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -25,10 +25,10 @@ const scenario = (name: string) =>
 const shipped = JSON.parse(readFileSync(join(root, "server", "testdata", "content", "old_coast_pre_d054", "buildings.json"), "utf8")) as {
   id: string;
   footprint: [number, number];
-  water_tiles?: number;
+  water_rows?: { min: number; max: number };
 }[];
 const defs = new Map(
-  shipped.map((b) => [b.id, { width: b.footprint[0], height: b.footprint[1], water_tiles: b.water_tiles, ...(b.id === "trading_post" ? { trading_post: {} } : {}) }]),
+  shipped.map((b) => [b.id, { width: b.footprint[0], height: b.footprint[1], water_rows: b.water_rows, ...(b.id === "trading_post" ? { trading_post: {} } : {}) }]),
 );
 
 describe("water-edge footprints", () => {
@@ -45,7 +45,7 @@ describe("water-edge footprints", () => {
   it("flags a land row over the water", () => {
     const fisher = defs.get("fisher")!;
     // Rows 0–1 water, land below: the fisher at y 0 has both rows on the water.
-    const terrain = (_x: number, y: number) => (y < 2 ? "water" : "land");
+    const terrain = (_x: number, y: number) => (y < 2 ? "water" : "grass");
     expect(waterEdgeHint(fisher, terrain, 4, 1, 0)).toBeNull();
     expect(waterEdgeHint(fisher, terrain, 4, 0, 0)).toBe("land");
     expect(waterEdgeHint(fisher, terrain, 4, 2, 0)).toBe("front");
@@ -54,9 +54,9 @@ describe("water-edge footprints", () => {
   it("agrees with the server on the water_edge_placement scenario", () => {
     const sc = scenario("water_edge_placement");
     const rows = sc.island.rows;
-    const terrain = (x: number, y: number) => (y < 0 || y >= rows.length || x < 0 || x >= (rows[0]?.length ?? 0) || rows[y]![x] === "~" ? "water" : "land");
+    const terrain = (x: number, y: number) => (y < 0 || y >= rows.length || x < 0 || x >= (rows[0]?.length ?? 0) || rows[y]![x] === "~" ? "water" : "grass");
     // Every water-edge building the server accepted fits.
-    const placed = display("water_edge_placement").islands[0]!.buildings.filter((b) => (defs.get(b.type)?.water_tiles ?? 0) > 0);
+    const placed = display("water_edge_placement").islands[0]!.buildings.filter((b) => (defs.get(b.type)?.water_rows?.max ?? 0) > 0);
     expect(placed.length).toBeGreaterThanOrEqual(6);
     for (const b of placed) expect(waterEdgeHint(defs.get(b.type)!, terrain, b.x, b.y, b.rotation), `${b.type} at ${b.x},${b.y}`).toBeNull();
     // The rejected ones are red too. The fisher facing land (rotation 180 on
@@ -283,9 +283,9 @@ describe("moorings at the Trading Post's pier", () => {
     tp.level = 1;
     const pier = { ...tp, id: 999, type: "trading_pier", x: tp.x + 8, berths: undefined };
     is.buildings.push(pier);
-    const pierDefs = new Map<string, { width: number; height: number; water_tiles?: number; trading_post?: unknown; pier?: { berths: number } }>(defs);
+    const pierDefs = new Map<string, { width: number; height: number; water_rows?: { min: number; max: number }; trading_post?: unknown; pier?: { berths: number } }>(defs);
     pierDefs.set("trading_post", { ...defs.get("trading_post")!, trading_post: { levels: [{ berths: 1 }] } });
-    pierDefs.set("trading_pier", { width: 3, height: 4, water_tiles: 3, pier: { berths: 2 } });
+    pierDefs.set("trading_pier", { width: 3, height: 4, water_rows: { min: 3, max: 3 }, pier: { berths: 2 } });
     const docks = dockPoints(d.islands, pierDefs);
     const at = (p: { x: number; y: number } | null) => ({ x: is.position.x + p!.x, y: is.position.y + p!.y });
     expect(docks.get(ships[0]!)?.point).toEqual(at(pierPoint(defs.get("trading_post")!, tp, 0, false)));

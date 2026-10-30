@@ -83,8 +83,8 @@ export function missingFertilityText(fertility: string, fertilities: readonly st
 }
 
 /** Ghost hint text of a water-edge site that does not fit (D-051): its front rows on land, or its back rows on water. */
-export function waterEdgeText(problem: "front" | "land", waterTiles: number): string {
-  return problem === "front" ? t("tier.waterEdge.front", { count: waterTiles }) : t("tier.waterEdge.land");
+export function waterEdgeText(problem: "front" | "land", waterRows: { min: number; max: number }): string {
+  return problem === "front" ? t("tier.waterEdge.front", { count: waterRows.min }) : t("tier.waterEdge.land");
 }
 
 /** "Must cover a stone deposit" / "Must cover an iron deposit" (the article follows the deposit's name). */

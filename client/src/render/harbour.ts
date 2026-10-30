@@ -71,7 +71,7 @@ export function islandBerths(island: IslandDisplay, statics: Island, defs: Reado
       near = { x: box.cx, y: -box.cz };
     }
   }
-  const overWater = island.buildings.filter((b) => (defs.get(b.type)?.water_tiles ?? 0) > 0);
+  const overWater = island.buildings.filter((b) => (defs.get(b.type)?.water_rows?.max ?? 0) > 0);
   const taken = (x: number, y: number) =>
     overWater.some((b) => {
       const def = defs.get(b.type);

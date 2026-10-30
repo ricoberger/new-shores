@@ -291,7 +291,7 @@ type rawBuilding struct {
 	Tier          string                 `json:"tier"`
 	Footprint     []int                  `json:"footprint"`
 	Coastal       bool                   `json:"coastal"`
-	WaterTiles    int                    `json:"water_tiles"`
+	WaterRows     *WaterRows             `json:"water_rows"`
 	RequiresRoad  bool                   `json:"requires_road"`
 	Cost          map[string]json.Number `json:"cost"`
 	Upkeep        json.Number            `json:"upkeep_per_min"`
@@ -747,7 +747,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		Region:        rb.Region,
 		Tier:          rb.Tier,
 		Coastal:       rb.Coastal,
-		WaterTiles:    rb.WaterTiles,
+		WaterRows:     rb.WaterRows,
 		RequiresRoad:  rb.RequiresRoad,
 		UpkeepPerMin:  col.fixed(file, ent, "upkeep_per_min", rb.Upkeep, 3),
 		PauseCategory: rb.PauseCategory,

@@ -9,7 +9,8 @@ import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, devices, type Page } from "@playwright/test";
-import type { WorldResponse } from "../../src/api/client.ts";
+import type { Content, IslandTiles, WorldResponse } from "../../src/api/client.ts";
+import { waterEdgeTiles } from "../../src/display/geometry.ts";
 import { FAR_EXIT_HALF, MID_TO_NEAR_HALF } from "../../src/display/lod.ts";
 import { API_PORT, API_SERVER_COMMAND, E2E_TIME_SCALE, WEB_PORT, WEB_SERVER_COMMAND } from "../constants.ts";
 import { type Device, type Fixture, type Preset, parseShotArgs, SERVER_FIXTURES, ShotArgError, type ShotArgs, type View } from "./shots-args.ts";
@@ -761,6 +762,54 @@ function ghostTerrace(type: string, state: "ok" | "no_road" | "invalid"): { fixt
   };
 }
 
+/** Fisher on a real diagonal coast: valid, one tile inland, one tile seaward. */
+function ghostWater(offset: -1 | 0 | 1): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const content = await (await fetch(`http://localhost:${API_PORT}/api/v1/content`)).json() as Content;
+      const def = content.buildings.find((b) => b.id === "fisher")!;
+      if (!def.water_rows || def.water_rows.min === def.water_rows.max) throw new Error("ghost-water needs a variable fisher water_rows range (D-062 target: 2..3)");
+      const is = await page.evaluate(() => window.__newShores!.getServer()!.display.islands.find((i) => i.settled)!);
+      const terrain = await (await fetch(`http://localhost:${API_PORT}/api/v1/world/islands/${is.id}/tiles`)).json() as IslandTiles;
+      const blocked = new Set(is.roads.map((r) => `${r.x},${r.y}`));
+      for (const b of is.buildings) {
+        const d = content.buildings.find((d) => d.id === b.type)!;
+        const [w, h] = b.rotation === 90 || b.rotation === 270 ? [d.height, d.width] : [d.width, d.height];
+        for (let y = b.y; y < b.y + h; y++) for (let x = b.x; x < b.x + w; x++) blocked.add(`${x},${y}`);
+      }
+      const tile = (x: number, y: number) => terrain.terrain[y * terrain.width + x]!;
+      let site: { x: number; y: number } | undefined;
+      for (let y = 1; y + def.height < terrain.height && !site; y++) {
+        for (let x = 0; x + def.width <= terrain.width; x++) {
+          const tiles = waterEdgeTiles(def, tile, x, y, 0);
+          if (tiles.some((p) => p.problem || blocked.has(`${p.x},${p.y}`))) continue;
+          const depths = new Set(Array.from({ length: def.width }, (_, c) => tiles.filter((p) => p.x === x + c && p.water).length));
+          if (depths.size < 2) continue;
+          if ([-1, 1].some((dy) => waterEdgeTiles(def, tile, x, y + dy, 0).some((p) => blocked.has(`${p.x},${p.y}`)))) continue;
+          site = { x, y };
+          break;
+        }
+      }
+      if (!site) throw new Error("no free north-facing diagonal fisher site");
+      const y = site.y + offset;
+      const hints = waterEdgeTiles(def, tile, site.x, y, 0);
+      const invalid = hints.filter((p) => p.problem);
+      if ((invalid.length > 0) !== (offset !== 0)) throw new Error("diagonal coast did not produce the requested ghost state");
+      console.log(`ghost-water ${offset}: ${is.id} (${site.x},${y}) rotation 0, ${invalid.length} invalid tiles, water_rows=${JSON.stringify(def.water_rows)}`);
+      await setCamera(page, { x: is.position.x + site.x + def.width / 2, y: is.position.y + site.y + def.height / 2, half: 10, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-tab-production").click();
+      await page.getByTestId("build-fisher").click();
+      const p = await tileAt(page, is.id, site.x, y);
+      await page.mouse.move(p.x + 2, p.y + 2);
+      await page.waitForFunction((bad) => bad ? window.__newShores!.ghostValidity() === "invalid" : window.__newShores!.ghostValidity() === "no_road", offset !== 0, { timeout: 10_000 });
+    },
+  };
+}
+
 const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly Device[]; patch?: (w: WorldResponse) => void; run: (page: Page) => Promise<void> }> = {
   // The HUD with the info panel of a building that is not running (desktop).
   "info-panel": {
@@ -1047,6 +1096,9 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.waitForFunction(() => window.__newShores!.ghostValidity() === "invalid", undefined, { timeout: 10_000 });
     },
   },
+  "ghost-water-valid": ghostWater(0),
+  "ghost-water-in": ghostWater(1),
+  "ghost-water-out": ghostWater(-1),
   // The ghost across a terrace edge on the settled fixture (stepped plinth, desktop near): a 3×3 house and a 6×6 warehouse valid; "invalid" is red for a 3×4 hemp farm (no hemp on the island) and yellow ("no road") for a 5×6 market: no 3×3 or 6×6 building has a client-side red rule, and the warehouse needs no road.
   "ghost-terrace-3": ghostTerrace("house_settlers", "ok"),
   "ghost-terrace-3-invalid": ghostTerrace("hemp_farm", "invalid"),

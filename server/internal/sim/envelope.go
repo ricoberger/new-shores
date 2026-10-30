@@ -19,10 +19,11 @@ import (
 // market renamed from market_small, the Merchant content; 9 is unused, the
 // S1 documents named it for the need model, which shipped as 8) and
 // version 11 the D-058 terrain (Tile.Level and Tile.Height, the river,
-// islet and cliff terrains, roads on rivers). Versions 1-10 have no
+// islet and cliff terrains, roads on rivers), and version 12 the per-column
+// water rows (D-062). Versions 1-11 have no
 // migration path (the game was not deployed; a fresh database is needed:
 // make down VOLUMES=1 && make up).
-const SchemaVersion = 11
+const SchemaVersion = 12
 
 // Envelope is the versioned persistence format of a world
 // (docs/ARCHITECTURE.md §4.1).

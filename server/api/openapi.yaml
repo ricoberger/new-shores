@@ -3480,7 +3480,7 @@ components:
       type: object
       additionalProperties: false
       required:
-        [id, name, tier, category, width, height, coastal, water_tiles, requires_road, cost, upkeep_per_min, pause_category]
+        [id, name, tier, category, width, height, coastal, requires_road, cost, upkeep_per_min, pause_category]
       properties:
         id:
           type: string
@@ -3506,14 +3506,26 @@ components:
           description: Footprint height at rotation 0 (tiles).
         coastal:
           type: boolean
-        water_tiles:
-          type: integer
+        water_rows:
+          type: object
+          additionalProperties: false
+          required: [min, max]
           description: |
-            Water-edge footprint (D-051): the number of front rows (tiles)
-            that must lie on water; at rotation 0 the top rows (smallest
-            y), at 90 the rightmost columns, at 180 the bottom rows, at 270
-            the leftmost columns. The other rows stand on buildable land.
-            0 for every other building.
+            Water-edge footprint (D-062): independently in each column,
+            the first k tiles are sea water (min <= k <= max); the rest
+            are buildable land, including replaceable quay tiles.
+            Front: top at 0, right at 90, bottom at 180, left at 270.
+            Bounds are tile counts, 0 <= min <= max < unrotated height.
+            Absent for other buildings; river tiles never count as water.
+          properties:
+            min:
+              type: integer
+              minimum: 0
+              description: Minimum sea-water tiles per column (tiles).
+            max:
+              type: integer
+              minimum: 0
+              description: Maximum sea-water tiles per column (tiles).
         requires_road:
           type: boolean
         cost:

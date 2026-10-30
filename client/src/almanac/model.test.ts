@@ -251,7 +251,7 @@ describe("almanac model of the harbour buildings (D-060)", () => {
 
   it("shows the pier's berths, the depot's levels and the quay's site", () => {
     const pier = buildingView(idx, idx.building("trading_pier")!);
-    expect(pier).toMatchObject({ category: "harbour", pierBerths: 2, waterTiles: 3, levels: [] });
+    expect(pier).toMatchObject({ category: "harbour", pierBerths: 2, waterRows: { min: 3, max: 3 }, levels: [] });
     const depot = buildingView(idx, idx.building("depot")!);
     expect(depot.category).toBe("harbour");
     expect(depot.levels.map((l) => [l.level, l.capacity, l.tier])).toEqual([

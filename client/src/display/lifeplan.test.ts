@@ -269,9 +269,9 @@ describe("chimney smoke", () => {
 describe("harbour life", () => {
   const harbourDefs = new Map<string, ContentBuilding>([
     ...defs,
-    ["fisher", { id: "fisher", width: 2, height: 2, tier: "settlers", category: "production", water_tiles: 1, recipe: {}, boat: true } as unknown as ContentBuilding],
-    ["salt_pans", { id: "salt_pans", width: 2, height: 3, tier: "merchants", category: "production", water_tiles: 1, recipe: {} } as unknown as ContentBuilding],
-    ["trading_post", { id: "trading_post", width: 4, height: 4, tier: "settlers", category: "harbour", water_tiles: 2, trading_post: {} } as unknown as ContentBuilding],
+    ["fisher", { id: "fisher", width: 2, height: 2, tier: "settlers", category: "production", water_rows: { min: 1, max: 1 }, recipe: {}, boat: true } as unknown as ContentBuilding],
+    ["salt_pans", { id: "salt_pans", width: 2, height: 3, tier: "merchants", category: "production", water_rows: { min: 1, max: 1 }, recipe: {} } as unknown as ContentBuilding],
+    ["trading_post", { id: "trading_post", width: 4, height: 4, tier: "settlers", category: "harbour", water_rows: { min: 2, max: 2 }, trading_post: {} } as unknown as ContentBuilding],
   ]);
   const fisher = (status = "ok") => ({ id: 7, type: "fisher", x: 20, y: 0, rotation: 0, paused: false, paused_reason: "", status }) as unknown as BuildingDisplay;
   const post = (ships: number[] = []) =>

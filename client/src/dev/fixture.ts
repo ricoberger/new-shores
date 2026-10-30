@@ -476,7 +476,7 @@ const FIXTURE_DEFS: FixtureDef[] = [
     4,
     {
       requires_road: false,
-      water_tiles: 2,
+      water_rows: { min: 2, max: 2 },
       trading_post: {
         // The shipped content's levels and upgrade costs (fixture.test.ts compares them).
         levels: [
@@ -516,11 +516,11 @@ const FIXTURE_DEFS: FixtureDef[] = [
   ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { fields: { type: "tree_plot", required: 1, max: 2 } }],
   ["tree_plot", "Tree plot", "settlers", "production", 1, 1, { requires_road: false, cost: { gold: 1000, materials: {} }, field: { type: "tree_plot", farm: "lumberjack", terrain: ["grass", "forest"] } }],
   ["sawmill", "Sawmill", "settlers", "production", 2, 2],
-  ["fisher", "Fisher", "settlers", "production", 2, 2, { water_tiles: 1, boat: true }],
+  ["fisher", "Fisher", "settlers", "production", 2, 2, { water_rows: { min: 1, max: 1 }, boat: true }],
   ["sheep_farm", "Sheep farm", "settlers", "production", 3, 3, { fields: { type: "pasture", required: 4, max: 4 } }],
   ["pasture", "Pasture", "settlers", "production", 2, 2, { requires_road: false, cost: { gold: 15_000, materials: {} }, field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } }],
   ["weaver_wool", "Wool weaver", "settlers", "production", 2, 2],
-  ["shipyard", "Shipyard", "settlers", "harbour", 5, 4, { water_tiles: 2, shipyard: { ships: ["sloop", "cutter"] } }],
+  ["shipyard", "Shipyard", "settlers", "harbour", 5, 4, { water_rows: { min: 2, max: 2 }, shipyard: { ships: ["sloop", "cutter"] } }],
   ["house_citizens", "Citizen house", "citizens", "houses", 2, 2, { house: { tier: "citizens" } }],
   ["road_paved", "Paved road", "citizens", "roads", 1, 1, { road: { ms_per_tile: 350 } }],
   ["tavern", "Tavern", "citizens", "public", 3, 3, { service: { radius: 10, levels: [{ radius: 10 }] } }],
@@ -552,7 +552,7 @@ export function fixtureDefs(): { id: string; tier: string; category: string; wid
     width,
     height,
     coastal: false,
-    water_tiles: 0,
+    water_rows: undefined,
     requires_road: category !== "houses" && category !== "roads",
     cost: { gold: 50_000, materials: { planks: 2_000 } },
     upkeep_per_min: category === "houses" || category === "roads" ? 0 : 1_000,
