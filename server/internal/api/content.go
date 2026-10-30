@@ -192,6 +192,24 @@ type warehouseJSON struct {
 	Levels []warehouseLevelJSON `json:"levels"`
 }
 
+// pierJSON is a trading pier (D-060): the berths it adds.
+type pierJSON struct {
+	Berths int `json:"berths"`
+}
+
+type depotLevelJSON struct {
+	// Capacity is the capacity per good the depot adds at the level.
+	Capacity int64  `json:"capacity"`
+	Tier     string `json:"tier,omitempty"`
+	// Cost is the upgrade cost into the level (absent on the first level).
+	Cost *costJSON `json:"cost,omitempty"`
+}
+
+// depotJSON is a depot (D-060): capacity per good by level.
+type depotJSON struct {
+	Levels []depotLevelJSON `json:"levels"`
+}
+
 type roadJSON struct {
 	MsPerTile int64 `json:"ms_per_tile"`
 	Shallows  bool  `json:"shallows"`
@@ -256,6 +274,8 @@ type buildingJSON struct {
 	House         *houseJSON       `json:"house,omitempty"`
 	TradingPost   *tradingPostJSON `json:"trading_post,omitempty"`
 	Warehouse     *warehouseJSON   `json:"warehouse,omitempty"`
+	Pier          *pierJSON        `json:"pier,omitempty"`
+	Depot         *depotJSON       `json:"depot,omitempty"`
 	Road          *roadJSON        `json:"road,omitempty"`
 	Service       *serviceJSON     `json:"service,omitempty"`
 	WorkArea      *workAreaJSON    `json:"work_area,omitempty"`
@@ -315,7 +335,7 @@ func buildingCategory(b *content.Building) string {
 		return categoryProduction
 	case b.Service != nil:
 		return categoryPublic
-	case b.TradingPost != nil, b.Shipyard != nil:
+	case b.TradingPost != nil, b.Shipyard != nil, b.Pier != nil, b.Depot != nil:
 		return categoryHarbour
 	case b.Road != nil:
 		return categoryRoads
@@ -452,6 +472,20 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 				lj.Cost = &cost
 			}
 			bj.Warehouse.Levels = append(bj.Warehouse.Levels, lj)
+		}
+	}
+	if pr := b.Pier; pr != nil {
+		bj.Pier = &pierJSON{Berths: pr.Berths}
+	}
+	if d := b.Depot; d != nil {
+		bj.Depot = &depotJSON{Levels: []depotLevelJSON{}}
+		for _, l := range d.Levels {
+			lj := depotLevelJSON{Capacity: l.Capacity, Tier: l.Tier}
+			if l.Cost != nil {
+				cost := newCostJSON(*l.Cost)
+				lj.Cost = &cost
+			}
+			bj.Depot.Levels = append(bj.Depot.Levels, lj)
 		}
 	}
 	if rd := b.Road; rd != nil {

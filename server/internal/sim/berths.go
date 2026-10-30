@@ -36,8 +36,9 @@ import (
 const ShipWaitingForBerth = "waiting_for_berth"
 
 // berthTotal is the number of berths of an island: those of its Trading
-// Post's level, stored on the building (Building.Berths, set at placement
-// and upgrade from the content); 0 without a Trading Post.
+// Post's level plus those of its trading piers (D-060), stored on the
+// buildings (Building.Berths, set at placement and upgrade from the
+// content); 0 without a Trading Post.
 func berthTotal(is *Island) int {
 	n := 0
 	for _, b := range is.Buildings {

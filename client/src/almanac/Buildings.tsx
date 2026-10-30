@@ -72,6 +72,8 @@ export function BuildingCard({ idx, view, linked, level = 3 }: { idx: Index; vie
         )}
         {view.radius !== undefined && <Row label="Service radius">{view.levels.length > 1 ? view.levels.map((l) => l.radius).join(" / ") : view.radius} tiles</Row>}
         {view.roadSecondsPerTile !== undefined && <Row label="Transfer">{num(view.roadSecondsPerTile)} s per tile</Row>}
+        {view.shallows && <Row label="Site">On shallow water near the island&apos;s own land; land for ships, open water for water-edge buildings</Row>}
+        {view.pierBerths !== undefined && <Row label="Berths">+{view.pierBerths} for the island&apos;s ships</Row>}
         {view.ships.length > 0 && (
           <Row label="Builds">
             {view.ships.map((s, i) => (

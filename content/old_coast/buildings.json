@@ -297,6 +297,39 @@
     "road": { "seconds_per_tile": 0.6, "shallows": true }
   },
   {
+    "id": "trading_pier",
+    "name": "Trading Pier",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 4],
+    "water_tiles": 3,
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 250, "planks": 20, "stone": 10 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "pier": { "berths": 2 }
+  },
+  {
+    "id": "depot",
+    "name": "Depot",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [4, 4],
+    "water_tiles": 1,
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 280, "planks": 20, "stone": 10 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "depot": {
+      "levels": [
+        { "capacity": 150 },
+        { "capacity": 300, "tier": "merchants", "cost": { "gold": 500, "planks": 20, "stone": 20, "bricks": 10 } }
+      ]
+    }
+  },
+  {
     "id": "tavern",
     "name": "Tavern",
     "region": "old_coast",

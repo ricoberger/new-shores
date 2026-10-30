@@ -71,7 +71,7 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	wantIDs("buildings", ids, "house_settlers", "road_dirt", "trading_post", "warehouse", "market", "chapel",
 		"lumberjack", "tree_plot", "sawmill", "fisher", "sheep_farm", "pasture", "weaver_wool", "shipyard",
-		"house_citizens", "road_paved", "quay", "tavern", "school", "city_guard", "wheat_farm", "wheat_field", "mill", "bakery",
+		"house_citizens", "road_paved", "quay", "trading_pier", "depot", "tavern", "school", "city_guard", "wheat_farm", "wheat_field", "mill", "bakery",
 		"dairy_farm", "cattle_pasture", "cheese_dairy", "orchard", "orchard_plot", "cidery", "apiary", "meadow", "meadery",
 		"hemp_farm", "hemp_field", "weaver_linen", "pig_farm", "pig_pen", "tannery", "sailmaker", "quarry", "iron_mine",
 		"charcoal_burner", "smelter", "toolmaker",

@@ -466,8 +466,8 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation, true); err != nil {
 		return err
 	}
-	if def.Collector() && def.TradingPostLevelAt(1).Berths > 0 {
-		at := &Building{ID: -1, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: def.TradingPostLevelAt(1).Berths}
+	if berths := def.InitialBerths(); berths > 0 {
+		at := &Building{ID: -1, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: berths}
 		if err := checkHarbourAfter(is, c, def, at, -1); err != nil {
 			return err
 		}
@@ -487,10 +487,10 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	}
 	b := &Building{ID: w.NextBuildingID, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Efficiency: 1000}
 	w.NextBuildingID++
-	if def.Collector() {
+	if def.Collector() || def.Depot != nil {
 		b.Level = 1
-		b.Berths = def.TradingPostLevelAt(1).Berths
 	}
+	b.Berths = def.InitialBerths()
 	if def.House != nil {
 		if tier := c.TierByID[def.House.Tier]; tier != nil {
 			b.House = &HouseState{Residents: tier.ResidentsFloor}
@@ -822,10 +822,10 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 		return fmt.Errorf("%w: %q has %d other buildings", ErrLastTradingPost, is.ID, len(is.Buildings)-1)
 	}
 
-	// Capacity after demolition: only the Trading Post holds capacity. The
-	// demolished building's own in-transit goods are delivered, which
-	// leaves committed quantities unchanged.
-	newCap := capacityFine(is, c)
+	// Capacity after demolition: the Trading Post and the depots hold
+	// capacity (D-060). The demolished building's own in-transit goods
+	// are delivered, which leaves committed quantities unchanged.
+	newCap := capacityFine(is, c) - def.CapacityAt(b.Level)*SubPerMilli
 	if def.TradingPost != nil {
 		newCap = 0
 	}
@@ -864,7 +864,7 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 		}
 	}
 	refund(is, c, def.Cost, 1, l, now)
-	// An upgraded Trading Post or Warehouse also refunds the paid levels
+	// An upgraded Trading Post, Warehouse or depot also refunds the paid levels
 	// (D-019).
 	for lvl := 2; lvl <= b.Level; lvl++ {
 		if lc := def.LevelCost(lvl); lc != nil {
@@ -1102,7 +1102,7 @@ func upgradeLevel(w *World, c *content.Catalogue, is *Island, b *Building, def *
 	// are derived from the level; the next settle recomputes all rates.
 	chargeCost(w, is, *cost, 1, l)
 	b.Level = level + 1
-	b.Berths = def.TradingPostLevelAt(b.Level).Berths
+	b.Berths = def.BerthsAt(b.Level)
 	clearRegimes(is)
 	return nil
 }

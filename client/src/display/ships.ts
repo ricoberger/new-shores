@@ -324,10 +324,17 @@ export function berthDock(
  * a ship's length relative to the reference, by ship ID); without them
  * along the front row (pierPoint). From the payload's `berths`; fisher and
  * shipyard jetties hold no ships.
+ *
+ * Trading piers (D-060) add berths to the island: the ships holding a
+ * berth fill the Trading Post's own berths (its level's, content) first,
+ * then each pier's (ascending building ID), on that building's berth
+ * anchors or front row; the queue waits off the Trading Post. Which ship
+ * lies at which building is a display convention only (the server keeps
+ * one pool of berths per island).
  */
 export function dockPoints(
   islands: readonly Pick<IslandPlacement & { buildings: readonly BuildingDisplay[] }, "position" | "buildings">[],
-  defs: ReadonlyMap<string, { width: number; height: number; water_tiles?: number; trading_post?: unknown }>,
+  defs: ReadonlyMap<string, { width: number; height: number; water_tiles?: number; trading_post?: unknown; pier?: { berths: number } }>,
   anchor: ModelAnchor | null = null,
   stern = 0,
   ratio: (shipId: number) => number = () => 1,
@@ -337,23 +344,36 @@ export function dockPoints(
     for (const b of is.buildings) {
       const def = defs.get(b.type);
       if (!def?.trading_post || !b.berths) continue;
-      const anchors: { x: number; y: number }[] = [];
-      if (anchor) {
-        for (const name of BERTH_ANCHORS) {
-          const a = anchor(b, def, name);
-          if (!a) break;
-          anchors.push(a);
+      // The berth holders of the island: the Trading Post, then its piers.
+      const levels = (def.trading_post as { levels?: readonly { berths?: number }[] }).levels;
+      const own = levels?.[Math.max(1, b.level ?? 1) - 1]?.berths;
+      const piers = is.buildings.filter((p) => defs.get(p.type)?.pier).sort((p, q) => p.id - q.id);
+      const holders = [{ b, n: own ?? b.berths.ships.length }, ...piers.map((p) => ({ b: p, n: defs.get(p.type)?.pier?.berths ?? 0 }))];
+      const ships = [...b.berths.ships];
+      for (const [k, h] of holders.entries()) {
+        const hdef = defs.get(h.b.type)!;
+        // The last holder takes any ship beyond the content's berths (stale content).
+        const mine = k === holders.length - 1 ? ships.splice(0) : ships.splice(0, h.n);
+        const queue = k === 0 ? b.berths.queue : [];
+        if (mine.length === 0 && queue.length === 0) continue;
+        const anchors: { x: number; y: number }[] = [];
+        if (anchor) {
+          for (const name of BERTH_ANCHORS) {
+            const a = anchor(h.b, hdef, name);
+            if (!a) break;
+            anchors.push(a);
+          }
         }
+        const layout = pierLayout(anchors, h.b.rotation, mine.map(ratio), queue.map(ratio), stern);
+        const put = (ids: readonly number[], queued: boolean) =>
+          ids.forEach((id, i) => {
+            const at = (queued ? layout.queued : layout.moored)[i] ?? null;
+            const p = at?.point ?? pierPoint(hdef, h.b, i, queued);
+            if (p) out.set(id, { point: { x: is.position.x + p.x, y: is.position.y + p.y }, heading: at?.heading ?? pierHeading(h.b.rotation), ...(queued ? { queued } : {}) });
+          });
+        put(mine, false);
+        put(queue, true);
       }
-      const layout = pierLayout(anchors, b.rotation, b.berths.ships.map(ratio), b.berths.queue.map(ratio), stern);
-      const put = (ids: readonly number[], queued: boolean) =>
-        ids.forEach((id, i) => {
-          const at = (queued ? layout.queued : layout.moored)[i] ?? null;
-          const p = at?.point ?? pierPoint(def, b, i, queued);
-          if (p) out.set(id, { point: { x: is.position.x + p.x, y: is.position.y + p.y }, heading: at?.heading ?? pierHeading(b.rotation), ...(queued ? { queued } : {}) });
-        });
-      put(b.berths.ships, false);
-      put(b.berths.queue, true);
     }
   }
   return out;

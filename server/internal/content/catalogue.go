@@ -275,6 +275,10 @@ type Building struct {
 	TradingPost *TradingPost
 	// Warehouse marks an inland collector (D-051): throughput only.
 	Warehouse *Warehouse
+	// Pier marks a trading pier (D-060): water-edge, adds berths.
+	Pier *Pier
+	// Depot marks a depot (D-060): adds island capacity per level.
+	Depot     *Depot
 	Road      *Road
 	Service   *Service
 	WorkArea  *WorkArea
@@ -395,6 +399,56 @@ type TradingPostLevel struct {
 	Cost *Cost
 }
 
+// Pier adds berths to its island (D-060, MECHANICS §9.3).
+type Pier struct {
+	Berths int
+}
+
+// Depot adds capacity per good to its island per level (D-060,
+// MECHANICS §5).
+type Depot struct {
+	Levels []DepotLevel
+}
+
+// DepotLevel is one level of a depot.
+type DepotLevel struct {
+	// Capacity per good in milli-units the depot adds at this level.
+	Capacity Qty
+	// Tier must be unlocked to upgrade into the level ("" for none).
+	Tier string
+	// Cost is the upgrade cost into this level; nil for the first level.
+	Cost *Cost
+}
+
+// InitialBerths is the number of berths of a newly placed building: a
+// Trading Post's first level or a pier's (0 for every other building).
+func (b *Building) InitialBerths() int {
+	if b.Pier != nil {
+		return b.Pier.Berths
+	}
+	return b.TradingPostLevelAt(1).Berths
+}
+
+// BerthsAt is the number of berths of the building at a 1-based level.
+func (b *Building) BerthsAt(level int) int {
+	if b.Pier != nil {
+		return b.Pier.Berths
+	}
+	return b.TradingPostLevelAt(level).Berths
+}
+
+// CapacityAt is the capacity per good (milli-units) the building holds at
+// a 1-based level (clamped): a Trading Post's or a depot's; 0 otherwise.
+func (b *Building) CapacityAt(level int) Qty {
+	switch {
+	case b.TradingPost != nil:
+		return b.TradingPostLevelAt(level).Capacity
+	case b.Depot != nil:
+		return b.Depot.Levels[clampLevel(level, len(b.Depot.Levels))].Capacity
+	}
+	return 0
+}
+
 // Warehouse describes the levels of an inland collector (MECHANICS §5).
 type Warehouse struct {
 	Levels []WarehouseLevel
@@ -423,6 +477,8 @@ func (b *Building) LevelCount() int {
 		return len(b.Warehouse.Levels)
 	case b.Service != nil:
 		return len(b.Service.Levels)
+	case b.Depot != nil:
+		return len(b.Depot.Levels)
 	}
 	return 0
 }
@@ -435,10 +491,16 @@ func (b *Building) Upgradable() bool { return b.LevelCount() > 1 }
 // LevelTier is the tier that must be unlocked to upgrade into a 1-based
 // level ("" when the level has no tier condition).
 func (b *Building) LevelTier(level int) string {
-	if b.Service == nil || level < 2 || level > len(b.Service.Levels) {
+	if level < 2 || level > b.LevelCount() {
 		return ""
 	}
-	return b.Service.Levels[level-1].Tier
+	switch {
+	case b.Service != nil:
+		return b.Service.Levels[level-1].Tier
+	case b.Depot != nil:
+		return b.Depot.Levels[level-1].Tier
+	}
+	return ""
 }
 
 // clampLevel maps a stored level to a valid 0-based level index.
@@ -469,6 +531,8 @@ func (b *Building) LevelCost(level int) *Cost {
 		return b.TradingPost.Levels[level-1].Cost
 	case b.Warehouse != nil:
 		return b.Warehouse.Levels[level-1].Cost
+	case b.Depot != nil:
+		return b.Depot.Levels[level-1].Cost
 	}
 	return b.Service.Levels[level-1].Cost
 }

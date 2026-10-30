@@ -319,6 +319,10 @@ export interface BuildingView {
   levels: LevelView[];
   ships: string[];
   roadSecondsPerTile?: number;
+  /** Berths a trading pier adds to its island (D-060). */
+  pierBerths?: number;
+  /** A quay: a road on the shallow water (D-060). */
+  shallows: boolean;
 }
 
 export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
@@ -336,6 +340,7 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   );
   b.warehouse?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), throughput: l.throughput_per_min / 1000 }));
   b.service?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), radius: l.radius, tier: l.tier }));
+  b.depot?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, tier: l.tier }));
   const cycle = r?.cycle_ms ?? 0;
   const modules = idx.modulesOf(b.id).map((m) => ({ building: m.id }));
   const mods = b.fields ? modules.map((m) => ({ ...m, required: b.fields?.required, max: b.fields?.max })) : modules;
@@ -363,6 +368,8 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
     levels,
     ships: b.shipyard?.ships ?? [],
     roadSecondsPerTile: b.road ? b.road.ms_per_tile / 1000 : undefined,
+    pierBerths: b.pier?.berths,
+    shallows: b.road?.shallows ?? false,
   };
 }
 

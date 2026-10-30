@@ -106,16 +106,31 @@ func seaLand(is *Island, x, y int) bool {
 	return is.Tiles[i].Terrain != content.TerrainWater || is.Roads[i] != ""
 }
 
-// harbourRoutable reports whether the island's harbour point (harbour)
-// is water that ships reach from the open sea: a 4-connected way over
-// the grid's water tiles that are not land for ships (seaLand) leads from
-// it to the edge of the island's grid, beyond which lies open sea. True
-// without a harbour and for a point off the grid.
+// harbourRoutable reports whether the harbour point (HarbourAt) of every
+// berth holder of the island (the Trading Post and the trading piers,
+// D-060) is water that ships reach from the open sea: a 4-connected way
+// over the grid's water tiles that are not land for ships (seaLand) leads
+// from it to the edge of the island's grid, beyond which lies open sea.
+// True without berth holders and for a point off the grid.
 func harbourRoutable(c *content.Catalogue, is *Island) bool {
-	p, ok := harbour(c, is)
-	if !ok || len(is.Tiles) != is.Width*is.Height {
+	if len(is.Tiles) != is.Width*is.Height {
 		return true
 	}
+	for _, b := range is.Buildings {
+		def := c.BuildingByID[b.Type]
+		if b.Berths <= 0 || def == nil {
+			continue
+		}
+		if !seaReachable(is, HarbourAt(is, def, b.X, b.Y, b.Rotation)) {
+			return false
+		}
+	}
+	return true
+}
+
+// seaReachable reports whether ships reach the point p (archipelago
+// tiles) from the edge of the island's grid (harbourRoutable).
+func seaReachable(is *Island, p Pos) bool {
 	x, y := p.X-is.X, p.Y-is.Y
 	if !is.InBounds(x, y) {
 		return true
@@ -144,9 +159,11 @@ func harbourRoutable(c *content.Catalogue, is *Island) bool {
 }
 
 // checkHarbourAfter rejects placing or moving a berth holder (at; the
-// moved building's ID, or -1 for a new one) when the island's harbour
-// point would be closed off by quays afterwards (D-060). Only a site on
-// quay tiles can change it.
+// moved building's ID, or -1 for a new one: a Trading Post or a trading
+// pier) when a harbour point of the island would be closed off by quays
+// afterwards (D-060, harbourRoutable). Only a site on quay tiles can
+// close off another berth holder; the new site's own harbour point is
+// always checked.
 func checkHarbourAfter(is *Island, c *content.Catalogue, def *content.Building, at *Building, replaces int64) error {
 	onQuay := false
 	fw, fh := footprint(def, at.Rotation)
@@ -158,7 +175,10 @@ func checkHarbourAfter(is *Island, c *content.Catalogue, def *content.Building, 
 		}
 	}
 	if !onQuay {
-		return nil
+		if seaReachable(is, HarbourAt(is, def, at.X, at.Y, at.Rotation)) {
+			return nil
+		}
+		return fmt.Errorf("%w: %s at (%d,%d) has no way out to the open sea", ErrHarbourBlocked, def.ID, at.X, at.Y)
 	}
 	tmp := *is
 	tmp.Roads = maps.Clone(is.Roads)

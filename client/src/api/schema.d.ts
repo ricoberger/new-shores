@@ -1795,7 +1795,7 @@ export interface components {
             stock: number;
             /**
              * Format: int64
-             * @description Capacity (milli-units).
+             * @description Capacity (milli-units) — the Trading Post's plus the depots' (D-060).
              */
             capacity: number;
             /**
@@ -1992,11 +1992,11 @@ export interface components {
              */
             workforce_factor_permille?: number;
             workforce?: components["schemas"]["BuildingWorkforce"];
-            /** @description Trading Post, Warehouse or levelled public building level (1-based). */
+            /** @description Trading Post, Warehouse, depot or levelled public building level (1-based). */
             level?: number;
             /**
              * Format: int64
-             * @description Trading Post only — the island's capacity per good at this level (milli-units).
+             * @description Trading Post — its capacity per good at this level; depot — the capacity per good it adds at this level (milli-units). The island's capacity is their sum (GoodDisplay.capacity).
              */
             capacity?: number;
             /**
@@ -2422,6 +2422,45 @@ export interface components {
                     throughput_per_min: number;
                     /**
                      * @description Upgrade cost into this level (`upgrade_warehouse`);
+                     *     absent on the first level, which the building cost
+                     *     places.
+                     */
+                    cost?: {
+                        /**
+                         * Format: int64
+                         * @description Gold cost (milli-gold).
+                         */
+                        gold: number;
+                        /** @description Material cost per good (milli-units). */
+                        materials: {
+                            [key: string]: number;
+                        };
+                    };
+                }[];
+            };
+            /**
+             * @description A trading pier (D-060): a water-edge building that adds
+             *     berths to its island's Trading Post (MECHANICS §9.3).
+             */
+            pier?: {
+                /** @description Berths the pier adds (count). */
+                berths: number;
+            };
+            /**
+             * @description A depot (D-060): adds capacity per good to its island
+             *     (MECHANICS §5); later levels via `upgrade_building`.
+             */
+            depot?: {
+                levels: {
+                    /**
+                     * Format: int64
+                     * @description Capacity per good the depot adds at this level (milli-units).
+                     */
+                    capacity: number;
+                    /** @description Tier that must be unlocked to upgrade into this level. */
+                    tier?: string;
+                    /**
+                     * @description Upgrade cost into this level (`upgrade_building`);
                      *     absent on the first level, which the building cost
                      *     places.
                      */

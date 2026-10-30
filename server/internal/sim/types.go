@@ -213,11 +213,11 @@ type Building struct {
 	// Derived state, recomputed after every placement change of the
 	// island; false for every other building.
 	Inactive bool `json:"inactive,omitempty"`
-	// Level of a Trading Post or Warehouse (1-based); 0 for other
-	// buildings.
+	// Level of a Trading Post, Warehouse or depot (1-based; also an
+	// upgraded public building); 0 for other buildings.
 	Level int `json:"level,omitempty"`
-	// Berths of a Trading Post at its level (content, set at placement and
-	// upgrade); 0 for every other building. Stored so that the due moments
+	// Berths of a Trading Post at its level or of a trading pier (content,
+	// set at placement and upgrade); 0 for every other building. Stored so that the due moments
 	// of berth queues need no catalogue.
 	Berths int `json:"berths,omitempty"`
 
