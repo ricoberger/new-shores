@@ -1493,3 +1493,96 @@ later decision). German layout fixes: no-break space before `%`,
 shorter almanac need-table headings, field names through
 `inSentence()`. *Later:* a German read-through of the island-name
 list and quest texts.
+
+## D-062 Anno-sized footprints, flexible water rows per column, depots without levels
+
+**Decision** (interview 2026-10-30; the Anno 117 Latium building table
+is the size reference, Anno 1404 for the chapel):
+
+1. **Footprints.** Trading Post **6×6** (water rows 1–2; the dock is
+   part of the model, as in Anno), chapel **3×5**, city guard
+   **4×4**, fire station **4×5**, surgery **4×6**, trading pier
+   **6×9** (a jetty: ≈ 6 water rows, berths on both flanks), depot
+   **11×4** (11 along the coast, 4 deep, 0–1 water rows). Fisher 3×8,
+   market 5×6, tavern 4×6, warehouse 6×6, shipyard 8×12, salt pans
+   5×9, oyster beds 6×12 already match and stay. Content IDs stay;
+   the recipes are re-fitted (new budgets follow the footprints; the
+   24 MiB folder limit and per-tile budgets stay).
+2. **Water rows per column.** `water_tiles: n` becomes `water_rows:
+   {min, max}`: in **each footprint column** independently, the first
+   *k* tiles must be water with `min ≤ k ≤ max` and the remaining
+   tiles buildable land; a hall over water is never allowed (the max),
+   a pier post on sand is (the min). Harbour point and berth rules
+   keep measuring from the front row. Provisional values: Trading
+   Post {1,2}, fisher {2,3}, shipyard {3,4}, trading pier {5,6},
+   depot {0,1}, salt pans {2,3}, oyster beds {3,4}. Supersedes D-051's
+   "first `n` front rows" rule; D-036's harbour band is untouched.
+   The ghost colours per tile.
+3. **Depot:** any number per island, **no levels** (the finite coast
+   is the cap, D-036); the level-2 recipe is removed. Capacity 150 per
+   good stays provisional.
+4. **Surgery is a Patricians building** (health becomes a Patricians
+   need, weight from services; Merchants keep safety and fire
+   protection), cost with glass as first intended; one level, radius
+   20. The civic level-2 lever (radius 16 → 20 at Merchants) stays
+   for city guard and fire station until the reference games say
+   otherwise.
+
+- *Why:* a 3×3 civic building and a 4×4 depot read as sheds next to
+  the houses; the diagonal coasts of D-058 make a whole-row water rule
+  fail on half of the usable shore; levels on a depot duplicate the
+  Trading Post's lever.
+- *Consequences:* content 0.16.0, schema bump for `water_rows` (no
+  migration while undeployed), sim placement rule + tests per column
+  and rotation, ghost validity per tile, model re-fits (Trading Post
+  ×4 levels, chapel, city guard, fire station, surgery, trading pier,
+  depot), fixtures and scenarios re-planned, reference games rerun
+  (the Patricians margin of 85 min is the one to watch), MECHANICS §4,
+  CONTENT §5, ART_DIRECTION §7, UI.md ghost note. One content + sim
+  session and one models session, after V6 part 1.
+- *Rejected:* keeping 6×9 for the Trading Post (Anno's 6×6 reads
+  better and frees shore); whole-row tolerance of ±1 (fails on
+  diagonals, allows halls over water); one depot per island (a rule
+  for nothing the coast does not already do).
+
+## D-063 Region scope: the Old Coast is temperate Europe; the south is a later region
+
+**Decision** (2026-10-30): every region's content must be plausible
+for its climate and building culture, so that regions can be added
+later in the Anno manner (a second archipelago zone with its own
+chains and public buildings, reached by ship — a future world-
+structure decision).
+
+1. **`old_coast` = temperate northern/middle Europe** (Hanse, Rhine,
+   Flanders): fish, wool, grain, cider/mead, beer, linen, leather,
+   woad, salt, bricks, glass, copper, wine (Rhine/Mosel) stay.
+   Reserved for a southern region and not to be added to the Old
+   Coast: olives/oil, citrus, silk, spices, marble, figs/dates, sugar,
+   purple dye, Mediterranean architecture (whitewash, pale pan-tile,
+   flat roofs, arcades, cypresses).
+2. **Theatre → playhouse.** The tier-3 service building `theatre` (a
+   Roman theatre) is retired and replaced by **`playhouse`** (new ID,
+   same 11×14 footprint and ladder position): a timber-framed
+   galleried playhouse with a steep roof and banners. The Roman
+   theatre recipe is kept out of the build for the southern region.
+   University and cathedral are checked to read Gothic/Hanse.
+3. **Palette roles are region-scoped.** The base palette stays; the
+   south later adds roles (whitewash, travertine, pale terracotta,
+   cypress) rather than shifting existing ones. To keep the contrast
+   available, **terracotta stays the minority roof of the Old Coast**:
+   tier 3–4 quarters mix dark tile / brown slate / terracotta
+   ≈ 50 / 30 / 20 and are never terracotta-only. Light stays the one
+   golden hour everywhere.
+
+- *Why:* the data model is already region-scoped (`content/<region>`,
+  `region` per building, fertilities and deposits per region); the
+  only thing that can block a second region is content that spends
+  the southern identity early.
+- *Consequences:* content 0.16.0 (`playhouse`, `theatre` retired —
+  never reused), one recipe (`playhouse`), a roof-share check in the
+  next render round, ART_DIRECTION §2 note on region-scoped roles,
+  CONTENT §1 region rule, GAME_DESIGN one paragraph. No world or
+  online change now.
+- *Rejected:* shifting the base palette now (nothing to gain before
+  the second region exists); keeping the theatre as "fine for a
+  wealthy port" (it is the one building a southern region would own).
