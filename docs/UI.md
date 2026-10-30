@@ -195,6 +195,13 @@ UI shows the same numbers the server uses.
   e.g. missing deposit or fertility) with the reason as a tooltip. A new
   house may come out as a different variant than the ghost showed (variant
   by building ID; follow-up: a server-side preview hint).
+- **Water-edge ghosts (D-062):** each rotated footprint column follows
+  the served `water_rows` bounds. A per-tile overlay marks land where water
+  is required, or water/non-buildable terrain where land is required, red;
+  valid tiles keep the normal light/no-road yellow. Quays count as land,
+  rivers never as sea. The model keeps its normal tint for a water-edge
+  mismatch so one bad tile does not turn the entire building red. This is
+  a display hint only: the server validates every placement.
 - Roads: drag to draw; auto-connect; cost preview. The quay (D-060) is
   drawn the same way over shallow water; a drag that leaves the shallows
   is not sent (toast; display mirror of the rule, `display/quay.ts`).

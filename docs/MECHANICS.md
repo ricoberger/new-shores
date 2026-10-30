@@ -124,14 +124,22 @@ handlers only.
 - **Fertility** is an island-wide tag list (`Island.Fertilities`). A farm
   whose `work_area.fertility` is set can only be placed on an island
   carrying that tag (`no_fertility`; the error lists the island's tags).
-- **Water-edge buildings** (D-051): Trading Post, fisher, shipyard (and
-  later harbour buildings) declare `water_tiles: n` — their first `n`
-  front rows must lie on water tiles and the remaining rows on buildable
-  land; the water tiles stay water for ships. Provisional: Trading Post
-  2 of 4 rows, fisher 1 of 2, shipyard 2 of 4, trading pier 3 of 4,
-  depot 1 of 4 (D-060). Other coastal buildings
-  need at least one footprint tile on `coast`. Quays count as coast for
-  both (§3).
+- **Water-edge buildings** (D-062, superseding D-051's fixed rows)
+  declare `water_rows: {min, max}`. Independently in **each footprint
+  column**, the first k tiles from the front are sea water, with
+  `min ≤ k ≤ max`; every remaining tile is buildable land. Water after
+  an intervening land tile is invalid. The front is the top row at 0°,
+  right at 90°, bottom at 180°, left at 270°; rotation swaps the footprint
+  but never the authored width/depth or bounds. Both bounds are required,
+  `0 ≤ min ≤ max < depth`. River tiles never count as sea water.
+  Quays count as land, terminate the water prefix, and are replaced without
+  refund when covered by a valid land part (§3); required water cannot
+  carry quay. Values: Trading Post 1–2, fisher/salt pans 2–3,
+  shipyard/oyster beds 3–4, trading pier 5–6, depot 0–1 rows.
+  A zero minimum permits an all-land footprint. Other coastal buildings
+  still need a coast tile (quay counts). Harbour points remain two tiles
+  off the **front row**, not the variable water/land boundary (§9).
+  Error codes stay `not_on_water`, `terrain` and `occupied`.
 - **Work area** = a fertility tag only (`work_area.fertility`, above); there
   is no work radius or terrain rule. The efficiency of a building comes
   from its fields:
@@ -301,15 +309,14 @@ cycle:   seconds               at 100 % efficiency
   than micro-sorting). It is also the island's pier (§9.3) and the
   endpoint for ships, founding and trades. Coastal with its front rows
   over water (§2).
-- **Depots** (D-060; water-edge, Citizens, level 2 at Merchants via
-  `upgrade_building`) add their level's capacity per good to the
-  island's while a Trading Post stands: `capacity[good]` = Trading Post
-  level capacity + Σ depot level capacities (one function for every
-  reader: production caps, ships, quests, display). A depot is no
-  collector. Demolishing one refunds 50 % of placement and paid levels
-  and loses the stock above the reduced capacity (like a Trading Post
-  downgrade would). The display gives a depot its `level` and its own
-  `capacity`; the Trading Post card shows the island total.
+- **Depots** (D-062; water-edge, Citizens) add a fixed 150 capacity per
+  good while a Trading Post stands: `capacity[good]` = Trading Post level
+  capacity + Σ depot capacities (one function for production caps, ships,
+  quests and display). Any number may stand on an island; no levels,
+  upgrade or collector capability. Demolition refunds 50 % of construction
+  materials, no gold, and guards surplus loss unless explicitly accepted;
+  accepted surplus is clamped to the remaining capacity. The display gives
+  a depot its own `capacity`, no `level`; the Trading Post shows the total.
 - **Collectors** fetch producer output: the Trading Post has a base
   **throughput** `T` and every **Warehouse** (inland, cheap, no coast, no
   capacity) adds its own `T` (levels raise it). Each producer is assigned
@@ -412,14 +419,18 @@ covers 0.6 and both cover it fully. A need is either:
   The display lists every serving building as `served_by` (IDs), so the
   client can highlight serving buildings and, inverted, the houses a
   building serves without evaluating the distance rule.
-- **Civic services (D-060):** safety (`city_guard`, Citizens and up),
-  fire protection (`fire_station`) and health (`surgery`, both Merchants
-  and up) are building needs of their own category with one building
+- **Civic services (D-060/D-062):** safety (`city_guard`, Citizens and up),
+  fire protection (`fire_station`, Merchants and up) and health (`surgery`,
+  Patricians only) are building needs of their own category with one building
   each (share 1.0), evaluated exactly like services and cumulative the
   same way (each higher tier lists the category again with its own
   weight). They are required categories and count in the upgrade gate
   (§6.1). No new rule: a missing civic building lowers coverage, tax and
-  growth; there are no fires, disease or crime events.
+  growth; there are no fires, disease or crime events. City guard and fire
+  station have radius 16, upgraded to 20 at Merchants. Surgery has one
+  radius-20 level and costs glass; Merchants no longer require health.
+  Patrician health weight is 0.08 (from services); Merchant services
+  regains 0.08. All own-tier weights still sum to one.
 - **Cumulative tiers:** a house also carries the goods categories of
   every lower tier (`from_tier`), with that tier's goods at a reduced
   rate: `rate × (own max / higher max) × 0.5^(dist / 3)`, where *own max*
@@ -668,7 +679,11 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   trade ships queue alike. **Trading piers** (D-060; water-edge,
   Citizens, no levels) add their `berths` (provisional 2) to the
   island's pool: berths = Trading Post level berths + Σ pier berths; the
-  sim keeps one pool and one queue per island. Which pier a moored ship
+  sim keeps one pool and one queue per island. D-062 changes no berth
+  arithmetic: the 6×6 Trading Post still has 1–4 by level; a 6×9 pier
+  adds two, whose model anchors sit on its flanks. Both harbour points
+  measure from their front row, independently of per-column water depth.
+  Which pier a moored ship
   lies at is a display convention (the client fills the Trading Post's
   own berths first, then each pier by building ID; the queue waits off
   the Trading Post). The harbour check (§3) covers every pier's harbour
