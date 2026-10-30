@@ -290,6 +290,7 @@ type workforceJSON struct {
 }
 
 type buildingJSON struct {
+	Description   string             `json:"description,omitempty"`
 	ID            string             `json:"id"`
 	Name          string             `json:"name"`
 	Tier          string             `json:"tier"`
@@ -500,7 +501,8 @@ func newContentPayload(c *content.Catalogue, lang string) contentPayload {
 
 func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 	bj := buildingJSON{
-		ID: b.ID, Name: tx.name("buildings", b.ID, b.Name), Tier: b.Tier, Category: buildingCategory(b),
+		Description: tx.c.Translate(tx.lang, content.TextKey("buildings", b.ID, "description"), b.Description),
+		ID:          b.ID, Name: tx.name("buildings", b.ID, b.Name), Tier: b.Tier, Category: buildingCategory(b),
 		Width: b.Width, Height: b.Height, Coastal: b.Coastal, WaterRows: b.WaterRows, RequiresRoad: b.RequiresRoad,
 		Cost:         newCostJSON(b.Cost),
 		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit, Smoke: b.Smoke, Boat: b.Boat,

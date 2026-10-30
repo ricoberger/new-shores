@@ -109,6 +109,7 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                 aria-pressed={activeId === b.id}
                 onClick={() => onSelect(b)}
                 data-testid={`build-${b.id}`}
+                title={b.description}
               >
                 {tierIndex >= 0 && (
                   <span className={styles.tierBadge} title={t("build.tierTitle", { name: tierName, tier: tierIndex + 1 })}>

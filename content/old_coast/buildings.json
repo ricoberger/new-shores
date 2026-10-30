@@ -847,6 +847,7 @@
   {
     "id": "playhouse",
     "name": "Playhouse",
+    "description": "A timber-framed playhouse with a roofed gallery brings performances to the merchant quarter.",
     "region": "old_coast",
     "tier": "merchants",
     "footprint": [11, 14],

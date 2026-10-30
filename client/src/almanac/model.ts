@@ -290,6 +290,7 @@ export interface LevelView {
 }
 
 export interface BuildingView {
+  description?: string;
   id: string;
   name: string;
   tier: string;
@@ -348,6 +349,7 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
     category: b.category,
     width: b.width,
     height: b.height,
+    description: b.description,
     depotCapacity: b.depot ? b.depot.capacity / 1000 : undefined,
     waterRows: b.water_rows,
     footprint: b.water_rows

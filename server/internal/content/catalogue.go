@@ -262,10 +262,11 @@ type WaterRows struct {
 // Service, WorkArea, Fields, Field); the simulation never switches on
 // building IDs.
 type Building struct {
-	ID     string
-	Name   string
-	Region string
-	Tier   string
+	Description string
+	ID          string
+	Name        string
+	Region      string
+	Tier        string
 	// Width and Height of the footprint at rotation 0.
 	Width   int
 	Height  int

@@ -3482,6 +3482,9 @@ components:
       required:
         [id, name, tier, category, width, height, coastal, requires_road, cost, upkeep_per_min, pause_category]
       properties:
+        description:
+          type: string
+          description: Localized optional description of the building.
         id:
           type: string
         name:

@@ -72,6 +72,9 @@ func (c *Catalogue) Texts() []Text {
 	}
 	for _, b := range c.Buildings {
 		add(keyBuildings, b.ID, "name", b.Name)
+		if b.Description != "" {
+			add(keyBuildings, b.ID, "description", b.Description)
+		}
 	}
 	for _, nc := range c.NeedCategories {
 		add(keyNeedCategories, nc.ID, "name", nc.Name)

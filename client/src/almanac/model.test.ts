@@ -254,6 +254,11 @@ describe("almanac model of the harbour buildings (D-060)", () => {
     const depot = buildingView(idx, idx.building("depot")!);
     expect(depot.category).toBe("harbour");
     expect(depot).toMatchObject({ depotCapacity: 150, levels: [] });
+    const playhouse = buildingView(idx, idx.building("playhouse")!);
+    expect(playhouse.description).toContain("timber-framed");
+    expect(playhouse).toMatchObject({ width: 11, height: 14, radius: 24 });
+    expect(idx.building("theatre")).toBeUndefined();
+    expect(buildingView(idx, idx.building("trading_post")!).footprint).toContain("1–2 rows on water");
     const quay = buildingView(idx, idx.building("quay")!);
     expect(quay).toMatchObject({ shallows: true, roadSecondsPerTile: 0.6 });
   });

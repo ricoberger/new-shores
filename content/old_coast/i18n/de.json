@@ -119,6 +119,7 @@
   "buildings.house_merchants.name": "Kaufmannshaus",
   "buildings.church.name": "Kirche",
   "buildings.playhouse.name": "Schauspielhaus",
+  "buildings.playhouse.description": "Ein Fachwerk-Schauspielhaus mit überdachter Galerie bringt Aufführungen ins Kaufmannsviertel.",
   "buildings.fire_station.name": "Feuerwache",
   "buildings.surgery.name": "Wundarzt",
   "buildings.butcher.name": "Metzgerei",

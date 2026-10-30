@@ -285,6 +285,7 @@ type rawRecipeInput struct {
 }
 
 type rawBuilding struct {
+	Description   string                 `json:"description"`
 	ID            string                 `json:"id"`
 	Name          string                 `json:"name"`
 	Region        string                 `json:"region"`
@@ -738,6 +739,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string]*Good) *Building {
 	const file = FileBuildings
 	b := &Building{
+		Description:   rb.Description,
 		ID:            rb.ID,
 		Name:          rb.Name,
 		Region:        rb.Region,
@@ -752,6 +754,11 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		RequiresDeposit: rb.RequiresDeposit,
 		Smoke:           rb.Smoke,
 		Boat:            rb.Boat,
+	}
+	if rb.Description != "" {
+		if err := checkTranslation(TextKey(keyBuildings, rb.ID, "description"), rb.Description); err != nil {
+			col.add(file, ent, "description", "%v", err)
+		}
 	}
 	if len(rb.Footprint) == 2 {
 		b.Width, b.Height = rb.Footprint[0], rb.Footprint[1]

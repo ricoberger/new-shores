@@ -2373,6 +2373,8 @@ export interface components {
             amount: number;
         };
         ContentBuilding: {
+            /** @description Localized optional description of the building. */
+            description?: string;
             id: string;
             name: string;
             tier: string;
