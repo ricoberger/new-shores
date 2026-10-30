@@ -385,6 +385,16 @@ V3b — kept for the signature) — about 40–70 lines.
   sandstone — the church's cliff-upper courses, darker quoins,
   `D.SANDSTONE_TRIM` for frames and string courses — for halls that
   must not read as cold grey, §2). Their tests are `tests/test_d060.py`.
+- **Playhouse parts (D-063):** `nsvoxel/detail_d062.py` (imported as
+  `H`): `H.oct_r` (octagonal radius of a cell: `oct_r <= r` is a regular
+  octagon), `H.octagon_cells` / `H.octagon` / `H.edge_cells` /
+  `H.sector` (fills, rings and the eight facets of an octagon),
+  `H.gallery_ring` (one tier of a gallery round an open yard: plank
+  floor, posts, balustrade, `skip` for openings), `H.banner_pole` (pole,
+  cross arm and hanging banner in sway group `flag`, `H.BANNER_*`
+  cloths), `H.lantern` (a lantern post with a brass cage) and
+  `H.cupola` (a roof lantern with glazed sides, hipped roof and pennant).
+  Their tests are `HelperTest` in `tests/test_d062.py`.
 - **Ships:** `recipes/_ships.py` builds all hulls with one `hull()`
   (plank courses, wale, trim band, rail, deck courses, gunports,
   bowsprit, stern cabin with windows, gallery and lanterns, forecastle)
