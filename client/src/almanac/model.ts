@@ -514,7 +514,20 @@ interface Range {
 }
 
 export interface IslandsView {
-  sizeClasses: { id: string; name: string; rock: boolean; scenic: boolean; size?: number; count?: Range; fertilities?: Range; deposits?: Range }[];
+  sizeClasses: {
+    id: string;
+    name: string;
+    rock: boolean;
+    scenic: boolean;
+    size?: number;
+    count?: Range;
+    fertilities?: Range;
+    deposits?: Range;
+    /** Shape parameters (D-058) in words, e.g. "1–3 arms, 1–2 rivers, 2 levels, 3–6 islets". */
+    shape?: string;
+    /** The home candidate (D-053) is of this class. */
+    home: boolean;
+  }[];
   /** Pools of the archipelago generator, only when the served content carries them. */
   fertilities: { id: string; count?: Range }[];
   deposits: { id: string; count?: Range }[];
@@ -528,10 +541,27 @@ const asRange = (v: unknown): Range | undefined => (isRange(v) ? v : undefined);
 const strings = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
 const rec = (v: unknown): Record<string, unknown> => (typeof v === "object" && v !== null ? (v as Record<string, unknown>) : {});
 
+/** The shape parameters of a size class in words (D-058), undefined without them or for a class without any. */
+function shapeText(v: unknown): string | undefined {
+  const s = rec(v);
+  const parts: string[] = [];
+  const counted = (r: unknown, one: string, many: string) => {
+    const x = asRange(r);
+    if (x && x.max > 0) parts.push(`${x.min === x.max ? x.min : `${x.min}–${x.max}`} ${x.max === 1 ? one : many}`);
+  };
+  counted(s.arms, "arm", "arms");
+  if (typeof s.plain === "number" && s.plain > 0) parts.push(`plain ${s.plain}×${s.plain}`);
+  counted(s.rivers, "river", "rivers");
+  if (typeof s.levels === "number" && s.levels > 0) parts.push(`${s.levels} ${s.levels === 1 ? "terrace" : "terraces"}`);
+  counted(s.islets, "islet", "islets");
+  return parts.length > 0 ? parts.join(", ") : undefined;
+}
+
 /**
  * Size classes with whatever the payload carries: the served schema has the
- * name and the rock flag; counts, sizes, pools and the home guarantees are
- * read defensively from optional fields (islands.json is changing) and
+ * name, the flags, size, count, the per-island pool ranges, the shape and
+ * the home class; the archipelago pools and the home guarantees are read
+ * defensively from optional fields (islands.json is changing) and
  * rendered only when present.
  */
 export function islandsView(content: Content): IslandsView {
@@ -547,6 +577,8 @@ export function islandsView(content: Content): IslandsView {
       count: asRange(x.count),
       fertilities: asRange(x.fertilities),
       deposits: asRange(x.deposits),
+      shape: shapeText(x.shape),
+      home: x.home === true,
     };
   });
   const pool = (v: unknown) => (Array.isArray(v) ? v.map(rec).filter((e) => typeof e.id === "string").map((e) => ({ id: e.id as string, count: asRange(e.count) })) : []);

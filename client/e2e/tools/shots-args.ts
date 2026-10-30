@@ -1,7 +1,7 @@
 // Argument parsing of `make shots` (e2e/tools/shots.ts), kept free of
 // Playwright and the browser so a Vitest covers it.
 
-export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelago-8", "archipelago-8x20", "town", "seafaring", "citizens", "merchants", "patricians"] as const;
+export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelago-8", "archipelago-8x20", "town", "seafaring", "citizens", "merchants", "patricians", "played"] as const;
 /**
  * Camera views; "start" is the opening camera as the game places it (no
  * camera move); "pan" is a measurement: a far → mid pan through the
@@ -21,7 +21,7 @@ export const DEFAULT_FIXTURES: Fixture[] = ["showcase", "settled", "dense-2x400"
 export const DEFAULT_VIEWS: View[] = ["near", "mid", "far"];
 
 /** Fixtures served by the dev server's reset endpoint (the page loads `/`) rather than by `?fixture=`. */
-export const SERVER_FIXTURES: readonly Fixture[] = ["settled", "town", "seafaring", "citizens", "merchants", "patricians"];
+export const SERVER_FIXTURES: readonly Fixture[] = ["settled", "town", "seafaring", "citizens", "merchants", "patricians", "played"];
 
 /** The largest world seed (53 bits, D-053), as the server's --seed accepts. */
 export const MAX_SEED = 2 ** 53 - 1;

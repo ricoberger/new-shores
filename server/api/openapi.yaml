@@ -3063,7 +3063,7 @@ components:
     ContentSizeClass:
       type: object
       additionalProperties: false
-      required: [id, name, rock, scenic]
+      required: [id, name, rock, scenic, size, count, fertilities, deposits, shape, home]
       properties:
         id:
           type: string
@@ -3076,6 +3076,54 @@ components:
         scenic:
           type: boolean
           description: Skerries (D-058) are scenery only - no sites, fertilities or deposits, not settleable, no name.
+        size:
+          type: integer
+          description: Land extent in tiles (the island is about size × size).
+        count:
+          allOf:
+            - $ref: "#/components/schemas/ContentRange"
+          description: Islands of the class per archipelago.
+        fertilities:
+          allOf:
+            - $ref: "#/components/schemas/ContentRange"
+          description: Fertility tags per island of the class (drawn from the generator's pool).
+        deposits:
+          allOf:
+            - $ref: "#/components/schemas/ContentRange"
+          description: Deposit slots per island of the class (drawn from the generator's pool).
+        shape:
+          type: object
+          additionalProperties: false
+          required: [arms, plain, rivers, levels, islets]
+          description: Shape parameters of the class (D-058).
+          properties:
+            arms:
+              $ref: "#/components/schemas/ContentRange"
+            plain:
+              type: integer
+              description: Side of the guaranteed contiguous plain (tiles; 0 none).
+            rivers:
+              $ref: "#/components/schemas/ContentRange"
+            levels:
+              type: integer
+              description: Highest terrace level.
+            islets:
+              $ref: "#/components/schemas/ContentRange"
+        home:
+          type: boolean
+          description: The home candidate (D-053) is an island of this class.
+    ContentRange:
+      type: object
+      additionalProperties: false
+      required: [min, max]
+      description: An inclusive range of counts (islands, tags, slots, arms, rivers or islets; unscaled integers).
+      properties:
+        min:
+          type: integer
+          description: Lowest count (unscaled integer).
+        max:
+          type: integer
+          description: Highest count (unscaled integer).
     ContentQuest:
       type: object
       additionalProperties: false

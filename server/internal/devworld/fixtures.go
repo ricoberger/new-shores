@@ -60,6 +60,7 @@ import (
 //     and sails the route "Glass home". A seed without a quartz deposit
 //     is an error (every seed of the shipped content has two or more,
 //     DevSeed included).
+//   - played: the Patricians reference game replayed (played.go).
 const (
 	FixtureDefault    = "default"
 	FixtureSeafaring  = "seafaring"
@@ -80,7 +81,7 @@ var ErrFixtureSeed = errors.New("not available on this seed")
 
 // Fixtures lists the fixture names.
 func Fixtures() []string {
-	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants, FixturePatricians}
+	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants, FixturePatricians, FixturePlayed}
 }
 
 // History of the fixtures before now (world time): long enough for the
@@ -102,10 +103,18 @@ const (
 const FixtureGold = 3_000_000
 
 // NewFixture builds the named dev fixture on the archipelago of seed
-// evaluated at now (truncated to milliseconds); "" is the default.
+// evaluated at now (truncated to milliseconds); "" is the default. The
+// played fixture needs NewFixtureWith.
 func NewFixture(c *content.Catalogue, name string, seed uint64, now time.Time) (*sim.World, error) {
+	return NewFixtureWith(c, name, seed, now, Options{})
+}
+
+// NewFixtureWith is NewFixture with the options of the played fixture.
+func NewFixtureWith(c *content.Catalogue, name string, seed uint64, now time.Time, opts Options) (*sim.World, error) {
 	now = now.UTC().Truncate(time.Millisecond)
 	switch name {
+	case FixturePlayed:
+		return played(c, seed, now, opts)
 	case FixtureSeafaring:
 		return New(c, seed, now)
 	case "", FixtureDefault:

@@ -175,11 +175,14 @@ describe("arithmetic of the tables", () => {
 });
 
 describe("islands view", () => {
-  it("renders the served size classes and nothing else when that is all there is", () => {
+  it("renders the served size classes: size, counts, pool ranges, shape and the home class", () => {
     const v = islandsView(loadContent("content/old_coast"));
     expect(v.sizeClasses.map((s) => s.id)).toEqual(["large", "medium", "small", "rock", "scenic"]);
     expect(v.sizeClasses.filter((s) => s.scenic).map((s) => s.id)).toEqual(["scenic"]);
-    expect(v.basicOnly).toBe(true);
+    expect(v.sizeClasses.filter((s) => s.home).map((s) => s.id)).toEqual(["large"]);
+    expect(v.sizeClasses[0]).toMatchObject({ size: 192, count: { min: 3, max: 3 }, fertilities: { min: 2, max: 4 }, shape: "1–3 arms, plain 40×40, 1–2 rivers, 2 terraces, 3–6 islets" });
+    expect(v.sizeClasses.find((s) => s.id === "scenic")?.shape).toBeUndefined();
+    expect(v.basicOnly).toBe(false);
     expect(v.home).toEqual([]);
   });
 

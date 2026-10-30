@@ -65,3 +65,20 @@ func TestArchipelagoSteps(t *testing.T) {
 		t.Fatalf("roll %d seed %d, want 2 and 7", w.ArchipelagoRoll, w.Seed)
 	}
 }
+
+// TestRunStepsWithSnapshotEvery: RunSteps continues a scenario with a
+// snapshot interval (snapshot_every > 1) without a report; it used to
+// panic on the snapshot bookkeeping it never initialised.
+func TestRunStepsWithSnapshotEvery(t *testing.T) {
+	s := loadScenario(t, "bootstrap_merchants")
+	if s.SnapshotEvery <= 1 {
+		t.Fatalf("snapshot_every = %d, want > 1", s.SnapshotEvery)
+	}
+	c, err := s.LoadContent(repoRoot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := RunSteps(s, c, len(s.Steps)); err != nil {
+		t.Fatal(err)
+	}
+}

@@ -47,6 +47,8 @@ const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<R
   merchants: { island: "isle-01", town: { mid: 32 } }, // citizens plus the tier-3 street end and a clay island
   // town plus the full services ladder (university, cathedral), a Patrician house, the roast-beef chain and a quartz island (D-056 C4).
   patricians: { island: "isle-01", town: { mid: 36 } },
+  // The Patricians reference game replayed (devworld played.go): a town grown by play.
+  played: { island: "isle-01", town: { mid: 48 } },
   "dense-2x400": { island: "dense1" },
   "dense-archipelago-8": { island: "dense1", targets: { mid: { x: 87, y: 75 } } },
   "archipelago-8x20": { island: null },

@@ -558,6 +558,7 @@ func RunSteps(s *Scenario, c *content.Catalogue, n int) (*sim.World, error) {
 		return nil, err
 	}
 	r := &runner{s: s, c: c, w: w, l: l, report: &Report{Name: s.Name}}
+	r.initSnapshots()
 	for i, st := range s.Steps[:n] {
 		var err error
 		if st.ExpectError != "" {

@@ -2105,6 +2105,33 @@ export interface components {
             rock: boolean;
             /** @description Skerries (D-058) are scenery only - no sites, fertilities or deposits, not settleable, no name. */
             scenic: boolean;
+            /** @description Land extent in tiles (the island is about size × size). */
+            size: number;
+            /** @description Islands of the class per archipelago. */
+            count: components["schemas"]["ContentRange"];
+            /** @description Fertility tags per island of the class (drawn from the generator's pool). */
+            fertilities: components["schemas"]["ContentRange"];
+            /** @description Deposit slots per island of the class (drawn from the generator's pool). */
+            deposits: components["schemas"]["ContentRange"];
+            /** @description Shape parameters of the class (D-058). */
+            shape: {
+                arms: components["schemas"]["ContentRange"];
+                /** @description Side of the guaranteed contiguous plain (tiles; 0 none). */
+                plain: number;
+                rivers: components["schemas"]["ContentRange"];
+                /** @description Highest terrace level. */
+                levels: number;
+                islets: components["schemas"]["ContentRange"];
+            };
+            /** @description The home candidate (D-053) is an island of this class. */
+            home: boolean;
+        };
+        /** @description An inclusive range of counts (islands, tags, slots, arms, rivers or islets; unscaled integers). */
+        ContentRange: {
+            /** @description Lowest count (unscaled integer). */
+            min: number;
+            /** @description Highest count (unscaled integer). */
+            max: number;
         };
         ContentQuest: {
             id: string;

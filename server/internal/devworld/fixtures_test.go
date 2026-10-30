@@ -30,6 +30,9 @@ func TestFixtures(t *testing.T) {
 		return n
 	}
 	for _, name := range append(Fixtures(), "") {
+		if name == FixturePlayed {
+			continue // TestPlayedFixture
+		}
 		t.Run(name, func(t *testing.T) {
 			w, err := NewFixture(c, name, DevSeed, now)
 			if err != nil {
