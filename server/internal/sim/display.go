@@ -152,7 +152,8 @@ type ShipDisplay struct {
 	PausedReason string `json:"paused_reason"`
 	// Position is the archipelago position (tiles) of an idle or anchored
 	// ship at sea (the start ship, D-051) or at an island without berths
-	// (the end of the leg that brought it, Ship.Offshore); null at a
+	// (the end of the leg that brought it, or the harbour point of the
+	// Trading Post demolished under it, Ship.Offshore); null at a
 	// berthed island or on a leg.
 	Position *PositionDisplay `json:"position"`
 	// QueuedAt is when a ship waiting for a berth (state

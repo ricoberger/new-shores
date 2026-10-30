@@ -26,7 +26,7 @@ import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay } from "..
 import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
 import { IslandLife } from "../display/lifeplan";
-import { blockedTiles, islandSeed, layerKeys, type Placed, type ScatterInput, type ScatterKind, scatterGround, scatterTrees, type ThinningArea, thinningAreas } from "../display/scatter";
+import { blockedTiles, islandSeed, layerKeys, type Placed, type ScatterInput, type ScatterKind, scatterGround, scatterTrees } from "../display/scatter";
 import { byChunk, chunkAt, type ChunkRect, islandChunks } from "../display/chunks";
 import { BuildingLayer } from "./buildings";
 import { Chunked } from "./chunked";
@@ -62,7 +62,6 @@ interface IslandBuild {
   /** Prepared by the head for the chunk steps. */
   fields: Map<string, BuildingDisplay[]>;
   scatter: ScatterInput | null;
-  areas: ThinningArea[];
   keys: ReturnType<typeof layerKeys> | null;
 }
 
@@ -70,7 +69,6 @@ interface IslandBuild {
 interface DecorInput {
   trees: Placed[];
   ground: (Placed & { kind: ScatterKind })[];
-  stumps: Placed[];
   detail: DetailPlaced[];
 }
 
@@ -166,9 +164,9 @@ export class IslandDetail {
     this.farTrees = new FarTrees(scene, id, this.models, this.decorMaterials.material, registry);
     this.decoration = new Chunked(
       (k) => new Decoration(scene, `${id}_${k}`, this.chunkNode(k), registry, this.decorMaterials),
-      (l, d) => l.update(d.trees, d.ground, d.stumps, (x, y) => this.rock.heightAt(x, y), undefined, d.detail),
+      (l, d) => l.update(d.trees, d.ground, (x, y) => this.rock.heightAt(x, y), undefined, d.detail),
       (l) => l.dispose(),
-      (d) => `${d.trees.map(placedSig).join(";")}|${d.ground.map((p) => `${p.kind}${placedSig(p)}@${this.rock.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}|${d.stumps.map(placedSig).join(";")}|${d.detail.map((p) => `${p.id}${placedSig(p)}@${this.rock.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}`,
+      (d) => `${d.trees.map(placedSig).join(";")}|${d.ground.map((p) => `${p.kind}${placedSig(p)}@${this.rock.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}|${d.detail.map((p) => `${p.id}${placedSig(p)}@${this.rock.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}`,
     );
     this.icons = new IconLayer(scene, this.near);
     this.construction = new ConstructionLayer(scene, this.near, registry);
@@ -273,7 +271,6 @@ export class IslandDetail {
       terrain: null,
       fields: new Map(),
       scatter: null,
-      areas: [],
       keys: null,
       current: null,
       currentKey: null,
@@ -364,12 +361,11 @@ export class IslandDetail {
     this.rock.setBridges(this.ground.bridges(), this.id);
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.rock.heightAt(x, y));
     yield;
-    b.keys = layerKeys(display, defs);
+    b.keys = layerKeys(display);
     // The roads are voxel paths in the terrain: painted before its chunks are meshed.
     b.terrain?.setRoads(display.roads, fieldTiles(display, defs));
     b.fields = this.fieldsByChunk(display);
     b.scatter = { width: statics.width, height: statics.height, terrain: statics.terrain, levels: statics.levels, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
-    b.areas = thinningAreas(display.buildings, defs);
   }
 
   /** The steps of one chunk of a build: its terrain, its roads and fields, its trees and scatter, its far trees. */
@@ -380,12 +376,11 @@ export class IslandDetail {
     yield;
     if (b.scatter) {
       const input = { ...b.scatter, rect: c };
-      const stumps: Placed[] = [];
-      const trees = scatterTrees(input, b.areas, TREE_MODELS.length, stumps);
+      const trees = scatterTrees(input, TREE_MODELS.length);
       const ground = scatterGround(input);
       const detail = scatterDetail(input);
       yield;
-      this.decoration.updateOne(c.key, trees.length + ground.length + stumps.length + detail.length > 0 ? { trees, ground, stumps, detail } : undefined);
+      this.decoration.updateOne(c.key, trees.length + ground.length + detail.length > 0 ? { trees, ground, detail } : undefined);
       this.decoration.get(c.key)?.setLod(this.lod);
       yield;
       this.farTrees.addTrees(trees);
@@ -425,7 +420,7 @@ export class IslandDetail {
     this.updateLife(display, defs);
     this.icons.update(display.buildings, defs, this.statusY);
     this.construction.update(display, defs);
-    const keys = layerKeys(display, defs);
+    const keys = layerKeys(display);
     const old = defsChanged ? null : this.keys;
     this.keys = keys;
     if (old?.roads !== keys.roads || old?.layout !== keys.layout) {
@@ -485,7 +480,7 @@ export class IslandDetail {
   }
 
   /**
-   * Trees (thinned by forest harvesters) and ground scatter, kept off
+   * Trees and ground scatter, kept off
    * buildings, fields and roads: placed for the whole island (seeded, so
    * an unchanged chunk places the same), rebuilt only in the chunks whose
    * placements changed.
@@ -494,18 +489,16 @@ export class IslandDetail {
     const st = this.statics;
     if (!st) return;
     const input = { width: st.width, height: st.height, terrain: st.terrain, levels: st.levels, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
-    const stumps: Placed[] = [];
-    const trees = scatterTrees(input, thinningAreas(display.buildings, defs), TREE_MODELS.length, stumps);
+    const trees = scatterTrees(input, TREE_MODELS.length);
     const chunks = new Map<string, DecorInput>();
     const at = (k: string) => {
       let c = chunks.get(k);
-      if (!c) chunks.set(k, (c = { trees: [], ground: [], stumps: [], detail: [] }));
+      if (!c) chunks.set(k, (c = { trees: [], ground: [], detail: [] }));
       return c;
     };
     const key = (p: Placed) => chunkAt(p.x, p.y, st.width, st.height);
     for (const p of trees) at(key(p)).trees.push(p);
     for (const p of scatterGround(input)) at(key(p)).ground.push(p);
-    for (const p of stumps) at(key(p)).stumps.push(p);
     for (const p of scatterDetail(input)) at(key(p)).detail.push(p);
     this.chunkRebuilds.decoration = this.decoration.update(chunks, force);
     for (const d of this.decoration.values()) d.setLod(this.lod);

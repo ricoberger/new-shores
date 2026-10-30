@@ -328,8 +328,6 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   const needsSite: string[] = [];
   if (b.requires_deposit) needsSite.push(t("almanac.site.deposit", { name: titleCase(depositName(b.requires_deposit)) }));
   if (b.work_area?.fertility) needsSite.push(t("almanac.site.fertility", { name: titleCase(fertilityName(b.work_area.fertility)) }));
-  if (b.work_area?.terrain?.length && b.work_area.radius !== undefined)
-    needsSite.push(t("almanac.site.tiles", { count: b.work_area.required_tiles ?? 1, terrain: b.work_area.terrain.map(terrainName).join("/"), radius: b.work_area.radius }));
   if (b.field?.terrain?.length) needsSite.push(t("almanac.site.on", { terrain: b.field.terrain.map(terrainName).join("/") }));
   if (b.field?.fertility) needsSite.push(t("almanac.site.fertility", { name: titleCase(fertilityName(b.field.fertility)) }));
   const levels: LevelView[] = [];

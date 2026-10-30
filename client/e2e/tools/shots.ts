@@ -678,6 +678,89 @@ async function harbour(page: Page): Promise<void> {
   await setCamera(page, { x: pos.x + HARBOUR_TARGET.x, y: pos.y + HARBOUR_TARGET.y, half: HALF.near, rotation: 0 });
 }
 
+/**
+ * A spot for a ghost across a terrace edge on the settled fixture's first island: a w × h footprint
+ * (origin tile) on land whose tile levels differ. Valid: grass, free, next to a road when there is
+ * one (roadside) or away from every road (the ghost's "no road" state). Nearest to the first house.
+ */
+async function terraceEdgeSpot(page: Page, type: string, roadside: boolean): Promise<{ island: string; ox: number; oy: number; x: number; y: number; w: number; h: number }> {
+  const spot = await page.evaluate(
+    async ([t, roadside, api]) => {
+      const server = window.__newShores!.getServer()!;
+      const content = (await (await fetch(`${api}/api/v1/content`, { credentials: "include" })).json()) as { buildings: { id: string; width: number; height: number }[] };
+      const size = (id: string) => content.buildings.find((b) => b.id === id)!;
+      const w = size(t as string).width;
+      const h = size(t as string).height;
+      const is = server.display.islands.find((i) => i.settled)!;
+      const tiles = (await (await fetch(`${api}/api/v1/world/islands/${is.id}/tiles`, { credentials: "include" })).json()) as { width: number; height: number; terrain: string[]; levels?: string };
+      const blocked = new Set<string>();
+      for (const b of is.buildings) {
+        const d = size(b.type);
+        const [bw, bh] = b.rotation === 90 || b.rotation === 270 ? [d.height, d.width] : [d.width, d.height];
+        for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) blocked.add(`${b.x + x},${b.y + y}`);
+      }
+      const roads = new Set(is.roads.map((r) => `${r.x},${r.y}`));
+      const focus = is.buildings.find((b) => b.type === "house_settlers") ?? is.buildings[0]!;
+      const level = (x: number, y: number) => (tiles.levels ? tiles.levels.charCodeAt(y * tiles.width + x) - 48 : 0);
+      let best: { x: number; y: number; score: number } | null = null;
+      for (let y = Math.max(0, focus.y - 30); y < Math.min(tiles.height - (h as number), focus.y + 30); y++) {
+        for (let x = Math.max(0, focus.x - 30); x < Math.min(tiles.width - (w as number), focus.x + 30); x++) {
+          let min = 9;
+          let max = 0;
+          let grass = true;
+          let free = true;
+          for (let dy = 0; dy < (h as number); dy++) {
+            for (let dx = 0; dx < (w as number); dx++) {
+              const l = level(x + dx, y + dy);
+              min = Math.min(min, l);
+              max = Math.max(max, l);
+              if (tiles.terrain[(y + dy) * tiles.width + x + dx] !== "grass") grass = false;
+              if (blocked.has(`${x + dx},${y + dy}`) || roads.has(`${x + dx},${y + dy}`)) {
+                free = false;
+              }
+            }
+          }
+          if (min === max) continue;
+          let next = 0;
+          for (let i = -1; i <= (w as number); i++) for (const j of [-1, (h as number)]) if (roads.has(`${x + i},${y + j}`)) next++;
+          for (let j = 0; j < (h as number); j++) for (const i of [-1, w as number]) if (roads.has(`${x + i},${y + j}`)) next++;
+          const ok = grass && free && (roadside ? next > 0 : next === 0);
+          if (!ok) continue;
+          const score = Math.abs(x - focus.x) + Math.abs(y - focus.y);
+          if (!best || score < best.score) best = { x, y, score };
+        }
+      }
+      if (!best) throw new Error(`no terrace edge spot for ${t as string} (roadside ${roadside as boolean})`);
+      return { island: is.id, ox: is.position.x, oy: is.position.y, x: best.x, y: best.y, w: w as number, h: h as number };
+    },
+    [type, roadside, `http://localhost:${API_PORT}`] as const,
+  );
+  return spot;
+}
+
+/** The ghost of a building across a terrace edge (stepped plinth), desktop near: "ok" (valid, beside a road), "no_road" (yellow) or "invalid" (red: the building's fertility or deposit is missing). */
+function ghostTerrace(type: string, state: "ok" | "no_road" | "invalid"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const s = await terraceEdgeSpot(page, type, state !== "no_road");
+      await setCamera(page, { x: s.ox + s.x + s.w / 2, y: s.oy + s.y + s.h / 2, half: HALF.near / 2, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+      for (const tab of await page.locator('[data-testid^="build-tab-"]').all()) {
+        await tab.click();
+        if (await page.getByTestId(`build-${type}`).waitFor({ state: "visible", timeout: 800 }).then(() => true, () => false)) break;
+      }
+      await page.getByTestId(`build-${type}`).click();
+      const p = await tileAt(page, s.island, s.x, s.y);
+      await page.mouse.move(p.x + 4, p.y + 4);
+      await page.waitForFunction((v) => window.__newShores!.ghostValidity() === v, state, { timeout: 10_000 });
+    },
+  };
+}
+
 const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly Device[]; patch?: (w: WorldResponse) => void; run: (page: Page) => Promise<void> }> = {
   // The HUD with the info panel of a building that is not running (desktop).
   "info-panel": {
@@ -964,6 +1047,11 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.waitForFunction(() => window.__newShores!.ghostValidity() === "invalid", undefined, { timeout: 10_000 });
     },
   },
+  // The ghost across a terrace edge on the settled fixture (stepped plinth, desktop near): a 3×3 house and a 6×6 warehouse valid; "invalid" is red for a 3×4 hemp farm (no hemp on the island) and yellow ("no road") for a 5×6 market: no 3×3 or 6×6 building has a client-side red rule, and the warehouse needs no road.
+  "ghost-terrace-3": ghostTerrace("house_settlers", "ok"),
+  "ghost-terrace-3-invalid": ghostTerrace("hemp_farm", "invalid"),
+  "ghost-terrace-6": ghostTerrace("warehouse", "ok"),
+  "ghost-terrace-6-invalid": ghostTerrace("market", "no_road"),
   // A Merchant house of the merchants fixture selected (D-056 C3), desktop and phone.
   "merchant-house-card": {
     fixture: "merchants",

@@ -7,7 +7,7 @@ import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { LifeAtLod, LifeBudget, LifePlan, LifeSink } from "../display/life";
 import { CLS, SEA_H } from "../display/lifeplan";
-import { LIFE_CLASSES, LifeLayer, SMOKE_SIZES, smokeRoute, writeMatrix } from "./life";
+import { CART_CLASS, LIFE_CLASSES, LifeLayer, SMOKE_SIZES, smokeRoute, VILLAGER_CLASS, writeMatrix } from "./life";
 import { STAGES } from "./buildings";
 import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./models";
 import { SEA_LEVEL } from "./terrain";
@@ -112,19 +112,54 @@ describe("LifeLayer with models", () => {
         return { instances: 2, particles: 0 };
       },
     };
-    const placeholderVerts = life.classMesh(CLS.cart)?.mesh.getTotalVertices();
+    const placeholderVerts = life.classMesh(CART_CLASS)?.mesh.getTotalVertices();
     life.frame(0, [{ origin: { x: 0, y: 0 }, plan: p }], "near");
     for (let i = 0; i < 200 && reg.status().pending.length > 0; i++) await new Promise((r) => setTimeout(r, 5));
     life.frame(0, [{ origin: { x: 0, y: 0 }, plan: p }], "near");
-    expect(reg.status().loaded).toEqual(["life_cart.glb", "life_cart_axle.glb"]);
-    expect(life.classMesh(CLS.cart)?.modelled).toBe(true);
-    expect(life.classMesh(CLS.cartLoaded)?.modelled).toBe(false);
-    expect(life.classMesh(CLS.cart)?.mesh.getTotalVertices()).not.toBe(placeholderVerts);
-    expect(life.counts()).toEqual({ [CLS.cart]: 1, [CLS.axle]: 1 });
-    expect(life.classMesh(CLS.cart)?.mesh.thinInstanceCount).toBe(1);
+    // The cart, the merchant cart and the axle are variants of one mesh: all three models load.
+    expect(reg.status().loaded.sort()).toEqual(["life_cart.glb", "life_cart_axle.glb", "life_cart_merchant.glb"]);
+    expect(life.classMesh(CART_CLASS)?.modelled).toBe(true);
+    expect(life.classMesh(VILLAGER_CLASS)?.modelled).toBe(false);
+    expect(life.classMesh(CART_CLASS)?.mesh.getTotalVertices()).not.toBe(placeholderVerts);
+    expect(life.counts()).toEqual({ [CART_CLASS]: 2 });
+    expect(life.classMesh(CART_CLASS)?.mesh.thinInstanceCount).toBe(2);
     // No attribute of the placeholder survives with its vertex count (it would break the draw).
-    expect(life.classMesh(CLS.cart)?.mesh.getVerticesDataKinds()).not.toContain("uv");
+    expect(life.classMesh(CART_CLASS)?.mesh.getVerticesDataKinds()).not.toContain("uv");
     expect(scene.meshes.length).toBe(meshes);
+  });
+});
+
+describe("villager and cart families", () => {
+  it("draw both tiers' villagers and the carts with their axles as one mesh each, the instance naming its variant and keeping its roll", () => {
+    const scene = new Scene(engine);
+    const life = new LifeLayer(scene, LIFE_CLASSES, "high", true, null);
+    const plan = {
+      frame: (_n: number, sink: LifeSink) => {
+        sink.add(CLS.villager("settlers", 0), 1, 0, 1, 0, 1.7);
+        sink.add(CLS.villager("settlers", 2), 2, 0, 1, 0, 1.7);
+        sink.add(CLS.villager("citizens", 1), 3, 0, 1, 0, 1.7);
+        sink.add(CLS.cart, 4, 0, 1, 0);
+        sink.add(CLS.cartLoaded, 5, 0, 1, 0);
+        sink.add(CLS.axle, 4, 0.1, 1.2, 0, 1, undefined, 0.5);
+        return { instances: 6, particles: 0 };
+      },
+    } as never;
+    const meshes = scene.meshes.length;
+    life.frame(0, [{ origin: { x: 0, y: 0 }, plan }], "near");
+    expect(life.counts()).toEqual({ [VILLAGER_CLASS]: 3, [CART_CLASS]: 3 });
+    const tags = (cls: string) => [...new Set(Array.from(life.classMesh(cls)!.mesh.getVerticesData("lifeVar") as ArrayLike<number>))].sort();
+    expect(tags(VILLAGER_CLASS)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(tags(CART_CLASS)).toEqual([0, 1, 2]);
+    // Villagers: tier × 3 + variant; carts: cart 0, merchant cart 1, axle 2.
+    const sel = (cls: string) => life.classMesh(cls)!.selected();
+    expect(sel(VILLAGER_CLASS)).toEqual([0, 2, 4]);
+    expect(sel(CART_CLASS)).toEqual([0, 1, 2]);
+    // The axle keeps its roll (the wheel's spin) in its matrix.
+    const m = life.classMesh(CART_CLASS)!.mesh.thinInstanceGetWorldMatrices()[2]!.m;
+    expect(m[6]).toBeCloseTo(Math.sin(0.5));
+    // No mesh per class any more: the 8 element classes are two meshes.
+    expect(scene.meshes.length).toBe(meshes);
+    scene.dispose();
   });
 });
 
@@ -132,7 +167,7 @@ describe("life models", () => {
   it("every modelled life class and the construction stages have a voxel prop in the manifest, with their variants", () => {
     const manifest = JSON.parse(readFileSync(join(MODELS, "manifest.json"), "utf8")) as ModelManifest;
     const life = manifest.life ?? {};
-    const used = Object.values(LIFE_CLASSES).flatMap((d) => (d.model ? [d.model] : []));
+    const used = Object.values(LIFE_CLASSES).flatMap((d) => (d.variants?.models ? [...d.variants.models] : d.model ? [d.model] : []));
     expect(used.length).toBeGreaterThan(5);
     for (const m of used) {
       const e = life[m.id];

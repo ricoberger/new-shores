@@ -16,7 +16,6 @@ export const de: Record<keyof typeof en, string> = {
   "almanac.category.other": "Sonstiges",
   "almanac.site.deposit": "{name}-Vorkommen unter dem Grundriss",
   "almanac.site.fertility": "Boden „{name}“ auf der Insel",
-  "almanac.site.tiles": "{count}+ Felder ({terrain}) im Umkreis von {radius} Feldern",
   "almanac.site.on": "Auf Feldern ({terrain})",
   "almanac.footprintWater": "{width} × {height}, {count} {count, one{Reihe} other{Reihen}} im Wasser",
   "almanac.chain.deposit": "{name}-Vorkommen",

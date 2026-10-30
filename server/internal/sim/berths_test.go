@@ -284,3 +284,44 @@ func TestFoundingVoyagePosition(t *testing.T) {
 		t.Fatalf("position = %v offshore %v end %v", p, s.Offshore, end)
 	}
 }
+
+// TestDemolishLastBerthSourceMoorsShips: when the Trading Post is
+// demolished, the ships idle there keep the harbour point of the demolished
+// building as their sea position (also after a reload); a departure clears it.
+func TestDemolishLastBerthSourceMoorsShips(t *testing.T) {
+	c := catalogue(t)
+	w := shipWorld(t, c)
+	s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
+	if err != nil {
+		t.Fatal(err)
+	}
+	mustApply(t, w, c, SailShip{ShipID: s.ID, ToIslandID: "b"})
+	mustAdvance(t, w, c, time.Hour)
+	mustApply(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0})
+	pos := func(w *World) *PositionDisplay { return display(t, w, c).Ships[0].Position }
+	if s.State != ShipIdle || s.IslandID != "b" || s.Offshore != nil || pos(w) != nil {
+		t.Fatalf("before = %+v position %v", s, pos(w))
+	}
+	is := w.Island("b")
+	tp := is.Buildings[0]
+	want := HarbourAt(is, c.BuildingByID[tp.Type], tp.X, tp.Y, tp.Rotation)
+	mustApply(t, w, c, Demolish{IslandID: "b", BuildingID: tp.ID, AcceptSurplusLoss: true})
+	if s.Offshore == nil || *s.Offshore != want {
+		t.Fatalf("offshore = %v, want %v", s.Offshore, want)
+	}
+	if p := pos(w); p == nil || *p != PositionDisplay(want) || display(t, w, c).Ships[0].IslandID != "b" {
+		t.Fatalf("position = %v, want %v", p, want)
+	}
+	w2, _, _, err := Decode(encode(t, w), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p := pos(w2); p == nil || *p != PositionDisplay(want) {
+		t.Fatalf("position after reload = %v", p)
+	}
+	// Leaving clears it.
+	mustApply(t, w, c, SailShip{ShipID: s.ID, ToIslandID: "a"})
+	if s.Offshore != nil || pos(w) != nil {
+		t.Fatalf("position on the next leg = %v", pos(w))
+	}
+}

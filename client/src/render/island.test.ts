@@ -91,14 +91,14 @@ describe("per-island merged-layer rebuilds", () => {
     for (const [id, d] of w.details) {
       expect(d.rebuilds, id).toEqual(id === "dense1" ? { roads: 1, layout: 2, decoration: 2 } : { roads: 1, layout: 1, decoration: 1 });
     }
-    // A forest harvester's efficiency changes the thinning: trees only.
+    // A harvester's efficiency moves no tree any more: nothing rebuilds.
     w.show(
       next(moved, (is) => {
         if (is.id !== "dense2") return;
         is.buildings.find((b) => b.type === "lumberjack")!.efficiency_permille = 400;
       }),
     );
-    expect(w.details.get("dense2")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 2 });
+    expect(w.details.get("dense2")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 1 });
     expect(w.details.get("dense1")!.rebuilds).toEqual({ roads: 1, layout: 2, decoration: 2 });
   });
 

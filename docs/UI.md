@@ -158,7 +158,10 @@ UI shows the same numbers the server uses.
   building, ship or island (closing the list does not bring its details
   back). Details-in-place is a later task.
 - **Phone (compact):** same content; portrait puts the island on a second
-  row below gold / population / materials and the menu icon. The minimap
+  row below gold / population / materials and the menu icon. The left
+  groups wrap onto a further line when they do not fit (all construction
+  materials, a longer language) and the menu icon keeps its slot at the
+  right of the first line; nothing overlaps. The minimap
   collapses to its toggle (portrait starts collapsed); the compass shows
   with the expanded minimap only.
 - **Build menu:** categories → items with cost, upkeep, lock reason and a

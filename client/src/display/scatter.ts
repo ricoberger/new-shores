@@ -5,11 +5,8 @@
 // grow on forest tiles, tufts, flowers, rocks and bushes on grass, coast
 // and mountain tiles (bushes and rocks mostly along the coast and on the
 // rock); none of them on a building footprint, field or road tile,
-// and fewer within one tile of those. Inside the work radius of a
-// harvester whose work area includes forest the kept tree fraction
-// follows the server's efficiency (treeKeepFraction), the felled trees
-// leaving stumps — decoration, never a rule (D-027): nothing here
-// influences placement or hints.
+// and fewer within one tile of those — decoration, never a rule (D-027):
+// nothing here influences placement or hints.
 import type { BuildingDisplay, ContentBuilding, IslandDisplay } from "../api/client";
 import { rotatedFootprint, type TilePos, tileKey } from "./geometry";
 import { hash2, hashString, valueNoise } from "./noise";
@@ -19,20 +16,10 @@ export function islandSeed(id: string, revision: string): number {
   return hashString(`${id}|${revision}`);
 }
 
-/** Tree candidates per forest tile (before exclusion and thinning). */
+/** Tree candidates per forest tile (before exclusion). */
 export const TREES_PER_TILE = 2;
 /** Kept fraction next to (within one tile of) a building, field or road. */
 export const NEAR_BLOCKED_KEEP = 0.4;
-
-/**
- * Kept tree fraction inside a harvester's work radius: 1 − 0.5 ×
- * efficiency (full efficiency → half the trees; provisional, tunable).
- * Out-of-range input is clamped to 0 … 1000.
- */
-export function treeKeepFraction(efficiencyPermille: number): number {
-  const e = Math.min(1000, Math.max(0, Number.isFinite(efficiencyPermille) ? efficiencyPermille : 0));
-  return 1 - (0.5 * e) / 1000;
-}
 
 /** Tiles covered by building footprints, fields and roads (keys "x,y"). */
 export function blockedTiles(
@@ -46,29 +33,6 @@ export function blockedTiles(
     if (!def) continue;
     const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
     for (let dy = 0; dy < h; dy++) for (let dx = 0; dx < w; dx++) out.add(`${b.x + dx},${b.y + dy}`);
-  }
-  return out;
-}
-
-/** A work disc that thins the trees inside it. */
-export interface ThinningArea {
-  /** Footprint centre (island tiles). */
-  cx: number;
-  cy: number;
-  radius: number;
-  /** Kept fraction of the trees inside. */
-  keep: number;
-}
-
-/** Work discs of the buildings whose content work area includes forest, with the server's efficiency. */
-export function thinningAreas(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): ThinningArea[] {
-  const out: ThinningArea[] = [];
-  for (const b of buildings) {
-    const def = defs.get(b.type);
-    const area = def?.work_area;
-    if (!def || !area || area.radius === undefined || !(area.terrain ?? []).includes("forest")) continue;
-    const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
-    out.push({ cx: b.x + w / 2, cy: b.y + h / 2, radius: area.radius, keep: treeKeepFraction(b.efficiency_permille) });
   }
   return out;
 }
@@ -113,7 +77,7 @@ function nearBlocked(blocked: ReadonlySet<string>, x: number, y: number): boolea
  * numbers from (tile, index, seed), so a change elsewhere never moves a
  * tree, and the kept/dropped choice is stable between payloads.
  */
-export function scatterTrees(input: ScatterInput, areas: readonly ThinningArea[], variants = 3, stumps: Placed[] | null = null): Placed[] {
+export function scatterTrees(input: ScatterInput, variants = 3): Placed[] {
   const { width, terrain, seed, blocked } = input;
   const { x0, x1, y0, y1 } = span(input);
   const out: Placed[] = [];
@@ -126,13 +90,6 @@ export function scatterTrees(input: ScatterInput, areas: readonly ThinningArea[]
         const px = x + 0.18 + 0.64 * hash2(x, y, s);
         const py = y + 0.18 + 0.64 * hash2(x, y, s + 1);
         if (near && hash2(x, y, s + 2) >= NEAR_BLOCKED_KEEP) continue;
-        let keep = 1;
-        for (const a of areas) if ((px - a.cx) ** 2 + (py - a.cy) ** 2 <= a.radius * a.radius) keep = Math.min(keep, a.keep);
-        if (keep < 1 && hash2(x, y, s + 3) >= keep) {
-          // A felled tree: a stump where it stood (the more efficient the harvester, the more stumps).
-          stumps?.push({ x: px, y: py, variant: Math.floor(hash2(x, y, s + 7) * 2) % 2, scale: 0.85 + 0.3 * hash2(x, y, s + 5), yaw: hash2(x, y, s + 6) * Math.PI * 2 });
-          continue;
-        }
         out.push({
           x: px,
           y: py,
@@ -252,17 +209,10 @@ export function scatterGround(input: ScatterInput): (Placed & { kind: ScatterKin
  * stocks, rates, statuses and cycle progress do not move a tree):
  * `roads` (the road strips), `layout` (building and field footprints:
  * contact shadows, field decoration, mid-LOD blocks) and `decoration`
- * (trees and scatter: the layout, the roads and the efficiency of the
- * harvesters that thin forest).
+ * (trees and scatter: the layout and the roads).
  */
-export function layerKeys(
-  display: Pick<IslandDisplay, "buildings" | "roads">,
-  defs: ReadonlyMap<string, ContentBuilding>,
-): { roads: string; layout: string; decoration: string } {
+export function layerKeys(display: Pick<IslandDisplay, "buildings" | "roads">): { roads: string; layout: string; decoration: string } {
   const roads = display.roads.map((r) => `${r.x},${r.y},${r.type}`).join(";");
   const layout = display.buildings.map((b) => `${b.type}@${b.x},${b.y},${b.rotation}`).join(";");
-  const thinning = thinningAreas(display.buildings, defs)
-    .map((a) => `${a.cx},${a.cy},${a.keep}`)
-    .join(";");
-  return { roads, layout, decoration: `${layout}|${roads}|${thinning}` };
+  return { roads, layout, decoration: `${layout}|${roads}` };
 }

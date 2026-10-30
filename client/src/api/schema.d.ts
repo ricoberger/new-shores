@@ -1563,7 +1563,7 @@ export interface components {
             state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map";
             /** @description Island where the ship is; empty while travelling or at sea. */
             island_id: string;
-            /** @description Archipelago position of an idle or anchored ship at sea or at an island without berths (the start ship of a new world, D-051; a founding ship before its Trading Post, the end of the leg that brought it; `island_id` stays set there); null at an island with berths or on a leg. */
+            /** @description Archipelago position of an idle or anchored ship at sea or at an island without berths (the start ship of a new world, D-051; a founding ship before its Trading Post, the end of the leg that brought it, or the harbour point of the Trading Post demolished under it; `island_id` stays set there); null at an island with berths or on a leg. */
             position: components["schemas"]["SeaPosition"] | null;
             /**
              * Format: int64
@@ -2578,23 +2578,9 @@ export interface components {
             /**
              * @description Fertility requirement: the building can only be placed on an
              *     island with the `fertility` tag. There is no work radius or
-             *     terrain rule any more (the harvester rule was removed);
-             *     `radius`, `terrain` and `required_tiles` are deprecated, never
-             *     sent, and only kept until the Almanac stops reading them.
+             *     terrain rule (the harvester rule was removed).
              */
             work_area?: {
-                /**
-                 * @deprecated
-                 * @description Never sent (removed work-area rule).
-                 */
-                radius?: number;
-                /** @deprecated */
-                terrain?: string[];
-                /**
-                 * @deprecated
-                 * @description Never sent (removed work-area rule).
-                 */
-                required_tiles?: number;
                 /** @description Island fertility tag the building needs (absent for none). */
                 fertility?: string;
             };

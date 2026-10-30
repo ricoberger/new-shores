@@ -42,10 +42,13 @@
   padding-right: max(8px, env(safe-area-inset-right));
 }
 
+/* The groups wrap onto a second line when they do not fit (a phone with
+   all construction materials) instead of running into the account button. */
 .hudLeft {
   grid-area: left;
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 2px 10px;
   align-items: center;
   min-width: 0;
 }
@@ -61,6 +64,17 @@
   border-left: 1px solid var(--ns-ui-wood-light);
 }
 
+/* The account button keeps its slot on the first line, whatever the stats do. */
+.topBarPortrait .hudRight {
+  align-self: start;
+}
+
+/* No divider where the groups stack on a phone. */
+.topBarPortrait .hudGroup + .hudGroup {
+  padding-left: 0;
+  border-left: 0;
+}
+
 .hudMiddle {
   grid-area: middle;
   display: flex;
@@ -70,6 +84,7 @@
 
 .hudRight {
   grid-area: right;
+  flex: none;
   display: flex;
   justify-content: flex-end;
 }

@@ -1577,6 +1577,7 @@ export class GameRenderer {
         rotation: tool.rotation,
         waterRows: waterRows(def, tl.x, tl.y, tool.rotation),
         base: this.details.get(tl.island)?.baseOf({ x: tl.x, y: tl.y, type: def.id, rotation: tool.rotation }, def) ?? 0,
+        ground: (x, y) => this.details.get(tl.island)?.ground.tile(x, y) ?? 0,
         ...(moved ? { buildingId: moved.id, level: moved.level ?? 1 } : {}),
       },
       color,
