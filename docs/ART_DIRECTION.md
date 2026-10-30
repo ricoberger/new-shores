@@ -211,7 +211,7 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   bushes are merged per chunk and culled with the chunk. Canopies **sway**
   in the vertex shader (sway group `canopy`: weight 0 at the canopy's
   bottom, 0.45 at the top). Trees are thinned around buildings and roads
-  and visibly inside a lumberjack's radius, with cut stumps.
+  only (a harvester has no work radius, so nothing else fells them).
 - **Water:** shallows→deep gradient by distance from the coast, slow noise
   animation, subtle specular; the deep is the palette's deep 12 % toward
   the shallows and warmed (`render/mapcolors.ts` `seaDeepRgb`, shared with

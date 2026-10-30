@@ -513,7 +513,7 @@ const FIXTURE_DEFS: FixtureDef[] = [
   ],
   ["market", "Market", "settlers", "public", 3, 3, { service: { radius: 10, levels: [{ radius: 10 }] } }],
   ["chapel", "Chapel", "settlers", "public", 2, 2, { service: { radius: 10, levels: [{ radius: 10 }] } }],
-  ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { work_area: { radius: 4, terrain: ["forest"] }, fields: { type: "tree_plot", required: 1, max: 2 } }],
+  ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { fields: { type: "tree_plot", required: 1, max: 2 } }],
   ["tree_plot", "Tree plot", "settlers", "production", 1, 1, { requires_road: false, cost: { gold: 1000, materials: {} }, field: { type: "tree_plot", farm: "lumberjack", terrain: ["grass", "forest"] } }],
   ["sawmill", "Sawmill", "settlers", "production", 2, 2],
   ["fisher", "Fisher", "settlers", "production", 2, 2, { water_tiles: 1, boat: true }],

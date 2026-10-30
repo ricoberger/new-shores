@@ -1,7 +1,6 @@
 // Trees and ground scatter (ART_DIRECTION §4, restyle) of one island at
 // near LOD: voxel trees (four species, decor_tree_a–d) on the
-// forest tiles, a soft blob shadow under each, stumps of the felled trees
-// inside lumberjack radii (decor_stump_a/b), grass tufts, bushes and rocks
+// forest tiles, a soft blob shadow under each, grass tufts, bushes and rocks
 // (decor_tuft_*, decor_bush_*, decor_rock_*) on grass, along the coast and
 // on the rock (at its height; terraces lift everything), and small procedural flowers —
 // placed by display/scatter.ts from the island seed. The pieces come
@@ -44,7 +43,6 @@ export const FAR_TREE_STRIDE = 1;
 
 /** Decor models of the tree species (variant index → manifest decor ID). */
 export const TREE_MODELS = ["decor_tree_a", "decor_tree_b", "decor_tree_c", "decor_tree_d"] as const;
-const STUMP_MODELS = ["decor_stump_a", "decor_stump_b"] as const;
 const SCATTER_MODELS: Partial<Record<ScatterKind, readonly string[]>> = {
   tuft: ["decor_tuft_a", "decor_tuft_b"],
   rock: ["decor_rock_a", "decor_rock_b"],
@@ -226,7 +224,7 @@ export function decorMaterials(scene: Scene, name: string): DecorMaterials {
   return { material: addSway(decorMaterial(scene, `decor_${name}`)), scatterMaterial: decorMaterial(scene, `scatter_${name}`), shadowMaterial };
 }
 
-/** Trees, stumps, their blob shadows and the ground scatter of one island or island chunk. */
+/** Trees, their blob shadows and the ground scatter of one island or island chunk. */
 export class Decoration {
   private readonly material: StandardMaterial;
   /** The ground scatter's own material. */
@@ -237,7 +235,7 @@ export class Decoration {
   private scatter: Mesh | null = null;
   /** The small ground detail (near LOD only). */
   private detail: Mesh | null = null;
-  private count = { trees: 0, scatter: 0, stumps: 0, detail: 0, triangles: 0 };
+  private count = { trees: 0, scatter: 0, detail: 0, triangles: 0 };
   /** Index counts of the trees and their shadows: kept at far LOD (FAR_TREE_STRIDE) and all. */
   private ranges = { trees: { kept: 0, all: 0 }, shadows: { kept: 0, all: 0 } };
   private thinned = false;
@@ -280,7 +278,6 @@ export class Decoration {
   update(
     trees: readonly Placed[],
     ground: readonly (Placed & { kind: ScatterKind })[],
-    stumps: readonly Placed[] = [],
     heightAt: (x: number, y: number) => number = () => 0,
     stride = FAR_TREE_STRIDE,
     detail: readonly DetailPlaced[] = [],
@@ -307,7 +304,7 @@ export class Decoration {
       const m = this.model(TREE_MODELS[p.variant % TREE_MODELS.length] as string);
       if (m) t.add(m, p.x, 0, -p.y, p.scale, p.yaw, shade);
       else {
-        // The procedural stand-in, in tree order too (thinning keeps its range).
+        // The procedural stand-in, in tree order too .
         const tp = new TriBuilder();
         for (const tri of TREE_VARIANTS[p.variant % TREE_VARIANTS.length] ?? []) tp.add(tri, p.x, 0, -p.y, p.scale, p.yaw, tri.color === TRUNK ? 1 : shade);
         t.addTris(tp);
@@ -317,10 +314,6 @@ export class Decoration {
     if (kept >= ordered.length) {
       keptTrees = t.indexCount();
       keptShadows = sh.positions.length / 3;
-    }
-    for (const p of stumps) {
-      const m = this.model(STUMP_MODELS[p.variant % STUMP_MODELS.length] as string);
-      if (m) t.add(m, p.x, 0, -p.y, p.scale, p.yaw);
     }
     const g = new ModelMerger();
     const gp = new TriBuilder();
@@ -345,7 +338,7 @@ export class Decoration {
       dm.add(m, p.x, heightAt(Math.floor(p.x), Math.floor(p.y)), -p.y, p.scale, p.yaw, 0.94 + 0.12 * ((p.yaw / (Math.PI * 2)) % 1));
       detailCount++;
     }
-    this.count = { trees: trees.length, scatter: ground.length, stumps: stumps.length, detail: detailCount, triangles: t.triangles() + g.triangles() + dm.triangles() };
+    this.count = { trees: trees.length, scatter: ground.length, detail: detailCount, triangles: t.triangles() + g.triangles() + dm.triangles() };
     this.trees = t.build(`trees_${this.name}`, this.scene, this.material, this.parent);
     this.shadows = sh.build(`tree_shadows_${this.name}`, this.scene, this.shadowMaterial, this.parent, true);
     if (this.shadows) this.shadows.hasVertexAlpha = true;
@@ -408,8 +401,8 @@ export class Decoration {
     return this.trees ? [this.trees] : [];
   }
 
-  /** Trees, scatter items and stumps drawn and their triangles (tests and the perf notes). */
-  counts(): { trees: number; scatter: number; stumps: number; detail: number; triangles: number } {
+  /** Trees, scatter items drawn and their triangles (tests and the perf notes). */
+  counts(): { trees: number; scatter: number; detail: number; triangles: number } {
     return this.count;
   }
 }

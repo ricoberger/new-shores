@@ -77,7 +77,7 @@ export function loadContent(dir: string): Content {
       const levels: Raw[] = b.service.levels ?? [{ radius: b.service.radius }];
       out.service = { radius: levels[0]?.radius, levels: levels.map((l) => ({ radius: l.radius, ...(l.tier ? { tier: l.tier } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };
     }
-    if (b.work_area) out.work_area = b.work_area;
+    if (b.work_area?.fertility) out.work_area = { fertility: b.work_area.fertility };
     if (b.workforce) out.workforce = { tier: b.workforce.tier, amount: m(b.workforce.amount) };
     if (b.shipyard) out.shipyard = b.shipyard;
     if (b.requires_deposit) out.requires_deposit = b.requires_deposit;

@@ -48,7 +48,7 @@ describe("Decoration far-LOD thinning", () => {
     const scene = new Scene(engine);
     const d = new Decoration(scene, "t", null);
     const trees = Array.from({ length: 10 }, (_, i) => ({ x: i * 2, y: 3, scale: 1, yaw: 0, variant: i }));
-    d.update(trees, [], [], () => 0, 2);
+    d.update(trees, [], () => 0, 2);
     const all = d.treeRange();
     expect(all.drawn).toBe(all.all);
     d.setThinned(true);

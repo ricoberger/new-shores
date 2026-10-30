@@ -14,7 +14,6 @@ export const en = {
   "almanac.category.other": "Other",
   "almanac.site.deposit": "{name} deposit under the footprint",
   "almanac.site.fertility": "{name} fertility on the island",
-  "almanac.site.tiles": "{count}+ {terrain} tiles within {radius} tiles",
   "almanac.site.on": "On {terrain} tiles",
   "almanac.footprintWater": "{width} × {height}, {count} {count, one{row} other{rows}} on water",
   "almanac.chain.deposit": "{name} deposit",

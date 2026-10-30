@@ -35,7 +35,7 @@ const content = {
   goods: [{ id: "wool", name: "Wool" }],
   buildings: [
     b("pasture", "Pasture", { width: 2, height: 2, cost: { gold: 15_000, materials: {} }, field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } }),
-    b("lumberjack", "Lumberjack", { width: 2, height: 2, work_area: { radius: 4, terrain: ["forest"], required_tiles: 24 } }),
+    b("lumberjack", "Lumberjack", { width: 2, height: 2 }),
     b("sheep_farm", "Sheep farm", { width: 3, height: 3, pause_category: "intermediate", fields: { type: "pasture", required: 4, max: 4 } }),
     b("weaver_wool", "Wool weaver", { width: 2, height: 2 }),
     b("warehouse", "Warehouse", {

@@ -2578,23 +2578,9 @@ export interface components {
             /**
              * @description Fertility requirement: the building can only be placed on an
              *     island with the `fertility` tag. There is no work radius or
-             *     terrain rule any more (the harvester rule was removed);
-             *     `radius`, `terrain` and `required_tiles` are deprecated, never
-             *     sent, and only kept until the Almanac stops reading them.
+             *     terrain rule (the harvester rule was removed).
              */
             work_area?: {
-                /**
-                 * @deprecated
-                 * @description Never sent (removed work-area rule).
-                 */
-                radius?: number;
-                /** @deprecated */
-                terrain?: string[];
-                /**
-                 * @deprecated
-                 * @description Never sent (removed work-area rule).
-                 */
-                required_tiles?: number;
                 /** @description Island fertility tag the building needs (absent for none). */
                 fertility?: string;
             };
