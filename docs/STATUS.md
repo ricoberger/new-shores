@@ -26,6 +26,10 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Decisions most relevant right now
 
+- **D-062** Anno-sized footprints (Trading Post 6×6, chapel 3×5,
+  civic 4×4/4×5/4×6, pier 6×9, depot 11×4), per-column `water_rows`,
+  depots without levels, surgery at Patricians; **D-063** Old Coast =
+  temperate Europe, theatre → playhouse, region-scoped palette roles
 - **D-059** lumberjack plants tree plots, ship speeds 1.2/1.0/0.85,
   one fixture list + `played`; **D-060** civic services as needs
   (guard/fire/surgery), quay/pier/depot (crane deferred); **D-061**
@@ -61,19 +65,19 @@ in the sync after a task unless the task says otherwise; nobody adds the
      incl. flank berths, one smoke draw, jitter on scaled decor, wake
      from the anchor, 90 k far mask cap) merged; ~~D-061
      translation pass~~ (#51) and ~~server tidy~~ (#50: idle-ship sea
-     position, harvester rule removed) merged; **next: V6** polish
-     round with the tier 2–4 playtest (second chains, market levels,
-     services ladder, unlock toasts, quest chains, long house cards,
-     brig/galleon at the piers) plus the open items: client reads of
-     the removed `work_area` radius (`almanac/model.ts`,
-     `testContent.ts`, `ui/fields.test.ts`), dead tree-thinning code
-     (`display/scatter.ts`, `render/island.ts`, fixture radius) and
-     the deprecated openapi props, per-model voxels-per-tile in the
-     manifest, `wake_width` anchor, stepped ghost plinth on terrace
-     edges, villager/cart draw merges, phone top bar overlapping
-     "Developer", German read-through of island names and quest
-     texts, idle ship after a Trading Post demolition (`position`
-     null).
+     position, harvester rule removed) and ~~V6 part 1~~ (#52: work_area
+     reads and tree thinning gone, idle ship after a Trading Post
+     demolition, phone top bar wraps, stepped ghost plinth, villager/
+     cart draw merges) merged; **next: D-062/D-063** (footprints,
+     per-column water rows, depot without levels, surgery at
+     Patricians, playhouse; content + sim session and a models session
+     in parallel), then **V6 part 2** with the owner's tier 2–4
+     playtest (second chains, market levels, services ladder, unlock
+     toasts, quest chains, long house cards, brig/galleon at the piers)
+     plus the open items: per-model voxels-per-tile in the manifest,
+     `wake_width` anchor, `decor_stump_*` models still in the manifest,
+     terracotta roof share in tier 3–4 quarters (D-063 §3), German
+     read-through of island names and quest texts.
    - ~~Quantised GLB export~~ done (V3b/c, #42): 12.9 MB, ≈ 32
      bytes/triangle, limit 24 MiB unchanged.
 
