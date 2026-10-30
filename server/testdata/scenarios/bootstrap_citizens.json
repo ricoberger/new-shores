@@ -91,19 +91,19 @@
       "place": {
         "rotation": 0,
         "type": "lumberjack",
-        "x": 167,
-        "y": 133
+        "x": 165,
+        "y": 135
       }
     },
     {
       "road": {
         "from": [
           161,
-          135
+          137
         ],
         "to": [
-          166,
-          135
+          164,
+          137
         ],
         "type": "road_dirt"
       }
@@ -112,13 +112,119 @@
       "road": {
         "from": [
           161,
-          136
+          138
         ],
         "to": [
           161,
           151
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          165,
+          135
+        ],
+        "tiles": [
+          [
+            166,
+            134
+          ],
+          [
+            164,
+            136
+          ],
+          [
+            168,
+            136
+          ],
+          [
+            166,
+            138
+          ],
+          [
+            165,
+            134
+          ],
+          [
+            167,
+            134
+          ],
+          [
+            164,
+            135
+          ],
+          [
+            168,
+            135
+          ],
+          [
+            168,
+            137
+          ],
+          [
+            165,
+            138
+          ],
+          [
+            167,
+            138
+          ],
+          [
+            164,
+            134
+          ],
+          [
+            168,
+            134
+          ],
+          [
+            164,
+            138
+          ],
+          [
+            168,
+            138
+          ],
+          [
+            166,
+            133
+          ],
+          [
+            163,
+            136
+          ],
+          [
+            169,
+            136
+          ],
+          [
+            166,
+            139
+          ],
+          [
+            165,
+            133
+          ],
+          [
+            167,
+            133
+          ],
+          [
+            163,
+            135
+          ],
+          [
+            169,
+            135
+          ],
+          [
+            169,
+            137
+          ]
+        ]
       }
     },
     {
@@ -131,37 +237,143 @@
     },
     {
       "place": {
-        "rotation": 90,
-        "type": "market",
-        "x": 154,
-        "y": 147
-      }
-    },
-    {
-      "place": {
         "rotation": 0,
         "type": "lumberjack",
-        "x": 166,
-        "y": 130
+        "x": 162,
+        "y": 129
       }
     },
     {
       "road": {
         "from": [
-          166,
-          133
+          162,
+          132
         ],
         "to": [
-          166,
-          134
+          162,
+          136
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          162,
+          129
+        ],
+        "tiles": [
+          [
+            163,
+            128
+          ],
+          [
+            161,
+            130
+          ],
+          [
+            165,
+            130
+          ],
+          [
+            163,
+            132
+          ],
+          [
+            162,
+            128
+          ],
+          [
+            164,
+            128
+          ],
+          [
+            161,
+            129
+          ],
+          [
+            165,
+            129
+          ],
+          [
+            161,
+            131
+          ],
+          [
+            165,
+            131
+          ],
+          [
+            164,
+            132
+          ],
+          [
+            161,
+            128
+          ],
+          [
+            165,
+            128
+          ],
+          [
+            161,
+            132
+          ],
+          [
+            165,
+            132
+          ],
+          [
+            163,
+            127
+          ],
+          [
+            160,
+            130
+          ],
+          [
+            166,
+            130
+          ],
+          [
+            163,
+            133
+          ],
+          [
+            162,
+            127
+          ],
+          [
+            164,
+            127
+          ],
+          [
+            160,
+            129
+          ],
+          [
+            166,
+            129
+          ],
+          [
+            160,
+            131
+          ]
+        ]
       }
     },
     {
       "place": {
         "rotation": 90,
         "type": "sawmill",
+        "x": 154,
+        "y": 148
+      }
+    },
+    {
+      "place": {
+        "rotation": 90,
+        "type": "market",
         "x": 154,
         "y": 153
       }
@@ -177,7 +389,20 @@
     {
       "road": {
         "from": [
-          154,
+          153,
+          158
+        ],
+        "to": [
+          161,
+          158
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          161,
           157
         ],
         "to": [
@@ -236,7 +461,7 @@
           158
         ],
         "to": [
-          154,
+          152,
           158
         ],
         "type": "road_dirt"
@@ -306,14 +531,6 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 155,
-        "y": 158
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
         "x": 148,
         "y": 145
       }
@@ -343,7 +560,7 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 152,
+        "x": 153,
         "y": 159
       }
     },
@@ -359,15 +576,15 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 158,
-        "y": 158
+        "x": 150,
+        "y": 159
       }
     },
     {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 149,
+        "x": 156,
         "y": 159
       }
     },
@@ -404,21 +621,26 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
         "x": 144,
         "y": 155
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -448,19 +670,19 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 155,
-        "y": 161
+        "x": 147,
+        "y": 159
       }
     },
     {
       "road": {
         "from": [
-          158,
-          161
+          143,
+          154
         ],
         "to": [
-          161,
-          161
+          145,
+          154
         ],
         "type": "road_dirt"
       }
@@ -468,12 +690,38 @@
     {
       "road": {
         "from": [
-          161,
+          143,
           158
         ],
         "to": [
-          161,
-          160
+          146,
+          158
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          143,
+          155
+        ],
+        "to": [
+          143,
+          157
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          146,
+          159
+        ],
+        "to": [
+          146,
+          159
         ],
         "type": "road_dirt"
       }
@@ -481,6 +729,19 @@
     {
       "advance": {
         "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 159,
+        "y": 159
       }
     },
     {
@@ -557,52 +818,8 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 146,
-        "y": 159
-      }
-    },
-    {
-      "road": {
-        "from": [
-          143,
-          154
-        ],
-        "to": [
-          145,
-          154
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          143,
-          158
-        ],
-        "to": [
-          146,
-          158
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          143,
-          155
-        ],
-        "to": [
-          143,
-          157
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
+        "x": 163,
+        "y": 155
       }
     },
     {
@@ -614,8 +831,44 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 163,
-        "y": 155
+        "x": 153,
+        "y": 162
+      }
+    },
+    {
+      "road": {
+        "from": [
+          146,
+          162
+        ],
+        "to": [
+          152,
+          162
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          146,
+          160
+        ],
+        "to": [
+          146,
+          161
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -663,40 +916,6 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 152,
-        "y": 162
-      }
-    },
-    {
-      "road": {
-        "from": [
-          155,
-          164
-        ],
-        "to": [
-          158,
-          164
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          158,
-          162
-        ],
-        "to": [
-          158,
-          163
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
         "x": 155,
         "y": 140
       }
@@ -712,16 +931,6 @@
           140
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -743,11 +952,6 @@
           139
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -790,11 +994,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
@@ -813,50 +1012,6 @@
           138
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "lumberjack",
-        "x": 170,
-        "y": 132
-      }
-    },
-    {
-      "road": {
-        "from": [
-          166,
-          136
-        ],
-        "to": [
-          170,
-          136
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          170,
-          135
-        ],
-        "to": [
-          170,
-          135
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -911,7 +1066,152 @@
     {
       "place": {
         "rotation": 0,
-        "type": "chapel",
+        "type": "lumberjack",
+        "x": 170,
+        "y": 137
+      }
+    },
+    {
+      "road": {
+        "from": [
+          168,
+          139
+        ],
+        "to": [
+          169,
+          139
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          168,
+          140
+        ],
+        "to": [
+          168,
+          144
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          170,
+          137
+        ],
+        "tiles": [
+          [
+            171,
+            136
+          ],
+          [
+            169,
+            138
+          ],
+          [
+            173,
+            138
+          ],
+          [
+            171,
+            140
+          ],
+          [
+            170,
+            136
+          ],
+          [
+            172,
+            136
+          ],
+          [
+            173,
+            137
+          ],
+          [
+            173,
+            139
+          ],
+          [
+            170,
+            140
+          ],
+          [
+            172,
+            140
+          ],
+          [
+            173,
+            136
+          ],
+          [
+            169,
+            140
+          ],
+          [
+            173,
+            140
+          ],
+          [
+            171,
+            135
+          ],
+          [
+            174,
+            138
+          ],
+          [
+            171,
+            141
+          ],
+          [
+            170,
+            135
+          ],
+          [
+            172,
+            135
+          ],
+          [
+            174,
+            137
+          ],
+          [
+            174,
+            139
+          ],
+          [
+            170,
+            141
+          ],
+          [
+            172,
+            141
+          ],
+          [
+            173,
+            135
+          ],
+          [
+            174,
+            136
+          ]
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
         "x": 140,
         "y": 151
       }
@@ -935,16 +1235,16 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
         "x": 140,
         "y": 154
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -969,34 +1269,52 @@
       "place": {
         "rotation": 0,
         "type": "house_settlers",
-        "x": 145,
-        "y": 162
+        "x": 140,
+        "y": 157
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 141,
+        "y": 143
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "chapel",
+        "x": 146,
+        "y": 138
       }
     },
     {
       "road": {
         "from": [
-          142,
-          162
+          149,
+          138
         ],
         "to": [
-          144,
-          162
+          150,
+          138
         ],
         "type": "road_dirt"
       }
     },
     {
-      "road": {
-        "from": [
-          142,
-          158
-        ],
-        "to": [
-          142,
-          161
-        ],
-        "type": "road_dirt"
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1012,9 +1330,48 @@
     {
       "place": {
         "rotation": 0,
-        "type": "sawmill",
-        "x": 140,
+        "type": "house_settlers",
+        "x": 143,
         "y": 140
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 143,
+        "y": 162
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "sawmill",
+        "x": 136,
+        "y": 149
+      }
+    },
+    {
+      "road": {
+        "from": [
+          140,
+          150
+        ],
+        "to": [
+          141,
+          150
+        ],
+        "type": "road_dirt"
       }
     },
     {
@@ -1062,37 +1419,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 146,
-        "y": 138
-      }
-    },
-    {
-      "road": {
-        "from": [
-          149,
-          138
-        ],
-        "to": [
-          150,
-          138
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "rotation": 0,
         "type": "house_settlers",
@@ -1111,6 +1437,19 @@
         "type": "house_settlers",
         "x": 165,
         "y": 142
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "house_settlers",
+        "x": 156,
+        "y": 136
       }
     },
     {
@@ -1177,16 +1516,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "rotation": 270,
         "type": "shipyard",
@@ -1201,7 +1530,7 @@
           171
         ],
         "to": [
-          142,
+          146,
           171
         ],
         "type": "road_dirt"
@@ -1210,19 +1539,14 @@
     {
       "road": {
         "from": [
-          142,
+          146,
           163
         ],
         "to": [
-          142,
+          146,
           170
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -1260,29 +1584,73 @@
     {
       "place": {
         "rotation": 0,
+        "type": "house_settlers",
+        "x": 140,
+        "y": 160
+      }
+    },
+    {
+      "road": {
+        "from": [
+          142,
+          165
+        ],
+        "to": [
+          145,
+          165
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          142,
+          163
+        ],
+        "to": [
+          142,
+          164
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
         "type": "sheep_farm",
-        "x": 139,
-        "y": 157
+        "x": 153,
+        "y": 135
       }
     },
     {
       "fields": {
         "farm": [
-          139,
-          157
+          153,
+          135
         ],
         "tiles": [
           [
-            139,
-            160
+            156,
+            133
           ],
           [
-            136,
-            158
+            153,
+            132
           ],
           [
-            137,
-            154
+            150,
+            135
           ]
         ]
       }
@@ -1299,59 +1667,56 @@
     },
     {
       "place": {
-        "rotation": 90,
+        "rotation": 0,
         "type": "weaver_wool",
-        "x": 156,
-        "y": 136
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 153,
-        "y": 135
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
         "x": 137,
-        "y": 151
+        "y": 155
       }
     },
     {
       "road": {
         "from": [
           139,
-          150
+          163
         ],
         "to": [
           141,
-          150
+          163
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          139,
+          159
+        ],
+        "to": [
+          139,
+          162
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1430,27 +1795,6 @@
       }
     },
     {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 150,
-        "y": 135
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "house_settlers",
-        "x": 137,
-        "y": 147
-      }
-    },
-    {
       "advance": {
         "duration": "1m"
       }
@@ -1464,19 +1808,19 @@
       "place": {
         "rotation": 0,
         "type": "sheep_farm",
-        "x": 144,
-        "y": 165
+        "x": 138,
+        "y": 144
       }
     },
     {
       "road": {
         "from": [
-          143,
-          165
+          141,
+          146
         ],
         "to": [
-          143,
-          165
+          142,
+          146
         ],
         "type": "road_dirt"
       }
@@ -1484,21 +1828,21 @@
     {
       "fields": {
         "farm": [
-          144,
-          165
+          138,
+          144
         ],
         "tiles": [
           [
-            143,
-            168
+            135,
+            145
           ],
           [
-            145,
-            171
+            138,
+            141
           ],
           [
-            142,
-            172
+            135,
+            142
           ]
         ]
       }
@@ -1515,23 +1859,28 @@
     },
     {
       "place": {
-        "rotation": 0,
+        "rotation": 90,
         "type": "weaver_wool",
-        "x": 165,
-        "y": 138
+        "x": 142,
+        "y": 137
       }
     },
     {
       "road": {
         "from": [
-          166,
+          146,
           137
         ],
         "to": [
-          166,
+          148,
           137
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1554,47 +1903,29 @@
         "rotation": 0,
         "type": "sheep_farm",
         "x": 143,
-        "y": 137
-      }
-    },
-    {
-      "road": {
-        "from": [
-          146,
-          137
-        ],
-        "to": [
-          148,
-          137
-        ],
-        "type": "road_dirt"
+        "y": 166
       }
     },
     {
       "fields": {
         "farm": [
           143,
-          137
+          166
         ],
         "tiles": [
           [
-            144,
-            134
-          ],
-          [
             140,
-            137
+            167
           ],
           [
-            141,
-            134
+            139,
+            164
+          ],
+          [
+            137,
+            167
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -1606,21 +1937,8 @@
       "place": {
         "rotation": 0,
         "type": "weaver_wool",
-        "x": 137,
-        "y": 143
-      }
-    },
-    {
-      "road": {
-        "from": [
-          140,
-          146
-        ],
-        "to": [
-          142,
-          146
-        ],
-        "type": "road_dirt"
+        "x": 169,
+        "y": 142
       }
     },
     {
@@ -1635,23 +1953,10 @@
     },
     {
       "place": {
-        "rotation": 180,
+        "rotation": 90,
         "type": "fisher",
-        "x": 182,
-        "y": 144
-      }
-    },
-    {
-      "road": {
-        "from": [
-          168,
-          144
-        ],
-        "to": [
-          181,
-          144
-        ],
-        "type": "road_dirt"
+        "x": 144,
+        "y": 172
       }
     },
     {
@@ -1870,16 +2175,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "rotation": 0,
@@ -1907,12 +2202,139 @@
       }
     },
     {
+      "fields": {
+        "farm": [
+          204,
+          109
+        ],
+        "island": "isle-02",
+        "tiles": [
+          [
+            205,
+            108
+          ],
+          [
+            203,
+            110
+          ],
+          [
+            204,
+            108
+          ],
+          [
+            206,
+            108
+          ],
+          [
+            203,
+            109
+          ],
+          [
+            203,
+            111
+          ],
+          [
+            204,
+            112
+          ],
+          [
+            203,
+            108
+          ],
+          [
+            207,
+            108
+          ],
+          [
+            203,
+            112
+          ],
+          [
+            205,
+            107
+          ],
+          [
+            202,
+            110
+          ],
+          [
+            204,
+            107
+          ],
+          [
+            206,
+            107
+          ],
+          [
+            202,
+            109
+          ],
+          [
+            202,
+            111
+          ],
+          [
+            204,
+            113
+          ],
+          [
+            203,
+            107
+          ],
+          [
+            207,
+            107
+          ],
+          [
+            202,
+            108
+          ],
+          [
+            208,
+            108
+          ],
+          [
+            202,
+            112
+          ],
+          [
+            203,
+            113
+          ],
+          [
+            205,
+            106
+          ]
+        ]
+      }
+    },
+    {
       "place": {
         "island": "isle-02",
-        "rotation": 0,
+        "rotation": 90,
         "type": "charcoal_burner",
-        "x": 201,
-        "y": 113
+        "x": 205,
+        "y": 116
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1947,7 +2369,7 @@
         ],
         "island": "isle-02",
         "to": [
-          203,
+          201,
           58
         ],
         "type": "road_dirt"
@@ -2040,13 +2462,13 @@
     {
       "road": {
         "from": [
-          203,
-          112
+          201,
+          113
         ],
         "island": "isle-02",
         "to": [
-          204,
-          112
+          202,
+          113
         ],
         "type": "road_dirt"
       }
@@ -2054,13 +2476,27 @@
     {
       "road": {
         "from": [
-          203,
+          202,
+          114
+        ],
+        "island": "isle-02",
+        "to": [
+          205,
+          114
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          201,
           59
         ],
         "island": "isle-02",
         "to": [
-          203,
-          111
+          201,
+          112
         ],
         "type": "road_dirt"
       }
@@ -2075,6 +2511,20 @@
         "to": [
           148,
           63
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          205,
+          113
+        ],
+        "island": "isle-02",
+        "to": [
+          205,
+          113
         ],
         "type": "road_dirt"
       }
@@ -2141,7 +2591,7 @@
     {
       "road": {
         "from": [
-          204,
+          202,
           96
         ],
         "island": "isle-02",
@@ -2164,6 +2614,11 @@
           104
         ],
         "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {

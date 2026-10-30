@@ -535,6 +535,27 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/beer-stein.svg",
       "sha256": "5d1ede654d64d8d710faa89cb5b227df23e95313b06aa7486c36980946710e3c"
     },
+    "need:safety": {
+      "file": "shield.svg",
+      "author": "Sbed",
+      "page": "https://game-icons.net/1x1/sbed/shield.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/sbed/shield.svg",
+      "sha256": "7af285f360e49dbf400607423d5cf8531f7987055a338f24352843175a2036cb"
+    },
+    "need:fire_protection": {
+      "file": "full-wood-bucket.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/full-wood-bucket.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/full-wood-bucket.svg",
+      "sha256": "edbb16adb97afc57b35720afd64842b801dc5dab070580e1c4c31f34e315e77d"
+    },
+    "need:health": {
+      "file": "pestle-mortar.svg",
+      "author": "Skoll",
+      "page": "https://game-icons.net/1x1/skoll/pestle-mortar.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/pestle-mortar.svg",
+      "sha256": "5272ef06ac76fb3e7708516c41a73e8d4f5ff5af3f72e2d1901cf50e6c224c36"
+    },
     "need:_fallback": {
       "file": "help.svg",
       "author": "Sbed",

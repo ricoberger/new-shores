@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { NetworkError, type Player } from "../api/client";
+import { NetworkError, type Player, postDevReset } from "../api/client";
 import { authErrorText, currentPlayer, parseMailLink, verifyEmail } from "../api/auth";
-import { type FixtureId, FixtureSync, fixtureCamera, fixtureFromSearch } from "../dev/fixture";
+import { type FixtureId, FixtureSync, fixtureCamera, fixtureFromSearch, serverFixtureFromSearch } from "../dev/fixture";
 import { Almanac } from "../almanac/Almanac";
 import { isAlmanacPath } from "../almanac/route";
 import { App } from "./App";
@@ -31,17 +31,54 @@ const FIXTURE_PLAYER: Player = { id: "fixture", display_name: "Fixture", guest: 
 
 /**
  * Entry: a synthetic fixture world when the URL names it (dev and
- * E2E builds only, no server), else the session gate.
+ * E2E builds only, no server), a server fixture (any other ?fixture=
+ * name: the dev server resets its world to it first), else the session
+ * gate.
  */
 export function Root() {
   const [fixture] = useState(() => (DEV_HOOKS ? fixtureFromSearch(globalThis.location?.search ?? "") : null));
+  const [serverFixture] = useState(() => (DEV_HOOKS ? serverFixtureFromSearch(globalThis.location?.search ?? "") : null));
   // The public almanac (/almanac/…) needs no session and no world; a pathname check is the whole router.
   if (isAlmanacPath(globalThis.location?.pathname ?? "")) return <Almanac />;
   return (
     <>
-      {DEV_HOOKS && fixture ? <FixtureApp id={fixture} /> : <SessionRoot />}
+      {DEV_HOOKS && fixture ? <FixtureApp id={fixture} /> : DEV_HOOKS && serverFixture ? <ServerFixtureGate name={serverFixture} /> : <SessionRoot />}
       <UpdateToast />
     </>
+  );
+}
+
+/**
+ * Dev only: resets the dev server's world to a server fixture, drops
+ * ?fixture= from the URL (a reload keeps the world) and opens the game.
+ */
+function ServerFixtureGate({ name }: { name: string }) {
+  const [state, setState] = useState<{ kind: "resetting" } | { kind: "ready" } | { kind: "failed"; message: string }>({ kind: "resetting" });
+  useEffect(() => {
+    let cancelled = false;
+    postDevReset(name).then(
+      () => {
+        if (cancelled) return;
+        globalThis.history?.replaceState(null, "", globalThis.location.pathname);
+        setState({ kind: "ready" });
+      },
+      (err: unknown) => {
+        if (!cancelled) setState({ kind: "failed", message: err instanceof Error ? err.message : String(err) });
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [name]);
+  if (state.kind === "ready") return <SessionRoot />;
+  return (
+    <div className={styles.screen} data-testid="fixture-reset">
+      {state.kind === "failed" && (
+        <div className={appStyles.banner} data-testid="fixture-reset-error">
+          Dev fixture &apos;{name}&apos; failed: {state.message}
+        </div>
+      )}
+    </div>
   );
 }
 

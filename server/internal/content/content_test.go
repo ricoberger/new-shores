@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.14.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.15.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 120 {
@@ -70,13 +70,13 @@ func TestLoadOldCoast(t *testing.T) {
 		ids = append(ids, b.ID)
 	}
 	wantIDs("buildings", ids, "house_settlers", "road_dirt", "trading_post", "warehouse", "market", "chapel",
-		"lumberjack", "sawmill", "fisher", "sheep_farm", "pasture", "weaver_wool", "shipyard",
-		"house_citizens", "road_paved", "tavern", "school", "wheat_farm", "wheat_field", "mill", "bakery",
+		"lumberjack", "tree_plot", "sawmill", "fisher", "sheep_farm", "pasture", "weaver_wool", "shipyard",
+		"house_citizens", "road_paved", "quay", "trading_pier", "depot", "tavern", "school", "city_guard", "wheat_farm", "wheat_field", "mill", "bakery",
 		"dairy_farm", "cattle_pasture", "cheese_dairy", "orchard", "orchard_plot", "cidery", "apiary", "meadow", "meadery",
 		"hemp_farm", "hemp_field", "weaver_linen", "pig_farm", "pig_pen", "tannery", "sailmaker", "quarry", "iron_mine",
 		"charcoal_burner", "smelter", "toolmaker",
 		// Tier 3 (D-056 C3).
-		"house_merchants", "church", "theatre", "butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
+		"house_merchants", "church", "theatre", "fire_station", "surgery", "butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
 		"woad_farm", "woad_field", "dyer_works", "dyer", "paper_mill", "printing_press", "clay_pit", "rendering_house",
 		"soap_maker", "salt_pans", "salt_mine", "salt_works", "brickworks", "coal_mine",
 		// Tier 4 (D-056 C4).
@@ -100,9 +100,9 @@ func TestLoadOldCoast(t *testing.T) {
 		wantHouse, wantNeeds := "", 0
 		switch id {
 		case "merchants":
-			wantHouse, wantNeeds = "house_merchants", 10
+			wantHouse, wantNeeds = "house_merchants", 13
 		case "patricians":
-			wantHouse, wantNeeds = "house_patricians", 15
+			wantHouse, wantNeeds = "house_patricians", 18
 		}
 		if got != want || tr.House != wantHouse || len(c.NeedsByTier[id]) != wantNeeds {
 			t.Errorf("%s = %q (house %q), want %q", id, got, tr.House, want)
@@ -229,7 +229,7 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	sloop := c.ShipByID["sloop"]
 	wantCost := Cost{Gold: 100_000, Materials: []GoodAmount{{"planks", 20_000}, {"sails", 10_000}}}
-	if sloop == nil || sloop.Tier != "citizens" || sloop.Slots != 2 || sloop.SlotSize != 50_000 || sloop.SpeedPermille != 1000 ||
+	if sloop == nil || sloop.Tier != "citizens" || sloop.Slots != 2 || sloop.SlotSize != 50_000 || sloop.SpeedPermille != 1200 ||
 		sloop.BuildMs != 120_000 || sloop.UpkeepPerMin != 1_000 || sloop.Cost.Gold != wantCost.Gold ||
 		len(sloop.Cost.Materials) != 2 || sloop.Cost.Materials[0] != wantCost.Materials[0] || sloop.Cost.Materials[1] != wantCost.Materials[1] {
 		t.Errorf("sloop = %+v", sloop)
@@ -246,13 +246,15 @@ func TestLoadOldCoast(t *testing.T) {
 		size, gold     Qty
 		buildMs, upkep int64
 		tools          Qty
+		speed          int64
 	}{
-		{"brig", "merchants", 4, 50_000, 1_500_000, 300_000, 4_000, 10_000},
-		{"galleon", "patricians", 6, 60_000, 6_000_000, 600_000, 8_000, 30_000},
+		// D-060: the sloop is fast and light, the galleon slow and heavy.
+		{"brig", "merchants", 4, 50_000, 1_500_000, 300_000, 4_000, 10_000, 1000},
+		{"galleon", "patricians", 6, 60_000, 6_000_000, 600_000, 8_000, 30_000, 850},
 	} {
 		s := c.ShipByID[w.id]
 		if s == nil || s.Tier != w.tier || s.Slots != w.slots || s.SlotSize != w.size || s.Cost.Gold != w.gold || s.BuildMs != w.buildMs ||
-			s.UpkeepPerMin != w.upkep || s.SpeedPermille != 1000 || len(s.Cost.Materials) != 3 || s.Cost.Materials[2] != (GoodAmount{"tools", w.tools}) {
+			s.UpkeepPerMin != w.upkep || s.SpeedPermille != w.speed || len(s.Cost.Materials) != 3 || s.Cost.Materials[2] != (GoodAmount{"tools", w.tools}) {
 			t.Errorf("%s = %+v", w.id, s)
 		}
 	}
@@ -272,8 +274,9 @@ func TestLoadOldCoast(t *testing.T) {
 	if lj.Recipe.CycleMs != 30_000 || lj.Recipe.Outputs[0] != (GoodAmount{"wood", 1000}) || len(lj.Recipe.Inputs) != 0 {
 		t.Errorf("lumberjack recipe = %+v", lj.Recipe)
 	}
-	if lj.WorkArea == nil || lj.WorkArea.Radius != 4 || lj.WorkArea.RequiredTiles != 24 || !lj.WorkArea.MatchesTerrain("forest") {
-		t.Errorf("lumberjack work area = %+v", lj.WorkArea)
+	// D-059: the lumberjack plants tree plots like a farm (no work area).
+	if lj.WorkArea != nil || lj.Fields == nil || lj.Fields.Type != "tree_plot" || lj.Fields.Required != 24 || lj.Fields.Max != 24 {
+		t.Errorf("lumberjack work area = %+v, fields = %+v", lj.WorkArea, lj.Fields)
 	}
 	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || f.WaterTiles != 3 || f.Coastal || !f.Boat || !f.Smoke {
 		t.Error("fisher recipe/water-edge mismatch")
@@ -896,7 +899,9 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 			t.Errorf("NeedCategoryByID[%q] = %+v", nc.ID, c.NeedCategoryByID[nc.ID])
 		}
 	}
-	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:luxury,services=Services/need:services"
+	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:luxury,services=Services/need:services," +
+		// D-060 civic services: the HUD set has no icons of their own yet.
+		"safety=Safety/need:safety,fire_protection=Fire protection/need:fire_protection,health=Health/need:health"
 	if got := strings.Join(cats, ","); got != want {
 		t.Errorf("need categories = %s, want %s", got, want)
 	}
@@ -909,6 +914,9 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 	wantNames := map[string]string{
 		"settlers_food": "Food", "settlers_clothing": "Clothing", "settlers_services": "Services",
 		"citizens_food": "Food", "citizens_drink": "Drink", "citizens_clothing": "Clothing", "citizens_services": "Services",
+		"citizens_safety": "Safety", "merchants_safety": "Safety", "patricians_safety": "Safety",
+		"merchants_fire_protection": "Fire protection", "merchants_health": "Health",
+		"patricians_fire_protection": "Fire protection", "patricians_health": "Health",
 		"citizens_settlers_food": "Food", "citizens_settlers_clothing": "Clothing",
 		"merchants_food": "Food", "merchants_drink": "Drink", "merchants_clothing": "Clothing", "merchants_comfort": "Comfort",
 		"merchants_services": "Services", "merchants_settlers_food": "Food", "merchants_settlers_clothing": "Clothing",

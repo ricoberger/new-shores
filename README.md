@@ -285,7 +285,7 @@ Compose → Kubernetes.
 ## Credits / attribution
 
 - **Icons:** the HUD icons come from [game-icons.net](https://game-icons.net)
-  by Delapouite, Guard13007, Lorc and Sbed, licensed under
+  by Delapouite, Guard13007, Lorc, Sbed and Skoll, licensed under
   [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) (licence text
   in `assets/icons/LICENSE.txt`); recoloured and with coordinates rounded.
   The pinned files and the author of each are listed in

@@ -136,7 +136,20 @@
       "outputs": [{ "good": "wood", "amount": 1 }],
       "cycle_seconds": 30
     },
-    "work_area": { "radius": 4, "terrain": ["forest"], "required_tiles": 24 }
+    "fields": { "type": "tree_plot", "required": 24, "max": 24 }
+  },
+  {
+    "id": "tree_plot",
+    "name": "Tree plot",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 1 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "tree_plot", "farm": "lumberjack", "terrain": ["grass", "forest"] }
   },
   {
     "id": "sawmill",
@@ -271,6 +284,52 @@
     "road": { "seconds_per_tile": 0.6 }
   },
   {
+    "id": "quay",
+    "name": "Quay",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 5, "stone": 2 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "road": { "seconds_per_tile": 0.6, "shallows": true }
+  },
+  {
+    "id": "trading_pier",
+    "name": "Trading Pier",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 4],
+    "water_tiles": 3,
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 250, "planks": 20, "stone": 10 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "pier": { "berths": 2 }
+  },
+  {
+    "id": "depot",
+    "name": "Depot",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [4, 4],
+    "water_tiles": 1,
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 280, "planks": 20, "stone": 10 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "depot": {
+      "levels": [
+        { "capacity": 150 },
+        { "capacity": 300, "tier": "merchants", "cost": { "gold": 500, "planks": 20, "stone": 20, "bricks": 10 } }
+      ]
+    }
+  },
+  {
     "id": "tavern",
     "name": "Tavern",
     "region": "old_coast",
@@ -293,6 +352,19 @@
     "requires_road": true,
     "cost": { "gold": 1000, "planks": 15, "stone": 30 },
     "upkeep_per_min": 4,
+    "pause_category": "public",
+    "service": { "radius": 16 }
+  },
+  {
+    "id": "city_guard",
+    "name": "City guard",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 200, "planks": 10, "stone": 6 },
+    "upkeep_per_min": 2,
     "pause_category": "public",
     "service": { "radius": 16 }
   },
@@ -784,6 +856,32 @@
     "upkeep_per_min": 15,
     "pause_category": "public",
     "service": { "radius": 24 }
+  },
+  {
+    "id": "fire_station",
+    "name": "Fire station",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 400, "planks": 15, "stone": 15, "bricks": 5 },
+    "upkeep_per_min": 4,
+    "pause_category": "public",
+    "service": { "radius": 16 }
+  },
+  {
+    "id": "surgery",
+    "name": "Surgery",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 450, "planks": 10, "stone": 15, "bricks": 5 },
+    "upkeep_per_min": 4,
+    "pause_category": "public",
+    "service": { "radius": 16 }
   },
   {
     "id": "butcher",

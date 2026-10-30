@@ -203,6 +203,32 @@ func checkReferences(c *Catalogue) error {
 				col.add(FileBuildings, ent, "service", "a collector cannot be a public building")
 			}
 		}
+		if pr := b.Pier; pr != nil {
+			if pr.Berths < 1 {
+				col.add(FileBuildings, ent, "pier.berths", "must be >= 1")
+			}
+			if b.WaterTiles < 1 || b.TradingPost != nil || b.Warehouse != nil || b.Service != nil {
+				col.add(FileBuildings, ent, "pier", "a pier is a water-edge building (water_tiles >= 1) and neither a collector nor a public building")
+			}
+		}
+		if d := b.Depot; d != nil {
+			for i, l := range d.Levels {
+				field := fmt.Sprintf("depot.levels[%d]", i)
+				if l.Capacity <= 0 {
+					col.add(FileBuildings, ent, field+".capacity", "must be > 0")
+				}
+				checkLevelCost(col, ent, field+".cost", i, l.Cost)
+				switch {
+				case i == 0 && l.Tier != "":
+					col.add(FileBuildings, ent, field+".tier", "the first level has no tier condition")
+				case l.Tier != "":
+					tier(FileBuildings, ent, field+".tier", l.Tier)
+				}
+			}
+			if b.TradingPost != nil || b.Warehouse != nil || b.Service != nil || b.Pier != nil {
+				col.add(FileBuildings, ent, "depot", "a depot is neither a collector, a public building nor a pier")
+			}
+		}
 		if b.WaterTiles != 0 {
 			switch {
 			case b.WaterTiles < 0 || b.WaterTiles >= b.Height:

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
-import { buildDenseArchipelagoFixture, buildDenseFixture, buildShowcaseFixture, fixtureDefs } from "./fixture";
+import { buildDenseArchipelagoFixture, buildDenseFixture, buildShowcaseFixture, fixtureDefs, fixtureFromSearch, serverFixtureFromSearch } from "./fixture";
 
 // The dense and showcase fixtures are laid out for the pre-D-054
 // footprints (the kit-bashed models' at the time); they follow the
@@ -136,5 +136,16 @@ describe("fixtures use the real content", () => {
     expect(ships.some((s) => s.state === "anchored_unpaid")).toBe(true);
     expect(ships.some((s) => s.cargo.length > 0 && s.state !== "anchored_unpaid")).toBe(true);
     expect(ships.some((s) => s.cargo.length === 0 && s.state !== "anchored_unpaid")).toBe(true);
+  });
+});
+
+describe("fixture names in the URL", () => {
+  it("tells the synthetic fixtures from the server's", () => {
+    expect(fixtureFromSearch("?fixture=showcase")).toBe("showcase");
+    expect(serverFixtureFromSearch("?fixture=showcase")).toBeNull();
+    expect(fixtureFromSearch("?fixture=played")).toBeNull();
+    expect(serverFixtureFromSearch("?fixture=played")).toBe("played");
+    expect(serverFixtureFromSearch("?fixture=")).toBeNull();
+    expect(serverFixtureFromSearch("")).toBeNull();
   });
 });

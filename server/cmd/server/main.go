@@ -66,6 +66,7 @@ type options struct {
 	corsOrigins []string
 	timeScale   float64
 	seed        uint64
+	scenarios   string
 	logFormat   string
 
 	// Default mode (environment only).
@@ -108,6 +109,7 @@ func parseConfig(args []string, getenv func(string) string, stderr io.Writer) (o
 		"comma-separated browser origins allowed to call /api/ (scheme://host[:port]); also the CSRF and WebSocket origin list (env ALLOWED_ORIGINS)")
 	fs.Float64Var(&o.timeScale, "time-scale", 1, "world seconds per wall-clock second (> 0; --dev only)")
 	fs.Uint64Var(&o.seed, "seed", devworld.DevSeed, fmt.Sprintf("archipelago seed of the dev world and its fixtures (1..%d; --dev only)", archipelago.MaxSeed))
+	fs.StringVar(&o.scenarios, "scenarios", "testdata/scenarios", "scenario directory of the played dev fixture (--dev only)")
 	fs.StringVar(&o.logFormat, "log-format", envOr(getenv, "LOG_FORMAT", "text"), "log format: text or json (env LOG_FORMAT)")
 	if err := fs.Parse(args); err != nil {
 		return o, err
@@ -127,16 +129,20 @@ func parseConfig(args []string, getenv func(string) string, stderr io.Writer) (o
 		return o, fmt.Errorf("--seed must be in 1..%d, got %d", archipelago.MaxSeed, o.seed)
 	}
 	if !o.dev {
-		var timeScaleSet, seedSet bool
+		var timeScaleSet, seedSet, scenariosSet bool
 		fs.Visit(func(f *flag.Flag) {
 			timeScaleSet = timeScaleSet || f.Name == "time-scale"
 			seedSet = seedSet || f.Name == "seed"
+			scenariosSet = scenariosSet || f.Name == "scenarios"
 		})
 		if timeScaleSet {
 			return o, errors.New("--time-scale requires --dev (world time is the database clock)")
 		}
 		if seedSet {
 			return o, errors.New("--seed requires --dev (player worlds get a random seed)")
+		}
+		if scenariosSet {
+			return o, errors.New("--scenarios requires --dev (dev fixtures only)")
 		}
 	}
 	if o.logFormat != "text" && o.logFormat != "json" {
@@ -307,6 +313,10 @@ func runMigrate(o options, logger *slog.Logger) error {
 	return nil
 }
 
+// devWriteTimeout is the dev server's write timeout: long enough for the
+// first reset to the played fixture.
+const devWriteTimeout = 3 * time.Minute
+
 func newHTTPServer(addr string, h http.Handler) *http.Server {
 	return &http.Server{
 		Addr:              addr,
@@ -345,7 +355,7 @@ func runDev(o options, logger *slog.Logger) error {
 		Logger:       logger,
 		// Dev only: POST /api/v1/dev/reset seeds a fresh world (E2E specs).
 		DevReset: func(ctx context.Context, fixture string) (int64, error) {
-			w, err := devworld.NewFixture(cat, fixture, o.seed, worldNow())
+			w, err := devworld.NewFixtureWith(cat, fixture, o.seed, worldNow(), devworld.Options{Scenarios: os.DirFS(o.scenarios)})
 			if errors.Is(err, devworld.ErrFixtureSeed) {
 				return 0, api.DevFixtureError{Err: err}
 			}
@@ -360,6 +370,9 @@ func runDev(o options, logger *slog.Logger) error {
 		return err
 	}
 	srv := newHTTPServer(o.addr, handler)
+	// The first reset to the played fixture replays a reference game
+	// (about 40 s; later ones use its cache).
+	srv.WriteTimeout = devWriteTimeout
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

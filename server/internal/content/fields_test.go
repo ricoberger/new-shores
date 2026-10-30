@@ -241,7 +241,9 @@ func TestShippedFields(t *testing.T) {
 		planks                 int
 	}
 	wants := map[string]want{
-		"sheep_farm": {"pasture", "settlers", "", 3, 3, 3, 15_000, 1}, "wheat_farm": {"wheat_field", "citizens", "wheat", 140, 1, 1, 3_000, 0},
+		"sheep_farm": {"pasture", "settlers", "", 3, 3, 3, 15_000, 1},
+		// D-059: tree plots on grass or forest, no fertility.
+		"lumberjack": {"tree_plot", "settlers", "", 24, 1, 1, 1_000, 0}, "wheat_farm": {"wheat_field", "citizens", "wheat", 140, 1, 1, 3_000, 0},
 		"orchard": {"orchard_plot", "citizens", "apple", 160, 1, 1, 1_000, 0}, "hemp_farm": {"hemp_field", "citizens", "hemp", 60, 1, 1, 2_000, 0},
 		// D-056 tier-2 alternatives: pasture modules (CONTENT §7).
 		"dairy_farm": {"cattle_pasture", "citizens", "", 5, 4, 7, 30_000, 5}, "pig_farm": {"pig_pen", "citizens", "", 5, 3, 4, 20_000, 5},
@@ -271,7 +273,11 @@ func TestShippedFields(t *testing.T) {
 		}
 		f := c.FieldByType[b.Fields.Type]
 		wantGold, wantPlanks := w.gold, w.planks
-		if f == nil || f.ID != w.field || f.Tier != w.tier || !f.Field.BelongsTo(b.ID) || f.Field.Fertility != w.fertility || strings.Join(f.Field.Terrain, ",") != "grass" ||
+		wantTerrain := "grass"
+		if b.ID == "lumberjack" {
+			wantTerrain = "grass,forest"
+		}
+		if f == nil || f.ID != w.field || f.Tier != w.tier || !f.Field.BelongsTo(b.ID) || f.Field.Fertility != w.fertility || strings.Join(f.Field.Terrain, ",") != wantTerrain ||
 			f.Width != w.w || f.Height != w.h || f.Cost.Gold != wantGold || len(f.Cost.Materials) != min(wantPlanks, 1) ||
 			(wantPlanks > 0 && f.Cost.Materials[0].Amount != int64(wantPlanks)*1000) {
 			t.Errorf("%s field %+v", b.ID, f)
@@ -283,7 +289,7 @@ func TestShippedFields(t *testing.T) {
 	if farms != len(wants) || len(c.FieldByType) != len(wants)-1 {
 		t.Errorf("%d farms with fields, %d field types", farms, len(c.FieldByType))
 	}
-	if lj := c.BuildingByID["lumberjack"]; lj.Fields != nil || lj.WorkArea.Radius != 4 || lj.WorkArea.RequiredTiles != 24 {
-		t.Errorf("lumberjack %+v", lj.WorkArea)
+	if lj := c.BuildingByID["lumberjack"]; lj.WorkArea != nil {
+		t.Errorf("lumberjack work area %+v", lj.WorkArea)
 	}
 }

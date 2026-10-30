@@ -15,6 +15,15 @@ export function perMin(milliPerMin: number, signed = false): string {
   return signed ? `+${v}` : v;
 }
 
+/**
+ * A ship speed factor (permille of the reference speed) with one decimal,
+ * two where the second is not zero: 1.2, 1.0, 0.85 (D-060).
+ */
+export function speedFactor(permille: number): string {
+  const two = (permille / 1000).toFixed(2);
+  return two.endsWith("0") ? two.slice(0, -1) : two;
+}
+
 /** A permille ratio as whole percent. */
 export function percent(permille: number): string {
   return `${Math.round(permille / 10)} %`;

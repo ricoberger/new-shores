@@ -101,13 +101,19 @@ func capacityFine(is *Island, c *content.Catalogue) int64 {
 }
 
 // capacityMilli returns the per-good capacity in milli-units: the level
-// capacity of the island's Trading Post (0 without one, MECHANICS §5).
-// Warehouses never add capacity.
+// capacity of the island's Trading Post plus that of its depots (D-060;
+// 0 without a Trading Post, MECHANICS §5). Warehouses never add capacity.
 func capacityMilli(is *Island, c *content.Catalogue) Qty {
-	if tp, def := tradingPost(is, c); tp != nil {
-		return def.TradingPostLevelAt(tp.Level).Capacity
+	if tp, _ := tradingPost(is, c); tp == nil {
+		return 0
 	}
-	return 0
+	var total Qty
+	for _, b := range is.Buildings {
+		if def := c.BuildingByID[b.Type]; def != nil {
+			total += def.CapacityAt(b.Level)
+		}
+	}
+	return total
 }
 
 // tradingPost returns the island's Trading Post and its definition (nil

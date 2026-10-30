@@ -61,6 +61,7 @@ describe.each(DIRS)("almanac model of %s", (dir) => {
       for (const f of b.field?.farms ?? []) need("building", f, b.id);
       need("tier", b.workforce?.tier, b.id);
       for (const l of b.service?.levels ?? []) need("tier", l.tier, b.id);
+      for (const l of b.depot?.levels ?? []) need("tier", l.tier, b.id);
     }
     for (const t of content.tiers) {
       need("building", t.house ?? undefined, t.id);
@@ -174,11 +175,14 @@ describe("arithmetic of the tables", () => {
 });
 
 describe("islands view", () => {
-  it("renders the served size classes and nothing else when that is all there is", () => {
+  it("renders the served size classes: size, counts, pool ranges, shape and the home class", () => {
     const v = islandsView(loadContent("content/old_coast"));
     expect(v.sizeClasses.map((s) => s.id)).toEqual(["large", "medium", "small", "rock", "scenic"]);
     expect(v.sizeClasses.filter((s) => s.scenic).map((s) => s.id)).toEqual(["scenic"]);
-    expect(v.basicOnly).toBe(true);
+    expect(v.sizeClasses.filter((s) => s.home).map((s) => s.id)).toEqual(["large"]);
+    expect(v.sizeClasses[0]).toMatchObject({ size: 192, count: { min: 3, max: 3 }, fertilities: { min: 2, max: 4 }, shape: "1–3 arms, plain 40×40, 1–2 rivers, 2 terraces, 3–6 islets" });
+    expect(v.sizeClasses.find((s) => s.id === "scenic")?.shape).toBeUndefined();
+    expect(v.basicOnly).toBe(false);
     expect(v.home).toEqual([]);
   });
 
@@ -239,5 +243,22 @@ describe("search", () => {
     expect(search(entries, "bakery").some((h) => h.section === "buildings" && h.id === "bakery")).toBe(true);
     expect(search(entries, "  ")).toEqual([]);
     expect(search(entries, "zzzzzz")).toEqual([]);
+  });
+});
+
+describe("almanac model of the harbour buildings (D-060)", () => {
+  const idx = buildIndex(loadContent("content/old_coast"));
+
+  it("shows the pier's berths, the depot's levels and the quay's site", () => {
+    const pier = buildingView(idx, idx.building("trading_pier")!);
+    expect(pier).toMatchObject({ category: "harbour", pierBerths: 2, waterTiles: 3, levels: [] });
+    const depot = buildingView(idx, idx.building("depot")!);
+    expect(depot.category).toBe("harbour");
+    expect(depot.levels.map((l) => [l.level, l.capacity, l.tier])).toEqual([
+      [1, 150, undefined],
+      [2, 300, "merchants"],
+    ]);
+    const quay = buildingView(idx, idx.building("quay")!);
+    expect(quay).toMatchObject({ shallows: true, roadSecondsPerTile: 0.6 });
   });
 });

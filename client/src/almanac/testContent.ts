@@ -24,7 +24,7 @@ function category(b: Raw): string {
   if (b.house) return "houses";
   if (b.recipe || b.field || b.warehouse) return "production";
   if (b.service) return "public";
-  if (b.trading_post || b.shipyard) return "harbour";
+  if (b.trading_post || b.shipyard || b.pier || b.depot) return "harbour";
   if (b.road) return "roads";
   return "other";
 }
@@ -69,7 +69,10 @@ export function loadContent(dir: string): Content {
       };
     if (b.warehouse)
       out.warehouse = { levels: b.warehouse.levels.map((l: Raw) => ({ throughput_per_min: m(l.throughput_per_min), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };
-    if (b.road) out.road = { ms_per_tile: m(b.road.seconds_per_tile) };
+    if (b.road) out.road = { ms_per_tile: m(b.road.seconds_per_tile), shallows: !!b.road.shallows };
+    if (b.pier) out.pier = { berths: b.pier.berths };
+    if (b.depot)
+      out.depot = { levels: b.depot.levels.map((l: Raw) => ({ capacity: m(l.capacity), ...(l.tier ? { tier: l.tier } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };
     if (b.service) {
       const levels: Raw[] = b.service.levels ?? [{ radius: b.service.radius }];
       out.service = { radius: levels[0]?.radius, levels: levels.map((l) => ({ radius: l.radius, ...(l.tier ? { tier: l.tier } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };
@@ -144,6 +147,17 @@ export function loadContent(dir: string): Content {
       cost: cost(s.cost),
       upkeep_per_min: m(s.upkeep_per_min),
     })),
-    size_classes: (read(d, "islands.json").size_classes as Raw[]).map((s) => ({ id: s.id, name: s.name, rock: !!s.rock, scenic: !!s.scenic })),
+    size_classes: (read(d, "islands.json").size_classes as Raw[]).map((s) => ({
+      id: s.id,
+      name: s.name,
+      rock: !!s.rock,
+      scenic: !!s.scenic,
+      size: s.size,
+      count: s.count,
+      fertilities: s.fertilities,
+      deposits: s.deposits,
+      shape: s.shape,
+      home: s.id === read(d, "islands.json").home?.size_class,
+    })),
   } as unknown as Content;
 }

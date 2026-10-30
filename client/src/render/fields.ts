@@ -33,6 +33,9 @@ const LOOKS: Record<string, { color: string; mark: string; pattern: Pattern }> =
   wheat_field: { color: FIELDS.wheat, mark: FIELDS.wheat_mark, pattern: "stripes" },
   hemp_field: { color: FIELDS.hemp, mark: FIELDS.hemp_mark, pattern: "stripes" },
   orchard_plot: { color: FIELDS.orchard, mark: FIELDS.orchard_mark, pattern: "dots" },
+  // D-059: the lumberjack's tree plots paint like crops; until the tree_plot
+  // model exists (the buildings layer then draws it) they take the wheat path.
+  tree_plot: { color: FIELDS.wheat, mark: FIELDS.wheat_mark, pattern: "stripes" },
 };
 
 function lookOf(id: string): { color: string; mark: string; pattern: Pattern } {
@@ -245,6 +248,7 @@ function decorate(b: TriBuilder, type: string, x: number, y: number, ground = 0)
       return;
     }
     case "wheat_field":
+    case "tree_plot":
       for (let r = 0; r < 4; r++) for (const t of WHEAT_ROW) b.add(t, cx, FY, cz - 0.375 + r * 0.25, 1, 0);
       return;
     case "hemp_field":

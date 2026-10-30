@@ -274,6 +274,26 @@ describe("moorings at the Trading Post's pier", () => {
     expect(r90.point.x).toBeCloseTo(7);
   });
 
+  it("fills the Trading Post's own berths first, then the trading piers' (D-060)", () => {
+    const d = structuredClone(display("berth_queue"));
+    const is = d.islands[0]!;
+    const tp = is.buildings.find((x) => x.type === "trading_post")!;
+    const ships = [...tp.berths!.ships, ...tp.berths!.queue];
+    tp.berths = { total: 3, busy: ships.length, ships, queue: [] };
+    tp.level = 1;
+    const pier = { ...tp, id: 999, type: "trading_pier", x: tp.x + 8, berths: undefined };
+    is.buildings.push(pier);
+    const pierDefs = new Map<string, { width: number; height: number; water_tiles?: number; trading_post?: unknown; pier?: { berths: number } }>(defs);
+    pierDefs.set("trading_post", { ...defs.get("trading_post")!, trading_post: { levels: [{ berths: 1 }] } });
+    pierDefs.set("trading_pier", { width: 3, height: 4, water_tiles: 3, pier: { berths: 2 } });
+    const docks = dockPoints(d.islands, pierDefs);
+    const at = (p: { x: number; y: number } | null) => ({ x: is.position.x + p!.x, y: is.position.y + p!.y });
+    expect(docks.get(ships[0]!)?.point).toEqual(at(pierPoint(defs.get("trading_post")!, tp, 0, false)));
+    expect(docks.get(ships[1]!)?.point).toEqual(at(pierPoint(pierDefs.get("trading_pier")!, pier, 0, false)));
+    // Without the content's levels every ship stays at the Trading Post.
+    expect(dockPoints(d.islands, defs).get(ships[1]!)?.point).toEqual(at(pierPoint(defs.get("trading_post")!, tp, 1, false)));
+  });
+
   it("lays the docks on the model's berth anchors when given, else along the front row", () => {
     const d = display("berth_queue");
     const is = d.islands[0]!;

@@ -8,7 +8,7 @@ const range = (r: { min: number; max: number } | undefined) => (r ? (r.min === r
 export function Islands({ idx, id }: { idx: Index; id?: string }) {
   useScrollTo(id, "class-");
   const v = islandsView(idx.content);
-  const has = (k: "size" | "count" | "fertilities" | "deposits") => v.sizeClasses.some((s) => s[k] !== undefined);
+  const has = (k: "size" | "count" | "fertilities" | "deposits" | "shape") => v.sizeClasses.some((s) => s[k] !== undefined);
   return (
     <>
       <h2>Islands</h2>
@@ -24,6 +24,7 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
                 {has("count") && <th scope="col" className={styles.num}>Per archipelago</th>}
                 {has("fertilities") && <th scope="col" className={styles.num}>Fertilities</th>}
                 {has("deposits") && <th scope="col" className={styles.num}>Deposit slots</th>}
+                {has("shape") && <th scope="col">Shape</th>}
                 <th scope="col">Notes</th>
               </tr>
             </thead>
@@ -35,7 +36,11 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
                   {has("count") && <td className={styles.num}>{range(s.count)}</td>}
                   {has("fertilities") && <td className={styles.num}>{range(s.fertilities)}</td>}
                   {has("deposits") && <td className={styles.num}>{range(s.deposits)}</td>}
-                  <td>{s.rock ? "Mines and the Trading Post only; no houses or fields" : s.scenic ? "Scenery only (skerries); cannot be settled or sailed to" : ""}</td>
+                  {has("shape") && <td>{s.shape ?? "—"}</td>}
+                  <td>
+                    {s.rock ? "Mines and the Trading Post only; no houses or fields" : s.scenic ? "Scenery only (skerries); cannot be settled or sailed to" : ""}
+                    {s.home ? "The home island is one of these" : ""}
+                  </td>
                 </tr>
               ))}
             </tbody>

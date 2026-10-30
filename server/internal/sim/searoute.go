@@ -12,7 +12,8 @@ import (
 
 const (
 	// seaCell is the edge of a sea grid cell in tiles; a cell is land when
-	// any island tile in it is not water (rivers and islets included).
+	// any island tile in it is not water (rivers and islets included) or
+	// carries a quay (D-060).
 	seaCell = 4
 	// seaMargin is the open sea (cells) around the islands and the leg's
 	// end points.
@@ -64,7 +65,7 @@ func newSeaGrid(islands []*Island, pts ...Pos) *seaGrid {
 		}
 		for y := range is.Height {
 			for x := range is.Width {
-				if is.Tiles[y*is.Width+x].Terrain == content.TerrainWater {
+				if !seaLand(is, x, y) {
 					continue
 				}
 				g.land[g.cellOf(is.X+x, is.Y+y)] = true
@@ -123,7 +124,7 @@ func (g *seaGrid) landAt(x, y int) bool {
 	for _, is := range g.islands {
 		lx, ly := x-is.X, y-is.Y
 		if lx >= 0 && ly >= 0 && lx < is.Width && ly < is.Height && len(is.Tiles) == is.Width*is.Height &&
-			is.Tiles[ly*is.Width+lx].Terrain != content.TerrainWater {
+			seaLand(is, lx, ly) {
 			return true
 		}
 	}
@@ -364,7 +365,7 @@ const harbourSearch = 12
 // HarbourAt is the harbour point (archipelago tiles) of a Trading Post of
 // def at (x, y) (island tiles) with the rotation: harbourOffset tiles
 // beyond the middle of its water edge. When that tile is not open water
-// (water with no land within one tile: a tight bay) it is the nearest open
+// (water with no land or quay within one tile: a tight bay) it is the nearest open
 // water tile outside the footprint (Euclidean; ties: ring order), the
 // tile itself when there is none within harbourSearch. Tiles outside the
 // island's grid are water.
@@ -383,7 +384,7 @@ func HarbourAt(is *Island, def *content.Building, x, y, rotation int) Pos {
 	}
 	land := func(tx, ty int) bool {
 		return tx >= 0 && ty >= 0 && tx < is.Width && ty < is.Height && len(is.Tiles) == is.Width*is.Height &&
-			is.Tiles[ty*is.Width+tx].Terrain != content.TerrainWater
+			seaLand(is, tx, ty)
 	}
 	open := func(tx, ty int) bool {
 		if tx >= x && ty >= y && tx < x+w && ty < y+h {

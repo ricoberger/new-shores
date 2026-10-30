@@ -46,6 +46,22 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 		t.Fatalf("no settler house at (%d,%d): %+v", at.X, at.Y, house)
 	}
 	tavernX, tavernY := roadSite(t, c, w, islandID, "tavern", house)
+	// The city guard (safety, D-060) takes the place of the nearest other
+	// Settler house (the town has no free site in reach): same 3x3
+	// footprint, same road.
+	var neighbour *sim.Building
+	for _, b := range w.Island(islandID).Buildings {
+		if b.Type != "house_settlers" || b.ID == house.ID {
+			continue
+		}
+		d := func(x *sim.Building) int { return (x.X-house.X)*(x.X-house.X) + (x.Y-house.Y)*(x.Y-house.Y) }
+		if neighbour == nil || d(b) < d(neighbour) {
+			neighbour = b
+		}
+	}
+	if neighbour == nil {
+		t.Fatal("no other settler house")
+	}
 	ts := newTestServerWith(t, w, w.LastEvaluatedAt, 1, c)
 
 	res := ts.command(fmt.Sprintf(`{"type":"upgrade_house","island_id":%q,"building_id":%d}`, islandID, house.ID), nil)
@@ -79,9 +95,10 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 				for _, n := range b.Needs {
 					needs = append(needs, n.Category+n.Building)
 				}
-				// Own categories with one services category, then the
-				// Settlers' food and clothing (cumulative tiers, D-056).
-				if want := []string{"food", "drink", "clothing", "services", "food", "clothing"}; !slices.Equal(needs, want) {
+				// Own categories with one services category and safety
+				// (city guard, D-060), then the Settlers' food and
+				// clothing (cumulative tiers, D-056).
+				if want := []string{"food", "drink", "clothing", "services", "safetycity_guard", "food", "clothing"}; !slices.Equal(needs, want) {
 					t.Errorf("needs = %v, want %v", needs, want)
 				}
 				if wantPopulation && *b.TaxRatePerMin <= 0 {
@@ -105,18 +122,18 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 		t.Fatalf("GET /world: %d %s", res.status, res.body)
 	}
 	// Right after the upgrade only market and chapel are in reach (0.6
-	// each fills services, D-056: 0.24), plus the Settlers' fish and wool
-	// garments of the town (0.4 of satisfaction): 0.64, above the growth
+	// each fills services, D-056: 0.18), plus the Settlers' fish and wool
+	// garments of the town (0.4 of satisfaction): 0.58, above the growth
 	// threshold; the house pays Citizens tax.
 	floor := check(res.body, true)
-	if *floor.SatisfactionPermille != 640 || *floor.GrowthRatePerMin != 640 {
+	if *floor.SatisfactionPermille != 580 || *floor.GrowthRatePerMin != 580 {
 		t.Errorf("floor house: satisfaction %d growth %d", *floor.SatisfactionPermille, *floor.GrowthRatePerMin)
 	}
 
 	// Supply every Citizens need with both alternatives (D-056: one fills
 	// 0.6): bread and cheese, cider and mead, linen garments and leather
 	// jerkins arrive (seeded into the stored world like a delivery), and a
-	// tavern is built over HTTP next to the house. After a clock advance
+	// tavern and a city guard are built over HTTP next to the house. After a clock advance
 	// the house is fully satisfied and grows.
 	ts.mutateWorld(func(world *sim.World) {
 		world.Gold += 1_000_000
@@ -132,6 +149,14 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	res = ts.command(fmt.Sprintf(`{"type":"place_building","island_id":%q,"building_type":"tavern","x":%d,"y":%d,"rotation":0}`, islandID, tavernX, tavernY), nil)
 	if res.status != http.StatusOK {
 		t.Fatalf("place tavern: %d %s", res.status, res.body)
+	}
+	res = ts.command(fmt.Sprintf(`{"type":"demolish","island_id":%q,"building_id":%d}`, islandID, neighbour.ID), nil)
+	if res.status != http.StatusOK {
+		t.Fatalf("demolish settler house: %d %s", res.status, res.body)
+	}
+	res = ts.command(fmt.Sprintf(`{"type":"place_building","island_id":%q,"building_type":"city_guard","x":%d,"y":%d,"rotation":0}`, islandID, neighbour.X, neighbour.Y), nil)
+	if res.status != http.StatusOK {
+		t.Fatalf("place city guard: %d %s", res.status, res.body)
 	}
 	ts.clock.Add(30 * time.Second)
 	res = ts.do(http.MethodGet, "/api/v1/world", "", true)

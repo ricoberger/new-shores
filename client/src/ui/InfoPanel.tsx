@@ -1,6 +1,6 @@
 import { type ReactNode, useRef } from "react";
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
-import { percent, perMin, seconds, units } from "../display/format";
+import { percent, perMin, seconds, speedFactor, units } from "../display/format";
 import { countdownWithUnit, orderTiming, shipName as shipNameOf } from "../display/ships";
 import { fieldBuildingOf, footprintText } from "../display/fields";
 import { needAlternatives, needCategory, needLabel, orderNeeds, upgradeReasonText } from "../display/needs";
@@ -164,10 +164,10 @@ interface LevelDef {
   cost?: { gold: number; materials: Record<string, number> };
 }
 
-/** The next level of a Trading Post, Warehouse or levelled public building (content), undefined at the last level. */
+/** The next level of a Trading Post, Warehouse, depot or levelled public building (content), undefined at the last level. */
 function nextLevelOf(content: Content, b: BuildingDisplay): LevelDef | undefined {
   const def = content.buildings.find((d) => d.id === b.type);
-  const levels: LevelDef[] = def?.trading_post?.levels ?? def?.warehouse?.levels ?? def?.service?.levels ?? [];
+  const levels: LevelDef[] = def?.trading_post?.levels ?? def?.warehouse?.levels ?? def?.depot?.levels ?? def?.service?.levels ?? [];
   return b.level !== undefined ? levels[b.level] : undefined;
 }
 
@@ -302,6 +302,93 @@ function AssignedProducers({
   );
 }
 
+/** The island's capacity per good (milli-units): the Trading Post's plus the depots' (D-060), as the server reports it per good. */
+function islandCapacity(island: IslandDisplay): number {
+  return Object.values(island.inventory)[0]?.capacity ?? 0;
+}
+
+/** The island's berths (the Trading Post's payload: Trading Post and piers, D-060), null before the Trading Post reports them. */
+function islandBerths(island: IslandDisplay): NonNullable<BuildingDisplay["berths"]> | null {
+  return island.buildings.find((x) => x.berths)?.berths ?? null;
+}
+
+/**
+ * A trading pier (D-060): the berths it adds and the island's berths busy
+ * and free (the Trading Post's queue serves all of them). Display only.
+ */
+function PierSection({ def, island, content }: { def: Content["buildings"][number]; island: IslandDisplay; content: Content }) {
+  const berths = islandBerths(island);
+  return (
+    <div className={styles.section} data-testid="pier-panel">
+      <div className={styles.sectionTitle}>Details</div>
+      <table className={styles.table}>
+        <tbody>
+          <tr>
+            <td>Berths</td>
+            <td data-testid="pier-berths">+{def.pier?.berths ?? 0}</td>
+          </tr>
+          {berths && (
+            <tr>
+              <td>Island berths</td>
+              <td data-testid="pier-island-berths">
+                {Math.max(0, berths.total - berths.busy)} / {berths.total} free
+              </td>
+            </tr>
+          )}
+          <SizeRow def={def} content={content} />
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** A depot (D-060): its level, the capacity it adds and the island's capacity, then its upgrade. Display only. */
+function DepotSection({
+  building: b,
+  def,
+  island,
+  model,
+  content,
+}: {
+  building: BuildingDisplay;
+  def: Content["buildings"][number];
+  island: IslandDisplay;
+  model: DisplayState;
+  content: Content;
+}) {
+  const levels = def.depot?.levels ?? [];
+  const level = b.level ?? 1;
+  return (
+    <div data-testid="depot-panel">
+      <div className={styles.section}>
+        <div className={styles.sectionTitle}>Details</div>
+        <table className={styles.table}>
+          <tbody>
+            {levels.length > 1 && (
+              <tr>
+                <td>Level</td>
+                <td data-testid="depot-level">
+                  {level} / {levels.length}
+                </td>
+              </tr>
+            )}
+            <tr>
+              <td>Adds</td>
+              <td data-testid="depot-capacity">{units(b.capacity ?? levels[level - 1]?.capacity ?? 0)} capacity per good</td>
+            </tr>
+            <tr>
+              <td>Island capacity</td>
+              <td data-testid="depot-island-capacity">{units(islandCapacity(island))} per good</td>
+            </tr>
+            <SizeRow def={def} content={content} />
+          </tbody>
+        </table>
+      </div>
+      <UpgradePreview building={b} island={island} model={model} content={content} testId="depot-upgrade" />
+    </div>
+  );
+}
+
 /**
  * The Trading Post (D-051): level, the island's capacity, its collector
  * throughput and load, the pier's berths busy and free with the ships at
@@ -344,7 +431,10 @@ function TradingPostSection({
             </tr>
             <tr>
               <td>Capacity</td>
-              <td data-testid="trading-post-capacity">{units(b.capacity ?? 0)} per good</td>
+              <td data-testid="trading-post-capacity">
+                {units(b.capacity ?? 0)} per good
+                {islandCapacity(island) > (b.capacity ?? 0) && <span className={styles.small}> + {units(islandCapacity(island) - (b.capacity ?? 0))} in depots</span>}
+              </td>
             </tr>
             <tr>
               <td>Throughput</td>
@@ -358,6 +448,7 @@ function TradingPostSection({
               <td>Berths</td>
               <td data-testid="trading-post-berths">
                 {free} / {berths.total} free
+                {berths.total > levelBerths && levelBerths > 0 && <span className={styles.small}> ({berths.total - levelBerths} at piers)</span>}
               </td>
             </tr>
             {def && <SizeRow def={def} content={content} />}
@@ -678,7 +769,7 @@ export function InfoPanel({
                       <span key="cargo">
                         {t.slots}×{units(t.slot_size)} cargo
                       </span>,
-                      <span key="speed">{((t.speed_permille ?? 1000) / 1000).toFixed(1)}× speed</span>,
+                      <span key="speed">{speedFactor(t.speed_permille ?? 1000)}× speed</span>,
                       <span key="upkeep">{perMin(t.upkeep_per_min)} $/min upkeep</span>,
                     ]}
                   />
@@ -709,6 +800,8 @@ export function InfoPanel({
             onSelectBuilding={onSelectBuilding}
           />
         )}
+        {def?.pier && <PierSection def={def} island={island} content={content} />}
+        {def?.depot && <DepotSection building={b} def={def} island={island} model={model} content={content} />}
         {b.level !== undefined && def?.warehouse && (
           <div data-testid="warehouse-panel">
             <div className={styles.section}>
@@ -757,7 +850,9 @@ export function InfoPanel({
             type="button"
             className={styles.button}
             onClick={onUpgradeBuilding}
-            data-testid={def?.trading_post ? "trading-post-upgrade-button" : def?.warehouse ? "warehouse-upgrade-button" : "service-upgrade-button"}
+            data-testid={
+              def?.trading_post ? "trading-post-upgrade-button" : def?.warehouse ? "warehouse-upgrade-button" : def?.depot ? "depot-upgrade-button" : "service-upgrade-button"
+            }
           >
             <Icon path={toolIcon("upgrade")} /> Upgrade
           </button>

@@ -172,6 +172,9 @@ describe("tier 4 in the cards (D-056 C4)", () => {
       "patricians_comfort",
       "patricians_luxury",
       "patricians_services",
+      "patricians_safety",
+      "patricians_fire_protection",
+      "patricians_health",
       "patricians_settlers_food",
       "patricians_settlers_clothing",
       "patricians_citizens_food",
@@ -184,7 +187,7 @@ describe("tier 4 in the cards (D-056 C4)", () => {
     ]);
     // One flat list: each carried row names its tier; no group headings.
     for (const label of ["Food (Settlers)", "Clothing (Settlers)", "Drink (Citizens)", "Comfort (Merchants)"]) expect(t).toContain(label);
-    expect(html.match(/<tr[^>]*data-testid="house-need-/g)).toHaveLength(15);
+    expect(html.match(/<tr[^>]*data-testid="house-need-/g)).toHaveLength(18);
     expect(html).not.toMatch(/house-need-group|<th[^>]*>(Settlers|Citizens|Merchants)<\/th>/);
     // Luxury: its own icon and the server's fulfilment.
     const luxury = html.match(/data-testid="house-need-patricians_luxury"[^>]*>(.*?)<\/tr>/)![1]!;

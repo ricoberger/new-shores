@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
-import { perMin, units } from "../display/format";
+import { perMin, speedFactor, units } from "../display/format";
 import { ShipStatusLine } from "./ShipsPanel";
 import { goodIcon, toolIcon } from "../theme/iconSet";
 import { CloseButton } from "./CloseButton";
@@ -131,7 +131,7 @@ export function ShipPanel({
         <div className={styles.small}>Upkeep {perMin(s.upkeep_per_min)} $/min</div>
         {shipType && (
           <div className={styles.small} data-testid="ship-panel-speed">
-            Speed {(shipType.speed_permille / 1000).toFixed(1)}×
+            Speed {speedFactor(shipType.speed_permille)}×
           </div>
         )}
         <div className={styles.small} data-testid="ship-panel-capacity">

@@ -25,6 +25,10 @@
 // all four types, an anchored_unpaid sloop and sloops with and without
 // cargo (the art gate's model showcase).
 //
+// Any other ?fixture= name is a server fixture (settled, citizens, played,
+// …): the page asks the dev server to reset its world to it (POST
+// /api/v1/dev/reset) and then opens the game as usual (Root.tsx).
+//
 // The dense and showcase fixtures use the real content IDs and footprints
 // of content/old_coast (FIXTURE_DEFS), so they draw the real models.
 import type {
@@ -66,6 +70,16 @@ const FIXTURE_SHIPS = [
 export function fixtureFromSearch(search: string): FixtureId | null {
   const id = new URLSearchParams(search).get("fixture");
   return id === ARCHIPELAGO_FIXTURE || id === DENSE_FIXTURE || id === DENSE_ARCHIPELAGO_FIXTURE || id === SHOWCASE_FIXTURE ? id : null;
+}
+
+/**
+ * A server fixture named in a location.search string: any `fixture=` value
+ * the synthetic fixtures do not take (the dev server's reset endpoint
+ * validates it against its one list, devworld.Fixtures), or null.
+ */
+export function serverFixtureFromSearch(search: string): string | null {
+  const id = new URLSearchParams(search).get("fixture");
+  return id && fixtureFromSearch(search) === null ? id : null;
 }
 
 /** Where a fixture's camera starts: the whole archipelago (far), the showcase island or the first dense island (near). */

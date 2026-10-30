@@ -4,5 +4,8 @@
   { "id": "clothing", "name": "Clothing", "icon": "need:clothing" },
   { "id": "comfort", "name": "Comfort", "icon": "need:comfort" },
   { "id": "luxury", "name": "Luxury", "icon": "need:luxury" },
-  { "id": "services", "name": "Services", "icon": "need:services" }
+  { "id": "services", "name": "Services", "icon": "need:services" },
+  { "id": "safety", "name": "Safety", "icon": "need:safety" },
+  { "id": "fire_protection", "name": "Fire protection", "icon": "need:fire_protection" },
+  { "id": "health", "name": "Health", "icon": "need:health" }
 ]

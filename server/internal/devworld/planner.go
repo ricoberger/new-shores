@@ -49,8 +49,8 @@ func (v *view) open(x, y int) bool {
 	return t == content.TerrainCoast || t == content.TerrainGrass || t == content.TerrainForest
 }
 
-// free is open, minus forest while the planner spares it (lumberjacks
-// lose efficiency with every forest tile built over).
+// free is open, minus forest while the planner spares it (the forest
+// stays as scenery where other room exists; D-059).
 func (v *view) free(x, y int) bool {
 	return v.open(x, y) && (!v.f.spareForest || v.is.Tile(x, y).Terrain != content.TerrainForest)
 }
@@ -285,10 +285,11 @@ func (f *fixture) openAnchor(island string, from sim.Pos, r, n int) sim.Pos {
 }
 
 // forestAnchor returns the tile nearest to from whose surroundings
-// (Chebyshev radius 4) hold at least 30 free forest tiles, where a
-// lumberjack works at full efficiency, and that a road from the island's
-// network reaches (not across a river or up a cliff); from itself when
-// there is none.
+// (Chebyshev radius 4) hold at least 30 free forest tiles, and that a
+// road from the island's network reaches (not across a river or up a
+// cliff); from itself when there is none. Lumberjacks go to the forest
+// edge: their tree plots (D-059) stand on grass or forest and keep the
+// town's open land free.
 func (f *fixture) forestAnchor(island string, from sim.Pos) sim.Pos {
 	is := f.w.Island(island)
 	v := f.view(is)

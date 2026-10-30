@@ -128,18 +128,22 @@ handlers only.
   later harbour buildings) declare `water_tiles: n` — their first `n`
   front rows must lie on water tiles and the remaining rows on buildable
   land; the water tiles stay water for ships. Provisional: Trading Post
-  2 of 4 rows, fisher 1 of 2, shipyard 2 of 4. Other coastal buildings
-  need at least one footprint tile on `coast`.
+  2 of 4 rows, fisher 1 of 2, shipyard 2 of 4, trading pier 3 of 4,
+  depot 1 of 4 (D-060). Other coastal buildings
+  need at least one footprint tile on `coast`. Quays count as coast for
+  both (§3).
 - **Work area** = a Euclidean disc of radius `r` around the footprint
   centre (tile centres inside count). Two rules use it:
-  - **Harvesters** (lumberjack; later trapper) keep the implicit rule: a
+  - **Harvesters** (later trapper; the lumberjack was one until D-059)
+    keep the implicit rule: a
     tile matches when its terrain is in `work_area.terrain` and carries
     neither a building nor a road; `efficiency = min(1, matching /
     required_tiles)`; placement with efficiency 0 is rejected
     (`no_work_area`).
   - **Farms** (D-049, D-051) have **fields**: placeables of the farm's
     `fields.type` — crops (`wheat_field`, `hemp_field`, `orchard_plot`,
-    `meadow`, later hop/woad/vineyard) are **1×1**, animal **pastures**
+    `meadow`, later hop/woad/vineyard) and the lumberjack's
+    **`tree_plot`** (D-059) are **1×1**, animal **pastures**
     (sheep, dairy, cattle) and **pig pens** are **2×2**. Exactly one
     field type per farm type (`field.farm`), never shared. A field costs
     a little (D-054: wheat 3, hemp 2, orchard 1 gold per tile; a 3×3
@@ -202,7 +206,23 @@ handlers only.
   (Trading Post or Warehouse) footprint on the same island (D-042). This is the single connectivity
   rule for producers, public buildings and houses alike; a house on a road
   stub that does not reach a warehouse is *not* connected. Roads are tiles;
-  dirt roads (tier 1) and paved roads (tier 2, +speed) are the two types.
+  dirt roads (tier 1), paved roads (tier 2, +speed) and quays (tier 2,
+  D-060) are the types.
+- **Quays** (D-060) are roads on the island's **shallows**: water tiles
+  of its grid, not river, within 3 tiles (Chebyshev) of its own land
+  (any tile but water, river and islet; derived from the tiles, no
+  generator field). A quay tile must be free (no road, no footprint —
+  the water rows of water-edge buildings included). A quay is a road for
+  connection and carts like any other; for a **water-edge or coastal
+  building** it counts as coast: the building's land rows may stand on
+  quay tiles, which it replaces (no refund), while its water rows need
+  free water without quay. Other buildings never stand on a quay. For
+  ships a quay tile is **land** (sea grid, approach, harbour point,
+  §9.1). Quay tiles, or a berth holder moved onto them, must leave the
+  island's harbour point a 4-connected way over water to the edge of
+  the island's grid (`harbour_blocked`). Cost and speed are content
+  (provisional 5 gold / 2 stone per tile, 0.6 s/tile like the paved
+  road).
 - Each connected producer is **assigned** to the nearest collector by road
   distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile
@@ -234,8 +254,8 @@ cycle:   seconds               at 100 % efficiency
 ```
 
 - **Rate** = `amount / cycle × efficiency × throughput_factor ×
-  workforce_factor`, where efficiency comes from the fields (farms) or the
-  work area (harvesters),
+  workforce_factor`, where efficiency comes from the fields (farms, the
+  lumberjack's tree plots since D-059) or the work area (harvesters),
   `throughput_factor` from the assigned warehouse (section 5) and
   `workforce_factor` from the island's workforce pool (below).
 - Inputs are drawn from the island inventory continuously at the same rate
@@ -286,6 +306,15 @@ cycle:   seconds               at 100 % efficiency
   than micro-sorting). It is also the island's pier (§9.3) and the
   endpoint for ships, founding and trades. Coastal with its front rows
   over water (§2).
+- **Depots** (D-060; water-edge, Citizens, level 2 at Merchants via
+  `upgrade_building`) add their level's capacity per good to the
+  island's while a Trading Post stands: `capacity[good]` = Trading Post
+  level capacity + Σ depot level capacities (one function for every
+  reader: production caps, ships, quests, display). A depot is no
+  collector. Demolishing one refunds 50 % of placement and paid levels
+  and loses the stock above the reduced capacity (like a Trading Post
+  downgrade would). The display gives a depot its `level` and its own
+  `capacity`; the Trading Post card shows the island total.
 - **Collectors** fetch producer output: the Trading Post has a base
   **throughput** `T` and every **Warehouse** (inland, cheap, no coast, no
   capacity) adds its own `T` (levels raise it). Each producer is assigned
@@ -388,6 +417,14 @@ covers 0.6 and both cover it fully. A need is either:
   The display lists every serving building as `served_by` (IDs), so the
   client can highlight serving buildings and, inverted, the houses a
   building serves without evaluating the distance rule.
+- **Civic services (D-060):** safety (`city_guard`, Citizens and up),
+  fire protection (`fire_station`) and health (`surgery`, both Merchants
+  and up) are building needs of their own category with one building
+  each (share 1.0), evaluated exactly like services and cumulative the
+  same way (each higher tier lists the category again with its own
+  weight). They are required categories and count in the upgrade gate
+  (§6.1). No new rule: a missing civic building lowers coverage, tax and
+  growth; there are no fires, disease or crime events.
 - **Cumulative tiers:** a house also carries the goods categories of
   every lower tier (`from_tier`), with that tier's goods at a reduced
   rate: `rate × (own max / higher max) × 0.5^(dist / 3)`, where *own max*
@@ -517,9 +554,11 @@ buildings (tavern and up) keep upkeep.
 
 ### 9.1 Ships
 
-- Types (D-056): *Sloop* (2 slots × 50, speed 1.0, build 2 min, tier 2),
-  *Brig* (4 × 50, 1.0, 5 min, tier 3), *Galleon* (6 × 60, 1.0, 10 min,
-  tier 4); all sail at the same speed. Later: war ships (D-005). Defined
+- Types (D-056, speeds D-059): *Sloop* (2 slots × 50, speed 1.2, build
+  2 min, tier 2), *Brig* (4 × 50, 1.0, 5 min, tier 3), *Galleon* (6 × 60,
+  0.85, 10 min, tier 4): small and fast for founding and short hops,
+  large and slow for bulk; the ETA uses each ship's speed over the
+  routed path length. Later: war ships (D-005). Defined
   in `ships.json`; the shipyard (tier 2, no levels) offers the types
   whose tier is unlocked (`ErrTierLocked` otherwise). The start ship is a
   sloop; its **founding cargo** (start stock) is exempt from the slot
@@ -527,7 +566,8 @@ buildings (tavern and up) keep upkeep.
   Trading Post at founding (§10).
 - **Length and berth spacing** (display only, D-056 C3): each type has a
   hull length (`length_tiles`: sloop 2, brig 2.6, galleon 3.2); its
-  ratio to the sloop scales the drawn ship. At a Trading Post (§9.3) each
+  ratio to the sloop scales the drawn ship. At a Trading Post or trading
+  pier (§9.3) each
   moored ship takes the anchor spacing (1.5 tiles without anchors) ×
   its ratio along the pier, filling outwards in anchor order, so sloops
   lie exactly on the berth anchors and a longer ship pushes its
@@ -568,8 +608,8 @@ buildings (tavern and up) keep upkeep.
   to the client) and its ETA is the sum of the segments' distances in
   the formula above; route loop times use the same paths.
   Constants in `region.json`: `ship_speed_tiles_per_min` (provisional 60)
-  and `ship_handling_seconds` (provisional 20). The dev archipelago's two
-  islands are 120 tiles apart → 2 min per sloop leg.
+  and `ship_handling_seconds` (provisional 20). Two islands 120 tiles
+  apart → 100 s per sloop leg (speed 1.2), 2 min per brig leg.
 - A ship is never in two places: its `island_id` is cleared at departure
   (not a boundary — no rate changes — but included in `next_change_at` so
   the client never shows a ship at an island it has left) and set at
@@ -624,8 +664,15 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   time; if none is free it waits at anchor and its arrival effect is
   queued as the next due moment after the earliest berth frees (FIFO by
   arrival time, then ship ID). Manual shipments, route ships and later
-  trade ships queue alike. Harbour buildings (pier, crane — later) add
-  berths or shorten handling. The Trading Post panel shows berths
+  trade ships queue alike. **Trading piers** (D-060; water-edge,
+  Citizens, no levels) add their `berths` (provisional 2) to the
+  island's pool: berths = Trading Post level berths + Σ pier berths; the
+  sim keeps one pool and one queue per island. Which pier a moored ship
+  lies at is a display convention (the client fills the Trading Post's
+  own berths first, then each pier by building ID; the queue waits off
+  the Trading Post). The harbour check (§3) covers every pier's harbour
+  point: a quay or a building that closes a pier off the open sea is
+  `harbour_blocked`. A crane (shorter handling) is deferred (D-060). The Trading Post panel shows berths
   busy/free and the queue; a waiting ship shows "waiting for berth".
 
 ## 10. Islands, archipelago and settling (D-016, D-051)
@@ -669,6 +716,10 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
     low, inland higher, rivers stepping down, the plain on one level) and
     rock tiles a rock height. No tile loses buildability and no placement
     rule reads them; the client draws plinths, ramps and waterfalls.
+- **Shallows** (D-060): an island's water tiles (not river) within 3
+  tiles (Chebyshev) of its own land — islets are not own land — derived
+  from the tiles; the ground of quays (§3). D-036 stands: the shallows
+  band bounds the harbour area.
 - **Skerries** (size class `scenic`, D-058): 4–12 tiles of rock with a
   grass or sand top, placed after the islands within the nearest
   neighbour distance. They have no sites, fertilities, deposits or name,
@@ -681,7 +732,8 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   deposits and size before settling so the first choice is informed.
 - **Generator guarantees** (over the archipelago; composition fixed so
   re-rolls change the layout, not the odds): a **large** island has
-  forest, fish, grass, stone and one of wheat/apple (the home candidate);
+  fish, grass, stone and one of wheat/apple (the home candidate; forest
+  dropped with D-059 — the lumberjack plants its trees, forest is decor);
   every fertility and deposit of the pool appears within a fixed count
   range; total buildable area within ±10 % of a target;
   iron and hemp never share an island with all of those; clay, salt,

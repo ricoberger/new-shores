@@ -423,8 +423,12 @@ export interface components {
          *       `unknown_island`, `building_not_found`, `ship_not_found`,
          *       `route_not_found`, `quest_not_found`;
          *     - 405: `method_not_allowed`;
-         *     - 409: `occupied`, `terrain`, `not_coastal`, `not_on_water` (a
+         *     - 409: `occupied`, `terrain` (also a quay off the shallows,
+         *       D-060), `not_coastal`, `not_on_water` (a
          *       water-edge building's front rows are not on water, D-051),
+         *       `harbour_blocked` (quay tiles, or a Trading Post moved onto
+         *       them, would close the harbour point off from the open sea,
+         *       D-060),
          *       `no_work_area`
          *       (lumberjack only: no matching tile in its work area; farms with
          *       fields are placed at 0 fields),
@@ -525,7 +529,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "harbour_blocked" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -1791,7 +1795,7 @@ export interface components {
             stock: number;
             /**
              * Format: int64
-             * @description Capacity (milli-units).
+             * @description Capacity (milli-units) — the Trading Post's plus the depots' (D-060).
              */
             capacity: number;
             /**
@@ -1988,11 +1992,11 @@ export interface components {
              */
             workforce_factor_permille?: number;
             workforce?: components["schemas"]["BuildingWorkforce"];
-            /** @description Trading Post, Warehouse or levelled public building level (1-based). */
+            /** @description Trading Post, Warehouse, depot or levelled public building level (1-based). */
             level?: number;
             /**
              * Format: int64
-             * @description Trading Post only — the island's capacity per good at this level (milli-units).
+             * @description Trading Post — its capacity per good at this level; depot — the capacity per good it adds at this level (milli-units). The island's capacity is their sum (GoodDisplay.capacity).
              */
             capacity?: number;
             /**
@@ -2101,6 +2105,33 @@ export interface components {
             rock: boolean;
             /** @description Skerries (D-058) are scenery only - no sites, fertilities or deposits, not settleable, no name. */
             scenic: boolean;
+            /** @description Land extent in tiles (the island is about size × size). */
+            size: number;
+            /** @description Islands of the class per archipelago. */
+            count: components["schemas"]["ContentRange"];
+            /** @description Fertility tags per island of the class (drawn from the generator's pool). */
+            fertilities: components["schemas"]["ContentRange"];
+            /** @description Deposit slots per island of the class (drawn from the generator's pool). */
+            deposits: components["schemas"]["ContentRange"];
+            /** @description Shape parameters of the class (D-058). */
+            shape: {
+                arms: components["schemas"]["ContentRange"];
+                /** @description Side of the guaranteed contiguous plain (tiles; 0 none). */
+                plain: number;
+                rivers: components["schemas"]["ContentRange"];
+                /** @description Highest terrace level. */
+                levels: number;
+                islets: components["schemas"]["ContentRange"];
+            };
+            /** @description The home candidate (D-053) is an island of this class. */
+            home: boolean;
+        };
+        /** @description An inclusive range of counts (islands, tags, slots, arms, rivers or islets; unscaled integers). */
+        ContentRange: {
+            /** @description Lowest count (unscaled integer). */
+            min: number;
+            /** @description Highest count (unscaled integer). */
+            max: number;
         };
         ContentQuest: {
             id: string;
@@ -2434,12 +2465,53 @@ export interface components {
                     };
                 }[];
             };
+            /**
+             * @description A trading pier (D-060): a water-edge building that adds
+             *     berths to its island's Trading Post (MECHANICS §9.3).
+             */
+            pier?: {
+                /** @description Berths the pier adds (count). */
+                berths: number;
+            };
+            /**
+             * @description A depot (D-060): adds capacity per good to its island
+             *     (MECHANICS §5); later levels via `upgrade_building`.
+             */
+            depot?: {
+                levels: {
+                    /**
+                     * Format: int64
+                     * @description Capacity per good the depot adds at this level (milli-units).
+                     */
+                    capacity: number;
+                    /** @description Tier that must be unlocked to upgrade into this level. */
+                    tier?: string;
+                    /**
+                     * @description Upgrade cost into this level (`upgrade_building`);
+                     *     absent on the first level, which the building cost
+                     *     places.
+                     */
+                    cost?: {
+                        /**
+                         * Format: int64
+                         * @description Gold cost (milli-gold).
+                         */
+                        gold: number;
+                        /** @description Material cost per good (milli-units). */
+                        materials: {
+                            [key: string]: number;
+                        };
+                    };
+                }[];
+            };
             road?: {
                 /**
                  * Format: int64
                  * @description Transfer time per road tile (ms).
                  */
                 ms_per_tile: number;
+                /** @description A quay (D-060): placed on shallow water — water (not river) within 3 tiles (Chebyshev) of the island's own land — instead of land. */
+                shallows: boolean;
             };
             service?: {
                 /** @description Service radius at level 1 (tiles). */

@@ -26,6 +26,7 @@ import { islandSeed } from "../display/scatter";
 import { type MaskIsland, MaskLayer } from "./farmesh";
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
+import { freeShallows, isQuayType, withQuays } from "../display/quay";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
@@ -1543,7 +1544,7 @@ export class GameRenderer {
     } else if (l?.statics && def.water_tiles) {
       const st = l.statics;
       const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
-      const edge = waterEdgeHint(def, terrain, t.x, t.y, tool.rotation);
+      const edge = waterEdgeHint(def, withQuays(terrain, l.roads), t.x, t.y, tool.rotation);
       if (edge) hint = waterEdgeText(edge, def.water_tiles);
     }
     // A field is checked against its farm's chain (a hint; the server validates).
@@ -1599,11 +1600,26 @@ export class GameRenderer {
       if (t) drag = { island: t.island, start: t, end: t, mode: "remove" };
     }
     const toolKey = tool.kind === "field" ? `${tool.farmId}|${tool.buildingType}|${tool.rotation}|${tool.remove ? 1 : 0}` : tool.kind;
+    // The quay tool tints the free shallows of the island under the pointer (D-060).
+    const quayIsland = !drag && tool.kind === "road" && isQuayType(this.defs, tool.roadType) && this.hover ? this.tileAt(this.hover)?.island : undefined;
     const key = drag
       ? `${drag.mode}|${drag.island}|${drag.start.x},${drag.start.y}|${drag.end.x},${drag.end.y}|${toolKey}|${server?.version ?? 0}|${this.paint ? 1 : 0}`
-      : "";
+      : quayIsland
+        ? `quay|${quayIsland}|${server?.version ?? 0}`
+        : "";
     if (key === this.paintKey) return;
     this.paintKey = key;
+    const ql = quayIsland ? this.lookup(quayIsland) : undefined;
+    const qpl = quayIsland ? this.arch.placement(quayIsland) : undefined;
+    if (ql?.statics && qpl) {
+      const base = this.details.get(quayIsland as string);
+      const shallows = freeShallows(ql.statics, ql.roads).map(
+        (t): PaintMark => ({ cx: qpl.position.x + t.x + 0.5, cz: -(qpl.position.y + t.y + 0.5), w: 1, h: 1, kind: "ok", base: base?.baseOf({ x: t.x, y: t.y, type: "", rotation: 0 }, { width: 1, height: 1 }) ?? 0 }),
+      );
+      this.paintPreview.set(shallows);
+      this.setPaintStatus(null);
+      return;
+    }
     const pl = drag ? this.arch.placement(drag.island) : undefined;
     if (!drag || !pl) {
       this.paintPreview.set([]);

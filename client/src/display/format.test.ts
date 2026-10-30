@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { percent, perMin, units } from "./format";
+import { percent, perMin, speedFactor, units } from "./format";
 
 describe("format", () => {
   it("shows whole units, never raw milli values", () => {
@@ -19,5 +19,11 @@ describe("format", () => {
 
   it("shows permille as percent", () => {
     expect(percent(1400)).toBe("140 %");
+  });
+});
+
+describe("speedFactor", () => {
+  it("shows one decimal, two where the second is not zero (D-060 ship speeds)", () => {
+    expect([1200, 1000, 850, 1400, 1050].map(speedFactor)).toEqual(["1.2", "1.0", "0.85", "1.4", "1.05"]);
   });
 });

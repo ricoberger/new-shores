@@ -169,12 +169,14 @@ describe("fieldBuildingOf", () => {
       ["wheat_farm", "wheat_field", 1],
       ["orchard", "orchard_plot", 1],
       ["hemp_farm", "hemp_field", 1],
+      // D-059: the lumberjack plants tree plots like a farm.
+      ["lumberjack", "tree_plot", 1],
     ] as const) {
       const f = fieldBuildingOf(content, farm);
       expect(f?.id).toBe(field);
       expect(f?.width).toBe(size);
     }
-    expect(fieldBuildingOf(content, "lumberjack")).toBeUndefined();
+    expect(fieldBuildingOf(content, "sawmill")).toBeUndefined();
   });
 });
 

@@ -28,7 +28,7 @@
   "spacing": { "min": 50, "nearest_max": 120, "strait_min": 24, "void_max": 150 },
   "home": {
     "size_class": "large",
-    "terrain": ["forest", "grass"],
+    "terrain": ["grass"],
     "deposits": ["stone"],
     "fertilities_any": ["wheat", "apple"],
     "fertilities_none": ["hemp"],

@@ -117,10 +117,13 @@ func TestRandomSeed(t *testing.T) {
 	}
 }
 
-// TestDevTravelTime (R-18): a sloop leg from the home island to its
-// nearest habitable neighbour takes between 1 and 5 minutes; the start
-// ship reaches the home island's nearest shore within 5 minutes (the
-// voyages around land, D-058 §5; the spawn lies next to home, D-051).
+// TestDevTravelTime (R-18): a leg at the reference ship speed (1.0, the
+// brig) from the home island to its nearest habitable neighbour takes
+// between 1 and 5 minutes; the start ship reaches the home island's
+// nearest shore within 5 minutes (the voyages around land, D-058 §5; the
+// spawn lies next to home, D-051). The sloop (1.2, D-059) is faster: its
+// leg to the neighbour is logged, not bound (it falls under a minute on
+// the dev seed).
 func TestDevTravelTime(t *testing.T) {
 	c := catalogue(t)
 	w, err := New(c, DevSeed, start)
@@ -129,12 +132,13 @@ func TestDevTravelTime(t *testing.T) {
 	}
 	f := &fixture{c: c, w: w}
 	home, next := w.Island(f.home()), w.Island(f.neighbour(f.home()))
-	speed := c.ShipByID["sloop"].SpeedPermille
+	speed := int64(1000)
 	p := *w.Ships[0].AtSea
 	_, toHome := sim.Voyage(w, c, speed, p, sim.Arrival(c, p, home))
 	from, to := sim.Ends(c, home, next)
 	_, toNext := sim.Voyage(w, c, speed, from, to)
-	t.Logf("spawn to home: %d ms, home to neighbour: %d ms", toHome, toNext)
+	_, sloopNext := sim.Voyage(w, c, c.ShipByID["sloop"].SpeedPermille, from, to)
+	t.Logf("spawn to home: %d ms, home to neighbour: %d ms (sloop %d ms)", toHome, toNext, sloopNext)
 	if toHome > 300_000 {
 		t.Errorf("spawn to home: %d ms over 5 min", toHome)
 	}
