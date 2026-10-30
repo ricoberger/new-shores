@@ -1350,6 +1350,22 @@ stands):
   for one good); large ships faster (removes the choice); keeping
   client-only fixtures.
 
+**As built** (#49, 2026-10-30): `tree_plot` 1×1 field at 1 gold
+(wheat's 3 would be 72 gold per lumberjack at game start), one growth
+stage (the pipeline has no per-field stage files); the harvester code
+path (`work_area`, `no_work_area`) is kept unused for a mechanical
+follow-up — the three pinned test contents still use it. Speeds
+1.2/1.0/0.85 as decided; the sloop sits below the 1–5 min travel
+target on the dev seed (noted, not tuned). Fixtures: `devworld`
+list `default seafaring town settled citizens merchants patricians
+played` is the one list; the client-only fixtures are gone and
+`?fixture=` resets the dev world; the shots tool keeps its own
+argument list; `played` replays `bootstrap_patricians` via the
+scenario runner. Content payload `size_classes` carry per-class
+fertility/deposit ranges, shape and home guarantees (the
+archipelago-wide pools stay unserved). Content `old_coast-0.15.0`,
+no schema bump.
+
 ## D-060 Civic services and the built harbour: city guard, fire station, surgery; quay, trading pier, depot
 
 **Decision** (2026-10-29):
@@ -1391,6 +1407,42 @@ stands):
   rerun with the new needs in the gates.
 - *Rejected:* destructive incidents (D-009); crane with wear per tile
   (chore); quay anywhere on water (unbounded harbours, D-036).
+
+**As built** (#47 models, #48 mooring, #49 content; 2026-10-30):
+
+- *Civic needs:* categories `safety` (city guard, Citizens),
+  `fire_protection` (fire station, Merchants), `health` (surgery,
+  Merchants), weights taken from `services` within each tier (shares
+  still sum to 1), cumulative for higher tiers like every need;
+  surgery costs bricks instead of glass (glass is a Patrician good);
+  radius 16 at level 1 and a **Merchants-tier level 2 with radius
+  20** — the lever that keeps the Patricians reference game inside
+  its limits (unlock 815 / first house 837 / gate 925 against
+  900 / 960 / 1800; the plan places two civic sets). Icons
+  `need:safety|fire_protection|health`.
+- *Quay:* road type on shallow water (≤ 3 tiles Chebyshev from the
+  island's own land, islets excluded, not on river tiles or the water
+  rows of a footprint); Citizens, 5 gold + 2 stone per tile, 0.6 s per
+  tile like paved road; land for ship routing; water-edge and
+  `coastal` buildings may stand on it (no refund of the replaced
+  tiles); a quay that would close the harbour point's 4-connected
+  water way to the grid edge is refused with the new error
+  `harbour_blocked` (the check runs on every quay placement). Drawn
+  as a stone wharf with a timber edge and bollards; the quay tool
+  highlights free shallows; the same rule is shared with the client
+  through a generated test fixture.
+- *Trading pier* 3×4 (3 water rows), +2 berths into the island's one
+  berth pool (the server does not say which pier a ship lies at; the
+  client fills Trading Post berths first, then piers by ID); berth
+  anchors on the pier's long **flanks**, which the client's mooring
+  code supports next to front anchors. *Depot* 4×4 (1 water row),
+  150 / 300 capacity per good at levels 1 / 2 (level 2 Merchants).
+  Pier and depot have upkeep 0 (`never` pause category requires it).
+- Models: guard, fire station, surgery, pier, depot l1/l2 and the
+  tree plot (#47) in warm sandstone; folder 18.2 MiB. `make shots
+  PRESET=harbour` places quay, fisher, pier and depot on `played`.
+- *Not done:* repair crane and ship health (deferred as decided);
+  incidents of any kind.
 
 ## D-061 Translation: English and German from content locale files and a client catalogue
 
