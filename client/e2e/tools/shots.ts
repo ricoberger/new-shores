@@ -109,7 +109,8 @@ async function settle(page: Page): Promise<void> {
   await page.waitForFunction(
     () => {
       const a = window.__newShores!.assets();
-      return a.manifest && a.pending.length === 0 && a.failed.length === 0 && a.bridged === 0;
+      // The incremental island builds too: until they end an island is drawn from its 1:4 mask.
+      return a.manifest && a.pending.length === 0 && a.failed.length === 0 && a.bridged === 0 && window.__newShores!.buildQueue().length === 0;
     },
     undefined,
     { timeout: 30_000 },
