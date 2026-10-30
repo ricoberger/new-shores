@@ -63,8 +63,8 @@ tier's **own** categories (weights relative within the tier).
 | Tier | Goods categories → acceptable goods | Building needs (radius) |
 |---|---|---|
 | Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | services 0.3: `market` 12, `chapel` 16 |
-| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | services 0.3: + `tavern` 14, `school` 16 · safety 0.1: `city_guard` 14 |
-| Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.09: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | services 0.16: + `church` 20, `theatre` 24 · safety 0.08: `city_guard` 14 · fire protection 0.08: `fire_station` 14 · health 0.08: `surgery` 14 |
+| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | services 0.3: + `tavern` 14, `school` 16 · safety 0.1: `city_guard` 16 |
+| Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.09: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | services 0.16: + `church` 20, `theatre` 24 · safety 0.08: `city_guard` 16 · fire protection 0.08: `fire_station` 16 · health 0.08: `surgery` 16 |
 | Patricians | food 0.14: roast_beef 0.005 \| oysters 0.004 · drink 0.14: wine 0.004 \| grain_spirit 0.003 · clothing 0.14: fine_garments 0.003 \| lace 0.003 · comfort 0.14: candles 0.004 \| spectacles 0.002 · luxury 0.14: jewellery 0.001 \| instruments 0.001 | services 0.12: + `university` 24, `cathedral` 28 · safety, fire protection, health 0.06 each |
 
 Variety reserve (D-056, IDs reserved, not in the tier plan): fur_coats,
@@ -162,7 +162,9 @@ One recipe per building (D-041): `leather_works` is a separate building from
 `tannery` rather than a second recipe.
 
 Infrastructure: `trading_post` lvl 3, `market` lvl 2, `church`,
-`theatre`, `fire_station`, `surgery` (D-060), `brig` (4 slots), `house_merchants`;
+`theatre`, `fire_station`, `surgery` (D-060; its cost has 5 bricks
+where the class reference has 5 glass — glass is a Patrician good, so the
+tier-3 clamp of §7 applies), `brig` (4 slots), `house_merchants`;
 `harbourmaster_office` (world map, expeditions, contracts) is an ONLINE
 feature, not a tier gate, and not authored yet. Variety reserve
 (D-056): fur_coats (`trapper`, `furrier`), tableware (`potter`;
@@ -255,7 +257,7 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `shipyard` | 2 | 8×12, 4 water rows | Shipyard | 300 / 45 / 0 | 0 | — | R, never auto-paused; tier 2 since D-056; builds every unlocked ship type |
 | `house_citizens` | 2 | 3×3 | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | road | see text | 0 | — | 3 gold / 1 stone |
-| `quay` | 2 | 1×1 on shallows | road (D-060) | see text | 0 | — | 5 gold / 2 stone; 1 s/tile; water-edge buildings stand on it |
+| `quay` | 2 | 1×1 on shallows | road (D-060) | see text | 0 | — | 5 gold / 2 stone; 0.6 s/tile; water-edge buildings stand on it |
 | `quarry` | 2 | 3×8 on a stone slot | Limestone Quarry | 120 / 9 / 0 | 3 | 8 S | R; strip into the mountain |
 | `iron_mine` | 2 | 3×8 on an iron slot | Iron Mine | 180 / 6 / 6 | 2 | 10 S | R |
 | `charcoal_burner` | 2 | 5×6 | Charcoal Burner | 90 / 9 / 0 | 2 | 4 S | R, forest nearby (visual) |
@@ -283,12 +285,12 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `sailmaker` | 2 | 4×8 | Ropemaker | 240 / 6 / 9 | 2 | 6 C | R |
 | `tavern` | 2 | 4×6 | Tavern | 250 / 15 / 0 | 2 | — | R, radius 14 |
 | `school` | 2 | 6×8 | Grammaticus | 1000 / 15 / 30 | 4 | — | R, radius 16 (D-056) |
-| `city_guard` | 2 | 3×3 | Watch post class | 200 / 10 / 6 | 2 | — | R, radius 14, safety (D-060) |
+| `city_guard` | 2 | 3×3 | Watch post class | 200 / 10 / 6 | 2 | — | R, radius 16, safety (D-060) |
 | `house_merchants` | 3 | 3×3 | Residence | 400 / 5 / 3 / 3 | 0 | — | upgrade only |
 | `church` | 3 | 6×10 | Sanctuary | 1500 / 30 / 15 / 0 | 6 | — | R, radius 20 |
 | `theatre` | 3 | 11×14 | Theatre | 15000 / 30 / 60 / 30 | 15 | — | R, radius 24 (tier 3 since D-056) |
-| `fire_station` | 3 | 3×4 | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, radius 14, fire protection (D-060) |
-| `surgery` | 3 | 3×3 | Surgery class | 450 / 10 / 15 / 5 | 4 | — | R, radius 14, health (D-060); glass clamped to bricks (tier 3) |
+| `fire_station` | 3 | 3×4 | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, radius 16, fire protection (D-060) |
+| `surgery` | 3 | 3×3 | Surgery class | 450 / 10 / 15 / 5 | 4 | — | R, radius 16, health (D-060); glass clamped to bricks (tier 3) |
 | `harbourmaster_office` | 3 | 5×5, 2 water rows | Repair Crane class | 1000 / 60 / 45 / 0 | 6 | — | world map, expeditions, contracts |
 | `butcher` | 3 | 4×5 | Victualler class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
 | `pastry_kitchen` | 3 | 4×5 | Bakery class | 320 / 5 / 9 / 3 | 4 | 8 M | R |

@@ -47,3 +47,22 @@ export function roadsOnWater(is: ShallowsInput, roads: readonly { x: number; y: 
   for (const r of roads) if (is.terrain[r.y * is.width + r.x] === "water") out.add(`${r.x},${r.y}`);
   return out;
 }
+
+/** The free shallows of an island (no road on them): the tiles the quay tool's overlay tints. */
+export function freeShallows(is: ShallowsInput, roads: ReadonlySet<string>): TilePos[] {
+  const out: TilePos[] = [];
+  for (let y = 0; y < is.height; y++) for (let x = 0; x < is.width; x++) if (!roads.has(`${x},${y}`) && isShallow(is, x, y)) out.push({ x, y });
+  return out;
+}
+
+/**
+ * A terrain lookup in which a road on a water tile (a quay, D-060) reads
+ * "quay": the land rows of a water-edge building may stand on it, its
+ * water rows may not (the placement ghost's water-edge hint).
+ */
+export function withQuays(terrain: (x: number, y: number) => string, roads: ReadonlySet<string>): (x: number, y: number) => string {
+  return (x, y) => {
+    const t = terrain(x, y);
+    return t === "water" && roads.has(`${x},${y}`) ? "quay" : t;
+  };
+}

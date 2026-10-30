@@ -13190,7 +13190,7 @@
           },
           {
             "id": 57,
-            "type": "house_citizens",
+            "type": "house_merchants",
             "x": 151,
             "y": 146,
             "rotation": 0,
@@ -13200,58 +13200,70 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": true
+              "available": false,
+              "reason": "tier_locked"
             },
-            "residents": 15000,
-            "residents_floor": 5000,
-            "residents_max": 15000,
+            "residents": 25000,
+            "residents_floor": 8000,
+            "residents_max": 25000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 856,
-            "tax_rate_per_min": 10272,
+            "satisfaction_permille": 775,
+            "tax_rate_per_min": 29099,
             "needs": [
               {
-                "id": "citizens_food",
+                "id": "merchants_food",
                 "kind": "required",
                 "category": "food",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "bread": 0,
-                  "cheese": 1710
+                  "pies": 0,
+                  "sausages": 450
                 }
               },
               {
-                "id": "citizens_drink",
+                "id": "merchants_drink",
                 "kind": "required",
                 "category": "drink",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "cider": 0,
-                  "mead": 1425
+                  "beer": 450,
+                  "brandy": 0
                 }
               },
               {
-                "id": "citizens_clothing",
+                "id": "merchants_clothing",
                 "kind": "required",
                 "category": "clothing",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "leather_jerkins": 1140,
-                  "linen_garments": 0
+                  "coats": 300,
+                  "dyed_garments": 0
                 }
               },
               {
-                "id": "citizens_services",
+                "id": "merchants_comfort",
+                "kind": "required",
+                "category": "comfort",
+                "fulfilment_permille": 600,
+                "reason": "ok",
+                "goods": {
+                  "books": 150,
+                  "soap": 0
+                }
+              },
+              {
+                "id": "merchants_services",
                 "kind": "required",
                 "category": "services",
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               },
               {
-                "id": "citizens_safety",
+                "id": "merchants_safety",
                 "kind": "required",
                 "category": "safety",
                 "building": "city_guard",
@@ -13259,29 +13271,80 @@
                 "reason": "ok"
               },
               {
-                "id": "citizens_settlers_food",
+                "id": "merchants_fire_protection",
+                "kind": "required",
+                "category": "fire_protection",
+                "building": "fire_station",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "merchants_health",
+                "kind": "required",
+                "category": "health",
+                "building": "surgery",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "merchants_settlers_food",
                 "kind": "required",
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "fish": 1197
+                  "fish": 150
                 }
               },
               {
-                "id": "citizens_settlers_clothing",
+                "id": "merchants_settlers_clothing",
                 "kind": "required",
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 598
+                  "wool_garments": 75
+                }
+              },
+              {
+                "id": "merchants_citizens_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 600,
+                "reason": "ok",
+                "goods": {
+                  "bread": 0,
+                  "cheese": 217
+                }
+              },
+              {
+                "id": "merchants_citizens_drink",
+                "kind": "required",
+                "category": "drink",
+                "fulfilment_permille": 600,
+                "reason": "ok",
+                "goods": {
+                  "cider": 0,
+                  "mead": 180
+                }
+              },
+              {
+                "id": "merchants_citizens_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 600,
+                "reason": "ok",
+                "goods": {
+                  "leather_jerkins": 142,
+                  "linen_garments": 0
                 }
               }
             ],
             "served_by": [
               55,
               116,
+              689,
+              690,
               691
             ]
           },
@@ -13384,7 +13447,7 @@
           },
           {
             "id": 59,
-            "type": "house_citizens",
+            "type": "house_merchants",
             "x": 147,
             "y": 148,
             "rotation": 0,
@@ -13394,58 +13457,70 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": true
+              "available": false,
+              "reason": "tier_locked"
             },
-            "residents": 15000,
-            "residents_floor": 5000,
-            "residents_max": 15000,
+            "residents": 25000,
+            "residents_floor": 8000,
+            "residents_max": 25000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 856,
-            "tax_rate_per_min": 10272,
+            "satisfaction_permille": 775,
+            "tax_rate_per_min": 29099,
             "needs": [
               {
-                "id": "citizens_food",
+                "id": "merchants_food",
                 "kind": "required",
                 "category": "food",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "bread": 0,
-                  "cheese": 1710
+                  "pies": 0,
+                  "sausages": 450
                 }
               },
               {
-                "id": "citizens_drink",
+                "id": "merchants_drink",
                 "kind": "required",
                 "category": "drink",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "cider": 0,
-                  "mead": 1425
+                  "beer": 450,
+                  "brandy": 0
                 }
               },
               {
-                "id": "citizens_clothing",
+                "id": "merchants_clothing",
                 "kind": "required",
                 "category": "clothing",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "leather_jerkins": 1140,
-                  "linen_garments": 0
+                  "coats": 300,
+                  "dyed_garments": 0
                 }
               },
               {
-                "id": "citizens_services",
+                "id": "merchants_comfort",
+                "kind": "required",
+                "category": "comfort",
+                "fulfilment_permille": 600,
+                "reason": "ok",
+                "goods": {
+                  "books": 150,
+                  "soap": 0
+                }
+              },
+              {
+                "id": "merchants_services",
                 "kind": "required",
                 "category": "services",
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               },
               {
-                "id": "citizens_safety",
+                "id": "merchants_safety",
                 "kind": "required",
                 "category": "safety",
                 "building": "city_guard",
@@ -13453,29 +13528,80 @@
                 "reason": "ok"
               },
               {
-                "id": "citizens_settlers_food",
+                "id": "merchants_fire_protection",
+                "kind": "required",
+                "category": "fire_protection",
+                "building": "fire_station",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "merchants_health",
+                "kind": "required",
+                "category": "health",
+                "building": "surgery",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "merchants_settlers_food",
                 "kind": "required",
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "fish": 1197
+                  "fish": 150
                 }
               },
               {
-                "id": "citizens_settlers_clothing",
+                "id": "merchants_settlers_clothing",
                 "kind": "required",
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 598
+                  "wool_garments": 75
+                }
+              },
+              {
+                "id": "merchants_citizens_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 600,
+                "reason": "ok",
+                "goods": {
+                  "bread": 0,
+                  "cheese": 217
+                }
+              },
+              {
+                "id": "merchants_citizens_drink",
+                "kind": "required",
+                "category": "drink",
+                "fulfilment_permille": 600,
+                "reason": "ok",
+                "goods": {
+                  "cider": 0,
+                  "mead": 180
+                }
+              },
+              {
+                "id": "merchants_citizens_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 600,
+                "reason": "ok",
+                "goods": {
+                  "leather_jerkins": 142,
+                  "linen_garments": 0
                 }
               }
             ],
             "served_by": [
               55,
               116,
+              689,
+              690,
               691
             ]
           },
@@ -14124,7 +14250,7 @@
           },
           {
             "id": 66,
-            "type": "house_merchants",
+            "type": "house_citizens",
             "x": 152,
             "y": 142,
             "rotation": 0,
@@ -14134,70 +14260,58 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "tier_locked"
+              "available": true
             },
-            "residents": 25000,
-            "residents_floor": 8000,
-            "residents_max": 25000,
+            "residents": 15000,
+            "residents_floor": 5000,
+            "residents_max": 15000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 775,
-            "tax_rate_per_min": 29099,
+            "satisfaction_permille": 856,
+            "tax_rate_per_min": 10272,
             "needs": [
               {
-                "id": "merchants_food",
+                "id": "citizens_food",
                 "kind": "required",
                 "category": "food",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "pies": 0,
-                  "sausages": 450
+                  "bread": 0,
+                  "cheese": 1710
                 }
               },
               {
-                "id": "merchants_drink",
+                "id": "citizens_drink",
                 "kind": "required",
                 "category": "drink",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "beer": 450,
-                  "brandy": 0
+                  "cider": 0,
+                  "mead": 1425
                 }
               },
               {
-                "id": "merchants_clothing",
+                "id": "citizens_clothing",
                 "kind": "required",
                 "category": "clothing",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "coats": 300,
-                  "dyed_garments": 0
+                  "leather_jerkins": 1140,
+                  "linen_garments": 0
                 }
               },
               {
-                "id": "merchants_comfort",
-                "kind": "required",
-                "category": "comfort",
-                "fulfilment_permille": 600,
-                "reason": "ok",
-                "goods": {
-                  "books": 150,
-                  "soap": 0
-                }
-              },
-              {
-                "id": "merchants_services",
+                "id": "citizens_services",
                 "kind": "required",
                 "category": "services",
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               },
               {
-                "id": "merchants_safety",
+                "id": "citizens_safety",
                 "kind": "required",
                 "category": "safety",
                 "building": "city_guard",
@@ -14205,72 +14319,23 @@
                 "reason": "ok"
               },
               {
-                "id": "merchants_fire_protection",
-                "kind": "required",
-                "category": "fire_protection",
-                "building": "fire_station",
-                "fulfilment_permille": 1000,
-                "reason": "ok"
-              },
-              {
-                "id": "merchants_health",
-                "kind": "required",
-                "category": "health",
-                "building": "surgery",
-                "fulfilment_permille": 1000,
-                "reason": "ok"
-              },
-              {
-                "id": "merchants_settlers_food",
+                "id": "citizens_settlers_food",
                 "kind": "required",
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "fish": 150
+                  "fish": 1197
                 }
               },
               {
-                "id": "merchants_settlers_clothing",
+                "id": "citizens_settlers_clothing",
                 "kind": "required",
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 75
-                }
-              },
-              {
-                "id": "merchants_citizens_food",
-                "kind": "required",
-                "category": "food",
-                "fulfilment_permille": 600,
-                "reason": "ok",
-                "goods": {
-                  "bread": 0,
-                  "cheese": 217
-                }
-              },
-              {
-                "id": "merchants_citizens_drink",
-                "kind": "required",
-                "category": "drink",
-                "fulfilment_permille": 600,
-                "reason": "ok",
-                "goods": {
-                  "cider": 0,
-                  "mead": 180
-                }
-              },
-              {
-                "id": "merchants_citizens_clothing",
-                "kind": "required",
-                "category": "clothing",
-                "fulfilment_permille": 600,
-                "reason": "ok",
-                "goods": {
-                  "leather_jerkins": 142,
-                  "linen_garments": 0
+                  "wool_garments": 598
                 }
               }
             ],
@@ -14278,8 +14343,6 @@
               55,
               116,
               178,
-              689,
-              690,
               691
             ]
           },
@@ -14383,7 +14446,7 @@
           },
           {
             "id": 68,
-            "type": "house_merchants",
+            "type": "house_citizens",
             "x": 149,
             "y": 142,
             "rotation": 0,
@@ -14393,70 +14456,58 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "tier_locked"
+              "available": true
             },
-            "residents": 25000,
-            "residents_floor": 8000,
-            "residents_max": 25000,
+            "residents": 15000,
+            "residents_floor": 5000,
+            "residents_max": 15000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 775,
-            "tax_rate_per_min": 29099,
+            "satisfaction_permille": 856,
+            "tax_rate_per_min": 10272,
             "needs": [
               {
-                "id": "merchants_food",
+                "id": "citizens_food",
                 "kind": "required",
                 "category": "food",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "pies": 0,
-                  "sausages": 450
+                  "bread": 0,
+                  "cheese": 1710
                 }
               },
               {
-                "id": "merchants_drink",
+                "id": "citizens_drink",
                 "kind": "required",
                 "category": "drink",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "beer": 450,
-                  "brandy": 0
+                  "cider": 0,
+                  "mead": 1425
                 }
               },
               {
-                "id": "merchants_clothing",
+                "id": "citizens_clothing",
                 "kind": "required",
                 "category": "clothing",
                 "fulfilment_permille": 600,
                 "reason": "ok",
                 "goods": {
-                  "coats": 300,
-                  "dyed_garments": 0
+                  "leather_jerkins": 1140,
+                  "linen_garments": 0
                 }
               },
               {
-                "id": "merchants_comfort",
-                "kind": "required",
-                "category": "comfort",
-                "fulfilment_permille": 600,
-                "reason": "ok",
-                "goods": {
-                  "books": 150,
-                  "soap": 0
-                }
-              },
-              {
-                "id": "merchants_services",
+                "id": "citizens_services",
                 "kind": "required",
                 "category": "services",
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               },
               {
-                "id": "merchants_safety",
+                "id": "citizens_safety",
                 "kind": "required",
                 "category": "safety",
                 "building": "city_guard",
@@ -14464,72 +14515,23 @@
                 "reason": "ok"
               },
               {
-                "id": "merchants_fire_protection",
-                "kind": "required",
-                "category": "fire_protection",
-                "building": "fire_station",
-                "fulfilment_permille": 1000,
-                "reason": "ok"
-              },
-              {
-                "id": "merchants_health",
-                "kind": "required",
-                "category": "health",
-                "building": "surgery",
-                "fulfilment_permille": 1000,
-                "reason": "ok"
-              },
-              {
-                "id": "merchants_settlers_food",
+                "id": "citizens_settlers_food",
                 "kind": "required",
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "fish": 150
+                  "fish": 1197
                 }
               },
               {
-                "id": "merchants_settlers_clothing",
+                "id": "citizens_settlers_clothing",
                 "kind": "required",
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 75
-                }
-              },
-              {
-                "id": "merchants_citizens_food",
-                "kind": "required",
-                "category": "food",
-                "fulfilment_permille": 600,
-                "reason": "ok",
-                "goods": {
-                  "bread": 0,
-                  "cheese": 217
-                }
-              },
-              {
-                "id": "merchants_citizens_drink",
-                "kind": "required",
-                "category": "drink",
-                "fulfilment_permille": 600,
-                "reason": "ok",
-                "goods": {
-                  "cider": 0,
-                  "mead": 180
-                }
-              },
-              {
-                "id": "merchants_citizens_clothing",
-                "kind": "required",
-                "category": "clothing",
-                "fulfilment_permille": 600,
-                "reason": "ok",
-                "goods": {
-                  "leather_jerkins": 142,
-                  "linen_garments": 0
+                  "wool_garments": 598
                 }
               }
             ],
@@ -14537,8 +14539,6 @@
               55,
               116,
               178,
-              689,
-              690,
               691
             ]
           },

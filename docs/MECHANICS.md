@@ -217,7 +217,8 @@ handlers only.
   §9.1). Quay tiles, or a berth holder moved onto them, must leave the
   island's harbour point a 4-connected way over water to the edge of
   the island's grid (`harbour_blocked`). Cost and speed are content
-  (provisional 5 gold / 2 stone per tile, 1 s/tile).
+  (provisional 5 gold / 2 stone per tile, 0.6 s/tile like the paved
+  road).
 - Each connected producer is **assigned** to the nearest collector by road
   distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile

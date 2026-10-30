@@ -294,7 +294,7 @@
     "cost": { "gold": 5, "stone": 2 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "road": { "seconds_per_tile": 1.0, "shallows": true }
+    "road": { "seconds_per_tile": 0.6, "shallows": true }
   },
   {
     "id": "tavern",
@@ -333,7 +333,7 @@
     "cost": { "gold": 200, "planks": 10, "stone": 6 },
     "upkeep_per_min": 2,
     "pause_category": "public",
-    "service": { "radius": 14 }
+    "service": { "radius": 16 }
   },
   {
     "id": "wheat_farm",
@@ -835,7 +835,7 @@
     "cost": { "gold": 400, "planks": 15, "stone": 15, "bricks": 5 },
     "upkeep_per_min": 4,
     "pause_category": "public",
-    "service": { "radius": 14 }
+    "service": { "radius": 16 }
   },
   {
     "id": "surgery",
@@ -848,7 +848,7 @@
     "cost": { "gold": 450, "planks": 10, "stone": 15, "bricks": 5 },
     "upkeep_per_min": 4,
     "pause_category": "public",
-    "service": { "radius": 14 }
+    "service": { "radius": 16 }
   },
   {
     "id": "butcher",

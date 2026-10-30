@@ -901,7 +901,7 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 	}
 	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:luxury,services=Services/need:services," +
 		// D-060 civic services: the HUD set has no icons of their own yet.
-		"safety=Safety/need:services,fire_protection=Fire protection/need:services,health=Health/need:services"
+		"safety=Safety/need:safety,fire_protection=Fire protection/need:fire_protection,health=Health/need:health"
 	if got := strings.Join(cats, ","); got != want {
 		t.Errorf("need categories = %s, want %s", got, want)
 	}

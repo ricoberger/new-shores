@@ -6632,45 +6632,45 @@
     },
     {
       "upgrade": {
+        "x": 151,
+        "y": 146
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 147,
+        "y": 148
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
         "x": 148,
         "y": 145
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 152,
-        "y": 142
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "x": 149,
-        "y": 142
       }
     },
     {
