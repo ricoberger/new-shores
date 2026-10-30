@@ -105,7 +105,7 @@ function PaintButton({ field, full, onPaint }: { field: Content["buildings"][num
     clearTimeout(timer.current);
     timer.current = undefined;
   };
-  const name = field.name.toLowerCase();
+  const name = inSentence(field.name);
   return (
     <>
       <div className={styles.buttons}>

@@ -6,7 +6,7 @@
 import type { Content, ContentBuilding, ContentShip, ContentTier } from "../api/client";
 import type { components } from "../api/schema";
 import { depositName, fertilityName } from "../display/tiers";
-import { currentLocale, t, tOr } from "../i18n";
+import { currentLocale, percentSpace, t, tOr } from "../i18n";
 
 export type ContentNeed = components["schemas"]["ContentNeed"];
 export type ContentQuest = components["schemas"]["ContentQuest"];
@@ -41,7 +41,7 @@ export function perMinute(amountMilli: number, cycleMs: number): number {
 
 /** Share or weight in ppm (1 000 000 = 100 %) as percent. */
 export function ppmPercent(ppm: number): string {
-  return `${num(ppm / 10000, 1)} %`;
+  return `${num(ppm / 10000, 1)}${percentSpace()}%`;
 }
 
 export interface CostPart {

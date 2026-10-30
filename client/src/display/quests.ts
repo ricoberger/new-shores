@@ -3,7 +3,7 @@
 // whether a quest is complete).
 import type { Content, DisplayState } from "../api/client";
 import type { components } from "../api/schema";
-import { t } from "../i18n";
+import { percentSpace, t } from "../i18n";
 import { units } from "./format";
 
 export type ContentQuest = components["schemas"]["ContentQuest"];
@@ -34,7 +34,7 @@ export function objectiveProgress(o: ObjectiveDisplay): string {
     case "stock":
       return `${units(Math.max(o.current, 0))}/${units(o.target)}`;
     case "satisfaction":
-      return `${o.current < 0 ? "–" : Math.round(o.current / 10)}/${Math.round(o.target / 10)} %`;
+      return `${o.current < 0 ? "–" : Math.round(o.current / 10)}/${Math.round(o.target / 10)}${percentSpace()}%`;
     default:
       return `${o.current}/${o.target}`;
   }

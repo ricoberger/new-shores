@@ -144,6 +144,11 @@ export function t(key: MessageKey, params?: Params): string {
   return format(CATALOGUES[current][key] ?? en[key], params, current);
 }
 
+/** The space before a percent sign: a no-break space in German (DIN 5008), so "0" and "%" never part at a line end. */
+export function percentSpace(): string {
+  return currentLanguage() === "de" ? "\u00a0" : " ";
+}
+
 /**
  * A name inside a sentence: lower case in English ("needs food"), as is in
  * German, where every noun keeps its capital.

@@ -2,7 +2,7 @@
 // quantities are milli-units / milli-gold / milli-residents, ratios
 // permille, durations ms. The UI never shows raw milli values.
 
-import { currentLocale } from "../i18n";
+import { currentLocale, percentSpace } from "../i18n";
 
 /** A number with a fixed count of decimals in the locale's separators (default: the current language's; no digit grouping). */
 export function decimal(value: number, places: number, locale: string = currentLocale()): string {
@@ -38,7 +38,7 @@ export function speedFactor(permille: number): string {
 
 /** A permille ratio as whole percent. */
 export function percent(permille: number): string {
-  return `${Math.round(permille / 10)} %`;
+  return `${Math.round(permille / 10)}${percentSpace()}%`;
 }
 
 /** Milliseconds as seconds with one decimal. */

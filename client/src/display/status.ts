@@ -2,7 +2,7 @@
 // string templates over server fields: no rule is evaluated here.
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
 import { STATUS } from "../theme/palette";
-import { t } from "../i18n";
+import { inSentence, t } from "../i18n";
 import { percent, perMin, units } from "./format";
 
 export type StatusKey =
@@ -66,7 +66,7 @@ function goodName(content: Content, id: string): string {
 export function fieldsPlural(content: Content, farmType: string): string {
   const farm = content.buildings.find((d) => d.id === farmType);
   const field = content.buildings.find((d) => d.field !== undefined && d.field.type === farm?.fields?.type);
-  return field ? t("status.fieldsPlural", { name: field.name.toLowerCase() }) : t("status.fields");
+  return field ? t("status.fieldsPlural", { name: inSentence(field.name) }) : t("status.fields");
 }
 
 function tierName(content: Content, id: string): string {

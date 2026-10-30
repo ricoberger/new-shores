@@ -9,7 +9,7 @@
 // No ownership, activity or efficiency is computed here; the farm and its
 // fields show the server's `fields`, `farm_id` and `active`.
 import type { BuildingDisplay, Content, ContentBuilding, Island } from "../api/client";
-import { t } from "../i18n";
+import { inSentence, t } from "../i18n";
 import { rotatedFootprint, type TilePos, tileKey } from "./geometry";
 
 /**
@@ -34,7 +34,7 @@ export function footprintText(def: Pick<ContentBuilding, "id" | "width" | "heigh
     const field = fieldBuildingOf(content as Content, def.id);
     const max = def.fields.max;
     if (!field || (field.width === 1 && field.height === 1)) text += t("field.plain", { count: max });
-    else text += t("field.modules", { count: max, name: field.name.toLowerCase(), Name: field.name, w: field.width, h: field.height });
+    else text += t("field.modules", { count: max, name: inSentence(field.name), Name: field.name, w: field.width, h: field.height });
   }
   return text;
 }
@@ -103,7 +103,7 @@ export function fieldPlacementHint(farm: BuildingDisplay, field: ContentBuilding
 /** Hint text of a rejected ghost. */
 export function fieldHintText(hint: FieldHint, fieldName: string, farmName: string): string {
   // `name` is lower case for English sentences; German nouns keep their capital (`Name`, `Farm`).
-  const params = { name: fieldName.toLowerCase(), Name: fieldName, farm: farmName.toLowerCase(), Farm: farmName };
+  const params = { name: inSentence(fieldName), Name: fieldName, farm: inSentence(farmName), Farm: farmName };
   return t(`field.hint.${hint}`, params);
 }
 

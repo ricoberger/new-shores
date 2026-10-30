@@ -1,5 +1,5 @@
 import styles from "./almanac.module.css";
-import { t } from "../i18n";
+import { percentSpace, t } from "../i18n";
 import { A, BuildingLink, Row } from "./parts";
 import { needsByTier, num, ppmPercent, tierViews, type Index } from "./model";
 import { useScrollTo } from "./useScrollTo";
@@ -121,7 +121,7 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
                   {tier.own.map((n) => (
                     <tr key={n.id}>
                       <td>{n.categoryName}</td>
-                      <td className={styles.num}>{num(n.ownPercent, 0)} %</td>
+                      <td className={styles.num}>{num(n.ownPercent, 0)}{percentSpace()}%</td>
                       <td>
                         {n.alternatives.map((a, i) => (
                           <span key={a.id}>

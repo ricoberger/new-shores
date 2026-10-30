@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { Content, DisplayState, Island, IslandDisplay } from "../api/client";
 import { perMin, units } from "../display/format";
-import { t } from "../i18n";
+import { percentSpace, t } from "../i18n";
 import { constructionGoods, islandResources, type TierRow, tierRows, worstNeedText } from "../display/hud";
 import { needCategory, needLabel } from "../display/needs";
 import { goodIcon, needIcon, toolIcon } from "../theme/iconSet";
@@ -115,7 +115,7 @@ export function PopulationDetails({ rows, content, islandName }: { rows: TierRow
             {r.satisfactionPermille !== null && (
               <span className={styles.satisfaction} data-testid={`hud-satisfaction-${r.tier}`}>
                 <span className={styles.srOnly}>{t("topBar.satisfaction")} </span>
-                {Math.round(r.satisfactionPermille / 10)} %
+                {Math.round(r.satisfactionPermille / 10)}{percentSpace()}%
               </span>
             )}
             {r.short > 0 && (

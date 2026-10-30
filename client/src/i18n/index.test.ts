@@ -3,7 +3,7 @@ import type { ErrorCode } from "../api/client";
 import type { components } from "../api/schema";
 import { de } from "./de";
 import { en } from "./en";
-import { currentLanguage, format, inSentence, resolveLanguage, setLanguage, t, tOr, tRich, type MessageKey } from "./index";
+import { currentLanguage, format, inSentence, percentSpace, resolveLanguage, setLanguage, t, tOr, tRich, type MessageKey } from "./index";
 
 afterEach(() => setLanguage("en", false));
 
@@ -62,6 +62,23 @@ describe("t", () => {
   it("puts elements into placeholders", () => {
     const parts = tRich("shipPanel.noRoutes", { link: "LINK" });
     expect(parts).toHaveLength(3);
+  });
+});
+
+describe("inSentence", () => {
+  it("lowercases a name in English and keeps the noun capital in German", () => {
+    expect(inSentence("Wheat field")).toBe("wheat field");
+    setLanguage("de", false);
+    expect(t("infoPanel.paint.button", { name: inSentence("Weizenfeld") })).toBe("Weizenfeld malen");
+  });
+});
+
+describe("percentSpace", () => {
+  it("is a no-break space in German only", () => {
+    expect(percentSpace()).toBe(" ");
+    setLanguage("de", false);
+    expect(percentSpace()).toBe("\u00a0");
+    expect(t("hud.worstNeed", { name: "Kleidung", percent: 0, reason: "x" })).toContain("0\u00a0%");
   });
 });
 
