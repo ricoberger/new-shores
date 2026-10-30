@@ -20,9 +20,13 @@ CONTENT = content.load()
 #: id → (footprint w × d tiles, water rows the model stands over, anchors beyond status, model files).
 D062 = {
     "trading_post": ((6, 6), 1, ("door", "cart", "berth_1", "berth_2", "berth_3", "berth_4"), 4),
+    "chapel": ((3, 5), 0, ("door",), 1),
+    "city_guard": ((4, 4), 0, ("door",), 1),
+    "fire_station": ((4, 5), 0, ("door",), 1),
+    "surgery": ((4, 6), 0, ("door",), 1),
 }
 #: Model files that carry a sway group (cloth) and the group.
-SWAY = {"trading_post.l4.glb": ["flag"]}
+SWAY = {"trading_post.l4.glb": ["flag"], "surgery.glb": ["cloth"]}
 
 
 class D062Test(unittest.TestCase):
@@ -72,6 +76,21 @@ class D062Test(unittest.TestCase):
             paths = [entry["file"]["path"]] if "file" in entry else [i["path"] for i in entry["levels"].values()]
             expected = sorted({g for p in paths for g in SWAY.get(p, [])})
             self.assertEqual(entry.get("sway", []), expected, cid)
+
+    def test_the_city_guard_is_warm_sandstone_not_grey(self):
+        files, _, _ = self.built("city_guard")
+        v = [f[3] for f in files if f[0] == "city_guard.glb"][0]
+        roles = [m[0] for m in v.cells.values()]
+        self.assertLess(roles.count("stone") / len(roles), 0.03)
+        self.assertGreater(roles.count("cliff-upper") / len(roles), 0.2)
+
+    def test_the_surgery_is_a_patricians_stone_and_brick_house(self):
+        self.assertEqual(CONTENT["buildings"]["surgery"]["tier"], "patricians")
+        files, _, _ = self.built("surgery")
+        v = [f[3] for f in files if f[0] == "surgery.glb"][0]
+        roles = [m[0] for m in v.cells.values()]
+        self.assertGreater(roles.count("stone"), 1000)  # the ashlar ground floor
+        self.assertGreater(roles.count("terracotta"), 500)  # the brick upper storey
 
     def test_deterministic(self):
         for cid in D062:

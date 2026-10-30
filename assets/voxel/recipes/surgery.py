@@ -1,10 +1,11 @@
 """
-Surgery (3 × 3; D-060, Merchants, civic): a plastered house with quoins
-and a steep dark red-brown tiled roof, its gable to the street with an
-attic window, tall windows in white frames, a green-and-white striped
-cloth awning over the front (sway group `cloth`), a barber's pole by the
-door, a bench, a raised herb bed and a sign post with a mortar-and-pestle
-plaque. No smoke anchor (no chimney: the surgery does not burn anything).
+Surgery (4 × 6, D-062; D-060, Patricians, civic): an ashlar ground floor
+with tall windows under a brick upper storey with white-framed
+pedimented windows, string course and cornice, a dark brown tiled gable roof
+(no chimney: the surgery does not burn anything), a green-and-white
+striped cloth awning over the front (sway group `cloth`), a barber's pole
+by the door, a bench, a sign post with a mortar-and-pestle plaque and,
+along the west side, a walled herb garden in raised beds with a well.
 """
 
 from nsvoxel import parts as P
@@ -12,15 +13,14 @@ from nsvoxel import detail_d060 as D
 from nsvoxel import detail_v4 as V
 from nsvoxel import detail_v5 as Q
 from nsvoxel.grid import mat
-from nsvoxel.mats import CANVAS, IRON, OCHRE, PLANK, STONE_DARK, TIMBER, TIMBER_DARK
+from nsvoxel.mats import CANVAS, IRON, PLANK, STONE_DARK, TIMBER, TIMBER_DARK
 
-ROOF = mat("terracotta", 0.62)
-RIDGE = mat("terracotta", 0.5)
+ROOF = mat("timber", 1.12)
+RIDGE = mat("timber", 0.92)
+BRICK = mat("terracotta", 0.9)
 GREEN = P.cloth(mat("hemp", 1.0))
 WHITE = P.cloth(CANVAS)
 LEAF = mat("hemp", 0.72)
-#: Plastered walls: yellow-ochre limewash, so the white frames and quoins stand out.
-WALL = OCHRE
 
 #: The plaque's pixels from the top row (5 × 5): M mortar, P pestle, . board.
 PLAQUE = (
@@ -58,39 +58,40 @@ def sign_post(v, x, y, z=1, arm=6):
 
 
 def build(ctx):
-    v = ctx.vox()  # 24 × 24
+    v = ctx.vox()  # 32 × 48
     seed = 85
-    P.yard(v, 0, 0, 24, 24, "grass", seed=seed)
-    P.yard(v, 5, 16, 19, 24, "paved", seed=seed)
-    x0, y0, x1, y1 = 3, 3, 19, 15
-    zt = 12
-    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=1)
-    P.fill(v, x0, y0, x1, y1, 1, 2, STONE_DARK)
-    P.fill(v, x0, y0, x1, y1, 2, zt, WALL)
-    P.dressed_quoins(v, x0, y0, x1, y1, 2, zt)
-    Q.string_course(v, x0, y0, x1, y1, 8)
-    r = P.roof(v, x0, x1, y0, y1, zt, "tiles", along="y", rise=1.15, m=ROOF, ridge=RIDGE, gable=WALL, seed=seed)
-    f = P.Face(v, "y+", y1 - 1)
-    # Tall windows in white frames, the door between them, an attic window in the gable.
-    for a in (5, 14):
-        P.casement(f, a, 3, 2, 4, frame=CANVAS, sill=CANVAS)
-    for a in (5, 14):
-        P.casement(f, a, 9, 2, 3, frame=CANVAS, sill=CANVAS)
-    P.entrance(f, 9, 2, 3, 5, leaf=LEAF, frame=CANVAS, step=STONE_DARK)
-    P.casement(f, 10, 15, 2, 2, frame=CANVAS, sill=CANVAS, bars=False)
-    for side, spots in (("x-", (6, 11)), ("x+", (6, 11)), ("y-", (7, 12))):
-        sf = P.faces_of(v, x0, y0, x1, y1)[side]
-        for a in spots:
-            P.casement(sf, a, 3, 2, 4, frame=CANVAS, sill=CANVAS)
-            P.casement(sf, a, 9, 2, 3, frame=CANVAS, sill=CANVAS)
+    P.yard(v, 0, 0, 32, 48, "grass", seed=seed)
+    P.yard(v, 10, 34, 32, 48, "paved", seed=seed)
+    x0, y0, x1, y1 = 11, 8, 31, 34
+    b = Q.palazzo(v, x0, y0, x1, y1, (8, 7), upper=BRICK, roof=ROOF, ridge=RIDGE, along="x", rise=1.0, seed=seed)
+    f = b.face("y+")
+    # Tall windows in the ashlar floor, the door between them, white-framed pedimented windows above.
+    for a in (14, 26):
+        Q.window(f, a, 3, 2, 5, hood="cornice", surround=True)
+    P.entrance(f, 19, 2, 3, 6, leaf=LEAF, frame=Q.DRESSED, lintel=Q.DRESSED, step=STONE_DARK)
+    for a in (13, 18, 23, 28):
+        Q.window(f, a, 11, 2, 4, hood="pediment", frame=CANVAS)
+    for side in ("x-", "x+"):
+        sf = b.face(side)
+        for a in (14, 21, 28):
+            Q.window(sf, a, 3, 2, 5, hood="cornice", surround=True)
+            Q.window(sf, a, 11, 2, 4, hood="pediment", frame=CANVAS)
+    for a in (16, 24):
+        Q.window(b.face("y-"), a, 3, 2, 5, hood="cornice", surround=True)
+        Q.window(b.face("y-"), a, 11, 2, 4, hood="pediment", frame=CANVAS)
     # The striped cloth awning over the front: it sways.
-    V.face_awning(f, 4, 18, 9, depth=4, stripes=(GREEN, WHITE))
-    # By the door: the barber's pole, a bench; the herb bed and the sign post at the sides.
-    D.barber_pole(v, 15, 18, 1, h=11)
-    P.bench(v, 5, 19, 1, 5, along="x")
-    P.flower_bed(v, 0, 5, 3, 15, seed=seed)
-    v.walls(0, 4, 3, 16, 1, 2, TIMBER)
-    sign_post(v, 17, 20, 1, arm=6)
-    P.scatter(v, 0, 0, 24, 24, 0.02, seed=seed, kinds=("pebble", "tuft"))
-    v.anchor("door", 10, 17, 0)
+    V.face_awning(f, 12, 30, 9, depth=4, stripes=(GREEN, WHITE))
+    # By the door: the barber's pole, a bench; the sign post at the side.
+    D.barber_pole(v, 16, 38, 1, h=11)
+    P.bench(v, 22, 41, 1, 5, along="x")
+    sign_post(v, 24, 43, 1, arm=6)
+    P.lamp_post(v, 11, 45, h=7)
+    # The herb garden on the west side: three raised beds, a path between and a well.
+    for y in (9, 19, 29):
+        P.flower_bed(v, 1, y, 8, y + 7, seed=seed + y)
+        v.walls(0, y - 1, 9, y + 8, 1, 2, TIMBER)
+    P.well(v, 4, 41)
+    P.shrub(v, 1, 40, 1, r=2, seed=seed)
+    P.scatter(v, 0, 0, 32, 48, 0.02, seed=seed, kinds=("pebble", "tuft"))
+    v.anchor("door", 21, 38, 0)
     return P.colour_jitter(v, seed=seed)

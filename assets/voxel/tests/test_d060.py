@@ -1,6 +1,5 @@
 """
-The D-060 models (tree plot, city guard, fire station, surgery, trading
-pier, depot) and their parts (nsvoxel.detail_d060): every helper stays in
+The D-060 models (tree plot, trading pier, depot; the civic buildings are re-fitted in test_d062) and their parts (nsvoxel.detail_d060): every helper stays in
 its bounds, uses palette-role materials and is deterministic; the recipes
 fit their footprints, budgets and anchors (stdlib unittest).
 """
@@ -21,12 +20,9 @@ from nsvoxel.grid import Vox  # noqa: E402
 CONTENT = content.load()
 ROLES = palette.load()[0]
 
-#: The D-060 IDs and their fixed footprints (tiles) and water rows.
+#: The D-060 IDs and their fixed footprints (tiles) and water rows (the civic buildings are re-fitted in D-062: test_d062).
 D060 = {
     "tree_plot": ((1, 1), 0),
-    "city_guard": ((3, 3), 0),
-    "fire_station": ((3, 4), 0),
-    "surgery": ((3, 3), 0),
     "trading_pier": ((3, 4), 3),
     "depot": ((4, 4), 1),
 }
@@ -38,7 +34,7 @@ EXTRA_ANCHORS = {
     "depot": ("cart",),
 }
 #: Model files that may carry a sway group (cloth).
-SWAY = {"surgery.glb": ["cloth"], "depot.l2.glb": ["cloth"]}
+SWAY = {"depot.l2.glb": ["cloth"]}
 
 
 def bounds_ok(v, lo, hi):
@@ -212,7 +208,7 @@ class RecipeTest(unittest.TestCase):
         self.assertAlmostEqual(b1[2], b2[2])
 
     def test_warm_stone_halls(self):
-        for cid, name in (("city_guard", "city_guard.glb"), ("depot", "depot.l2.glb")):
+        for cid, name in (("depot", "depot.l2.glb"),):
             files, _, _ = self.built(cid)
             v = [f[3] for f in files if f[0] == name][0]
             roles = [m[0] for m in v.cells.values()]

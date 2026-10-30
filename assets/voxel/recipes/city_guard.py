@@ -1,5 +1,5 @@
 """
-City guard (3 × 3; D-060, Citizens, civic): a squat watch-house of coursed
+City guard (4 × 4, D-062; D-060, Citizens, civic): a squat watch-house of coursed
 stone with dressed quoins and a warm brown tiled roof whose gable faces
 the street, a heraldic shield plaque over the door, a short crenellated
 tower on the front corner, a timber gallery on posts along the west
@@ -57,42 +57,43 @@ def halberds(f, a, z, n=2, gap=2):
 
 
 def build(ctx):
-    v = ctx.vox()  # 24 × 24
+    v = ctx.vox()  # 32 × 32
     seed = 83
-    P.yard(v, 0, 0, 24, 24, "grass", seed=seed)
-    P.yard(v, 5, 15, 17, 24, "paved", seed=seed)
+    P.yard(v, 0, 0, 32, 32, "grass", seed=seed)
+    P.yard(v, 4, 20, 29, 32, "paved", seed=seed)
     # The watch-house, gable to the street.
-    x0, y0, x1, y1 = 2, 3, 17, 15
+    x0, y0, x1, y1 = 3, 4, 22, 20
     b = D.warm_hall(v, x0, y0, x1, y1, 11, along="y", roof=ROOF, rise=0.85, seed=seed)
     f = b.face("y+")
-    P.entrance(f, 7, 2, 4, 6, leaf=TIMBER_DARK, frame=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM, steps=2)
-    shield(f, 7, 9)
-    P.casement(f, 3, 4, 2, 3, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM)
-    for a in (6, 11):  # the back and the east side
+    P.entrance(f, 9, 2, 4, 6, leaf=TIMBER_DARK, frame=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM, steps=2)
+    shield(f, 9, 9)
+    P.casement(f, 4, 4, 2, 3, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM)
+    for a in (7, 14):  # the back
         P.casement(b.face("y-"), a, 4, 2, 3, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM)
     # Tower on the front corner: coursed stone, a corbel course, a crenellated parapet.
-    tx0, ty0, tx1, ty1 = 17, 9, 23, 15
+    tx0, ty0, tx1, ty1 = 22, 13, 29, 20
     P.plinth(v, tx0, ty0, tx1, ty1, 1, D.SANDSTONE_PLINTH, out=1)
-    P.coursed_stone(v, tx0, ty0, tx1, ty1, 1, 16, TOWER, seed)
-    P.dressed_quoins(v, tx0, ty0, tx1, ty1, 2, 16, m=D.SANDSTONE_QUOIN)
-    Q.string_course(v, tx0, ty0, tx1, ty1, 15, m=D.SANDSTONE_TRIM)
-    D.crenellation(v, tx0 - 1, ty0 - 1, tx1 + 1, ty1 + 1, 16, TOWER, merlon=2, gap=2, h=2, cap=D.SANDSTONE_TRIM)
+    P.coursed_stone(v, tx0, ty0, tx1, ty1, 1, 18, TOWER, seed)
+    P.dressed_quoins(v, tx0, ty0, tx1, ty1, 2, 18, m=D.SANDSTONE_QUOIN)
+    Q.string_course(v, tx0, ty0, tx1, ty1, 17, m=D.SANDSTONE_TRIM)
+    D.crenellation(v, tx0 - 1, ty0 - 1, tx1 + 1, ty1 + 1, 18, TOWER, merlon=2, gap=2, h=2, cap=D.SANDSTONE_TRIM)
     tf = P.Face(v, "y+", ty1 - 1)
-    P.casement(tf, 19, 9, 1, 4, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM, bars=False)
-    P.casement(P.Face(v, "x+", tx1 - 1), 11, 9, 1, 4, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM, bars=False)
+    P.casement(tf, 25, 10, 1, 4, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM, bars=False)
+    P.casement(P.Face(v, "x+", tx1 - 1), 16, 10, 1, 4, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM, bars=False)
     # Timber gallery along the west wall: floor on brackets and two posts, windows beneath.
     wf = b.face("x-")
-    V.balcony(wf, 5, 13, 7, depth=2)
-    for a in (5, 12):
+    V.balcony(wf, 6, 16, 7, depth=2)
+    for a in (6, 15):
         for z in range(2, 7):
             wf.put(a, z, TIMBER, out=2)
-    for a in (7, 10):
+    for a in (8, 12):
         P.casement(wf, a, 3, 2, 3, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM, lintel=None)
     # Street furniture: the striped guard box by the door, the halberd rack and the brazier.
-    D.guard_box(v, 16, 17, 1, side="y+", w=5, d=4, h=8)
-    halberds(f, 13, 2, n=2, gap=2)
-    brazier(v, 1, 18, 1)
-    P.lamp_post(v, 12, 22)
-    P.scatter(v, 0, 0, 24, 24, 0.02, seed=seed, kinds=("pebble", "tuft"))
-    v.anchor("door", 9, 17, 0)
+    D.guard_box(v, 21, 22, 1, side="y+", w=5, d=4, h=8)
+    halberds(f, 15, 2, n=2, gap=2)
+    brazier(v, 2, 23, 1)
+    P.lamp_post(v, 14, 27)
+    P.lamp_post(v, 8, 27)
+    P.scatter(v, 0, 0, 32, 32, 0.02, seed=seed, kinds=("pebble", "tuft"))
+    v.anchor("door", 11, 22, 0)
     return P.colour_jitter(v, seed=seed)
