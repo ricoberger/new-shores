@@ -71,6 +71,8 @@ export interface TestHook {
   /** Viewport position of the centre of an island tile, any island at any LOD (NaN for unknown islands and during a camera animation). */
   tileToScreen(islandId: string, x: number, y: number): { x: number; y: number };
   getServer(): WorldResponse | null;
+  /** The display name of a building type in the current language (shots find a building's panel by it). */
+  buildingName(type: string): string | null;
   /** The level of detail of the last frame. */
   lod(): Lod;
   /**
@@ -634,6 +636,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       window.__newShores = {
         tileToScreen: (id, x, y) => rendererRef.current?.tileToScreen(id, x, y) ?? nan,
         getServer: () => sync.getSnapshot().server,
+        buildingName: (type) => sync.getSnapshot().content?.buildings.find((b) => b.id === type)?.name ?? null,
         lod: () => rendererRef.current?.currentLod() ?? "near",
         camera: () => {
           const v = rendererRef.current?.cameraView() ?? { x: NaN, y: NaN, half: NaN, rotation: 0 };

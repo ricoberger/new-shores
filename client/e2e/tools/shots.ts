@@ -602,7 +602,8 @@ async function selectBuilding(page: Page, type: string, offset: { x: number; y: 
     const p = await tileAt(page, t.island, t.x + dx, t.y + dy);
     await page.mouse.click(p.x, p.y);
     if (await page.getByTestId("info-panel").waitFor({ state: "visible", timeout: 2000 }).then(() => true, () => false)) {
-      if (await page.getByTestId("info-panel").getByText(type.replace("_", " "), { exact: false }).count()) break;
+      const name = await page.evaluate((ty) => window.__newShores!.buildingName(ty) ?? ty, type);
+      if (await page.getByTestId("info-panel").getByText(name, { exact: false }).count()) break;
     }
     await page.keyboard.press("Escape");
   }
