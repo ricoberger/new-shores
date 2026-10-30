@@ -59,15 +59,21 @@ in the sync after a task unless the task says otherwise; nobody adds the
      (#45); ~~D-059/D-060 content + sim~~ (#49), ~~D-060 models~~
      (#47) and ~~render polish part 1~~ (#48: massif noise, moorings
      incl. flank berths, one smoke draw, jitter on scaled decor, wake
-     from the anchor, 90 k far mask cap) merged; **next:** ~~D-061
-     translation pass~~ (PR open), then **V6** polish round with the tier 2–4
-     playtest (second chains, market levels, services ladder, unlock
-     toasts, quest chains, long house cards, brig/galleon at the piers)
-     plus the open items: idle ship `position` from the server
-     (unsettled island after reload), per-model voxels-per-tile in the
+     from the anchor, 90 k far mask cap) merged; ~~D-061
+     translation pass~~ (#51) and ~~server tidy~~ (#50: idle-ship sea
+     position, harvester rule removed) merged; **next: V6** polish
+     round with the tier 2–4 playtest (second chains, market levels,
+     services ladder, unlock toasts, quest chains, long house cards,
+     brig/galleon at the piers) plus the open items: client reads of
+     the removed `work_area` radius (`almanac/model.ts`,
+     `testContent.ts`, `ui/fields.test.ts`), dead tree-thinning code
+     (`display/scatter.ts`, `render/island.ts`, fixture radius) and
+     the deprecated openapi props, per-model voxels-per-tile in the
      manifest, `wake_width` anchor, stepped ghost plinth on terrace
-     edges, villager/cart draw merges, harvester code removal, phone
-     top bar overlapping "Developer".
+     edges, villager/cart draw merges, phone top bar overlapping
+     "Developer", German read-through of island names and quest
+     texts, idle ship after a Trading Post demolition (`position`
+     null).
    - ~~Quantised GLB export~~ done (V3b/c, #42): 12.9 MB, ≈ 32
      bytes/triangle, limit 24 MiB unchanged.
 

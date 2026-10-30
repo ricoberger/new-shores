@@ -1472,3 +1472,24 @@ is the first translation.
 
 - *Rejected:* server-side rendering of texts (one language per
   world); a translation service dependency.
+
+**As built** (#51, 2026-10-30): `content/old_coast/i18n/de.json` with
+334 keys (`<file>.<id>.<field>`, island-name list entries zero-based),
+loader completeness check, `GET /api/v1/content?lang=` (unknown
+language → 400, `Accept-Language` fallback), payload `language`,
+`languages[]` and per-ship `source_name`; client catalogue
+`client/src/i18n/{en,de}.ts` with 713 keys (German typed against the
+English key set), `t()` with `{name}`/`{Name}` placeholders for
+mid-sentence German nouns and two-form plurals, language from `?lang=`
+→ stored choice → browser → account (`PATCH /api/v1/auth/me
+{language}`, `players.language` column, no migration while
+undeployed); switch in the account menu, start card and almanac
+footer; ESLint rule `no-hardcoded-strings` over `ui/` and `almanac/`
+with five `// i18n-ignore` escapes. Island and default ship names
+stay stored in English and are mapped client-side by source text (a
+rename to an identical source name is translated too — accepted edge
+case; storing the list index / type id would be a schema change for a
+later decision). German layout fixes: no-break space before `%`,
+shorter almanac need-table headings, field names through
+`inSentence()`. *Later:* a German read-through of the island-name
+list and quest texts.
