@@ -260,7 +260,10 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 		"patricians_food:food:roast_beef=5000/oysters=4000:84000", "patricians_drink:drink:wine=4000/grain_spirit=3000:84000",
 		"patricians_clothing:clothing:fine_garments=3000/lace=3000:84000", "patricians_comfort:comfort:candles=4000/spectacles=2000:84000",
 		"patricians_luxury:luxury:jewellery=1000/instruments=1000:84000",
-		"patricians_services:services:market=600000/chapel=600000/tavern=600000/school=600000/church=600000/theatre=600000/university=600000/cathedral=600000:180000",
+		"patricians_services:services:market=600000/chapel=600000/tavern=600000/school=600000/church=600000/theatre=600000/university=600000/cathedral=600000:72000",
+		// Civic services (D-060), cumulative like services: 0.06 each from services.
+		"patricians_safety:safety:city_guard=1000000:36000", "patricians_fire_protection:fire_protection:fire_station=1000000:36000",
+		"patricians_health:health:surgery=1000000:36000",
 		// Lower tiers: 0.4/3 each, split by their own weights (rounding to the last);
 		// rates × (own max / 40) × 0.5^(distance/3), 4 decimals.
 		"patricians_settlers_food:food:fish=1000:95237", "patricians_settlers_clothing:clothing:wool_garments=500:38095",

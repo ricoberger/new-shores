@@ -2406,6 +2406,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "from": [
           140,
@@ -2431,11 +2436,6 @@
           113
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -2472,36 +2472,36 @@
       }
     },
     {
-      "road": {
-        "from": [
-          148,
-          63
-        ],
-        "island": "isle-02",
-        "to": [
-          148,
-          63
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "road": {
-        "from": [
-          205,
-          113
-        ],
-        "island": "isle-02",
-        "to": [
-          205,
-          113
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
       "advance": {
         "duration": "1m"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          148,
+          63
+        ],
+        "island": "isle-02",
+        "to": [
+          148,
+          63
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          205,
+          113
+        ],
+        "island": "isle-02",
+        "to": [
+          205,
+          113
+        ],
+        "type": "road_dirt"
       }
     },
     {
@@ -2551,6 +2551,11 @@
         "type": "smelter",
         "x": 210,
         "y": 105
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -2623,11 +2628,6 @@
         "type": "toolmaker",
         "x": 211,
         "y": 101
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {

@@ -310,6 +310,19 @@
     "service": { "radius": 16 }
   },
   {
+    "id": "city_guard",
+    "name": "City guard",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 200, "planks": 10, "stone": 6 },
+    "upkeep_per_min": 2,
+    "pause_category": "public",
+    "service": { "radius": 14 }
+  },
+  {
     "id": "wheat_farm",
     "name": "Wheat farm",
     "region": "old_coast",
@@ -797,6 +810,32 @@
     "upkeep_per_min": 15,
     "pause_category": "public",
     "service": { "radius": 24 }
+  },
+  {
+    "id": "fire_station",
+    "name": "Fire station",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 400, "planks": 15, "stone": 15, "bricks": 5 },
+    "upkeep_per_min": 4,
+    "pause_category": "public",
+    "service": { "radius": 14 }
+  },
+  {
+    "id": "surgery",
+    "name": "Surgery",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 450, "planks": 10, "stone": 15, "bricks": 5 },
+    "upkeep_per_min": 4,
+    "pause_category": "public",
+    "service": { "radius": 14 }
   },
   {
     "id": "butcher",

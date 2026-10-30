@@ -132,6 +132,9 @@ describe("tier 3 in the cards (D-056)", () => {
       "merchants_clothing",
       "merchants_comfort",
       "merchants_services",
+      "merchants_safety",
+      "merchants_fire_protection",
+      "merchants_health",
       "merchants_settlers_food",
       "merchants_settlers_clothing",
       "merchants_citizens_food",
@@ -143,6 +146,15 @@ describe("tier 3 in the cards (D-056)", () => {
     const comfort = html.match(/data-testid="house-need-merchants_comfort"[^>]*>(.*?)<\/tr>/)![1]!;
     expect(text(comfort)).toBe("Comfort60 %");
     expect(comfort).toContain(`<path d="${ICON_PATHS["need:comfort"]}"`);
+    // The civic services (D-060): one building each, served by the civic cluster.
+    for (const [id, label] of [
+      ["merchants_safety", "Safety100 %"],
+      ["merchants_fire_protection", "Fire protection100 %"],
+      ["merchants_health", "Health100 %"],
+    ]) {
+      const row = html.match(new RegExp(`data-testid="house-need-${id}"[^>]*>(.*?)</tr>`))![1]!;
+      expect(text(row)).toBe(label);
+    }
     // Every category of every Merchant house is covered (CONTENT §12).
     for (const b of home.buildings.filter((x) => x.type === "house_merchants")) {
       for (const n of b.needs ?? []) expect(n.fulfilment_permille).toBeGreaterThanOrEqual(600);

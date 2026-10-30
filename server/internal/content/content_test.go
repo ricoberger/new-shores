@@ -71,12 +71,12 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	wantIDs("buildings", ids, "house_settlers", "road_dirt", "trading_post", "warehouse", "market", "chapel",
 		"lumberjack", "tree_plot", "sawmill", "fisher", "sheep_farm", "pasture", "weaver_wool", "shipyard",
-		"house_citizens", "road_paved", "tavern", "school", "wheat_farm", "wheat_field", "mill", "bakery",
+		"house_citizens", "road_paved", "tavern", "school", "city_guard", "wheat_farm", "wheat_field", "mill", "bakery",
 		"dairy_farm", "cattle_pasture", "cheese_dairy", "orchard", "orchard_plot", "cidery", "apiary", "meadow", "meadery",
 		"hemp_farm", "hemp_field", "weaver_linen", "pig_farm", "pig_pen", "tannery", "sailmaker", "quarry", "iron_mine",
 		"charcoal_burner", "smelter", "toolmaker",
 		// Tier 3 (D-056 C3).
-		"house_merchants", "church", "theatre", "butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
+		"house_merchants", "church", "theatre", "fire_station", "surgery", "butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
 		"woad_farm", "woad_field", "dyer_works", "dyer", "paper_mill", "printing_press", "clay_pit", "rendering_house",
 		"soap_maker", "salt_pans", "salt_mine", "salt_works", "brickworks", "coal_mine",
 		// Tier 4 (D-056 C4).
@@ -100,9 +100,9 @@ func TestLoadOldCoast(t *testing.T) {
 		wantHouse, wantNeeds := "", 0
 		switch id {
 		case "merchants":
-			wantHouse, wantNeeds = "house_merchants", 10
+			wantHouse, wantNeeds = "house_merchants", 13
 		case "patricians":
-			wantHouse, wantNeeds = "house_patricians", 15
+			wantHouse, wantNeeds = "house_patricians", 18
 		}
 		if got != want || tr.House != wantHouse || len(c.NeedsByTier[id]) != wantNeeds {
 			t.Errorf("%s = %q (house %q), want %q", id, got, tr.House, want)
@@ -899,7 +899,9 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 			t.Errorf("NeedCategoryByID[%q] = %+v", nc.ID, c.NeedCategoryByID[nc.ID])
 		}
 	}
-	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:luxury,services=Services/need:services"
+	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:luxury,services=Services/need:services," +
+		// D-060 civic services: the HUD set has no icons of their own yet.
+		"safety=Safety/need:services,fire_protection=Fire protection/need:services,health=Health/need:services"
 	if got := strings.Join(cats, ","); got != want {
 		t.Errorf("need categories = %s, want %s", got, want)
 	}
@@ -912,6 +914,9 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 	wantNames := map[string]string{
 		"settlers_food": "Food", "settlers_clothing": "Clothing", "settlers_services": "Services",
 		"citizens_food": "Food", "citizens_drink": "Drink", "citizens_clothing": "Clothing", "citizens_services": "Services",
+		"citizens_safety": "Safety", "merchants_safety": "Safety", "patricians_safety": "Safety",
+		"merchants_fire_protection": "Fire protection", "merchants_health": "Health",
+		"patricians_fire_protection": "Fire protection", "patricians_health": "Health",
 		"citizens_settlers_food": "Food", "citizens_settlers_clothing": "Clothing",
 		"merchants_food": "Food", "merchants_drink": "Drink", "merchants_clothing": "Clothing", "merchants_comfort": "Comfort",
 		"merchants_services": "Services", "merchants_settlers_food": "Food", "merchants_settlers_clothing": "Clothing",

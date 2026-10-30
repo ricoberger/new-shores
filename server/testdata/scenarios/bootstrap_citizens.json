@@ -2575,6 +2575,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-02",
         "rotation": 90,
@@ -2658,11 +2663,6 @@
         "type": "toolmaker",
         "x": 211,
         "y": 101
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {

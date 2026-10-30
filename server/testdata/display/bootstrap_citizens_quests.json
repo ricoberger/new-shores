@@ -2,10 +2,10 @@
   "scenario": "bootstrap_citizens_quests",
   "base": {
     "evaluated_at": "2026-01-01T02:22:00.000Z",
-    "next_change_at": "2026-01-01T02:22:50.740Z",
-    "gold": 1414031,
-    "balance_rate_per_min": 28144,
-    "tax_rate_per_min": 70144,
+    "next_change_at": "2026-01-01T02:22:50.335Z",
+    "gold": 1363310,
+    "balance_rate_per_min": 27424,
+    "tax_rate_per_min": 69424,
     "upkeep_rate_per_min": 42000,
     "tiers": [
       {
@@ -229,7 +229,7 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 122721,
+            "stock": 122759,
             "capacity": 300000,
             "in_transit": 2300,
             "rate_per_min": 1317,
@@ -467,7 +467,7 @@
             "in_transit_rate_per_min": 0
           },
           "stone": {
-            "stock": 1872,
+            "stock": 1881,
             "capacity": 300000,
             "in_transit": 2556,
             "rate_per_min": 1333,
@@ -488,7 +488,7 @@
             "in_transit_rate_per_min": 0
           },
           "tools": {
-            "stock": 35675,
+            "stock": 34669,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -530,7 +530,7 @@
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 33480,
+            "stock": 33498,
             "capacity": 300000,
             "in_transit": 1378,
             "rate_per_min": 408,
@@ -2723,8 +2723,8 @@
             "residents_max": 15000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 640,
-            "tax_rate_per_min": 7680,
+            "satisfaction_permille": 580,
+            "tax_rate_per_min": 6960,
             "needs": [
               {
                 "id": "citizens_food",
@@ -2765,6 +2765,14 @@
                 "category": "services",
                 "fulfilment_permille": 1000,
                 "reason": "ok"
+              },
+              {
+                "id": "citizens_safety",
+                "kind": "required",
+                "category": "safety",
+                "building": "city_guard",
+                "fulfilment_permille": 0,
+                "reason": "out_of_range"
               },
               {
                 "id": "citizens_settlers_food",
@@ -5962,7 +5970,7 @@
             "in_transit_rate_per_min": 0
           },
           "charcoal": {
-            "stock": 37222,
+            "stock": 38222,
             "capacity": 300000,
             "in_transit": 400,
             "rate_per_min": 333,
@@ -6270,7 +6278,7 @@
             "in_transit_rate_per_min": 0
           },
           "stone": {
-            "stock": 76287,
+            "stock": 76278,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -6291,7 +6299,7 @@
             "in_transit_rate_per_min": 0
           },
           "tools": {
-            "stock": 6392,
+            "stock": 6398,
             "capacity": 300000,
             "in_transit": 933,
             "rate_per_min": 1000,
@@ -15492,8 +15500,8 @@
           "from_island_id": "isle-01",
           "from_position": null,
           "to_island_id": "isle-02",
-          "depart_at": "2026-01-01T02:20:57.823Z",
-          "arrive_at": "2026-01-01T02:25:31.768Z",
+          "depart_at": "2026-01-01T02:20:57.416Z",
+          "arrive_at": "2026-01-01T02:25:31.361Z",
           "path": [
             {
               "x": 412,
@@ -15677,7 +15685,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 28144
+      "balance_if_resumed_per_min": 27424
     },
     "quests": {
       "active": [
@@ -15758,12 +15766,12 @@
         },
         {
           "id": "intro_tools",
-          "completed_at": "2026-01-01T01:50:37.982Z",
+          "completed_at": "2026-01-01T01:50:56.000Z",
           "claimed": true
         },
         {
           "id": "intro_citizen_house",
-          "completed_at": "2026-01-01T01:50:37.982Z",
+          "completed_at": "2026-01-01T01:50:56.000Z",
           "claimed": true
         }
       ]
@@ -15776,10 +15784,10 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T02:22:00.250Z",
-        "next_change_at": "2026-01-01T02:22:50.740Z",
-        "gold": 1414148,
-        "balance_rate_per_min": 28144,
-        "tax_rate_per_min": 70144,
+        "next_change_at": "2026-01-01T02:22:50.335Z",
+        "gold": 1363425,
+        "balance_rate_per_min": 27424,
+        "tax_rate_per_min": 69424,
         "upkeep_rate_per_min": 42000,
         "tiers": [
           {
@@ -16003,7 +16011,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 122727,
+                "stock": 122764,
                 "capacity": 300000,
                 "in_transit": 2300,
                 "rate_per_min": 1317,
@@ -16241,7 +16249,7 @@
                 "in_transit_rate_per_min": 0
               },
               "stone": {
-                "stock": 1878,
+                "stock": 1887,
                 "capacity": 300000,
                 "in_transit": 2556,
                 "rate_per_min": 1333,
@@ -16262,7 +16270,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 35675,
+                "stock": 34669,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -16304,7 +16312,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 33482,
+                "stock": 33500,
                 "capacity": 300000,
                 "in_transit": 1378,
                 "rate_per_min": 408,
@@ -18497,8 +18505,8 @@
                 "residents_max": 15000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 640,
-                "tax_rate_per_min": 7680,
+                "satisfaction_permille": 580,
+                "tax_rate_per_min": 6960,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -18539,6 +18547,14 @@
                     "category": "services",
                     "fulfilment_permille": 1000,
                     "reason": "ok"
+                  },
+                  {
+                    "id": "citizens_safety",
+                    "kind": "required",
+                    "category": "safety",
+                    "building": "city_guard",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
                   },
                   {
                     "id": "citizens_settlers_food",
@@ -21736,7 +21752,7 @@
                 "in_transit_rate_per_min": 0
               },
               "charcoal": {
-                "stock": 37224,
+                "stock": 38224,
                 "capacity": 300000,
                 "in_transit": 400,
                 "rate_per_min": 333,
@@ -22044,7 +22060,7 @@
                 "in_transit_rate_per_min": 0
               },
               "stone": {
-                "stock": 76287,
+                "stock": 76278,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -22065,7 +22081,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 6396,
+                "stock": 6402,
                 "capacity": 300000,
                 "in_transit": 933,
                 "rate_per_min": 1000,
@@ -31266,8 +31282,8 @@
               "from_island_id": "isle-01",
               "from_position": null,
               "to_island_id": "isle-02",
-              "depart_at": "2026-01-01T02:20:57.823Z",
-              "arrive_at": "2026-01-01T02:25:31.768Z",
+              "depart_at": "2026-01-01T02:20:57.416Z",
+              "arrive_at": "2026-01-01T02:25:31.361Z",
               "path": [
                 {
                   "x": 412,
@@ -31451,7 +31467,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 28144
+          "balance_if_resumed_per_min": 27424
         },
         "quests": {
           "active": [
@@ -31532,12 +31548,12 @@
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T01:50:37.982Z",
+              "completed_at": "2026-01-01T01:50:56.000Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T01:50:37.982Z",
+              "completed_at": "2026-01-01T01:50:56.000Z",
               "claimed": true
             }
           ]
@@ -31550,10 +31566,10 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T02:22:01.000Z",
-        "next_change_at": "2026-01-01T02:22:50.740Z",
-        "gold": 1414500,
-        "balance_rate_per_min": 28144,
-        "tax_rate_per_min": 70144,
+        "next_change_at": "2026-01-01T02:22:50.335Z",
+        "gold": 1363767,
+        "balance_rate_per_min": 27424,
+        "tax_rate_per_min": 69424,
         "upkeep_rate_per_min": 42000,
         "tiers": [
           {
@@ -31777,7 +31793,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 122743,
+                "stock": 122780,
                 "capacity": 300000,
                 "in_transit": 2300,
                 "rate_per_min": 1317,
@@ -32015,7 +32031,7 @@
                 "in_transit_rate_per_min": 0
               },
               "stone": {
-                "stock": 1895,
+                "stock": 1904,
                 "capacity": 300000,
                 "in_transit": 2556,
                 "rate_per_min": 1333,
@@ -32036,7 +32052,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 35675,
+                "stock": 34669,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -32078,7 +32094,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 33487,
+                "stock": 33505,
                 "capacity": 300000,
                 "in_transit": 1378,
                 "rate_per_min": 408,
@@ -34271,8 +34287,8 @@
                 "residents_max": 15000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 640,
-                "tax_rate_per_min": 7680,
+                "satisfaction_permille": 580,
+                "tax_rate_per_min": 6960,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -34313,6 +34329,14 @@
                     "category": "services",
                     "fulfilment_permille": 1000,
                     "reason": "ok"
+                  },
+                  {
+                    "id": "citizens_safety",
+                    "kind": "required",
+                    "category": "safety",
+                    "building": "city_guard",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
                   },
                   {
                     "id": "citizens_settlers_food",
@@ -37510,7 +37534,7 @@
                 "in_transit_rate_per_min": 0
               },
               "charcoal": {
-                "stock": 37228,
+                "stock": 38228,
                 "capacity": 300000,
                 "in_transit": 400,
                 "rate_per_min": 333,
@@ -37818,7 +37842,7 @@
                 "in_transit_rate_per_min": 0
               },
               "stone": {
-                "stock": 76287,
+                "stock": 76278,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -37839,7 +37863,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 6408,
+                "stock": 6414,
                 "capacity": 300000,
                 "in_transit": 933,
                 "rate_per_min": 1000,
@@ -47040,8 +47064,8 @@
               "from_island_id": "isle-01",
               "from_position": null,
               "to_island_id": "isle-02",
-              "depart_at": "2026-01-01T02:20:57.823Z",
-              "arrive_at": "2026-01-01T02:25:31.768Z",
+              "depart_at": "2026-01-01T02:20:57.416Z",
+              "arrive_at": "2026-01-01T02:25:31.361Z",
               "path": [
                 {
                   "x": 412,
@@ -47225,7 +47249,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 28144
+          "balance_if_resumed_per_min": 27424
         },
         "quests": {
           "active": [
@@ -47306,12 +47330,12 @@
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T01:50:37.982Z",
+              "completed_at": "2026-01-01T01:50:56.000Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T01:50:37.982Z",
+              "completed_at": "2026-01-01T01:50:56.000Z",
               "claimed": true
             }
           ]
@@ -47324,10 +47348,10 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T02:22:05.000Z",
-        "next_change_at": "2026-01-01T02:22:50.740Z",
-        "gold": 1416376,
-        "balance_rate_per_min": 28144,
-        "tax_rate_per_min": 70144,
+        "next_change_at": "2026-01-01T02:22:50.335Z",
+        "gold": 1365596,
+        "balance_rate_per_min": 27424,
+        "tax_rate_per_min": 69424,
         "upkeep_rate_per_min": 42000,
         "tiers": [
           {
@@ -47551,7 +47575,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 122831,
+                "stock": 122868,
                 "capacity": 300000,
                 "in_transit": 2300,
                 "rate_per_min": 1317,
@@ -47789,7 +47813,7 @@
                 "in_transit_rate_per_min": 0
               },
               "stone": {
-                "stock": 1984,
+                "stock": 1993,
                 "capacity": 300000,
                 "in_transit": 2556,
                 "rate_per_min": 1333,
@@ -47810,7 +47834,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 35675,
+                "stock": 34669,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -47852,7 +47876,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 33514,
+                "stock": 33533,
                 "capacity": 300000,
                 "in_transit": 1378,
                 "rate_per_min": 408,
@@ -50045,8 +50069,8 @@
                 "residents_max": 15000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 640,
-                "tax_rate_per_min": 7680,
+                "satisfaction_permille": 580,
+                "tax_rate_per_min": 6960,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -50087,6 +50111,14 @@
                     "category": "services",
                     "fulfilment_permille": 1000,
                     "reason": "ok"
+                  },
+                  {
+                    "id": "citizens_safety",
+                    "kind": "required",
+                    "category": "safety",
+                    "building": "city_guard",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
                   },
                   {
                     "id": "citizens_settlers_food",
@@ -53284,7 +53316,7 @@
                 "in_transit_rate_per_min": 0
               },
               "charcoal": {
-                "stock": 37250,
+                "stock": 38250,
                 "capacity": 300000,
                 "in_transit": 400,
                 "rate_per_min": 333,
@@ -53592,7 +53624,7 @@
                 "in_transit_rate_per_min": 0
               },
               "stone": {
-                "stock": 76287,
+                "stock": 76278,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -53613,7 +53645,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 6475,
+                "stock": 6481,
                 "capacity": 300000,
                 "in_transit": 933,
                 "rate_per_min": 1000,
@@ -62814,8 +62846,8 @@
               "from_island_id": "isle-01",
               "from_position": null,
               "to_island_id": "isle-02",
-              "depart_at": "2026-01-01T02:20:57.823Z",
-              "arrive_at": "2026-01-01T02:25:31.768Z",
+              "depart_at": "2026-01-01T02:20:57.416Z",
+              "arrive_at": "2026-01-01T02:25:31.361Z",
               "path": [
                 {
                   "x": 412,
@@ -62999,7 +63031,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 28144
+          "balance_if_resumed_per_min": 27424
         },
         "quests": {
           "active": [
@@ -63080,12 +63112,12 @@
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T01:50:37.982Z",
+              "completed_at": "2026-01-01T01:50:56.000Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T01:50:37.982Z",
+              "completed_at": "2026-01-01T01:50:56.000Z",
               "claimed": true
             }
           ]
@@ -63098,10 +63130,10 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T02:22:30.000Z",
-        "next_change_at": "2026-01-01T02:22:50.740Z",
-        "gold": 1428103,
-        "balance_rate_per_min": 28144,
-        "tax_rate_per_min": 70144,
+        "next_change_at": "2026-01-01T02:22:50.335Z",
+        "gold": 1377022,
+        "balance_rate_per_min": 27424,
+        "tax_rate_per_min": 69424,
         "upkeep_rate_per_min": 42000,
         "tiers": [
           {
@@ -63325,7 +63357,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 123380,
+                "stock": 123417,
                 "capacity": 300000,
                 "in_transit": 2300,
                 "rate_per_min": 1317,
@@ -63563,7 +63595,7 @@
                 "in_transit_rate_per_min": 0
               },
               "stone": {
-                "stock": 2539,
+                "stock": 2548,
                 "capacity": 300000,
                 "in_transit": 2556,
                 "rate_per_min": 1333,
@@ -63584,7 +63616,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 35675,
+                "stock": 34669,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -63626,7 +63658,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 33684,
+                "stock": 33703,
                 "capacity": 300000,
                 "in_transit": 1378,
                 "rate_per_min": 408,
@@ -65819,8 +65851,8 @@
                 "residents_max": 15000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 640,
-                "tax_rate_per_min": 7680,
+                "satisfaction_permille": 580,
+                "tax_rate_per_min": 6960,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -65861,6 +65893,14 @@
                     "category": "services",
                     "fulfilment_permille": 1000,
                     "reason": "ok"
+                  },
+                  {
+                    "id": "citizens_safety",
+                    "kind": "required",
+                    "category": "safety",
+                    "building": "city_guard",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
                   },
                   {
                     "id": "citizens_settlers_food",
@@ -69058,7 +69098,7 @@
                 "in_transit_rate_per_min": 0
               },
               "charcoal": {
-                "stock": 37389,
+                "stock": 38389,
                 "capacity": 300000,
                 "in_transit": 400,
                 "rate_per_min": 333,
@@ -69366,7 +69406,7 @@
                 "in_transit_rate_per_min": 0
               },
               "stone": {
-                "stock": 76287,
+                "stock": 76278,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -69387,7 +69427,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 6892,
+                "stock": 6898,
                 "capacity": 300000,
                 "in_transit": 933,
                 "rate_per_min": 1000,
@@ -78588,8 +78628,8 @@
               "from_island_id": "isle-01",
               "from_position": null,
               "to_island_id": "isle-02",
-              "depart_at": "2026-01-01T02:20:57.823Z",
-              "arrive_at": "2026-01-01T02:25:31.768Z",
+              "depart_at": "2026-01-01T02:20:57.416Z",
+              "arrive_at": "2026-01-01T02:25:31.361Z",
               "path": [
                 {
                   "x": 412,
@@ -78773,7 +78813,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 28144
+          "balance_if_resumed_per_min": 27424
         },
         "quests": {
           "active": [
@@ -78854,12 +78894,12 @@
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T01:50:37.982Z",
+              "completed_at": "2026-01-01T01:50:56.000Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T01:50:37.982Z",
+              "completed_at": "2026-01-01T01:50:56.000Z",
               "claimed": true
             }
           ]

@@ -67,7 +67,7 @@
     "name": "Services",
     "tier": "citizens",
     "kind": "required",
-    "weight": 0.4,
+    "weight": 0.3,
     "category": "services",
     "buildings": [
       { "building": "market" },
@@ -75,6 +75,15 @@
       { "building": "tavern" },
       { "building": "school" }
     ]
+  },
+  {
+    "id": "citizens_safety",
+    "name": "Safety",
+    "tier": "citizens",
+    "kind": "required",
+    "weight": 0.1,
+    "category": "safety",
+    "buildings": [{ "building": "city_guard" }]
   },
   {
     "id": "citizens_settlers_food",
@@ -125,7 +134,7 @@
     "name": "Clothing",
     "tier": "merchants",
     "kind": "required",
-    "weight": 0.17,
+    "weight": 0.09,
     "category": "clothing",
     "goods": [
       { "good": "coats", "per_resident_per_min": 0.004 },
@@ -149,7 +158,7 @@
     "name": "Services",
     "tier": "merchants",
     "kind": "required",
-    "weight": 0.32,
+    "weight": 0.16,
     "category": "services",
     "buildings": [
       { "building": "market" },
@@ -159,6 +168,33 @@
       { "building": "church" },
       { "building": "theatre" }
     ]
+  },
+  {
+    "id": "merchants_safety",
+    "name": "Safety",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.08,
+    "category": "safety",
+    "buildings": [{ "building": "city_guard" }]
+  },
+  {
+    "id": "merchants_fire_protection",
+    "name": "Fire protection",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.08,
+    "category": "fire_protection",
+    "buildings": [{ "building": "fire_station" }]
+  },
+  {
+    "id": "merchants_health",
+    "name": "Health",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.08,
+    "category": "health",
+    "buildings": [{ "building": "surgery" }]
   },
   {
     "id": "merchants_settlers_food",
@@ -284,7 +320,7 @@
     "name": "Services",
     "tier": "patricians",
     "kind": "required",
-    "weight": 0.3,
+    "weight": 0.12,
     "category": "services",
     "buildings": [
       { "building": "market" },
@@ -296,6 +332,33 @@
       { "building": "university" },
       { "building": "cathedral" }
     ]
+  },
+  {
+    "id": "patricians_safety",
+    "name": "Safety",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.06,
+    "category": "safety",
+    "buildings": [{ "building": "city_guard" }]
+  },
+  {
+    "id": "patricians_fire_protection",
+    "name": "Fire protection",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.06,
+    "category": "fire_protection",
+    "buildings": [{ "building": "fire_station" }]
+  },
+  {
+    "id": "patricians_health",
+    "name": "Health",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.06,
+    "category": "health",
+    "buildings": [{ "building": "surgery" }]
   },
   {
     "id": "patricians_settlers_food",

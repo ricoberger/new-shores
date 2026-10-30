@@ -388,6 +388,14 @@ covers 0.6 and both cover it fully. A need is either:
   The display lists every serving building as `served_by` (IDs), so the
   client can highlight serving buildings and, inverted, the houses a
   building serves without evaluating the distance rule.
+- **Civic services (D-060):** safety (`city_guard`, Citizens and up),
+  fire protection (`fire_station`) and health (`surgery`, both Merchants
+  and up) are building needs of their own category with one building
+  each (share 1.0), evaluated exactly like services and cumulative the
+  same way (each higher tier lists the category again with its own
+  weight). They are required categories and count in the upgrade gate
+  (§6.1). No new rule: a missing civic building lowers coverage, tax and
+  growth; there are no fires, disease or crime events.
 - **Cumulative tiers:** a house also carries the goods categories of
   every lower tier (`from_tier`), with that tier's goods at a reduced
   rate: `rate × (own max / higher max) × 0.5^(dist / 3)`, where *own max*
