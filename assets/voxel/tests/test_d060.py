@@ -199,6 +199,14 @@ class RecipeTest(unittest.TestCase):
                 for a, b in zip(self.built(cid)[0], again[0]):
                     self.assertEqual(a[1], b[1], a[0])
 
+    def test_warm_stone_halls(self):
+        for cid, name in (("city_guard", "city_guard.glb"), ("depot", "depot.l2.glb")):
+            files, _, _ = self.built(cid)
+            v = [f[3] for f in files if f[0] == name][0]
+            roles = [m[0] for m in v.cells.values()]
+            self.assertLess(roles.count("stone") / len(roles), 0.03, cid)
+            self.assertGreater(roles.count("cliff-upper") / len(roles), 0.2, cid)
+
     def test_no_water_row_voxel_above_a_footprint_row_it_does_not_own(self):
         # Piles under the water rows reach below the ground plate; nothing else does.
         for cid in self.ids():

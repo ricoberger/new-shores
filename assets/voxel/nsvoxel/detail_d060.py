@@ -179,3 +179,26 @@ def loading_ramp(v, x0, x1, y0, y1, z_hi, z_lo, down="y-", m=PLANK, cleat=TIMBER
             elif k % 3 == 1:
                 v.set(xx, yy, top, cleat)
     return n
+
+
+#: Warm limestone/sandstone (the church's courses) and its darker quoins.
+SANDSTONE = mat("cliff-upper", 1.12)
+SANDSTONE_TRIM = mat("cliff-upper", 1.3)  # window frames, sills, string courses
+SANDSTONE_QUOIN = mat("cliff-upper", 0.8)
+SANDSTONE_PLINTH = mat("cliff-upper", 0.7)
+
+
+def warm_hall(v, x0, y0, x1, y1, height, along="x", rise=None, kind="tiles", roof=None, stone=SANDSTONE, quoin=SANDSTONE_QUOIN, seed=0):
+    """
+    The "stone" style of building() in warm sandstone: a plinth, coursed
+    walls of `stone` to `height`, darker quoins and a roof of courses
+    (as building(): returns a Building with face()/span()).
+    """
+    from . import detail as _d
+
+    P.plinth(v, x0, y0, x1, y1, 1, SANDSTONE_PLINTH, out=1)
+    P.fill(v, x0, y0, x1, y1, 1, 2, SANDSTONE_PLINTH)
+    P.coursed_stone(v, x0, y0, x1, y1, 2, height, stone, seed)
+    P.dressed_quoins(v, x0, y0, x1, y1, 2, height, m=quoin)
+    r = _d.roof(v, x0, x1, y0, y1, height, kind, along=along, rise=rise, gable=stone, seed=seed, m=roof)
+    return _d.Building(v, (x0, y0, x1, y1), (x0, y0, x1, y1), 1, None, height, r)

@@ -56,17 +56,17 @@ def build(ctx):
             P.casement(front, a, 5, 2, 2, frame=None, sill=TIMBER_LIGHT, shutters=TIMBER_LIGHT, bars=False)
     else:
         zt = 16
-        b = P.building(v, x0, y0, x1, y1, "stone", along="x", height=zt, kind="tiles", seed=seed)
+        b = D.warm_hall(v, x0, y0, x1, y1, zt, along="x", seed=seed)
         r = b.roof
         front, back = b.face("y+"), b.face("y-")
         P.barn_gate(back, gx + 1, 2, 6, 7)
         P.barn_gate(front, gx + 1, 2, 6, 7)
-        Q.string_course(v, x0, y0, x1, y1, 9)
+        Q.string_course(v, x0, y0, x1, y1, 9, m=D.SANDSTONE_TRIM)
         for a in (6, 10, 21, 25):
-            P.casement(front, a, 3, 2, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
-            P.casement(front, a, 11, 2, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
+            P.casement(front, a, 3, 2, 3, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM)
+            P.casement(front, a, 11, 2, 3, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM)
         for a in (6, 10, 21, 25):
-            P.casement(back, a, 11, 2, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
+            P.casement(back, a, 11, 2, 3, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM, lintel=D.SANDSTONE_TRIM)
         # The loft door with a hoist beam out of the roof above it.
         P.entrance(front, 15, 10, 3, 4, step=None, hinges=False)
         v.box(16, y1 + 1, zt, 17, y1 + 5, zt + 1, TIMBER_DARK)

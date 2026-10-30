@@ -3167,7 +3167,7 @@
           ]
         },
         "budget": 4500,
-        "bytes": 87896,
+        "bytes": 88420,
         "lite": {
           "bounds": {
             "max": [
@@ -3182,14 +3182,14 @@
             ]
           },
           "budget": 360,
-          "bytes": 8972,
+          "bytes": 9020,
           "path": "city_guard.lite.glb",
-          "sha256": "0d6768558be0c1730095dd44b2fc44879148781f5631daed6f199ea24c848a60",
+          "sha256": "121b642543172ec03908f581a08d30b87512732ef0b2851d160d37e23fee1fa3",
           "triangles": 228
         },
         "path": "city_guard.glb",
-        "sha256": "5ce8edea2dce4d0d003829cd16a1f11146b9cd667f10577695599015165d1bbf",
-        "triangles": 2890
+        "sha256": "485bc99747b0680b5180b6fc543198e593a8df6fd970b50a99c644f958aa406a",
+        "triangles": 2900
       },
       "footprint": {
         "h": 3,
@@ -3759,7 +3759,7 @@
             ]
           },
           "budget": 8000,
-          "bytes": 115904,
+          "bytes": 116192,
           "lite": {
             "bounds": {
               "max": [
@@ -3774,13 +3774,13 @@
               ]
             },
             "budget": 640,
-            "bytes": 12416,
+            "bytes": 13440,
             "path": "depot.l2.lite.glb",
-            "sha256": "6dbcbdf9c1da6b71165ac9818231ce4be199cf1f326f330bd5cb96004497ab52",
-            "triangles": 326
+            "sha256": "2096044cec29e56e6d030345c59406bb432884b05d395583e6f23b62a25266fb",
+            "triangles": 352
           },
           "path": "depot.l2.glb",
-          "sha256": "6d39a7ee6ed341bb4f1507785eb66c14aebffbd556c69516dd51e9f098160a3a",
+          "sha256": "baa28f9ab6d1a8fcb1c9c6c2cbb9fe88e8b6bbbd47b73825584ed9bc9faa8fb4",
           "triangles": 3794
         }
       },

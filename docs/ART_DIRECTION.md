@@ -368,7 +368,10 @@ V3b — kept for the signature) — about 40–70 lines.
   roof, finial), `D.barber_pole` (white/red/blue spiral post with a
   brass ball), `D.mooring_ring` (iron ring and bolt on a quay face),
   `D.loading_ramp` (plank wedge falling to a low edge, cleats, flank
-  rails). Their tests are `tests/test_d060.py`.
+  rails), `D.warm_hall` (the "stone" building style in warm
+  sandstone — the church's cliff-upper courses, darker quoins,
+  `D.SANDSTONE_TRIM` for frames and string courses — for halls that
+  must not read as cold grey, §2). Their tests are `tests/test_d060.py`.
 - **Ships:** `recipes/_ships.py` builds all hulls with one `hull()`
   (plank courses, wale, trim band, rail, deck courses, gunports,
   bowsprit, stern cabin with windows, gallery and lanterns, forecastle)
