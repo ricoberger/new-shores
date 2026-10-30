@@ -480,6 +480,7 @@ export const de: Record<keyof typeof en, string> = {
   "infoPanel.idle": "Untätig",
   "infoPanel.countsForFarm": "Zählt für seinen Hof",
   "infoPanel.cancelRefund": "Wer den Auftrag abbricht, erhält 50 % des Materials zurück.",
+  "language.label": "Sprache",
   "placement.move": "Verschieben",
   "placement.found": "Siedlung gründen",
   "placement.field": "Feld anlegen",

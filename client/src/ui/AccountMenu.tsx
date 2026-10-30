@@ -8,6 +8,8 @@ import { AuthForm } from "./AuthForm";
 import { CreditsDialog } from "./Credits";
 import { DialogPanel } from "./DialogPanel";
 import { Icon } from "./Icon";
+import { LanguageSwitch } from "./LanguageSwitch";
+import language from "./language.module.css";
 import { toolIcon } from "../theme/iconSet";
 import { installPrompt } from "../pwa";
 import { useInstallAvailable } from "./PwaUi";
@@ -106,6 +108,10 @@ export function AccountMenu({ player, onRegistered, onLoggedOut }: Props) {
           >
             <Icon path={toolIcon("credits")} /> {t("account.credits")}
           </button>
+          <div className={language.row}>
+            <span className={language.rowLabel}>{t("language.label")}</span>
+            <LanguageSwitch />
+          </div>
           <button type="button" onClick={() => void doLogout()} data-testid="account-logout">
             <Icon path={toolIcon("logout")} /> {t("account.logout")}
           </button>

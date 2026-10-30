@@ -478,6 +478,7 @@ export const en = {
   "infoPanel.idle": "Idle",
   "infoPanel.countsForFarm": "Counts for its farm",
   "infoPanel.cancelRefund": "Cancelling the order returns 50 % of the materials.",
+  "language.label": "Language",
   "placement.move": "Move",
   "placement.found": "Found settlement",
   "placement.field": "Add field",

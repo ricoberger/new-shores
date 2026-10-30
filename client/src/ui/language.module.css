@@ -1,0 +1,60 @@
+.group {
+  display: inline-flex;
+  border: 1px solid var(--ns-ui-wood-light);
+  border-radius: 6px;
+  overflow: hidden;
+  color: var(--ns-ui-ink);
+}
+
+.light {
+  color: var(--ns-ui-parchment-light);
+  border-color: color-mix(in srgb, var(--ns-ui-parchment-light) 60%, transparent);
+}
+
+/* Two classes outrank the menu's `.dropdown button` rules. */
+.group .option {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 32px;
+  min-width: 44px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.group .option + .option {
+  border-left: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+}
+
+.group .option:hover {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.group .option.active {
+  background: var(--ns-ui-wood-light);
+  color: var(--ns-ui-parchment-light);
+  font-weight: 700;
+}
+
+.group .option:focus-visible {
+  outline: 3px solid var(--ns-ui-focus);
+  outline-offset: -3px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 8px;
+}
+
+.rowLabel {
+  color: var(--ns-ui-ink-soft);
+  font-size: 12px;
+}

@@ -4,6 +4,7 @@ import { authErrorText, playAsGuest } from "../api/auth";
 import { t } from "../i18n";
 import styles from "./account.module.css";
 import { AuthForm } from "./AuthForm";
+import { LanguageSwitch } from "./LanguageSwitch";
 import { ForgotPasswordForm, ResetPasswordForm } from "./PasswordForms";
 
 type Mode = "login" | "register" | "forgot" | "reset" | null;
@@ -86,6 +87,9 @@ export function StartScreen({ onPlayer, notice: incomingNotice, resetToken }: Pr
             </a>
           </div>
         )}
+        <div className={styles.footer}>
+          <LanguageSwitch />
+        </div>
       </div>
     </div>
   );

@@ -110,7 +110,7 @@ export function subscribe(l: () => void): () => void {
 
 /** The current language and its setter; the component re-renders when the language changes. */
 export function useLanguage(): [Language, (l: Language) => void] {
-  const language = useSyncExternalStore(subscribe, currentLanguage, () => "en" as Language);
+  const language = useSyncExternalStore(subscribe, currentLanguage, currentLanguage);
   return [language, setLanguage];
 }
 

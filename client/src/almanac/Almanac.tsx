@@ -10,6 +10,7 @@ import { Quests } from "./Quests";
 import { Ships } from "./Ships";
 import { buildIndex, search, searchEntries, type Index, type SectionId } from "./model";
 import { A } from "./parts";
+import { LanguageSwitch } from "../ui/LanguageSwitch";
 import { t, useLanguage } from "../i18n";
 import { navigate, SECTIONS, sectionLabel, routePath, useRoute, type Route } from "./route";
 
@@ -123,6 +124,9 @@ export function AlmanacView({ content, route: forced, exitHref = "/" }: ViewProp
           {region?.name ?? t("almanac.footer.content")}
           {region?.version ? t("almanac.footer.version", { version: region.version }) : ""}
           {schema ? t("almanac.footer.schema", { version: schema }) : ""}
+          <div className={styles.footLanguage}>
+            <LanguageSwitch tone="light" />
+          </div>
         </footer>
       </div>
     </div>
