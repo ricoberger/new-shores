@@ -610,6 +610,73 @@ async function selectBuilding(page: Page, type: string, offset: { x: number; y: 
   await page.mouse.move(5, 400);
 }
 
+/**
+ * The harbour of the played world (D-060): a quay run on the shallows south
+ * of the Trading Post with a fisher standing on it, a trading pier and a
+ * depot, placed through the dev API (real server state; sites checked
+ * against the played world of the dev seed). Every ship leaves its route
+ * and sails home: idle ships lie at the island's berths, the Trading
+ * Post's four first, so the fifth (the galleon) lies at the pier. The page
+ * is reloaded afterwards (see below).
+ */
+const HARBOUR_ISLAND = "isle-01";
+const HARBOUR_COMMANDS = [
+  { type: "place_road", island_id: HARBOUR_ISLAND, road_type: "quay", tiles: Array.from({ length: 10 }, (_, i) => ({ x: 149 + i, y: 167 })) },
+  { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "fisher", x: 156, y: 163, rotation: 180 },
+  { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "trading_pier", x: 144, y: 176, rotation: 90 },
+  { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "depot", x: 135, y: 179, rotation: 180 },
+] as const;
+/** Camera target over the harbour (island tiles). */
+const HARBOUR_TARGET = { x: 150, y: 170 };
+
+interface HarbourShip {
+  id: number;
+  state: string;
+  island_id?: string;
+}
+
+async function harbourCommand(page: Page, command: unknown): Promise<string | null> {
+  return page.evaluate(async ([c, port]) => {
+    const r = await fetch(`http://localhost:${port}/api/v1/world/commands`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ command: c }) });
+    return r.ok ? null : `${r.status} ${await r.text()}`;
+  }, [command, API_PORT] as const);
+}
+
+async function harbour(page: Page): Promise<void> {
+  for (const c of HARBOUR_COMMANDS) {
+    const err = await harbourCommand(page, c);
+    if (err) throw new Error(`harbour: ${c.type} ${"building_type" in c ? c.building_type : c.road_type} failed: ${err}`);
+  }
+  const ships = () =>
+    page.evaluate(async (port) => {
+      const r = await fetch(`http://localhost:${port}/api/v1/world`, { credentials: "include" });
+      return ((await r.json()) as { display: { ships: HarbourShip[] } }).display.ships;
+    }, API_PORT);
+  for (const s of await ships()) {
+    const err = await harbourCommand(page, { type: "unassign_ship", ship_id: s.id });
+    if (err) throw new Error(`harbour: unassign_ship ${s.id} failed: ${err}`);
+  }
+  // The legs end at the e2e time scale within a minute or two; idle ships elsewhere sail home.
+  const deadline = Date.now() + 240_000;
+  for (;;) {
+    const list = await ships();
+    if (list.every((s) => s.state === "idle" && s.island_id === HARBOUR_ISLAND)) break;
+    if (Date.now() > deadline) throw new Error(`harbour: ships not home: ${JSON.stringify(list)}`);
+    for (const s of list) {
+      if (s.state === "idle" && s.island_id && s.island_id !== HARBOUR_ISLAND) await harbourCommand(page, { type: "sail_ship", ship_id: s.id, to_island_id: HARBOUR_ISLAND });
+    }
+    await page.waitForTimeout(1000);
+  }
+  // A reload: buildings placed while the page is open show their construction
+  // stages, which never end on the frozen clock; loaded ones stand finished.
+  await page.reload();
+  await page.waitForFunction(() => Number.isFinite(window.__newShores?.camera().x ?? NaN) && window.__newShores!.getServer() !== null, undefined, { timeout: 30_000 });
+  await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
+  await page.addStyleTag({ content: "*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }" });
+  const pos = await page.evaluate((id) => window.__newShores!.getServer()!.display.islands.find((i) => i.id === id)!.position, HARBOUR_ISLAND);
+  await setCamera(page, { x: pos.x + HARBOUR_TARGET.x, y: pos.y + HARBOUR_TARGET.y, half: HALF.near, rotation: 0 });
+}
+
 const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly Device[]; patch?: (w: WorldResponse) => void; run: (page: Page) => Promise<void> }> = {
   // The HUD with the info panel of a building that is not running (desktop).
   "info-panel": {
@@ -968,6 +1035,8 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       });
     },
   },
+  // The played world's harbour (D-060): quay with a fisher on it, trading pier with the galleon, depot (desktop and phone, near).
+  harbour: { fixture: "played", device: ["desktop", "phone"], run: harbour },
   // The build menu open (phone portrait).
   "build-menu": {
     fixture: "showcase",

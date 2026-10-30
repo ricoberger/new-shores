@@ -10,7 +10,7 @@ export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelag
  */
 export const VIEWS = ["near", "mid", "far", "start", "pan"] as const;
 export const DEVICES = ["desktop", "phone"] as const;
-export const PRESETS = ["info-panel", "producer-inputs", "house-card", "service-card", "warehouse-card", "trading-post-card", "shipyard-idle", "shipyard-building", "served-houses", "serving-buildings", "sheet", "ghost", "sloop", "build-menu", "warnings", "away", "ship-panel", "ship-rename", "route-editor", "route-rename", "route-paused", "island-card", "top-bar-popups", "farm-selected", "hemp-farm-selected", "field-selected", "field-ghost", "field-paint", "field-paint-result", "field-paint-pasture", "archipelago-far", "far-labels", "reroll", "rename", "merchant-house-card", "merchant-build-menu", "patrician-house-card", "patrician-build-menu"] as const;
+export const PRESETS = ["info-panel", "producer-inputs", "house-card", "service-card", "warehouse-card", "trading-post-card", "shipyard-idle", "shipyard-building", "served-houses", "serving-buildings", "sheet", "ghost", "sloop", "build-menu", "warnings", "away", "ship-panel", "ship-rename", "route-editor", "route-rename", "route-paused", "island-card", "top-bar-popups", "farm-selected", "hemp-farm-selected", "field-selected", "field-ghost", "field-paint", "field-paint-result", "field-paint-pasture", "archipelago-far", "far-labels", "reroll", "rename", "merchant-house-card", "merchant-build-menu", "patrician-house-card", "patrician-build-menu", "harbour"] as const;
 
 export type Fixture = (typeof FIXTURES)[number];
 export type View = (typeof VIEWS)[number];
