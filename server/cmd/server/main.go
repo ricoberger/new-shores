@@ -339,6 +339,7 @@ func runDev(o options, logger *slog.Logger) error {
 	if err != nil {
 		return err
 	}
+	logger.Info("dev world", "seed", w.Seed, "roll", w.ArchipelagoRoll, "generator_version", archipelago.GeneratorVersion)
 	scale := api.TimeScale{Start: start, Scale: o.timeScale}
 	hub := ws.NewHub(logger)
 	worldNow := func() time.Time { return scale.At(clock.Now()) }

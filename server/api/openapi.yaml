@@ -206,12 +206,13 @@ paths:
         each island's bounds, fertilities, deposits and a 1:4
         `terrain_mask` only; clients load the rows per island when they
         need them (the island in view first). Terrain changes only with a
-        reroll (D-053), so the response is cacheable for good: the `ETag`
-        derives from the archipelago's seed and roll and the island ID,
+        reroll (D-053) or a generator change, so the response is cacheable for good: the `ETag`
+        derives from the archipelago's seed, roll and generator version and
+        the island ID,
         `Cache-Control` is `private, max-age=31536000, immutable`, and a
         matching `If-None-Match` answers 304. Clients pass the
-        archipelago's `<seed>-<roll>` as `v`, so a reroll changes the URL;
-        when `v` names another roll than the world's, the response is
+        archipelago's `<seed>-<roll>-g<generator_version>` as `v`, so a reroll or
+        a generator change changes the URL; when `v` names another key than the world's, the response is
         `no-store`. Unsettled islands are served as well.
       security:
         - cookieAuth: []
@@ -225,7 +226,7 @@ paths:
         - name: v
           in: query
           required: false
-          description: Cache key of the archipelago, `<seed>-<roll>` of `display.archipelago`.
+          description: Cache key of the archipelago, `<seed>-<roll>-g<generator_version>` of `display.archipelago`.
           schema:
             type: string
         - name: If-None-Match
@@ -239,11 +240,11 @@ paths:
           description: The island's terrain rows.
           headers:
             ETag:
-              description: Strong validator from the archipelago's seed and roll and the island ID.
+              description: Strong validator from the archipelago's seed, roll and generator version and the island ID.
               schema:
                 type: string
             Cache-Control:
-              description: "`private, max-age=31536000, immutable`, or `no-store` when `v` names another roll."
+              description: "`private, max-age=31536000, immutable`, or `no-store` when `v` names another key."
               schema:
                 type: string
           content:
@@ -2551,7 +2552,7 @@ components:
       type: object
       additionalProperties: false
       description: The generated archipelago (D-053).
-      required: [seed, roll, rerollable, bounds]
+      required: [seed, roll, generator_version, rerollable, bounds]
       properties:
         seed:
           type: integer
@@ -2563,6 +2564,10 @@ components:
           type: integer
           minimum: 0
           description: Number of rerolls; seed and roll identify the archipelago.
+        generator_version:
+          type: integer
+          minimum: 1
+          description: Version of the island generator (`archipelago.GeneratorVersion`); the rows of a seed and roll change with it.
         rerollable:
           type: boolean
           description: "`reroll_archipelago` is allowed: a generated archipelago, no island settled, no ship under way."

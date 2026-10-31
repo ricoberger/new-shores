@@ -7,6 +7,7 @@ import (
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 )
 
 const timeLayout = "2006-01-02T15:04:05.000Z07:00"
@@ -166,7 +167,9 @@ func (r *Report) ClearTiming() { r.AdvanceDurationMs = 0 }
 func (r *Report) AdvanceDuration() time.Duration { return r.advanceDuration }
 
 func (r *runner) display() (sim.DisplayState, error) {
-	return sim.Display(r.w, r.c, r.w.LastEvaluatedAt)
+	ds, err := sim.Display(r.w, r.c, r.w.LastEvaluatedAt)
+	ds.Archipelago.GeneratorVersion = archipelago.GeneratorVersion
+	return ds, err
 }
 
 // initSnapshots prepares the snapshot bookkeeping of a run.

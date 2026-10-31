@@ -36,6 +36,7 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/auth"
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/telemetry"
 	"github.com/ricoberger/new-shores/server/internal/ws"
@@ -427,7 +428,7 @@ func (s *Server) getWorld(w http.ResponseWriter, r *http.Request) {
 		// player's other devices.
 		produced = sim.MaybeProduceSummary(world, s.cfg.Catalogue)
 		var err error
-		ds, err = sim.Display(world, s.cfg.Catalogue, now)
+		ds, err = s.display(world, now)
 		return produced && err == nil, err
 	})
 	if err != nil {
@@ -494,7 +495,7 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 			// and the current state, no commit (same version) and no
 			// event.
 			unchanged = true
-			ds, err = sim.Display(world, s.cfg.Catalogue, now)
+			ds, err = s.display(world, now)
 			return false, err
 		}
 		// The summary over the gap before this command (rule of GET); an
@@ -505,7 +506,7 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 			sim.MaybeProduceSummary(world, s.cfg.Catalogue)
 		}
 		sim.MarkSeen(world)
-		ds, err = sim.Display(world, s.cfg.Catalogue, now)
+		ds, err = s.display(world, now)
 		return err == nil, err
 	})
 	if err != nil {
@@ -559,17 +560,28 @@ type tilesResponse struct {
 // tileDigit is a level or height as one digit (clamped to 0-9).
 func tileDigit(v int) byte { return '0' + byte(min(max(v, 0), 9)) } // #nosec G115 -- clamped
 
+// display is sim.Display plus the generator version, which the sim
+// cannot know (package archipelago imports it).
+func (s *Server) display(w *sim.World, now time.Time) (sim.DisplayState, error) {
+	ds, err := sim.Display(w, s.cfg.Catalogue, now)
+	ds.Archipelago.GeneratorVersion = archipelago.GeneratorVersion
+	return ds, err
+}
+
 // tilesETag is the strong validator of an island's rows: terrain changes
-// only with the archipelago's seed and roll (D-053), so these and the
-// island ID identify it.
-func tilesETag(seed uint64, roll int, island string) string {
-	sum := sha256.Sum256(fmt.Appendf(nil, "%d|%d|%s", seed, roll, island))
+// with the archipelago's seed and roll (D-053) and with the island
+// generator (D-058, archipelago.GeneratorVersion), so these and the island
+// ID identify it.
+func tilesETag(seed uint64, roll, generator int, island string) string {
+	sum := sha256.Sum256(fmt.Appendf(nil, "%d|%d|%d|%s", seed, roll, generator, island))
 	return `"` + hex.EncodeToString(sum[:12]) + `"`
 }
 
-// tilesKey is the client's cache key of an archipelago (`?v=`): seed and
-// roll.
-func tilesKey(seed uint64, roll int) string { return fmt.Sprintf("%d-%d", seed, roll) }
+// tilesKey is the client's cache key of an archipelago (`?v=`): seed, roll
+// and generator version.
+func tilesKey(seed uint64, roll, generator int) string {
+	return fmt.Sprintf("%d-%d-g%d", seed, roll, generator)
+}
 
 // etagMatches reports whether an If-None-Match header lists the ETag (or
 // is "*"); weak comparison as RFC 9110 prescribes for If-None-Match.
@@ -586,8 +598,8 @@ func etagMatches(header, etag string) bool {
 // getIslandTiles serves the full terrain rows of an island of the
 // session's world. Like every world request it advances the world to the
 // current world time first. The response is cacheable for good (ETag from
-// seed, roll and island ID; 304 on a matching If-None-Match) unless the
-// client's cache key `v` names another roll than the world's: then it is
+// seed, roll, generator version and island ID; 304 on a matching If-None-Match) unless the
+// client's cache key `v` names another archipelago than the world's: then it is
 // answered no-store, so a race with a reroll never caches the new rows
 // under the old key.
 func (s *Server) getIslandTiles(w http.ResponseWriter, r *http.Request) {
@@ -611,7 +623,8 @@ func (s *Server) getIslandTiles(w http.ResponseWriter, r *http.Request) {
 		if is == nil {
 			return false, fmt.Errorf("%w: %q", sim.ErrUnknownIsland, islandID)
 		}
-		etag, key = tilesETag(world.Seed, world.ArchipelagoRoll, is.ID), tilesKey(world.Seed, world.ArchipelagoRoll)
+		gen := archipelago.GeneratorVersion
+		etag, key = tilesETag(world.Seed, world.ArchipelagoRoll, gen, is.ID), tilesKey(world.Seed, world.ArchipelagoRoll, gen)
 		resp = tilesResponse{
 			ID: is.ID, Width: is.Width, Height: is.Height,
 			Revision: islandRevision(s.cfg.Catalogue, world), Terrain: make([]string, len(is.Tiles)),

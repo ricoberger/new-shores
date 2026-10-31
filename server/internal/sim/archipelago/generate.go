@@ -4,6 +4,13 @@
 // package sim it performs no I/O, reads no clock and draws randomness only
 // from its own seeded splitmix64 generator; all arithmetic is integer, so
 // the same seed gives byte-identical islands on every platform.
+//
+// GeneratorVersion rule: bump it by hand in the same change whenever the
+// generated rows (tiles, terrain, levels, heights) of an existing seed
+// change, e.g. by a new shape algorithm (D-058) or generator rules in
+// islands.json. It is part of the tiles ETag and `?v=` cache key, so
+// browsers drop rows cached from the old generator. The content and
+// schema versions do not cover this; the generator can change without them.
 package archipelago
 
 import (
@@ -29,6 +36,10 @@ type Archipelago struct {
 	// the home candidate that is ShipClearance tiles from land.
 	Ship sim.Pos
 }
+
+// GeneratorVersion identifies the island generator's output; see the rule
+// in the package comment. 2: round islands replaced by D-058 outlines.
+const GeneratorVersion = 2
 
 // MaxSeed bounds world seeds to 53 bits, so that they survive a JSON
 // number in the client (D-053 display) unchanged.

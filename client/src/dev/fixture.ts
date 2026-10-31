@@ -204,7 +204,7 @@ function handMadeArchipelago(islands: readonly Pick<IslandDisplay, "position" | 
   const y0 = Math.min(...islands.map((is) => is.position.y));
   const x1 = Math.max(...islands.map((is) => is.position.x + is.width));
   const y1 = Math.max(...islands.map((is) => is.position.y + is.height));
-  return { seed: 0, roll: 0, rerollable: false, bounds: { x: x0, y: y0, width: x1 - x0, height: y1 - y0 } };
+  return { seed: 0, roll: 0, generator_version: 1, rerollable: false, bounds: { x: x0, y: y0, width: x1 - x0, height: y1 - y0 } };
 }
 
 export function buildArchipelagoFixture(nowMs: number): Built {

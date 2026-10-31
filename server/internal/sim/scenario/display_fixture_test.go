@@ -11,6 +11,7 @@ import (
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 )
 
 // displayFixtureOffsetsMs are the sample offsets of the extrapolation
@@ -58,6 +59,7 @@ func buildDisplayFixture(t *testing.T, name string) DisplayFixture {
 	if err != nil {
 		t.Fatal(err)
 	}
+	base.Archipelago.GeneratorVersion = archipelago.GeneratorVersion
 	limit := int64(-1)
 	if base.NextChangeAt != nil {
 		next, err := time.Parse(time.RFC3339, *base.NextChangeAt)
@@ -81,6 +83,7 @@ func buildDisplayFixture(t *testing.T, name string) DisplayFixture {
 			t.Fatal(err)
 		}
 		ds, err := sim.Display(cw, c, at)
+		ds.Archipelago.GeneratorVersion = archipelago.GeneratorVersion
 		if err != nil {
 			t.Fatal(err)
 		}

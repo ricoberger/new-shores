@@ -371,10 +371,14 @@ func IslandDeposits(is *Island) []DepositDisplay {
 // whether it can still be rerolled (no island settled, no ship under way)
 // and the bounding box of its islands in archipelago tiles.
 type ArchipelagoDisplay struct {
-	Seed       uint64        `json:"seed"`
-	Roll       int           `json:"roll"`
-	Rerollable bool          `json:"rerollable"`
-	Bounds     BoundsDisplay `json:"bounds"`
+	Seed       uint64 `json:"seed"`
+	Roll       int    `json:"roll"`
+	Rerollable bool   `json:"rerollable"`
+	// GeneratorVersion is archipelago.GeneratorVersion; the API fills it
+	// in (this package cannot import the generator), so it is zero
+	// in raw sim.Display output.
+	GeneratorVersion int           `json:"generator_version"`
+	Bounds           BoundsDisplay `json:"bounds"`
 }
 
 // BoundsDisplay is a rectangle in archipelago tiles.

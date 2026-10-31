@@ -12,7 +12,7 @@ function world(version: number, evaluatedAt: string, nextChangeAt: string | null
     tax_rate_per_min: 0,
     upkeep_rate_per_min: 0,
     tiers: [],
-    archipelago: { seed: 7, roll, rerollable: roll < 2, bounds: { x: 0, y: 0, width: 1, height: 1 } },
+    archipelago: { seed: 7, roll, generator_version: 2, rerollable: roll < 2, bounds: { x: 0, y: 0, width: 1, height: 1 } },
     islands: islands.map((id) => ({
       id,
       name: "",

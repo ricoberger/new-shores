@@ -20,6 +20,7 @@ import (
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/testworld"
 )
@@ -861,7 +862,7 @@ func TestIslandTiles(t *testing.T) {
 	if is.Terrain[1*is.Width+0] != "water" || is.Terrain[1*is.Width+1] != "coast" {
 		t.Fatalf("terrain row 1: %v", is.Terrain[is.Width:is.Width+3])
 	}
-	if res.header.Get("ETag") != tilesETag(0, 0, testIsland) || res.header.Get("Cache-Control") != tilesCacheControl {
+	if res.header.Get("ETag") != tilesETag(0, 0, archipelago.GeneratorVersion, testIsland) || res.header.Get("Cache-Control") != tilesCacheControl {
 		t.Errorf("headers %v", res.header)
 	}
 	terrain := map[string][]string{testIsland: is.Terrain}
@@ -913,7 +914,7 @@ func TestIslandTiles(t *testing.T) {
 func TestIslandTilesCaching(t *testing.T) {
 	ts := newTestServer(t, 1)
 	path := "/api/v1/world/islands/start/tiles"
-	etag := tilesETag(0, 0, testIsland)
+	etag := tilesETag(0, 0, archipelago.GeneratorVersion, testIsland)
 	get := func(path, inm string) response {
 		t.Helper()
 		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, path, nil)
@@ -936,10 +937,10 @@ func TestIslandTilesCaching(t *testing.T) {
 	if res := get(path, `"other"`); res.status != http.StatusOK || res.header.Get("ETag") != etag || len(res.body) == 0 {
 		t.Errorf("other ETag: %d %v", res.status, res.header)
 	}
-	if res := get(path+"?v=0-0", ""); res.header.Get("Cache-Control") != tilesCacheControl {
+	if res := get(path+"?v="+tilesKey(0, 0, archipelago.GeneratorVersion), ""); res.header.Get("Cache-Control") != tilesCacheControl {
 		t.Errorf("current cache key: %v", res.header)
 	}
-	if res := get(path+"?v=0-1", ""); res.status != http.StatusOK || res.header.Get("Cache-Control") != "no-store" {
+	if res := get(path+"?v="+tilesKey(0, 1, archipelago.GeneratorVersion), ""); res.status != http.StatusOK || res.header.Get("Cache-Control") != "no-store" {
 		t.Errorf("stale cache key: %d %v", res.status, res.header)
 	}
 	// The route is exactly /world/islands/{id}/tiles; the former static
@@ -949,8 +950,12 @@ func TestIslandTilesCaching(t *testing.T) {
 			t.Errorf("%s: %d %s", p, res.status, res.body)
 		}
 	}
-	if a, b := tilesETag(1, 0, "a"), tilesETag(1, 1, "a"); a == b || a == tilesETag(1, 0, "b") || a == tilesETag(2, 0, "a") {
+	if a, b := tilesETag(1, 0, archipelago.GeneratorVersion, "a"), tilesETag(1, 1, archipelago.GeneratorVersion, "a"); a == b || a == tilesETag(1, 0, archipelago.GeneratorVersion, "b") || a == tilesETag(2, 0, archipelago.GeneratorVersion, "a") {
 		t.Error("ETag does not follow seed, roll and island")
+	}
+	g := archipelago.GeneratorVersion
+	if tilesETag(1, 0, g, "a") == tilesETag(1, 0, g+1, "a") || tilesKey(1, 0, g) == tilesKey(1, 0, g+1) {
+		t.Error("ETag and cache key do not follow the generator version")
 	}
 }
 
