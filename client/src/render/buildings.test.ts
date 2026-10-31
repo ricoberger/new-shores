@@ -121,6 +121,27 @@ describe("BuildingLayer with models", () => {
     scene.dispose();
   });
 
+  it("merges the lite models per group of chunks (far LOD's draw calls) and the full ones per chunk, each culled with its chunks", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const layer = new BuildingLayer(scene, null, reg);
+    // Sawmills in chunks 0,0, 1,0 and 3,0 (one lite group) and 4,0 (the next group).
+    layer.update([b(1, "sawmill", 0), b(2, "sawmill", 40), b(3, "sawmill", 100), b(4, "sawmill", 130)], defs);
+    await loaded(reg);
+    layer.refresh();
+    expect(layer.chunkCount()).toBe(2);
+    const enabled = () => layer.meshes().filter((m) => m.isEnabled()).length;
+    layer.setVisibleChunks(new Set(["1,0"]));
+    expect(enabled()).toBe(1);
+    layer.setVisibleChunks(new Set(["1,0", "5,0"]));
+    expect(enabled()).toBe(2);
+    layer.setDetail("full");
+    expect(layer.chunkCount()).toBe(4);
+    expect(enabled()).toBe(1);
+    scene.dispose();
+  });
+
   it("bakes the paused tint into the chunk's vertex colours", async () => {
     const scene = new Scene(engine);
     const reg = registry(scene);

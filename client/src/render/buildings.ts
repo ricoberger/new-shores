@@ -38,7 +38,7 @@ import { skyFill } from "./lighting";
 import { addJitter, LITE_VPT, MODEL_VPT } from "./jitter";
 import { addSway } from "./sway";
 import { ColoredInstances } from "./shipmesh";
-import { chunkAt } from "../display/chunks";
+import { chunkAt, liteGroupOf } from "../display/chunks";
 
 /** Duration of the rise-in of a newly placed building (ms of the animation clock). */
 export const RISE_MS = 350;
@@ -255,6 +255,8 @@ export class BuildingLayer {
   private tinted: ReadonlySet<number> = NONE;
   /** The island chunks in view (null: all). */
   private visibleChunks: ReadonlySet<string> | null = null;
+  /** The lite model groups (display/chunks.ts LITE_GROUP) with a chunk in view (null: all). */
+  private visibleGroups: ReadonlySet<string> | null = null;
   /** Merged model chunks per detail level in use (chunk key → signature and mesh). */
   private readonly chunks = new Map<Detail, Map<string, { key: string; mesh: Mesh | null }>>();
   /** Detail levels whose chunks are built (both, or only full when the lite tier is off: then full is drawn at every zoom). */
@@ -350,10 +352,13 @@ export class BuildingLayer {
   /** The island chunks in view (null: all): the merged model meshes of the others are not drawn. */
   setVisibleChunks(keys: ReadonlySet<string> | null): void {
     this.visibleChunks = keys;
+    this.visibleGroups = keys ? new Set([...keys].map(liteGroupOf)) : null;
     this.applyDetail();
   }
 
+  /** A chunk (full set) or a lite group (lite set) in view. */
   private chunkShown(key: string): boolean {
+    if (key.startsWith("g")) return this.visibleGroups === null || this.visibleGroups.has(key);
     return this.visibleChunks === null || this.visibleChunks.has(key);
   }
 
@@ -423,10 +428,12 @@ export class BuildingLayer {
           continue;
         }
         const p = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-        const key = chunkAt(p.cx, -p.cz);
+        const chunk = chunkAt(p.cx, -p.cz);
         for (const [d, it] of items) {
           if (!it) continue;
           const set = byChunk.get(d) as Map<string, Item[]>;
+          // The lite set merges per group of chunks (far LOD's draw calls), the full set per chunk.
+          const key = d === "lite" ? liteGroupOf(chunk) : chunk;
           let list = set.get(key);
           if (!list) set.set(key, (list = []));
           list.push(it);
