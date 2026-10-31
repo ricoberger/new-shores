@@ -448,7 +448,8 @@ greedy-meshed quads with per-vertex colour, baked AO and sun →
 → the client's model registry (`client/src/render/models.ts`,
 `@babylonjs/loaders` glTF) builds merged per-chunk meshes (full and
 lite — the lite is the grid downsampled to 2 voxels per tile — toggled
-by LOD) with variant selection by building ID. A content building
+by LOD; the lite ones merge per 4 × 4 chunks, `display/chunks.ts`
+`LITE_GROUP`) with variant selection by building ID. A content building
 without a recipe gets an automatic voxel placeholder sized to its
 footprint (walls + roof), so no island mixes styles; footprints come
 from content, or from `assets/voxel/planned/` for buildings content
@@ -458,6 +459,22 @@ runs it — no Blender needed), `make assets-test` runs the Python tests
 (budgets per footprint tile, folder limit 24 MiB, anchors incl. the
 content `smoke`/`boat` flags, determinism), `make model-sheet RECIPE=`
 renders a sheet in about a second.
+
+**Far budget (D-048, D-057 §5).** At the zoom cap (`max_half_extent`
+120) the far LOD stays within 250 k triangles and 40 draw calls (target
+30) on desktop and phone. The asset budgets above bound a model; the
+client bounds the far view: fields are painted into the lite ground
+(`render/farfields.ts`), an island's far trees are thinned to
+`FAR_TREE_TRIS`, contact shadows use `FAR_SHADOW_TRIS` outlines, the
+focused island's lite terrain counts first in `MASK_TRIS` (a very large
+town, `FAR_TOWN_TRIS`, falls back to a coarse lite terrain) and the mask
+mesh gets the rest. `client/src/render/farbudget.test.ts` enforces the
+total: it estimates every far layer from display data with the
+renderer's functions (the largest display fixture's biggest town and a
+synthetic one of 120 buildings, 600 field tiles and 200 tree plots, the
+islands' masks in view at every heading) and fails above 250 k. A new
+model, layer or budget constant that breaks it must find its triangles
+elsewhere; `make shots STATS=2` attributes a real view per layer.
 
 ## 6. Content pipeline
 
