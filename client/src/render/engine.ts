@@ -516,17 +516,26 @@ export class GameRenderer {
     return this.meshCount;
   }
 
-  /** The last frame's active meshes grouped by layer (the name up to its first "_" or digit): meshes and triangles (perf notes). */
+  /** The last frame's active meshes grouped by layer (the name up to its first "_" or digit): meshes and triangles (perf notes); the field models inside the model chunks count as `<layer>.fields` (its meshes are the chunks holding fields, also counted under the layer). */
   activeLayers(): Record<string, { meshes: number; tris: number }> {
     const out: Record<string, { meshes: number; tris: number }> = {};
     const meshes = this.scene.getActiveMeshes();
     for (let i = 0; i < meshes.length; i++) {
       const m = meshes.data[i];
       if (!m) continue;
-      const layer = m.name.replace(/^(island|models|trees|tree_shadows|scatter|terrain_lite|terrain|roads|field_decor|field|mask_terrain|blob_buildings|decor)[_].*$/, "$1");
+      const layer = m.name.replace(/^(island|models_lite|models|trees|tree_shadows|scatter|terrain_lite|terrain|roads|field_decor|field|mask_terrain|blob_buildings_far|blob_buildings|far_trees|decor)[_].*$/, "$1");
       const e = (out[layer] ??= { meshes: 0, tris: 0 });
       e.meshes++;
-      for (const sm of m.subMeshes ?? []) e.tris += Math.round(sm.indexCount / 3);
+      let tris = 0;
+      for (const sm of m.subMeshes ?? []) tris += Math.round(sm.indexCount / 3);
+      // Model chunks carry their field models' share (render/buildings.ts): reported as a layer of its own.
+      const fieldTris = (m.metadata as { fieldTris?: number } | null)?.fieldTris ?? 0;
+      if (fieldTris > 0) {
+        const f = (out[`${layer}.fields`] ??= { meshes: 0, tris: 0 });
+        f.meshes++;
+        f.tris += fieldTris;
+      }
+      e.tris += tris - fieldTris;
     }
     return out;
   }

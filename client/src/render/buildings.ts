@@ -479,8 +479,11 @@ export class BuildingLayer {
           return { data: it.data, cx: p.cx, cy: this.baseOf(it.b, it.def), cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b, this.tinted) };
         }),
       );
-      const mesh = new Mesh(`models_${key}`, this.scene);
+      const mesh = new Mesh(`${material === this.liteMaterial ? "models_lite" : "models"}_${key}`, this.scene);
       data.applyToMesh(mesh);
+      // The field models' share of the chunk (the per-layer stats, GameRenderer.activeLayers).
+      const fieldTris = items.reduce((n, it) => n + (it.def.field ? it.data.indices.length / 3 : 0), 0);
+      if (fieldTris > 0) mesh.metadata = { fieldTris };
       mesh.material = material;
       mesh.parent = this.parent;
       mesh.isPickable = false;
