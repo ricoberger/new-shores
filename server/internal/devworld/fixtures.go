@@ -385,7 +385,7 @@ func merchants(f *fixture) {
 	// town's later buildings could close off.
 	yard := f.placePaid(home, "shipyard", f.streetEnd(home))
 	market := f.placePaid(home, "market", f.streetEnd(home))
-	for _, typ := range []string{"chapel", "tavern", "school", "church"} {
+	for _, typ := range []string{"chapel", "tavern", "school", "church", "city_guard", "fire_station"} {
 		f.placePaid(home, typ, f.streetEnd(home))
 	}
 	if f.err == nil {
@@ -493,7 +493,7 @@ func patricians(f *fixture) {
 		})
 	}
 	market := f.placePaid(home, "market", f.streetEnd(home))
-	for _, typ := range []string{"chapel", "tavern", "school", "church", "theatre", "university", "cathedral"} {
+	for _, typ := range []string{"chapel", "tavern", "school", "church", "playhouse", "university", "cathedral", "city_guard", "fire_station", "surgery"} {
 		f.placePaid(home, typ, f.streetEnd(home))
 	}
 	for lv := 2; lv <= 3 && f.err == nil; lv++ {
@@ -547,6 +547,12 @@ func patricians(f *fixture) {
 	}
 	f.apply(sim.AssignShip{ShipID: ship, RouteID: f.w.Routes[len(f.w.Routes)-1].ID})
 	f.advance(time.Minute)
+	// The harbour shot builds its extensions through the normal API; reserve
+	// their materials in this explicitly seeded dev fixture, never a replay.
+	for _, typ := range []string{"trading_pier", "depot"} {
+		f.grant(home, &f.c.BuildingByID[typ].Cost)
+	}
+	f.grant(home, &content.Cost{Materials: []content.GoodAmount{{Good: "stone", Amount: 20_000}}})
 }
 
 // grant adds a cost's gold and materials to the world and the island's

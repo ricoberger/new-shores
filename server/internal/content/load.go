@@ -285,13 +285,14 @@ type rawRecipeInput struct {
 }
 
 type rawBuilding struct {
+	Description   string                 `json:"description"`
 	ID            string                 `json:"id"`
 	Name          string                 `json:"name"`
 	Region        string                 `json:"region"`
 	Tier          string                 `json:"tier"`
 	Footprint     []int                  `json:"footprint"`
 	Coastal       bool                   `json:"coastal"`
-	WaterTiles    int                    `json:"water_tiles"`
+	WaterRows     *WaterRows             `json:"water_rows"`
 	RequiresRoad  bool                   `json:"requires_road"`
 	Cost          map[string]json.Number `json:"cost"`
 	Upkeep        json.Number            `json:"upkeep_per_min"`
@@ -320,11 +321,7 @@ type rawBuilding struct {
 		Berths int `json:"berths"`
 	} `json:"pier"`
 	Depot *struct {
-		Levels []struct {
-			Capacity json.Number            `json:"capacity"`
-			Tier     string                 `json:"tier"`
-			Cost     map[string]json.Number `json:"cost"`
-		} `json:"levels"`
+		Capacity json.Number `json:"capacity"`
 	} `json:"depot"`
 	Road *struct {
 		SecondsPerTile json.Number `json:"seconds_per_tile"`
@@ -742,12 +739,13 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string]*Good) *Building {
 	const file = FileBuildings
 	b := &Building{
+		Description:   rb.Description,
 		ID:            rb.ID,
 		Name:          rb.Name,
 		Region:        rb.Region,
 		Tier:          rb.Tier,
 		Coastal:       rb.Coastal,
-		WaterTiles:    rb.WaterTiles,
+		WaterRows:     rb.WaterRows,
 		RequiresRoad:  rb.RequiresRoad,
 		UpkeepPerMin:  col.fixed(file, ent, "upkeep_per_min", rb.Upkeep, 3),
 		PauseCategory: rb.PauseCategory,
@@ -756,6 +754,11 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		RequiresDeposit: rb.RequiresDeposit,
 		Smoke:           rb.Smoke,
 		Boat:            rb.Boat,
+	}
+	if rb.Description != "" {
+		if err := checkTranslation(TextKey(keyBuildings, rb.ID, "description"), rb.Description); err != nil {
+			col.add(file, ent, "description", "%v", err)
+		}
 	}
 	if len(rb.Footprint) == 2 {
 		b.Width, b.Height = rb.Footprint[0], rb.Footprint[1]
@@ -840,19 +843,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		b.Pier = &Pier{Berths: pr.Berths}
 	}
 	if d := rb.Depot; d != nil {
-		dp := &Depot{}
-		for i, l := range d.Levels {
-			lvl := DepotLevel{Capacity: col.fixed(file, ent, fmt.Sprintf("depot.levels[%d].capacity", i), l.Capacity, 3), Tier: l.Tier}
-			if l.Cost != nil {
-				cost := decodeCost(col, file, ent, l.Cost, goods)
-				lvl.Cost = &cost
-			}
-			dp.Levels = append(dp.Levels, lvl)
-		}
-		if len(dp.Levels) == 0 {
-			col.add(file, ent, "depot.levels", "must not be empty")
-		}
-		b.Depot = dp
+		b.Depot = &Depot{Capacity: col.fixed(file, ent, "depot.capacity", d.Capacity, 3)}
 	}
 	if r := rb.Road; r != nil {
 		b.Road = &Road{MsPerTile: col.fixed(file, ent, "road.seconds_per_tile", r.SecondsPerTile, 3), Shallows: r.Shallows}

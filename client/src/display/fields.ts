@@ -27,9 +27,11 @@ export function fieldBuildingOf(content: Content, farmType: string): ContentBuil
  * fields at the maximum — "3×4 + 140 fields" for one-tile fields,
  * "3×3 + 3 pastures of 3×3" for modules.
  */
-export function footprintText(def: Pick<ContentBuilding, "id" | "width" | "height" | "water_tiles" | "fields">, content: Pick<Content, "buildings">): string {
+export function footprintText(def: Pick<ContentBuilding, "id" | "width" | "height" | "water_rows" | "fields">, content: Pick<Content, "buildings">): string {
   let text = `${def.width}×${def.height}`;
-  if (def.water_tiles) text += t("field.onWater", { count: def.water_tiles });
+  if (def.water_rows) text += def.water_rows.min === def.water_rows.max
+    ? t("field.onWater", { count: def.water_rows.min })
+    : t("field.onWaterRange", def.water_rows);
   if (def.fields) {
     const field = fieldBuildingOf(content as Content, def.id);
     const max = def.fields.max;

@@ -270,6 +270,7 @@ type ClaimStep struct {
 type Step struct {
 	ExpectError string `json:"expect_error,omitempty"`
 
+	UpgradeBuilding    *At `json:"upgrade_building,omitempty"`
 	UpgradeWarehouse   *At `json:"upgrade_warehouse,omitempty"`
 	UpgradeTradingPost *At `json:"upgrade_trading_post,omitempty"`
 
@@ -318,7 +319,8 @@ func (s Step) kind() (string, error) {
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
 		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
-		"scrap_ship": s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil, "upgrade_trading_post": s.UpgradeTradingPost != nil,
+		"upgrade_building": s.UpgradeBuilding != nil,
+		"scrap_ship":       s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil, "upgrade_trading_post": s.UpgradeTradingPost != nil,
 		"claim_quest": s.ClaimQuest != nil, "away_summary": s.AwaySummary,
 		"reroll_archipelago": s.RerollArchipelago, "rename_island": s.RenameIsland != nil,
 	} {
@@ -812,6 +814,12 @@ func (r *runner) step(i int, st Step) error {
 			return err
 		}
 		return r.apply(sim.SetPaused{IslandID: id, BuildingID: b.ID, Paused: paused})
+	case st.UpgradeBuilding != nil:
+		id, b, err := r.buildingAt(st.UpgradeBuilding)
+		if err != nil {
+			return err
+		}
+		return r.apply(sim.UpgradeBuilding{IslandID: id, BuildingID: b.ID})
 	case st.UpgradeWarehouse != nil:
 		id, b, err := r.buildingAt(st.UpgradeWarehouse)
 		if err != nil {

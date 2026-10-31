@@ -48,6 +48,15 @@ by timers. Monetisation is cosmetic only.
 - **Tone:** relaxed, warm, optimistic; no slavery, no religious conflict, no
   real nations or historical figures.
 
+**Region scope (D-063):** the Old Coast is temperate northern/middle
+Europe (Hanse, Rhine, Flanders), with climate-appropriate goods and
+timber-framed, brick and Gothic public buildings. Its Merchant landmark is
+a roofed, galleried playhouse, not a Roman theatre. Olives/oil, citrus,
+silk, spices, marble, figs/dates, sugar, purple dye and Mediterranean
+architecture belong to a later southern region with its own chains and
+palette roles; the existing warm light and base palette stay. No new
+region, world structure or online mechanic is implemented here.
+
 ## Target player and session rhythm
 
 - Fans of Anno 1404/1800/117 and of economy builders who want the Anno

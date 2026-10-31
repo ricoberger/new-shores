@@ -75,7 +75,7 @@ def recipe_modules(recipes_dir=RECIPES_DIR):
 
 
 def required_anchors(content, cid):
-    """Anchors a building's or field's model must declare: the life anchors of the content, chimney and smoke for burners."""
+    """Required life anchors (water_rows, else legacy water_tiles), plus chimney/smoke for burners."""
     out = list(content_mod.life_anchors(content, cid))
     if content_mod.needs_smoke(content, cid):
         out += ["chimney", "smoke"]

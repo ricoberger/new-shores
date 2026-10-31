@@ -36,7 +36,7 @@ describe("parseShotArgs", () => {
     expect(() => parseShotArgs({ FIXTURE: "showcase,nope" })).toThrow(/FIXTURE: unknown value 'nope'; allowed: showcase, settled, dense-2x400.*, all/);
     expect(() => parseShotArgs({ VIEW: "close" })).toThrow(/VIEW: unknown value 'close'; allowed: near, mid, far, start, pan, all/);
     expect(() => parseShotArgs({ DEVICE: "tablet" })).toThrow(ShotArgError);
-    expect(() => parseShotArgs({ PRESET: "x" })).toThrow(/PRESET: unknown value 'x'; allowed: info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, ghost-terrace-3, ghost-terrace-3-invalid, ghost-terrace-6, ghost-terrace-6-invalid, sloop, build-menu, warnings, away, ship-panel, ship-rename, route-editor, route-rename, route-paused, island-card, top-bar-popups, farm-selected, hemp-farm-selected, field-selected, field-ghost, field-paint, field-paint-result, field-paint-pasture, archipelago-far, far-labels, reroll, rename, merchant-house-card, merchant-build-menu, patrician-house-card, patrician-build-menu, harbour, all/);
+    expect(() => parseShotArgs({ PRESET: "x" })).toThrow(/PRESET: unknown value 'x'; allowed: info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, ghost-water-valid, ghost-water-in, ghost-water-out, ghost-terrace-3, ghost-terrace-3-invalid, ghost-terrace-6, ghost-terrace-6-invalid, sloop, build-menu, warnings, away, ship-panel, ship-rename, route-editor, route-rename, route-paused, island-card, top-bar-popups, farm-selected, hemp-farm-selected, field-selected, field-ghost, field-paint, field-paint-result, field-paint-pasture, archipelago-far, far-labels, reroll, rename, merchant-house-card, merchant-build-menu, patrician-house-card, patrician-build-menu, harbour, founding-ghost, founding-docked, playhouse-menu, all/);
   });
 
   it("validates ROTATION, HUD and the numbers", () => {
@@ -75,6 +75,7 @@ describe("parseShotArgs", () => {
     expect(a.presets).toEqual([...PRESETS]);
     expect(a.out).toBe(".experiment/shots/presets");
     expect(parseShotArgs({ PRESET: "sloop,sheet" }).presets).toEqual(["sloop", "sheet"]);
+    expect(parseShotArgs({ PRESET: "ghost-water-valid,ghost-water-in,ghost-water-out" }).presets).toEqual(["ghost-water-valid", "ghost-water-in", "ghost-water-out"]);
     expect(() => parseShotArgs({ PRESET: "sloop", FIXTURE: "showcase", ZOOM: "5" })).toThrow(/remove FIXTURE, ZOOM/);
   });
 });

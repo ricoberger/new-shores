@@ -154,7 +154,66 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	if res.status != http.StatusOK {
 		t.Fatalf("demolish settler house: %d %s", res.status, res.body)
 	}
-	res = ts.command(fmt.Sprintf(`{"type":"place_building","island_id":%q,"building_type":"city_guard","x":%d,"y":%d,"rotation":0}`, islandID, neighbour.X, neighbour.Y), nil)
+	var guardX, guardY int
+	ts.mutateWorld(func(world *sim.World) {
+		// A 4x4 guard no longer fits in a single 3x3 house slot. Clear a
+		// small neighbouring block through real demolition commands.
+		for y := house.Y - 8; y <= house.Y+8; y++ {
+			for x := house.X - 8; x <= house.X+8; x++ {
+				tmp := world.Clone()
+				is := tmp.Island(islandID)
+				ok := true
+				ids := map[int64]bool{}
+				roads := []sim.Pos{}
+				for yy := y; yy < y+4; yy++ {
+					for xx := x; xx < x+4; xx++ {
+						if !is.InBounds(xx, yy) {
+							ok = false
+							continue
+						}
+						if b := is.BuildingAt(c, xx, yy); b != nil {
+							if b.Type != "house_settlers" || b.ID == house.ID {
+								ok = false
+							}
+							ids[b.ID] = true
+						}
+						if is.RoadAt(xx, yy) != "" {
+							roads = append(roads, sim.Pos{X: xx, Y: yy})
+						}
+					}
+				}
+				if !ok {
+					continue
+				}
+				for id := range ids {
+					if sim.Apply(tmp, c, sim.Demolish{IslandID: islandID, BuildingID: id}) != nil {
+						ok = false
+					}
+				}
+				if len(roads) > 0 && sim.Apply(tmp, c, sim.DemolishRoad{IslandID: islandID, Tiles: roads}) != nil {
+					ok = false
+				}
+				if !ok || sim.CheckSite(is, c, c.BuildingByID["city_guard"], x, y, 0) != nil {
+					continue
+				}
+				if sim.Apply(tmp, c, sim.PlaceBuilding{IslandID: islandID, Type: "city_guard", X: x, Y: y}) != nil {
+					continue
+				}
+				b := is.Buildings[len(is.Buildings)-1]
+				if b.AssignedWarehouseID == 0 {
+					continue
+				}
+				if sim.Apply(tmp, c, sim.Demolish{IslandID: islandID, BuildingID: b.ID}) != nil {
+					continue
+				}
+				*world = *tmp
+				guardX, guardY = x, y
+				return
+			}
+		}
+		t.Fatal("no neighbouring 4x4 guard block")
+	})
+	res = ts.command(fmt.Sprintf(`{"type":"place_building","island_id":%q,"building_type":"city_guard","x":%d,"y":%d,"rotation":0}`, islandID, guardX, guardY), nil)
 	if res.status != http.StatusOK {
 		t.Fatalf("place city guard: %d %s", res.status, res.body)
 	}

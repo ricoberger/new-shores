@@ -326,7 +326,7 @@ type site struct{ x, y, rot, d int }
 func (f *fixture) candidates(is *sim.Island, def *content.Building, anchor sim.Pos) []site {
 	var out []site
 	rots := rotations()
-	if def.Width == def.Height && def.WaterTiles == 0 {
+	if def.Width == def.Height && def.WaterRows == nil {
 		rots = rots[:1] // the rotations of a square footprint cover the same tiles
 	}
 	for _, rot := range rots {

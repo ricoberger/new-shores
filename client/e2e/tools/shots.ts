@@ -9,7 +9,8 @@ import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, devices, type Page } from "@playwright/test";
-import type { WorldResponse } from "../../src/api/client.ts";
+import type { Content, IslandTiles, WorldResponse } from "../../src/api/client.ts";
+import { waterEdgeTiles } from "../../src/display/geometry.ts";
 import { FAR_EXIT_HALF, MID_TO_NEAR_HALF } from "../../src/display/lod.ts";
 import { API_PORT, API_SERVER_COMMAND, E2E_TIME_SCALE, WEB_PORT, WEB_SERVER_COMMAND } from "../constants.ts";
 import { type Device, type Fixture, type Preset, parseShotArgs, SERVER_FIXTURES, ShotArgError, type ShotArgs, type View } from "./shots-args.ts";
@@ -622,18 +623,16 @@ async function selectBuilding(page: Page, type: string, offset: { x: number; y: 
  */
 const HARBOUR_ISLAND = "isle-01";
 const HARBOUR_COMMANDS = [
-  { type: "place_road", island_id: HARBOUR_ISLAND, road_type: "quay", tiles: Array.from({ length: 10 }, (_, i) => ({ x: 149 + i, y: 167 })) },
-  { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "fisher", x: 156, y: 163, rotation: 180 },
   { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "trading_pier", x: 144, y: 176, rotation: 90 },
   { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "depot", x: 135, y: 179, rotation: 180 },
 ] as const;
 /** Camera target over the harbour (island tiles). */
-const HARBOUR_TARGET = { x: 150, y: 170 };
 
 interface HarbourShip {
   id: number;
   state: string;
   island_id?: string;
+  route_id?: number;
 }
 
 async function harbourCommand(page: Page, command: unknown): Promise<string | null> {
@@ -644,9 +643,57 @@ async function harbourCommand(page: Page, command: unknown): Promise<string | nu
 }
 
 async function harbour(page: Page): Promise<void> {
-  for (const c of HARBOUR_COMMANDS) {
-    const err = await harbourCommand(page, c);
-    if (err) throw new Error(`harbour: ${c.type} ${"building_type" in c ? c.building_type : c.road_type} failed: ${err}`);
+  const initial = await (await fetch(`http://localhost:${API_PORT}/api/v1/world`)).json() as WorldResponse;
+  const home = initial.display.islands.find((i) => i.id === HARBOUR_ISLAND)!;
+  const tp = home.buildings.find((b) => b.type === "trading_post")!;
+  let target = { x: tp.x + 3, y: tp.y + 3 };
+  for (const original of HARBOUR_COMMANDS) {
+    const c = { ...original, x: tp.x + 9, y: tp.y };
+    let err = await harbourCommand(page, c);
+    if (err && c.type === "place_building") {
+      const content = await (await fetch(`http://localhost:${API_PORT}/api/v1/content`)).json() as Content;
+      const def = content.buildings.find((b) => b.id === c.building_type)!;
+      const terrain = await (await fetch(`http://localhost:${API_PORT}/api/v1/world/islands/${HARBOUR_ISLAND}/tiles`)).json() as IslandTiles;
+      const w = await (await fetch(`http://localhost:${API_PORT}/api/v1/world`)).json() as WorldResponse;
+      const is = w.display.islands.find((i) => i.id === HARBOUR_ISLAND)!;
+      const blocked = new Set<string>();
+      for (const b of is.buildings) {
+        const d = content.buildings.find((d) => d.id === b.type)!;
+        const [bw, bh] = b.rotation === 90 || b.rotation === 270 ? [d.height, d.width] : [d.width, d.height];
+        for (let y = b.y; y < b.y + bh; y++) for (let x = b.x; x < b.x + bw; x++) blocked.add(`${x},${y}`);
+      }
+      const quay = new Set(is.roads.map((p) => `${p.x},${p.y}`));
+      const tile = (x: number, y: number) => terrain.terrain[y * terrain.width + x] === "water" && quay.has(`${x},${y}`) ? "quay" : terrain.terrain[y * terrain.width + x]!;
+      search: for (let radius = 0; radius <= 60; radius++) {
+        for (const rotation of [0, 90, 180, 270]) {
+          for (let dy = -radius; dy <= radius; dy++) for (let dx = -radius; dx <= radius; dx++) {
+            if (Math.abs(dx) + Math.abs(dy) !== radius) continue;
+            const x = c.x! + dx, y = c.y! + dy;
+            const [bw, bh] = rotation === 90 || rotation === 270 ? [def.height, def.width] : [def.width, def.height];
+            if (x < 0 || y < 0 || x + bw > terrain.width || y + bh > terrain.height) continue;
+            const tiles = waterEdgeTiles(def, tile, x, y, rotation);
+            if (tiles.some((p) => p.problem || blocked.has(`${p.x},${p.y}`) || (quay.has(`${p.x},${p.y}`) && tile(p.x, p.y) !== "quay"))) continue;
+            err = await harbourCommand(page, { ...c, x, y, rotation });
+            if (!err) {
+              console.log(`harbour ${c.building_type}: (${x},${y}) r${rotation}, ${def.width}x${def.height}`);
+              if (c.building_type === "trading_pier") target = { x: x + bw / 2, y: y + bh / 2 };
+              break search;
+            }
+          }
+        }
+      }
+    }
+    if (err) throw new Error(`harbour: ${c.type} failed: ${err}`);
+  }
+  // A short legal quay beside this harbour, placed through the real API.
+  const terrain = await (await fetch(`http://localhost:${API_PORT}/api/v1/world/islands/${HARBOUR_ISLAND}/tiles`)).json() as IslandTiles;
+  quay: for (let radius = 3; radius < 20; radius++) {
+    for (let y = tp.y - radius; y <= tp.y + radius; y++) for (let x = tp.x - radius; x <= tp.x + radius; x++) {
+      if (x < 0 || y < 0 || x + 1 >= terrain.width || y >= terrain.height) continue;
+      if (terrain.terrain[y * terrain.width + x] !== "water") continue;
+      const err = await harbourCommand(page, { type: "place_road", island_id: HARBOUR_ISLAND, road_type: "quay", tiles: [{ x, y }, { x: x + 1, y }] });
+      if (!err) { console.log(`harbour quay: (${x},${y})`); break quay; }
+    }
   }
   const ships = () =>
     page.evaluate(async (port) => {
@@ -654,6 +701,7 @@ async function harbour(page: Page): Promise<void> {
       return ((await r.json()) as { display: { ships: HarbourShip[] } }).display.ships;
     }, API_PORT);
   for (const s of await ships()) {
+    if (!s.route_id) continue;
     const err = await harbourCommand(page, { type: "unassign_ship", ship_id: s.id });
     if (err) throw new Error(`harbour: unassign_ship ${s.id} failed: ${err}`);
   }
@@ -675,7 +723,7 @@ async function harbour(page: Page): Promise<void> {
   await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
   await page.addStyleTag({ content: "*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }" });
   const pos = await page.evaluate((id) => window.__newShores!.getServer()!.display.islands.find((i) => i.id === id)!.position, HARBOUR_ISLAND);
-  await setCamera(page, { x: pos.x + HARBOUR_TARGET.x, y: pos.y + HARBOUR_TARGET.y, half: HALF.near, rotation: 0 });
+  await setCamera(page, { x: pos.x + target.x, y: pos.y + target.y, half: HALF.near, rotation: 0 });
 }
 
 /**
@@ -761,7 +809,112 @@ function ghostTerrace(type: string, state: "ok" | "no_road" | "invalid"): { fixt
   };
 }
 
+/** Fisher on a real diagonal coast: valid, one tile inland, one tile seaward. */
+function ghostWater(offset: -1 | 0 | 1): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const content = await (await fetch(`http://localhost:${API_PORT}/api/v1/content`)).json() as Content;
+      const def = content.buildings.find((b) => b.id === "fisher")!;
+      if (!def.water_rows || def.water_rows.min === def.water_rows.max) throw new Error("ghost-water needs a variable fisher water_rows range (D-062 target: 2..3)");
+      const is = await page.evaluate(() => window.__newShores!.getServer()!.display.islands.find((i) => i.settled)!);
+      const terrain = await (await fetch(`http://localhost:${API_PORT}/api/v1/world/islands/${is.id}/tiles`)).json() as IslandTiles;
+      const blocked = new Set(is.roads.map((r) => `${r.x},${r.y}`));
+      for (const b of is.buildings) {
+        const d = content.buildings.find((d) => d.id === b.type)!;
+        const [w, h] = b.rotation === 90 || b.rotation === 270 ? [d.height, d.width] : [d.width, d.height];
+        for (let y = b.y; y < b.y + h; y++) for (let x = b.x; x < b.x + w; x++) blocked.add(`${x},${y}`);
+      }
+      const tile = (x: number, y: number) => terrain.terrain[y * terrain.width + x]!;
+      let site: { x: number; y: number } | undefined;
+      for (let y = 1; y + def.height < terrain.height && !site; y++) {
+        for (let x = 0; x + def.width <= terrain.width; x++) {
+          const tiles = waterEdgeTiles(def, tile, x, y, 0);
+          if (tiles.some((p) => p.problem || blocked.has(`${p.x},${p.y}`))) continue;
+          const depths = new Set(Array.from({ length: def.width }, (_, c) => tiles.filter((p) => p.x === x + c && p.water).length));
+          if (depths.size < 2) continue;
+          if ([-1, 1].some((dy) => waterEdgeTiles(def, tile, x, y + dy, 0).some((p) => blocked.has(`${p.x},${p.y}`)))) continue;
+          site = { x, y };
+          break;
+        }
+      }
+      if (!site) throw new Error("no free north-facing diagonal fisher site");
+      const y = site.y + offset;
+      const hints = waterEdgeTiles(def, tile, site.x, y, 0);
+      const invalid = hints.filter((p) => p.problem);
+      if ((invalid.length > 0) !== (offset !== 0)) throw new Error("diagonal coast did not produce the requested ghost state");
+      console.log(`ghost-water ${offset}: ${is.id} (${site.x},${y}) rotation 0, ${invalid.length} invalid tiles, water_rows=${JSON.stringify(def.water_rows)}`);
+      await setCamera(page, { x: is.position.x + site.x + def.width / 2, y: is.position.y + site.y + def.height / 2, half: 10, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-tab-production").click();
+      await page.getByTestId("build-fisher").click();
+      const p = await tileAt(page, is.id, site.x, y);
+      await page.mouse.move(p.x + 2, p.y + 2);
+      await page.waitForFunction((bad) => bad ? window.__newShores!.ghostValidity() === "invalid" : window.__newShores!.ghostValidity() === "no_road", offset !== 0, { timeout: 10_000 });
+    },
+  };
+}
+
+/** The real seafaring founding sequence at the default fixture's content-sized site. */
+function foundingShot(docked: boolean): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "seafaring", device: "desktop",
+    run: async (page) => {
+      const reset = async (fixture: string) => {
+        const res = await fetch(`http://localhost:${API_PORT}/api/v1/dev/reset`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fixture }) });
+        if (!res.ok) throw new Error(await res.text());
+      };
+      await reset("default");
+      const w = await (await fetch(`http://localhost:${API_PORT}/api/v1/world`)).json() as WorldResponse;
+      const is = w.display.islands.find((i) => i.settled)!;
+      const tp = is.buildings.find((b) => b.type === "trading_post")!;
+      await reset("seafaring");
+      await page.reload();
+      await page.waitForFunction(() => !!window.__newShores?.getServer());
+      await setCamera(page, { x: is.position.x + tp.x + 3, y: is.position.y + tp.y + 3, half: 12, rotation: 0 });
+      await settle(page);
+      await page.getByTestId("found-settlement-here").click();
+      await setCamera(page, { x: is.position.x + tp.x + 3, y: is.position.y + tp.y + 3, half: 12, rotation: 0 });
+      await settle(page);
+      for (let r = 0; r < tp.rotation; r += 90) await page.keyboard.press("r");
+      const pos = await tileAt(page, is.id, tp.x, tp.y);
+      await page.mouse.move(pos.x + 2, pos.y + 2);
+      await page.waitForFunction(() => window.__newShores!.ghostValidity() === "ok");
+      if (!docked) return;
+      await page.keyboard.press("Escape");
+      let err = await harbourCommand(page, { type: "sail_ship", ship_id: 1, to_island_id: is.id, site: { building_type: "trading_post", x: tp.x, y: tp.y, rotation: tp.rotation } });
+      if (err) throw new Error(err);
+      const deadline = Date.now() + 120_000;
+      for (;;) {
+        const now = await (await fetch(`http://localhost:${API_PORT}/api/v1/world`)).json() as WorldResponse;
+        if (now.display.ships[0]?.state === "idle" && now.display.ships[0]?.island_id === is.id) break;
+        if (Date.now() > deadline) throw new Error("founding voyage timed out");
+        await page.waitForTimeout(500);
+      }
+      err = await harbourCommand(page, { type: "found_island", ship_id: 1, island_id: is.id, building_type: "trading_post", x: tp.x, y: tp.y, rotation: tp.rotation });
+      if (err) throw new Error(err);
+      await page.reload();
+      await page.waitForFunction(() => window.__newShores?.getServer()?.display.islands.some((i) => i.settled));
+      await setCamera(page, { x: is.position.x + tp.x + 3, y: is.position.y + tp.y + 3, half: 12, rotation: 0 });
+      console.log(`founding docked: ${is.id} (${tp.x},${tp.y}) r${tp.rotation}, actual server voyage and founding`);
+    },
+  };
+}
+
 const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly Device[]; patch?: (w: WorldResponse) => void; run: (page: Page) => Promise<void> }> = {
+  "founding-ghost": foundingShot(false),
+  "founding-docked": foundingShot(true),
+  "playhouse-menu": {
+    fixture: "merchants", device: "desktop",
+    run: async (page) => {
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-tab-public").click();
+      await page.getByTestId("build-playhouse").scrollIntoViewIfNeeded();
+      await page.mouse.move(5, 400);
+    },
+  },
   // The HUD with the info panel of a building that is not running (desktop).
   "info-panel": {
     fixture: "dense-2x400",
@@ -1047,6 +1200,9 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.waitForFunction(() => window.__newShores!.ghostValidity() === "invalid", undefined, { timeout: 10_000 });
     },
   },
+  "ghost-water-valid": ghostWater(0),
+  "ghost-water-in": ghostWater(1),
+  "ghost-water-out": ghostWater(-1),
   // The ghost across a terrace edge on the settled fixture (stepped plinth, desktop near): a 3×3 house and a 6×6 warehouse valid; "invalid" is red for a 3×4 hemp farm (no hemp on the island) and yellow ("no road") for a 5×6 market: no 3×3 or 6×6 building has a client-side red rule, and the warehouse needs no road.
   "ghost-terrace-3": ghostTerrace("house_settlers", "ok"),
   "ghost-terrace-3-invalid": ghostTerrace("hemp_farm", "invalid"),
@@ -1125,7 +1281,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
     },
   },
   // The played world's harbour (D-060): quay with a fisher on it, trading pier with the galleon, depot (desktop and phone, near).
-  harbour: { fixture: "played", device: ["desktop", "phone"], run: harbour },
+  harbour: { fixture: "patricians", device: ["desktop", "phone"], run: harbour },
   // The build menu open (phone portrait).
   "build-menu": {
     fixture: "showcase",

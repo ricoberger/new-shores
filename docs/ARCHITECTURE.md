@@ -94,6 +94,18 @@ new-shores/
 └── README.md
 ```
 
+**Fixtures after D-062:** server dev fixtures and the four reference games
+use shipped content footprints and per-column water rows. The founding UI's
+`HomeTradingPostSite` and the default fixture share the same content-sized
+6×6 site; the archipelago verifier reads the content footprint through
+`Sites`/`CheckSite`, never a hard-coded Trading Post size. Reference commands
+are explicit JSON (no free stock), including civic `upgrade_building` and
+the deferred Patrician surgeries. Shared display fixtures and schema-12
+state/terrain envelopes regenerate through the existing scenario tests;
+schema-11 envelopes remain rejected historical inputs. `played` replays the
+Patricians game. The synthetic client dense/showcase layouts remain pinned
+to pre-D-054 content and do **not** validate shipped-size placement.
+
 ## 4. Server
 
 ### 4.1 Simulation package (`internal/sim`)

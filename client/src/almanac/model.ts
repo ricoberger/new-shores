@@ -290,13 +290,14 @@ export interface LevelView {
 }
 
 export interface BuildingView {
+  description?: string;
   id: string;
   name: string;
   tier: string;
   category: ContentBuilding["category"];
   width: number;
   height: number;
-  waterTiles: number;
+  waterRows?: { min: number; max: number };
   /** "3 × 4", plus "of which 3 rows on water" etc. */
   footprint: string;
   requiresRoad: boolean;
@@ -319,6 +320,8 @@ export interface BuildingView {
   roadSecondsPerTile?: number;
   /** Berths a trading pier adds to its island (D-060). */
   pierBerths?: number;
+  /** Fixed capacity a depot adds per good, in whole units. */
+  depotCapacity?: number;
   /** A quay: a road on the shallow water (D-060). */
   shallows: boolean;
 }
@@ -336,7 +339,6 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   );
   b.warehouse?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), throughput: l.throughput_per_min / 1000 }));
   b.service?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), radius: l.radius, tier: l.tier }));
-  b.depot?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, tier: l.tier }));
   const cycle = r?.cycle_ms ?? 0;
   const modules = idx.modulesOf(b.id).map((m) => ({ building: m.id }));
   const mods = b.fields ? modules.map((m) => ({ ...m, required: b.fields?.required, max: b.fields?.max })) : modules;
@@ -347,8 +349,14 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
     category: b.category,
     width: b.width,
     height: b.height,
-    waterTiles: b.water_tiles ?? 0,
-    footprint: b.water_tiles ? t("almanac.footprintWater", { width: b.width, height: b.height, count: b.water_tiles }) : `${b.width} × ${b.height}`,
+    description: b.description,
+    depotCapacity: b.depot ? b.depot.capacity / 1000 : undefined,
+    waterRows: b.water_rows,
+    footprint: b.water_rows
+      ? b.water_rows.min === b.water_rows.max
+        ? t("almanac.footprintWater", { width: b.width, height: b.height, count: b.water_rows.min })
+        : t("almanac.footprintWaterRange", { width: b.width, height: b.height, ...b.water_rows })
+      : `${b.width} × ${b.height}`,
     requiresRoad: b.requires_road,
     cost: costParts(b.cost),
     upkeep: (b.upkeep_per_min ?? 0) / 1000,

@@ -713,7 +713,7 @@ func TestHealthAndContent(t *testing.T) {
 				Terrain   []string `json:"terrain"`
 				Fertility string   `json:"fertility"`
 			} `json:"field"`
-			WaterTiles  int `json:"water_tiles"`
+			WaterRows   *content.WaterRows `json:"water_rows"`
 			TradingPost *struct {
 				Levels []struct {
 					Capacity int64 `json:"capacity"`
@@ -819,17 +819,18 @@ func TestHealthAndContent(t *testing.T) {
 				t.Errorf("lumberjack work area %+v fields %+v", b.WorkArea, b.Fields)
 			}
 		case "trading_post":
-			if l := b.TradingPost.Levels; b.WaterTiles != 2 || len(l) != 4 || l[0].Cost != nil || l[0].Capacity != 300_000 || l[0].Berths != 1 ||
+			if l := b.TradingPost.Levels; b.WaterRows == nil || *b.WaterRows != (content.WaterRows{Min: 2, Max: 2}) || len(l) != 4 || l[0].Cost != nil || l[0].Capacity != 300_000 || l[0].Berths != 1 ||
 				l[1].Cost == nil || l[1].Cost.Gold <= 0 || l[1].Cost.Materials["stone"] <= 0 || l[3].Berths != 4 {
 				t.Errorf("trading post levels %+v", l)
 			}
 		case "warehouse":
-			if l := b.Warehouse.Levels; b.WaterTiles != 0 || len(l) != 3 || l[0].Cost != nil || l[0].ThroughputPerMin != 30_000 || l[1].Cost == nil {
+			if l := b.Warehouse.Levels; b.WaterRows != nil || len(l) != 3 || l[0].Cost != nil || l[0].ThroughputPerMin != 30_000 || l[1].Cost == nil {
 				t.Errorf("warehouse levels %+v", l)
 			}
 		case "fisher", "shipyard":
-			if b.WaterTiles != map[string]int{"fisher": 1, "shipyard": 2}[b.ID] {
-				t.Errorf("%s water tiles %d", b.ID, b.WaterTiles)
+			n := map[string]int{"fisher": 1, "shipyard": 2}[b.ID]
+			if b.WaterRows == nil || *b.WaterRows != (content.WaterRows{Min: n, Max: n}) {
+				t.Errorf("%s water rows %+v", b.ID, b.WaterRows)
 			}
 		default:
 			if b.RequiresDeposit != "" || (b.WorkArea != nil && b.WorkArea.Fertility != "") {

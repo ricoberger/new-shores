@@ -44,7 +44,7 @@ interface ContentJson {
   field?: unknown;
   recipe?: unknown;
   smoke?: boolean;
-  water_tiles?: number;
+  water_rows?: { min: number; max: number };
   warehouse?: unknown;
   trading_post?: { levels: { berths?: number }[] };
   shipyard?: unknown;
@@ -134,7 +134,7 @@ describe("committed models are consistent with the manifest", () => {
       expect(a.smoke !== undefined, `${b.id} smoke`).toBe(producer && b.smoke === true);
       expect(a.chimney !== undefined, `${b.id} chimney`).toBe(producer && b.smoke === true);
       if (producer || b.warehouse || b.trading_post) expect(a.cart, b.id).toBeDefined();
-      expect(a.boat !== undefined, `${b.id} boat`).toBe(producer && (b.water_tiles ?? 0) > 0);
+      expect(a.boat !== undefined, `${b.id} boat`).toBe(producer && (b.water_rows?.max ?? 0) > 0);
       const berths = Math.max(0, ...(b.trading_post?.levels ?? []).map((l) => l.berths ?? 0));
       for (let i = 1; i <= berths; i++) expect(a[`berth_${i}`], `${b.id} berth_${i}`).toBeDefined();
       if (b.shipyard) expect(a.slip, b.id).toBeDefined();
@@ -296,7 +296,7 @@ describe("orientation and anchors", () => {
   it("puts the model front (door anchor) on frontOffset's edge at all four rotations", () => {
     for (const [entry, d] of [
       [house, def("house_settlers", 3, 3)],
-      [warehouse, def("trading_post", 6, 9)],
+      [warehouse, def("trading_post", 6, 6)],
     ] as const) {
       for (const rotation of [0, 90, 180, 270] as const) {
         const box = footprintBox(10, 20, d.width, d.height, rotation);
@@ -341,12 +341,12 @@ describe("orientation and anchors", () => {
 
   it("lays the harbour anchors (berths, slip, boat) on the water rows at every rotation (D-054)", () => {
     for (const [id, w, h, water, names] of [
-      ["trading_post", 6, 9, 3, ["berth_1", "berth_2", "berth_3", "berth_4"]],
+      ["trading_post", 6, 6, 2, ["berth_1", "berth_2", "berth_3", "berth_4"]],
       ["shipyard", 8, 12, 4, ["slip"]],
       ["fisher", 3, 8, 3, ["boat"]],
     ] as const) {
       const entry = manifest.models[id] as ModelEntry;
-      const d = { ...def(id, w, h), water_tiles: water };
+      const d = { ...def(id, w, h), water_rows: { min: water, max: water } };
       for (const rotation of [0, 90, 180, 270] as const) {
         const b = { x: 10, y: 20, rotation };
         const rows = waterRows(d, b.x, b.y, rotation)!;

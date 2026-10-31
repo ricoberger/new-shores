@@ -32,6 +32,7 @@ export function BuildingCard({ idx, view, linked, level = 3 }: { idx: Index; vie
           </span>
         </div>
       </div>
+      {view.description && <p>{view.description}</p>}
       <dl className={styles.defs}>
         <Row label={t("almanac.b.footprint")}>
           {view.footprint}
@@ -74,6 +75,7 @@ export function BuildingCard({ idx, view, linked, level = 3 }: { idx: Index; vie
         {view.radius !== undefined && <Row label={t("almanac.b.serviceRadius")}>{t("infoPanel.tiles", { count: view.levels.length > 1 ? view.levels.map((l) => l.radius).join(" / ") : view.radius })}</Row>}
         {view.roadSecondsPerTile !== undefined && <Row label={t("almanac.b.transfer")}>{t("almanac.b.secondsPerTile", { count: num(view.roadSecondsPerTile) })}</Row>}
         {view.shallows && <Row label={t("almanac.b.site")}>{t("almanac.b.shallows")}</Row>}
+        {view.depotCapacity !== undefined && <Row label={t("infoPanel.adds")}>{t("infoPanel.capacityPerGood", { amount: num(view.depotCapacity) })}</Row>}
         {view.pierBerths !== undefined && <Row label={t("infoPanel.berths")}>{t("almanac.b.pierBerths", { count: view.pierBerths })}</Row>}
         {view.ships.length > 0 && (
           <Row label={t("almanac.b.builds")}>

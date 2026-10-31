@@ -119,7 +119,7 @@ func TestLoadPatriciansChains(t *testing.T) {
 		}
 	}
 	// Oyster beds: a harbour-slot producer with 4 water rows and a boat loop.
-	if ob := c.BuildingByID["oyster_beds"]; ob.WaterTiles != 4 || !ob.Boat || ob.Coastal {
+	if ob := c.BuildingByID["oyster_beds"]; waterRange(ob).Max != 4 || !ob.Boat || ob.Coastal {
 		t.Errorf("oyster_beds = %+v", ob)
 	}
 	// Fields: the vineyard's 100 vine rows; the cattle farm shares the
@@ -193,16 +193,16 @@ func TestTierFourMatchesPlannedModels(t *testing.T) {
 			continue // authored in a later step (houses, services)
 		}
 		seen[p.ID] = true
-		if b.Tier != "patricians" || b.Width != p.Footprint[0] || b.Height != p.Footprint[1] || b.WaterTiles != p.WaterTiles ||
+		if b.Tier != "patricians" || b.Width != p.Footprint[0] || b.Height != p.Footprint[1] || waterRange(b).Max != p.WaterTiles ||
 			b.RequiresDeposit != p.Slot || b.Smoke != p.Smoke {
-			t.Errorf("%s: content %dx%d water %d slot %q smoke %v, planned %+v", p.ID, b.Width, b.Height, b.WaterTiles, b.RequiresDeposit, b.Smoke, p)
+			t.Errorf("%s: content %dx%d water %d slot %q smoke %v, planned %+v", p.ID, b.Width, b.Height, waterRange(b).Max, b.RequiresDeposit, b.Smoke, p)
 		}
 	}
 	for _, b := range c.Buildings {
 		if b.Tier != "patricians" {
 			continue
 		}
-		if !seen[b.ID] && b.ID != "grain_distillery" {
+		if !seen[b.ID] && b.ID != "grain_distillery" && b.ID != "surgery" {
 			t.Errorf("%s is not in the planned tier-4 models", b.ID)
 		}
 		m, ok := manifest.Models[b.ID]
@@ -260,10 +260,10 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 		"patricians_food:food:roast_beef=5000/oysters=4000:84000", "patricians_drink:drink:wine=4000/grain_spirit=3000:84000",
 		"patricians_clothing:clothing:fine_garments=3000/lace=3000:84000", "patricians_comfort:comfort:candles=4000/spectacles=2000:84000",
 		"patricians_luxury:luxury:jewellery=1000/instruments=1000:84000",
-		"patricians_services:services:market=600000/chapel=600000/tavern=600000/school=600000/church=600000/theatre=600000/university=600000/cathedral=600000:72000",
+		"patricians_services:services:market=600000/chapel=600000/tavern=600000/school=600000/church=600000/playhouse=600000/university=600000/cathedral=600000:60000",
 		// Civic services (D-060), cumulative like services: 0.06 each from services.
 		"patricians_safety:safety:city_guard=1000000:36000", "patricians_fire_protection:fire_protection:fire_station=1000000:36000",
-		"patricians_health:health:surgery=1000000:36000",
+		"patricians_health:health:surgery=1000000:48000",
 		// Lower tiers: 0.4/3 each, split by their own weights (rounding to the last);
 		// rates × (own max / 40) × 0.5^(distance/3), 4 decimals.
 		"patricians_settlers_food:food:fish=1000:95237", "patricians_settlers_clothing:clothing:wool_garments=500:38095",
@@ -319,7 +319,7 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 	// The full services ladder (CONTENT §2): radius per public building, by tier.
 	ladder := map[string]string{
 		"market": "settlers:12", "chapel": "settlers:16", "tavern": "citizens:14", "school": "citizens:16",
-		"church": "merchants:20", "theatre": "merchants:24", "university": "patricians:24", "cathedral": "patricians:28",
+		"church": "merchants:20", "playhouse": "merchants:24", "university": "patricians:24", "cathedral": "patricians:28",
 	}
 	for id, w := range ladder {
 		b := c.BuildingByID[id]

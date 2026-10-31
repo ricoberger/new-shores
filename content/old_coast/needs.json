@@ -158,7 +158,7 @@
     "name": "Services",
     "tier": "merchants",
     "kind": "required",
-    "weight": 0.16,
+    "weight": 0.24,
     "category": "services",
     "buildings": [
       { "building": "market" },
@@ -166,7 +166,7 @@
       { "building": "tavern" },
       { "building": "school" },
       { "building": "church" },
-      { "building": "theatre" }
+      { "building": "playhouse" }
     ]
   },
   {
@@ -186,15 +186,6 @@
     "weight": 0.08,
     "category": "fire_protection",
     "buildings": [{ "building": "fire_station" }]
-  },
-  {
-    "id": "merchants_health",
-    "name": "Health",
-    "tier": "merchants",
-    "kind": "required",
-    "weight": 0.08,
-    "category": "health",
-    "buildings": [{ "building": "surgery" }]
   },
   {
     "id": "merchants_settlers_food",
@@ -320,7 +311,7 @@
     "name": "Services",
     "tier": "patricians",
     "kind": "required",
-    "weight": 0.12,
+    "weight": 0.10,
     "category": "services",
     "buildings": [
       { "building": "market" },
@@ -328,7 +319,7 @@
       { "building": "tavern" },
       { "building": "school" },
       { "building": "church" },
-      { "building": "theatre" },
+      { "building": "playhouse" },
       { "building": "university" },
       { "building": "cathedral" }
     ]
@@ -356,7 +347,7 @@
     "name": "Health",
     "tier": "patricians",
     "kind": "required",
-    "weight": 0.06,
+    "weight": 0.08,
     "category": "health",
     "buildings": [{ "building": "surgery" }]
   },

@@ -39,7 +39,7 @@ func sites(sc *sim.SiteChecker, is *sim.Island, def *content.Building) []Rect {
 		w, h := footprint(def, rot)
 		for y := 0; y+h <= is.Height; y++ {
 			for x := 0; x+w <= is.Width; x++ {
-				if def.WaterTiles > 0 && !waterEdgeHint(is, def, x, y, w, h, rot) {
+				if def.WaterRows != nil && !waterEdgeHint(is, def, x, y, w, h, rot) {
 					continue
 				}
 				if sc.Valid(def, x, y, rot) {
@@ -62,10 +62,9 @@ func waterEdgeHint(is *sim.Island, def *content.Building, x, y, w, h, rot int) b
 	case 180:
 		wy, ly = y+h-1, y
 	}
-	if !sim.WaterTile(def, x, y, rot, wx, wy) || sim.WaterTile(def, x, y, rot, lx, ly) {
-		return true // unexpected geometry: let CheckSite decide
-	}
-	return is.Tile(wx, wy).Terrain == content.TerrainWater && is.Tile(lx, ly).Terrain != content.TerrainWater
+	// A zero minimum permits an entirely land-based site (e.g. a depot).
+	// The generator scans empty islands, so no quay needs accounting here.
+	return (def.WaterRows.Min == 0 || is.Tile(wx, wy).Terrain == content.TerrainWater) && is.Tile(lx, ly).Terrain != content.TerrainWater
 }
 
 // disjoint reports whether two of the rects do not overlap.

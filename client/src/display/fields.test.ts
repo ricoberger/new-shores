@@ -224,16 +224,16 @@ describe("the shared display fixtures", () => {
 
 describe("footprintText (D-054)", () => {
   // The shipped content as the client receives it (footprint as width × height).
-  const buildings = (JSON.parse(readFileSync(join(root, "content", "old_coast", "buildings.json"), "utf8")) as (BuildingJson & { name: string; water_tiles?: number })[]).map(
-    (b) => ({ ...b, width: b.footprint[0], height: b.footprint[1], water_tiles: b.water_tiles ?? 0 }) as unknown as ContentBuilding,
+  const buildings = (JSON.parse(readFileSync(join(root, "content", "old_coast", "buildings.json"), "utf8")) as (BuildingJson & { name: string; water_rows?: { min: number; max: number } })[]).map(
+    (b) => ({ ...b, width: b.footprint[0], height: b.footprint[1], water_rows: b.water_rows }) as unknown as ContentBuilding,
   );
   const of = (id: string) => footprintText(buildings.find((b) => b.id === id)!, { buildings });
 
   it("names the size, the rows on water and a farm's fields at the maximum", () => {
     expect(of("wheat_farm")).toBe("3×4 + 140 fields");
     expect(of("sheep_farm")).toBe("3×3 + 3 pastures of 3×3");
-    expect(of("trading_post")).toBe("6×9 (3 rows on water)");
-    expect(of("shipyard")).toBe("8×12 (4 rows on water)");
+    expect(of("trading_post")).toBe("6×6 (1–2 rows on water)");
+    expect(of("shipyard")).toBe("8×12 (3–4 rows on water)");
     expect(of("house_settlers")).toBe("3×3");
     expect(of("wheat_field")).toBe("1×1");
   });

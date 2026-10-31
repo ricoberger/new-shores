@@ -382,7 +382,7 @@ func shippedFieldsCase(t *testing.T, c *content.Catalogue, seed uint64) *propCas
 		for x := range width {
 			terrain := content.TerrainGrass
 			switch r := p.rng.IntN(100); {
-			case x == 0 || y == 0 || x == width-1 || y == height-1, x <= 8 && y <= 2:
+			case x == 0 || y == 0 || x == width-1 || y == height-1, x <= 8 && y < c.BuildingByID["trading_post"].WaterRows.Max:
 				terrain = content.TerrainWater
 			case cleared(x, y):
 			case r < 8:

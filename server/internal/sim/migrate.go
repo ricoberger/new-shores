@@ -32,10 +32,9 @@ type MigrationNotes struct{}
 
 // SchemaMigrations returns the registered schema migrations; c is the
 // content catalogue of the binary for migrations that need content. None
-// is registered: worlds of schema 1-9 are not migrated (the game was not
-// deployed; schema 10 renamed market_small to market with the tier-3
-// content, D-056 C3) but fail to load with ErrSchemaVersion (a fresh
-// database is required).
+// is registered: worlds of schema 1-11 are not migrated (the game was not
+// deployed; schema 12 introduces per-column water rows, D-062), but fail
+// to load with ErrSchemaVersion (a fresh database is required).
 //
 // Adding the next migration (docs/ARCHITECTURE.md §4.1):
 //

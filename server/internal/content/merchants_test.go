@@ -106,14 +106,14 @@ func TestLoadMerchantsChains(t *testing.T) {
 		}
 	}
 	// Salt pans: the harbour-slot alternative of the salt chain (3 water rows, no boat loop).
-	if sp := c.BuildingByID["salt_pans"]; sp.WaterTiles != 3 || sp.Boat || sp.Coastal {
+	if sp := c.BuildingByID["salt_pans"]; waterRange(sp).Max != 3 || sp.Boat || sp.Coastal {
 		t.Errorf("salt_pans = %+v", sp)
 	}
 }
 
 // TestLoadMerchantsNeeds checks the Merchants house, needs and services
 // ladder (D-056 C3, CONTENT §2): four goods categories at 0.17 each with
-// two alternatives, services 0.32 with church and theatre, the lower
+// two alternatives, services 0.32 with church and playhouse, the lower
 // tiers' categories at the cumulative rates, and the tier's buildings.
 func TestLoadMerchantsNeeds(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
@@ -144,12 +144,11 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 		// Own categories: 0.17 each (clothing 0.09) and services 0.16 of the own 0.6.
 		"merchants_food:food:sausages=6000/pies=5000:102000", "merchants_drink:drink:beer=6000/brandy=4000:102000",
 		"merchants_clothing:clothing:coats=4000/dyed_garments=4000:54000", "merchants_comfort:comfort:books=2000/soap=3000:102000",
-		"merchants_services:services:market=600000/chapel=600000/tavern=600000/school=600000/church=600000/theatre=600000:96000",
+		"merchants_services:services:market=600000/chapel=600000/tavern=600000/school=600000/church=600000/playhouse=600000:144000",
 		// Civic services (D-060), 0.08 each: fire protection from services,
 		// health from clothing, safety (the Citizens' category, cumulative
 		// like services) from services.
 		"merchants_safety:safety:city_guard=1000000:48000", "merchants_fire_protection:fire_protection:fire_station=1000000:48000",
-		"merchants_health:health:surgery=1000000:48000",
 		// Lower tiers: 0.2 each, split by their own weights (rounding to the last).
 		"merchants_settlers_food:food:fish=2000:142857", "merchants_settlers_clothing:clothing:wool_garments=1000:57142",
 		"merchants_citizens_food:food:bread=3800/cheese=2900:66666", "merchants_citizens_drink:drink:cider=2900/mead=2400:66666",
@@ -171,21 +170,21 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 		t.Errorf("patricians unlock %v", tr.Unlock.Buildings)
 	}
 	// The services ladder (CONTENT §2): radius per public building, by tier.
-	ladder := map[string]string{"market": "settlers:12", "chapel": "settlers:16", "tavern": "citizens:14", "school": "citizens:16", "church": "merchants:20", "theatre": "merchants:24"}
+	ladder := map[string]string{"market": "settlers:12", "chapel": "settlers:16", "tavern": "citizens:14", "school": "citizens:16", "church": "merchants:20", "playhouse": "merchants:24"}
 	for id, w := range ladder {
 		b := c.BuildingByID[id]
 		if b == nil || b.Service == nil || fmt.Sprintf("%s:%d", b.Tier, b.Service.RadiusAt(1)) != w || !b.RequiresRoad {
 			t.Errorf("%s service = %+v, want %s", id, b, w)
 		}
 	}
-	for id, cost := range map[string]string{"church": "1500000 [{planks 30000} {stone 15000}]", "theatre": "15000000 [{bricks 30000} {planks 30000} {stone 60000}]"} {
+	for id, cost := range map[string]string{"church": "1500000 [{planks 30000} {stone 15000}]", "playhouse": "15000000 [{bricks 30000} {planks 30000} {stone 60000}]"} {
 		b := c.BuildingByID[id]
 		if b.Upgradable() || b.PauseCategory != "public" || fmt.Sprint(b.Cost.Gold, b.Cost.Materials) != cost {
 			t.Errorf("%s = %+v", id, b)
 		}
 	}
-	if up := map[string]Qty{"church": 6000, "theatre": 15000}; c.BuildingByID["church"].UpkeepPerMin != up["church"] || c.BuildingByID["theatre"].UpkeepPerMin != up["theatre"] {
-		t.Error("church/theatre upkeep")
+	if up := map[string]Qty{"church": 6000, "playhouse": 15000}; c.BuildingByID["church"].UpkeepPerMin != up["church"] || c.BuildingByID["playhouse"].UpkeepPerMin != up["playhouse"] {
+		t.Error("church/playhouse upkeep")
 	}
 	// The market's level 2 is the Merchants' (radius 16).
 	if m := c.BuildingByID["market"]; m.Service.RadiusAt(2) != 16 || m.LevelTier(2) != "merchants" {
@@ -341,15 +340,15 @@ func TestTierThreeMatchesPlannedModels(t *testing.T) {
 			continue // authored in a later step (houses, services)
 		}
 		seen[p.ID] = true
-		if b.Tier != "merchants" || b.Width != p.Footprint[0] || b.Height != p.Footprint[1] || b.WaterTiles != p.WaterTiles ||
+		if b.Tier != "merchants" || b.Width != p.Footprint[0] || b.Height != p.Footprint[1] || waterRange(b).Max != p.WaterTiles ||
 			b.RequiresDeposit != p.Slot || b.Smoke != p.Smoke {
-			t.Errorf("%s: content %dx%d water %d slot %q smoke %v, planned %+v", p.ID, b.Width, b.Height, b.WaterTiles, b.RequiresDeposit, b.Smoke, p)
+			t.Errorf("%s: content %dx%d water %d slot %q smoke %v, planned %+v", p.ID, b.Width, b.Height, waterRange(b).Max, b.RequiresDeposit, b.Smoke, p)
 		}
 	}
 	for _, b := range c.Buildings {
 		// D-060's civic buildings are authored ahead of their models
 		// (the models session plans and builds them).
-		if b.Tier == "merchants" && !seen[b.ID] && b.ID != "fire_station" && b.ID != "surgery" {
+		if b.Tier == "merchants" && !seen[b.ID] && b.ID != "fire_station" && b.ID != "playhouse" {
 			t.Errorf("%s is not in the planned tier-3 models", b.ID)
 		}
 		if b.Boat != (b.ID == "fisher" || b.ID == "oyster_beds") {

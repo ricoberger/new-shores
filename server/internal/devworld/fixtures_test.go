@@ -236,7 +236,8 @@ func checkPatricians(t *testing.T, c *content.Catalogue, w *sim.World) {
 		}
 	}
 	for typ, want := range map[string]int{
-		"market": 1, "chapel": 1, "tavern": 1, "school": 1, "church": 1, "theatre": 1, "university": 1, "cathedral": 1,
+		"market": 1, "chapel": 1, "tavern": 1, "school": 1, "church": 1, "playhouse": 1, "university": 1, "cathedral": 1,
+		"city_guard": 1, "fire_station": 1, "surgery": 1,
 		merchantsHouse: 2, patriciansHouse: 1, "cattle_farm": 1, "cattle_pasture": 5, "salt_pans": 1, "slaughterhouse": 1, "shipyard": 1,
 	} {
 		if n[home][typ] != want {

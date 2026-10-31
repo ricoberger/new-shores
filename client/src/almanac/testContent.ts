@@ -42,7 +42,8 @@ export function loadContent(dir: string): Content {
       width: b.footprint[0],
       height: b.footprint[1],
       coastal: !!b.coastal,
-      water_tiles: b.water_tiles ?? 0,
+      water_rows: b.water_rows,
+      ...(b.description ? { description: b.description } : {}),
       requires_road: !!b.requires_road,
       cost: cost(b.cost),
       upkeep_per_min: m(b.upkeep_per_min),
@@ -72,7 +73,7 @@ export function loadContent(dir: string): Content {
     if (b.road) out.road = { ms_per_tile: m(b.road.seconds_per_tile), shallows: !!b.road.shallows };
     if (b.pier) out.pier = { berths: b.pier.berths };
     if (b.depot)
-      out.depot = { levels: b.depot.levels.map((l: Raw) => ({ capacity: m(l.capacity), ...(l.tier ? { tier: l.tier } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };
+      out.depot = { capacity: m(b.depot.capacity) };
     if (b.service) {
       const levels: Raw[] = b.service.levels ?? [{ radius: b.service.radius }];
       out.service = { radius: levels[0]?.radius, levels: levels.map((l) => ({ radius: l.radius, ...(l.tier ? { tier: l.tier } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };

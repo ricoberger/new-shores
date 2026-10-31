@@ -241,17 +241,9 @@ type pierJSON struct {
 	Berths int `json:"berths"`
 }
 
-type depotLevelJSON struct {
-	// Capacity is the capacity per good the depot adds at the level.
-	Capacity int64  `json:"capacity"`
-	Tier     string `json:"tier,omitempty"`
-	// Cost is the upgrade cost into the level (absent on the first level).
-	Cost *costJSON `json:"cost,omitempty"`
-}
-
-// depotJSON is a depot (D-060): capacity per good by level.
+// depotJSON is a depot (D-062): fixed capacity per good, no levels.
 type depotJSON struct {
-	Levels []depotLevelJSON `json:"levels"`
+	Capacity int64 `json:"capacity"`
 }
 
 type roadJSON struct {
@@ -298,31 +290,32 @@ type workforceJSON struct {
 }
 
 type buildingJSON struct {
-	ID            string           `json:"id"`
-	Name          string           `json:"name"`
-	Tier          string           `json:"tier"`
-	Category      string           `json:"category"`
-	Width         int              `json:"width"`
-	Height        int              `json:"height"`
-	Coastal       bool             `json:"coastal"`
-	WaterTiles    int              `json:"water_tiles"`
-	RequiresRoad  bool             `json:"requires_road"`
-	Cost          costJSON         `json:"cost"`
-	UpkeepPerMin  int64            `json:"upkeep_per_min"`
-	PauseCategory string           `json:"pause_category"`
-	Recipe        *recipeJSON      `json:"recipe,omitempty"`
-	House         *houseJSON       `json:"house,omitempty"`
-	TradingPost   *tradingPostJSON `json:"trading_post,omitempty"`
-	Warehouse     *warehouseJSON   `json:"warehouse,omitempty"`
-	Pier          *pierJSON        `json:"pier,omitempty"`
-	Depot         *depotJSON       `json:"depot,omitempty"`
-	Road          *roadJSON        `json:"road,omitempty"`
-	Service       *serviceJSON     `json:"service,omitempty"`
-	WorkArea      *workAreaJSON    `json:"work_area,omitempty"`
-	Workforce     *workforceJSON   `json:"workforce,omitempty"`
-	Shipyard      *shipyardJSONOut `json:"shipyard,omitempty"`
-	Fields        *farmFieldsJSON  `json:"fields,omitempty"`
-	Field         *fieldJSON       `json:"field,omitempty"`
+	Description   string             `json:"description,omitempty"`
+	ID            string             `json:"id"`
+	Name          string             `json:"name"`
+	Tier          string             `json:"tier"`
+	Category      string             `json:"category"`
+	Width         int                `json:"width"`
+	Height        int                `json:"height"`
+	Coastal       bool               `json:"coastal"`
+	WaterRows     *content.WaterRows `json:"water_rows,omitempty"`
+	RequiresRoad  bool               `json:"requires_road"`
+	Cost          costJSON           `json:"cost"`
+	UpkeepPerMin  int64              `json:"upkeep_per_min"`
+	PauseCategory string             `json:"pause_category"`
+	Recipe        *recipeJSON        `json:"recipe,omitempty"`
+	House         *houseJSON         `json:"house,omitempty"`
+	TradingPost   *tradingPostJSON   `json:"trading_post,omitempty"`
+	Warehouse     *warehouseJSON     `json:"warehouse,omitempty"`
+	Pier          *pierJSON          `json:"pier,omitempty"`
+	Depot         *depotJSON         `json:"depot,omitempty"`
+	Road          *roadJSON          `json:"road,omitempty"`
+	Service       *serviceJSON       `json:"service,omitempty"`
+	WorkArea      *workAreaJSON      `json:"work_area,omitempty"`
+	Workforce     *workforceJSON     `json:"workforce,omitempty"`
+	Shipyard      *shipyardJSONOut   `json:"shipyard,omitempty"`
+	Fields        *farmFieldsJSON    `json:"fields,omitempty"`
+	Field         *fieldJSON         `json:"field,omitempty"`
 	// RequiresDeposit is the deposit kind the footprint must cover.
 	RequiresDeposit string `json:"requires_deposit,omitempty"`
 	// Smoke marks a producer that burns or cooks (display only).
@@ -508,8 +501,9 @@ func newContentPayload(c *content.Catalogue, lang string) contentPayload {
 
 func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 	bj := buildingJSON{
-		ID: b.ID, Name: tx.name("buildings", b.ID, b.Name), Tier: b.Tier, Category: buildingCategory(b),
-		Width: b.Width, Height: b.Height, Coastal: b.Coastal, WaterTiles: b.WaterTiles, RequiresRoad: b.RequiresRoad,
+		Description: tx.c.Translate(tx.lang, content.TextKey("buildings", b.ID, "description"), b.Description),
+		ID:          b.ID, Name: tx.name("buildings", b.ID, b.Name), Tier: b.Tier, Category: buildingCategory(b),
+		Width: b.Width, Height: b.Height, Coastal: b.Coastal, WaterRows: b.WaterRows, RequiresRoad: b.RequiresRoad,
 		Cost:         newCostJSON(b.Cost),
 		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit, Smoke: b.Smoke, Boat: b.Boat,
 	}
@@ -549,15 +543,7 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 		bj.Pier = &pierJSON{Berths: pr.Berths}
 	}
 	if d := b.Depot; d != nil {
-		bj.Depot = &depotJSON{Levels: []depotLevelJSON{}}
-		for _, l := range d.Levels {
-			lj := depotLevelJSON{Capacity: l.Capacity, Tier: l.Tier}
-			if l.Cost != nil {
-				cost := newCostJSON(*l.Cost)
-				lj.Cost = &cost
-			}
-			bj.Depot.Levels = append(bj.Depot.Levels, lj)
-		}
+		bj.Depot = &depotJSON{Capacity: d.Capacity}
 	}
 	if rd := b.Road; rd != nil {
 		bj.Road = &roadJSON{MsPerTile: rd.MsPerTile, Shallows: rd.Shallows}

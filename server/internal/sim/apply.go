@@ -487,7 +487,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	}
 	b := &Building{ID: w.NextBuildingID, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Efficiency: 1000}
 	w.NextBuildingID++
-	if def.Collector() || def.Depot != nil {
+	if def.Collector() {
 		b.Level = 1
 	}
 	b.Berths = def.InitialBerths()
@@ -544,6 +544,7 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 	if fw < 1 || fh < 1 || x < 0 || y < 0 || x > is.Width-fw || y > is.Height-fh {
 		return false
 	}
+	depths := waterDepths(is, s.c, def, x, y, rotation)
 	mountain := def.RequiresDeposit != ""
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
@@ -552,7 +553,7 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 			switch {
 			case s.occ[i] != 0:
 				return false
-			case WaterTile(def, x, y, rotation, tx, ty):
+			case waterAt(def, depths, x, y, rotation, tx, ty):
 				if t != content.TerrainWater || is.Roads[i] != "" {
 					return false
 				}
@@ -581,11 +582,12 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 	if fw < 1 || fh < 1 || x < 0 || y < 0 || x > is.Width-fw || y > is.Height-fh {
 		return fmt.Errorf("%w: %s footprint at (%d,%d)", ErrOutOfBounds, def.ID, x, y)
 	}
+	depths := waterDepths(is, c, def, x, y, rotation)
 	tiles := make([]Pos, 0, fw*fh)
 	var water, quay []Pos
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
-			if WaterTile(def, x, y, rotation, tx, ty) {
+			if waterAt(def, depths, x, y, rotation, tx, ty) {
 				water = append(water, Pos{tx, ty})
 				continue
 			}
@@ -610,8 +612,8 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
 		}
 	}
-	// Water-edge buildings (D-051): the front rows stand on free water
-	// (no quay either).
+	// Water-edge buildings (D-062): each column starts with free sea
+	// water (no quay or river); the remaining tiles passed the land check.
 	for _, p := range water {
 		i := is.index(p.X, p.Y)
 		if is.Tiles[i].Terrain != content.TerrainWater {

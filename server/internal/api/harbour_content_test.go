@@ -6,7 +6,7 @@ import (
 )
 
 // The content payload carries the harbour buildings of D-060: the
-// trading pier's berths, the depot's levels and the quay's shallows flag,
+// trading pier's berths, the depot's fixed capacity and the quay's shallows flag,
 // all in the Harbour or Roads build tab.
 func TestHarbourContentPayload(t *testing.T) {
 	p := newContentPayload(shippedCatalogue(t), "en")
@@ -15,15 +15,11 @@ func TestHarbourContentPayload(t *testing.T) {
 		byID[b.ID] = b
 	}
 	pier, depot, quay := byID["trading_pier"], byID["depot"], byID["quay"]
-	if pier.Category != categoryHarbour || pier.Pier == nil || pier.Pier.Berths != 2 || pier.WaterTiles != 3 {
+	if pier.Category != categoryHarbour || pier.Pier == nil || pier.Pier.Berths != 2 || pier.WaterRows == nil || pier.WaterRows.Min != 5 || pier.WaterRows.Max != 6 {
 		t.Errorf("trading_pier = %+v", pier)
 	}
-	if depot.Category != categoryHarbour || depot.Depot == nil || len(depot.Depot.Levels) != 2 {
+	if depot.Category != categoryHarbour || depot.Depot == nil || depot.Depot.Capacity != 150_000 {
 		t.Fatalf("depot = %+v", depot)
-	}
-	if l := depot.Depot.Levels; l[0].Capacity != 150_000 || l[0].Cost != nil || l[0].Tier != "" ||
-		l[1].Capacity != 300_000 || l[1].Tier != "merchants" || l[1].Cost == nil || l[1].Cost.Materials["bricks"] != 10_000 {
-		t.Errorf("depot levels = %+v", l)
 	}
 	if quay.Category != categoryRoads || quay.Road == nil || !quay.Road.Shallows || quay.Road.MsPerTile != 600 {
 		t.Errorf("quay = %+v", quay)

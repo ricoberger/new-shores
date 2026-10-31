@@ -2373,6 +2373,8 @@ export interface components {
             amount: number;
         };
         ContentBuilding: {
+            /** @description Localized optional description of the building. */
+            description?: string;
             id: string;
             name: string;
             tier: string;
@@ -2392,13 +2394,19 @@ export interface components {
             height: number;
             coastal: boolean;
             /**
-             * @description Water-edge footprint (D-051): the number of front rows (tiles)
-             *     that must lie on water; at rotation 0 the top rows (smallest
-             *     y), at 90 the rightmost columns, at 180 the bottom rows, at 270
-             *     the leftmost columns. The other rows stand on buildable land.
-             *     0 for every other building.
+             * @description Water-edge footprint (D-062): independently in each column,
+             *     the first k tiles are sea water (min <= k <= max); the rest
+             *     are buildable land, including replaceable quay tiles.
+             *     Front: top at 0, right at 90, bottom at 180, left at 270.
+             *     Bounds are tile counts, 0 <= min <= max < unrotated height.
+             *     Absent for other buildings; river tiles never count as water.
              */
-            water_tiles: number;
+            water_rows?: {
+                /** @description Minimum sea-water tiles per column (tiles). */
+                min: number;
+                /** @description Maximum sea-water tiles per column (tiles). */
+                max: number;
+            };
             requires_road: boolean;
             cost: {
                 /**
@@ -2508,36 +2516,13 @@ export interface components {
                 /** @description Berths the pier adds (count). */
                 berths: number;
             };
-            /**
-             * @description A depot (D-060): adds capacity per good to its island
-             *     (MECHANICS §5); later levels via `upgrade_building`.
-             */
+            /** @description A depot adds island capacity per good; no levels (D-062). */
             depot?: {
-                levels: {
-                    /**
-                     * Format: int64
-                     * @description Capacity per good the depot adds at this level (milli-units).
-                     */
-                    capacity: number;
-                    /** @description Tier that must be unlocked to upgrade into this level. */
-                    tier?: string;
-                    /**
-                     * @description Upgrade cost into this level (`upgrade_building`);
-                     *     absent on the first level, which the building cost
-                     *     places.
-                     */
-                    cost?: {
-                        /**
-                         * Format: int64
-                         * @description Gold cost (milli-gold).
-                         */
-                        gold: number;
-                        /** @description Material cost per good (milli-units). */
-                        materials: {
-                            [key: string]: number;
-                        };
-                    };
-                }[];
+                /**
+                 * Format: int64
+                 * @description Capacity per good the depot adds (milli-units).
+                 */
+                capacity: number;
             };
             road?: {
                 /**

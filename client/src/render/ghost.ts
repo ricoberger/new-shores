@@ -14,9 +14,9 @@ import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding } from "../api/client";
 import type { ArchPoint } from "../display/ships";
-import { type Rotation, rotatedFootprint } from "../display/geometry";
+import { type Rotation, rotatedFootprint, type WaterEdgeTile } from "../display/geometry";
 import { ghostOffset, previewOffset, skyFill } from "./lighting";
-import { GHOST, WATER_ROWS } from "./palette";
+import { GHOST, GHOST_INVALID } from "./palette";
 import { modelFileFor, modelMesh, type ModelRegistry, placement, worldData } from "./models";
 import { LEVEL_HEIGHT, LEVEL_STEPS } from "./terraces";
 import { BUILDINGS } from "../theme/palette";
@@ -41,12 +41,8 @@ export const GHOST_LIFT = 0.012;
 
 /** What the ghost shows: the building at a tile of an island, its rotation and (move tool) the building ID. */
 export interface GhostSpec {
-  /**
-   * Water rows of a water-edge building (D-051, island tiles): drawn as a
-   * light strip under the pier part so the player sees which rows must
-   * stand on the sea.
-   */
-  waterRows?: { x: number; y: number; w: number; h: number } | null;
+  /** Per-tile water-edge hints (D-062, island tiles); only mismatches are red. */
+  waterTiles?: readonly WaterEdgeTile[];
   def: ContentBuilding;
   /** The ground under the footprint (tiles; the highest terrace level, D-058). */
   base?: number;
@@ -143,7 +139,7 @@ export class PlacementGhost {
   /** The plinth under the shown model ghost (terrace edges) and the key of what it was built for. */
   private plinth: Mesh | null = null;
   private plinthKey = "";
-  private waterShown: { x: number; y: number; w: number; h: number } | null = null;
+  private waterKey = "";
 
   constructor(
     private readonly scene: Scene,
@@ -159,11 +155,12 @@ export class PlacementGhost {
     this.modelMaterial.specularColor = Color3.Black();
     this.modelMaterial.alpha = MODEL_ALPHA;
     this.modelMaterial.needDepthPrePass = true;
-    this.water = CreateBox("ghost_water_rows", { size: 1 }, scene);
+    this.water = new Mesh("ghost_water_rows", scene);
     const wm = previewOffset(skyFill(new StandardMaterial("ghost_water_rows", scene)));
-    wm.diffuseColor = WATER_ROWS;
-    wm.emissiveColor = WATER_ROWS.scale(0.5);
+    wm.diffuseColor = Color3.White();
+    wm.emissiveColor = Color3.White().scale(0.5);
     wm.alpha = WATER_ROWS_ALPHA;
+    wm.backFaceCulling = false;
     this.water.material = wm;
     this.water.isPickable = false;
     this.water.setEnabled(false);
@@ -196,13 +193,39 @@ export class PlacementGhost {
       this.box.position.set(spec.island.x + spec.x + w / 2, (spec.base ?? 0) + 0.3 + GHOST_LIFT, -(spec.island.y + spec.y + h / 2));
     }
     this.shown.setEnabled(true);
-    const rows = spec.waterRows ?? null;
-    this.waterShown = rows ? { x: rows.x, y: rows.y, w: rows.w, h: rows.h } : null;
-    if (rows) {
-      this.water.scaling.set(rows.w, 0.04, rows.h);
-      this.water.position.set(spec.island.x + rows.x + rows.w / 2, WATER_ROWS_Y, -(spec.island.y + rows.y + rows.h / 2));
+    this.showWaterTiles(spec, color);
+  }
+
+  /** One vertex-coloured mesh for all footprint tiles, rebuilt only when the hint changes. */
+  private showWaterTiles(spec: GhostSpec, color: Color3): void {
+    const tiles = spec.waterTiles ?? [];
+    if (tiles.length === 0) {
+      this.water.setEnabled(false);
+      return;
     }
-    this.water.setEnabled(rows !== null);
+    const key = tiles.map((p) => `${p.x},${p.y},${p.problem},${spec.ground?.(p.x, p.y) ?? 0}`).join("|") + color.toHexString();
+    if (key !== this.waterKey) {
+      const data = new VertexData();
+      data.positions = [];
+      data.normals = [];
+      data.colors = [];
+      data.indices = [];
+      for (const p of tiles) {
+        const at = data.positions.length / 3;
+        const c = p.problem ? GHOST_INVALID : color;
+        const y = (spec.ground?.(p.x, p.y) ?? 0) + WATER_ROWS_Y;
+        for (const [dx, dy] of [[0, 0], [1, 0], [1, 1], [0, 1]] as const) {
+          data.positions.push(p.x + dx, y, -p.y - dy);
+          data.normals.push(0, 1, 0);
+          data.colors.push(c.r, c.g, c.b, 1);
+        }
+        data.indices.push(at, at + 1, at + 2, at, at + 2, at + 3);
+      }
+      data.applyToMesh(this.water);
+      this.waterKey = key;
+    }
+    this.water.position.set(spec.island.x, 0, -spec.island.y);
+    this.water.setEnabled(true);
   }
 
   /** The stepped plinth of a building ghost across a terrace edge (fields and flat ground have none). */
@@ -247,12 +270,6 @@ export class PlacementGhost {
     this.shown?.setEnabled(false);
     this.shown = null;
     this.water.setEnabled(false);
-    this.waterShown = null;
-  }
-
-  /** The water rows the ghost highlights (island tiles; null: none or hidden; tests). */
-  waterRows(): { x: number; y: number; w: number; h: number } | null {
-    return this.waterShown;
   }
 
   /** What is drawn: "model", "box" or null (hidden; tests). */
