@@ -3,7 +3,7 @@ import { formatCount, readHeapBytes, statsLines, statsRequested } from "./stats"
 
 describe("fps badge helpers", () => {
   it("reads ?stats=1", () => {
-    expect(statsRequested("?fixture=dense-2x400&stats=1")).toBe(true);
+    expect(statsRequested("?fixture=played&stats=1")).toBe(true);
     expect(statsRequested("?stats=0")).toBe(false);
     expect(statsRequested("")).toBe(false);
   });

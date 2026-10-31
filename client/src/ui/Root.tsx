@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { t, useLanguage } from "../i18n";
 import { NetworkError, type Player, postDevReset } from "../api/client";
 import { authErrorText, currentPlayer, parseMailLink, verifyEmail } from "../api/auth";
-import { type FixtureId, FixtureSync, fixtureCamera, fixtureFromSearch, serverFixtureFromSearch } from "../dev/fixture";
+import { fixtureFromSearch } from "../dev/fixture";
 import { Almanac } from "../almanac/Almanac";
 import { isAlmanacPath } from "../almanac/route";
 import { App } from "./App";
@@ -28,24 +28,18 @@ const RETRY_MS = 2000;
 /** Dev/E2E builds only: the constant folds to false in production builds, which drops the fixture module. */
 const DEV_HOOKS = import.meta.env.DEV || import.meta.env.VITE_E2E === "1";
 
-// i18n-ignore: dev fixture data
-const FIXTURE_PLAYER: Player = { id: "fixture", display_name: "Fixture", guest: true, email_verified: false };
-
 /**
- * Entry: a synthetic fixture world when the URL names it (dev and
- * E2E builds only, no server), a server fixture (any other ?fixture=
- * name: the dev server resets its world to it first), else the session
- * gate.
+ * Entry: a server fixture when the URL names one (dev and E2E builds only:
+ * the dev server resets its world to it first), else the session gate.
  */
 export function Root() {
   useLanguage(); // every screen re-renders when the language changes (D-061)
   const [fixture] = useState(() => (DEV_HOOKS ? fixtureFromSearch(globalThis.location?.search ?? "") : null));
-  const [serverFixture] = useState(() => (DEV_HOOKS ? serverFixtureFromSearch(globalThis.location?.search ?? "") : null));
   // The public almanac (/almanac/…) needs no session and no world; a pathname check is the whole router.
   if (isAlmanacPath(globalThis.location?.pathname ?? "")) return <Almanac />;
   return (
     <>
-      {DEV_HOOKS && fixture ? <FixtureApp id={fixture} /> : DEV_HOOKS && serverFixture ? <ServerFixtureGate name={serverFixture} /> : <SessionRoot />}
+      {DEV_HOOKS && fixture ? <ServerFixtureGate name={fixture} /> : <SessionRoot />}
       <UpdateToast />
     </>
   );
@@ -84,13 +78,6 @@ function ServerFixtureGate({ name }: { name: string }) {
       )}
     </div>
   );
-}
-
-function FixtureApp({ id }: { id: FixtureId }) {
-  const [sync] = useState(() => new FixtureSync(id));
-  const [camera] = useState(() => fixtureCamera(id));
-  const noop = useCallback(() => undefined, []);
-  return <App player={FIXTURE_PLAYER} onPlayerChange={noop} onSessionEnded={noop} onLoggedOut={noop} sync={sync} initialCamera={camera} />;
 }
 
 /**

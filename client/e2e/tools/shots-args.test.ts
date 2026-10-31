@@ -1,8 +1,10 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { DEFAULT_DEVICES, DEFAULT_FIXTURES, DEFAULT_VIEWS, DEVICES, FIXTURES, PRESETS, parseList, parseShotArgs, ShotArgError, VIEWS } from "./shots-args";
 
 describe("parseShotArgs", () => {
-  it("defaults to the three fixtures, all views and desktop and phone", () => {
+  it("defaults to settled and played, all views and desktop and phone", () => {
     expect(parseShotArgs({})).toEqual({
       fixtures: DEFAULT_FIXTURES,
       views: [...DEFAULT_VIEWS],
@@ -19,8 +21,8 @@ describe("parseShotArgs", () => {
   });
 
   it("parses comma lists, drops duplicates and trims", () => {
-    const a = parseShotArgs({ FIXTURE: "showcase, dense-2x400,showcase", VIEW: "far", DEVICE: "phone" });
-    expect(a.fixtures).toEqual(["showcase", "dense-2x400"]);
+    const a = parseShotArgs({ FIXTURE: "settled, played,settled", VIEW: "far", DEVICE: "phone" });
+    expect(a.fixtures).toEqual(["settled", "played"]);
     expect(a.views).toEqual(["far"]);
     expect(a.devices).toEqual(["phone"]);
     expect(parseShotArgs({ DEVICE: "desktop-xl" }).devices).toEqual(["desktop-xl"]);
@@ -34,7 +36,7 @@ describe("parseShotArgs", () => {
   });
 
   it("fails on an unknown value with the allowed list", () => {
-    expect(() => parseShotArgs({ FIXTURE: "showcase,nope" })).toThrow(/FIXTURE: unknown value 'nope'; allowed: showcase, settled, dense-2x400.*, all/);
+    expect(() => parseShotArgs({ FIXTURE: "settled,nope" })).toThrow(/FIXTURE: unknown value 'nope'; allowed: default, seafaring, town, settled.*, all/);
     expect(() => parseShotArgs({ VIEW: "close" })).toThrow(/VIEW: unknown value 'close'; allowed: near, mid, far, start, pan, all/);
     expect(() => parseShotArgs({ DEVICE: "tablet" })).toThrow(ShotArgError);
     expect(() => parseShotArgs({ PRESET: "x" })).toThrow(/PRESET: unknown value 'x'; allowed: info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, ghost-water-valid, ghost-water-in, ghost-water-out, ghost-depot-valid, ghost-depot-out, ghost-terrace-3, ghost-terrace-3-invalid, ghost-terrace-6, ghost-terrace-6-invalid, sloop, build-menu, warnings, away, ship-panel, ship-rename, route-editor, route-rename, route-paused, island-card, top-bar-popups, farm-selected, hemp-farm-selected, field-selected, field-ghost, field-paint, field-paint-result, field-paint-pasture, archipelago-far, far-labels, reroll, rename, merchant-house-card, merchant-build-menu, patrician-house-card, patrician-build-menu, harbour, founding-ghost, founding-docked, playhouse-menu, all/);
@@ -77,7 +79,7 @@ describe("parseShotArgs", () => {
     expect(a.out).toBe(".experiment/shots/presets");
     expect(parseShotArgs({ PRESET: "sloop,sheet" }).presets).toEqual(["sloop", "sheet"]);
     expect(parseShotArgs({ PRESET: "ghost-water-valid,ghost-water-in,ghost-water-out" }).presets).toEqual(["ghost-water-valid", "ghost-water-in", "ghost-water-out"]);
-    expect(() => parseShotArgs({ PRESET: "sloop", FIXTURE: "showcase", ZOOM: "5" })).toThrow(/remove FIXTURE, ZOOM/);
+    expect(() => parseShotArgs({ PRESET: "sloop", FIXTURE: "settled", ZOOM: "5" })).toThrow(/remove FIXTURE, ZOOM/);
   });
 });
 
@@ -87,5 +89,24 @@ describe("parseList", () => {
     const out = parseList("N", undefined, ["a", "b"] as const, fb);
     expect(out).toEqual(["a"]);
     expect(out).not.toBe(fb);
+  });
+});
+
+describe("FIXTURES", () => {
+  it("are the dev server's fixtures (devworld.Fixtures), in its order", () => {
+    const dir = join(__dirname, "..", "..", "..", "server", "internal", "devworld");
+    const go = readFileSync(join(dir, "fixtures.go"), "utf8");
+    // The names are constants: in fixtures.go (a block) and played.go.
+    const consts = go + readFileSync(join(dir, "played.go"), "utf8");
+    const values = new Map([...consts.matchAll(/^(?:const)?\s*(Fixture\w+)\s*=\s*"(\w+)"/gm)].map((m) => [m[1]!, m[2]!] as const));
+    const list = /func Fixtures\(\) \[\]string \{\s*return \[\]string\{([^}]*)\}/.exec(go)?.[1];
+    expect(list, "devworld.Fixtures not found").toBeDefined();
+    const names = list!.split(",").map((n) => values.get(n.trim())!);
+    expect(names).toEqual([...FIXTURES]);
+  });
+
+  it("the default set is a subset", () => {
+    expect(DEFAULT_FIXTURES).toEqual(["settled", "played"]);
+    for (const f of DEFAULT_FIXTURES) expect(FIXTURES).toContain(f);
   });
 });

@@ -11,7 +11,7 @@ describe("render quality", () => {
 
   it("reads the ?quality override", () => {
     expect(qualityOverride("?quality=high")).toBe("high");
-    expect(qualityOverride("?fixture=dense-2x400&quality=low")).toBe("low");
+    expect(qualityOverride("?fixture=played&quality=low")).toBe("low");
     expect(qualityOverride("?quality=ultra")).toBeNull();
     expect(qualityOverride("")).toBeNull();
   });
@@ -24,7 +24,7 @@ describe("render quality", () => {
   });
 
   it("reads the ?fxaa=1 toggle", () => {
-    expect(fxaaForced("?fixture=dense-2x400&quality=high&fxaa=1")).toBe(true);
+    expect(fxaaForced("?fixture=played&quality=high&fxaa=1")).toBe(true);
     expect(fxaaForced("?fxaa=0")).toBe(false);
     expect(fxaaForced("")).toBe(false);
   });

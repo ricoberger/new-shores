@@ -1,7 +1,7 @@
 import { t } from "../i18n";
 import { useEffect, useRef } from "react";
 import type { Quality } from "../display/quality";
-import { GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
+import { GameRenderer, type RendererEvents, type RenderSource } from "../render/engine";
 import type { Tool } from "./tools";
 import styles from "./App.module.css";
 
@@ -10,8 +10,6 @@ interface Props {
   tool: () => Tool;
   events: RendererEvents;
   onRenderer: (r: GameRenderer | null) => void;
-  /** Where the camera of a newly created renderer starts (default: the first island). */
-  initialCamera?: InitialCamera;
   /** Render quality (from the layout mode or the ?quality override). */
   quality: Quality;
   /** ?fxaa=1: FXAA at "high" also on software WebGL (read when the renderer is created). */
@@ -25,11 +23,10 @@ interface Props {
  * cleanup disposes it, so React Strict Mode's double-invoked effects never
  * leave a second engine or canvas listeners behind.
  */
-export function GameCanvas({ sync, tool, events, onRenderer, initialCamera, quality, forceFxaa = false, life = true }: Props) {
+export function GameCanvas({ sync, tool, events, onRenderer, quality, forceFxaa = false, life = true }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const toolRef = useRef(tool);
   const eventsRef = useRef(events);
-  const cameraRef = useRef(initialCamera);
   const qualityRef = useRef(quality);
   const fxaaRef = useRef(forceFxaa);
   const lifeRef = useRef(life);
@@ -75,7 +72,7 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialCamera, qual
         inspectIsland: (id) => ev().inspectIsland(id),
         camera: (info) => ev().camera(info),
       },
-      cameraRef.current,
+      undefined,
       qualityRef.current,
       fxaaRef.current,
       lifeRef.current,
