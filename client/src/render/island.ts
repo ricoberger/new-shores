@@ -172,7 +172,7 @@ export class IslandDetail {
     );
     this.icons = new IconLayer(scene, this.near);
     this.construction = new ConstructionLayer(scene, this.near, registry);
-    this.buildingBlobs = new FootprintShadows(scene, `blob_buildings_${id}`, this.root, 0.55);
+    this.buildingBlobs = new FootprintShadows(scene, `blob_buildings_${id}`, this.root, 0.55, `blob_buildings_far_${id}`);
     this.outcrops = new OutcropLayer(scene, this.root, registry);
     this.rock = new RockLayer(scene, this.root, registry);
     this.farTrees.setGround((x, y) => this.rock.heightAt(x, y));
@@ -628,6 +628,7 @@ export class IslandDetail {
       this.near.setEnabled(lod === "near");
       for (const d of this.decoration.values()) d.setLod(lod);
       this.rock.setFar(lod === "far");
+      this.buildingBlobs.setFar(lod === "far");
       this.water?.setFar(lod === "far");
     }
     // The per-voxel jitter is below a pixel at far LOD (global: one LOD for the whole view).

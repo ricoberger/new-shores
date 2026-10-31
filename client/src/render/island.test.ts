@@ -171,6 +171,8 @@ describe("shadow casters with models", () => {
     const d = new IslandDetail(scene, is.id, is.position, reg);
     d.setStatics(built.islands.get(is.id)!);
     d.setShown(true, "near");
+    // Near LOD draws the full models (the engine sets the detail with the LOD; no rise-in at the lite detail).
+    d.setDetail("full");
     d.update(is, defs);
     for (let i = 0; i < 400 && (reg.status().pending.length > 0 || reg.status().loaded.length === 0); i++) await new Promise((r) => setTimeout(r, 5));
     d.refreshModels();

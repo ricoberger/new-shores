@@ -317,6 +317,7 @@ export class BuildingLayer {
     // Fields count as drawn at the lite detail (ground patches) whether or not their model has loaded: the
     // modelled set changes with the detail (no geometry is rebuilt: the chunk signatures stay).
     if (this.drawn() !== before && (this.risingItems.length > 0 || this.hasFields)) this.refresh();
+    if (this.risingItems.length === 0) for (const m of this.stageMeshes.values()) m.resize(0);
     this.applyDetail();
   }
 
@@ -412,7 +413,9 @@ export class BuildingLayer {
       const patch = !!def.field && this.drawn() === "lite";
       const items = this.details.filter((d) => !(def.field && d === "lite")).map((d) => [d, this.modelOf(b, def, d)] as const);
       const item = items.find(([d]) => d === this.drawn())?.[1] ?? null;
-      if (patch) this.rising.delete(b.id);
+      // No rise-in or construction stages at the lite detail (far LOD: the life layer is off there,
+      // ART_DIRECTION §5): a new building joins its lite chunk at once.
+      if (this.drawn() === "lite") this.rising.delete(b.id);
       if (item || patch) {
         this.modelIds.add(b.id);
         if (item && this.rising.has(b.id)) {

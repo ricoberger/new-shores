@@ -33,9 +33,9 @@ import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
 import type { RoadTile } from "./roads";
 import { fieldPatchTops } from "./farfields";
-import { type FieldBase, fieldBase, type FieldTile, paintFields, paintRoads, touchedChunks } from "./roadvoxels";
+import { type FieldBase, fieldBase, type FieldTile, isQuayTile, paintFields, paintRoads, QUAY_H, touchedChunks } from "./roadvoxels";
 import { LEVEL_STEPS } from "./terraces";
-import { COAST_REACH, downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, roundDistanceTo, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
+import { COAST_REACH, downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, roundDistanceTo, SIDE_ROCK, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
 import { riverWater } from "./water";
 
 /** Height of the sea surface: the coast's columns drop from the ground (0) to below it. */
@@ -192,8 +192,11 @@ export class TerrainBuild {
    * Null without fields (the lite mesh shares the near texture).
    */
   private lite: { texture: RawTexture; material: StandardMaterial } | null = null;
-  /** The lite mesh (after finish). */
+  /** The lite mesh (after finish; rebuilt when the quays change). */
   private liteMesh: Mesh | null = null;
+  /** The quay tiles (D-060) the lite mesh carries as decks at QUAY_H, and their key. */
+  private quays: readonly RoadTile[] = [];
+  private quayKey = "";
   /** The near field's tops with the far view's field patches (null: no fields). */
   private patchTops: Uint32Array | null = null;
   /** The far view's columns (null: to build from the current patches) and their version. */
@@ -257,6 +260,14 @@ export class TerrainBuild {
     paintFields(f, this.base, fields, this.seed);
     this.texture.update(groundTexels(f));
     this.updatePatches(fields);
+    // The quays stand on the water, which the lite field (built roadless) has below the sea: their decks join the lite mesh.
+    const quays = tiles.filter(isQuayTile);
+    const quayKey = quays.map((t) => `${t.x},${t.y}`).join(";");
+    if (quayKey !== this.quayKey) {
+      this.quayKey = quayKey;
+      this.quays = quays;
+      if (this.liteMesh) this.buildLite();
+    }
     const out: string[] = [];
     for (const k of touchedChunks(changed, f, (x, y) => chunkAt(x, y, this.island.width, this.island.height))) {
       const c = this.rects.get(k);
@@ -321,20 +332,54 @@ export class TerrainBuild {
     return far;
   }
 
+  /**
+   * The island's one lite mesh (far LOD): the lite field with the quays'
+   * decks (flat at QUAY_H over their tiles, stone sides; their colours
+   * come from the ground texture). Replaces the one built before and
+   * keeps its shown state.
+   */
+  private buildLite(): void {
+    let lite = this.fields.lite;
+    if (this.quays.length > 0) {
+      const h = lite.h.slice();
+      const kind = lite.kind ? lite.kind.slice() : new Uint8Array(lite.nx * lite.ny);
+      for (const t of this.quays) {
+        for (let b = 0; b < LITE_VPT; b++) {
+          for (let a = 0; a < LITE_VPT; a++) {
+            const i = t.x * LITE_VPT + a;
+            const j = t.y * LITE_VPT + b;
+            if (i < 0 || j < 0 || i >= lite.nx || j >= lite.ny) continue;
+            h[j * lite.nx + i] = QUAY_H;
+            kind[j * lite.nx + i] = SIDE_ROCK;
+          }
+        }
+      }
+      lite = { ...lite, h, kind };
+    }
+    const b = new Builder();
+    meshField(b, lite, 0, 0, lite.nx, lite.ny);
+    const before = this.liteMesh;
+    const mesh = b.mesh(`terrain_lite_${this.island.id}_all`, this.scene, this.lite?.material ?? this.material, this.liteParent);
+    mesh?.freezeWorldMatrix();
+    if (before) {
+      mesh?.setEnabled(before.isEnabled(false));
+      before.dispose();
+    }
+    this.liteMesh = mesh;
+  }
+
   /** The lite mesh and the far data; the full meshes built so far. */
   finish(): TerrainMeshes {
-    const liteB = new Builder();
-    const lite = this.fields.lite;
-    meshField(liteB, lite, 0, 0, lite.nx, lite.ny);
-    const liteMesh = liteB.mesh(`terrain_lite_${this.island.id}_all`, this.scene, this.lite?.material ?? this.material, this.liteParent);
-    liteMesh?.freezeWorldMatrix();
-    this.liteMesh = liteMesh;
+    this.buildLite();
     this.farData = null;
     const meshes = this.meshes;
     const far = (): Builder => this.far();
     const farVersion = (): number => (this.far(), this.farVersion);
+    const lite = (): Mesh[] => (this.liteMesh ? [this.liteMesh] : []);
     return {
-      lite: liteMesh ? [liteMesh] : [],
+      get lite() {
+        return lite();
+      },
       get full() {
         return [...meshes.values()];
       },
@@ -347,7 +392,8 @@ export class TerrainBuild {
       },
       setRoads: (tiles, fields) => this.setRoads(tiles, fields),
       dispose: () => {
-        liteMesh?.dispose();
+        this.liteMesh?.dispose();
+        this.liteMesh = null;
         this.dispose();
       },
     };

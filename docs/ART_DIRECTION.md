@@ -200,7 +200,10 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   with arms to the neighbours and junctions, worn edges and jittered
   stones; dirt for tier-1 roads, three-shade **cobbles with a kerb** for
   the stone road. A road change repaints the field and rebuilds only the
-  touched chunks; carts and walkers walk on the sunk path.
+  touched chunks; carts and walkers walk on the sunk path. At far LOD
+  roads are only colour in the lite terrain's ground texture, and the
+  quays' decks are columns of the island's one lite terrain mesh (rebuilt
+  when the quays change) — no road or quay mesh of their own.
 - **Field ground** is painted into the ground texture too (furrows for
   crops, pasture, orchard grass) under the field models. **At far LOD
   fields are ground patches, not models** (they have no lite file and
@@ -275,8 +278,12 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - **Budget:** ≤ 150 animated instances / 64 particles per island on
   phones and tablets, ≤ 400 / 160 on desktop, shared by fixed proportions
   across element classes; near LOD only (mid: smoke and static props;
-  far: ships only); `?stats=1` shows the counts, the device check is the
-  gate (D-052).
+  far: ships only — no rise-in or construction stages either: a building
+  placed at far joins its lite chunk at once, and one rising when the view
+  zooms out finishes at once); `?stats=1` shows the counts, the device
+  check is the gate (D-052). The buildings' contact shadows switch to a
+  cheap far mesh at far LOD (a chamfered core and one soft band, 12
+  instead of 100 triangles per building; `render/shadows.ts`).
 
 ## 6. HUD — themed-flat Anno
 

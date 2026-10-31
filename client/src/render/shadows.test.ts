@@ -1,6 +1,8 @@
+import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
+import { Scene } from "@babylonjs/core/scene";
 import { describe, expect, it } from "vitest";
 import { SHADOW_LEAN } from "./lighting";
-import { BLOB_Y, CORNER_POINTS, roundedShadows, shadowRadius } from "./shadows";
+import { BLOB_Y, CORNER_POINTS, FAR_SHADOW_TRIS, FootprintShadows, roundedShadows, SHADOW_TRIS, shadowRadius } from "./shadows";
 
 // Building contact shadows (polish pass): a soft rounded rectangle at the
 // model's bounds — filled core, a ring at the outline, a transparent rim.
@@ -64,5 +66,39 @@ describe("roundedShadows", () => {
     expect(shadowRadius(1, 1)).toBeLessThan(shadowRadius(2, 2));
     expect(shadowRadius(10, 10)).toBe(0.7);
     expect(shadowRadius(0.2, 0.2)).toBe(0.15);
+  });
+});
+
+describe("far building shadows", () => {
+  it("are a chamfered core with one soft band (FAR_SHADOW_TRIS) covering the same outline", () => {
+    const rect = { cx: 0, cz: 0, w: 3, h: 2, height: 0 };
+    const near = roundedShadows([rect], 0.4, 0);
+    const far = roundedShadows([rect], 0.4, 0, BLOB_Y, true);
+    expect(near.indices.length / 3).toBe(SHADOW_TRIS);
+    expect(far.indices.length / 3).toBe(FAR_SHADOW_TRIS);
+    expect(alphaAt(far.colors, 0)).toBe(alphaAt(near.colors, 0));
+    // The outer ring is transparent and reaches past the outline.
+    expect(alphaAt(far.colors, 5)).toBe(0);
+    expect(Math.max(...far.positions.filter((_, i) => i % 3 === 0))).toBeGreaterThan(1.5);
+  });
+
+  it("toggle between the soft and the far mesh on a zoom, without a rebuild", () => {
+    const engine = new NullEngine();
+    const scene = new Scene(engine);
+    const s = new FootprintShadows(scene, "blob_buildings_t", null, 0.5, "blob_buildings_far_t");
+    s.update([{ cx: 0, cz: 0, w: 2, h: 2 }], 0.4, 0.7);
+    const near = s.current()!;
+    expect(near.getTotalIndices() / 3).toBe(SHADOW_TRIS);
+    const meshes = scene.meshes.length;
+    s.setFar(true);
+    const far = s.current()!;
+    expect(far.getTotalIndices() / 3).toBe(FAR_SHADOW_TRIS);
+    expect(far.isEnabled()).toBe(true);
+    expect(near.isEnabled()).toBe(false);
+    s.setFar(false);
+    expect(s.current()).toBe(near);
+    expect(far.isEnabled()).toBe(false);
+    expect(scene.meshes.length).toBe(meshes);
+    engine.dispose();
   });
 });
