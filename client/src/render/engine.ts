@@ -18,12 +18,12 @@ import { archipelagoRect, type CameraView, frameIslandView, JUMP_MS, NEAR_DEFAUL
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
 import { fieldsUnder, type PaintDrag, paintAnchors, paintCountText, paintTiles, planPaint } from "../display/fieldpaint";
 import { servedRelated } from "../display/served";
-import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
+import { focusedIsland, islandRect, rectIntersectsQuad, rectQuadOverlap } from "../display/frustum";
 import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
 import { visibleChunks } from "../display/chunks";
 import { BUILD_BUDGET_MS, type BuildItem, buildOrder, BuildScheduler } from "../display/buildqueue";
 import { islandSeed } from "../display/scatter";
-import { allocateFarTerrain, type MaskIsland, MaskLayer } from "./farmesh";
+import { allocateFarTerrain, type MaskIsland, MaskLayer, reliefOrder } from "./farmesh";
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { freeShallows, isQuayType, withQuays } from "../display/quay";
@@ -359,6 +359,8 @@ export class GameRenderer {
       for (const d of this.details.values()) d.refreshModels();
       this.landmarks.refresh();
       this.refreshCasters();
+      // At far the models' triangles are the terrain's headroom: allocate again with the swapped models (and grant relief once none loads).
+      if (this.lod === "far") this.applyView();
     }
     let casters = false;
     for (const d of this.details.values()) casters = d.frame(now) || casters;
@@ -536,6 +538,12 @@ export class GameRenderer {
         f.tris += fieldTris;
       }
       e.tris += tris - fieldTris;
+      if (m.name === "mask_terrain") {
+        // The neighbours' split: `meshes` counts the islands drawn in relief (own far columns) and as outlines.
+        const b = this.mask.breakdown();
+        out["mask_terrain.relief"] = { meshes: b.relief.islands, tris: b.relief.tris };
+        out["mask_terrain.outline"] = { meshes: b.outline.islands, tris: b.outline.tris };
+      }
     }
     return out;
   }
@@ -799,10 +807,17 @@ export class GameRenderer {
       // At far LOD a settled island drawn from its mask keeps its Trading Post and shipyards.
       if (showsLandmarks(is, this.lod, focus, useMask)) landmarks.push(is);
     }
-    // Nearest the view first: they keep their own far columns within the mask mesh's budget.
-    const centre = new Map(islands.map((is) => [is.id, Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y)]));
-    masked.sort((a, b) => (centre.get(a.id) ?? 0) - (centre.get(b.id) ?? 0));
-    this.mask.show(masked, this.lod === "far" ? this.allocateFarTerrain(detailed, masked, d0?.ships ?? []) : Infinity);
+    // Relief by screen presence: the largest on-screen area first, ties nearest the view's centre (farmesh.ts reliefOrder).
+    const fp = this.rig.footprint();
+    const byId = new Map(islands.map((is) => [is.id, is]));
+    const ranked = reliefOrder(
+      masked.map((m) => {
+        const is = byId.get(m.id) as IslandDisplay;
+        return { ...m, area: rectQuadOverlap(islandRect(is), fp), dist: Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y) };
+      }),
+    );
+    if (this.lod === "far") this.mask.show(ranked, this.allocateFarTerrain(detailed, ranked, d0?.ships ?? []), this.farCostFinal(focus));
+    else this.mask.show(ranked);
     this.landmarks.show(landmarks, this.defs);
     this.cullChunks(islands);
     this.refreshCasters();
@@ -812,12 +827,27 @@ export class GameRenderer {
    * The far view's terrain by headroom (D-048, farmesh.ts farTerrainBudget):
    * the islands drawn in detail get their fine lite terrain while it fits
    * next to the other islands' outlines, else their coarse one; returns
-   * what is left for the mask mesh (outlines, then relief nearest first).
+   * what is left for the mask mesh (outlines, then relief by on-screen area).
    */
   private allocateFarTerrain(detailed: readonly IslandDetail[], masked: readonly MaskIsland[], ships: readonly { type: string }[]): number {
     let fleet = 0;
     for (const s of ships) fleet += this.models.entry(s.type)?.file?.triangles ?? 0;
     return allocateFarTerrain(detailed, this.mask.outlineTriangles(masked), fleet);
+  }
+
+  /**
+   * Whether the far view's fixed cost is final, so the mask layer may
+   * grant new relief (MaskLayer.show): the model manifest is there and no
+   * model is loading, and the focused island (if in view) is built. Before
+   * that the room left would shrink a moment later and take the relief
+   * back (the far view's pop to outlines on a slow load).
+   */
+  private farCostFinal(focus: string | null): boolean {
+    const st = this.models.status();
+    if (!st.manifest || st.pending.length > 0) return false;
+    if (!focus || !this.visible.has(focus)) return true;
+    const d = this.details.get(focus);
+    return !!d && d.hasTiles() && !d.building();
   }
 
   /** Per-chunk culling: the chunks of each shown island in the camera's ground footprint. */

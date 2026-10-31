@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_FIXTURES, DEFAULT_VIEWS, DEVICES, FIXTURES, PRESETS, parseList, parseShotArgs, ShotArgError, VIEWS } from "./shots-args";
+import { DEFAULT_DEVICES, DEFAULT_FIXTURES, DEFAULT_VIEWS, DEVICES, FIXTURES, PRESETS, parseList, parseShotArgs, ShotArgError, VIEWS } from "./shots-args";
 
 describe("parseShotArgs", () => {
-  it("defaults to the three fixtures, all views and both devices", () => {
+  it("defaults to the three fixtures, all views and desktop and phone", () => {
     expect(parseShotArgs({})).toEqual({
       fixtures: DEFAULT_FIXTURES,
       views: [...DEFAULT_VIEWS],
-      devices: [...DEVICES],
+      devices: [...DEFAULT_DEVICES],
       rotation: 0,
       out: ".experiment/shots/default",
       hud: true,
@@ -23,6 +23,7 @@ describe("parseShotArgs", () => {
     expect(a.fixtures).toEqual(["showcase", "dense-2x400"]);
     expect(a.views).toEqual(["far"]);
     expect(a.devices).toEqual(["phone"]);
+    expect(parseShotArgs({ DEVICE: "desktop-xl" }).devices).toEqual(["desktop-xl"]);
   });
 
   it("expands all", () => {

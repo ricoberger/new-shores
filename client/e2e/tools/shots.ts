@@ -27,7 +27,9 @@ const BASE_URL = `http://localhost:${WEB_PORT}`;
 const DEVICE_OPTIONS = {
   desktop: { ...devices["Desktop Chrome"], baseURL: BASE_URL, viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 },
   phone: { ...devices["Pixel 5"], baseURL: BASE_URL, viewport: { width: 412, height: 915 }, deviceScaleFactor: 2.625 },
-};
+  // The owner's large Safari window (2992 × 1700 CSS px, dpr 1): the far view's widest footprint.
+  "desktop-xl": { ...devices["Desktop Chrome"], baseURL: BASE_URL, viewport: { width: 2992, height: 1700 }, deviceScaleFactor: 1 },
+} satisfies Record<Device, unknown>;
 
 type Target = { x: number; y: number; half?: number };
 
@@ -278,9 +280,12 @@ async function shoot(page: Page, file: string, written: string[]): Promise<void>
     console.log(`${name}  draws ${s.draws}  tris ${s.tris}  meshes ${s.meshes}  first-frame ${ms(t?.firstFrameMs)}  focus-tiles ${ms(t?.focusTilesMs)}`);
   } else if (process.env.STATS?.trim() === "2") {
     // The active meshes by layer (where the draws and triangles go).
-    const layers = await page.evaluate(() => window.__newShores!.activeLayers());
+    // The mask mesh's split (mask_terrain.relief / .outline: `meshes` counts islands) is summed into one line with the frame's draws and triangles.
+    const { layers, draws, tris } = await page.evaluate(() => ({ layers: window.__newShores!.activeLayers(), draws: window.__newShores!.drawCalls(), tris: window.__newShores!.triangles() }));
     const rows = Object.entries(layers).sort((a, b) => b[1].tris - a[1].tris);
-    console.log(`${name}\n${rows.map(([k, v]) => `  ${k.padEnd(28)} meshes ${String(v.meshes).padStart(3)}  tris ${v.tris}`).join("\n")}`);
+    const relief = layers["mask_terrain.relief"]?.meshes ?? 0;
+    const outline = layers["mask_terrain.outline"]?.meshes ?? 0;
+    console.log(`${name}  draws ${draws}  tris ${tris}  neighbours in relief ${relief} / outline ${outline}\n${rows.map(([k, v]) => `  ${k.padEnd(28)} meshes ${String(v.meshes).padStart(3)}  tris ${v.tris}`).join("\n")}`);
   } else {
     console.log(name);
   }

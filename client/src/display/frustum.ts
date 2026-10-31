@@ -89,3 +89,39 @@ export function focusedIsland(
   }
   return best;
 }
+
+/**
+ * Area (tiles²) of the part of the rectangle inside the convex
+ * quadrilateral (the camera's ground footprint): the island's on-screen
+ * presence for the far view's relief order (render/farmesh.ts
+ * reliefOrder). The quadrilateral clipped to the rectangle
+ * (Sutherland–Hodgman), its area by the shoelace formula.
+ */
+export function rectQuadOverlap(r: Rect, quad: readonly ArchPoint[]): number {
+  let poly: ArchPoint[] = [...quad];
+  const clip = (inside: (p: ArchPoint) => boolean, cut: (a: ArchPoint, b: ArchPoint) => ArchPoint) => {
+    const out: ArchPoint[] = [];
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i] as ArchPoint;
+      const b = poly[(i + 1) % poly.length] as ArchPoint;
+      if (inside(b)) {
+        if (!inside(a)) out.push(cut(a, b));
+        out.push(b);
+      } else if (inside(a)) out.push(cut(a, b));
+    }
+    poly = out;
+  };
+  const atX = (x: number) => (a: ArchPoint, b: ArchPoint) => ({ x, y: a.y + ((b.y - a.y) * (x - a.x)) / (b.x - a.x) });
+  const atY = (y: number) => (a: ArchPoint, b: ArchPoint) => ({ x: a.x + ((b.x - a.x) * (y - a.y)) / (b.y - a.y), y });
+  clip((p) => p.x >= r.minX, atX(r.minX));
+  clip((p) => p.x <= r.maxX, atX(r.maxX));
+  clip((p) => p.y >= r.minY, atY(r.minY));
+  clip((p) => p.y <= r.maxY, atY(r.maxY));
+  let twice = 0;
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i] as ArchPoint;
+    const b = poly[(i + 1) % poly.length] as ArchPoint;
+    twice += a.x * b.y - b.x * a.y;
+  }
+  return Math.abs(twice) / 2;
+}

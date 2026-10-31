@@ -1,8 +1,13 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { gunzipSync } from "node:zlib";
 import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
-import { decodeMask, encodeMask } from "../display/mask";
-import { FAR_RESERVE, FAR_SCENERY_TRIS, FAR_TRIS, farTerrainBudget, homeTerrain, MaskLayer, maskMeshData, mergeParts } from "./farmesh";
+import type { IslandDisplay } from "../api/client";
+import { decodeMask, encodeMask, MASK_GRASS } from "../display/mask";
+import { FAR_RESERVE, FAR_SCENERY_TRIS, FAR_TRIS, farTerrainBudget, homeTerrain, MaskLayer, maskMeshData, mergeParts, RELIEF_HYSTERESIS, reliefOrder } from "./farmesh";
+import { mapLandColor, rgbOf } from "./mapcolors";
 import { Builder, SEA_LEVEL } from "./terrain";
 
 const NAMES: Record<string, string> = { w: "water", c: "coast", g: "grass", f: "forest", m: "mountain" };
@@ -17,49 +22,100 @@ function ys(b: { positions: number[] }): number[] {
   return b.positions.filter((_, i) => i % 3 === 1);
 }
 
-describe("mask mesh", () => {
+/** The up-facing quads (4 vertices each, Builder order) at height y: their tile rectangles (island tiles, y down). */
+function topRects(b: Builder, y: number): { minX: number; maxX: number; minY: number; maxY: number }[] {
+  const out: { minX: number; maxX: number; minY: number; maxY: number }[] = [];
+  for (let v = 0; v < b.positions.length / 3; v += 4) {
+    const ps = [0, 1, 2, 3].map((k) => [b.positions[(v + k) * 3]!, b.positions[(v + k) * 3 + 1]!, -b.positions[(v + k) * 3 + 2]!] as const);
+    if (b.normals[v * 3 + 1] !== 1 || ps.some((p) => Math.abs(p[1] - y) > 1e-6)) continue;
+    out.push({ minX: Math.min(...ps.map((p) => p[0])), maxX: Math.max(...ps.map((p) => p[0])), minY: Math.min(...ps.map((p) => p[2])), maxY: Math.max(...ps.map((p) => p[2])) });
+  }
+  return out;
+}
+
+describe("mask mesh (the flat outline)", () => {
   // 16 × 12 tiles: a 4 × 3 mask, land in the middle two columns of every row.
   const rows = Array.from({ length: 12 }, () => "wwwwggggffffwwww");
   const mask = fixtureMask(...rows);
 
-  it("builds ground at height 0 over the land cells and the sand shelves down below the sea", () => {
+  it("builds ground at height 0 over the land cells and one 1-tile sand shelf down below the sea", () => {
     expect(mask.width).toBe(4);
     expect(mask.height).toBe(3);
-    const b = maskMeshData(mask, 7);
+    const b = maskMeshData(mask);
     expect(b.indices.length).toBeGreaterThan(0);
     expect(b.indices.length % 3).toBe(0);
     for (const v of b.positions) expect(Number.isFinite(v)).toBe(true);
     const y = ys(b);
-    // Ground and rim at 0, the outer shelf's foot under the sea surface.
-    expect(Math.max(...y)).toBeLessThan(0.05);
+    // Ground at 0, the shelf below it, the shelf's wall to just under the sea surface.
+    expect(Math.max(...y)).toBe(0);
     expect(Math.min(...y)).toBeLessThan(SEA_LEVEL);
-    // The land spans tiles 4…12 in x (cells 1 and 2), the two shelves (one column per tile) two tiles beyond.
+    expect(Math.min(...y)).toBeGreaterThan(SEA_LEVEL - 0.1);
+    // The land spans tiles 4…12 in x (cells 1 and 2), the shelf one tile beyond.
     const xs = b.positions.filter((_, i) => i % 3 === 0);
-    expect(Math.min(...xs)).toBe(2);
-    expect(Math.max(...xs)).toBe(14);
+    expect(Math.min(...xs)).toBe(3);
+    expect(Math.max(...xs)).toBe(13);
     const land = b.positions.filter((_, i) => i % 3 === 0 && b.positions[i + 1] === 0);
     expect(Math.min(...land)).toBe(4);
     expect(Math.max(...land)).toBe(12);
-    // Island-local z is −y: every vertex lies at or above the island's top edge's mirror.
+    // Island-local z is −y: the shelf reaches one tile past the mask's top and bottom rows.
     const zs = b.positions.filter((_, i) => i % 3 === 2);
-    expect(Math.max(...zs)).toBeLessThanOrEqual(0.5);
-    expect(Math.min(...zs)).toBeGreaterThan(-12.5);
+    expect(Math.max(...zs)).toBe(1);
+    expect(Math.min(...zs)).toBe(-13);
   });
 
-  it("colours the cells by their terrain band in true colours (no unsettled tint)", () => {
-    const data = maskMeshData(mask, 7);
+  it("merges each terrain run into flat quads (no per-tile columns): two land quads here", () => {
+    const b = maskMeshData(mask);
+    const tops = topRects(b, 0);
+    expect(tops).toEqual([
+      { minX: 4, maxX: 8, minY: 0, maxY: 12 },
+      { minX: 8, maxX: 12, minY: 0, maxY: 12 },
+    ]);
+    // Land tops, shelf tops (a ring of four strips), the land's walls down to the shelf and the shelf's walls into the sea: a few dozen triangles.
+    expect(b.indices.length / 3).toBeLessThanOrEqual(40);
+  });
+
+  it("draws exactly the minimap's cells: the coast is the cell contour, not smoothed", () => {
+    // An L of land cells with a notch: every land tile is under a land top, no water tile is.
+    const m = fixtureMask(
+      ...[
+        "gggggggggggg",
+        "gggggggggggg",
+        "gggggggggggg",
+        "gggggggggggg",
+        "ggggwwwwcccc",
+        "ggggwwwwcccc",
+        "ggggwwwwcccc",
+        "ggggwwwwcccc",
+      ],
+    );
+    const tops = topRects(maskMeshData(m), 0);
+    for (let ty = 0; ty < 8; ty++) {
+      for (let tx = 0; tx < 12; tx++) {
+        const covered = tops.some((r) => tx + 0.5 > r.minX && tx + 0.5 < r.maxX && ty + 0.5 > r.minY && ty + 0.5 < r.maxY);
+        expect(covered, `tile ${tx},${ty}`).toBe(!(ty >= 4 && tx >= 4 && tx < 8));
+      }
+    }
+    // Every land corner lies on the cell grid (MASK_BLOCK tiles).
+    for (const r of tops) for (const v of [r.minX, r.maxX, r.minY, r.maxY]) expect(v % 4).toBe(0);
+  });
+
+  it("colours the cells in the minimap's colours (true colours, no unsettled tint)", () => {
+    const data = maskMeshData(mask);
     const spread = (cols: number[]) => {
       let s = 0;
       for (let i = 0; i < cols.length; i += 4) s += Math.max(cols[i]!, cols[i + 1]!, cols[i + 2]!) - Math.min(cols[i]!, cols[i + 1]!, cols[i + 2]!);
       return s / (cols.length / 4);
     };
-    // True grass/sand colours (≈ 0.23 mean channel spread); the former unsettled grey tint kept 30 % (≈ 0.07).
     expect(spread(data.colors)).toBeGreaterThan(0.15);
+    // The land tops carry mapLandColor of their cell (quantised to FAR_QUANT levels).
+    const grass = rgbOf(mapLandColor(MASK_GRASS));
+    const v = data.positions.findIndex((p, i) => i % 3 === 0 && p === 4 && data.positions[i + 1] === 0 && data.normals[i + 1] === 1) / 3;
+    for (let ch = 0; ch < 3; ch++) expect(data.colors[v * 4 + ch]!).toBeCloseTo(grass[ch]!, 1);
   });
 
   it("is empty for an all-water mask and merges islands at their positions", () => {
-    expect(maskMeshData(fixtureMask("wwww", "wwww"), 1).indices).toHaveLength(0);
-    const a = maskMeshData(mask, 7);
+    expect(maskMeshData(fixtureMask("wwww", "wwww")).indices).toHaveLength(0);
+    const a = maskMeshData(mask);
     const merged = mergeParts([
       { data: a, x: 0, y: 0 },
       { data: a, x: 100, y: 50 },
@@ -70,6 +126,22 @@ describe("mask mesh", () => {
     expect(merged.positions[n * 3]).toBeCloseTo(a.positions[0]! + 100, 5);
     expect(merged.positions[n * 3 + 2]).toBeCloseTo(a.positions[2]! - 50, 5);
     expect(Math.max(...merged.indices)).toBe(2 * n - 1);
+  });
+
+  it("costs ≤ 1.5 k triangles for a large island and ≤ 25 k for the whole archipelago (the far budget's outlines)", () => {
+    const fx = JSON.parse(gunzipSync(readFileSync(join(__dirname, "testdata", "farbudget", "played.json.gz"))).toString("utf8")) as { islands: IslandDisplay[] };
+    let total = 0;
+    let large = 0;
+    for (const is of fx.islands) {
+      const tris = maskMeshData(decodeMask(is.terrain_mask, is.width, is.height)).indices.length / 3;
+      total += tris;
+      if (is.width >= 180) {
+        large++;
+        expect(tris, is.id).toBeLessThanOrEqual(1_500);
+      }
+    }
+    expect(large).toBeGreaterThan(0);
+    expect(total).toBeLessThanOrEqual(25_000);
   });
 });
 
@@ -87,7 +159,7 @@ describe("mask layer budget (D-058)", () => {
     return b;
   };
   const island = (id: string, x: number, tris: number) => ({ id, position: { x, y: 0 }, mask, seed: 7, tiles: { key: id, data: columns(tris) } });
-  const maskTris = maskMeshData(mask, 7).indices.length / 3;
+  const maskTris = maskMeshData(mask).indices.length / 3;
 
   it("keeps the far columns of the first islands while the mesh fits the budget, the rest their mask", () => {
     const layer = new MaskLayer(new Scene(engine));
@@ -128,5 +200,64 @@ describe("mask layer budget (D-058)", () => {
     layer.show(islands, 0);
     expect(layer.tiled()).toEqual([]);
     expect(layer.triangles()).toBe(3 * maskTris);
+  });
+
+  it("keeps an island's relief once given: within the hysteresis it stays, beyond it the end of the order drops back", () => {
+    const layer = new MaskLayer(new Scene(engine));
+    const islands = [island("a", 0, 10_000), island("b", 40, 10_000), island("c", 80, 10_000)];
+    const all = 30_000;
+    layer.show(islands, all);
+    expect(layer.tiled()).toEqual(["a", "b", "c"]);
+    // The budget shrinks (a ship, a building): up to 10 % over it, everybody keeps the relief.
+    layer.show(islands, Math.ceil(all / (1 + RELIEF_HYSTERESIS)));
+    expect(layer.tiled()).toEqual(["a", "b", "c"]);
+    // More than 10 % over: drop from the end of the order until the mesh is within the budget.
+    layer.show(islands, 25_000);
+    expect(layer.tiled()).toEqual(["a", "b"]);
+    expect(layer.triangles()).toBeLessThanOrEqual(25_000);
+    // A dropped island is a newcomer again: it needs the room in full.
+    layer.show(islands, 29_000);
+    expect(layer.tiled()).toEqual(["a", "b"]);
+  });
+
+  it("never takes relief away when tiles stream in: newcomers get only what is free", () => {
+    const layer = new MaskLayer(new Scene(engine));
+    const budget = 25_000;
+    // In view in this order; the tiles arrive one island after the other, in reverse.
+    const order = ["a", "b", "c", "d"];
+    const arrived = new Set<string>();
+    let before: string[] = [];
+    for (const id of [...order].reverse()) {
+      arrived.add(id);
+      const islands = order.map((o, i) => (arrived.has(o) ? island(o, i * 40, 10_000) : { ...island(o, i * 40, 0), tiles: null }));
+      layer.show(islands, budget);
+      const now = layer.tiled();
+      for (const k of before) expect(now, `after ${id}`).toContain(k);
+      expect(layer.triangles()).toBeLessThanOrEqual(budget);
+      before = now;
+    }
+    // The first two to arrive (d, c) hold the room; the larger a and b found it taken.
+    expect([...before].sort()).toEqual(["c", "d"]);
+  });
+
+  it("grants no new relief while the far view's cost is not final, keeps what it has", () => {
+    const layer = new MaskLayer(new Scene(engine));
+    const islands = [island("a", 0, 10_000), island("b", 40, 10_000)];
+    layer.show(islands, Infinity, false);
+    expect(layer.tiled()).toEqual([]);
+    layer.show(islands, Infinity);
+    expect(layer.tiled()).toEqual(["a", "b"]);
+    layer.show([...islands, island("c", 80, 10_000)], Infinity, false);
+    expect(layer.tiled()).toEqual(["a", "b"]);
+  });
+
+  it("orders the islands by on-screen area, largest first, ties nearest", () => {
+    const order = reliefOrder([
+      { id: "small", area: 100, dist: 1 },
+      { id: "far-big", area: 900, dist: 50 },
+      { id: "near-big", area: 900, dist: 10 },
+      { id: "mid", area: 400, dist: 5 },
+    ]);
+    expect(order.map((o) => o.id)).toEqual(["near-big", "far-big", "mid", "small"]);
   });
 });

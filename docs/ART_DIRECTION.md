@@ -136,8 +136,13 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   (1 per tile) terrain are the near field downsampled, and a built
   island at far feeds its own far columns into the merged mask mesh, so
   the coastline does not jump between LODs (tested). Islands in view
-  without tiles draw their 1:4 mask through the same field code;
-  off-screen islands are left out of the merged mesh. At far a built
+  without relief draw their **flat outline**: the 1:4 mask's land cells
+  in the minimap's colours (`mapcolors.ts` `mapLandColor`), flat at the
+  ground's height and greedy-merged per terrain run, the coast the exact
+  cell contour (not smoothed: the minimap's shape, not a blob) stepped
+  down to one 1-tile sand shelf whose wall drops under the sea; the
+  shallows halo around it is the sea's, from the same masks. Off-screen
+  islands are left out of the merged mesh. At far a built
   island's columns keep whole levels, one rock tier, flat rivers and 12
   colour levels. The far view's terrain gets what the rest of the far
   view leaves of its budget (250 k less a 10 % reserve, after the
@@ -146,8 +151,14 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   (2 columns per tile, with corner occlusion) while it fits next to the
   other islands' outlines, else a coarse one (1 column per tile, still
   textured, relief kept, built on first use); then the other islands in
-  view keep their own columns nearest first, the rest fall back to their
-  mask (the last resort, always drawn). Far tops
+  view get their own columns by on-screen area (largest first, ties
+  nearest), the rest keep their outline (the last resort, always drawn,
+  ≈ 1 k triangles for a large island). Relief once given stays: an
+  island drops back to its outline only when the far view would run more
+  than 10 % over the mesh's budget (a camera move, a town that grew),
+  never because tiles or models streamed in (no relief is given before
+  the view's cost is known) — no island turns from its tile shape into
+  an outline seconds after loading. Far tops
   of the other islands carry no corner occlusion (a step's shading is
   below a pixel, and it split the rectangles); the
   focused island's lite terrain keeps at most two rock tiers and flat

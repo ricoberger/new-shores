@@ -467,19 +467,40 @@ client bounds the far view: fields are painted into the lite ground
 (`render/farfields.ts`), an island's far trees are thinned to
 `FAR_TREE_TRIS`, contact shadows use `FAR_SHADOW_TRIS` outlines, and
 the terrain gets the headroom the rest leaves of 250 k less a 10 %
-reserve (`farmesh.ts` `allocateFarTerrain`: the focused island's relief
-first, fine or coarse, then the other islands' relief nearest first,
-their flat outline the last resort). `client/src/render/farbudget.test.ts`
-enforces it on the `make shots` fixtures settled, patricians and played
-(display and tiles captured from the dev server into
-`client/src/render/testdata/farbudget`, regenerated with its
-`capture.ts`): it builds the islands as the renderer does with the
-committed models, runs the renderer's allocation for the far view at
-every heading on desktop and phone, fails above 250 k triangles, and
-asserts the allocation (the home island always in relief; on settled
-and patricians every island in view in relief in the shots' view). A new
-model, layer or budget constant that breaks it must find its triangles
-elsewhere; `make shots STATS=2` attributes a real view per layer.
+reserve (`farmesh.ts` `allocateFarTerrain`). Every island whose bounds
+intersect the view is charged its **flat outline** first (`maskMeshData`:
+the 1:4 mask cells as flat quads greedy-merged per terrain run, the
+exact cell contour with one 1-tile sand shelf — ≈ 1.2–1.4 k triangles
+for a large island, 9.3 k for a whole archipelago); the focused island
+then takes its fine lite terrain (coarse if even that does not fit),
+and the rest is spent on the other islands' relief (their own far
+columns) by **screen presence with hysteresis** (`MaskLayer.show`,
+`reliefOrder`, `display/frustum.ts` `rectQuadOverlap`): an island in
+relief keeps it while the mask mesh stays within its budget + 10 %
+(`RELIEF_HYSTERESIS`, inside the reserve), beyond that the end of the
+order drops back until it fits; newcomers take only what is free, by
+on-screen area of their bounds (largest first, ties nearest). No new
+relief is granted until the far view's cost is final (manifest loaded,
+no model pending, the focused island built; the engine allocates again
+when loaded models swap in), so tiles streaming in never demote anybody;
+only a view change (or a payload that grows the fixed cost by more than
+the hysteresis) can.
+`client/src/render/farbudget.test.ts` enforces it on the `make shots`
+fixtures settled, patricians, played and seafaring (display and tiles
+captured from the dev server into `client/src/render/testdata/farbudget`,
+regenerated with its `capture.ts`): it builds the islands as the
+renderer does with the committed models, runs the renderer's allocation
+for the far view at every heading on desktop, phone and desktop-xl
+(2992 × 1700), fails above 250 k triangles or 40 draws (an upper bound:
+the home island's enabled meshes, the mask mesh, hull and cargo per
+ship type, sea/haze/landmarks), and asserts the allocation (the home
+island always in relief; on settled and patricians every island in view
+in relief in the shots' view on desktop and phone; relief once given
+survives tiles that arrive later) and logs draws, triangles and islands
+in relief / outline per fixture and device. A new model, layer or budget
+constant that breaks it must find its triangles elsewhere; `make shots
+STATS=2` attributes a real view per layer, with the neighbours in relief
+/ outline (`DEVICE=desktop-xl` for the wide window).
 
 ## 6. Content pipeline
 

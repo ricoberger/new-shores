@@ -9,7 +9,8 @@ export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelag
  * its end.
  */
 export const VIEWS = ["near", "mid", "far", "start", "pan"] as const;
-export const DEVICES = ["desktop", "phone"] as const;
+/** Viewports: desktop 1280 × 800, phone (Pixel 5), desktop-xl 2992 × 1700 at dpr 1 (the owner's large Safari window: the far view's widest footprint). */
+export const DEVICES = ["desktop", "phone", "desktop-xl"] as const;
 export const PRESETS = ["info-panel", "producer-inputs", "house-card", "service-card", "warehouse-card", "trading-post-card", "shipyard-idle", "shipyard-building", "served-houses", "serving-buildings", "sheet", "ghost", "ghost-water-valid", "ghost-water-in", "ghost-water-out", "ghost-depot-valid", "ghost-depot-out", "ghost-terrace-3", "ghost-terrace-3-invalid", "ghost-terrace-6", "ghost-terrace-6-invalid", "sloop", "build-menu", "warnings", "away", "ship-panel", "ship-rename", "route-editor", "route-rename", "route-paused", "island-card", "top-bar-popups", "farm-selected", "hemp-farm-selected", "field-selected", "field-ghost", "field-paint", "field-paint-result", "field-paint-pasture", "archipelago-far", "far-labels", "reroll", "rename", "merchant-house-card", "merchant-build-menu", "patrician-house-card", "patrician-build-menu", "harbour", "founding-ghost", "founding-docked", "playhouse-menu"] as const;
 
 export type Fixture = (typeof FIXTURES)[number];
@@ -19,6 +20,8 @@ export type Preset = (typeof PRESETS)[number];
 
 export const DEFAULT_FIXTURES: Fixture[] = ["showcase", "settled", "dense-2x400"];
 export const DEFAULT_VIEWS: View[] = ["near", "mid", "far"];
+/** The default devices (desktop-xl only on request: DEVICE=desktop-xl or all). */
+export const DEFAULT_DEVICES: Device[] = ["desktop", "phone"];
 
 /** Fixtures served by the dev server's reset endpoint (the page loads `/`) rather than by `?fixture=`. */
 export const SERVER_FIXTURES: readonly Fixture[] = ["settled", "town", "seafaring", "citizens", "merchants", "patricians", "played"];
@@ -96,7 +99,7 @@ export function parseShotArgs(env: Env): ShotArgs {
   const args: ShotArgs = {
     fixtures: parseList("FIXTURE", env.FIXTURE, FIXTURES, DEFAULT_FIXTURES),
     views: parseList("VIEW", env.VIEW, VIEWS, DEFAULT_VIEWS),
-    devices: parseList("DEVICE", env.DEVICE, DEVICES, DEVICES),
+    devices: parseList("DEVICE", env.DEVICE, DEVICES, DEFAULT_DEVICES),
     rotation,
     out: env.OUT?.trim() || `.experiment/shots/${env.SET?.trim() || (presets.length > 0 ? "presets" : "default")}`,
     hud: hudText !== "0",

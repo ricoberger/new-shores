@@ -1,28 +1,31 @@
 // Mask mesh (far view): an island drawn from its 1:4 terrain mask
-// (display/mask.ts) instead of its full tiles — coarse voxel terrain, one
-// column per tile in the colour of its mask cell's terrain, with the
-// coast's sand shelves (render/voxelterrain.ts). No trees, buildings or
-// life. Every island in view whose full tiles have not arrived yet is
+// (display/mask.ts) instead of its full tiles — its flat outline: the
+// mask cells as flat quads in the minimap's colours, greedy-merged per
+// terrain run, the exact cell contour stepped down to one sand shelf
+// (maskMeshData; ≈ 1 k triangles for a large island). No trees, buildings
+// or life. Every island in view whose full tiles have not arrived yet is
 // drawn this way, and at far LOD the islands in view other than the
 // focused one (ART_DIRECTION §2 budget); all of them are merged into one
 // static mesh (one draw call), rebuilt only when the set of islands drawn
 // this way changes (off-screen islands are left out). An island whose
 // tiles are built brings its own far columns instead (MaskIsland.tiles:
 // its near field downsampled to one column per tile, render/terrain.ts),
-// so its coast at far lines up with the one at mid — nearest the view
-// first, while the far view stays within its budget (D-058's relief
-// within D-048's far budget, farTerrainBudget). Render data only.
+// so its coast at far lines up with the one at mid — the largest on
+// screen first, kept once given, while the far view stays within its
+// budget (D-058's relief within D-048's far budget, farTerrainBudget,
+// MaskLayer.show). Render data only.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
-import type { Terrain } from "../api/client";
-import { coastline } from "../display/coastline";
-import { type DecodedMask, MASK_BLOCK, MASK_TERRAINS, MASK_WATER } from "../display/mask";
+import { type DecodedMask, MASK_BLOCK, MASK_COAST, MASK_WATER } from "../display/mask";
+import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { skyFill } from "./lighting";
+import { mapLandColor, rgbOf } from "./mapcolors";
+import { c3 } from "./palette";
 import { Builder, FAR_QUANT } from "./terrain";
-import { islandField, meshField } from "./voxelterrain";
+import { EMPTY, meshField, pack, SHELF_H } from "./voxelterrain";
 
 /** D-048's far budget at the zoom cap (triangles). */
 export const FAR_TRIS = 250_000;
@@ -48,8 +51,9 @@ export interface FarFixedCost {
 /**
  * The far view's terrain budget: what the fixed layers and the scenery
  * leave of FAR_TRIS less FAR_RESERVE. It is spent on the focused island's
- * relief first (homeTerrain), then on the other islands in view nearest
- * first (MaskLayer.show), their flat outline the last resort.
+ * relief first (homeTerrain), then on the other islands in view by
+ * on-screen area (MaskLayer.show, reliefOrder), their flat outline the
+ * last resort.
  */
 export function farTerrainBudget(c: FarFixedCost): number {
   return Math.max(0, FAR_TRIS * (1 - FAR_RESERVE) - FAR_SCENERY_TRIS - c.models - c.trees - c.shadows - c.ships);
@@ -81,7 +85,7 @@ export interface FarDetail {
  * (the focused one) take their fine lite terrain while it fits next to the
  * other islands' outlines (`outlines`), else their coarse one; returns
  * what is left for the mask mesh (MaskLayer.show: outlines, then relief
- * nearest first). `ships`: the fleet's triangles.
+ * by on-screen area). `ships`: the fleet's triangles.
  */
 export function allocateFarTerrain(detailed: readonly FarDetail[], outlines: number, ships: number): number {
   const cost = { models: 0, trees: 0, shadows: 0, ships };
@@ -99,6 +103,25 @@ export function allocateFarTerrain(detailed: readonly FarDetail[], outlines: num
   return Math.max(0, budget);
 }
 
+/**
+ * Share of the mask mesh's budget an island already in relief may run
+ * over before it is dropped back to its outline (MaskLayer.show): within
+ * FAR_RESERVE, so the far view stays within FAR_TRIS.
+ */
+export const RELIEF_HYSTERESIS = 0.1;
+
+/** An island in view as the relief order sees it: its on-screen area (tiles², display/frustum.ts rectQuadOverlap) and its distance from the view's centre. */
+export interface ReliefRank {
+  id: string;
+  area: number;
+  dist: number;
+}
+
+/** Relief order of the islands in view (MaskLayer.show): on-screen area, largest first; ties nearest first, then by ID. */
+export function reliefOrder<T extends ReliefRank>(islands: readonly T[]): T[] {
+  return [...islands].sort((a, b) => b.area - a.area || a.dist - b.dist || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
 /** One island of the mask mesh. */
 export interface MaskIsland {
   id: string;
@@ -111,29 +134,73 @@ export interface MaskIsland {
   tiles?: { key: string; data: Builder } | null;
 }
 
+/** Colour of the mask outline's sand shelf (the 1-tile step off the cell contour). */
+const SHELF = c3(TERRAIN.sand).scale(0.9);
+/** Side colours of the outline: the land's step down to the shelf (sand under beach cells, earth under the rest) and the shelf's wall into the sea. */
+const OUTLINE_SIDE = { sand: c3(TERRAIN.sand).scale(0.84), earth: Color3.Lerp(c3(TERRAIN.road_dirt), c3(ISLAND.rock_deep), 0.3), wet: Color3.Lerp(c3(TERRAIN.sand), c3(WATER.shallows), 0.22).scale(0.72) };
+/** Side kinds of the outline's walls. */
+const OUTLINE_EARTH = 0;
+const OUTLINE_SAND = 1;
+/** Foot of the outline's walls (steps): just under the sea surface (SEA_LEVEL −0.6 tiles = −4.8 steps). */
+const OUTLINE_FOOT = -5;
+
 /**
  * Vertex data of one island's mask mesh in island-local tiles (tile (x, y)
- * is (x, 0, −y)): coarse voxel terrain — one column per tile over the
- * mask's land (each cell MASK_BLOCK × MASK_BLOCK tiles, its terrain's
- * colour at the tile), the coast a pixel outline of the smoothed cell
- * contour with the two sand shelves down below the sea. Empty for an
+ * is (x, 0, −y)): the flat outline of its 1:4 mask, the shape the minimap
+ * draws (Minimap.tsx). Every land cell covers MASK_BLOCK × MASK_BLOCK
+ * tiles at height 0 in its terrain's minimap colour (render/mapcolors.ts
+ * mapLandColor), greedy-merged into flat quads per terrain run; the coast
+ * is the exact cell contour (no smoothing), stepped down to one 1-tile sand
+ * shelf (SHELF_H) whose wall drops just under the sea. No per-tile columns
+ * and no colour noise: a large island costs ≈ 1 k triangles (the shallows
+ * around it are the sea shader's, render/archipelago.ts). Empty for an
  * all-water mask.
  */
-export function maskMeshData(mask: DecodedMask, seed: number): Builder {
+export function maskMeshData(mask: DecodedMask): Builder {
   const b = new Builder();
-  const width = mask.width * MASK_BLOCK;
-  const height = mask.height * MASK_BLOCK;
-  // Pseudo-island of tiles: tile (x, y) takes the cell floor(x / B) (cell c covers tiles c·B … c·B + B − 1, display/mask.ts).
-  const terrain: Terrain[] = new Array<Terrain>(width * height);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const c = mask.cells[Math.floor(y / MASK_BLOCK) * mask.width + Math.floor(x / MASK_BLOCK)] as number;
-      terrain[y * width + x] = c === MASK_WATER ? "water" : (MASK_TERRAINS[c] as Terrain);
+  // Tiles of the mask plus a 1-tile border for the shelf: column (i, j) is tile (i − 1, j − 1).
+  const nx = mask.width * MASK_BLOCK + 2;
+  const ny = mask.height * MASK_BLOCK + 2;
+  const h = new Int8Array(nx * ny).fill(EMPTY);
+  const top = new Uint32Array(nx * ny);
+  const kind = new Uint8Array(nx * ny);
+  const land = new Uint8Array(nx * ny);
+  let any = false;
+  for (let my = 0; my < mask.height; my++) {
+    for (let mx = 0; mx < mask.width; mx++) {
+      const c = mask.cells[my * mask.width + mx] as number;
+      if (c === MASK_WATER) continue;
+      any = true;
+      const [r, g, bl] = rgbOf(mapLandColor(c));
+      const colour = pack({ r, g, b: bl });
+      for (let y = 0; y < MASK_BLOCK; y++) {
+        for (let x = 0; x < MASK_BLOCK; x++) {
+          const k = (my * MASK_BLOCK + y + 1) * nx + mx * MASK_BLOCK + x + 1;
+          land[k] = 1;
+          h[k] = 0;
+          top[k] = colour;
+          kind[k] = c === MASK_COAST ? OUTLINE_SAND : OUTLINE_EARTH;
+        }
+      }
     }
   }
-  const pseudo = { width, height, terrain };
-  const f = { ...islandField(pseudo, coastline(pseudo), seed, 1), quant: FAR_QUANT, flatTops: true };
-  meshField(b, f, 0, 0, f.nx, f.ny);
+  if (!any) return b;
+  // The shelf: every other tile touching land (8-neighbourhood, so convex corners stay square).
+  const shelf = pack(SHELF);
+  for (let j = 0; j < ny; j++) {
+    for (let i = 0; i < nx; i++) {
+      const k = j * nx + i;
+      if (land[k]) continue;
+      let touches = false;
+      for (let dj = -1; dj <= 1 && !touches; dj++) for (let di = -1; di <= 1 && !touches; di++) touches = i + di >= 0 && j + dj >= 0 && i + di < nx && j + dj < ny && land[(j + dj) * nx + i + di] === 1;
+      if (!touches) continue;
+      h[k] = SHELF_H;
+      top[k] = shelf;
+      kind[k] = OUTLINE_SAND;
+    }
+  }
+  const side = (z: number, k: number) => (z < SHELF_H ? OUTLINE_SIDE.wet : k === OUTLINE_SAND ? OUTLINE_SIDE.sand : OUTLINE_SIDE.earth);
+  meshField(b, { nx, ny, x0: -1, y0: -1, s: 1, h, top, kind, bottom: OUTLINE_FOOT, side, quant: FAR_QUANT, flatTops: true }, 0, 0, nx, ny);
   return b;
 }
 
@@ -146,6 +213,8 @@ export class MaskLayer {
   private readonly cache = new Map<string, { key: string; data: Builder }>();
   /** Islands drawn from their own far columns in the current mesh. */
   private fromTiles = new Set<string>();
+  /** The mesh's islands and triangles in relief (own far columns) and as outlines (stats). */
+  private split = { relief: { islands: 0, tris: 0 }, outline: { islands: 0, tris: 0 } };
 
   constructor(private readonly scene: Scene) {
     this.material = skyFill(new StandardMaterial("mask_terrain", scene));
@@ -155,22 +224,41 @@ export class MaskLayer {
 
   /**
    * Draws exactly these islands (rebuilt only when the set, an island's
-   * inputs or the choice of far columns changed). Islands come in order
-   * of priority (nearest the view first): those with tiles use them while
-   * the mesh stays within `budget` triangles, the others their mask (the
-   * masks are drawn whatever the budget).
+   * inputs or the choice of far columns changed): every one at least as
+   * its outline (whatever the budget), those with tiles in relief (their
+   * own far columns) by this rule (D-048 within `budget` triangles):
+   *
+   * - an island already in relief keeps it while the mesh stays within
+   *   `budget` × (1 + RELIEF_HYSTERESIS); above that the kept ones are
+   *   dropped from the end of the order until it is within `budget`
+   *   (tiles streaming in never cost a kept island its relief: its far
+   *   columns do not change, and the newcomers only take what is free);
+   * - then, if `grant`, the others in the given order (the engine's:
+   *   on-screen area, largest first, ties nearest, reliefOrder) while the
+   *   mesh stays within `budget`.
+   *
+   * `grant` false holds new relief back (the far view's cost is not final
+   * yet: the focused island or models still loading, which would take
+   * the room back a moment later).
    */
-  show(islands: readonly MaskIsland[], budget = Infinity): void {
+  show(islands: readonly MaskIsland[], budget = Infinity, grant = true): void {
     const masks = this.masks(islands);
     const tris = (b: Builder) => b.indices.length / 3;
     let total = 0;
     for (const b of masks.values()) total += tris(b);
-    const fromTiles = new Set<string>();
-    for (const is of islands) {
-      if (!is.tiles) continue;
-      const extra = tris(is.tiles.data) - tris(masks.get(is.id) as Builder);
-      if (total + extra > budget) continue;
-      total += extra;
+    const extra = (is: MaskIsland) => tris((is.tiles as { data: Builder }).data) - tris(masks.get(is.id) as Builder);
+    // Kept: in relief before and still drawn with tiles, in the given order.
+    const kept = islands.filter((is) => is.tiles && this.fromTiles.has(is.id));
+    for (const is of kept) total += extra(is);
+    if (total > budget * (1 + RELIEF_HYSTERESIS)) {
+      while (kept.length > 0 && total > budget) total -= extra(kept.pop() as MaskIsland);
+    }
+    const fromTiles = new Set(kept.map((is) => is.id));
+    for (const is of grant ? islands : []) {
+      if (!is.tiles || fromTiles.has(is.id)) continue;
+      const e = extra(is);
+      if (total + e > budget) continue;
+      total += e;
       fromTiles.add(is.id);
     }
     const keyOf = (is: MaskIsland) => (is.tiles && fromTiles.has(is.id) ? `tiles:${is.tiles.key}` : (this.cache.get(is.id)?.key ?? ""));
@@ -181,6 +269,12 @@ export class MaskLayer {
     this.mesh?.dispose();
     this.mesh = null;
     const parts = islands.map((is) => ({ data: is.tiles && fromTiles.has(is.id) ? is.tiles.data : (masks.get(is.id) as Builder), x: is.position.x, y: is.position.y }));
+    this.split = { relief: { islands: 0, tris: 0 }, outline: { islands: 0, tris: 0 } };
+    islands.forEach((is, i) => {
+      const e = fromTiles.has(is.id) ? this.split.relief : this.split.outline;
+      e.islands++;
+      e.tris += tris((parts[i] as { data: Builder }).data);
+    });
     const merged = mergeParts(parts);
     if (merged.indices.length === 0) return;
     const mesh = new Mesh("mask_terrain", this.scene);
@@ -211,7 +305,7 @@ export class MaskLayer {
     for (const is of islands) {
       const k = `${is.seed}|${is.mask.width}x${is.mask.height}|${maskString(is.mask)}`;
       let c = this.cache.get(is.id);
-      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: maskMeshData(is.mask, is.seed) }));
+      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: maskMeshData(is.mask) }));
       keep.add(is.id);
       masks.set(is.id, c.data);
     }
@@ -227,6 +321,12 @@ export class MaskLayer {
   /** Islands of the mesh drawn from their own far columns (tests and stats). */
   tiled(): string[] {
     return [...this.fromTiles];
+  }
+
+  /** The mesh's islands and triangles in relief and as outlines (GameRenderer.activeLayers, `make shots STATS=2`). */
+  breakdown(): { relief: { islands: number; tris: number }; outline: { islands: number; tris: number } } {
+    if (!this.mesh) return { relief: { islands: 0, tris: 0 }, outline: { islands: 0, tris: 0 } };
+    return { relief: { ...this.split.relief }, outline: { ...this.split.outline } };
   }
 
   /** Triangles of the merged mesh. */
