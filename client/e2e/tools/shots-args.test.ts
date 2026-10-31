@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_DEVICES, DEFAULT_FIXTURES, DEFAULT_VIEWS, DEVICES, FIXTURES, PRESETS, parseList, parseShotArgs, ShotArgError, VIEWS } from "./shots-args";
 
 describe("parseShotArgs", () => {
-  it("defaults to the three fixtures, all views and desktop and phone", () => {
+  it("defaults to settled and played, all views and desktop and phone", () => {
     expect(parseShotArgs({})).toEqual({
       fixtures: DEFAULT_FIXTURES,
       views: [...DEFAULT_VIEWS],
@@ -106,7 +106,7 @@ describe("FIXTURES", () => {
   });
 
   it("the default set is a subset", () => {
-    expect(DEFAULT_FIXTURES).toEqual(["settled", "patricians", "played"]);
+    expect(DEFAULT_FIXTURES).toEqual(["settled", "played"]);
     for (const f of DEFAULT_FIXTURES) expect(FIXTURES).toContain(f);
   });
 });

@@ -23,7 +23,7 @@ export type View = (typeof VIEWS)[number];
 export type Device = (typeof DEVICES)[number];
 export type Preset = (typeof PRESETS)[number];
 
-export const DEFAULT_FIXTURES: Fixture[] = ["settled", "patricians", "played"];
+export const DEFAULT_FIXTURES: Fixture[] = ["settled", "played"];
 export const DEFAULT_VIEWS: View[] = ["near", "mid", "far"];
 /** The default devices (desktop-xl only on request: DEVICE=desktop-xl or all). */
 export const DEFAULT_DEVICES: Device[] = ["desktop", "phone"];

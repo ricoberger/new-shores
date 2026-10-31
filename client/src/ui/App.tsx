@@ -26,7 +26,7 @@ import type { Lod } from "../display/lod";
 import { lifeEnabled } from "../display/life";
 import { fxaaForced, type Quality, resolveQuality } from "../display/quality";
 import { initialViewState, viewReducer } from "../display/view";
-import { type CameraInfo, type FieldPaint, GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
+import { type CameraInfo, type FieldPaint, GameRenderer, type RendererEvents, type RenderSource } from "../render/engine";
 import { MAX_PAINT_TILES } from "../display/fieldpaint";
 import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
@@ -146,11 +146,9 @@ interface AppProps {
   onLoggedOut: () => void;
   /** Data source (default: a GameSync against the server). */
   sync?: SyncLike;
-  /** Where the camera starts (default: the first island at the near zoom). */
-  initialCamera?: InitialCamera;
 }
 
-export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync: source, initialCamera }: AppProps) {
+export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync: source }: AppProps) {
   const [sync] = useState<SyncLike>(() => source ?? new GameSync());
   useEffect(() => sync.start(), [sync]);
   useEffect(() => sync.subscribeUnauthorized(onSessionEnded), [sync, onSessionEnded]);
@@ -1010,7 +1008,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {phone && unreachable}
         </div>
         {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
-        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialCamera={initialCamera} quality={quality} forceFxaa={forceFxaa} life={life} />
+        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} quality={quality} forceFxaa={forceFxaa} life={life} />
         {showStats && <StatsBadge renderer={renderer} />}
         {model && (
           <div className={styles.mapCorner}>

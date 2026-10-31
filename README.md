@@ -116,10 +116,10 @@ in as the fixed player "Developer". The API is at
   serves the bundle with `vite preview` on :4173 (`--host` with `HOST`)
   against the same in-memory dev server. Use it for fps numbers on a phone:
   Vite's unbundled dev serving is slower than a bundle. Open
-  `http://$HOST:4173/?fixture=dense-2x400&stats=1`.
+  `http://$HOST:4173/?fixture=played&stats=1`.
 - **`POST /api/v1/dev/reset` (tests only):** replaces the dev server's
   in-memory world with a fresh dev fixture (optional body
-  `{"fixture": "default" | "seafaring" | "town" | "settled" | "citizens"}`, see
+  `{"fixture": "default" | "seafaring" | "town" | "settled" | "citizens" | "merchants" | "patricians" | "played"}`, see
   `server/internal/devworld/fixtures.go`): pending events, the last-seen
   time and the away summary start over, the version increases and
   `world_changed` is published. It exists for `make shots`, which resets
@@ -189,16 +189,13 @@ service before the servers start.
   camera), one-finger road drawing, ship drag-to-send. Phones get bottom
   sheets, a scrolling build bar, a collapsible minimap and a collapsed top
   bar; the mouse keeps click-to-place.
-- **Fixtures** (dev and E2E builds only, no server needed):
-  `?fixture=archipelago-8x20` (8 islands, 20 ships; whole archipelago in
-  view), `?fixture=dense-2x400` (two islands, ≈ 400 buildings, 63 carts,
-  2 ships on legs; near the dense island) and
-  `?fixture=dense-archipelago-8` (8 islands, two of them dense, ships on
-  legs and 2 routes; the far and mid LOD budget) and `?fixture=showcase`
-  (every building, field and ship model once or more: house variants,
-  warehouse levels, a paused building, sloops with and without cargo and
-  unpaid), all with the real content IDs and footprints, e.g.
-  <http://localhost:5173/?fixture=dense-2x400> under `make dev`.
+- **Fixtures** (`make dev` and `make preview`, which run the `--dev` server;
+  not `make up`): `?fixture=<name>` resets the dev server's world to a
+  server fixture (`default`, `seafaring`, `town`, `settled`, `citizens`,
+  `merchants`, `patricians` or `played`, the list `devworld.Fixtures`; an
+  unknown name shows the server's error) and opens the game, e.g.
+  <http://localhost:5173/?fixture=played> under `make dev`. `played` is the
+  Patricians reference game: a large town on four tiers.
   `?stats=1` (dev and E2E builds, with or without a fixture) shows a small
   fps badge bottom left: fps, frame ms (p95), draw calls, triangles, JS
   heap (Chromium only), LOD and model detail.
@@ -207,10 +204,10 @@ service before the servers start.
   WebGL such as headless Chromium unless `?fxaa=1` forces it; touch
   layouts: low).
 - **fps validation is manual, on the baseline device:** at each art gate
-  the dense fixtures are checked on an iPhone 15 Pro Max (Safari) at near,
+  the `played` fixture is checked on an iPhone 15 Pro Max (Safari) at near,
   mid and far LOD (`make preview HOST=<lan ip>`, `&stats=1` for the fps
-  badge). Baseline 2026-10-23: 60 fps at near, mid and far on both
-  `dense-2x400` and `dense-archipelago-8`.
+  badge). Baseline 2026-10-23 (on the since retired synthetic dense fixtures):
+  60 fps at near, mid and far.
 - **PWA:** production builds register a service worker that caches the
   app shell only (installable, starts fast); the game itself always needs
   connectivity and `/api/` is never cached. A new version shows an
@@ -257,7 +254,7 @@ the build.
   `.experiment/sheets/<ids>.png`; the committed models and thumbnails stay
   untouched; without `RECIPE` it lists the model IDs. `make shots` writes `<fixture>-<view>-<device>.png` into
   `.experiment/shots/default/` with a fixed camera and clock: fixtures
-  `showcase`, `settled`, `dense-2x400`, views `near`, `mid`, `far`, devices
+  `settled`, `played` (any server fixture with `FIXTURE=`), views `near`, `mid`, `far`, devices
   `desktop` (1280×800) and `phone` (412×915, DPR 2.625). Narrow it with
   `FIXTURE=`, `VIEW=`, `DEVICE=` (comma lists or `all`) and move the camera
   with `ROTATION=0..3`, `ISLAND=`, `ZOOM=` (half extent), `X= Y=`; `HUD=0`
