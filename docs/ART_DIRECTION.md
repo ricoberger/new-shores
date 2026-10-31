@@ -202,7 +202,17 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   the stone road. A road change repaints the field and rebuilds only the
   touched chunks; carts and walkers walk on the sunk path.
 - **Field ground** is painted into the ground texture too (furrows for
-  crops, pasture, orchard grass) under the field models.
+  crops, pasture, orchard grass) under the field models. **At far LOD
+  fields are ground patches, not models** (they have no lite file and
+  cost 210–3 070 triangles each; the far budget): the lite terrain gets
+  its own ground texture with every field footprint in one flat colour
+  per field type — the field model's crop colour (its up-facing faces in
+  the upper part of the model, else all up-facing faces;
+  `render/farfields.ts`), pastures the palette's lighter pasture green
+  with a one-column timber fence line round the footprint (texture only,
+  so free), tree plots a dark green; furrows are ignored. The far
+  columns of a neighbour island carry the same patches. The full field
+  models return at mid.
 - **Decor** (`assets/voxel/recipes/_decor.py`, `render/decorscatter.ts`):
   four tree species with irregular noise canopies (lobes, rim holes, lit
   tops, dark undersides) and branches — oak, beech, a conifer and birch —

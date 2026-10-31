@@ -94,6 +94,33 @@ describe("BuildingLayer with models", () => {
   });
 
 
+  it("leaves the field models out of the lite chunks: at far LOD fields are ground patches, counted as drawn", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const layer = new BuildingLayer(scene, null, reg);
+    const withField = new Map(defs).set("wheat_field", { id: "wheat_field", width: 1, height: 1, category: "production", field: { farm: ["wheat_farm"] } } as unknown as ContentBuilding);
+    layer.update([b(1, "sawmill", 0), b(2, "wheat_field", 4), b(3, "wheat_field", 5)], withField);
+    await loaded(reg);
+    layer.refresh();
+    const saw = manifest.models.sawmill!.file!;
+    const wheat = manifest.models.wheat_field!.file!;
+    expect(wheat.lite).toBeUndefined();
+    // Lite (far): the sawmill's lite model only; both fields drawn (as patches), so no field placeholder layer draws them.
+    expect(layer.chunkTriangles()).toBe(saw.lite!.triangles);
+    expect([...layer.modelled()].sort()).toEqual([1, 2, 3]);
+    const meshes = scene.meshes.length;
+    // Full (mid): the field models return, from the prebuilt chunk (no new geometry).
+    layer.setDetail("full");
+    expect(layer.chunkTriangles()).toBe(saw.triangles + 2 * wheat.triangles);
+    expect([...layer.modelled()].sort()).toEqual([1, 2, 3]);
+    expect(scene.meshes.length).toBe(meshes);
+    layer.setDetail("lite");
+    expect(layer.chunkTriangles()).toBe(saw.lite!.triangles);
+    expect(scene.meshes.length).toBe(meshes);
+    scene.dispose();
+  });
+
   it("bakes the paused tint into the chunk's vertex colours", async () => {
     const scene = new Scene(engine);
     const reg = registry(scene);

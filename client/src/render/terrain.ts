@@ -32,6 +32,7 @@ import { addGround } from "./groundshader";
 import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
 import type { RoadTile } from "./roads";
+import { fieldPatchTops } from "./farfields";
 import { type FieldBase, fieldBase, type FieldTile, paintFields, paintRoads, touchedChunks } from "./roadvoxels";
 import { LEVEL_STEPS } from "./terraces";
 import { COAST_REACH, downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, roundDistanceTo, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
@@ -134,15 +135,17 @@ export interface TerrainMeshes {
   full: Mesh[];
   /** The near/mid column field (4 per tile). */
   field: Field | null;
-  /** The far view's columns (FAR_VPT per tile, island-local), merged with the other islands (farmesh.ts). */
-  far: Builder | null;
+  /** The far view's columns (FAR_VPT per tile, island-local), merged with the other islands (farmesh.ts); rebuilt on access after the field patches changed. */
+  readonly far: Builder | null;
+  /** Changes whenever `far` does (the mask layer's cache key). */
+  readonly farVersion: number;
   /** Paints the island's roads into the terrain; returns the chunks whose meshes were rebuilt. */
   setRoads(tiles: readonly RoadTile[], fields?: readonly FieldTile[]): string[];
   dispose(): void;
 }
 
 /** No terrain. */
-export const NO_TERRAIN: TerrainMeshes = { lite: [], full: [], field: null, far: null, setRoads: () => [], dispose: () => undefined };
+export const NO_TERRAIN: TerrainMeshes = { lite: [], full: [], field: null, far: null, farVersion: 0, setRoads: () => [], dispose: () => undefined };
 
 /**
  * The island's terrain in two details, both built once: `lite` (far LOD,
@@ -182,6 +185,20 @@ function terrainMaterial(scene: Scene, name: string): StandardMaterial {
 export class TerrainBuild {
   private readonly material: StandardMaterial;
   private readonly texture: RawTexture;
+  /**
+   * The lite terrain's own ground texture and material while the island
+   * has fields: the field tiles as flat patches of their crop's colour
+   * (render/farfields.ts; the field models are not drawn at far LOD).
+   * Null without fields (the lite mesh shares the near texture).
+   */
+  private lite: { texture: RawTexture; material: StandardMaterial } | null = null;
+  /** The lite mesh (after finish). */
+  private liteMesh: Mesh | null = null;
+  /** The near field's tops with the far view's field patches (null: no fields). */
+  private patchTops: Uint32Array | null = null;
+  /** The far view's columns (null: to build from the current patches) and their version. */
+  private farData: Builder | null = null;
+  private farVersion = 0;
   /** The full meshes by chunk key. */
   private readonly meshes = new Map<string, Mesh>();
   private readonly rects: Map<string, ChunkRect>;
@@ -232,13 +249,14 @@ export class TerrainBuild {
    * changed height (or whose neighbours did) and returns their keys.
    */
   setRoads(tiles: readonly RoadTile[], fields: readonly FieldTile[] = []): string[] {
-    const key = `${tiles.map((t) => `${t.x},${t.y},${t.type ?? ""}`).join(";")}|${fields.map((t) => `${t.x},${t.y},${t.type}`).join(";")}`;
+    const key = `${tiles.map((t) => `${t.x},${t.y},${t.type ?? ""}`).join(";")}|${fields.map((t) => `${t.x},${t.y},${t.type},${t.w ?? 1}x${t.h ?? 1},${t.patch ?? ""}`).join(";")}`;
     if (key === this.roadKey) return [];
     this.roadKey = key;
     const f = this.fields.full;
     const changed = paintRoads(f, this.base, tiles, this.seed);
     paintFields(f, this.base, fields, this.seed);
     this.texture.update(groundTexels(f));
+    this.updatePatches(fields);
     const out: string[] = [];
     for (const k of touchedChunks(changed, f, (x, y) => chunkAt(x, y, this.island.width, this.island.height))) {
       const c = this.rects.get(k);
@@ -249,12 +267,58 @@ export class TerrainBuild {
     return out.sort();
   }
 
+  /** The far view's field patches: the lite texture (created with the first field, dropped with the last) and the far columns' tops. */
+  private updatePatches(fields: readonly FieldTile[]): void {
+    const f = this.fields.full;
+    if (fields.length === 0) {
+      if (this.patchTops) this.farData = null;
+      this.patchTops = null;
+      if (this.liteMesh) this.liteMesh.material = this.material;
+      this.lite?.texture.dispose();
+      this.lite?.material.dispose();
+      this.lite = null;
+      return;
+    }
+    this.patchTops = fieldPatchTops(f, this.base, fields);
+    this.farData = null;
+    const texels = groundTexels({ ...f, top: this.patchTops });
+    if (this.lite) this.lite.texture.update(texels);
+    else {
+      const texture = new RawTexture(texels, f.nx, f.ny, Constants.TEXTUREFORMAT_RGBA, this.scene, false, false, Texture.NEAREST_SAMPLINGMODE);
+      texture.name = `ground_lite_${this.island.id}`;
+      texture.wrapU = Texture.CLAMP_ADDRESSMODE;
+      texture.wrapV = Texture.CLAMP_ADDRESSMODE;
+      this.lite = { texture, material: addGround(terrainMaterial(this.scene, "terrain_lite"), { texture, width: f.nx, height: f.ny, vpt: TERRAIN_VPT }) };
+    }
+    if (this.liteMesh) this.liteMesh.material = this.lite.material;
+  }
+
   /** Disposes what was built so far (a replaced build). */
   dispose(): void {
     for (const m of this.meshes.values()) m.dispose();
     this.meshes.clear();
     this.texture.dispose();
     this.material.dispose();
+    this.lite?.texture.dispose();
+    this.lite?.material.dispose();
+    this.lite = null;
+  }
+
+  /**
+   * The far view's columns: whole terrace levels, one rock tier, rivers
+   * flat, coarser colours (no rims, ramps or channels: fewer walls and
+   * rectangles, D-048's far budget), the fields as their patches. Built
+   * on first use after a change of the patches.
+   */
+  private far(): Builder {
+    if (this.farData) return this.farData;
+    const near: Field = this.patchTops ? { ...this.fields.full, top: this.patchTops } : this.fields.full;
+    const farF: Field = { ...snapHeights(downsampleField(withRock(near, this.seed, { tiers: 1, flatRivers: true }), TERRAIN_VPT / FAR_VPT), LEVEL_STEPS), quant: RELIEF_QUANT, flatTops: true };
+    const far = new Builder();
+    meshField(far, farF, 0, 0, farF.nx, farF.ny);
+    this.farData = far;
+    this.farVersion++;
+    return far;
   }
 
   /** The lite mesh and the far data; the full meshes built so far. */
@@ -262,20 +326,25 @@ export class TerrainBuild {
     const liteB = new Builder();
     const lite = this.fields.lite;
     meshField(liteB, lite, 0, 0, lite.nx, lite.ny);
-    const liteMesh = liteB.mesh(`terrain_lite_${this.island.id}_all`, this.scene, this.material, this.liteParent);
+    const liteMesh = liteB.mesh(`terrain_lite_${this.island.id}_all`, this.scene, this.lite?.material ?? this.material, this.liteParent);
     liteMesh?.freezeWorldMatrix();
-    // Whole terrace levels, one rock tier, rivers flat, coarser colours (no rims, ramps or channels: fewer walls and rectangles, D-048's far budget).
-    const farF: Field = { ...snapHeights(downsampleField(withRock(this.fields.full, this.seed, { tiers: 1, flatRivers: true }), TERRAIN_VPT / FAR_VPT), LEVEL_STEPS), quant: RELIEF_QUANT, flatTops: true };
-    const far = new Builder();
-    meshField(far, farF, 0, 0, farF.nx, farF.ny);
+    this.liteMesh = liteMesh;
+    this.farData = null;
     const meshes = this.meshes;
+    const far = (): Builder => this.far();
+    const farVersion = (): number => (this.far(), this.farVersion);
     return {
       lite: liteMesh ? [liteMesh] : [],
       get full() {
         return [...meshes.values()];
       },
       field: this.fields.full,
-      far,
+      get far() {
+        return far();
+      },
+      get farVersion() {
+        return farVersion();
+      },
       setRoads: (tiles, fields) => this.setRoads(tiles, fields),
       dispose: () => {
         liteMesh?.dispose();

@@ -43,7 +43,9 @@ import { GROUND_JITTER, groundShade } from "./groundshader";
 import { jitterShade, setJitterLod } from "./jitter";
 import { type Builder, buildTerrain, CoastWater, NO_TERRAIN, TerrainBuild, type TerrainMeshes } from "./terrain";
 import { type DetailPlaced, scatterDetail } from "./decorscatter";
+import { farFieldColor } from "./farfields";
 import type { FieldTile } from "./roadvoxels";
+import { pack } from "./voxelterrain";
 import { type DecorMaterials, decorMaterials, Decoration, FarTrees, TREE_MODELS } from "./trees";
 
 /** The state of an incremental first build (IslandDetail.startBuild). */
@@ -233,7 +235,8 @@ export class IslandDetail {
 
   /** The far view's terrain columns (island-local, FAR_VPT per tile; null until built): the renderer merges them with the other islands'. */
   farTerrain(): { key: string; data: Builder } | null {
-    return this.hasTiles() && this.terrain.far ? { key: this.terrainKey, data: this.terrain.far } : null;
+    const far = this.hasTiles() ? this.terrain.far : null;
+    return far ? { key: `${this.terrainKey}#${this.terrain.farVersion}`, data: far } : null;
   }
 
   /** Whether the island is drawn with its full tiles (terrain and layers built). */
@@ -363,7 +366,7 @@ export class IslandDetail {
     yield;
     b.keys = layerKeys(display);
     // The roads are voxel paths in the terrain: painted before its chunks are meshed.
-    b.terrain?.setRoads(display.roads, fieldTiles(display, defs));
+    b.terrain?.setRoads(display.roads, fieldTiles(display, defs, this.registry));
     b.fields = this.fieldsByChunk(display);
     b.scatter = { width: statics.width, height: statics.height, terrain: statics.terrain, levels: statics.levels, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
   }
@@ -428,7 +431,7 @@ export class IslandDetail {
       this.ground.setRoads(display.roads);
       this.rock.setBridges(this.ground.bridges(), this.id);
       // Colour-only for the fields: only height changes (roads) rebuild chunks.
-      this.chunkRebuilds.roads = this.terrain.setRoads(display.roads, fieldTiles(display, defs));
+      this.chunkRebuilds.roads = this.terrain.setRoads(display.roads, fieldTiles(display, defs, this.registry));
       this.applyTerrainDetail();
     }
     if (old?.layout !== keys.layout) {
@@ -565,6 +568,8 @@ export class IslandDetail {
     const built = this.builtFrom;
     if (!built) return;
     this.buildings.refresh();
+    // The far view's field patches take the colours of the field models that loaded (a texture update, no remesh).
+    this.terrain.setRoads(built.display.roads, fieldTiles(built.display, built.defs, this.registry));
     this.fields.update(this.fieldsByChunk(built.display));
     this.fieldDecor.update(this.fieldsByChunk(built.display));
     this.icons.update(built.display.buildings, built.defs, this.statusY);
@@ -717,7 +722,17 @@ export class IslandDetail {
 
 }
 
-/** The field tiles of a payload (their ground is painted into the terrain). */
-function fieldTiles(display: Pick<IslandDisplay, "buildings">, defs: ReadonlyMap<string, ContentBuilding>): FieldTile[] {
-  return display.buildings.filter((b) => defs.get(b.type)?.field).map((b) => ({ x: b.x, y: b.y, type: b.type }));
+/** The field tiles of a payload with their rotated footprints (their ground is painted into the terrain; the far view's patches cover the footprint). */
+function fieldTiles(display: Pick<IslandDisplay, "buildings">, defs: ReadonlyMap<string, ContentBuilding>, registry: ModelRegistry | null): FieldTile[] {
+  const out: FieldTile[] = [];
+  const patches = new Map<string, number>();
+  for (const b of display.buildings) {
+    const def = defs.get(b.type);
+    if (!def?.field) continue;
+    const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
+    let patch = patches.get(b.type);
+    if (patch === undefined) patches.set(b.type, (patch = pack(farFieldColor(b.type, registry))));
+    out.push({ x: b.x, y: b.y, type: b.type, w, h, patch });
+  }
+  return out;
 }
