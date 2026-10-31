@@ -20,16 +20,16 @@ from nsvoxel.grid import Vox  # noqa: E402
 CONTENT = content.load()
 ROLES = palette.load()[0]
 
-#: id → (footprint w × d tiles, water rows the model stands over, anchors beyond status, model files).
+#: id → (footprint w × d tiles, content water_rows range, anchors beyond status, model levels).
 D062 = {
-    "trading_post": ((6, 6), 1, ("door", "cart", "berth_1", "berth_2", "berth_3", "berth_4"), 4),
-    "chapel": ((3, 5), 0, ("door",), 1),
-    "city_guard": ((4, 4), 0, ("door",), 1),
-    "fire_station": ((4, 5), 0, ("door",), 1),
-    "surgery": ((4, 6), 0, ("door",), 1),
-    "trading_pier": ((6, 9), 5, ("berth_1", "berth_2", "cart"), 1),
-    "depot": ((11, 4), 1, ("cart", "door"), 1),
-    "playhouse": ((11, 14), 0, ("door",), 1),
+    "trading_post": ((6, 6), (1, 2), ("door", "cart", "berth_1", "berth_2", "berth_3", "berth_4"), 4),
+    "chapel": ((3, 5), None, ("door",), 1),
+    "city_guard": ((4, 4), None, ("door",), 2),
+    "fire_station": ((4, 5), None, ("door",), 2),
+    "surgery": ((4, 6), None, ("door",), 1),
+    "trading_pier": ((6, 9), (5, 6), ("berth_1", "berth_2", "cart"), 1),
+    "depot": ((11, 4), (0, 1), ("cart", "door"), 1),
+    "playhouse": ((11, 14), None, ("door",), 1),
 }
 #: Voxels of the model's water rows: the deck of the pier (all six), the front row of the depot (D-062: 5–6 and 0–1 in the content).
 MODEL_WATER = {"trading_post": 8, "trading_pier": 48, "depot": 8}
@@ -145,8 +145,17 @@ class D062Test(unittest.TestCase):
         for cid, ((w, d), water, _, levels) in D062.items():
             with self.subTest(cid=cid):
                 self.assertEqual(content.footprint(CONTENT, cid), (w, d))
-                self.assertEqual(CONTENT["buildings"][cid].get("water_tiles", 0) if "water_rows" not in CONTENT["buildings"][cid] else water, water)
+                expected = {"min": water[0], "max": water[1]} if water is not None else None
+                self.assertEqual(CONTENT["buildings"][cid].get("water_rows"), expected)
+                self.assertNotIn("water_tiles", CONTENT["buildings"][cid])
                 self.assertEqual(content.levels(CONTENT, cid), levels if levels > 1 else 0)
+
+    def test_shipped_definitions_need_no_d062_planned_overrides(self):
+        shipped = content.load(planned_dir=None)
+        for cid in D062:
+            with self.subTest(cid=cid):
+                self.assertEqual(CONTENT["buildings"][cid], shipped["buildings"][cid])
+                self.assertFalse(content.is_planned(CONTENT, cid))
 
     def test_budgets_footprint_anchors_and_levels(self):
         for cid, ((w, d), water, anchors, levels) in D062.items():
@@ -159,6 +168,7 @@ class D062Test(unittest.TestCase):
                 self.assertNotIn("smoke", entry["anchors"])
                 if levels > 1:
                     self.assertEqual(sorted(entry["levels"]), [str(i) for i in range(1, levels + 1)])
+                    self.assertEqual([f[0] for f in files], [name for i in range(1, levels + 1) for name in (f"{cid}.l{i}.glb", f"{cid}.l{i}.lite.glb")])
                 else:
                     self.assertNotIn("levels", entry)
                 for info in [entry.get("file")] + list(entry.get("levels", {}).values()):
@@ -177,10 +187,13 @@ class D062Test(unittest.TestCase):
 
     def test_the_city_guard_is_warm_sandstone_not_grey(self):
         files, _, _ = self.built("city_guard")
-        v = [f[3] for f in files if f[0] == "city_guard.glb"][0]
-        roles = [m[0] for m in v.cells.values()]
-        self.assertLess(roles.count("stone") / len(roles), 0.03)
-        self.assertGreater(roles.count("cliff-upper") / len(roles), 0.2)
+        by_path = {f[0]: f[3] for f in files}
+        for level in (1, 2):
+            with self.subTest(level=level):
+                v = by_path[f"city_guard.l{level}.glb"]
+                roles = [m[0] for m in v.cells.values()]
+                self.assertLess(roles.count("stone") / len(roles), 0.03)
+                self.assertGreater(roles.count("cliff-upper") / len(roles), 0.2)
 
     def test_the_surgery_is_a_patricians_stone_and_brick_house(self):
         self.assertEqual(CONTENT["buildings"]["surgery"]["tier"], "patricians")

@@ -198,7 +198,9 @@ def life_anchors(content, cid):
     out = []
     if is_producer(content, cid) or warehouse_levels(content, cid):
         out.append("cart")
-    if is_producer(content, cid) and b.get("water_tiles", 0) > 0:
+    rows = b.get("water_rows")
+    water = rows["max"] if isinstance(rows, dict) else b.get("water_tiles", 0)
+    if is_producer(content, cid) and water > 0:
         out.append("boat")
     berths = max((lv.get("berths", 0) for lv in (b.get("trading_post") or {}).get("levels", [])), default=0)
     out += [f"berth_{i}" for i in range(1, berths + 1)]

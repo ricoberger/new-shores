@@ -116,11 +116,12 @@ class ModelTest(unittest.TestCase):
                 self.assertIsNotNone(entry)
 
     def test_placeholders_build(self):
-        for cid in ("theatre", "wheat_field", "trading_post", "shipyard", "pasture"):
-            if cid in self.recipes:
-                continue
+        for cid in ("playhouse", "wheat_field", "trading_post", "shipyard", "pasture"):
             with self.subTest(cid=cid):
-                _, entry, problems = self.built(cid)
+                kind = build.kind_for(self.content, cid)
+                recipe, placeholder = build.recipe_for(cid, kind, {})
+                self.assertTrue(placeholder)
+                _, entry, problems = model.build_id(cid, kind, recipe, self.content)
                 self.assertEqual(problems, [])
                 for a in model.required_anchors(self.content, cid):
                     self.assertIn(a, entry["anchors"])

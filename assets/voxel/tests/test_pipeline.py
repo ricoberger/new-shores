@@ -97,7 +97,7 @@ class DeterminismTest(unittest.TestCase):
     def test_two_parallel_builds_write_the_same_bytes(self):
         recipes = model.recipe_modules()
         chosen = [t for t in build.targets(CONTENT, recipes) if t[0] in (
-            "house_settlers", "fisher", "trading_post", "brig", "wheat_field", "theatre", "grain_distillery", "decor_tree_a", "life_stage",
+            "house_settlers", "fisher", "trading_post", "brig", "wheat_field", "playhouse", "grain_distillery", "decor_tree_a", "life_stage",
         )]
         self.assertEqual(len(chosen), 9)
         a, _, pa = build.build_outputs(4, chosen)
@@ -110,6 +110,32 @@ class DeterminismTest(unittest.TestCase):
         self.assertIn("thumbs/fisher.png", a)
         self.assertIn("thumbs/brig.png", a)
         self.assertNotIn("thumbs/decor_tree_a.png", a)
+
+
+class WaterAnchorsTest(unittest.TestCase):
+    def test_water_rows_and_legacy_water_tiles_require_boat_anchors(self):
+        cases = (
+            ("absent", {}, False),
+            ("legacy", {"water_tiles": 2}, True),
+            ("legacy_zero", {"water_tiles": 0}, False),
+            ("range", {"water_rows": {"min": 2, "max": 3}}, True),
+            ("zero_min", {"water_rows": {"min": 0, "max": 1}}, True),
+            ("zero_max", {"water_rows": {"min": 0, "max": 0}}, False),
+            ("range_wins", {"water_rows": {"min": 0, "max": 1}, "water_tiles": 0}, True),
+            ("zero_range_wins", {"water_rows": {"min": 0, "max": 0}, "water_tiles": 2}, False),
+        )
+        for name, water, boat in cases:
+            for producer in (True, False):
+                with self.subTest(case=name, producer=producer):
+                    b = dict(water)
+                    if producer:
+                        b["recipe"] = {}
+                    definitions = {"buildings": {"test": b}, "ships": {}}
+                    expected = ["cart"] if producer else []
+                    if producer and boat:
+                        expected.append("boat")
+                    self.assertEqual(content_mod.life_anchors(definitions, "test"), expected)
+                    self.assertEqual(model.required_anchors(definitions, "test"), expected)
 
 
 class PlaceholderTest(unittest.TestCase):
