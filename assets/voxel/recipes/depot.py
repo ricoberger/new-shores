@@ -1,7 +1,7 @@
 """
 Depot (4 × 11, seven to nine water rows; D-062 as-built correction, D-060,
 Citizens; one level only): the island's storage as a stone platform that
-juts into the water, its short side on the beach. A warm grey ashlar deck
+juts into the water, its short side on the beach. A warm sandstone ashlar deck
 (courses, a coping, mooring rings on the three sea faces) stands on stone
 piers and timber piles with shallow arches between them at the waterline;
 three parallel timber-framed sheds run seaward under tiled roofs (two dark
@@ -28,13 +28,18 @@ from nsvoxel import parts as P
 from nsvoxel import detail_d060 as D
 from nsvoxel import detail_d062 as H
 from nsvoxel.grid import mat, shade_of
-from nsvoxel.mats import CANVAS, IRON, PLASTER, STONE, STONE_DARK, STONE_LIGHT, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel.mats import CANVAS, IRON, PLASTER, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+
+# The warm sandstone courses of the church and city guard (D.warm_hall), never a cold grey (ART_DIRECTION §2).
+STONE = D.SANDSTONE
+STONE_DARK = D.SANDSTONE_QUOIN
+STONE_LIGHT = D.SANDSTONE_TRIM
 
 # Roof roles (D-063 §3: dark tile / brown slate majority, terracotta the minority).
-DARK_TILE = (mat("timber", 0.62), mat("timber", 0.56))
-BROWN_SLATE = (mat("timber", 1.08), mat("timber", 0.98))
-RIDGE_DARK = mat("timber", 0.48)
-RIDGE_SLATE = mat("timber", 0.82)
+DARK_TILE = (mat("timber", 0.9), mat("timber", 0.84))
+BROWN_SLATE = (mat("timber", 1.22), mat("timber", 1.1))
+RIDGE_DARK = mat("timber", 0.68)
+RIDGE_SLATE = mat("timber", 0.92)
 TERRA = mat("terracotta", 0.92)
 RIDGE_TERRA = mat("terracotta", 0.7)
 PLANK = mat("timber", 1.62)

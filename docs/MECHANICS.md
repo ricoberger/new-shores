@@ -135,7 +135,7 @@ handlers only.
   Quays count as land, terminate the water prefix, and are replaced without
   refund when covered by a valid land part (§3); required water cannot
   carry quay. Values: Trading Post 1–2, fisher/salt pans 2–3,
-  shipyard/oyster beds 3–4, trading pier 5–6, depot 0–1 rows.
+  shipyard/oyster beds 3–4, trading pier 5–6, depot 7–9 rows (a 4×11 platform).
   A zero minimum permits an all-land footprint. Other coastal buildings
   still need a coast tile (quay counts). Harbour points remain two tiles
   off the **front row**, not the variable water/land boundary (§9).

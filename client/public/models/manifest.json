@@ -3687,7 +3687,7 @@
           ]
         },
         "budget": 22000,
-        "bytes": 359468,
+        "bytes": 359856,
         "lite": {
           "bounds": {
             "max": [
@@ -3702,14 +3702,14 @@
             ]
           },
           "budget": 1760,
-          "bytes": 35108,
+          "bytes": 35124,
           "path": "depot.lite.glb",
-          "sha256": "1598e44017ff5402bdf6177aa2cba20b657106810a0189dc4902acdd971d566e",
+          "sha256": "9932df59e7f31ce957f6a74e73291dcc8304c33f5a1c50fc6ec68d78c2c43598",
           "triangles": 946
         },
         "path": "depot.glb",
-        "sha256": "e70e865314bcd8b4d2363ea2b25d8e25a226a622c610deccc7fb6242207717e9",
-        "triangles": 11512
+        "sha256": "b29862a24f9cb946cab42646525d85a7c6201e98011dbc5597c261577201a7a0",
+        "triangles": 11518
       },
       "footprint": {
         "h": 11,

@@ -233,9 +233,9 @@ class D062Test(unittest.TestCase):
         files, entry, _ = self.built("depot")
         v = [f[3] for f in files if f[0] == "depot.glb"][0]
         roles = [m[0] for m in v.cells.values()]
-        warm = (roles.count("stone") + roles.count("cliff-upper")) / len(roles)
-        self.assertGreater(warm, 0.35)  # the ashlar platform, gatehouse and ramp dominate the volume
-        self.assertEqual(roles.count("cliff-upper"), 0)
+        warm = roles.count("cliff-upper") / len(roles)
+        self.assertGreater(warm, 0.35)  # warm sandstone (as the church and city guard): platform, gatehouse and ramp dominate the volume
+        self.assertLess(roles.count("stone") / len(roles), 0.03)  # no cold grey
         self.assertFalse({"slate", "whitewash", "travertine"} & set(roles))
         # The roofs seen from above: dark tile and brown slate, terracotta a small minority (D-063 §3).
         dep = depot_module()
@@ -280,7 +280,7 @@ class D062Test(unittest.TestCase):
                     edge = x < dep.PX0 + dep.BAND or x >= dep.PX1 - dep.BAND or y < dep.PY0 + dep.BAND
                     self.assertTrue((x, y) in dep.PILES or edge, (f[0], x, y, z))
                     ring = y < dep.PY0 or x < dep.PX0 or x >= dep.PX1  # a mooring ring hangs on the platform's face
-                    self.assertIn(m[0], ("stone", "iron", "brass") if ring else ("stone",), (f[0], x, y, z))
+                    self.assertIn(m[0], ("cliff-upper", "iron", "brass") if ring else ("cliff-upper",), (f[0], x, y, z))
         # The deck's underside is open between the piles inside the perimeter band.
         v = [f[3] for f in self.built("depot")[0] if f[0] == "depot.glb"][0]
         self.assertTrue(all((x, y, -1) not in v.cells for x in range(6, 26) for y in range(8, dep.LAND_Y) if (x, y) not in dep.PILES))
