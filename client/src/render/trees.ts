@@ -17,7 +17,7 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
-import type { Placed, ScatterKind } from "../display/scatter";
+import { type Placed, type ScatterKind, thinTrees } from "../display/scatter";
 import { BUILDINGS, TERRAIN, UI, WATER } from "../theme/palette";
 import { SHADOW_LEAN, skyFill } from "./lighting";
 import { bipyramid, cone, prism, type Tri, TriBuilder } from "./meshdata";
@@ -40,6 +40,16 @@ const GRASS_A = c3(TERRAIN.grass_a);
  * no extra draw call).
  */
 export const FAR_TREE_STRIDE = 1;
+
+/**
+ * Triangle budget of one island's far trees (8 per crown, so 3 000
+ * crowns): a bigger forest is density-thinned to it, the kept crowns
+ * grown to cover the same ground (display/scatter.ts thinTrees). Part of
+ * D-048's far budget (≤ 250 k at the zoom cap; farbudget.test.ts).
+ */
+export const FAR_TREE_TRIS = 24_000;
+/** Triangles of one far crown (a four-sided bipyramid). */
+export const FAR_CROWN_TRIS = 8;
 
 /** Decor models of the tree species (variant index → manifest decor ID). */
 export const TREE_MODELS = ["decor_tree_a", "decor_tree_b", "decor_tree_c", "decor_tree_d"] as const;
@@ -420,14 +430,14 @@ function blob(b: TriBuilder, x: number, z: number, r: number): void {
 /**
  * The far-LOD trees of one island: every tree as a four-sided crown
  * (8 triangles) in its model's crown colour, one merged mesh per island
- * (the far view shows whole islands: one draw call). Built with the
- * decoration (cheap), so a zoom only toggles it.
+ * (the far view shows whole islands: one draw call), density-thinned to
+ * FAR_TREE_TRIS. Built with the decoration (cheap), so a zoom only
+ * toggles it.
  */
 export class FarTrees {
   private mesh: Mesh | null = null;
-  /** The crowns of an incremental build so far (null: none running). */
-  private pending: TriBuilder | null = null;
-  private pendingTrees: Placed[] = [];
+  /** The trees of an incremental build so far (null: none running; the crowns are built at its end, after the thinning). */
+  private pendingTrees: Placed[] | null = null;
   private trees: readonly Placed[] = [];
   private shown = false;
   /** Ground height (tiles) under a tree's tile (the terrace levels, D-058). */
@@ -457,28 +467,21 @@ export class FarTrees {
 
   /** Starts an incremental build (display/buildqueue.ts): the chunks' trees follow with addTrees, the mesh with finishChunks. */
   beginChunks(): void {
-    this.pending = new TriBuilder();
     this.pendingTrees = [];
     this.shapes.clear();
   }
 
-  /** The trees of one chunk of the incremental build: their crowns are added now. */
+  /** The trees of one chunk of the incremental build (their crowns follow with finishChunks). */
   addTrees(trees: readonly Placed[]): void {
-    if (!this.pending) this.beginChunks();
-    for (const t of trees) this.pendingTrees.push(t);
-    if (this.pending) this.addCrowns(this.pending, trees);
+    if (!this.pendingTrees) this.beginChunks();
+    for (const t of trees) this.pendingTrees?.push(t);
   }
 
-  /** The incremental build is done: one mesh of every chunk's crowns (setTrees' mesh, but for the order of the trees). */
+  /** The incremental build is done: one mesh of the chunks' crowns (setTrees' mesh). */
   finishChunks(): void {
-    const b = this.pending ?? new TriBuilder();
-    this.trees = this.pendingTrees;
-    this.pending = null;
-    this.pendingTrees = [];
-    this.mesh?.dispose();
-    this.mesh = b.build(`far_trees_${this.name}`, this.scene, this.material, this.parent);
-    if (this.mesh) this.mesh.receiveShadows = false;
-    this.mesh?.setEnabled(this.shown);
+    this.trees = this.pendingTrees ?? [];
+    this.pendingTrees = null;
+    this.build();
   }
 
   /** Shown at far LOD. */
@@ -532,19 +535,20 @@ export class FarTrees {
     return s;
   }
 
-  private addCrowns(b: TriBuilder, trees: readonly Placed[]): void {
+  private addCrowns(b: TriBuilder, trees: readonly Placed[], growth: number): void {
     for (const p of trees) {
       const shade = 0.92 + 0.16 * ((p.yaw / (Math.PI * 2)) % 1);
       const y = this.ground(Math.floor(p.x), Math.floor(p.y));
-      for (const tri of this.shape(p.variant)) b.add(tri, p.x, y, -p.y, p.scale, p.yaw, shade);
+      for (const tri of this.shape(p.variant)) b.add(tri, p.x, y, -p.y, p.scale * growth, p.yaw, shade);
     }
   }
 
   private build(): void {
     this.mesh?.dispose();
-    this.pending = null;
+    this.pendingTrees = null;
     const b = new TriBuilder();
-    this.addCrowns(b, this.trees);
+    const thinned = thinTrees(this.trees, Math.floor(FAR_TREE_TRIS / FAR_CROWN_TRIS));
+    this.addCrowns(b, thinned.trees, thinned.growth);
     this.mesh = b.build(`far_trees_${this.name}`, this.scene, this.material, this.parent);
     if (this.mesh) this.mesh.receiveShadows = false;
     this.mesh?.setEnabled(this.shown);

@@ -226,6 +226,12 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   in the vertex shader (sway group `canopy`: weight 0 at the canopy's
   bottom, 0.45 at the top). Trees are thinned around buildings and roads
   only (a harvester has no work radius, so nothing else fells them).
+  **At far LOD** the small detail and the ground scatter are off (they
+  are about a pixel at the cap), and an island's trees are four-sided
+  crowns in one merged mesh, density-thinned to **24 k triangles**
+  (3 000 crowns; an even, position-hashed subset, the kept crowns grown
+  by up to 1.3 × to cover the same ground; `render/trees.ts`
+  `FAR_TREE_TRIS`, `display/scatter.ts` `thinTrees`).
 - **Water:** shallows→deep gradient by distance from the coast, slow noise
   animation, subtle specular; the deep is the palette's deep 12 % toward
   the shallows and warmed (`render/mapcolors.ts` `seaDeepRgb`, shared with
