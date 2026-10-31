@@ -469,11 +469,15 @@ client bounds the far view: fields are painted into the lite ground
 the terrain gets the headroom the rest leaves of 250 k less a 10 %
 reserve (`farmesh.ts` `allocateFarTerrain`: the focused island's relief
 first, fine or coarse, then the other islands' relief nearest first,
-their flat outline the last resort).
-`client/src/render/farbudget.test.ts` enforces the total: it estimates every far layer from display data with the
-renderer's functions (the largest display fixture's biggest town and a
-synthetic one of 120 buildings, 600 field tiles and 200 tree plots, the
-islands' masks in view at every heading) and fails above 250 k. A new
+their flat outline the last resort). `client/src/render/farbudget.test.ts`
+enforces it on the `make shots` fixtures settled, patricians and played
+(display and tiles captured from the dev server into
+`client/src/render/testdata/farbudget`, regenerated with its
+`capture.ts`): it builds the islands as the renderer does with the
+committed models, runs the renderer's allocation for the far view at
+every heading on desktop and phone, fails above 250 k triangles, and
+asserts the allocation (the home island always in relief; on settled
+and patricians every island in view in relief in the shots' view). A new
 model, layer or budget constant that breaks it must find its triangles
 elsewhere; `make shots STATS=2` attributes a real view per layer.
 

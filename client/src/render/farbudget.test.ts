@@ -1,57 +1,73 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { gunzipSync } from "node:zlib";
 import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
-import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
-import type { BuildingDisplay, ContentBuilding, DisplayState, Island, IslandDisplay, Terrain } from "../api/client";
+import { type ContentBuilding, type IslandDisplay, islandStatics, type IslandTiles } from "../api/client";
 import { groundFootprint } from "../display/camera";
-import { coastline } from "../display/coastline";
-import { visibleIslands } from "../display/frustum";
-import { decodeMask, maskTerrain } from "../display/mask";
-import { islandSeed, type Placed } from "../display/scatter";
-import { BuildingLayer } from "./buildings";
-import { farTerrainBudget, homeTerrain, maskMeshData } from "./farmesh";
+import { focusedIsland, visibleIslands } from "../display/frustum";
+import { decodeMask } from "../display/mask";
+import { islandSeed } from "../display/scatter";
+import { allocateFarTerrain, FAR_SCENERY_TRIS, FAR_TRIS, type MaskIsland, MaskLayer } from "./farmesh";
+import { IslandDetail } from "./island";
 import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./models";
-import { FAR_SHADOW_TRIS } from "./shadows";
-import { buildTerrain } from "./terrain";
-import { FAR_TREE_TRIS, FarTrees } from "./trees";
 
 // Far-view budget guard (D-048, D-057 §5; ARCHITECTURE §5a): at the zoom
 // cap (max_half_extent 120) the far LOD must stay within 250 k triangles
-// on desktop and phone. The estimate takes every layer drawn at far from
-// display data with the renderer's own functions, headless (NullEngine,
-// the committed models served from public/models):
+// on desktop and phone. For the `make shots` fixtures settled, patricians
+// and played (testdata/farbudget, captured from the dev server with
+// capture.ts: display and every island's tiles) it builds the islands as
+// the renderer does (IslandDetail with the committed models, headless),
+// runs the renderer's far terrain allocation (farmesh.ts
+// allocateFarTerrain, MaskLayer) for the camera at the cap over the
+// archipelago's centre (the shots' far view, focused on the home island)
+// at every 45° heading, and checks the triangles drawn per layer:
 //
-//   models_lite   the focused island's lite building chunks (BuildingLayer)
-//   fields        0: painted into the lite ground (farfields.ts)
-//   shadows       the cheap far outlines (FAR_SHADOW_TRIS per building)
-//   far trees     FarTrees after its thinning, fed a forest on every land tile
-//   terrain       the focused island's lite terrain (fine or coarse, as
-//                 farmesh.ts homeTerrain picks) plus the masks of every
-//                 other island in view (their least)
-//   ships         every ship of the payload at its full model
+//   models_lite, far_trees, blob_buildings_far   the home island (fixed)
+//   ships                                        the fleet's models
+//   terrain_lite                                 fine or coarse (allocation)
+//   mask_terrain                                 neighbours: outlines + relief
+//   scenery                                      sea, haze, landmarks
 //
-// The focused island's tiles are not in the display payload: its terrain
-// is its 1:4 mask at tile resolution, terraced by distance from the coast
-// (two levels) with mountains a level higher — a stand-in with more level
-// walls than a generated island of that shape.
+// and the allocation: the home island always in relief; on settled and
+// patricians in the shots' view (heading 0) at its fine lite terrain with
+// every island in view in relief (other headings see more islands: the
+// farther ones may fall back to their outline there).
 
 const repo = join(__dirname, "..", "..", "..");
 const MODELS = join(__dirname, "..", "..", "public", "models");
 const manifest = JSON.parse(readFileSync(join(MODELS, "manifest.json"), "utf8")) as ModelManifest;
 const shipped = JSON.parse(readFileSync(join(repo, "content", "old_coast", "buildings.json"), "utf8")) as (ContentBuilding & { footprint: [number, number] })[];
 const defs = new Map<string, ContentBuilding>(shipped.map((b) => [b.id, { ...b, width: b.footprint[0], height: b.footprint[1] } as ContentBuilding]));
-const fixture = (name: string) => (JSON.parse(readFileSync(join(repo, "server", "testdata", "display", `${name}.json`), "utf8")) as { base: DisplayState }).base;
 
-/** The far budget at the zoom cap (D-048). */
-const FAR_BUDGET = 250_000;
+interface Fixture {
+  archipelago: { seed: number; roll: number };
+  islands: IslandDisplay[];
+  ships: { id: number; type: string }[];
+  tiles: Record<string, IslandTiles>;
+}
+const load = (name: string) => JSON.parse(gunzipSync(readFileSync(join(__dirname, "testdata", "farbudget", `${name}.json.gz`))).toString("utf8")) as Fixture;
+
 const CAP_HALF = 120;
 /** Desktop 1280 × 800 and phone 390 × 844 (the shots' devices). */
 const DEVICES = { desktop: 1280 / 800, phone: 390 / 844 } as const;
-/** Sea, haze, landmarks and the selection: a few hundred triangles. */
-const SCENERY_TRIS = 1_000;
+const HOME = "isle-01";
+
+/** Canvas stand-in for the dynamic textures (foam, field patterns, status icons): drawing is a no-op. */
+class FakeCanvas {
+  constructor(
+    public width = 1,
+    public height = 1,
+  ) {}
+  getContext(): unknown {
+    return new Proxy(
+      { createImageData: (w: number, h: number) => ({ width: w, height: h, data: new Uint8ClampedArray(w * h * 4) }) },
+      { get: (t, k) => (k in t ? t[k as keyof typeof t] : () => undefined), set: () => true },
+    );
+  }
+}
+(globalThis as { OffscreenCanvas?: unknown }).OffscreenCanvas ??= FakeCanvas;
 
 const engine = new NullEngine();
 afterAll(() => engine.dispose());
@@ -67,152 +83,108 @@ function registry(scene: Scene): ModelRegistry {
 }
 
 async function loaded(reg: ModelRegistry): Promise<void> {
-  for (let i = 0; i < 2000 && (reg.status().pending.length > 0 || !reg.status().manifest); i++) await new Promise((r) => setTimeout(r, 5));
+  for (let i = 0; i < 4000 && (reg.status().pending.length > 0 || !reg.status().manifest); i++) await new Promise((r) => setTimeout(r, 5));
 }
 
-/** The island's tiles from its mask, terraced by distance from the coast (stand-in relief, see above). */
-function maskIsland(is: IslandDisplay): Island {
-  const terrain = maskTerrain(decodeMask(is.terrain_mask, is.width, is.height), is.width, is.height) as Terrain[];
-  const { width: w, height: h } = is;
-  // Chebyshev distance to water (two passes).
-  const d = new Int32Array(w * h).fill(1 << 20);
-  for (let k = 0; k < w * h; k++) if (terrain[k] === "water") d[k] = 0;
-  const relax = (k: number, n: number) => {
-    if (n >= 0 && n < w * h) d[k] = Math.min(d[k] as number, (d[n] as number) + 1);
-  };
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) for (const [dx, dy] of [[-1, 0], [0, -1], [-1, -1], [1, -1]] as const) if (x + dx >= 0 && x + dx < w && y + dy >= 0) relax(y * w + x, (y + dy) * w + x + dx);
-  for (let y = h - 1; y >= 0; y--) for (let x = w - 1; x >= 0; x--) for (const [dx, dy] of [[1, 0], [0, 1], [1, 1], [-1, 1]] as const) if (x + dx >= 0 && x + dx < w && y + dy < h) relax(y * w + x, (y + dy) * w + x + dx);
-  let levels = "";
-  let heights = "";
-  for (let k = 0; k < w * h; k++) {
-    const dist = d[k] as number;
-    const land = terrain[k] !== "water" && terrain[k] !== "coast";
-    levels += land ? String(Math.min(2, Math.floor(dist / 10))) : "0";
-    heights += terrain[k] === "mountain" ? "1" : "0";
-  }
-  return { id: is.id, width: w, height: h, revision: "farbudget", terrain, levels, heights, fertilities: [], deposits: [] };
+interface View {
+  device: string;
+  rotation: number;
+  /** Triangles per layer. */
+  layers: Record<string, number>;
+  total: number;
+  /** The home island's terrain and the islands in view with their relief / outline. */
+  home: "lite" | "coarse";
+  relief: string[];
+  outline: string[];
 }
 
-interface Estimate {
-  models_lite: number;
-  fields: number;
-  shadows: number;
-  far_trees: number;
-  terrain: number;
-  ships: number;
-  scenery: number;
-}
-
-const total = (e: Estimate) => Object.values(e).reduce((a, b) => a + b, 0);
-
-/**
- * The far view's triangles with the camera at the cap on the island `focus`
- * (its centre, every 45° heading; the worst) on a device of `aspect`.
- */
-async function estimate(state: DisplayState, focus: IslandDisplay, aspect: number): Promise<Estimate> {
+/** The far views at the cap on the home island of a fixture (every device and 45° heading). */
+async function farViews(name: string): Promise<View[]> {
+  const fx = load(name);
   const scene = new Scene(engine);
   const reg = registry(scene);
   await reg.loadManifest();
-  // The focused island's lite models; the fields drawn with them (none: patches in the ground).
-  const layer = new BuildingLayer(scene, null, reg);
-  layer.update(focus.buildings, defs);
+  // The archipelago's centre (shots.ts showArchipelago); the camera there focuses the home island.
+  const centre = {
+    x: (Math.min(...fx.islands.map((i) => i.position.x)) + Math.max(...fx.islands.map((i) => i.position.x + i.width))) / 2,
+    y: (Math.min(...fx.islands.map((i) => i.position.y)) + Math.max(...fx.islands.map((i) => i.position.y + i.height))) / 2,
+  };
+  expect(focusedIsland(fx.islands, centre)).toBe(HOME);
+  const views: { device: string; aspect: number; rotation: number; ids: string[] }[] = [];
+  for (const [device, aspect] of Object.entries(DEVICES)) {
+    for (let rotation = 0; rotation < 4; rotation += 0.5) views.push({ device, aspect, rotation, ids: visibleIslands(fx.islands, groundFootprint({ ...centre, half: CAP_HALF, rotation }, aspect)) });
+  }
+  // Every island in some view, built as the renderer builds it.
+  const details = new Map<string, IslandDetail>();
+  for (const id of new Set(views.flatMap((v) => v.ids))) {
+    const is = fx.islands.find((i) => i.id === id) as IslandDisplay;
+    const d = new IslandDetail(scene, id, is.position, reg);
+    d.setStatics(islandStatics(fx.tiles[id] as IslandTiles, is));
+    d.update(is, defs);
+    details.set(id, d);
+  }
   await loaded(reg);
-  layer.refresh();
-  const models = layer.chunkTriangles();
-  const noFields = new BuildingLayer(scene, null, reg);
-  noFields.update(
-    focus.buildings.filter((b) => !defs.get(b.type)?.field),
-    defs,
-  );
-  noFields.refresh();
-  const fields = models - noFields.chunkTriangles();
-  const blobs = focus.buildings.filter((b) => !defs.get(b.type)?.field).length * FAR_SHADOW_TRIS;
-  // Far trees: a forest on every land tile, thinned to the island's budget.
-  const island = maskIsland(focus);
-  const forest: Placed[] = [];
-  for (let k = 0; k < island.width * island.height; k++) {
-    if (island.terrain[k] === "water") continue;
-    for (let i = 0; i < 3; i++) forest.push({ x: (k % island.width) + 0.2 + i * 0.3, y: Math.floor(k / island.width) + 0.5, variant: (k + i) % 4, scale: 1, yaw: k * 0.7 });
+  for (const d of details.values()) d.refreshModels();
+  // The decor models the refresh asked for (tree crowns).
+  await loaded(reg);
+  for (const d of details.values()) {
+    d.refreshModels();
+    d.setShown(true, "far");
+    d.setDetail("lite");
   }
-  const trees = new FarTrees(scene, "budget", null, new StandardMaterial("budget", scene));
-  trees.setTrees(forest);
-  const farTrees = trees.triangles();
-  // Terrain: the focused island's lite (or coarse) terrain and the other islands' masks in view.
-  const node = new TransformNode("budget", scene);
-  const terrain = buildTerrain(scene, island, coastline(island), 7, () => node);
-  const ships = state.ships.reduce((n, s) => n + (manifest.models[s.type]?.file?.triangles ?? 0), 0);
-  const budget = farTerrainBudget({ models, trees: farTrees, shadows: blobs, ships });
-  const centre = { x: focus.position.x + focus.width / 2, y: focus.position.y + focus.height / 2 };
-  let masks = 0;
-  const maskTris = new Map<string, number>();
-  for (let r = 0; r < 4; r += 0.5) {
-    const view = groundFootprint({ x: centre.x, y: centre.y, half: CAP_HALF, rotation: r }, aspect);
-    let sum = 0;
-    for (const id of visibleIslands(state.islands, view)) {
-      if (id === focus.id) continue;
-      const is = state.islands.find((i) => i.id === id) as IslandDisplay;
-      let n = maskTris.get(id);
-      if (n === undefined) maskTris.set(id, (n = maskMeshData(decodeMask(is.terrain_mask, is.width, is.height), islandSeed(id, "farbudget")).indices.length / 3));
-      sum += n;
-    }
-    masks = Math.max(masks, sum);
+  const homeDetail = details.get(HOME) as IslandDetail;
+  const fleet = fx.ships.reduce((n, s) => n + (manifest.models[s.type]?.file?.triangles ?? 0), 0);
+  const key = `${fx.archipelago.seed}/${fx.archipelago.roll}`;
+  const out: View[] = [];
+  for (const v of views) {
+    const layer = new MaskLayer(scene);
+    const masked: MaskIsland[] = v.ids
+      .filter((id) => id !== HOME)
+      .map((id) => fx.islands.find((i) => i.id === id) as IslandDisplay)
+      .sort((a, b) => Math.hypot(a.position.x + a.width / 2 - centre.x, a.position.y + a.height / 2 - centre.y) - Math.hypot(b.position.x + b.width / 2 - centre.x, b.position.y + b.height / 2 - centre.y))
+      .map((is) => ({ id: is.id, position: is.position, mask: decodeMask(is.terrain_mask, is.width, is.height), seed: islandSeed(is.id, key), tiles: details.get(is.id)?.farTerrain() ?? null }));
+    const rest = allocateFarTerrain([homeDetail], layer.outlineTriangles(masked), fleet);
+    layer.show(masked, rest);
+    const fixed = homeDetail.farFixedCost();
+    const layers = {
+      models_lite: fixed.models,
+      far_trees: fixed.trees,
+      blob_buildings_far: fixed.shadows,
+      ships: fleet,
+      terrain_lite: homeDetail.liteTerrainTriangles(),
+      mask_terrain: layer.triangles(),
+      scenery: FAR_SCENERY_TRIS,
+    };
+    const relief = layer.tiled();
+    out.push({
+      device: v.device,
+      rotation: v.rotation,
+      layers,
+      total: Object.values(layers).reduce((a, b) => a + b, 0),
+      home: homeDetail.liteTerrainTriangles() === homeDetail.fineTerrainTriangles() ? "lite" : "coarse",
+      relief,
+      outline: masked.map((m) => m.id).filter((id) => !relief.includes(id)),
+    });
   }
-  terrain.setCoarse(homeTerrain(budget, masks, terrain.liteTriangles()) === "coarse");
-  const lite = terrain.lite.reduce((n, m) => n + m.getTotalIndices() / 3, 0);
   scene.dispose();
-  return {
-    models_lite: models,
-    fields,
-    shadows: blobs,
-    far_trees: farTrees,
-    terrain: lite + masks,
-    ships,
-    scenery: SCENERY_TRIS,
-  };
-}
-
-/** The settled island with the most buildings. */
-function largest(state: DisplayState): IslandDisplay {
-  return [...state.islands].sort((a, b) => b.buildings.length - a.buildings.length)[0] as IslandDisplay;
-}
-
-/** A synthetic town on `is`: 120 buildings, 600 field tiles and 200 tree plots on its land tiles. */
-function syntheticTown(is: IslandDisplay): IslandDisplay {
-  const island = maskIsland(is);
-  const land: { x: number; y: number }[] = [];
-  for (let y = 0; y < is.height; y += 3) for (let x = 0; x < is.width; x += 3) if (island.terrain[y * is.width + x] === "grass") land.push({ x, y });
-  const kinds = ["house_settlers", "house_citizens", "house_merchants", "sawmill", "lumberjack", "wheat_farm", "bakery", "warehouse"];
-  const buildings: BuildingDisplay[] = [];
-  let id = 1;
-  const place = (type: string, n: number) => {
-    for (let i = 0; i < n; i++) {
-      const at = land[id % land.length] as { x: number; y: number };
-      buildings.push({ id, type, x: at.x, y: at.y, rotation: 0, paused: false, paused_reason: "", status: "ok" } as BuildingDisplay);
-      id++;
-    }
-  };
-  for (let i = 0; i < 120; i++) place(kinds[i % kinds.length] as string, 1);
-  place("wheat_field", 600);
-  place("tree_plot", 200);
-  return { ...is, buildings };
+  return out;
 }
 
 describe("far budget at the zoom cap (D-048)", () => {
-  const state = fixture("bootstrap_patricians");
-  const big = largest(state);
-  const cases: [string, IslandDisplay][] = [
-    [`${big.id} of bootstrap_patricians (${big.buildings.length} buildings)`, big],
-    ["a synthetic town (120 buildings, 600 field tiles, 200 tree plots)", syntheticTown(big)],
-  ];
-  for (const [name, focus] of cases) {
-    for (const [device, aspect] of Object.entries(DEVICES)) {
-      it(`${name} on ${device}: ≤ ${FAR_BUDGET} triangles, fields painted, trees capped`, async () => {
-        const e = await estimate(state, focus, aspect);
-        expect(e.fields).toBe(0);
-        expect(e.far_trees).toBeLessThanOrEqual(FAR_TREE_TRIS);
-        expect(e.models_lite).toBeGreaterThan(0);
-        expect(total(e), JSON.stringify(e)).toBeLessThanOrEqual(FAR_BUDGET);
-      }, 60_000);
-    }
+  for (const name of ["settled", "patricians", "played"] as const) {
+    it(`${name}: ≤ ${FAR_TRIS} triangles on desktop and phone at every heading, the home island in relief${name === "played" ? "" : ", every island in view in relief"}`, async () => {
+      const views = await farViews(name);
+      for (const v of views) {
+        const at = `${name} ${v.device} rotation ${v.rotation}: ${JSON.stringify(v)}`;
+        expect(v.total, at).toBeLessThanOrEqual(FAR_TRIS);
+        expect(v.layers.terrain_lite, at).toBeGreaterThan(0);
+        if (name !== "played" && v.rotation === 0) {
+          expect(v.home, at).toBe("lite");
+          expect(v.outline, at).toEqual([]);
+        }
+      }
+      // The models are the committed ones (not placeholders): the town is in the estimate.
+      expect(views[0]!.layers.models_lite).toBeGreaterThan(0);
+    }, 120_000);
   }
 });
