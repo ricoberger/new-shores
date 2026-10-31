@@ -70,10 +70,10 @@ in the sync after a task unless the task says otherwise; nobody adds the
      demolition, phone top bar wraps, stepped ghost plinth, villager/
      cart draw merges) merged; ~~D-062/D-063~~ merged (#53
      models, #54 content); depot 4×11 (#55) and the far budget
-     by headroom with `farbudget.test.ts` (#56) merged; **next: V6 part 2** with the owner's tier 2–4
+     by headroom with `farbudget.test.ts` (#56), the per-cell far outline and `desktop-xl` (#57), tile cache keyed on `GeneratorVersion` (#58) and the removal of the client-only fixtures (#59) merged; **next: V6 part 2** with the owner's tier 2–4
      playtest (second chains, market levels, services ladder, unlock
      toasts, quest chains, long house cards, brig/galleon at the piers)
-     plus the open items: lite ship models (sloop/brig/galleon ≈ 300/600/800 tris; ships are 16 k at far on `played`), a cheaper far island outline (80 k for eight outlines), a tiles fixture for the far-budget guard, desktop top bar wrapping at 1280 px with six badges, chapel / Trading Post l2 back faces reading blue-grey, university re-fit (arcades, pilasters), per-model voxels-per-tile in the manifest,
+     plus the open items: lite ship models (sloop/brig/galleon ≈ 300/600/800 tris; ships are 16 k at far on `played`), a tiles fixture for the far-budget guard, desktop top bar wrapping at 1280 px with six badges, chapel / Trading Post l2 back faces reading blue-grey, university re-fit (arcades, pilasters), per-model voxels-per-tile in the manifest,
      `wake_width` anchor, terracotta roof share in tier 3–4 quarters (D-063 §3), German
      read-through of island names and quest texts.
    - ~~Quantised GLB export~~ done (V3b/c, #42): 12.9 MB, ≈ 32
@@ -115,9 +115,10 @@ in the sync after a task unless the task says otherwise; nobody adds the
 `make up` (Compose stack), `make check`, `make assets` /
 `make assets-check` (Python 3, no other tools), `make model-sheet RECIPE=`.
 
-**Looking at the result:** `make shots` (18 PNGs: showcase / settled /
-dense-2x400 × near / mid / far × desktop / phone, fixed camera and
-clock, ≈ 30 s; `FIXTURE= VIEW= DEVICE= ROTATION= ISLAND= ZOOM= HUD=0`,
+**Looking at the result:** `make shots` (12 PNGs: settled / played ×
+near / mid / far × desktop / phone, fixed camera and clock, ≈ 4 min;
+every server fixture via `FIXTURE=`, `DEVICE=desktop-xl` for a
+2992×1700 window; `VIEW= ROTATION= ISLAND= ZOOM= HUD=0`,
 `PRESET=<name>|all`; the names are in `client/e2e/tools/shots-args.ts`,
 e.g. `info-panel`, `house-card`, `ship-panel`, `route-editor`, `build-menu`,
 `island-card`, `top-bar-popups`, `farm-selected`) and `make model-sheet

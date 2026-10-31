@@ -1305,6 +1305,14 @@ stands):
   `client/src/render/farbudget.test.ts` on captured fixture data
   (`capture.ts` regenerates it after generator or fixture changes).
   `played` 41 / 1.21 M → 16 / 233 k; worst case 247 k at 45°.
+  #57: the outline fallback is a flat per-cell mesh with the minimap's
+  exact shape (≈ 1.3 k tris per large island, 9 k for the archipelago),
+  relief is spent by on-screen area with 10 % hysteresis and never
+  withdrawn because tiles streamed in; measured also at `desktop-xl`
+  (2992×1700). #58: island tile rows are cached by seed, roll **and
+  `archipelago.GeneratorVersion`** (bump by hand whenever generated
+  rows change; ARCHITECTURE §4) — a stale browser cache had shown the
+  pre-D-058 islands over the new outlines.
 - *Routing:* 4-tile sea grid, per-leg waypoint `path` in the display
   and `routes[].paths`; ETA from path length × speed; leg ends are the
   Trading Post's harbour point (2 tiles off the water edge) or the
