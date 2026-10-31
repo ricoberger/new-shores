@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { byChunk, CHUNK, chunkAt, changedChunks, islandChunks, visibleChunks } from "./chunks";
+import { byChunk, changedChunks, CHUNK, chunkAt, islandChunks, LITE_GROUP, liteGroupOf, visibleChunks } from "./chunks";
 
 describe("island chunks", () => {
   it("cover every tile of an island exactly once, clipped at its edges", () => {
@@ -79,5 +79,15 @@ describe("island chunks", () => {
     expect(changedChunks(null, next).sort()).toEqual(["0,0", "1,0", "1,1"]);
     // An empty signature is no input.
     expect(changedChunks(new Map([["0,0", ""]]), new Map())).toEqual([]);
+  });
+});
+
+describe("lite model groups", () => {
+  it("gather LITE_GROUP × LITE_GROUP chunks", () => {
+    expect(LITE_GROUP).toBe(4);
+    expect(liteGroupOf("0,0")).toBe("g0,0");
+    expect(liteGroupOf("3,3")).toBe("g0,0");
+    expect(liteGroupOf("4,3")).toBe("g1,0");
+    expect(liteGroupOf("6,9")).toBe("g1,2");
   });
 });

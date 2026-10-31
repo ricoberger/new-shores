@@ -2,7 +2,7 @@ import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import { decodeMask, encodeMask } from "../display/mask";
-import { MaskLayer, maskMeshData, mergeParts } from "./farmesh";
+import { FAR_RESERVE, FAR_SCENERY_TRIS, FAR_TRIS, farTerrainBudget, homeTerrain, MaskLayer, maskMeshData, mergeParts } from "./farmesh";
 import { Builder, SEA_LEVEL } from "./terrain";
 
 const NAMES: Record<string, string> = { w: "water", c: "coast", g: "grass", f: "forest", m: "mountain" };
@@ -99,5 +99,34 @@ describe("mask layer budget (D-058)", () => {
     layer.show(islands, Infinity);
     expect(layer.tiled()).toEqual(["a", "b", "c"]);
     expect(layer.triangles()).toBe(3000);
+  });
+
+  it("spends the far budget's headroom on the focused island's relief first, then the nearest islands', their outlines the last resort", () => {
+    const layer = new MaskLayer(new Scene(engine));
+    const big = 30_000;
+    // Nearest first (the engine sorts by distance from the view's centre).
+    const islands = [island("near", 0, big), island("mid", 40, big), island("far", 80, big)];
+    const outlines = layer.outlineTriangles(islands);
+    expect(outlines).toBe(3 * maskTris);
+    // The fixed layers' cost leaves the terrain FAR_TRIS less the reserve and the scenery.
+    const none = { models: 0, trees: 0, shadows: 0, ships: 0 };
+    expect(farTerrainBudget(none)).toBe(FAR_TRIS * (1 - FAR_RESERVE) - FAR_SCENERY_TRIS);
+    // A small town: the home island's fine lite terrain fits, every neighbour keeps its relief.
+    let budget = farTerrainBudget({ ...none, models: 15_000, trees: 24_000, ships: 10_000 });
+    expect(homeTerrain(budget, outlines, 50_000)).toBe("lite");
+    layer.show(islands, budget - 50_000);
+    expect(layer.tiled()).toEqual(["near", "mid", "far"]);
+    // A large town: the fine terrain does not fit next to the outlines (coarse, 24 k here), the nearest neighbours get what is left.
+    budget = farTerrainBudget({ ...none, models: 92_000, trees: 24_000, shadows: 4_000, ships: 16_000 });
+    expect(homeTerrain(budget, outlines, 50_000)).toBe("lite");
+    expect(homeTerrain(budget, 67_000, 50_000)).toBe("coarse");
+    layer.show(islands, budget - 24_000 - 2 * maskTris);
+    expect(layer.tiled()).toEqual(["near", "mid"]);
+    expect(92_000 + 24_000 + 4_000 + 16_000 + FAR_SCENERY_TRIS + 24_000 + layer.triangles()).toBeLessThanOrEqual(FAR_TRIS * (1 - FAR_RESERVE));
+    // Nothing left: every neighbour is drawn from its outline (the mesh's least).
+    expect(farTerrainBudget({ ...none, models: FAR_TRIS })).toBe(0);
+    layer.show(islands, 0);
+    expect(layer.tiled()).toEqual([]);
+    expect(layer.triangles()).toBe(3 * maskTris);
   });
 });

@@ -448,7 +448,8 @@ greedy-meshed quads with per-vertex colour, baked AO and sun →
 → the client's model registry (`client/src/render/models.ts`,
 `@babylonjs/loaders` glTF) builds merged per-chunk meshes (full and
 lite — the lite is the grid downsampled to 2 voxels per tile — toggled
-by LOD) with variant selection by building ID. A content building
+by LOD; the lite ones merge per 4 × 4 chunks, `display/chunks.ts`
+`LITE_GROUP`) with variant selection by building ID. A content building
 without a recipe gets an automatic voxel placeholder sized to its
 footprint (walls + roof), so no island mixes styles; footprints come
 from content, or from `assets/voxel/planned/` for buildings content
@@ -458,6 +459,27 @@ runs it — no Blender needed), `make assets-test` runs the Python tests
 (budgets per footprint tile, folder limit 24 MiB, anchors incl. the
 content `smoke`/`boat` flags, determinism), `make model-sheet RECIPE=`
 renders a sheet in about a second.
+
+**Far budget (D-048, D-057 §5).** At the zoom cap (`max_half_extent`
+120) the far LOD stays within 250 k triangles and 40 draw calls (target
+30) on desktop and phone. The asset budgets above bound a model; the
+client bounds the far view: fields are painted into the lite ground
+(`render/farfields.ts`), an island's far trees are thinned to
+`FAR_TREE_TRIS`, contact shadows use `FAR_SHADOW_TRIS` outlines, and
+the terrain gets the headroom the rest leaves of 250 k less a 10 %
+reserve (`farmesh.ts` `allocateFarTerrain`: the focused island's relief
+first, fine or coarse, then the other islands' relief nearest first,
+their flat outline the last resort). `client/src/render/farbudget.test.ts`
+enforces it on the `make shots` fixtures settled, patricians and played
+(display and tiles captured from the dev server into
+`client/src/render/testdata/farbudget`, regenerated with its
+`capture.ts`): it builds the islands as the renderer does with the
+committed models, runs the renderer's allocation for the far view at
+every heading on desktop and phone, fails above 250 k triangles, and
+asserts the allocation (the home island always in relief; on settled
+and patricians every island in view in relief in the shots' view). A new
+model, layer or budget constant that breaks it must find its triangles
+elsewhere; `make shots STATS=2` attributes a real view per layer.
 
 ## 6. Content pipeline
 

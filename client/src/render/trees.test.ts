@@ -1,8 +1,10 @@
 import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Scene } from "@babylonjs/core/scene";
 import { describe, expect, it } from "vitest";
+import type { Placed } from "../display/scatter";
 import type { ModelData } from "./models";
-import { Decoration, ModelMerger } from "./trees";
+import { Decoration, FAR_CROWN_TRIS, FAR_TREE_TRIS, FarTrees, ModelMerger } from "./trees";
 
 // Merged decoration (restyle): copies of indexed kit models are moved,
 // scaled, turned and shaded into one indexed mesh.
@@ -65,5 +67,23 @@ describe("Decoration far-LOD thinning", () => {
     expect(d.treeRange().drawn).toBe(all.all);
     expect(scene.meshes.length).toBe(meshes);
     engine.dispose();
+  });
+});
+
+describe("FarTrees", () => {
+  const forest = (n: number): Placed[] => Array.from({ length: n }, (_, i) => ({ x: (i % 100) * 0.5 + 0.25, y: Math.floor(i / 100) * 0.5 + 0.25, variant: i % 4, scale: 1, yaw: i }));
+
+  it("draws every crown of a small forest and thins a big one to FAR_TREE_TRIS, built once at the end of an incremental build", () => {
+    const scene = new Scene(new NullEngine());
+    const far = new FarTrees(scene, "t", null, new StandardMaterial("m", scene));
+    far.setTrees(forest(500));
+    expect(far.triangles()).toBe(500 * FAR_CROWN_TRIS);
+    far.beginChunks();
+    far.addTrees(forest(5000).slice(0, 2500));
+    expect(far.triangles()).toBe(500 * FAR_CROWN_TRIS);
+    far.addTrees(forest(5000).slice(2500));
+    far.finishChunks();
+    expect(far.triangles()).toBe(FAR_TREE_TRIS);
+    scene.dispose();
   });
 });

@@ -139,10 +139,17 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   without tiles draw their 1:4 mask through the same field code;
   off-screen islands are left out of the merged mesh. At far a built
   island's columns keep whole levels, one rock tier, flat rivers and 12
-  colour levels, nearest the view first while the merged mesh stays
-  within 90 k triangles (the others fall back to their mask); far tops
-  carry no corner occlusion (a step's shading is below a pixel, and it
-  split the rectangles); the
+  colour levels. The far view's terrain gets what the rest of the far
+  view leaves of its budget (250 k less a 10 % reserve, after the
+  focused town's lite models, far trees and shadows and the fleet;
+  `farmesh.ts` `allocateFarTerrain`): the focused island's lite terrain
+  (2 columns per tile, with corner occlusion) while it fits next to the
+  other islands' outlines, else a coarse one (1 column per tile, still
+  textured, relief kept, built on first use); then the other islands in
+  view keep their own columns nearest first, the rest fall back to their
+  mask (the last resort, always drawn). Far tops
+  of the other islands carry no corner occlusion (a step's shading is
+  below a pixel, and it split the rectangles); the
   focused island's lite terrain keeps at most two rock tiers and flat
   rivers (D-048's far budget).
 - **Terraces (D-058):** each land tile's level (0–2, from the tiles
@@ -200,9 +207,22 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   with arms to the neighbours and junctions, worn edges and jittered
   stones; dirt for tier-1 roads, three-shade **cobbles with a kerb** for
   the stone road. A road change repaints the field and rebuilds only the
-  touched chunks; carts and walkers walk on the sunk path.
+  touched chunks; carts and walkers walk on the sunk path. At far LOD
+  roads are only colour in the lite terrain's ground texture, and the
+  quays' decks are columns of the island's one lite terrain mesh (rebuilt
+  when the quays change) — no road or quay mesh of their own.
 - **Field ground** is painted into the ground texture too (furrows for
-  crops, pasture, orchard grass) under the field models.
+  crops, pasture, orchard grass) under the field models. **At far LOD
+  fields are ground patches, not models** (they have no lite file and
+  cost 210–3 070 triangles each; the far budget): the lite terrain gets
+  its own ground texture with every field footprint in one flat colour
+  per field type — the field model's crop colour (its up-facing faces in
+  the upper part of the model, else all up-facing faces;
+  `render/farfields.ts`), pastures the palette's lighter pasture green
+  with a one-column timber fence line round the footprint (texture only,
+  so free), tree plots a dark green; furrows are ignored. The far
+  columns of a neighbour island carry the same patches. The full field
+  models return at mid.
 - **Decor** (`assets/voxel/recipes/_decor.py`, `render/decorscatter.ts`):
   four tree species with irregular noise canopies (lobes, rim holes, lit
   tops, dark undersides) and branches — oak, beech, a conifer and birch —
@@ -216,6 +236,12 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   in the vertex shader (sway group `canopy`: weight 0 at the canopy's
   bottom, 0.45 at the top). Trees are thinned around buildings and roads
   only (a harvester has no work radius, so nothing else fells them).
+  **At far LOD** the small detail and the ground scatter are off (they
+  are about a pixel at the cap), and an island's trees are four-sided
+  crowns in one merged mesh, density-thinned to **24 k triangles**
+  (3 000 crowns; an even, position-hashed subset, the kept crowns grown
+  by up to 1.3 × to cover the same ground; `render/trees.ts`
+  `FAR_TREE_TRIS`, `display/scatter.ts` `thinTrees`).
 - **Water:** shallows→deep gradient by distance from the coast, slow noise
   animation, subtle specular; the deep is the palette's deep 12 % toward
   the shallows and warmed (`render/mapcolors.ts` `seaDeepRgb`, shared with
@@ -259,8 +285,12 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - **Budget:** ≤ 150 animated instances / 64 particles per island on
   phones and tablets, ≤ 400 / 160 on desktop, shared by fixed proportions
   across element classes; near LOD only (mid: smoke and static props;
-  far: ships only); `?stats=1` shows the counts, the device check is the
-  gate (D-052).
+  far: ships only — no rise-in or construction stages either: a building
+  placed at far joins its lite chunk at once, and one rising when the view
+  zooms out finishes at once); `?stats=1` shows the counts, the device
+  check is the gate (D-052). The buildings' contact shadows switch to a
+  cheap far mesh at far LOD (a chamfered core and one soft band, 12
+  instead of 100 triangles per building; `render/shadows.ts`).
 
 ## 6. HUD — themed-flat Anno
 

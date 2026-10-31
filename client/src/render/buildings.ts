@@ -15,8 +15,10 @@
 // zoomed in the full ones (setDetail). The chunks of every detail in use
 // are built together, once per layout change, and a detail change only
 // toggles which set is enabled — a zoom never rebuilds geometry (the
-// swap stutter). Fields with a model are drawn here too; the field layers
-// keep the others.
+// swap stutter). Fields with a model are drawn here too, in the full
+// chunks only: at the lite detail (far LOD) they are ground patches in the
+// lite terrain (render/farfields.ts) and count as drawn; the field layers
+// keep the fields without a model.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
@@ -36,7 +38,7 @@ import { skyFill } from "./lighting";
 import { addJitter, LITE_VPT, MODEL_VPT } from "./jitter";
 import { addSway } from "./sway";
 import { ColoredInstances } from "./shipmesh";
-import { chunkAt } from "../display/chunks";
+import { chunkAt, liteGroupOf } from "../display/chunks";
 
 /** Duration of the rise-in of a newly placed building (ms of the animation clock). */
 export const RISE_MS = 350;
@@ -253,6 +255,8 @@ export class BuildingLayer {
   private tinted: ReadonlySet<number> = NONE;
   /** The island chunks in view (null: all). */
   private visibleChunks: ReadonlySet<string> | null = null;
+  /** The lite model groups (display/chunks.ts LITE_GROUP) with a chunk in view (null: all). */
+  private visibleGroups: ReadonlySet<string> | null = null;
   /** Merged model chunks per detail level in use (chunk key → signature and mesh). */
   private readonly chunks = new Map<Detail, Map<string, { key: string; mesh: Mesh | null }>>();
   /** Detail levels whose chunks are built (both, or only full when the lite tier is off: then full is drawn at every zoom). */
@@ -270,6 +274,8 @@ export class BuildingLayer {
   /** Buildings drawn with the other detail's file while the wanted one loads (last update). */
   private bridgedCount = 0;
   private risingItems: Item[] = [];
+  /** The last payload has fields (their modelled state depends on the detail). */
+  private hasFields = false;
   /** Construction-stage instances by stage (0..2, STAGES: scaffolding) and footprint class (`k:n`; created when the model has loaded). */
   private readonly stageMeshes = new Map<string, ColoredInstances>();
   /** The ground a building stands on (tiles; the highest terrace level under its footprint, D-058). */
@@ -310,7 +316,10 @@ export class BuildingLayer {
     if (detail === this.detail) return;
     const before = this.drawn();
     this.detail = detail;
-    if (this.drawn() !== before && this.risingItems.length > 0) this.refresh();
+    // Fields count as drawn at the lite detail (ground patches) whether or not their model has loaded: the
+    // modelled set changes with the detail (no geometry is rebuilt: the chunk signatures stay).
+    if (this.drawn() !== before && (this.risingItems.length > 0 || this.hasFields)) this.refresh();
+    if (this.risingItems.length === 0) for (const m of this.stageMeshes.values()) m.resize(0);
     this.applyDetail();
   }
 
@@ -343,10 +352,13 @@ export class BuildingLayer {
   /** The island chunks in view (null: all): the merged model meshes of the others are not drawn. */
   setVisibleChunks(keys: ReadonlySet<string> | null): void {
     this.visibleChunks = keys;
+    this.visibleGroups = keys ? new Set([...keys].map(liteGroupOf)) : null;
     this.applyDetail();
   }
 
+  /** A chunk (full set) or a lite group (lite set) in view. */
   private chunkShown(key: string): boolean {
+    if (key.startsWith("g")) return this.visibleGroups === null || this.visibleGroups.has(key);
     return this.visibleChunks === null || this.visibleChunks.has(key);
   }
 
@@ -395,23 +407,33 @@ export class BuildingLayer {
     this.placeholderIds = new Set();
     this.modelIds = new Set();
     this.bridgedCount = 0;
+    this.hasFields = false;
     for (const b of buildings) {
       const def = defs.get(b.type);
       // Roads are strips of their own; fields without a model stay in the field layers.
       if (!def || def.category === "roads") continue;
-      const items = this.details.map((d) => [d, this.modelOf(b, def, d)] as const);
+      // Fields have no lite model: the lite detail (far LOD) draws them as ground patches in the
+      // lite terrain (render/farfields.ts), so they count as drawn and never rise in there.
+      if (def.field) this.hasFields = true;
+      const patch = !!def.field && this.drawn() === "lite";
+      const items = this.details.filter((d) => !(def.field && d === "lite")).map((d) => [d, this.modelOf(b, def, d)] as const);
       const item = items.find(([d]) => d === this.drawn())?.[1] ?? null;
-      if (item) {
+      // No rise-in or construction stages at the lite detail (far LOD: the life layer is off there,
+      // ART_DIRECTION §5): a new building joins its lite chunk at once.
+      if (this.drawn() === "lite") this.rising.delete(b.id);
+      if (item || patch) {
         this.modelIds.add(b.id);
-        if (this.rising.has(b.id)) {
+        if (item && this.rising.has(b.id)) {
           rising.push(item);
           continue;
         }
         const p = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-        const key = chunkAt(p.cx, -p.cz);
+        const chunk = chunkAt(p.cx, -p.cz);
         for (const [d, it] of items) {
           if (!it) continue;
           const set = byChunk.get(d) as Map<string, Item[]>;
+          // The lite set merges per group of chunks (far LOD's draw calls), the full set per chunk.
+          const key = d === "lite" ? liteGroupOf(chunk) : chunk;
           let list = set.get(key);
           if (!list) set.set(key, (list = []));
           list.push(it);
@@ -479,8 +501,11 @@ export class BuildingLayer {
           return { data: it.data, cx: p.cx, cy: this.baseOf(it.b, it.def), cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b, this.tinted) };
         }),
       );
-      const mesh = new Mesh(`models_${key}`, this.scene);
+      const mesh = new Mesh(`${material === this.liteMaterial ? "models_lite" : "models"}_${key}`, this.scene);
       data.applyToMesh(mesh);
+      // The field models' share of the chunk (the per-layer stats, GameRenderer.activeLayers).
+      const fieldTris = items.reduce((n, it) => n + (it.def.field ? it.data.indices.length / 3 : 0), 0);
+      if (fieldTris > 0) mesh.metadata = { fieldTris };
       mesh.material = material;
       mesh.parent = this.parent;
       mesh.isPickable = false;

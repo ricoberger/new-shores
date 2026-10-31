@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
-import { blockedTiles, islandSeed, type Placed, layerKeys, NEAR_BLOCKED_KEEP, scatterGround, scatterSite, scatterTrees, TREES_PER_TILE, wallSide } from "./scatter";
+import { blockedTiles, islandSeed, type Placed, layerKeys, NEAR_BLOCKED_KEEP, scatterGround, scatterSite, scatterTrees, THIN_MAX_GROWTH, thinTrees, TREES_PER_TILE, wallSide } from "./scatter";
 
 /** A width × height map of one terrain. */
 const map = (width: number, height: number, t: string) => ({ width, height, terrain: Array.from({ length: width * height }, () => t) });
@@ -130,5 +130,28 @@ describe("scatter by chunk rectangle", () => {
     expect(scatterTrees({ ...input, rect })).toEqual(scatterTrees(input).filter(inRect));
     expect(scatterGround({ ...input, rect })).toEqual(scatterGround(input).filter(inRect));
     expect(scatterGround({ ...input, rect }).length).toBeGreaterThan(0);
+  });
+});
+
+describe("thinTrees", () => {
+  const grid = (n: number): Placed[] => Array.from({ length: n }, (_, i) => ({ x: (i % 80) * 0.5, y: Math.floor(i / 80) * 0.5, variant: 0, scale: 1, yaw: 0 }));
+
+  it("keeps all trees within the budget and an even, order-independent subset over it, grown to cover the ground", () => {
+    const all = grid(8000);
+    expect(thinTrees(all.slice(0, 100), 200)).toEqual({ trees: all.slice(0, 100), growth: 1 });
+    const { trees, growth } = thinTrees(all, 4000);
+    expect(trees).toHaveLength(4000);
+    expect(growth).toBeCloseTo(Math.SQRT2 > THIN_MAX_GROWTH ? THIN_MAX_GROWTH : Math.SQRT2);
+    // The same choice for any order of the input.
+    const again = thinTrees([...all].reverse(), 4000).trees;
+    expect(new Set(again)).toEqual(new Set(trees));
+    // Even: every 10 × 10 block of the 40 × 50 tile forest keeps 35–65 % of its trees.
+    const per = new Map<string, number>();
+    for (const t of trees) {
+      const k = `${Math.floor(t.x / 10)},${Math.floor(t.y / 10)}`;
+      per.set(k, (per.get(k) ?? 0) + 1);
+    }
+    for (const n of per.values()) expect(n / 400).toBeGreaterThan(0.35);
+    for (const n of per.values()) expect(n / 400).toBeLessThan(0.65);
   });
 });

@@ -10,8 +10,8 @@
 // tiles are built brings its own far columns instead (MaskIsland.tiles:
 // its near field downsampled to one column per tile, render/terrain.ts),
 // so its coast at far lines up with the one at mid — nearest the view
-// first, while the mesh stays within MASK_TRIS (D-058's relief within
-// D-048's far budget). Render data only.
+// first, while the far view stays within its budget (D-058's relief
+// within D-048's far budget, farTerrainBudget). Render data only.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
@@ -24,17 +24,80 @@ import { skyFill } from "./lighting";
 import { Builder, FAR_QUANT } from "./terrain";
 import { islandField, meshField } from "./voxelterrain";
 
+/** D-048's far budget at the zoom cap (triangles). */
+export const FAR_TRIS = 250_000;
+
+/** Share of FAR_TRIS kept free: what the estimate leaves out (cargo, life props, rounding). */
+export const FAR_RESERVE = 0.1;
+
+/** Sea, haze, landmarks and the selection at far LOD: a few hundred triangles. */
+export const FAR_SCENERY_TRIS = 1_000;
+
+/** The far view's triangles that do not depend on the terrain choice (the islands drawn in detail and the fleet). */
+export interface FarFixedCost {
+  /** Lite building models (all chunks of the islands drawn in detail; the field patches are ground texture, 0). */
+  models: number;
+  /** Far tree crowns. */
+  trees: number;
+  /** Far contact shadows. */
+  shadows: number;
+  /** Every ship of the fleet at its model. */
+  ships: number;
+}
+
 /**
- * Triangle budget of the mask mesh: islands with tiles use their own far
- * columns (terraces, rock, rivers) nearest first while the whole mesh
- * stays within it, the rest their coarser mask (D-048's far budget of
- * 250 k at the zoom cap; the focused island's lite terrain, far trees and
- * models take the rest; D-058). Their sum varies with which islands have
- * tiles when the view is taken, so the mask's cap is what holds the total:
- * 90 k leaves the rest of the far view (≈ 150 k on the densest fixture) its
- * room under the 250 k.
+ * The far view's terrain budget: what the fixed layers and the scenery
+ * leave of FAR_TRIS less FAR_RESERVE. It is spent on the focused island's
+ * relief first (homeTerrain), then on the other islands in view nearest
+ * first (MaskLayer.show), their flat outline the last resort.
  */
-export const MASK_TRIS = 90_000;
+export function farTerrainBudget(c: FarFixedCost): number {
+  return Math.max(0, FAR_TRIS * (1 - FAR_RESERVE) - FAR_SCENERY_TRIS - c.models - c.trees - c.shadows - c.ships);
+}
+
+/**
+ * The focused island's terrain at far LOD: its lite terrain (2 columns
+ * per tile, full relief with corner shading) while it fits in `budget`
+ * next to the flat outlines of the other islands in view (`outlines`,
+ * always drawn), else its coarse terrain (1 column per tile; relief kept,
+ * whatever it costs: the town stands on it).
+ */
+export function homeTerrain(budget: number, outlines: number, lite: number): "lite" | "coarse" {
+  return lite + outlines <= budget ? "lite" : "coarse";
+}
+
+/** An island drawn in detail at far LOD, as the terrain allocation sees it (render/island.ts IslandDetail). */
+export interface FarDetail {
+  farFixedCost(): { models: number; trees: number; shadows: number };
+  /** Triangles of its fine lite terrain (2 columns per tile), drawn or not. */
+  fineTerrainTriangles(): number;
+  /** Triangles of the lite terrain drawn (fine or coarse). */
+  liteTerrainTriangles(): number;
+  setCoarseTerrain(on: boolean): void;
+}
+
+/**
+ * The far view's terrain by headroom (D-048): the islands drawn in detail
+ * (the focused one) take their fine lite terrain while it fits next to the
+ * other islands' outlines (`outlines`), else their coarse one; returns
+ * what is left for the mask mesh (MaskLayer.show: outlines, then relief
+ * nearest first). `ships`: the fleet's triangles.
+ */
+export function allocateFarTerrain(detailed: readonly FarDetail[], outlines: number, ships: number): number {
+  const cost = { models: 0, trees: 0, shadows: 0, ships };
+  for (const d of detailed) {
+    const c = d.farFixedCost();
+    cost.models += c.models;
+    cost.trees += c.trees;
+    cost.shadows += c.shadows;
+  }
+  let budget = farTerrainBudget(cost);
+  for (const d of detailed) {
+    d.setCoarseTerrain(homeTerrain(budget, outlines, d.fineTerrainTriangles()) === "coarse");
+    budget -= d.liteTerrainTriangles();
+  }
+  return Math.max(0, budget);
+}
 
 /** One island of the mask mesh. */
 export interface MaskIsland {
@@ -94,19 +157,11 @@ export class MaskLayer {
    * Draws exactly these islands (rebuilt only when the set, an island's
    * inputs or the choice of far columns changed). Islands come in order
    * of priority (nearest the view first): those with tiles use them while
-   * the mesh stays within `budget` triangles, the others their mask.
+   * the mesh stays within `budget` triangles, the others their mask (the
+   * masks are drawn whatever the budget).
    */
-  show(islands: readonly MaskIsland[], budget = MASK_TRIS): void {
-    const keep = new Set<string>();
-    const masks = new Map<string, Builder>();
-    for (const is of islands) {
-      const k = `${is.seed}|${is.mask.width}x${is.mask.height}|${maskString(is.mask)}`;
-      let c = this.cache.get(is.id);
-      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: maskMeshData(is.mask, is.seed) }));
-      keep.add(is.id);
-      masks.set(is.id, c.data);
-    }
-    for (const id of this.cache.keys()) if (!keep.has(id)) this.cache.delete(id);
+  show(islands: readonly MaskIsland[], budget = Infinity): void {
+    const masks = this.masks(islands);
     const tris = (b: Builder) => b.indices.length / 3;
     let total = 0;
     for (const b of masks.values()) total += tris(b);
@@ -140,6 +195,28 @@ export class MaskLayer {
     mesh.receiveShadows = true;
     mesh.freezeWorldMatrix();
     this.mesh = mesh;
+  }
+
+  /** Triangles of these islands' masks (their flat outlines: the mesh's least, whatever the budget). */
+  outlineTriangles(islands: readonly MaskIsland[]): number {
+    let n = 0;
+    for (const b of this.masks(islands).values()) n += b.indices.length / 3;
+    return n;
+  }
+
+  /** The islands' mask data (cached; islands not given are dropped from the cache). */
+  private masks(islands: readonly MaskIsland[]): Map<string, Builder> {
+    const keep = new Set<string>();
+    const masks = new Map<string, Builder>();
+    for (const is of islands) {
+      const k = `${is.seed}|${is.mask.width}x${is.mask.height}|${maskString(is.mask)}`;
+      let c = this.cache.get(is.id);
+      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: maskMeshData(is.mask, is.seed) }));
+      keep.add(is.id);
+      masks.set(is.id, c.data);
+    }
+    for (const id of this.cache.keys()) if (!keep.has(id)) this.cache.delete(id);
+    return masks;
   }
 
   /** Islands drawn from their masks (tests and stats). */

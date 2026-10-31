@@ -23,7 +23,7 @@ import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
 import { visibleChunks } from "../display/chunks";
 import { BUILD_BUDGET_MS, type BuildItem, buildOrder, BuildScheduler } from "../display/buildqueue";
 import { islandSeed } from "../display/scatter";
-import { type MaskIsland, MaskLayer } from "./farmesh";
+import { allocateFarTerrain, type MaskIsland, MaskLayer } from "./farmesh";
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { freeShallows, isQuayType, withQuays } from "../display/quay";
@@ -516,17 +516,26 @@ export class GameRenderer {
     return this.meshCount;
   }
 
-  /** The last frame's active meshes grouped by layer (the name up to its first "_" or digit): meshes and triangles (perf notes). */
+  /** The last frame's active meshes grouped by layer (the name up to its first "_" or digit): meshes and triangles (perf notes); the field models inside the model chunks count as `<layer>.fields` (its meshes are the chunks holding fields, also counted under the layer). */
   activeLayers(): Record<string, { meshes: number; tris: number }> {
     const out: Record<string, { meshes: number; tris: number }> = {};
     const meshes = this.scene.getActiveMeshes();
     for (let i = 0; i < meshes.length; i++) {
       const m = meshes.data[i];
       if (!m) continue;
-      const layer = m.name.replace(/^(island|models|trees|tree_shadows|scatter|terrain_lite|terrain|roads|field_decor|field|mask_terrain|blob_buildings|decor)[_].*$/, "$1");
+      const layer = m.name.replace(/^(island|models_lite|models|trees|tree_shadows|scatter|terrain_lite|terrain|roads|field_decor|field|mask_terrain|blob_buildings_far|blob_buildings|far_trees|decor)[_].*$/, "$1");
       const e = (out[layer] ??= { meshes: 0, tris: 0 });
       e.meshes++;
-      for (const sm of m.subMeshes ?? []) e.tris += Math.round(sm.indexCount / 3);
+      let tris = 0;
+      for (const sm of m.subMeshes ?? []) tris += Math.round(sm.indexCount / 3);
+      // Model chunks carry their field models' share (render/buildings.ts): reported as a layer of its own.
+      const fieldTris = (m.metadata as { fieldTris?: number } | null)?.fieldTris ?? 0;
+      if (fieldTris > 0) {
+        const f = (out[`${layer}.fields`] ??= { meshes: 0, tris: 0 });
+        f.meshes++;
+        f.tris += fieldTris;
+      }
+      e.tris += tris - fieldTris;
     }
     return out;
   }
@@ -774,6 +783,8 @@ export class GameRenderer {
     const focus = islands.length > 0 ? focusedIsland(islands, v) : null;
     const masked: MaskIsland[] = [];
     const landmarks: LandmarkIsland[] = [];
+    // At far LOD the islands drawn in detail (the focused one) and the fleet cost what they cost; the terrain gets the rest.
+    const detailed: IslandDetail[] = [];
     for (const is of islands) {
       const shown = this.visible.has(is.id);
       let d = this.details.get(is.id);
@@ -781,6 +792,8 @@ export class GameRenderer {
       const farMasked = this.farMask && this.lod === "far" && is.id !== focus;
       const useMask = !d?.hasTiles() || farMasked;
       d?.setShown(shown && !useMask, this.lod);
+      if (this.lod === "far" && shown && !useMask && d) detailed.push(d);
+      else d?.setCoarseTerrain(false);
       // Only the islands in view: off-screen ones would only add triangles to the merged mesh (D-048's far budget, D-058's denser archipelago).
       if (useMask && shown) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), tiles: d?.farTerrain() ?? null });
       // At far LOD a settled island drawn from its mask keeps its Trading Post and shipyards.
@@ -789,10 +802,22 @@ export class GameRenderer {
     // Nearest the view first: they keep their own far columns within the mask mesh's budget.
     const centre = new Map(islands.map((is) => [is.id, Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y)]));
     masked.sort((a, b) => (centre.get(a.id) ?? 0) - (centre.get(b.id) ?? 0));
-    this.mask.show(masked);
+    this.mask.show(masked, this.lod === "far" ? this.allocateFarTerrain(detailed, masked, d0?.ships ?? []) : Infinity);
     this.landmarks.show(landmarks, this.defs);
     this.cullChunks(islands);
     this.refreshCasters();
+  }
+
+  /**
+   * The far view's terrain by headroom (D-048, farmesh.ts farTerrainBudget):
+   * the islands drawn in detail get their fine lite terrain while it fits
+   * next to the other islands' outlines, else their coarse one; returns
+   * what is left for the mask mesh (outlines, then relief nearest first).
+   */
+  private allocateFarTerrain(detailed: readonly IslandDetail[], masked: readonly MaskIsland[], ships: readonly { type: string }[]): number {
+    let fleet = 0;
+    for (const s of ships) fleet += this.models.entry(s.type)?.file?.triangles ?? 0;
+    return allocateFarTerrain(detailed, this.mask.outlineTriangles(masked), fleet);
   }
 
   /** Per-chunk culling: the chunks of each shown island in the camera's ground footprint. */

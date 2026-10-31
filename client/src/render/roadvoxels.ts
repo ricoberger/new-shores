@@ -228,6 +228,11 @@ export interface FieldTile {
   x: number;
   y: number;
   type: string;
+  /** Rotated footprint (tiles; 1 × 1 without): the far view's patch covers it (render/farfields.ts); paintFields paints the anchor tile. */
+  w?: number;
+  h?: number;
+  /** The far view's patch colour (packed RGB, render/farfields.ts farFieldColor; the fallback without). */
+  patch?: number;
 }
 
 /** The ground of a field type: ploughed furrows, pasture grass or orchard grass. */

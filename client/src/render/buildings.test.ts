@@ -94,6 +94,54 @@ describe("BuildingLayer with models", () => {
   });
 
 
+  it("leaves the field models out of the lite chunks: at far LOD fields are ground patches, counted as drawn", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const layer = new BuildingLayer(scene, null, reg);
+    const withField = new Map(defs).set("wheat_field", { id: "wheat_field", width: 1, height: 1, category: "production", field: { farm: ["wheat_farm"] } } as unknown as ContentBuilding);
+    layer.update([b(1, "sawmill", 0), b(2, "wheat_field", 4), b(3, "wheat_field", 5)], withField);
+    await loaded(reg);
+    layer.refresh();
+    const saw = manifest.models.sawmill!.file!;
+    const wheat = manifest.models.wheat_field!.file!;
+    expect(wheat.lite).toBeUndefined();
+    // Lite (far): the sawmill's lite model only; both fields drawn (as patches), so no field placeholder layer draws them.
+    expect(layer.chunkTriangles()).toBe(saw.lite!.triangles);
+    expect([...layer.modelled()].sort()).toEqual([1, 2, 3]);
+    const meshes = scene.meshes.length;
+    // Full (mid): the field models return, from the prebuilt chunk (no new geometry).
+    layer.setDetail("full");
+    expect(layer.chunkTriangles()).toBe(saw.triangles + 2 * wheat.triangles);
+    expect([...layer.modelled()].sort()).toEqual([1, 2, 3]);
+    expect(scene.meshes.length).toBe(meshes);
+    layer.setDetail("lite");
+    expect(layer.chunkTriangles()).toBe(saw.lite!.triangles);
+    expect(scene.meshes.length).toBe(meshes);
+    scene.dispose();
+  });
+
+  it("merges the lite models per group of chunks (far LOD's draw calls) and the full ones per chunk, each culled with its chunks", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const layer = new BuildingLayer(scene, null, reg);
+    // Sawmills in chunks 0,0, 1,0 and 3,0 (one lite group) and 4,0 (the next group).
+    layer.update([b(1, "sawmill", 0), b(2, "sawmill", 40), b(3, "sawmill", 100), b(4, "sawmill", 130)], defs);
+    await loaded(reg);
+    layer.refresh();
+    expect(layer.chunkCount()).toBe(2);
+    const enabled = () => layer.meshes().filter((m) => m.isEnabled()).length;
+    layer.setVisibleChunks(new Set(["1,0"]));
+    expect(enabled()).toBe(1);
+    layer.setVisibleChunks(new Set(["1,0", "5,0"]));
+    expect(enabled()).toBe(2);
+    layer.setDetail("full");
+    expect(layer.chunkCount()).toBe(4);
+    expect(enabled()).toBe(1);
+    scene.dispose();
+  });
+
   it("bakes the paused tint into the chunk's vertex colours", async () => {
     const scene = new Scene(engine);
     const reg = registry(scene);
@@ -142,6 +190,7 @@ describe("BuildingLayer with models", () => {
     const reg = registry(scene);
     await reg.loadManifest();
     const layer = new BuildingLayer(scene, null, reg);
+    layer.setDetail("full");
     layer.update([b(1, "house_settlers", 0)], defs);
     await loaded(reg);
     layer.refresh();
@@ -167,6 +216,7 @@ describe("BuildingLayer with models", () => {
     const reg = registry(scene);
     await reg.loadManifest();
     const layer = new BuildingLayer(scene, null, reg);
+    layer.setDetail("full");
     layer.update([b(1, "house_settlers", 0)], defs);
     await loaded(reg);
     layer.refresh();
@@ -193,11 +243,47 @@ describe("BuildingLayer with models", () => {
     scene.dispose();
   });
 
+  it("shows no rise-in or construction stages at the lite detail (far LOD): a new building joins its lite chunk at once", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const layer = new BuildingLayer(scene, null, reg);
+    layer.update([b(1, "sawmill", 0)], defs);
+    await loaded(reg);
+    layer.refresh();
+    const lite = manifest.models.sawmill!.file!.lite!.triangles;
+    expect(layer.chunkTriangles()).toBe(lite);
+    layer.update([b(1, "sawmill", 0), b(2, "sawmill", 4), b(3, "sawmill", 8)], defs);
+    await loaded(reg);
+    layer.refresh();
+    layer.frame(1000);
+    await loaded(reg);
+    layer.frame(1001);
+    expect(layer.stageCounts()).toEqual({});
+    expect(scene.meshes.filter((m) => m.name.startsWith("rising_") && m.isVisible)).toHaveLength(0);
+    expect([...layer.modelled()].sort()).toEqual([1, 2, 3]);
+    expect(layer.chunkTriangles()).toBe(3 * lite);
+    // Zooming out while a building rises at mid ends its stages at once.
+    layer.setDetail("full");
+    layer.update([b(1, "sawmill", 0), b(2, "sawmill", 4), b(3, "sawmill", 8), b(4, "sawmill", 12)], defs);
+    await loaded(reg);
+    layer.refresh();
+    layer.frame(2000);
+    await loaded(reg);
+    layer.frame(2001);
+    expect(Object.keys(layer.stageCounts())).toHaveLength(1);
+    layer.setDetail("lite");
+    expect(layer.stageCounts()).toEqual({});
+    expect(layer.chunkTriangles()).toBe(4 * lite);
+    scene.dispose();
+  });
+
   it("keeps the rise-in without the life layer (?life=0)", async () => {
     const scene = new Scene(engine);
     const reg = registry(scene);
     await reg.loadManifest();
     const layer = new BuildingLayer(scene, null, reg);
+    layer.setDetail("full");
     layer.stages = false;
     layer.update([b(1, "house_settlers", 0)], defs);
     await loaded(reg);
@@ -220,6 +306,7 @@ describe("BuildingLayer with models", () => {
     const reg = registry(scene);
     await reg.loadManifest();
     const layer = new BuildingLayer(scene, null, reg);
+    layer.setDetail("full");
     const casters = () => {
       const list = shadows.getShadowMap()!.renderList!;
       list.length = 0;
@@ -238,7 +325,7 @@ describe("BuildingLayer with models", () => {
     expect(layer.frame(1000 + RISE_MS + 2)).toBe(false);
     const merged = layer.meshes().find((m) => m.name.startsWith("models_"))!;
     expect(merged).not.toBe(first);
-    expect(merged.getTotalIndices() / 3).toBe(2 * manifest.models.sawmill!.file!.lite!.triangles);
+    expect(merged.getTotalIndices() / 3).toBe(2 * manifest.models.sawmill!.file!.triangles);
     // The caller refreshes the casters on `true` (engine.ts): the new chunk is in the render list.
     casters();
     expect(shadows.getShadowMap()!.renderList).toContain(merged);

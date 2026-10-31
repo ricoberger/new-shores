@@ -5,6 +5,7 @@ import { Scene } from "@babylonjs/core/scene";
 import { afterEach, describe, expect, it } from "vitest";
 import type { Island, Terrain } from "../api/client";
 import { coastline } from "../display/coastline";
+import { QUAY_H } from "./roadvoxels";
 import { buildTerrain, CoastWater, SEA_LEVEL } from "./terrain";
 import { RIVER_DROP } from "./terraces";
 import { EMPTY, islandField, VOXEL_STEP } from "./voxelterrain";
@@ -62,6 +63,37 @@ describe("island terrain", () => {
     expect(minY).toBeLessThan(SEA_LEVEL);
     expect(side).toBeGreaterThan(0);
     expect(lite[0]!.getTotalIndices() / 3).toBeLessThan(fullTris);
+  });
+
+  it("carries the quays' decks in the one lite mesh (far LOD), rebuilt only when the quays change", () => {
+    engine = new NullEngine();
+    const scene = new Scene(engine);
+    const is = island();
+    const node = new TransformNode("chunk", scene);
+    const t = buildTerrain(scene, is, coastline(is), 7, () => node);
+    const maxY = (x0: number, x1: number, z0: number, z1: number) => {
+      const pos = t.lite[0]!.getVerticesData(VertexBuffer.PositionKind)!;
+      let m = -Infinity;
+      for (let i = 0; i < pos.length; i += 3) if (pos[i]! > x0 && pos[i]! < x1 && -pos[i + 2]! > z0 && -pos[i + 2]! < z1) m = Math.max(m, pos[i + 1]!);
+      return m;
+    };
+    // The water tile (2, 4) south of the land: no lite column (the lite field ends at the coast).
+    expect(maxY(1.99, 3.01, 4.6, 5.01)).toBe(-Infinity);
+    const before = t.lite[0]!;
+    t.setRoads([{ x: 2, y: 4, type: "quay" }]);
+    expect(t.lite).toHaveLength(1);
+    const after = t.lite[0]!;
+    expect(after).not.toBe(before);
+    expect(before.isDisposed()).toBe(true);
+    expect(maxY(1.99, 3.01, 4.6, 5.01)).toBeCloseTo(QUAY_H * VOXEL_STEP, 5);
+    expect(maxY(1.99, 3.01, 4.6, 5.01)).toBeGreaterThan(SEA_LEVEL);
+    // A road elsewhere leaves the lite mesh alone (roads are ground texture there).
+    t.setRoads([
+      { x: 2, y: 4, type: "quay" },
+      { x: 2, y: 2, type: "road_dirt" },
+    ]);
+    expect(t.lite[0]).toBe(after);
+    t.dispose();
   });
 
   it("puts foam and stepped shallows on the sea columns off the wet sand line, on the column grid", () => {

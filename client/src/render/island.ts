@@ -43,7 +43,9 @@ import { GROUND_JITTER, groundShade } from "./groundshader";
 import { jitterShade, setJitterLod } from "./jitter";
 import { type Builder, buildTerrain, CoastWater, NO_TERRAIN, TerrainBuild, type TerrainMeshes } from "./terrain";
 import { type DetailPlaced, scatterDetail } from "./decorscatter";
+import { farFieldColor } from "./farfields";
 import type { FieldTile } from "./roadvoxels";
+import { pack } from "./voxelterrain";
 import { type DecorMaterials, decorMaterials, Decoration, FarTrees, TREE_MODELS } from "./trees";
 
 /** The state of an incremental first build (IslandDetail.startBuild). */
@@ -111,6 +113,8 @@ export class IslandDetail {
   private terrain: TerrainMeshes = NO_TERRAIN;
   /** Model detail (full at near and mid, lite at far): the terrain's column size follows it. */
   private detail: Detail = "full";
+  /** The coarse lite terrain is drawn at the lite detail (setCoarseTerrain). */
+  private coarseTerrain = false;
   /** Smoothed coastline of the static terrain and the decoration seed (island ID + revision). */
   private loops: CoastLoop[] = [];
   private seed = 0;
@@ -170,7 +174,7 @@ export class IslandDetail {
     );
     this.icons = new IconLayer(scene, this.near);
     this.construction = new ConstructionLayer(scene, this.near, registry);
-    this.buildingBlobs = new FootprintShadows(scene, `blob_buildings_${id}`, this.root, 0.55);
+    this.buildingBlobs = new FootprintShadows(scene, `blob_buildings_${id}`, this.root, 0.55, `blob_buildings_far_${id}`);
     this.outcrops = new OutcropLayer(scene, this.root, registry);
     this.rock = new RockLayer(scene, this.root, registry);
     this.farTrees.setGround((x, y) => this.rock.heightAt(x, y));
@@ -233,7 +237,38 @@ export class IslandDetail {
 
   /** The far view's terrain columns (island-local, FAR_VPT per tile; null until built): the renderer merges them with the other islands'. */
   farTerrain(): { key: string; data: Builder } | null {
-    return this.hasTiles() && this.terrain.far ? { key: this.terrainKey, data: this.terrain.far } : null;
+    const far = this.hasTiles() ? this.terrain.far : null;
+    return far ? { key: `${this.terrainKey}#${this.terrain.farVersion}`, data: far } : null;
+  }
+
+  /**
+   * The island's far-LOD triangles that do not depend on its terrain (farmesh.ts
+   * FarFixedCost): lite building chunks (all, not only those in view: the
+   * choice must not flip while panning), far tree crowns and far shadows.
+   * Zero while not at the lite detail.
+   */
+  farFixedCost(): { models: number; trees: number; shadows: number } {
+    if (this.detail !== "lite") return { models: 0, trees: 0, shadows: 0 };
+    return { models: this.buildings.chunkTriangles(), trees: this.farTrees.triangles(), shadows: this.buildingBlobs.farTriangles() };
+  }
+
+  /** Triangles of the fine lite terrain (2 columns per tile, with corner shading), drawn or not. */
+  fineTerrainTriangles(): number {
+    return this.terrain.liteTriangles();
+  }
+
+  /** Far LOD when the fine lite terrain does not fit the budget (farmesh.ts homeTerrain): the coarse one (1 column per tile) instead. */
+  setCoarseTerrain(on: boolean): void {
+    if (on === this.coarseTerrain) return;
+    this.coarseTerrain = on;
+    this.applyTerrainDetail();
+  }
+
+  /** Triangles of the lite terrain (far LOD: the island's one terrain mesh with the quays). */
+  liteTerrainTriangles(): number {
+    let n = 0;
+    for (const m of this.terrain.lite) n += m.getTotalIndices() / 3;
+    return n;
   }
 
   /** Whether the island is drawn with its full tiles (terrain and layers built). */
@@ -363,7 +398,7 @@ export class IslandDetail {
     yield;
     b.keys = layerKeys(display);
     // The roads are voxel paths in the terrain: painted before its chunks are meshed.
-    b.terrain?.setRoads(display.roads, fieldTiles(display, defs));
+    b.terrain?.setRoads(display.roads, fieldTiles(display, defs, this.registry));
     b.fields = this.fieldsByChunk(display);
     b.scatter = { width: statics.width, height: statics.height, terrain: statics.terrain, levels: statics.levels, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
   }
@@ -428,7 +463,7 @@ export class IslandDetail {
       this.ground.setRoads(display.roads);
       this.rock.setBridges(this.ground.bridges(), this.id);
       // Colour-only for the fields: only height changes (roads) rebuild chunks.
-      this.chunkRebuilds.roads = this.terrain.setRoads(display.roads, fieldTiles(display, defs));
+      this.chunkRebuilds.roads = this.terrain.setRoads(display.roads, fieldTiles(display, defs, this.registry));
       this.applyTerrainDetail();
     }
     if (old?.layout !== keys.layout) {
@@ -565,6 +600,8 @@ export class IslandDetail {
     const built = this.builtFrom;
     if (!built) return;
     this.buildings.refresh();
+    // The far view's field patches take the colours of the field models that loaded (a texture update, no remesh).
+    this.terrain.setRoads(built.display.roads, fieldTiles(built.display, built.defs, this.registry));
     this.fields.update(this.fieldsByChunk(built.display));
     this.fieldDecor.update(this.fieldsByChunk(built.display));
     this.icons.update(built.display.buildings, built.defs, this.statusY);
@@ -623,6 +660,7 @@ export class IslandDetail {
       this.near.setEnabled(lod === "near");
       for (const d of this.decoration.values()) d.setLod(lod);
       this.rock.setFar(lod === "far");
+      this.buildingBlobs.setFar(lod === "far");
       this.water?.setFar(lod === "far");
     }
     // The per-voxel jitter is below a pixel at far LOD (global: one LOD for the whole view).
@@ -641,10 +679,12 @@ export class IslandDetail {
     }).length;
   }
 
-  /** The full terrain (4 columns per tile) with the full models; the coarse one (2 per tile) with the lite models (far LOD). */
+  /** The full terrain (4 columns per tile) with the full models; the lite one (2 per tile, or 1 when the far budget has no room for it) with the lite models (far LOD). */
   private applyTerrainDetail(): void {
     const full = this.detail === "full";
+    this.terrain.setCoarse(this.coarseTerrain);
     for (const m of this.terrain.full) m.setEnabled(full);
+    for (const m of this.terrain.liteAll) m.setEnabled(false);
     for (const m of this.terrain.lite) m.setEnabled(!full);
   }
 
@@ -717,7 +757,17 @@ export class IslandDetail {
 
 }
 
-/** The field tiles of a payload (their ground is painted into the terrain). */
-function fieldTiles(display: Pick<IslandDisplay, "buildings">, defs: ReadonlyMap<string, ContentBuilding>): FieldTile[] {
-  return display.buildings.filter((b) => defs.get(b.type)?.field).map((b) => ({ x: b.x, y: b.y, type: b.type }));
+/** The field tiles of a payload with their rotated footprints (their ground is painted into the terrain; the far view's patches cover the footprint). */
+function fieldTiles(display: Pick<IslandDisplay, "buildings">, defs: ReadonlyMap<string, ContentBuilding>, registry: ModelRegistry | null): FieldTile[] {
+  const out: FieldTile[] = [];
+  const patches = new Map<string, number>();
+  for (const b of display.buildings) {
+    const def = defs.get(b.type);
+    if (!def?.field) continue;
+    const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
+    let patch = patches.get(b.type);
+    if (patch === undefined) patches.set(b.type, (patch = pack(farFieldColor(b.type, registry))));
+    out.push({ x: b.x, y: b.y, type: b.type, w, h, patch });
+  }
+  return out;
 }

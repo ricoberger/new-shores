@@ -17,6 +17,21 @@ export const CHUNK = 32;
  */
 export const CHUNK_VIEW_MARGIN = 8;
 
+/**
+ * Chunks per side of a lite model group: at far LOD the lite building
+ * models merge per LITE_GROUP × LITE_GROUP chunks (128 tiles) instead of
+ * per chunk, so a large town costs a few draw calls there (D-048's far
+ * budget of ≤ 40, target ≤ 30) while a change still rebuilds only its
+ * group. A group is drawn when any of its chunks is in view.
+ */
+export const LITE_GROUP = 4;
+
+/** Key of the lite model group holding chunk `key` ("cx,cy"). */
+export function liteGroupOf(key: string): string {
+  const [cx, cy] = key.split(",").map(Number) as [number, number];
+  return `g${Math.floor(cx / LITE_GROUP)},${Math.floor(cy / LITE_GROUP)}`;
+}
+
 /** Key of chunk (cx, cy). */
 export function chunkKey(cx: number, cy: number): string {
   return `${cx},${cy}`;

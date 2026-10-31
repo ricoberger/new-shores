@@ -216,3 +216,26 @@ export function layerKeys(display: Pick<IslandDisplay, "buildings" | "roads">): 
   const layout = display.buildings.map((b) => `${b.type}@${b.x},${b.y},${b.rotation}`).join(";");
   return { roads, layout, decoration: `${layout}|${roads}` };
 }
+
+/** The most a thinned tree's crown grows to cover for the trees dropped around it (far LOD). */
+export const THIN_MAX_GROWTH = 1.3;
+
+/**
+ * Density thinning for a budget (the far trees, D-048's far budget):
+ * at most `keep` of the trees, an even spread — the trees with the
+ * lowest hash of their position, so the choice is deterministic, does not
+ * depend on the trees' order and keeps every forest at the same density
+ * — and the scale the kept ones grow by to cover about the same ground
+ * (√(all / kept), at most THIN_MAX_GROWTH). All trees and scale 1 within
+ * the budget.
+ */
+export function thinTrees(trees: readonly Placed[], keep: number): { trees: Placed[]; growth: number } {
+  if (trees.length <= keep) return { trees: [...trees], growth: 1 };
+  const rank = (p: Placed) => hash2(Math.round(p.x * 64), Math.round(p.y * 64), 0x7ee5);
+  const kept = trees
+    .map((p) => [rank(p), p] as const)
+    .sort((a, b) => a[0] - b[0] || a[1].x - b[1].x || a[1].y - b[1].y)
+    .slice(0, Math.max(0, keep))
+    .map(([, p]) => p);
+  return { trees: kept, growth: kept.length > 0 ? Math.min(THIN_MAX_GROWTH, Math.sqrt(trees.length / kept.length)) : 1 };
+}
