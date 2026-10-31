@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { groundFootprint } from "./camera";
-import { focusedIsland, islandRect, rectIntersectsQuad, visibleIslands } from "./frustum";
+import { focusedIsland, islandRect, rectIntersectsQuad, rectQuadOverlap, visibleIslands } from "./frustum";
 
 const square = (x0: number, y0: number, s: number) => [
   { x: x0, y: y0 },
@@ -83,5 +83,38 @@ describe("focusedIsland", () => {
     const withSkerry = [...islands, { id: "skerry", position: { x: 60, y: 60 }, width: 10, height: 10, scenic: true }];
     expect(focusedIsland(withSkerry, { x: 65, y: 65 })).toBe("island2");
     expect(focusedIsland(withSkerry, { x: 10, y: 10 })).toBe("start");
+  });
+});
+
+describe("rectQuadOverlap", () => {
+  const r = { minX: 0, minY: 0, maxX: 10, maxY: 20 };
+  const square = (x0: number, y0: number, x1: number, y1: number) => [
+    { x: x0, y: y0 },
+    { x: x1, y: y0 },
+    { x: x1, y: y1 },
+    { x: x0, y: y1 },
+  ];
+
+  it("is the rectangle's area when the quad covers it, 0 when they are apart", () => {
+    expect(rectQuadOverlap(r, square(-5, -5, 50, 50))).toBeCloseTo(200, 6);
+    expect(rectQuadOverlap(r, square(20, 0, 30, 10))).toBe(0);
+  });
+
+  it("clips to the overlap, also for a turned footprint", () => {
+    expect(rectQuadOverlap(r, square(5, 10, 50, 50))).toBeCloseTo(50, 6);
+    // A diamond centred on the rectangle's corner (0, 0) with half-diagonal 4: a quarter of its area 32 lies inside.
+    const diamond = [
+      { x: 0, y: -4 },
+      { x: 4, y: 0 },
+      { x: 0, y: 4 },
+      { x: -4, y: 0 },
+    ];
+    expect(rectQuadOverlap(r, diamond)).toBeCloseTo(8, 6);
+    // The real footprint at a 45° heading: within the rectangle's area and symmetric in the order of the corners.
+    const fp = groundFootprint({ x: 5, y: 10, half: 6, rotation: 0.5 }, 1.6);
+    const a = rectQuadOverlap(r, fp);
+    expect(a).toBeGreaterThan(0);
+    expect(a).toBeLessThanOrEqual(200);
+    expect(rectQuadOverlap(r, [...fp].reverse())).toBeCloseTo(a, 6);
   });
 });

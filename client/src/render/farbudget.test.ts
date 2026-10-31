@@ -6,10 +6,11 @@ import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import { type ContentBuilding, type IslandDisplay, islandStatics, type IslandTiles } from "../api/client";
 import { groundFootprint } from "../display/camera";
-import { focusedIsland, visibleIslands } from "../display/frustum";
+import { focusedIsland, islandRect, rectQuadOverlap, visibleIslands } from "../display/frustum";
 import { decodeMask } from "../display/mask";
 import { islandSeed } from "../display/scatter";
-import { allocateFarTerrain, FAR_SCENERY_TRIS, FAR_TRIS, type MaskIsland, MaskLayer } from "./farmesh";
+import type { ArchPoint } from "../display/ships";
+import { allocateFarTerrain, FAR_SCENERY_TRIS, FAR_TRIS, type MaskIsland, MaskLayer, reliefOrder } from "./farmesh";
 import { IslandDetail } from "./island";
 import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./models";
 
@@ -110,9 +111,12 @@ async function farViews(name: string): Promise<View[]> {
     y: (Math.min(...fx.islands.map((i) => i.position.y)) + Math.max(...fx.islands.map((i) => i.position.y + i.height))) / 2,
   };
   expect(focusedIsland(fx.islands, centre)).toBe(HOME);
-  const views: { device: string; aspect: number; rotation: number; ids: string[] }[] = [];
+  const views: { device: string; aspect: number; rotation: number; footprint: ArchPoint[]; ids: string[] }[] = [];
   for (const [device, aspect] of Object.entries(DEVICES)) {
-    for (let rotation = 0; rotation < 4; rotation += 0.5) views.push({ device, aspect, rotation, ids: visibleIslands(fx.islands, groundFootprint({ ...centre, half: CAP_HALF, rotation }, aspect)) });
+    for (let rotation = 0; rotation < 4; rotation += 0.5) {
+      const footprint = groundFootprint({ ...centre, half: CAP_HALF, rotation }, aspect);
+      views.push({ device, aspect, rotation, footprint, ids: visibleIslands(fx.islands, footprint) });
+    }
   }
   // Every island in some view, built as the renderer builds it.
   const details = new Map<string, IslandDetail>();
@@ -138,11 +142,21 @@ async function farViews(name: string): Promise<View[]> {
   const out: View[] = [];
   for (const v of views) {
     const layer = new MaskLayer(scene);
-    const masked: MaskIsland[] = v.ids
-      .filter((id) => id !== HOME)
-      .map((id) => fx.islands.find((i) => i.id === id) as IslandDisplay)
-      .sort((a, b) => Math.hypot(a.position.x + a.width / 2 - centre.x, a.position.y + a.height / 2 - centre.y) - Math.hypot(b.position.x + b.width / 2 - centre.x, b.position.y + b.height / 2 - centre.y))
-      .map((is) => ({ id: is.id, position: is.position, mask: decodeMask(is.terrain_mask, is.width, is.height), seed: islandSeed(is.id, key), tiles: details.get(is.id)?.farTerrain() ?? null }));
+    // The renderer's relief order (engine.ts applyView): on-screen area, largest first, ties nearest.
+    const masked: MaskIsland[] = reliefOrder(
+      v.ids
+        .filter((id) => id !== HOME)
+        .map((id) => fx.islands.find((i) => i.id === id) as IslandDisplay)
+        .map((is) => ({
+          id: is.id,
+          position: is.position,
+          mask: decodeMask(is.terrain_mask, is.width, is.height),
+          seed: islandSeed(is.id, key),
+          tiles: details.get(is.id)?.farTerrain() ?? null,
+          area: rectQuadOverlap(islandRect(is), v.footprint),
+          dist: Math.hypot(is.position.x + is.width / 2 - centre.x, is.position.y + is.height / 2 - centre.y),
+        })),
+    );
     const rest = allocateFarTerrain([homeDetail], layer.outlineTriangles(masked), fleet);
     layer.show(masked, rest);
     const fixed = homeDetail.farFixedCost();

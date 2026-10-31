@@ -6,7 +6,7 @@ import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { IslandDisplay } from "../api/client";
 import { decodeMask, encodeMask, MASK_GRASS } from "../display/mask";
-import { FAR_RESERVE, FAR_SCENERY_TRIS, FAR_TRIS, farTerrainBudget, homeTerrain, MaskLayer, maskMeshData, mergeParts } from "./farmesh";
+import { FAR_RESERVE, FAR_SCENERY_TRIS, FAR_TRIS, farTerrainBudget, homeTerrain, MaskLayer, maskMeshData, mergeParts, RELIEF_HYSTERESIS, reliefOrder } from "./farmesh";
 import { mapLandColor, rgbOf } from "./mapcolors";
 import { Builder, SEA_LEVEL } from "./terrain";
 
@@ -200,5 +200,64 @@ describe("mask layer budget (D-058)", () => {
     layer.show(islands, 0);
     expect(layer.tiled()).toEqual([]);
     expect(layer.triangles()).toBe(3 * maskTris);
+  });
+
+  it("keeps an island's relief once given: within the hysteresis it stays, beyond it the end of the order drops back", () => {
+    const layer = new MaskLayer(new Scene(engine));
+    const islands = [island("a", 0, 10_000), island("b", 40, 10_000), island("c", 80, 10_000)];
+    const all = 30_000;
+    layer.show(islands, all);
+    expect(layer.tiled()).toEqual(["a", "b", "c"]);
+    // The budget shrinks (a ship, a building): up to 10 % over it, everybody keeps the relief.
+    layer.show(islands, Math.ceil(all / (1 + RELIEF_HYSTERESIS)));
+    expect(layer.tiled()).toEqual(["a", "b", "c"]);
+    // More than 10 % over: drop from the end of the order until the mesh is within the budget.
+    layer.show(islands, 25_000);
+    expect(layer.tiled()).toEqual(["a", "b"]);
+    expect(layer.triangles()).toBeLessThanOrEqual(25_000);
+    // A dropped island is a newcomer again: it needs the room in full.
+    layer.show(islands, 29_000);
+    expect(layer.tiled()).toEqual(["a", "b"]);
+  });
+
+  it("never takes relief away when tiles stream in: newcomers get only what is free", () => {
+    const layer = new MaskLayer(new Scene(engine));
+    const budget = 25_000;
+    // In view in this order; the tiles arrive one island after the other, in reverse.
+    const order = ["a", "b", "c", "d"];
+    const arrived = new Set<string>();
+    let before: string[] = [];
+    for (const id of [...order].reverse()) {
+      arrived.add(id);
+      const islands = order.map((o, i) => (arrived.has(o) ? island(o, i * 40, 10_000) : { ...island(o, i * 40, 0), tiles: null }));
+      layer.show(islands, budget);
+      const now = layer.tiled();
+      for (const k of before) expect(now, `after ${id}`).toContain(k);
+      expect(layer.triangles()).toBeLessThanOrEqual(budget);
+      before = now;
+    }
+    // The first two to arrive (d, c) hold the room; the larger a and b found it taken.
+    expect([...before].sort()).toEqual(["c", "d"]);
+  });
+
+  it("grants no new relief while the far view's cost is not final, keeps what it has", () => {
+    const layer = new MaskLayer(new Scene(engine));
+    const islands = [island("a", 0, 10_000), island("b", 40, 10_000)];
+    layer.show(islands, Infinity, false);
+    expect(layer.tiled()).toEqual([]);
+    layer.show(islands, Infinity);
+    expect(layer.tiled()).toEqual(["a", "b"]);
+    layer.show([...islands, island("c", 80, 10_000)], Infinity, false);
+    expect(layer.tiled()).toEqual(["a", "b"]);
+  });
+
+  it("orders the islands by on-screen area, largest first, ties nearest", () => {
+    const order = reliefOrder([
+      { id: "small", area: 100, dist: 1 },
+      { id: "far-big", area: 900, dist: 50 },
+      { id: "near-big", area: 900, dist: 10 },
+      { id: "mid", area: 400, dist: 5 },
+    ]);
+    expect(order.map((o) => o.id)).toEqual(["near-big", "far-big", "mid", "small"]);
   });
 });

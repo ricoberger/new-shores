@@ -10,9 +10,10 @@
 // this way changes (off-screen islands are left out). An island whose
 // tiles are built brings its own far columns instead (MaskIsland.tiles:
 // its near field downsampled to one column per tile, render/terrain.ts),
-// so its coast at far lines up with the one at mid — nearest the view
-// first, while the far view stays within its budget (D-058's relief
-// within D-048's far budget, farTerrainBudget). Render data only.
+// so its coast at far lines up with the one at mid — the largest on
+// screen first, kept once given, while the far view stays within its
+// budget (D-058's relief within D-048's far budget, farTerrainBudget,
+// MaskLayer.show). Render data only.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
@@ -50,8 +51,9 @@ export interface FarFixedCost {
 /**
  * The far view's terrain budget: what the fixed layers and the scenery
  * leave of FAR_TRIS less FAR_RESERVE. It is spent on the focused island's
- * relief first (homeTerrain), then on the other islands in view nearest
- * first (MaskLayer.show), their flat outline the last resort.
+ * relief first (homeTerrain), then on the other islands in view by
+ * on-screen area (MaskLayer.show, reliefOrder), their flat outline the
+ * last resort.
  */
 export function farTerrainBudget(c: FarFixedCost): number {
   return Math.max(0, FAR_TRIS * (1 - FAR_RESERVE) - FAR_SCENERY_TRIS - c.models - c.trees - c.shadows - c.ships);
@@ -83,7 +85,7 @@ export interface FarDetail {
  * (the focused one) take their fine lite terrain while it fits next to the
  * other islands' outlines (`outlines`), else their coarse one; returns
  * what is left for the mask mesh (MaskLayer.show: outlines, then relief
- * nearest first). `ships`: the fleet's triangles.
+ * by on-screen area). `ships`: the fleet's triangles.
  */
 export function allocateFarTerrain(detailed: readonly FarDetail[], outlines: number, ships: number): number {
   const cost = { models: 0, trees: 0, shadows: 0, ships };
@@ -99,6 +101,25 @@ export function allocateFarTerrain(detailed: readonly FarDetail[], outlines: num
     budget -= d.liteTerrainTriangles();
   }
   return Math.max(0, budget);
+}
+
+/**
+ * Share of the mask mesh's budget an island already in relief may run
+ * over before it is dropped back to its outline (MaskLayer.show): within
+ * FAR_RESERVE, so the far view stays within FAR_TRIS.
+ */
+export const RELIEF_HYSTERESIS = 0.1;
+
+/** An island in view as the relief order sees it: its on-screen area (tiles², display/frustum.ts rectQuadOverlap) and its distance from the view's centre. */
+export interface ReliefRank {
+  id: string;
+  area: number;
+  dist: number;
+}
+
+/** Relief order of the islands in view (MaskLayer.show): on-screen area, largest first; ties nearest first, then by ID. */
+export function reliefOrder<T extends ReliefRank>(islands: readonly T[]): T[] {
+  return [...islands].sort((a, b) => b.area - a.area || a.dist - b.dist || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
 /** One island of the mask mesh. */
@@ -201,22 +222,41 @@ export class MaskLayer {
 
   /**
    * Draws exactly these islands (rebuilt only when the set, an island's
-   * inputs or the choice of far columns changed). Islands come in order
-   * of priority (nearest the view first): those with tiles use them while
-   * the mesh stays within `budget` triangles, the others their mask (the
-   * masks are drawn whatever the budget).
+   * inputs or the choice of far columns changed): every one at least as
+   * its outline (whatever the budget), those with tiles in relief (their
+   * own far columns) by this rule (D-048 within `budget` triangles):
+   *
+   * - an island already in relief keeps it while the mesh stays within
+   *   `budget` × (1 + RELIEF_HYSTERESIS); above that the kept ones are
+   *   dropped from the end of the order until it is within `budget`
+   *   (tiles streaming in never cost a kept island its relief: its far
+   *   columns do not change, and the newcomers only take what is free);
+   * - then, if `grant`, the others in the given order (the engine's:
+   *   on-screen area, largest first, ties nearest, reliefOrder) while the
+   *   mesh stays within `budget`.
+   *
+   * `grant` false holds new relief back (the far view's cost is not final
+   * yet: the focused island or models still loading, which would take
+   * the room back a moment later).
    */
-  show(islands: readonly MaskIsland[], budget = Infinity): void {
+  show(islands: readonly MaskIsland[], budget = Infinity, grant = true): void {
     const masks = this.masks(islands);
     const tris = (b: Builder) => b.indices.length / 3;
     let total = 0;
     for (const b of masks.values()) total += tris(b);
-    const fromTiles = new Set<string>();
-    for (const is of islands) {
-      if (!is.tiles) continue;
-      const extra = tris(is.tiles.data) - tris(masks.get(is.id) as Builder);
-      if (total + extra > budget) continue;
-      total += extra;
+    const extra = (is: MaskIsland) => tris((is.tiles as { data: Builder }).data) - tris(masks.get(is.id) as Builder);
+    // Kept: in relief before and still drawn with tiles, in the given order.
+    const kept = islands.filter((is) => is.tiles && this.fromTiles.has(is.id));
+    for (const is of kept) total += extra(is);
+    if (total > budget * (1 + RELIEF_HYSTERESIS)) {
+      while (kept.length > 0 && total > budget) total -= extra(kept.pop() as MaskIsland);
+    }
+    const fromTiles = new Set(kept.map((is) => is.id));
+    for (const is of grant ? islands : []) {
+      if (!is.tiles || fromTiles.has(is.id)) continue;
+      const e = extra(is);
+      if (total + e > budget) continue;
+      total += e;
       fromTiles.add(is.id);
     }
     const keyOf = (is: MaskIsland) => (is.tiles && fromTiles.has(is.id) ? `tiles:${is.tiles.key}` : (this.cache.get(is.id)?.key ?? ""));
