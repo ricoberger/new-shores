@@ -27,7 +27,7 @@ describe("D-062 / D-063 cards", () => {
     const html = card("depot", { capacity: 150_000 });
     expect(html).toContain('data-testid="depot-capacity"');
     expect(strip(html)).toContain("150");
-    expect(strip(html)).toContain("11×4 (0–1 rows on water)");
+    expect(strip(html)).toContain("4×11 (7–9 rows on water)");
     expect(html).not.toContain("depot-level");
     expect(html).not.toContain("depot-upgrade");
   });

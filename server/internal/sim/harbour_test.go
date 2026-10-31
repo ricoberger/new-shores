@@ -52,7 +52,7 @@ func TestDepotCapacity(t *testing.T) {
 	w := quayWorld(t, c, 2, rows...)
 	is := w.Island("main")
 	for _, x := range []int{12, 25} {
-		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "depot", X: x, Y: 8})
+		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "depot", X: x, Y: 0})
 	}
 	depot := is.Buildings[len(is.Buildings)-1]
 	if depot.Level != 0 || depot.Berths != 0 || capacityMilli(is, c) != 600_000 {
