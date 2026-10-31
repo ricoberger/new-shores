@@ -2,7 +2,7 @@ import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import { decodeMask, encodeMask } from "../display/mask";
-import { MaskLayer, maskMeshData, mergeParts } from "./farmesh";
+import { MASK_TRIS, maskBudget, MaskLayer, maskMeshData, mergeParts } from "./farmesh";
 import { Builder, SEA_LEVEL } from "./terrain";
 
 const NAMES: Record<string, string> = { w: "water", c: "coast", g: "grass", f: "forest", m: "mountain" };
@@ -99,5 +99,26 @@ describe("mask layer budget (D-058)", () => {
     layer.show(islands, Infinity);
     expect(layer.tiled()).toEqual(["a", "b", "c"]);
     expect(layer.triangles()).toBe(3000);
+  });
+
+  it("counts the focused island's lite terrain first: the nearest islands keep their relief in what is left, a very large one leaves masks only", () => {
+    const layer = new MaskLayer(new Scene(engine));
+    const big = 30_000;
+    // Nearest first (the engine sorts by distance from the view's centre).
+    const islands = [island("near", 0, big), island("mid", 40, big), island("far", 80, big)];
+    // A typical home island's lite terrain (≈ 50 k): one neighbour keeps its far columns.
+    const home = 50_000;
+    layer.show(islands, maskBudget(home));
+    expect(layer.tiled()).toEqual(["near"]);
+    expect(home + layer.triangles()).toBeLessThanOrEqual(MASK_TRIS);
+    // A smaller home island leaves room for two.
+    layer.show(islands, maskBudget(20_000));
+    expect(layer.tiled()).toEqual(["near", "mid"]);
+    expect(20_000 + layer.triangles()).toBeLessThanOrEqual(MASK_TRIS);
+    // An island whose lite terrain fills the budget: every other island falls back to its mask.
+    expect(maskBudget(MASK_TRIS + 5_000)).toBe(0);
+    layer.show(islands, maskBudget(MASK_TRIS + 5_000));
+    expect(layer.tiled()).toEqual([]);
+    expect(layer.triangles()).toBe(3 * maskTris);
   });
 });

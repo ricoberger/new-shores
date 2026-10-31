@@ -194,6 +194,40 @@ describe("shadow casters with models", () => {
   });
 });
 
+describe("far LOD terrain of a very large town", () => {
+  it("falls back to the coarse lite terrain (built once, on first use) and back, only at the lite detail", () => {
+    const w = world();
+    w.show(w.islands);
+    const is = w.islands[0]!;
+    const d = w.details.get(is.id)!;
+    d.setShown(true, "far");
+    d.setDetail("lite");
+    const scene = (d as unknown as { scene: Scene }).scene;
+    const mesh = (suffix: string) => scene.meshes.find((m) => m.name === `terrain_lite_${is.id}_${suffix}`);
+    expect(mesh("all")!.isEnabled()).toBe(true);
+    expect(mesh("coarse")).toBeUndefined();
+    const fine = d.liteTerrainTriangles();
+    expect(fine).toBe(mesh("all")!.getTotalIndices() / 3);
+    d.setCoarseTerrain(true);
+    expect(mesh("all")!.isEnabled()).toBe(false);
+    expect(mesh("coarse")!.isEnabled()).toBe(true);
+    // Half the columns: well under the lite terrain's triangles, and what the far budget counts.
+    expect(d.liteTerrainTriangles()).toBe(mesh("coarse")!.getTotalIndices() / 3);
+    expect(d.liteTerrainTriangles()).toBeLessThan(fine * 0.75);
+    const coarse = mesh("coarse");
+    d.setCoarseTerrain(false);
+    expect(mesh("all")!.isEnabled()).toBe(true);
+    expect(mesh("coarse")!.isEnabled()).toBe(false);
+    d.setCoarseTerrain(true);
+    expect(mesh("coarse")).toBe(coarse);
+    // At mid the full terrain draws and the lite models' size reads 0 (only the far view counts the town).
+    d.setDetail("full");
+    expect(mesh("all")!.isEnabled()).toBe(false);
+    expect(mesh("coarse")!.isEnabled()).toBe(false);
+    expect(d.liteModelTriangles()).toBe(0);
+  });
+});
+
 describe("unsettled islands", () => {
   it("are drawn in the same colours as settled ones at every LOD (no grey far terrain, no muted scatter)", () => {
     engine = new NullEngine({ renderWidth: 320, renderHeight: 200, textureSize: 64, deterministicLockstep: false, lockstepMaxSteps: 1 });

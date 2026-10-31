@@ -25,16 +25,35 @@ import { Builder, FAR_QUANT } from "./terrain";
 import { islandField, meshField } from "./voxelterrain";
 
 /**
- * Triangle budget of the mask mesh: islands with tiles use their own far
- * columns (terraces, rock, rivers) nearest first while the whole mesh
- * stays within it, the rest their coarser mask (D-048's far budget of
- * 250 k at the zoom cap; the focused island's lite terrain, far trees and
- * models take the rest; D-058). Their sum varies with which islands have
- * tiles when the view is taken, so the mask's cap is what holds the total:
- * 90 k leaves the rest of the far view (≈ 150 k on the densest fixture) its
- * room under the 250 k.
+ * Triangle budget of the far view's terrain: the focused island's lite
+ * terrain counts first (maskBudget), then the mask mesh, where islands
+ * with tiles use their own far columns (terraces, rock, rivers) nearest
+ * first while the whole stays within it, the rest their coarser mask
+ * (D-048's far budget of 250 k at the zoom cap; the focused island's far
+ * trees, models and shadows and the ships take the rest; D-058). Their
+ * sum varies with which islands have tiles when the view is taken, so
+ * this cap is what holds the terrain's share.
  */
 export const MASK_TRIS = 90_000;
+
+/**
+ * Lite model triangles from which a focused island counts as a very large
+ * town at far LOD: its lite terrain then falls back from 2 columns per
+ * tile to 1 (still textured with the roads and field patches, relief
+ * kept; render/terrain.ts), so the town's models keep their room in
+ * D-048's far budget. Smaller towns keep the finer lite terrain.
+ */
+export const FAR_TOWN_TRIS = 60_000;
+
+/**
+ * The mask mesh's budget at far LOD next to a focused island whose lite
+ * terrain has `focusTris` triangles: what is left of MASK_TRIS (0 when
+ * that terrain alone fills it — a very large island: every other island
+ * then shows its mask, which the mesh always draws).
+ */
+export function maskBudget(focusTris: number): number {
+  return Math.max(0, MASK_TRIS - focusTris);
+}
 
 /** One island of the mask mesh. */
 export interface MaskIsland {

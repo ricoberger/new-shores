@@ -113,6 +113,8 @@ export class IslandDetail {
   private terrain: TerrainMeshes = NO_TERRAIN;
   /** Model detail (full at near and mid, lite at far): the terrain's column size follows it. */
   private detail: Detail = "full";
+  /** The coarse lite terrain is drawn at the lite detail (setCoarseTerrain). */
+  private coarseTerrain = false;
   /** Smoothed coastline of the static terrain and the decoration seed (island ID + revision). */
   private loops: CoastLoop[] = [];
   private seed = 0;
@@ -237,6 +239,25 @@ export class IslandDetail {
   farTerrain(): { key: string; data: Builder } | null {
     const far = this.hasTiles() ? this.terrain.far : null;
     return far ? { key: `${this.terrainKey}#${this.terrain.farVersion}`, data: far } : null;
+  }
+
+  /** Triangles of the lite building chunks (all chunks, not only those in view; far LOD's town size, farmesh.ts FAR_TOWN_TRIS). */
+  liteModelTriangles(): number {
+    return this.detail === "lite" ? this.buildings.chunkTriangles() : 0;
+  }
+
+  /** Far LOD of a very large town (farmesh.ts FAR_TOWN_TRIS): the coarse lite terrain (1 column per tile) instead of the lite one. */
+  setCoarseTerrain(on: boolean): void {
+    if (on === this.coarseTerrain) return;
+    this.coarseTerrain = on;
+    this.applyTerrainDetail();
+  }
+
+  /** Triangles of the lite terrain (far LOD: the island's one terrain mesh with the quays). */
+  liteTerrainTriangles(): number {
+    let n = 0;
+    for (const m of this.terrain.lite) n += m.getTotalIndices() / 3;
+    return n;
   }
 
   /** Whether the island is drawn with its full tiles (terrain and layers built). */
@@ -647,10 +668,12 @@ export class IslandDetail {
     }).length;
   }
 
-  /** The full terrain (4 columns per tile) with the full models; the coarse one (2 per tile) with the lite models (far LOD). */
+  /** The full terrain (4 columns per tile) with the full models; the coarse one (2 per tile, a very large town's 1) with the lite models (far LOD). */
   private applyTerrainDetail(): void {
     const full = this.detail === "full";
+    this.terrain.setCoarse(this.coarseTerrain);
     for (const m of this.terrain.full) m.setEnabled(full);
+    for (const m of this.terrain.liteAll) m.setEnabled(false);
     for (const m of this.terrain.lite) m.setEnabled(!full);
   }
 

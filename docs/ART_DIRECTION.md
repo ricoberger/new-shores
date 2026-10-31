@@ -139,8 +139,14 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   without tiles draw their 1:4 mask through the same field code;
   off-screen islands are left out of the merged mesh. At far a built
   island's columns keep whole levels, one rock tier, flat rivers and 12
-  colour levels, nearest the view first while the merged mesh stays
-  within 90 k triangles (the others fall back to their mask); far tops
+  colour levels, nearest the view first while the far view's terrain
+  stays within 90 k triangles — the focused island's lite terrain counts
+  first, the merged mesh gets the rest (`farmesh.ts` `maskBudget`; the
+  others fall back to their mask, all of them when a very large focused
+  island fills the 90 k on its own). A very large town (lite models over
+  60 k triangles, `FAR_TOWN_TRIS`) draws its island's lite terrain at 1
+  column per tile instead of 2 (still textured, relief kept; built on
+  first use); far tops
   carry no corner occlusion (a step's shading is below a pixel, and it
   split the rectangles); the
   focused island's lite terrain keeps at most two rock tiers and flat

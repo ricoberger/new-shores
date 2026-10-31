@@ -131,7 +131,10 @@ export class Builder {
 
 /** An island's built terrain: the meshes of both details, the near field (coast water) and the far view's mesh data. */
 export interface TerrainMeshes {
-  lite: Mesh[];
+  /** The lite terrain drawn at far LOD: the lite mesh (2 columns per tile), or the coarse one (1 per tile) after setCoarse(true). */
+  readonly lite: Mesh[];
+  /** Both lite meshes built (the coarse one only once asked for). */
+  readonly liteAll: Mesh[];
   full: Mesh[];
   /** The near/mid column field (4 per tile). */
   field: Field | null;
@@ -141,11 +144,13 @@ export interface TerrainMeshes {
   readonly farVersion: number;
   /** Paints the island's roads into the terrain; returns the chunks whose meshes were rebuilt. */
   setRoads(tiles: readonly RoadTile[], fields?: readonly FieldTile[]): string[];
+  /** The coarse lite terrain (a very large town at far LOD, farmesh.ts FAR_TOWN_TRIS; built on first use) instead of the lite one. */
+  setCoarse(on: boolean): void;
   dispose(): void;
 }
 
 /** No terrain. */
-export const NO_TERRAIN: TerrainMeshes = { lite: [], full: [], field: null, far: null, farVersion: 0, setRoads: () => [], dispose: () => undefined };
+export const NO_TERRAIN: TerrainMeshes = { lite: [], liteAll: [], full: [], field: null, far: null, farVersion: 0, setRoads: () => [], setCoarse: () => undefined, dispose: () => undefined };
 
 /**
  * The island's terrain in two details, both built once: `lite` (far LOD,
@@ -194,6 +199,9 @@ export class TerrainBuild {
   private lite: { texture: RawTexture; material: StandardMaterial } | null = null;
   /** The lite mesh (after finish; rebuilt when the quays change). */
   private liteMesh: Mesh | null = null;
+  /** The coarse lite mesh (1 column per tile; null: not built or out of date) and whether it is the one drawn. */
+  private coarseMesh: Mesh | null = null;
+  private coarse = false;
   /** The quay tiles (D-060) the lite mesh carries as decks at QUAY_H, and their key. */
   private quays: readonly RoadTile[] = [];
   private quayKey = "";
@@ -223,7 +231,8 @@ export class TerrainBuild {
     // The lite tops sample the same ground texture (their colours need no vertex colour: they merge into large rectangles).
     // The lite terrain carries the rock (no rock layer at far LOD).
     // Whole terrace levels, at most two rock tiers and flat rivers (no rims, ramps or banks: fewer walls, D-048's far budget).
-    this.fields = { full, lite: { ...snapHeights(downsampleField(withRock(full, seed, { tiers: 2, flatRivers: true }), TERRAIN_VPT / LITE_VPT), LEVEL_STEPS), textured: true } };
+    // No corner occlusion on its tops either (as the far columns: a step's shading is below a pixel at far LOD), so the textured tops merge into large rectangles.
+    this.fields = { full, lite: { ...snapHeights(downsampleField(withRock(full, seed, { tiers: 2, flatRivers: true }), TERRAIN_VPT / LITE_VPT), LEVEL_STEPS), textured: true, flatTops: true } };
     this.base = fieldBase(full);
     this.rects = new Map(islandChunks(island.width, island.height).map((c) => [c.key, c]));
     this.texture = new RawTexture(groundTexels(full), full.nx, full.ny, Constants.TEXTUREFORMAT_RGBA, scene, false, false, Texture.NEAREST_SAMPLINGMODE);
@@ -267,6 +276,8 @@ export class TerrainBuild {
       this.quayKey = quayKey;
       this.quays = quays;
       if (this.liteMesh) this.buildLite();
+      this.coarseMesh?.dispose();
+      this.coarseMesh = null;
     }
     const out: string[] = [];
     for (const k of touchedChunks(changed, f, (x, y) => chunkAt(x, y, this.island.width, this.island.height))) {
@@ -285,6 +296,7 @@ export class TerrainBuild {
       if (this.patchTops) this.farData = null;
       this.patchTops = null;
       if (this.liteMesh) this.liteMesh.material = this.material;
+      if (this.coarseMesh) this.coarseMesh.material = this.material;
       this.lite?.texture.dispose();
       this.lite?.material.dispose();
       this.lite = null;
@@ -302,6 +314,7 @@ export class TerrainBuild {
       this.lite = { texture, material: addGround(terrainMaterial(this.scene, "terrain_lite"), { texture, width: f.nx, height: f.ny, vpt: TERRAIN_VPT }) };
     }
     if (this.liteMesh) this.liteMesh.material = this.lite.material;
+    if (this.coarseMesh) this.coarseMesh.material = this.lite.material;
   }
 
   /** Disposes what was built so far (a replaced build). */
@@ -368,6 +381,23 @@ export class TerrainBuild {
     this.liteMesh = mesh;
   }
 
+  /**
+   * The coarse lite mesh (a very large town at far LOD): the near field
+   * (roads and quays painted) at FAR_VPT columns per tile, whole terrace
+   * levels, two rock tiers, flat rivers, textured flat tops — the lite
+   * terrain's look at half its resolution, roughly half its triangles.
+   * Built disabled; the caller toggles it.
+   */
+  private buildCoarse(): Mesh | null {
+    const f: Field = { ...snapHeights(downsampleField(withRock(this.fields.full, this.seed, { tiers: 2, flatRivers: true }), TERRAIN_VPT / FAR_VPT), LEVEL_STEPS), textured: true, flatTops: true };
+    const b = new Builder();
+    meshField(b, f, 0, 0, f.nx, f.ny);
+    const mesh = b.mesh(`terrain_lite_${this.island.id}_coarse`, this.scene, this.lite?.material ?? this.material, this.liteParent);
+    mesh?.freezeWorldMatrix();
+    mesh?.setEnabled(false);
+    return mesh;
+  }
+
   /** The lite mesh and the far data; the full meshes built so far. */
   finish(): TerrainMeshes {
     this.buildLite();
@@ -375,10 +405,21 @@ export class TerrainBuild {
     const meshes = this.meshes;
     const far = (): Builder => this.far();
     const farVersion = (): number => (this.far(), this.farVersion);
-    const lite = (): Mesh[] => (this.liteMesh ? [this.liteMesh] : []);
+    const lite = (): Mesh[] => {
+      if (this.coarse && !this.coarseMesh) this.coarseMesh = this.buildCoarse();
+      const m = this.coarse && this.coarseMesh ? this.coarseMesh : this.liteMesh;
+      return m ? [m] : [];
+    };
+    const liteAll = (): Mesh[] => [this.liteMesh, this.coarseMesh].filter((m): m is Mesh => m !== null);
     return {
       get lite() {
         return lite();
+      },
+      get liteAll() {
+        return liteAll();
+      },
+      setCoarse: (on) => {
+        this.coarse = on;
       },
       get full() {
         return [...meshes.values()];
@@ -394,6 +435,8 @@ export class TerrainBuild {
       dispose: () => {
         this.liteMesh?.dispose();
         this.liteMesh = null;
+        this.coarseMesh?.dispose();
+        this.coarseMesh = null;
         this.dispose();
       },
     };
