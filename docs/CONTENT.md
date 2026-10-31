@@ -260,7 +260,7 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `road_paved` | 2 | 1×1 | — | road | see text | 0 | — | 3 gold / 1 stone |
 | `quay` | 2 | 1×1 on shallows | — | road (D-060) | see text | 0 | — | 5 gold / 2 stone; 0.6 s/tile; water-edge buildings stand on it |
 | `trading_pier` | 2 | 6×9 | 5–6 | Pier class (ours) | 250 / 20 / 10 | 0 | — | R, never auto-paused; +2 berths for the island (D-060); no levels |
-| `depot` | 2 | 11×4 | 0–1 | Depot class (ours) | 280 / 20 / 10 | 0 | — | R, never auto-paused; +150 capacity per good, no levels; any number (D-062) |
+| `depot` | 2 | 4×11 | 7–9 | Depot class (ours) | 280 / 20 / 10 | 0 | — | R, never auto-paused; +150 capacity per good, no levels; any number (D-062) |
 | `quarry` | 2 | 3×8 on a stone slot | — | Limestone Quarry | 120 / 9 / 0 | 3 | 8 S | R; strip into the mountain |
 | `iron_mine` | 2 | 3×8 on an iron slot | — | Iron Mine | 180 / 6 / 6 | 2 | 10 S | R |
 | `charcoal_burner` | 2 | 5×6 | — | Charcoal Burner | 90 / 9 / 0 | 2 | 4 S | R, forest nearby (visual) |

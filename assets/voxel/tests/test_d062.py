@@ -28,11 +28,11 @@ D062 = {
     "fire_station": ((4, 5), None, ("door",), 2),
     "surgery": ((4, 6), None, ("door",), 1),
     "trading_pier": ((6, 9), (5, 6), ("berth_1", "berth_2", "cart"), 1),
-    "depot": ((11, 4), (0, 1), ("cart", "door"), 1),
+    "depot": ((4, 11), (7, 9), ("cart", "door"), 1),
     "playhouse": ((11, 14), None, ("door",), 1),
 }
-#: Voxels of the model's water rows: the deck of the pier (all six), the front row of the depot (D-062: 5–6 and 0–1 in the content).
-MODEL_WATER = {"trading_post": 8, "trading_pier": 48, "depot": 8}
+#: Voxels of the model's water rows: the deck of the pier (all six; D-062: 5–6 in the content), the Trading Post's front row. The depot is a platform with its own test.
+MODEL_WATER = {"trading_post": 8, "trading_pier": 48}
 #: Model files that carry a sway group (cloth) and the group.
 SWAY = {"trading_post.l4.glb": ["flag"], "surgery.glb": ["cloth"], "playhouse.glb": ["flag"]}
 
@@ -40,6 +40,15 @@ SWAY = {"trading_post.l4.glb": ["flag"], "surgery.glb": ["cloth"], "playhouse.gl
 def bounds_ok(v, lo, hi):
     """Whether every cell lies inside lo..hi (inclusive corners, voxels)."""
     return all(lo[i] <= k[i] <= hi[i] for k in v.cells for i in range(3))
+
+
+def depot_module():
+    """The depot recipe module (its constants: roofs, sheds, platform, piles)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("dep", os.path.join(config.RECIPES_DIR, "depot.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
 class HelperTest(unittest.TestCase):
@@ -219,6 +228,62 @@ class D062Test(unittest.TestCase):
         self.assertNotIn("levels", entry)
         self.assertEqual([f[0] for f in files], ["depot.glb", "depot.lite.glb"])
         self.assertEqual(entry.get("sway", []), [])
+
+    def test_the_depot_is_a_warm_stone_platform_with_three_sheds(self):
+        files, entry, _ = self.built("depot")
+        v = [f[3] for f in files if f[0] == "depot.glb"][0]
+        roles = [m[0] for m in v.cells.values()]
+        warm = roles.count("cliff-upper") / len(roles)
+        self.assertGreater(warm, 0.35)  # warm sandstone (as the church and city guard): platform, gatehouse and ramp dominate the volume
+        self.assertLess(roles.count("stone") / len(roles), 0.03)  # no cold grey
+        self.assertFalse({"slate", "whitewash", "travertine"} & set(roles))
+        # The roofs seen from above: dark tile and brown slate, terracotta a small minority (D-063 §3).
+        dep = depot_module()
+        top = {}
+        for (x, y, z), m in v.cells.items():
+            if z >= top.get((x, y), (-99, None))[0]:
+                top[(x, y)] = (z, m)
+        seen = [m for z, m in top.values() if z >= dep.WALL_TOP and m[0] in ("timber", "terracotta")]
+        self.assertGreater(len(seen), 1500)
+        share = sum(1 for m in seen if m[0] == "terracotta") / len(seen)
+        self.assertGreater(share, 0.0)
+        self.assertLess(share, 0.2)
+        # Three parallel sheds: the roof ridges run along y at the three shed centres.
+        w = 4 * config.VOXELS_PER_TILE
+        for x0, x1 in dep.SHEDS:
+            ridge = max(z for (x, y, z), m in v.cells.items() if x0 < x < x1 and y == 40)
+            self.assertGreater(ridge, dep.WALL_TOP + 3, (x0, x1))
+        self.assertEqual(len(dep.SHEDS), 3)
+        self.assertLessEqual(max(x for (x, _, _) in v.cells) + 1, w)
+        # Anchors: cart on the land rows, the door at the ramp's end, the status icon above the middle shed.
+        a = entry["anchors"]
+        scale = config.VOXELS_PER_TILE
+        self.assertLess(a["cart"][2], (44 - 72) / scale + 0.01)  # glTF +z points to the sea: land rows are y ≥ 72
+        self.assertAlmostEqual(a["door"][2], -44 / scale, places=2)
+        self.assertAlmostEqual(a["status"][0], 0.0, places=2)
+        self.assertGreater(a["status"][1], dep.WALL_TOP / scale)  # above the sheds' walls, over the ridge
+        self.assertLess(a["status"][2], 0.0 + 1.0)  # over the platform, not the beach
+
+    def test_the_depot_has_only_piles_and_edge_arches_below_the_deck_over_its_water_rows(self):
+        # y < 72: water for certain (rows 0–6) or in some columns (rows 7–8, 7–9 water rows in the content).
+        dep = depot_module()
+        for f in self.built("depot")[0]:
+            if f[3] is None:
+                continue
+            for (x, y, z), m in f[3].cells.items():
+                if y >= dep.LAND_Y or z >= 0:
+                    continue
+                if z < -3:
+                    self.assertIn((x, y), dep.PILES, (f[0], x, y, z))
+                    self.assertEqual(m[0], "timber")
+                else:
+                    edge = x < dep.PX0 + dep.BAND or x >= dep.PX1 - dep.BAND or y < dep.PY0 + dep.BAND
+                    self.assertTrue((x, y) in dep.PILES or edge, (f[0], x, y, z))
+                    ring = y < dep.PY0 or x < dep.PX0 or x >= dep.PX1  # a mooring ring hangs on the platform's face
+                    self.assertIn(m[0], ("cliff-upper", "iron", "brass") if ring else ("cliff-upper",), (f[0], x, y, z))
+        # The deck's underside is open between the piles inside the perimeter band.
+        v = [f[3] for f in self.built("depot")[0] if f[0] == "depot.glb"][0]
+        self.assertTrue(all((x, y, -1) not in v.cells for x in range(6, 26) for y in range(8, dep.LAND_Y) if (x, y) not in dep.PILES))
 
     def test_nothing_solid_stands_over_the_water_rows_and_only_piles_reach_below_ground(self):
         # The water rows hold decks, ramps, quay edges, posts and piles; walls and roofs stand on the land rows behind them.
