@@ -465,11 +465,12 @@ renders a sheet in about a second.
 30) on desktop and phone. The asset budgets above bound a model; the
 client bounds the far view: fields are painted into the lite ground
 (`render/farfields.ts`), an island's far trees are thinned to
-`FAR_TREE_TRIS`, contact shadows use `FAR_SHADOW_TRIS` outlines, the
-focused island's lite terrain counts first in `MASK_TRIS` (a very large
-town, `FAR_TOWN_TRIS`, falls back to a coarse lite terrain) and the mask
-mesh gets the rest. `client/src/render/farbudget.test.ts` enforces the
-total: it estimates every far layer from display data with the
+`FAR_TREE_TRIS`, contact shadows use `FAR_SHADOW_TRIS` outlines, and
+the terrain gets the headroom the rest leaves of 250 k less a 10 %
+reserve (`farmesh.ts` `allocateFarTerrain`: the focused island's relief
+first, fine or coarse, then the other islands' relief nearest first,
+their flat outline the last resort).
+`client/src/render/farbudget.test.ts` enforces the total: it estimates every far layer from display data with the
 renderer's functions (the largest display fixture's biggest town and a
 synthetic one of 120 buildings, 600 field tiles and 200 tree plots, the
 islands' masks in view at every heading) and fails above 250 k. A new

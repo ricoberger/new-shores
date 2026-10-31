@@ -194,7 +194,7 @@ describe("shadow casters with models", () => {
   });
 });
 
-describe("far LOD terrain of a very large town", () => {
+describe("far LOD terrain when the fine one does not fit", () => {
   it("falls back to the coarse lite terrain (built once, on first use) and back, only at the lite detail", () => {
     const w = world();
     w.show(w.islands);
@@ -220,11 +220,13 @@ describe("far LOD terrain of a very large town", () => {
     expect(mesh("coarse")!.isEnabled()).toBe(false);
     d.setCoarseTerrain(true);
     expect(mesh("coarse")).toBe(coarse);
-    // At mid the full terrain draws and the lite models' size reads 0 (only the far view counts the town).
+    // The fine terrain's size is known while the coarse one is drawn (the far budget's choice).
+    expect(d.fineTerrainTriangles()).toBe(fine);
+    // At mid the full terrain draws and the far costs read 0 (only the far view counts them).
     d.setDetail("full");
     expect(mesh("all")!.isEnabled()).toBe(false);
     expect(mesh("coarse")!.isEnabled()).toBe(false);
-    expect(d.liteModelTriangles()).toBe(0);
+    expect(d.farFixedCost()).toEqual({ models: 0, trees: 0, shadows: 0 });
   });
 });
 

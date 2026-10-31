@@ -23,7 +23,7 @@ import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
 import { visibleChunks } from "../display/chunks";
 import { BUILD_BUDGET_MS, type BuildItem, buildOrder, BuildScheduler } from "../display/buildqueue";
 import { islandSeed } from "../display/scatter";
-import { FAR_TOWN_TRIS, MASK_TRIS, maskBudget, type MaskIsland, MaskLayer } from "./farmesh";
+import { allocateFarTerrain, type MaskIsland, MaskLayer } from "./farmesh";
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { freeShallows, isQuayType, withQuays } from "../display/quay";
@@ -783,9 +783,8 @@ export class GameRenderer {
     const focus = islands.length > 0 ? focusedIsland(islands, v) : null;
     const masked: MaskIsland[] = [];
     const landmarks: LandmarkIsland[] = [];
-    // At far LOD the lite terrain of the islands drawn in detail (the focused one) counts in the terrain budget first;
-    // a very large town's island falls back to its coarse lite terrain (FAR_TOWN_TRIS).
-    let detailTerrain = 0;
+    // At far LOD the islands drawn in detail (the focused one) and the fleet cost what they cost; the terrain gets the rest.
+    const detailed: IslandDetail[] = [];
     for (const is of islands) {
       const shown = this.visible.has(is.id);
       let d = this.details.get(is.id);
@@ -793,9 +792,8 @@ export class GameRenderer {
       const farMasked = this.farMask && this.lod === "far" && is.id !== focus;
       const useMask = !d?.hasTiles() || farMasked;
       d?.setShown(shown && !useMask, this.lod);
-      const far = this.lod === "far" && shown && !useMask;
-      d?.setCoarseTerrain(far && d.liteModelTriangles() > FAR_TOWN_TRIS);
-      if (far && d) detailTerrain += d.liteTerrainTriangles();
+      if (this.lod === "far" && shown && !useMask && d) detailed.push(d);
+      else d?.setCoarseTerrain(false);
       // Only the islands in view: off-screen ones would only add triangles to the merged mesh (D-048's far budget, D-058's denser archipelago).
       if (useMask && shown) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), tiles: d?.farTerrain() ?? null });
       // At far LOD a settled island drawn from its mask keeps its Trading Post and shipyards.
@@ -804,10 +802,22 @@ export class GameRenderer {
     // Nearest the view first: they keep their own far columns within the mask mesh's budget.
     const centre = new Map(islands.map((is) => [is.id, Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y)]));
     masked.sort((a, b) => (centre.get(a.id) ?? 0) - (centre.get(b.id) ?? 0));
-    this.mask.show(masked, this.lod === "far" ? maskBudget(detailTerrain) : MASK_TRIS);
+    this.mask.show(masked, this.lod === "far" ? this.allocateFarTerrain(detailed, masked, d0?.ships ?? []) : Infinity);
     this.landmarks.show(landmarks, this.defs);
     this.cullChunks(islands);
     this.refreshCasters();
+  }
+
+  /**
+   * The far view's terrain by headroom (D-048, farmesh.ts farTerrainBudget):
+   * the islands drawn in detail get their fine lite terrain while it fits
+   * next to the other islands' outlines, else their coarse one; returns
+   * what is left for the mask mesh (outlines, then relief nearest first).
+   */
+  private allocateFarTerrain(detailed: readonly IslandDetail[], masked: readonly MaskIsland[], ships: readonly { type: string }[]): number {
+    let fleet = 0;
+    for (const s of ships) fleet += this.models.entry(s.type)?.file?.triangles ?? 0;
+    return allocateFarTerrain(detailed, this.mask.outlineTriangles(masked), fleet);
   }
 
   /** Per-chunk culling: the chunks of each shown island in the camera's ground footprint. */

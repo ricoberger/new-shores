@@ -144,13 +144,15 @@ export interface TerrainMeshes {
   readonly farVersion: number;
   /** Paints the island's roads into the terrain; returns the chunks whose meshes were rebuilt. */
   setRoads(tiles: readonly RoadTile[], fields?: readonly FieldTile[]): string[];
-  /** The coarse lite terrain (a very large town at far LOD, farmesh.ts FAR_TOWN_TRIS; built on first use) instead of the lite one. */
+  /** The coarse lite terrain (far LOD when the lite one does not fit the budget, farmesh.ts homeTerrain; built on first use) instead of the lite one. */
   setCoarse(on: boolean): void;
+  /** Triangles of the lite mesh (2 columns per tile), whichever is drawn. */
+  liteTriangles(): number;
   dispose(): void;
 }
 
 /** No terrain. */
-export const NO_TERRAIN: TerrainMeshes = { lite: [], liteAll: [], full: [], field: null, far: null, farVersion: 0, setRoads: () => [], setCoarse: () => undefined, dispose: () => undefined };
+export const NO_TERRAIN: TerrainMeshes = { lite: [], liteAll: [], full: [], field: null, far: null, farVersion: 0, setRoads: () => [], setCoarse: () => undefined, liteTriangles: () => 0, dispose: () => undefined };
 
 /**
  * The island's terrain in two details, both built once: `lite` (far LOD,
@@ -231,8 +233,7 @@ export class TerrainBuild {
     // The lite tops sample the same ground texture (their colours need no vertex colour: they merge into large rectangles).
     // The lite terrain carries the rock (no rock layer at far LOD).
     // Whole terrace levels, at most two rock tiers and flat rivers (no rims, ramps or banks: fewer walls, D-048's far budget).
-    // No corner occlusion on its tops either (as the far columns: a step's shading is below a pixel at far LOD), so the textured tops merge into large rectangles.
-    this.fields = { full, lite: { ...snapHeights(downsampleField(withRock(full, seed, { tiers: 2, flatRivers: true }), TERRAIN_VPT / LITE_VPT), LEVEL_STEPS), textured: true, flatTops: true } };
+    this.fields = { full, lite: { ...snapHeights(downsampleField(withRock(full, seed, { tiers: 2, flatRivers: true }), TERRAIN_VPT / LITE_VPT), LEVEL_STEPS), textured: true } };
     this.base = fieldBase(full);
     this.rects = new Map(islandChunks(island.width, island.height).map((c) => [c.key, c]));
     this.texture = new RawTexture(groundTexels(full), full.nx, full.ny, Constants.TEXTUREFORMAT_RGBA, scene, false, false, Texture.NEAREST_SAMPLINGMODE);
@@ -382,7 +383,7 @@ export class TerrainBuild {
   }
 
   /**
-   * The coarse lite mesh (a very large town at far LOD): the near field
+   * The coarse lite mesh (far LOD when the lite one does not fit the budget): the near field
    * (roads and quays painted) at FAR_VPT columns per tile, whole terrace
    * levels, two rock tiers, flat rivers, textured flat tops — the lite
    * terrain's look at half its resolution, roughly half its triangles.
@@ -421,6 +422,7 @@ export class TerrainBuild {
       setCoarse: (on) => {
         this.coarse = on;
       },
+      liteTriangles: () => (this.liteMesh ? this.liteMesh.getTotalIndices() / 3 : 0),
       get full() {
         return [...meshes.values()];
       },

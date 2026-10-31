@@ -255,6 +255,11 @@ export class FootprintShadows {
     this.setFar(this.far);
   }
 
+  /** Triangles of the far outlines (0 without them). */
+  farTriangles(): number {
+    return this.farMesh ? this.farMesh.getTotalIndices() / 3 : 0;
+  }
+
   /** Far LOD: the cheap outlines (when built) instead of the soft ones. */
   setFar(on: boolean): void {
     this.far = on;

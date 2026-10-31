@@ -241,12 +241,23 @@ export class IslandDetail {
     return far ? { key: `${this.terrainKey}#${this.terrain.farVersion}`, data: far } : null;
   }
 
-  /** Triangles of the lite building chunks (all chunks, not only those in view; far LOD's town size, farmesh.ts FAR_TOWN_TRIS). */
-  liteModelTriangles(): number {
-    return this.detail === "lite" ? this.buildings.chunkTriangles() : 0;
+  /**
+   * The island's far-LOD triangles that do not depend on its terrain (farmesh.ts
+   * FarFixedCost): lite building chunks (all, not only those in view: the
+   * choice must not flip while panning), far tree crowns and far shadows.
+   * Zero while not at the lite detail.
+   */
+  farFixedCost(): { models: number; trees: number; shadows: number } {
+    if (this.detail !== "lite") return { models: 0, trees: 0, shadows: 0 };
+    return { models: this.buildings.chunkTriangles(), trees: this.farTrees.triangles(), shadows: this.buildingBlobs.farTriangles() };
   }
 
-  /** Far LOD of a very large town (farmesh.ts FAR_TOWN_TRIS): the coarse lite terrain (1 column per tile) instead of the lite one. */
+  /** Triangles of the fine lite terrain (2 columns per tile, with corner shading), drawn or not. */
+  fineTerrainTriangles(): number {
+    return this.terrain.liteTriangles();
+  }
+
+  /** Far LOD when the fine lite terrain does not fit the budget (farmesh.ts homeTerrain): the coarse one (1 column per tile) instead. */
   setCoarseTerrain(on: boolean): void {
     if (on === this.coarseTerrain) return;
     this.coarseTerrain = on;
@@ -668,7 +679,7 @@ export class IslandDetail {
     }).length;
   }
 
-  /** The full terrain (4 columns per tile) with the full models; the coarse one (2 per tile, a very large town's 1) with the lite models (far LOD). */
+  /** The full terrain (4 columns per tile) with the full models; the lite one (2 per tile, or 1 when the far budget has no room for it) with the lite models (far LOD). */
   private applyTerrainDetail(): void {
     const full = this.detail === "full";
     this.terrain.setCoarse(this.coarseTerrain);

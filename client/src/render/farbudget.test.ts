@@ -12,7 +12,7 @@ import { visibleIslands } from "../display/frustum";
 import { decodeMask, maskTerrain } from "../display/mask";
 import { islandSeed, type Placed } from "../display/scatter";
 import { BuildingLayer } from "./buildings";
-import { FAR_TOWN_TRIS, MASK_TRIS, maskMeshData } from "./farmesh";
+import { farTerrainBudget, homeTerrain, maskMeshData } from "./farmesh";
 import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./models";
 import { FAR_SHADOW_TRIS } from "./shadows";
 import { buildTerrain } from "./terrain";
@@ -28,9 +28,9 @@ import { FAR_TREE_TRIS, FarTrees } from "./trees";
 //   fields        0: painted into the lite ground (farfields.ts)
 //   shadows       the cheap far outlines (FAR_SHADOW_TRIS per building)
 //   far trees     FarTrees after its thinning, fed a forest on every land tile
-//   terrain       the focused island's lite terrain (coarse for a very large
-//                 town) plus the masks of every other island in view, at
-//                 least MASK_TRIS (the relief that fills the rest)
+//   terrain       the focused island's lite terrain (fine or coarse, as
+//                 farmesh.ts homeTerrain picks) plus the masks of every
+//                 other island in view (their least)
 //   ships         every ship of the payload at its full model
 //
 // The focused island's tiles are not in the display payload: its terrain
@@ -140,8 +140,8 @@ async function estimate(state: DisplayState, focus: IslandDisplay, aspect: numbe
   // Terrain: the focused island's lite (or coarse) terrain and the other islands' masks in view.
   const node = new TransformNode("budget", scene);
   const terrain = buildTerrain(scene, island, coastline(island), 7, () => node);
-  terrain.setCoarse(models > FAR_TOWN_TRIS);
-  const lite = terrain.lite.reduce((n, m) => n + m.getTotalIndices() / 3, 0);
+  const ships = state.ships.reduce((n, s) => n + (manifest.models[s.type]?.file?.triangles ?? 0), 0);
+  const budget = farTerrainBudget({ models, trees: farTrees, shadows: blobs, ships });
   const centre = { x: focus.position.x + focus.width / 2, y: focus.position.y + focus.height / 2 };
   let masks = 0;
   const maskTris = new Map<string, number>();
@@ -157,14 +157,15 @@ async function estimate(state: DisplayState, focus: IslandDisplay, aspect: numbe
     }
     masks = Math.max(masks, sum);
   }
-  const ships = state.ships.reduce((n, s) => n + (manifest.models[s.type]?.file?.triangles ?? 0), 0);
+  terrain.setCoarse(homeTerrain(budget, masks, terrain.liteTriangles()) === "coarse");
+  const lite = terrain.lite.reduce((n, m) => n + m.getTotalIndices() / 3, 0);
   scene.dispose();
   return {
     models_lite: models,
     fields,
     shadows: blobs,
     far_trees: farTrees,
-    terrain: Math.max(MASK_TRIS, lite + masks),
+    terrain: lite + masks,
     ships,
     scenery: SCENERY_TRIS,
   };
