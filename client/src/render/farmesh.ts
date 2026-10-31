@@ -1,8 +1,9 @@
 // Mask mesh (far view): an island drawn from its 1:4 terrain mask
-// (display/mask.ts) instead of its full tiles — coarse voxel terrain, one
-// column per tile in the colour of its mask cell's terrain, with the
-// coast's sand shelves (render/voxelterrain.ts). No trees, buildings or
-// life. Every island in view whose full tiles have not arrived yet is
+// (display/mask.ts) instead of its full tiles — its flat outline: the
+// mask cells as flat quads in the minimap's colours, greedy-merged per
+// terrain run, the exact cell contour stepped down to one sand shelf
+// (maskMeshData; ≈ 1 k triangles for a large island). No trees, buildings
+// or life. Every island in view whose full tiles have not arrived yet is
 // drawn this way, and at far LOD the islands in view other than the
 // focused one (ART_DIRECTION §2 budget); all of them are merged into one
 // static mesh (one draw call), rebuilt only when the set of islands drawn
@@ -17,12 +18,13 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
-import type { Terrain } from "../api/client";
-import { coastline } from "../display/coastline";
-import { type DecodedMask, MASK_BLOCK, MASK_TERRAINS, MASK_WATER } from "../display/mask";
+import { type DecodedMask, MASK_BLOCK, MASK_COAST, MASK_WATER } from "../display/mask";
+import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { skyFill } from "./lighting";
+import { mapLandColor, rgbOf } from "./mapcolors";
+import { c3 } from "./palette";
 import { Builder, FAR_QUANT } from "./terrain";
-import { islandField, meshField } from "./voxelterrain";
+import { EMPTY, meshField, pack, SHELF_H } from "./voxelterrain";
 
 /** D-048's far budget at the zoom cap (triangles). */
 export const FAR_TRIS = 250_000;
@@ -111,29 +113,73 @@ export interface MaskIsland {
   tiles?: { key: string; data: Builder } | null;
 }
 
+/** Colour of the mask outline's sand shelf (the 1-tile step off the cell contour). */
+const SHELF = c3(TERRAIN.sand).scale(0.9);
+/** Side colours of the outline: the land's step down to the shelf (sand under beach cells, earth under the rest) and the shelf's wall into the sea. */
+const OUTLINE_SIDE = { sand: c3(TERRAIN.sand).scale(0.84), earth: Color3.Lerp(c3(TERRAIN.road_dirt), c3(ISLAND.rock_deep), 0.3), wet: Color3.Lerp(c3(TERRAIN.sand), c3(WATER.shallows), 0.22).scale(0.72) };
+/** Side kinds of the outline's walls. */
+const OUTLINE_EARTH = 0;
+const OUTLINE_SAND = 1;
+/** Foot of the outline's walls (steps): just under the sea surface (SEA_LEVEL −0.6 tiles = −4.8 steps). */
+const OUTLINE_FOOT = -5;
+
 /**
  * Vertex data of one island's mask mesh in island-local tiles (tile (x, y)
- * is (x, 0, −y)): coarse voxel terrain — one column per tile over the
- * mask's land (each cell MASK_BLOCK × MASK_BLOCK tiles, its terrain's
- * colour at the tile), the coast a pixel outline of the smoothed cell
- * contour with the two sand shelves down below the sea. Empty for an
+ * is (x, 0, −y)): the flat outline of its 1:4 mask, the shape the minimap
+ * draws (Minimap.tsx). Every land cell covers MASK_BLOCK × MASK_BLOCK
+ * tiles at height 0 in its terrain's minimap colour (render/mapcolors.ts
+ * mapLandColor), greedy-merged into flat quads per terrain run; the coast
+ * is the exact cell contour (no smoothing), stepped down to one 1-tile sand
+ * shelf (SHELF_H) whose wall drops just under the sea. No per-tile columns
+ * and no colour noise: a large island costs ≈ 1 k triangles (the shallows
+ * around it are the sea shader's, render/archipelago.ts). Empty for an
  * all-water mask.
  */
-export function maskMeshData(mask: DecodedMask, seed: number): Builder {
+export function maskMeshData(mask: DecodedMask): Builder {
   const b = new Builder();
-  const width = mask.width * MASK_BLOCK;
-  const height = mask.height * MASK_BLOCK;
-  // Pseudo-island of tiles: tile (x, y) takes the cell floor(x / B) (cell c covers tiles c·B … c·B + B − 1, display/mask.ts).
-  const terrain: Terrain[] = new Array<Terrain>(width * height);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const c = mask.cells[Math.floor(y / MASK_BLOCK) * mask.width + Math.floor(x / MASK_BLOCK)] as number;
-      terrain[y * width + x] = c === MASK_WATER ? "water" : (MASK_TERRAINS[c] as Terrain);
+  // Tiles of the mask plus a 1-tile border for the shelf: column (i, j) is tile (i − 1, j − 1).
+  const nx = mask.width * MASK_BLOCK + 2;
+  const ny = mask.height * MASK_BLOCK + 2;
+  const h = new Int8Array(nx * ny).fill(EMPTY);
+  const top = new Uint32Array(nx * ny);
+  const kind = new Uint8Array(nx * ny);
+  const land = new Uint8Array(nx * ny);
+  let any = false;
+  for (let my = 0; my < mask.height; my++) {
+    for (let mx = 0; mx < mask.width; mx++) {
+      const c = mask.cells[my * mask.width + mx] as number;
+      if (c === MASK_WATER) continue;
+      any = true;
+      const [r, g, bl] = rgbOf(mapLandColor(c));
+      const colour = pack({ r, g, b: bl });
+      for (let y = 0; y < MASK_BLOCK; y++) {
+        for (let x = 0; x < MASK_BLOCK; x++) {
+          const k = (my * MASK_BLOCK + y + 1) * nx + mx * MASK_BLOCK + x + 1;
+          land[k] = 1;
+          h[k] = 0;
+          top[k] = colour;
+          kind[k] = c === MASK_COAST ? OUTLINE_SAND : OUTLINE_EARTH;
+        }
+      }
     }
   }
-  const pseudo = { width, height, terrain };
-  const f = { ...islandField(pseudo, coastline(pseudo), seed, 1), quant: FAR_QUANT, flatTops: true };
-  meshField(b, f, 0, 0, f.nx, f.ny);
+  if (!any) return b;
+  // The shelf: every other tile touching land (8-neighbourhood, so convex corners stay square).
+  const shelf = pack(SHELF);
+  for (let j = 0; j < ny; j++) {
+    for (let i = 0; i < nx; i++) {
+      const k = j * nx + i;
+      if (land[k]) continue;
+      let touches = false;
+      for (let dj = -1; dj <= 1 && !touches; dj++) for (let di = -1; di <= 1 && !touches; di++) touches = i + di >= 0 && j + dj >= 0 && i + di < nx && j + dj < ny && land[(j + dj) * nx + i + di] === 1;
+      if (!touches) continue;
+      h[k] = SHELF_H;
+      top[k] = shelf;
+      kind[k] = OUTLINE_SAND;
+    }
+  }
+  const side = (z: number, k: number) => (z < SHELF_H ? OUTLINE_SIDE.wet : k === OUTLINE_SAND ? OUTLINE_SIDE.sand : OUTLINE_SIDE.earth);
+  meshField(b, { nx, ny, x0: -1, y0: -1, s: 1, h, top, kind, bottom: OUTLINE_FOOT, side, quant: FAR_QUANT, flatTops: true }, 0, 0, nx, ny);
   return b;
 }
 
@@ -211,7 +257,7 @@ export class MaskLayer {
     for (const is of islands) {
       const k = `${is.seed}|${is.mask.width}x${is.mask.height}|${maskString(is.mask)}`;
       let c = this.cache.get(is.id);
-      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: maskMeshData(is.mask, is.seed) }));
+      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: maskMeshData(is.mask) }));
       keep.add(is.id);
       masks.set(is.id, c.data);
     }
