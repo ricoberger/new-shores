@@ -16,9 +16,9 @@
 #                     assets/voxel/recipes (Python 3 standard library, see README "Asset build")
 #   make assets-check rebuild into a temp dir and compare with client/public/models (byte for byte)
 #   make assets-test  asset build tests (Python 3 standard library; part of `make check`)
-#   make shots        PNGs of the game in .experiment/shots/<set>/ (fixtures showcase,
-#                     settled, dense-2x400 × near/mid/far × desktop/phone, fixed camera and
-#                     clock; 25–40 s). Needs the Playwright browsers, free ports 18080/4174.
+#   make shots        PNGs of the game in .experiment/shots/<set>/ (the dev server's
+#                     fixtures, default settled, patricians, played × near/mid/far ×
+#                     desktop/phone, fixed camera and clock; 4–5 min). Needs the Playwright browsers, free ports 18080/4174.
 #                     Parameters FIXTURE, VIEW, DEVICE (lists or all), ROTATION, ISLAND, ZOOM,
 #                     X Y, OUT, SET, HUD=0, PRESET (info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, sloop, build-menu, warnings, away, ship-panel, ship-rename, route-editor, route-rename, route-paused, island-card, top-bar-popups, farm-selected, hemp-farm-selected, field-selected, field-ghost, field-paint, field-paint-result, field-paint-pasture, archipelago-far, far-labels, reroll, rename, merchant-house-card, merchant-build-menu, patrician-house-card, patrician-build-menu, harbour, all),
 #                     SEED (the dev server's archipelago, default the dev seed), CONTENT (the dev
@@ -31,7 +31,7 @@
 #                     default view), VIEW=pan (measurement on the GPU and the real clock: load
 #                     milestones cold and warm, then a 10 s far → mid pan through every island
 #                     with its longest frame and build queue; with STATS=1):
-#                     make shots FIXTURE=showcase VIEW=near DEVICE=desktop ROTATION=2
+#                     make shots FIXTURE=merchants VIEW=near DEVICE=desktop ROTATION=2
 #                     make shots FIXTURE=seafaring VIEW=far SEED=42
 #   make model-sheet  contact sheet of single models (recipe or placeholder) in
 #                     .experiment/sheets/<ids>.png, committed models untouched; without RECIPE

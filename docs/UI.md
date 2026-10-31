@@ -477,10 +477,10 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
 - Target: 30 fps on a mid-range Android phone with a dense two-island scene
   (first playable budget; see FIRST_PLAYABLE.md). Measures taken in M3:
   render DPR capped at 1.5, status icons as thin instances (one draw call
-  per status), allocation-free cart updates; the dense fixture
-  (`?fixture=dense-2x400`, dev builds only) runs at 27 draw calls
-  (36 with the life layer; `?life=0` disables it, `?stats=1` shows live
-  instance and particle counts).
+  per status), allocation-free cart updates; the (since retired)
+  dense synthetic fixture ran at 27 draw calls (36 with the life layer;
+  `?life=0` disables it); `?stats=1` on `?fixture=played` (dev builds only)
+  shows live instance and particle counts.
 
 ## 9. The Almanac (public reference)
 

@@ -3,10 +3,9 @@ import { join } from "node:path";
 import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { Scene } from "@babylonjs/core/scene";
 import { afterEach, describe, expect, it } from "vitest";
-import type { ContentBuilding } from "../api/client";
-import { buildDenseArchipelagoFixture } from "../dev/fixture";
 import { isLandmark, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { ModelRegistry } from "./models";
+import { playedDefs, playedIslands } from "./testdata/playedworld";
 
 // The Trading Posts and shipyards of the settled islands drawn from their
 // mask at far LOD (headless, the committed models).
@@ -42,9 +41,8 @@ describe("landmark layer", () => {
       },
     });
     await reg.loadManifest();
-    const built = buildDenseArchipelagoFixture(0);
-    const defs = new Map<string, ContentBuilding>(built.content.buildings.map((b) => [b.id, b]));
-    const islands = built.server.display.islands.filter((is) => is.settled).slice(0, 2);
+    const defs = playedDefs();
+    const islands = playedIslands().filter((is) => is.settled).slice(0, 2);
     const expected = islands.flatMap((is) => is.buildings.filter((b) => isLandmark(defs.get(b.type))));
     expect(expected.length).toBeGreaterThanOrEqual(2);
     const layer = new LandmarkLayer(scene, reg);

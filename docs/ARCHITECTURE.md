@@ -73,7 +73,7 @@ new-shores/
 │   ├── src/display/            extrapolation + display model
 │   ├── src/render/             Babylon scene, voxel terrain, chunks, instancing, pickers
 │   ├── src/ui/                 React HUD, panels, build menu, world map
-│   ├── src/dev/                dev/E2E-only synthetic fixtures (dense, showcase, archipelago)
+│   ├── src/dev/                dev/E2E-only `?fixture=` hook (server fixtures), `?stats=1`
 │   ├── public/models/          voxel GLBs + manifest.json + thumbs/ (generated, committed)
 │   └── e2e/tools/              `make shots` script (Playwright as a library)
 ├── assets/
@@ -103,8 +103,9 @@ are explicit JSON (no free stock), including civic `upgrade_building` and
 the deferred Patrician surgeries. Shared display fixtures and schema-12
 state/terrain envelopes regenerate through the existing scenario tests;
 schema-11 envelopes remain rejected historical inputs. `played` replays the
-Patricians game. The synthetic client dense/showcase layouts remain pinned
-to pre-D-054 content and do **not** validate shipped-size placement.
+Patricians game. The client-only synthetic fixtures (dense, showcase,
+archipelago) are gone: every `?fixture=` name and every `make shots`
+fixture is a server fixture; `make model-sheet` shows single models.
 
 ## 4. Server
 
@@ -432,10 +433,9 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   fixture of the one list `devworld.Fixtures()` (`default`, `town`,
   `settled`, `seafaring`, `citizens`, `merchants`, `patricians`,
   `played`), clears pending dev events and publishes; `make shots` uses
-  it for the server fixtures. In dev and E2E builds `?fixture=<name>`
-  posts it from the page for any name that is not a synthetic client
-  fixture (`dense-2x400`, `dense-archipelago-8`, `archipelago-8x20`,
-  `showcase`; those render without a server), then opens the game.
+  it for every fixture. In dev and E2E builds `?fixture=<name>` posts it
+  from the page (an unknown name shows the server's error), then opens the
+  game.
   `played` (D-059) replays `server/testdata/scenarios/
   bootstrap_patricians.json` (dev server flag `--scenarios`, default
   `testdata/scenarios`) so that it ends at now; the ~40 s replay is

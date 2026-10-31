@@ -3,11 +3,13 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { afterEach, describe, expect, it } from "vitest";
 import { BOUNDS_MARGIN, groundFootprint, MIN_HALF_HEIGHT, NEAR_DEFAULT_HALF_HEIGHT, type Rect, ROTATION_EASE_MS, seaMargin, targetBounds } from "../display/camera";
-import { buildDenseArchipelagoFixture } from "../dev/fixture";
 import { CameraRig, easeInOut } from "./camera";
+import { playedIslands } from "./testdata/playedworld";
 
 // The Babylon rig against the pure camera math, headless (NullEngine).
 
+/** `max_half_extent` of content/old_coast/region.json. */
+const ZOOM_CAP = 120;
 const DEV = { minX: 0, minY: 0, maxX: 112, maxY: 114 };
 let engine: NullEngine | null = null;
 
@@ -19,9 +21,9 @@ function rig(width: number, height: number, bounds: Rect = DEV): CameraRig {
   return r;
 }
 
-/** Bounding box of the dense-archipelago-8 fixture's islands. */
-function eightIslandBounds(): Rect {
-  const is = buildDenseArchipelagoFixture(0).server.display.islands;
+/** Bounding box of the `played` fixture's islands. */
+function archipelagoBounds(): Rect {
+  const is = playedIslands();
   return {
     minX: Math.min(...is.map((i) => i.position.x)),
     minY: Math.min(...is.map((i) => i.position.y)),
@@ -188,14 +190,15 @@ describe("CameraRig clip range", () => {
     [360, 640],
     [1280, 800],
   ] as const) {
-    it(`${w} × ${h}: at the whole-archipelago zoom the ground in view (and 6 tiles above it) lies between the clip planes in every rotation`, () => {
-      const b = eightIslandBounds();
+    it(`${w} × ${h}: at the region's zoom cap (120) the ground in view (and 6 tiles above it) lies between the clip planes in every rotation`, () => {
+      const b = archipelagoBounds();
       const r = rig(w, h, b);
+      r.setZoomCap(ZOOM_CAP);
       const t = targetBounds(b);
       const aspect = w / h;
-      const sea = seaMargin(b, aspect);
+      const sea = seaMargin(b, aspect, ZOOM_CAP);
       const targets = [
-        { x: 110.5, y: 91 },
+        { x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2 },
         { x: t.minX, y: t.minY },
         { x: t.maxX, y: t.minY },
         { x: t.maxX, y: t.maxY },
@@ -207,14 +210,14 @@ describe("CameraRig clip range", () => {
           const v = r.view();
           expect(v.half).toBeCloseTo(r.zoomRange().max, 6);
           const cam = r.camera;
-          const forward = cam.getTarget().subtract(cam.position).normalize();
+          const forward = new Vector3(v.x, 0, -v.y).subtract(cam.position).normalize();
           for (const p of groundFootprint(v, aspect)) {
             // The viewport corners lie on the sea.
             expect(p.x).toBeGreaterThanOrEqual(b.minX - sea);
             expect(p.x).toBeLessThanOrEqual(b.maxX + sea);
             for (const y of [0, 6]) {
               const depth = Vector3.Dot(new Vector3(p.x, y, -p.y).subtract(cam.position), forward);
-              expect(depth).toBeGreaterThan(cam.minZ);
+              expect(depth, `at ${at.x},${at.y} rotation ${rotation}`).toBeGreaterThan(cam.minZ);
               expect(depth).toBeLessThan(cam.maxZ);
             }
           }
