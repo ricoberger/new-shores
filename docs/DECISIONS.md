@@ -1545,6 +1545,26 @@ is the size reference, Anno 1404 for the chapel):
   diagonals, allows halls over water); one depot per island (a rule
   for nothing the coast does not already do).
 
+**As built** (#53 models, #54 content; 2026-10-31): footprints and
+`water_rows` as decided (schema 12, content `old_coast-0.16.0`; the
+rule is shared with the client through 72 generated cases over all
+rotations, the ghost colours offending tiles red); Trading Post
+6×6 at all four levels; surgery at Patricians with glass; depot
+without levels (two per island tested, 600 capacity); `theatre`
+retired, `playhouse` shipped; pipeline `planned/` file removed again
+(all IDs shipped). Reference games: citizens 53/33/91/134, quests
+38/76, merchants 229/264/297, patricians 855/887/1437 (unlock margin
+45 min — the tightest; watch it on any further civic addition).
+**Correction to §1:** the Anno depot is a stone platform **jutting
+into the water** — 4 tiles along the coast and 11 deep seaward with
+three parallel sheds — not a shed along the shore as §1 says and as
+#53/#54 built it. Target: footprint **4×11**, `water_rows {7, 9}`;
+re-fit in a follow-up (content, recipe, fixtures, harbour preset).
+*Found on the way:* `played` far at the zoom cap measures 41 draws /
+1.23 M triangles on main (home island stays at full detail) — a
+pre-existing breach of the far budget for a large four-tier town; top
+of the V6 render list.
+
 ## D-063 Region scope: the Old Coast is temperate Europe; the south is a later region
 
 **Decision** (2026-10-30): every region's content must be plausible
@@ -1586,3 +1606,12 @@ structure decision).
 - *Rejected:* shifting the base palette now (nothing to gain before
   the second region exists); keeping the theatre as "fine for a
   wealthy port" (it is the one building a southern region would own).
+
+**As built** (#53/#54, 2026-10-31): `playhouse` — an octagonal
+timber-framed galleried hall with a ring roof, lantern, stage house,
+banners; terracotta < 20 % of the roof area (asserted by a test);
+Roman theatre recipe parked as `_south_theatre.py`, out of the build.
+University and cathedral: ochre → brick and terracotta → dark tile /
+slate; the round arcades, pilasters, pedimented hoods and palazzo
+massing of the university remain and are a re-fit candidate for a
+later models round. Region paragraph in GAME_DESIGN.
