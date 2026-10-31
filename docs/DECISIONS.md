@@ -1294,6 +1294,17 @@ stands):
   lengths 1–2); skerry shallows follow the outline. Far view at the
   cap: neighbours keep relief only while the mask layer stays under
   100 k triangles (`MASK_TRIS`), nearest first — worst case 248 k.
+  *Superseded by #56 (2026-10-31):* the fixed mask cap is gone; at far
+  the fixed cost (home island's lite buildings, far trees, far
+  shadows, ships) is counted first and the terrain gets the rest of
+  250 k × 0.9 — the home island's full lite terrain (coarse 1-column
+  terrain if even that does not fit), then neighbours nearest first,
+  flat outline last. Fields are painted ground patches at far, far
+  trees capped at 24 k per island, far contact shadows 12 tris per
+  building, lite buildings merged per 128-tile group. Guarded by
+  `client/src/render/farbudget.test.ts` on captured fixture data
+  (`capture.ts` regenerates it after generator or fixture changes).
+  `played` 41 / 1.21 M → 16 / 233 k; worst case 247 k at 45°.
 - *Routing:* 4-tile sea grid, per-leg waypoint `path` in the display
   and `routes[].paths`; ETA from path length × speed; leg ends are the
   Trading Post's harbour point (2 tiles off the water edge) or the
@@ -1559,11 +1570,16 @@ retired, `playhouse` shipped; pipeline `planned/` file removed again
 into the water** — 4 tiles along the coast and 11 deep seaward with
 three parallel sheds — not a shed along the shore as §1 says and as
 #53/#54 built it. Target: footprint **4×11**, `water_rows {7, 9}`;
-re-fit in a follow-up (content, recipe, fixtures, harbour preset).
+re-fit in #55: footprint 4×11, `water_rows {7, 9}`, warm-sandstone
+platform on piers and piles with three tiled sheds, walkways, cargo at
+the seaward end, gatehouse and ramp on the beach; 11.5 k / 22 k tris;
+MECHANICS §4 "7–9 rows". Known simplification: building water rows
+are not land for ship routing (ships pass through pier and depot
+piles), as for the trading pier.
 *Found on the way:* `played` far at the zoom cap measures 41 draws /
 1.23 M triangles on main (home island stays at full detail) — a
-pre-existing breach of the far budget for a large four-tier town; top
-of the V6 render list.
+pre-existing breach of the far budget for a large four-tier town;
+fixed in #56 (see D-058 as built).
 
 ## D-063 Region scope: the Old Coast is temperate Europe; the south is a later region
 

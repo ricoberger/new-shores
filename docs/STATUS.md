@@ -12,7 +12,7 @@ playable; D-057 voxel restyle decided, V1 next.
 | Content | `old_coast` 0.16.0: D-054 footprints/costs/fields, D-056 need model (shares 1.0 lone / 0.6, cumulative lower-tier rates, `services`), tiers 1–4 complete with two alternatives per category from tier 2 (Citizens bread/cheese, cider/mead, linen/leather_jerkins; Merchants sausages/pies, beer/brandy, coats/dyed_garments, books/soap; Patricians roast_beef/oysters, wine/grain_spirit, fine_garments/lace, candles/spectacles, jewellery/instruments), salt / bricks / coal / glass, 100 buildings, services ladder market → chapel → tavern → school → church → theatre → university → cathedral, civic needs safety/fire protection (Merchants) and health (Patricians), lumberjack with tree plots, quay / trading pier 6×9 / depot, playhouse (theatre retired), Anno-sized footprints with per-column `water_rows` (D-062/D-063), islands 192/112/64/16 + `scenic` skerries (spacing 50/120, straits ≥ 24, void ≤ 150) with iron/clay/salt/coal/quartz/copper/gold deposits, `smoke`/`boat` flags, sloop 1.2 (2 slots) / brig 1.0 / galleon 0.85, 12 intro + 5 + 6 + 6 tier quests; reference games 53/33/91/134 · 229/264/297 · 855/887/1437 | `content/old_coast`, CONTENT.md |
 | Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store and `POST /api/v1/dev/reset` | `server/internal/*`, ARCHITECTURE.md |
 | Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA; `make shots` / `make model-sheet` for looking at the result (no e2e/visual/perf suites, D-052); **Almanac** — public reference at `/almanac` (tiers, buildings, goods with chain trees, needs, ships, quests, islands) generated from the served content, UI.md §9; terraced voxel terrain with rivers, bridges, cliffs, crags and skerries, route ribbons and ship legs along the routed paths (D-058) | `client/`, UI.md |
-| Art | **Procedural voxels (D-057; V1–V5 merged):** Python voxel recipes at 8 voxels/tile on the parts library v2 (`assets/voxel`, standard library only), greedy quads + baked AO/sun, lite = 2 voxels/tile, shader colour jitter; lively world — blended ground, stepped pixel coast with foam, rock bands, voxel roads, dense swaying decor, voxel smoke, sized construction stages, wakes, warm light, voxel minimap; **all 93 buildings, fields and modules of tiers 1–4 and the three ships at target detail** (3 house variants per tier, flat colours + shader jitter, cloth sway groups, no placeholders); quantised GLBs (KHR_mesh_quantization); far at the cap 154 k tris (D-048 holds), dense mid 1.41 M, no pan frame > 50 ms; models folder 17.4 MB of 24 MiB | `assets/`, ART_DIRECTION.md |
+| Art | **Procedural voxels (D-057; V1–V5 merged):** Python voxel recipes at 8 voxels/tile on the parts library v2 (`assets/voxel`, standard library only), greedy quads + baked AO/sun, lite = 2 voxels/tile, shader colour jitter; lively world — blended ground, stepped pixel coast with foam, rock bands, voxel roads, dense swaying decor, voxel smoke, sized construction stages, wakes, warm light, voxel minimap; **all 93 buildings, fields and modules of tiers 1–4 and the three ships at target detail** (3 house variants per tier, flat colours + shader jitter, cloth sway groups, no placeholders); quantised GLBs (KHR_mesh_quantization); far at the cap 154 k tris (D-048 holds), dense mid 1.41 M, no pan frame > 50 ms; models folder 18.5 MB of 24 MiB | `assets/`, ART_DIRECTION.md |
 | CI | label-gated (`ci`): server (fmt/vet/lint/test), client (lint/typecheck/Vitest/build/assets-check), integration (Postgres + Redis) | `.github/workflows/ci.yaml` |
 
 ## Binding rules in one breath
@@ -27,7 +27,7 @@ in the sync after a task unless the task says otherwise; nobody adds the
 ## Decisions most relevant right now
 
 - **D-062** Anno-sized footprints (Trading Post 6×6, chapel 3×5,
-  civic 4×4/4×5/4×6, pier 6×9, depot 11×4), per-column `water_rows`,
+  civic 4×4/4×5/4×6, pier 6×9, depot 4×11 into the water), per-column `water_rows`,
   depots without levels, surgery at Patricians; **D-063** Old Coast =
   temperate Europe, theatre → playhouse, region-scoped palette roles
 - **D-059** lumberjack plants tree plots, ship speeds 1.2/1.0/0.85,
@@ -69,11 +69,11 @@ in the sync after a task unless the task says otherwise; nobody adds the
      reads and tree thinning gone, idle ship after a Trading Post
      demolition, phone top bar wraps, stepped ghost plinth, villager/
      cart draw merges) merged; ~~D-062/D-063~~ merged (#53
-     models, #54 content); **next:** depot re-orientation follow-up
-     (4×11 into the water, D-062 as-built correction), then **V6 part 2** with the owner's tier 2–4
+     models, #54 content); depot 4×11 (#55) and the far budget
+     by headroom with `farbudget.test.ts` (#56) merged; **next: V6 part 2** with the owner's tier 2–4
      playtest (second chains, market levels, services ladder, unlock
      toasts, quest chains, long house cards, brig/galleon at the piers)
-     plus the open items: **`played` far at the cap 41 draws / 1.23 M tris (LOD of a large town, hard-rule breach)**, desktop top bar wrapping at 1280 px with six badges, chapel / Trading Post l2 back faces reading blue-grey, university re-fit (arcades, pilasters), per-model voxels-per-tile in the manifest,
+     plus the open items: lite ship models (sloop/brig/galleon ≈ 300/600/800 tris; ships are 16 k at far on `played`), a cheaper far island outline (80 k for eight outlines), a tiles fixture for the far-budget guard, desktop top bar wrapping at 1280 px with six badges, chapel / Trading Post l2 back faces reading blue-grey, university re-fit (arcades, pilasters), per-model voxels-per-tile in the manifest,
      `wake_width` anchor, terracotta roof share in tier 3–4 quarters (D-063 §3), German
      read-through of island names and quest texts.
    - ~~Quantised GLB export~~ done (V3b/c, #42): 12.9 MB, ≈ 32
