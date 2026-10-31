@@ -199,6 +199,11 @@ return Display(w, now)
   may be written when it is cheaper than a reset; structural changes
   (envelope layout, tiles, islands) bump the schema without a migration
   and the owner recreates the local database.
+  **Generator rule:** `archipelago.GeneratorVersion` is bumped by hand
+  whenever the generated rows of an existing seed change (it does not
+  depend on the schema or content version). It is part of the island
+  tiles ETag and of the client's `?v=` key (`display.archipelago.
+  generator_version`), so cached rows of an older generator are dropped.
 - Migrations are versioned SQL files embedded in the binary and applied by
   `server migrate` (or `MIGRATE_ON_START`) under an advisory lock, with
   `schema_migrations` bookkeeping; expand/contract only.

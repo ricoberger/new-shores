@@ -140,16 +140,17 @@ export function getContent(lang?: string): Promise<Content> {
 
 /**
  * Full terrain rows of an island. `key` is the archipelago's cache key
- * (`<seed>-<roll>`, `tilesKey`): the response is immutable per roll, so a
- * reroll must change the URL.
+ * (`<seed>-<roll>-g<generator_version>`, `tilesKey`): the response is
+ * immutable per roll and generator, so a reroll or a generator change must
+ * change the URL.
  */
 export function getIslandTiles(id: string, key: string): Promise<IslandTiles> {
   return request<IslandTiles>(`/api/v1/world/islands/${encodeURIComponent(id)}/tiles?v=${encodeURIComponent(key)}`);
 }
 
-/** The tiles cache key of an archipelago: seed and roll. */
-export function tilesKey(a: { seed: number; roll: number }): string {
-  return `${a.seed}-${a.roll}`;
+/** The tiles cache key of an archipelago: seed, roll and generator version (as the server's tilesKey). */
+export function tilesKey(a: { seed: number; roll: number; generator_version: number }): string {
+  return `${a.seed}-${a.roll}-g${a.generator_version}`;
 }
 
 /** An island's static data from its rows and its display payload. */

@@ -14,6 +14,7 @@ import (
 
 	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 )
 
 // get serves a GET with extra headers (validated against openapi.yaml).
@@ -71,7 +72,7 @@ func TestIslandTilesOverPostgres(t *testing.T) {
 		t.Fatalf("tiles: %d %s", rec.Code, rec.Body)
 	}
 	etag := rec.Header().Get("ETag")
-	if etag != tilesETag(dsA.Archipelago.Seed, 0, home.ID) || rec.Header().Get("Cache-Control") != tilesCacheControl {
+	if etag != tilesETag(dsA.Archipelago.Seed, 0, archipelago.GeneratorVersion, home.ID) || rec.Header().Get("Cache-Control") != tilesCacheControl {
 		t.Fatalf("headers %v", rec.Header())
 	}
 	if rows.ID != home.ID || rows.Width != home.Width || rows.Height != home.Height || len(rows.Terrain) != home.Width*home.Height {
@@ -98,7 +99,7 @@ func TestIslandTilesOverPostgres(t *testing.T) {
 		t.Fatal("both players got the same seed")
 	}
 	recB := tilesOf(b, dsB, home.ID, etag)
-	if recB.Code != http.StatusOK || recB.Header().Get("ETag") == etag || recB.Header().Get("ETag") != tilesETag(dsB.Archipelago.Seed, 0, home.ID) {
+	if recB.Code != http.StatusOK || recB.Header().Get("ETag") == etag || recB.Header().Get("ETag") != tilesETag(dsB.Archipelago.Seed, 0, archipelago.GeneratorVersion, home.ID) {
 		t.Fatalf("player B: %d %v", recB.Code, recB.Header())
 	}
 	// No session: 401.
@@ -111,7 +112,7 @@ func TestIslandTilesOverPostgres(t *testing.T) {
 	a.must(http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"reroll_archipelago"}}`, 200)
 	rerolled := view(a)
 	rec = tilesOf(a, rerolled, home.ID, etag)
-	if rec.Code != http.StatusOK || rec.Header().Get("ETag") != tilesETag(rerolled.Archipelago.Seed, 1, home.ID) {
+	if rec.Code != http.StatusOK || rec.Header().Get("ETag") != tilesETag(rerolled.Archipelago.Seed, 1, archipelago.GeneratorVersion, home.ID) {
 		t.Fatalf("after the reroll: %d %v", rec.Code, rec.Header())
 	}
 	if rec := tilesOf(a, dsA, home.ID, ""); rec.Code != http.StatusOK || rec.Header().Get("Cache-Control") != "no-store" {

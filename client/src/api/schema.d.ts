@@ -104,12 +104,13 @@ export interface paths {
          *     each island's bounds, fertilities, deposits and a 1:4
          *     `terrain_mask` only; clients load the rows per island when they
          *     need them (the island in view first). Terrain changes only with a
-         *     reroll (D-053), so the response is cacheable for good: the `ETag`
-         *     derives from the archipelago's seed and roll and the island ID,
+         *     reroll (D-053) or a generator change, so the response is cacheable for good: the `ETag`
+         *     derives from the archipelago's seed, roll and generator version and
+         *     the island ID,
          *     `Cache-Control` is `private, max-age=31536000, immutable`, and a
          *     matching `If-None-Match` answers 304. Clients pass the
-         *     archipelago's `<seed>-<roll>` as `v`, so a reroll changes the URL;
-         *     when `v` names another roll than the world's, the response is
+         *     archipelago's `<seed>-<roll>-g<generator_version>` as `v`, so a reroll or
+         *     a generator change changes the URL; when `v` names another key than the world's, the response is
          *     `no-store`. Unsettled islands are served as well.
          */
         get: operations["getIslandTiles"];
@@ -1708,6 +1709,8 @@ export interface components {
             seed: number;
             /** @description Number of rerolls; seed and roll identify the archipelago. */
             roll: number;
+            /** @description Version of the island generator (`archipelago.GeneratorVersion`); the rows of a seed and roll change with it. */
+            generator_version: number;
             /** @description `reroll_archipelago` is allowed: a generated archipelago, no island settled, no ship under way. */
             rerollable: boolean;
             /** @description Bounding box of the islands (archipelago tiles). */
@@ -2837,7 +2840,7 @@ export interface operations {
     getIslandTiles: {
         parameters: {
             query?: {
-                /** @description Cache key of the archipelago, `<seed>-<roll>` of `display.archipelago`. */
+                /** @description Cache key of the archipelago, `<seed>-<roll>-g<generator_version>` of `display.archipelago`. */
                 v?: string;
             };
             header?: {
@@ -2854,9 +2857,9 @@ export interface operations {
             /** @description The island's terrain rows. */
             200: {
                 headers: {
-                    /** @description Strong validator from the archipelago's seed and roll and the island ID. */
+                    /** @description Strong validator from the archipelago's seed, roll and generator version and the island ID. */
                     ETag?: string;
-                    /** @description `private, max-age=31536000, immutable`, or `no-store` when `v` names another roll. */
+                    /** @description `private, max-age=31536000, immutable`, or `no-store` when `v` names another key. */
                     "Cache-Control"?: string;
                     [name: string]: unknown;
                 };
