@@ -615,8 +615,10 @@ async function selectBuilding(page: Page, type: string, offset: { x: number; y: 
 /**
  * The harbour of the played world (D-060): a quay run on the shallows south
  * of the Trading Post with a fisher standing on it, a trading pier and a
- * depot, placed through the dev API (real server state; sites checked
- * against the played world of the dev seed). Every ship leaves its route
+ * depot (a 4×11 stone platform into the water, D-062), placed through the
+ * dev API (real server state; sites searched with the per-column water
+ * rows next to the Trading Post, whatever the coast looks like). The camera
+ * looks at the middle between the pier and the depot. Every ship leaves its route
  * and sails home: idle ships lie at the island's berths, the Trading
  * Post's four first, so the fifth (the galleon) lies at the pier. The page
  * is reloaded afterwards (see below).
@@ -624,7 +626,7 @@ async function selectBuilding(page: Page, type: string, offset: { x: number; y: 
 const HARBOUR_ISLAND = "isle-01";
 const HARBOUR_COMMANDS = [
   { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "trading_pier", x: 144, y: 176, rotation: 90 },
-  { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "depot", x: 135, y: 179, rotation: 180 },
+  { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "depot", x: 135, y: 179, rotation: 0 },
 ] as const;
 /** Camera target over the harbour (island tiles). */
 
@@ -676,7 +678,6 @@ async function harbour(page: Page): Promise<void> {
             err = await harbourCommand(page, { ...c, x, y, rotation });
             if (!err) {
               console.log(`harbour ${c.building_type}: (${x},${y}) r${rotation}, ${def.width}x${def.height}`);
-              if (c.building_type === "trading_pier") target = { x: x + bw / 2, y: y + bh / 2 };
               break search;
             }
           }
@@ -684,6 +685,19 @@ async function harbour(page: Page): Promise<void> {
       }
     }
     if (err) throw new Error(`harbour: ${c.type} failed: ${err}`);
+  }
+  {
+    // The camera looks at the middle between the pier and the depot as placed.
+    const built = await (await fetch(`http://localhost:${API_PORT}/api/v1/world`)).json() as WorldResponse;
+    const content = await (await fetch(`http://localhost:${API_PORT}/api/v1/content`)).json() as Content;
+    const centres = built.display.islands.find((i) => i.id === HARBOUR_ISLAND)!.buildings
+      .filter((b) => b.type === "trading_pier" || b.type === "depot")
+      .map((b) => {
+        const d = content.buildings.find((d) => d.id === b.type)!;
+        const [bw, bh] = b.rotation === 90 || b.rotation === 270 ? [d.height, d.width] : [d.width, d.height];
+        return { x: b.x + bw / 2, y: b.y + bh / 2 };
+      });
+    if (centres.length) target = { x: centres.reduce((a, p) => a + p.x, 0) / centres.length, y: centres.reduce((a, p) => a + p.y, 0) / centres.length };
   }
   // A short legal quay beside this harbour, placed through the real API.
   const terrain = await (await fetch(`http://localhost:${API_PORT}/api/v1/world/islands/${HARBOUR_ISLAND}/tiles`)).json() as IslandTiles;
@@ -809,15 +823,16 @@ function ghostTerrace(type: string, state: "ok" | "no_road" | "invalid"): { fixt
   };
 }
 
-/** Fisher on a real diagonal coast: valid, one tile inland, one tile seaward. */
-function ghostWater(offset: -1 | 0 | 1): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+/** A water-edge building (the fisher, or the 4×11 depot of D-062) on a real diagonal coast: valid, one tile inland, one tile seaward. */
+function ghostWater(offset: -1 | 0 | 1, type = "fisher", tab = "production"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
     fixture: "settled",
     device: "desktop",
     run: async (page) => {
       const content = await (await fetch(`http://localhost:${API_PORT}/api/v1/content`)).json() as Content;
-      const def = content.buildings.find((b) => b.id === "fisher")!;
-      if (!def.water_rows || def.water_rows.min === def.water_rows.max) throw new Error("ghost-water needs a variable fisher water_rows range (D-062 target: 2..3)");
+      const def = content.buildings.find((b) => b.id === type)!;
+      if (!def.water_rows || def.water_rows.min === def.water_rows.max) throw new Error(`ghost-water needs a variable ${type} water_rows range (D-062)`);
+      const { min, max } = def.water_rows;
       const is = await page.evaluate(() => window.__newShores!.getServer()!.display.islands.find((i) => i.settled)!);
       const terrain = await (await fetch(`http://localhost:${API_PORT}/api/v1/world/islands/${is.id}/tiles`)).json() as IslandTiles;
       const blocked = new Set(is.roads.map((r) => `${r.x},${r.y}`));
@@ -833,26 +848,27 @@ function ghostWater(offset: -1 | 0 | 1): { fixture: Fixture; device: Device; run
           const tiles = waterEdgeTiles(def, tile, x, y, 0);
           if (tiles.some((p) => p.problem || blocked.has(`${p.x},${p.y}`))) continue;
           const depths = new Set(Array.from({ length: def.width }, (_, c) => tiles.filter((p) => p.x === x + c && p.water).length));
-          if (depths.size < 2) continue;
+          if (!depths.has(min) || !depths.has(max)) continue; // one column at each end, so a shift either way leaves the range
           if ([-1, 1].some((dy) => waterEdgeTiles(def, tile, x, y + dy, 0).some((p) => blocked.has(`${p.x},${p.y}`)))) continue;
           site = { x, y };
           break;
         }
       }
-      if (!site) throw new Error("no free north-facing diagonal fisher site");
+      if (!site) throw new Error(`no free north-facing diagonal ${type} site`);
       const y = site.y + offset;
       const hints = waterEdgeTiles(def, tile, site.x, y, 0);
       const invalid = hints.filter((p) => p.problem);
       if ((invalid.length > 0) !== (offset !== 0)) throw new Error("diagonal coast did not produce the requested ghost state");
-      console.log(`ghost-water ${offset}: ${is.id} (${site.x},${y}) rotation 0, ${invalid.length} invalid tiles, water_rows=${JSON.stringify(def.water_rows)}`);
+      console.log(`ghost-water ${type} ${offset}: ${is.id} (${site.x},${y}) rotation 0, ${invalid.length} invalid tiles, water_rows=${JSON.stringify(def.water_rows)}`);
       await setCamera(page, { x: is.position.x + site.x + def.width / 2, y: is.position.y + site.y + def.height / 2, half: 10, rotation: 0 });
       await settle(page);
       if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
-      await page.getByTestId("build-tab-production").click();
-      await page.getByTestId("build-fisher").click();
+      await page.getByTestId(`build-tab-${tab}`).click();
+      await page.getByTestId(`build-${type}`).click();
       const p = await tileAt(page, is.id, site.x, y);
       await page.mouse.move(p.x + 2, p.y + 2);
-      await page.waitForFunction((bad) => bad ? window.__newShores!.ghostValidity() === "invalid" : window.__newShores!.ghostValidity() === "no_road", offset !== 0, { timeout: 10_000 });
+      const valid = def.requires_road ? "no_road" : "ok";
+      await page.waitForFunction(([bad, ok]) => bad ? window.__newShores!.ghostValidity() === "invalid" : window.__newShores!.ghostValidity() === ok, [offset !== 0, valid] as const, { timeout: 10_000 });
     },
   };
 }
@@ -1203,6 +1219,9 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   "ghost-water-valid": ghostWater(0),
   "ghost-water-in": ghostWater(1),
   "ghost-water-out": ghostWater(-1),
+  // The depot (4×11, water rows 7–9) on a real diagonal coast: valid, and one tile too far out (red tiles where a column has ten water tiles).
+  "ghost-depot-valid": ghostWater(0, "depot", "harbour"),
+  "ghost-depot-out": ghostWater(-1, "depot", "harbour"),
   // The ghost across a terrace edge on the settled fixture (stepped plinth, desktop near): a 3×3 house and a 6×6 warehouse valid; "invalid" is red for a 3×4 hemp farm (no hemp on the island) and yellow ("no road") for a 5×6 market: no 3×3 or 6×6 building has a client-side red rule, and the warehouse needs no road.
   "ghost-terrace-3": ghostTerrace("house_settlers", "ok"),
   "ghost-terrace-3-invalid": ghostTerrace("hemp_farm", "invalid"),
