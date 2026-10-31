@@ -213,6 +213,8 @@ export class MaskLayer {
   private readonly cache = new Map<string, { key: string; data: Builder }>();
   /** Islands drawn from their own far columns in the current mesh. */
   private fromTiles = new Set<string>();
+  /** The mesh's islands and triangles in relief (own far columns) and as outlines (stats). */
+  private split = { relief: { islands: 0, tris: 0 }, outline: { islands: 0, tris: 0 } };
 
   constructor(private readonly scene: Scene) {
     this.material = skyFill(new StandardMaterial("mask_terrain", scene));
@@ -267,6 +269,12 @@ export class MaskLayer {
     this.mesh?.dispose();
     this.mesh = null;
     const parts = islands.map((is) => ({ data: is.tiles && fromTiles.has(is.id) ? is.tiles.data : (masks.get(is.id) as Builder), x: is.position.x, y: is.position.y }));
+    this.split = { relief: { islands: 0, tris: 0 }, outline: { islands: 0, tris: 0 } };
+    islands.forEach((is, i) => {
+      const e = fromTiles.has(is.id) ? this.split.relief : this.split.outline;
+      e.islands++;
+      e.tris += tris((parts[i] as { data: Builder }).data);
+    });
     const merged = mergeParts(parts);
     if (merged.indices.length === 0) return;
     const mesh = new Mesh("mask_terrain", this.scene);
@@ -313,6 +321,12 @@ export class MaskLayer {
   /** Islands of the mesh drawn from their own far columns (tests and stats). */
   tiled(): string[] {
     return [...this.fromTiles];
+  }
+
+  /** The mesh's islands and triangles in relief and as outlines (GameRenderer.activeLayers, `make shots STATS=2`). */
+  breakdown(): { relief: { islands: number; tris: number }; outline: { islands: number; tris: number } } {
+    if (!this.mesh) return { relief: { islands: 0, tris: 0 }, outline: { islands: 0, tris: 0 } };
+    return { relief: { ...this.split.relief }, outline: { ...this.split.outline } };
   }
 
   /** Triangles of the merged mesh. */

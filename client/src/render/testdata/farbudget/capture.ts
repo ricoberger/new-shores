@@ -1,6 +1,7 @@
 // Captures the far-budget guard's fixtures (render/farbudget.test.ts):
 // the display payload and every island's tiles of the `make shots` server
-// fixtures settled, patricians and played (server/internal/devworld),
+// fixtures settled, patricians, played and seafaring (the unsettled start
+// at sea; server/internal/devworld),
 // trimmed to what the renderer reads and gzipped next to this file.
 //
 // Run with a dev server up (any port), from the client directory:
@@ -13,7 +14,7 @@ import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 
 const api = process.argv[2] ?? "http://localhost:18190";
-const FIXTURES = ["settled", "patricians", "played"] as const;
+const FIXTURES = ["settled", "patricians", "played", "seafaring"] as const;
 
 type Json = Record<string, unknown>;
 

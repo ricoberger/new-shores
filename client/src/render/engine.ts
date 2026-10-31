@@ -538,6 +538,12 @@ export class GameRenderer {
         f.tris += fieldTris;
       }
       e.tris += tris - fieldTris;
+      if (m.name === "mask_terrain") {
+        // The neighbours' split: `meshes` counts the islands drawn in relief (own far columns) and as outlines.
+        const b = this.mask.breakdown();
+        out["mask_terrain.relief"] = { meshes: b.relief.islands, tris: b.relief.tris };
+        out["mask_terrain.outline"] = { meshes: b.outline.islands, tris: b.outline.tris };
+      }
     }
     return out;
   }

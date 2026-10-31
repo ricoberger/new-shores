@@ -16,9 +16,11 @@ import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./m
 
 // Far-view budget guard (D-048, D-057 §5; ARCHITECTURE §5a): at the zoom
 // cap (max_half_extent 120) the far LOD must stay within 250 k triangles
-// on desktop and phone. For the `make shots` fixtures settled, patricians
-// and played (testdata/farbudget, captured from the dev server with
-// capture.ts: display and every island's tiles) it builds the islands as
+// and 40 draw calls on desktop, phone and desktop-xl (the owner's
+// 2992 × 1700 window: the widest footprint). For the `make shots` fixtures
+// settled, patricians, played and seafaring (the unsettled start;
+// testdata/farbudget, captured from the dev server with capture.ts:
+// display and every island's tiles) it builds the islands as
 // the renderer does (IslandDetail with the committed models, headless),
 // runs the renderer's far terrain allocation (farmesh.ts
 // allocateFarTerrain, MaskLayer) for the camera at the cap over the
@@ -31,10 +33,15 @@ import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./m
 //   mask_terrain                                 neighbours: outlines + relief
 //   scenery                                      sea, haze, landmarks
 //
-// and the allocation: the home island always in relief; on settled and
-// patricians in the shots' view (heading 0) at its fine lite terrain with
-// every island in view in relief (other headings see more islands: the
-// farther ones may fall back to their outline there).
+// the draw calls (the home island's enabled meshes, the mask mesh, hull and
+// cargo per ship type, FAR_SCENERY_DRAWS), and the allocation: the home
+// island always in relief; on settled and patricians in the shots' view
+// (heading 0) on desktop and phone at its fine lite terrain with every
+// island in view in relief (other headings see more islands: the farther
+// ones may fall back to their outline there); on every view the relief
+// the mask layer gave stays when tiles stream in afterwards (no pop).
+// The table of every fixture × device at heading 0 is logged (draws,
+// triangles, islands in relief / outline).
 
 const repo = join(__dirname, "..", "..", "..");
 const MODELS = join(__dirname, "..", "..", "public", "models");
@@ -51,8 +58,12 @@ interface Fixture {
 const load = (name: string) => JSON.parse(gunzipSync(readFileSync(join(__dirname, "testdata", "farbudget", `${name}.json.gz`))).toString("utf8")) as Fixture;
 
 const CAP_HALF = 120;
-/** Desktop 1280 × 800 and phone 390 × 844 (the shots' devices). */
-const DEVICES = { desktop: 1280 / 800, phone: 390 / 844 } as const;
+/** Desktop 1280 × 800, phone 390 × 844 and desktop-xl 2992 × 1700 (the shots' devices). */
+const DEVICES = { desktop: 1280 / 800, phone: 390 / 844, "desktop-xl": 2992 / 1700 } as const;
+/** D-048's draw calls at far LOD. */
+const FAR_DRAWS = 40;
+/** Draws of the far view besides the islands and the fleet: sea, haze, landmarks. */
+const FAR_SCENERY_DRAWS = 3;
 const HOME = "isle-01";
 
 /** Canvas stand-in for the dynamic textures (foam, field patterns, status icons): drawing is a no-op. */
@@ -93,6 +104,8 @@ interface View {
   /** Triangles per layer. */
   layers: Record<string, number>;
   total: number;
+  /** Draw calls (an upper bound: no frustum culling of the home island's meshes). */
+  draws: number;
   /** The home island's terrain and the islands in view with their relief / outline. */
   home: "lite" | "coarse";
   relief: string[];
@@ -131,13 +144,19 @@ async function farViews(name: string): Promise<View[]> {
   for (const d of details.values()) d.refreshModels();
   // The decor models the refresh asked for (tree crowns).
   await loaded(reg);
-  for (const d of details.values()) {
+  for (const [id, d] of details) {
     d.refreshModels();
-    d.setShown(true, "far");
+    // Only the home island is drawn in detail (its far columns are the others' relief data, drawn or not).
+    d.setShown(id === HOME, "far");
     d.setDetail("lite");
   }
   const homeDetail = details.get(HOME) as IslandDetail;
   const fleet = fx.ships.reduce((n, s) => n + (manifest.models[s.type]?.file?.triangles ?? 0), 0);
+  // One hull and one cargo mesh per ship type (render/archipelago.ts).
+  const fleetDraws = 2 * new Set(fx.ships.map((s) => s.type)).size;
+  // The home island's meshes drawn at far (enabled, visible, not empty).
+  const homeRoot = scene.getTransformNodeByName(`island_${HOME}`);
+  const homeDraws = scene.meshes.filter((m) => m.isEnabled() && m.isVisible && m.getTotalIndices() > 0 && homeRoot && m.isDescendantOf(homeRoot)).length;
   const key = `${fx.archipelago.seed}/${fx.archipelago.roll}`;
   const out: View[] = [];
   for (const v of views) {
@@ -158,7 +177,12 @@ async function farViews(name: string): Promise<View[]> {
         })),
     );
     const rest = allocateFarTerrain([homeDetail], layer.outlineTriangles(masked), fleet);
+    // Tiles streaming in after a grant (the farther half arrives last): nobody given relief loses it.
+    const early = masked.map((m, i) => (i < Math.ceil(masked.length / 2) ? m : { ...m, tiles: null }));
+    layer.show(early, rest);
+    const given = layer.tiled();
     layer.show(masked, rest);
+    for (const id of given) expect(layer.tiled(), `${name} ${v.device} rotation ${v.rotation}: ${id} lost its relief when tiles arrived`).toContain(id);
     const fixed = homeDetail.farFixedCost();
     const layers = {
       models_lite: fixed.models,
@@ -175,6 +199,7 @@ async function farViews(name: string): Promise<View[]> {
       rotation: v.rotation,
       layers,
       total: Object.values(layers).reduce((a, b) => a + b, 0),
+      draws: homeDraws + (layer.triangles() > 0 ? 1 : 0) + fleetDraws + FAR_SCENERY_DRAWS,
       home: homeDetail.liteTerrainTriangles() === homeDetail.fineTerrainTriangles() ? "lite" : "coarse",
       relief,
       outline: masked.map((m) => m.id).filter((id) => !relief.includes(id)),
@@ -185,20 +210,25 @@ async function farViews(name: string): Promise<View[]> {
 }
 
 describe("far budget at the zoom cap (D-048)", () => {
-  for (const name of ["settled", "patricians", "played"] as const) {
-    it(`${name}: ≤ ${FAR_TRIS} triangles on desktop and phone at every heading, the home island in relief${name === "played" ? "" : ", every island in view in relief"}`, async () => {
+  const table: string[] = [];
+  afterAll(() => console.log(`far view at the cap, heading 0 (fixture device: draws, triangles, home terrain, islands in relief / outline)\n${table.join("\n")}`));
+  for (const name of ["settled", "patricians", "played", "seafaring"] as const) {
+    const all = name === "settled" || name === "patricians";
+    it(`${name}: ≤ ${FAR_DRAWS} draws and ≤ ${FAR_TRIS} triangles on desktop, phone and desktop-xl at every heading, the home island in relief${all ? ", every island in view in relief" : ""}`, async () => {
       const views = await farViews(name);
       for (const v of views) {
         const at = `${name} ${v.device} rotation ${v.rotation}: ${JSON.stringify(v)}`;
         expect(v.total, at).toBeLessThanOrEqual(FAR_TRIS);
+        expect(v.draws, at).toBeLessThanOrEqual(FAR_DRAWS);
         expect(v.layers.terrain_lite, at).toBeGreaterThan(0);
-        if (name !== "played" && v.rotation === 0) {
+        if (all && v.rotation === 0 && v.device !== "desktop-xl") {
           expect(v.home, at).toBe("lite");
           expect(v.outline, at).toEqual([]);
         }
+        if (v.rotation === 0) table.push(`${name.padEnd(10)} ${v.device.padEnd(10)}  draws ${String(v.draws).padStart(2)}  tris ${String(v.total).padStart(6)}  home ${v.home.padEnd(6)}  relief ${v.relief.length} / outline ${v.outline.length}  (mask ${v.layers.mask_terrain})`);
       }
       // The models are the committed ones (not placeholders): the town is in the estimate.
-      expect(views[0]!.layers.models_lite).toBeGreaterThan(0);
-    }, 120_000);
+      if (name !== "seafaring") expect(views[0]!.layers.models_lite).toBeGreaterThan(0);
+    }, 180_000);
   }
 });
