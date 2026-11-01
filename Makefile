@@ -3,8 +3,14 @@
 #   make check        server (-short) + content + client checks (no browser needed)
 #   make dev          dev server (in-memory world) + Vite, Ctrl-C stops both;
 #                     `make dev HOST=<lan-ip>` serves both on the LAN (phone testing)
-#   make preview      e2e-mode build (fixtures, ?stats=1) served by `vite preview` on
+#   make preview      e2e-mode build (?stats=1) served by `vite preview` on
 #                     :4173 against the dev server; HOST=<lan-ip> for the LAN
+#                     (both: FIXTURE=<name> starts the world from a dev fixture,
+#                     SNAPSHOT=<file> [RESUME=now] from a snapshot, D-066)
+#   make snapshot     save the running dev server's world: [OUT=path], default
+#                     .snapshots/<seed>-<YYYYMMDD-HHMMSS>.json (git-ignored); prints the path
+#   make snapshot-load FILE=<path> [RESUME=now]  replace the running dev server's world with a
+#                     snapshot (RESUME=now: continue from the present, no away summary)
 #   make up           Compose stack (postgres, redis, migrate, server x2, caddy)
 #                     on http://localhost:8000 (HTTP_PORT from deploy/.env, the
 #                     environment or `make up HTTP_PORT=…`); make logs
@@ -65,8 +71,16 @@ COMPOSE_ENV := $(if $(filter command line,$(origin HTTP_PORT)),HTTP_PORT=$(HTTP_
 # and no keep it; any other value is an error (never a silent -v).
 DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUMES)),$(error VOLUMES must be 1 (delete the database volume) or 0/false/no/unset (keep it), got '$(VOLUMES)')))
 
+# Dev start state (D-066): FIXTURE=<name> or SNAPSHOT=<file> [RESUME=now] for
+# `make dev` / `make preview` become server --fixture / --snapshot [--resume-now];
+# empty variables pass nothing. SNAPSHOT is made absolute (the server runs in
+# $(SERVER_DIR)). DEV_API is the dev server `make snapshot` talks to.
+DEV_API ?= http://localhost:8080
+$(if $(filter-out now,$(RESUME)),$(if $(RESUME),$(error RESUME must be 'now' or unset, got '$(RESUME)')))
+DEV_START_FLAGS := $(if $(FIXTURE),--fixture '$(FIXTURE)') $(if $(SNAPSHOT),--snapshot '$(abspath $(SNAPSHOT))' $(if $(RESUME),--resume-now))
+
 .PHONY: check server-check server-fmt server-vet server-lint server-test server-test-short server-test-full content-test \
-	client-install client-check client-lint client-typecheck client-test client-build dev preview \
+	client-install client-check client-lint client-typecheck client-test client-build dev preview snapshot snapshot-load \
 	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet \
 	island-atlas
 
@@ -192,16 +206,39 @@ VITE_API_ENV := $(if $(HOST),VITE_API_BASE=http://$(HOST):8080 )
 
 dev:
 	@trap 'kill 0' INT TERM EXIT; \
-	(cd $(SERVER_DIR) && go run ./cmd/server --dev --content $(CONTENT) --time-scale $(TIME_SCALE) --cors-origin $(DEV_CORS)) & \
+	(cd $(SERVER_DIR) && go run ./cmd/server --dev --content $(CONTENT) --time-scale $(TIME_SCALE) --cors-origin $(DEV_CORS) $(DEV_START_FLAGS)) & \
 	(cd $(CLIENT_DIR) && $(VITE_API_ENV)VITE_TIME_SCALE=$(TIME_SCALE) npm run dev -- $(VITE_HOST_FLAG)) & \
 	wait
 
-# Bundled build with the dev/e2e hooks on (VITE_E2E=1: ?fixture=, ?stats=1),
+# Bundled build with the dev/e2e hooks on (VITE_E2E=1: ?stats=1),
 # the realistic basis for fps numbers on a phone (Vite's unbundled dev
 # serving is slower). The build is baked against http://$(HOST):8080.
 preview:
 	cd $(CLIENT_DIR) && $(VITE_API_ENV)VITE_E2E=1 VITE_TIME_SCALE=$(TIME_SCALE) npx vite build
 	@trap 'kill 0' INT TERM EXIT; \
-	(cd $(SERVER_DIR) && go run ./cmd/server --dev --content $(CONTENT) --time-scale $(TIME_SCALE) --cors-origin $(DEV_CORS)) & \
+	(cd $(SERVER_DIR) && go run ./cmd/server --dev --content $(CONTENT) --time-scale $(TIME_SCALE) --cors-origin $(DEV_CORS) $(DEV_START_FLAGS)) & \
 	(cd $(CLIENT_DIR) && npx vite preview --port $(PREVIEW_PORT) --strictPort $(VITE_HOST_FLAG)) & \
 	wait
+
+# Save the dev server's world (GET /api/v1/dev/snapshot). The default name
+# takes the seed from the response's Content-Disposition
+# (snapshot-<seed>-<unix>.json) and the local time.
+snapshot:
+	@set -e; hdr=$$(mktemp); tmp=$$(mktemp); trap 'rm -f "$$hdr" "$$tmp"' EXIT; \
+	curl -fsS -D "$$hdr" -o "$$tmp" '$(DEV_API)/api/v1/dev/snapshot' || { echo "snapshot: is the dev server running at $(DEV_API) (make dev)?" >&2; exit 1; }; \
+	out='$(OUT)'; \
+	if [ -z "$$out" ]; then \
+		seed=$$(sed -n 's/^[Cc]ontent-[Dd]isposition:.*filename="snapshot-\([0-9]*\)-.*/\1/p' "$$hdr" | head -n 1); \
+		out=".snapshots/$${seed:-world}-$$(date +%Y%m%d-%H%M%S).json"; \
+	fi; \
+	mkdir -p "$$(dirname "$$out")"; mv "$$tmp" "$$out"; echo "$$out"
+
+# Replace the dev server's world with FILE (POST /api/v1/dev/snapshot);
+# the server's error body is printed on a non-2xx answer.
+snapshot-load:
+	@test -n '$(FILE)' || { echo "snapshot-load: FILE=<path> is required" >&2; exit 1; }
+	@test -f '$(FILE)' || { echo "snapshot-load: no such file: $(FILE)" >&2; exit 1; }
+	@set -e; body=$$(mktemp); trap 'rm -f "$$body"' EXIT; \
+	code=$$(curl -sS -o "$$body" -w '%{http_code}' -X POST -H 'Content-Type: application/json' --data-binary @'$(FILE)' '$(DEV_API)/api/v1/dev/snapshot$(if $(RESUME),?resume=$(RESUME))') || { echo "snapshot-load: is the dev server running at $(DEV_API) (make dev)?" >&2; exit 1; }; \
+	cat "$$body"; echo; \
+	case "$$code" in 2??) ;; *) echo "snapshot-load: the server answered $$code" >&2; exit 1;; esac

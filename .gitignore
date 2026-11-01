@@ -9,3 +9,6 @@ __pycache__/
 
 # Local AI team notes (specifications, implementation notes).
 .ai-team/
+
+# Dev world snapshots (make snapshot).
+.snapshots/
