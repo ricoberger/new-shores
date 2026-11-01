@@ -69,10 +69,14 @@ describe("sky fill and sea (D-057 V2)", () => {
     expect(rig.camera.getScene().ambientColor.equalsWithEpsilon(fill, 1e-6)).toBe(true);
   });
 
-  it("warms the deep sea", () => {
+  it("does not warm the deep sea (D-064): it stays between the palette's deep and shallows", () => {
     const deep = c3(WATER.deep);
+    const shallows = c3(WATER.shallows);
     const sea = seaDeep();
-    expect(sea.r / sea.b).toBeGreaterThan(deep.r / deep.b);
+    for (const k of ["r", "g", "b"] as const) {
+      expect(sea[k]).toBeGreaterThanOrEqual(Math.min(deep[k], shallows[k]) - 1e-6);
+      expect(sea[k]).toBeLessThanOrEqual(Math.max(deep[k], shallows[k]) + 1e-6);
+    }
   });
 
   it("pulls previews toward the camera in depth (no z-fighting with the ground)", () => {

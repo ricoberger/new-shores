@@ -1,4 +1,4 @@
-// Fixed golden-hour lighting (ART_DIRECTION §2, §8): one warm directional
+// Fixed warm daylight (ART_DIRECTION §2, §8; D-064): one warm directional
 // sun fixed to the world (it does not follow the camera's 90° steps), a
 // cool sky fill at LIGHT_VALUES.fill_ratio of the key — the scene's
 // ambient colour, taken by every lit material (skyFill), so the fill costs
@@ -6,7 +6,7 @@
 // (desktop layout): a low-resolution sun shadow map from buildings and
 // trees onto the ground (drawn once per caster change) and FXAA (not on
 // software WebGL, where the pass costs more than a frame); "low" (touch
-// layouts): none of them is created. The slight warm grading ("high") and
+// layouts): none of them is created. The slight neutral-warm grading ("high") and
 // the soft vignette (both) are HTML overlays above the canvas
 // (GameCanvas), composited instead of shaded per pixel. No bloom, SSAO or
 // depth of field.
@@ -34,7 +34,7 @@ import { c3 } from "./palette";
  * the visible shadow direction wins, see the task's implementation notes.)
  */
 const SUN_AZIMUTH = { x: -0.66, z: 0.75 };
-/** Sun elevation above the horizon (low golden-hour sun, long shadows). */
+/** Sun elevation above the horizon (a low sun, long shadows). */
 const SUN_ELEVATION = (38 * Math.PI) / 180;
 
 /** Direction the sunlight travels (from the sun to the ground), unit length. */
@@ -52,9 +52,9 @@ const SUN_INTENSITY = 1.0;
  * The sky fill leans this far toward the sun's colour (a warm bounce off
  * the sunlit ground) and is FILL_LIFT times the palette's fill ratio: the
  * camera-facing walls get the fill only and read as cold slabs otherwise
- * (D-057 V2).
+ * (D-057 V2); less since D-064, so shadows keep a grey-blue.
  */
-export const SKY_WARMTH = 0.38;
+export const SKY_WARMTH = 0.25;
 export const FILL_LIFT = 1.25;
 /** Shadow map size (px): low resolution, soft filtering. */
 export const SHADOW_MAP_SIZE = 1024;

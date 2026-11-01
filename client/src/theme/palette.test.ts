@@ -75,15 +75,15 @@ describe("palette generator", () => {
 describe("palette values (ART_DIRECTION §2)", () => {
   it("holds the swatch", () => {
     expect(TERRAIN).toMatchObject({
-      sand: "#E8D6A3",
-      grass_a: "#7FA85A",
-      grass_b: "#93B86A",
-      dry: "#B9B46A",
-      forest_floor: "#4F7A3A",
-      mountain: "#8E8A82",
-      cliff: "#A89A80",
+      sand: "#E2D2A6",
+      grass_a: "#6E9E52",
+      grass_b: "#84B063",
+      dry: "#A79B62",
+      forest_floor: "#4A7640",
+      mountain: "#86888A",
+      cliff: "#9A938A",
     });
-    expect(WATER).toMatchObject({ shallows: "#4FB1B0", deep: "#1F5F8B", foam: "#F4F6F0" });
+    expect(WATER).toMatchObject({ shallows: "#4A9C9F", deep: "#22627D", foam: "#F4F6F0" });
     expect(BUILDINGS).toEqual({
       plaster: "#E7D7B8",
       ochre: "#D9A85E",
@@ -100,8 +100,8 @@ describe("palette values (ART_DIRECTION §2)", () => {
       dye_blue: "#3F6F9C",
     });
     expect(UI).toMatchObject({ parchment: "#F1E6CC", dark_wood: "#4A3421", brass: "#C9A24A", ink: "#2B2117" });
-    expect(LIGHT).toMatchObject({ sun: "#FFF1D6", sky: "#9DB7D9" });
-    expect(LIGHT_VALUES.fill_ratio).toBe(0.35);
+    expect(LIGHT).toMatchObject({ sun: "#FFF1D6", sky: "#9DB7D9", grade: "#FFEBD4", shadow: "#2A2E3C" });
+    expect(LIGHT_VALUES.fill_ratio).toBe(0.42);
   });
 
   it("keeps the colour-blind-safe status colours unchanged in value", () => {

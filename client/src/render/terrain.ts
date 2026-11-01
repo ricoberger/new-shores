@@ -66,7 +66,7 @@ export function groundColor(terrain: Terrain | undefined, x: number, y: number, 
   switch (terrain) {
     case "grass": {
       const base = Color3.Lerp(GRASS_A, GRASS_B, smoothstep(0.3, 0.7, n));
-      const dry = smoothstep(0.6, 0.78, fbm(x / 9 + 31, y / 9 + 7, seed + 1)) * 0.85;
+      const dry = smoothstep(0.66, 0.84, fbm(x / 9 + 31, y / 9 + 7, seed + 1)) * 0.85;
       return Color3.Lerp(base, DRY, dry);
     }
     case "forest":
