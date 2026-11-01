@@ -59,7 +59,7 @@ func TestIslandTilesOverPostgres(t *testing.T) {
 		if inm != "" {
 			h["If-None-Match"] = inm
 		}
-		return cl.get(fmt.Sprintf("/api/v1/world/islands/%s/tiles?v=%d-%d", island, ds.Archipelago.Seed, ds.Archipelago.Roll), h)
+		return cl.get(fmt.Sprintf("/api/v1/world/islands/%s/tiles?v=%s", island, tilesKey(ds.Archipelago.Seed, ds.Archipelago.Roll, archipelago.GeneratorVersion)), h)
 	}
 
 	a := &client{env: env}
@@ -117,5 +117,10 @@ func TestIslandTilesOverPostgres(t *testing.T) {
 	}
 	if rec := tilesOf(a, dsA, home.ID, ""); rec.Code != http.StatusOK || rec.Header().Get("Cache-Control") != "no-store" {
 		t.Fatalf("stale cache key: %d %v", rec.Code, rec.Header())
+	}
+	// The pre-#58 key (seed-roll, no generator version) is never current: no-store.
+	legacy := fmt.Sprintf("/api/v1/world/islands/%s/tiles?v=%d-%d", home.ID, rerolled.Archipelago.Seed, rerolled.Archipelago.Roll)
+	if rec := a.get(legacy, nil); rec.Code != http.StatusOK || rec.Header().Get("Cache-Control") != "no-store" {
+		t.Fatalf("pre-#58 cache key: %d %v", rec.Code, rec.Header())
 	}
 }

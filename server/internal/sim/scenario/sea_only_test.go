@@ -70,7 +70,7 @@ func TestSeaOnly(t *testing.T) {
 	for _, name := range []string{"bootstrap_citizens", "bootstrap_citizens_quests", "bootstrap_merchants", "bootstrap_patricians"} {
 		t.Run(name, func(t *testing.T) {
 			if name == "bootstrap_patricians" && testing.Short() {
-				t.Skip("long reference game")
+				t.Skip("slow: run without -short")
 			}
 			t.Parallel()
 			s := loadScenario(t, name)

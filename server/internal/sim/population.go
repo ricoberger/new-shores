@@ -332,6 +332,7 @@ type houseCalc struct {
 // the island's tax and upkeep.
 func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 	rules := c.Region.Rules
+	var services serviceIndex
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
 		if def != nil && !b.Paused {
@@ -369,7 +370,10 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 					res.reason = NeedOK
 				}
 			} else {
-				res.reason, res.servedBy, res.fulfilment = buildingNeed(is, c, def, b, need)
+				if services == nil {
+					services = indexServices(is, c)
+				}
+				res.reason, res.servedBy, res.fulfilment = buildingNeed(services, def, b, need)
 			}
 			// Optional needs are evaluated and shown but count for nothing
 			// (D-056 removed the optional tax bonus).
@@ -426,6 +430,34 @@ func growthRate(rules content.Rules, satisfaction int64) int64 {
 	return -mulDivAny(rules.DeclinePerMin*unitsPerMilliPerMin, rules.GrowthThreshold-satisfaction, ppm)
 }
 
+// serviceIndex lists the buildings of an island by type, in the island's
+// building order, for the types that have a service block (the only ones
+// that can serve a building need). It is built once per rate computation
+// so that a house does not scan every building of the island per need.
+type serviceIndex map[string]serviceBuildings
+
+type serviceBuildings struct {
+	def       *content.Building
+	buildings []*Building
+}
+
+func indexServices(is *Island, c *content.Catalogue) serviceIndex {
+	idx := serviceIndex{}
+	for _, b := range is.Buildings {
+		sb, ok := idx[b.Type]
+		if !ok {
+			def := c.BuildingByID[b.Type]
+			if def == nil || def.Service == nil {
+				continue
+			}
+			sb.def = def
+		}
+		sb.buildings = append(sb.buildings, b)
+		idx[b.Type] = sb
+	}
+	return idx
+}
+
 // buildingNeed evaluates a building (services) need for one connected
 // house (D-056): every alternative building type that serves the house
 // adds its share, coverage = min(1, sum). A type serves when one of its
@@ -435,19 +467,17 @@ func growthRate(rules content.Rules, satisfaction int64) int64 {
 // of the island's buildings; empty unless NeedOK) and the coverage (ppm).
 // Without a serving building the reason is the most actionable among the
 // buildings in range: not_connected over paused over out_of_range.
-func buildingNeed(is *Island, c *content.Catalogue, houseDef *content.Building, house *Building, need *content.Need) (string, []int64, int64) {
+func buildingNeed(services serviceIndex, houseDef *content.Building, house *Building, need *content.Need) (string, []int64, int64) {
 	hw, hh := footprint(houseDef, house.Rotation)
 	reason := NeedOutOfRange
 	var served []int64
 	var coverage int64
 	for _, nb := range need.Buildings {
 		serves := false
-		for _, b := range is.Buildings {
-			if b.Type != nb.Building {
-				continue
-			}
-			def := c.BuildingByID[b.Type]
-			if def == nil || def.Service == nil || !withinRadius(def, b, house.X, house.Y, hw, hh, def.Service.RadiusAt(b.Level)) {
+		sb := services[nb.Building]
+		for _, b := range sb.buildings {
+			def := sb.def
+			if !withinRadius(def, b, house.X, house.Y, hw, hh, def.Service.RadiusAt(b.Level)) {
 				continue
 			}
 			switch {

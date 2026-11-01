@@ -61,8 +61,10 @@ jobs:
       - name: go vet (integration and test-only code)
         run: go vet -tags 'integration testevents' ./...
 
+      # The full suite (no -short): the long reference games take minutes
+      # on a runner, beyond go test's 10-minute default.
       - name: go test
-        run: go test ./...
+        run: go test -timeout 30m ./...
 
       - name: Makefile dry-run checks (make up/down)
         working-directory: .
@@ -181,7 +183,7 @@ jobs:
 
       - name: Go integration tests
         working-directory: server
-        run: go test -tags 'integration testevents' -count=1 ./...
+        run: go test -timeout 30m -tags 'integration testevents' -count=1 ./...
 
   unlabel:
     name: remove ci label
