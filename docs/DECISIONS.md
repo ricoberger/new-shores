@@ -1695,3 +1695,64 @@ later models round. Region paragraph in GAME_DESIGN.
   away from the reference); keeping the golden-hour grade and only
   changing terrain (the orange cast is the main overshoot); building
   a region overlay system now (nothing to overlay yet).
+
+## D-065 Ranked public-service chains, a security group, four-level market and warehouse
+
+- **Status:** accepted (2026-11-01)
+- **Context:** the `services` need lists every public building of the
+  tier and of all lower tiers separately, so a Patrician house needs
+  chapel **and** church **and** cathedral, school **and** university,
+  tavern **and** playhouse in range. Anno 1404 treats these as chains:
+  the higher building also serves the lower need and has the larger
+  radius. The redundant buildings clutter the quarters the D-062
+  footprints were sized for. Safety, fire protection and health are
+  already three separate categories (city guard, fire station,
+  surgery) and stay so; they only lack a shared heading.
+- **Decision:**
+  1. **Service chains with ranks.** Public buildings declare
+     `service: {chain, rank, radius}`; three chains in the Old Coast:
+     `faith` (chapel 1 < church 2 < cathedral 3), `education` (school 1
+     < university 2), `culture` (tavern 1 < playhouse 2). A building
+     need names the chain and a **minimum rank**: a house is served
+     when any building of that chain with rank ≥ min is within *that
+     building's* radius (distance and connection rules of D-042
+     unchanged). Required minimum rank per tier: Settlers faith 1;
+     Citizens faith 1, education 1, culture 1; Merchants faith 2,
+     education 1, culture 2; Patricians faith 3, education 2,
+     culture 2. A cathedral therefore serves every house in its
+     radius, a chapel only Settlers and Citizens. The market stays its
+     own category (`market`, one building, levels as below); `services`
+     as a catch-all category is retired.
+  2. **Security heading.** `safety`, `fire_protection` and `health`
+     keep their own needs and buildings (a fire station never stands
+     in for the city guard) and are shown under one `security` group
+     in the HUD and the house card (`need_categories.json` `group`).
+  3. **No levels for city guard and fire station** — one radius each
+     (16); their level-2 upgrades are retired (model variants never
+     reused). Radii of the chains stay as authored: chapel 16, church
+     20, cathedral 28; school 16, university 24; tavern 14,
+     playhouse 24.
+  4. **Market and warehouse have four levels, one per tier.** Market
+     radius 12 / 15 / 18 / 21, level *n* needs tier *n* unlocked;
+     warehouse throughput 30 / 50 / 70 / 90 per minute, levels 2–4
+     gated on Citizens / Merchants / Patricians like the Trading
+     Post. Costs are provisional content.
+- **Why:** it is the reference's model and the one players expect; it
+  frees footprint in tier 3–4 quarters and gives the chain buildings a
+  reason to exist beyond a checklist. Separate security needs keep the
+  three civic buildings meaningful.
+- **Consequences:** content schema bump (`service.chain`/`rank`,
+  need `chain`/`min_rank`, `need_categories.group`), content 0.17.0,
+  sim rule in MECHANICS §6 (replaces the "services" paragraph),
+  display `served_by` unchanged, new golden and scenario fixtures,
+  CONTENT ladder and radius tables, HUD grouping with EN/DE strings,
+  Almanac. Models: market level 4 and warehouse level 4 (Patricians
+  only, may follow in the V7 model round); city guard / fire station
+  level-2 recipes retired. Reference targets (citizens 60/90/100/150 …)
+  are re-measured by the scenario tests and misses reported, not
+  relaxed.
+- **Rejected:** keeping the full list and merely hiding lower chain
+  members in the UI (does not free the footprint); one combined
+  "security" need satisfiable by any of the three (a fire station
+  would replace the watch); per-chain radius overrides (nothing to
+  tune yet).
