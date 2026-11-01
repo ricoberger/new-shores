@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { t, useLanguage } from "../i18n";
-import { NetworkError, type Player, postDevReset } from "../api/client";
+import { NetworkError, type Player } from "../api/client";
 import { authErrorText, currentPlayer, parseMailLink, verifyEmail } from "../api/auth";
-import { fixtureFromSearch } from "../dev/fixture";
 import { Almanac } from "../almanac/Almanac";
 import { isAlmanacPath } from "../almanac/route";
 import { App } from "./App";
@@ -25,58 +24,20 @@ function takeMailLink() {
 
 const RETRY_MS = 2000;
 
-/** Dev/E2E builds only: the constant folds to false in production builds, which drops the fixture module. */
-const DEV_HOOKS = import.meta.env.DEV || import.meta.env.VITE_E2E === "1";
-
 /**
- * Entry: a server fixture when the URL names one (dev and E2E builds only:
- * the dev server resets its world to it first), else the session gate.
+ * Entry: the almanac, else the session gate. The dev server decides the
+ * start state of its world (make dev FIXTURE= / SNAPSHOT=, D-066); the
+ * client has no dev-state handling.
  */
 export function Root() {
   useLanguage(); // every screen re-renders when the language changes (D-061)
-  const [fixture] = useState(() => (DEV_HOOKS ? fixtureFromSearch(globalThis.location?.search ?? "") : null));
   // The public almanac (/almanac/…) needs no session and no world; a pathname check is the whole router.
   if (isAlmanacPath(globalThis.location?.pathname ?? "")) return <Almanac />;
   return (
     <>
-      {DEV_HOOKS && fixture ? <ServerFixtureGate name={fixture} /> : <SessionRoot />}
+      <SessionRoot />
       <UpdateToast />
     </>
-  );
-}
-
-/**
- * Dev only: resets the dev server's world to a server fixture, drops
- * ?fixture= from the URL (a reload keeps the world) and opens the game.
- */
-function ServerFixtureGate({ name }: { name: string }) {
-  const [state, setState] = useState<{ kind: "resetting" } | { kind: "ready" } | { kind: "failed"; message: string }>({ kind: "resetting" });
-  useEffect(() => {
-    let cancelled = false;
-    postDevReset(name).then(
-      () => {
-        if (cancelled) return;
-        globalThis.history?.replaceState(null, "", globalThis.location.pathname);
-        setState({ kind: "ready" });
-      },
-      (err: unknown) => {
-        if (!cancelled) setState({ kind: "failed", message: err instanceof Error ? err.message : String(err) });
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [name]);
-  if (state.kind === "ready") return <SessionRoot />;
-  return (
-    <div className={styles.screen} data-testid="fixture-reset">
-      {state.kind === "failed" && (
-        <div className={appStyles.banner} data-testid="fixture-reset-error">
-          {/* i18n-ignore: dev-only banner (the fixture endpoint exists in dev builds only) */}
-          Dev fixture &apos;{name}&apos; failed: {state.message}
-        </div>
-      )}
-    </div>
   );
 }
 

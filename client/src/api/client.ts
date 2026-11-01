@@ -199,11 +199,6 @@ export function postLogin(body: LoginRequest): Promise<AuthResponse> {
   return post<AuthResponse>("/api/v1/auth/login", body);
 }
 
-/** Dev server only (--dev): replaces the world by the named dev fixture (POST /api/v1/dev/reset; the server validates the name against its list). */
-export async function postDevReset(fixture: string): Promise<void> {
-  await send("/api/v1/dev/reset", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fixture }) });
-}
-
 export async function postLogout(): Promise<void> {
   await send("/api/v1/auth/logout", { method: "POST" });
 }
