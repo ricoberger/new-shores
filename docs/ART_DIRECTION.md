@@ -499,10 +499,15 @@ V3b — kept for the signature) — about 40–70 lines.
   `nsvoxel/jitter.py`; the shader's per-voxel jitter, §2) or, on cloth
   and leaf voxels (sway groups `sail`, `flag`, `cloth`, `canopy`), the
   sway weight (≤ 245); the manifest lists each model's sway groups.
-- **Roles for the model rework:** roofs per tier (T1 thatch, T2 orange
-  terracotta, T3 `tile-dark`, T4 slate) and the `brick` / `tile-dark`
-  roles follow D-064 §3 — named there, not applied yet (building roles
-  are unchanged in palette v2).
+- **Roles for the model rework (V7 roles, applied by the tier
+  sessions):** roofs per tier (T1 thatch, T2 orange terracotta, T3
+  `tile-dark`, T4 slate) and the `brick` / `tile-dark` roles follow
+  D-064 §3. Palette v3 names them: `brick` `#9C4A38` (industry,
+  warehouses, the depot; jitter class stone) and `tile-dark` `#6E3A33`
+  (the tier-3 burgundy tile; class roof), each with its shadow tone by
+  the documented rule; `terracotta` moved to `#C4663A` (the tier-2
+  orange, re-baked into every model that uses it). No recipe uses
+  `brick` or `tile-dark` yet.
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual
   only, D-042); one material (vertex colours). Every building reads by
