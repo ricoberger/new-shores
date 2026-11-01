@@ -859,6 +859,23 @@
   display: block;
 }
 
+/* A quest chain in the quest list: its name and progress, then its open quests. */
+.questChain + .questChain {
+  margin-top: 10px;
+  padding-top: 6px;
+  border-top: 2px solid var(--ns-ui-parchment-edge);
+}
+
+.questChain > .shipEntry:nth-child(2) {
+  border-top: none;
+}
+
+/* The chain's next quest: a quiet line under the open ones. */
+.questNext {
+  font-style: italic;
+  color: var(--ns-ui-ink-soft);
+}
+
 /* A route to pick in the ship panel. */
 .routeChoice {
   padding: 4px 0;
