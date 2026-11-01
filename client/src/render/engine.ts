@@ -67,9 +67,6 @@ const SHIP_PICK_PX = 18;
 const DRAG_TURN_PER_PX = 0.5 / 120;
 const LABEL_Y = 0.4;
 
-/** Where the camera starts: an island (default: the settled one, else the first) at the near default zoom. */
-export type InitialCamera = { kind: "island"; id?: string };
-
 
 /** What the HUD needs to know about the camera. */
 export interface CameraInfo {
@@ -270,7 +267,6 @@ export class GameRenderer {
     private readonly sync: RenderSource,
     private readonly tool: () => Tool,
     private readonly events: RendererEvents,
-    private readonly initialCamera: InitialCamera = { kind: "island" },
     quality: Quality = "high",
     /** Keep FXAA at "high" also on software WebGL (?fxaa=1, the visual test of the FXAA path). */
     forceFxaa = false,
@@ -1055,15 +1051,15 @@ export class GameRenderer {
   }
 
   private placeInitialCamera(): void {
-    const ic = this.initialCamera;
     const d = this.sync.getSnapshot().server?.display;
     const islands = d?.islands ?? [];
     // The start at sea (D-051, D-053): nothing settled yet and the ship
     // at sea near the archipelago's centre — the camera opens on the
     // ship at the far zoom that shows the whole archipelago for the
     // choice of the home island.
-    const sea = ic.id === undefined && !islands.some((x) => x.settled) ? d?.ships.find((s) => s.position) : undefined;
-    const is = islands.find((x) => x.id === ic.id) ?? islands.find((x) => x.settled) ?? islands[0];
+    const sea = !islands.some((x) => x.settled) ? d?.ships.find((s) => s.position) : undefined;
+    // Else the settled (home) island, else the first, at the near default zoom.
+    const is = islands.find((x) => x.settled) ?? islands[0];
     if (sea?.position) {
       const p = seaPoint(sea.position);
       this.rig.setCamera({ x: p.x, y: p.y, half: this.rig.zoomRange().max });
