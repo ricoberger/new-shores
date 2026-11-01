@@ -1959,7 +1959,8 @@
         "h": 5,
         "w": 5
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "bakery": {
       "anchors": {
@@ -2043,7 +2044,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "brewery": {
       "anchors": {
@@ -2127,7 +2129,8 @@
         "h": 6,
         "w": 5
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "brickworks": {
       "anchors": {
@@ -2211,7 +2214,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "brig": {
       "anchors": {
@@ -2287,7 +2291,8 @@
       "sway": [
         "flag",
         "sail"
-      ]
+      ],
+      "voxels_per_tile": 20
     },
     "butcher": {
       "anchors": {
@@ -2371,7 +2376,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "candle_foundry": {
       "anchors": {
@@ -2455,7 +2461,8 @@
         "h": 4,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "cathedral": {
       "anchors": {
@@ -2524,7 +2531,8 @@
         "h": 16,
         "w": 12
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "cattle_farm": {
       "anchors": {
@@ -2598,7 +2606,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "cattle_pasture": {
       "anchors": {
@@ -2668,7 +2677,8 @@
         "h": 7,
         "w": 4
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     },
     "chapel": {
       "anchors": {
@@ -2737,7 +2747,8 @@
         "h": 5,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "charcoal_burner": {
       "anchors": {
@@ -2821,7 +2832,8 @@
         "h": 6,
         "w": 5
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "cheese_dairy": {
       "anchors": {
@@ -2905,7 +2917,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "church": {
       "anchors": {
@@ -2974,7 +2987,8 @@
         "h": 10,
         "w": 6
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "cidery": {
       "anchors": {
@@ -3058,7 +3072,8 @@
         "h": 6,
         "w": 5
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "city_guard": {
       "anchors": {
@@ -3127,7 +3142,8 @@
         "h": 4,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "clay_pit": {
       "anchors": {
@@ -3201,7 +3217,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "coal_mine": {
       "anchors": {
@@ -3275,7 +3292,8 @@
         "h": 8,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "cooperage": {
       "anchors": {
@@ -3359,7 +3377,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "copper_mine": {
       "anchors": {
@@ -3433,7 +3452,8 @@
         "h": 8,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "copper_smelter": {
       "anchors": {
@@ -3517,7 +3537,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "dairy_farm": {
       "anchors": {
@@ -3601,7 +3622,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "depot": {
       "anchors": {
@@ -3675,7 +3697,8 @@
         "h": 11,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "distillery": {
       "anchors": {
@@ -3759,7 +3782,8 @@
         "h": 6,
         "w": 5
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "dyer": {
       "anchors": {
@@ -3846,7 +3870,8 @@
       "kind": "building",
       "sway": [
         "cloth"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "dyer_works": {
       "anchors": {
@@ -3933,7 +3958,8 @@
       "kind": "building",
       "sway": [
         "cloth"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "fashion_house": {
       "anchors": {
@@ -4007,7 +4033,8 @@
         "h": 7,
         "w": 5
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "fire_station": {
       "anchors": {
@@ -4076,7 +4103,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "fisher": {
       "anchors": {
@@ -4165,7 +4193,8 @@
         "h": 8,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "galleon": {
       "anchors": {
@@ -4241,7 +4270,8 @@
       "sway": [
         "flag",
         "sail"
-      ]
+      ],
+      "voxels_per_tile": 20
     },
     "glass_smelter": {
       "anchors": {
@@ -4325,7 +4355,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "gold_mine": {
       "anchors": {
@@ -4402,7 +4433,8 @@
       "kind": "building",
       "sway": [
         "flag"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "gold_smelter": {
       "anchors": {
@@ -4486,7 +4518,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "goldsmith": {
       "anchors": {
@@ -4570,7 +4603,8 @@
         "h": 4,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "grain_distillery": {
       "anchors": {
@@ -4654,7 +4688,8 @@
         "h": 6,
         "w": 5
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "hemp_farm": {
       "anchors": {
@@ -4738,7 +4773,8 @@
         "h": 4,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "hemp_field": {
       "anchors": {
@@ -4788,7 +4824,8 @@
         "h": 1,
         "w": 1
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     },
     "hop_farm": {
       "anchors": {
@@ -4862,7 +4899,8 @@
         "h": 4,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "hop_field": {
       "anchors": {
@@ -4912,7 +4950,8 @@
         "h": 1,
         "w": 1
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     },
     "house_citizens": {
       "anchors": {
@@ -5059,7 +5098,8 @@
           "sha256": "ee59e57cab3db5aeb558933cebab4cabb6347e075ebc61008754d4c1818c8674",
           "triangles": 3216
         }
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "house_merchants": {
       "anchors": {
@@ -5206,7 +5246,8 @@
           "sha256": "abd0cb987a68d3f948642dadbdc8eac6d8b0c4962b816f6aa3c7ba38f1a7725e",
           "triangles": 4270
         }
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "house_patricians": {
       "anchors": {
@@ -5353,7 +5394,8 @@
           "sha256": "e281bb7d5cf2d810b9f146559742feda574787756e678762faed80480a10008c",
           "triangles": 3568
         }
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "house_settlers": {
       "anchors": {
@@ -5500,7 +5542,8 @@
           "sha256": "960351d5fee3cc3cda95792c19bd7daf8388ae7877c4cbefb83f76c58cc3a31a",
           "triangles": 2450
         }
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "iron_mine": {
       "anchors": {
@@ -5584,7 +5627,8 @@
         "h": 8,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "lace_maker": {
       "anchors": {
@@ -5661,7 +5705,8 @@
       "kind": "building",
       "sway": [
         "cloth"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "leather_works": {
       "anchors": {
@@ -5735,7 +5780,8 @@
         "h": 4,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "lumberjack": {
       "anchors": {
@@ -5819,7 +5865,8 @@
         "h": 3,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "luthier": {
       "anchors": {
@@ -5893,7 +5940,8 @@
         "h": 5,
         "w": 5
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "malt_house": {
       "anchors": {
@@ -5977,7 +6025,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "market": {
       "anchors": {
@@ -6124,7 +6173,8 @@
           "sha256": "6e50a0513330bcd90af56beec8aca173edc09630b6546cdafc99ab03dc193d02",
           "triangles": 8084
         }
-      }
+      },
+      "voxels_per_tile": 8
     },
     "meadery": {
       "anchors": {
@@ -6208,7 +6258,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "meadow": {
       "anchors": {
@@ -6258,7 +6309,8 @@
         "h": 1,
         "w": 1
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     },
     "mill": {
       "anchors": {
@@ -6342,7 +6394,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "optician": {
       "anchors": {
@@ -6426,7 +6479,8 @@
         "h": 4,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "orchard": {
       "anchors": {
@@ -6510,7 +6564,8 @@
         "h": 4,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "orchard_plot": {
       "anchors": {
@@ -6560,7 +6615,8 @@
         "h": 1,
         "w": 1
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     },
     "oyster_beds": {
       "anchors": {
@@ -6639,7 +6695,8 @@
         "h": 12,
         "w": 6
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "oyster_house": {
       "anchors": {
@@ -6723,7 +6780,8 @@
         "h": 6,
         "w": 6
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "paper_mill": {
       "anchors": {
@@ -6807,7 +6865,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "pastry_kitchen": {
       "anchors": {
@@ -6891,7 +6950,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "pasture": {
       "anchors": {
@@ -6961,7 +7021,8 @@
         "h": 3,
         "w": 3
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     },
     "pig_farm": {
       "anchors": {
@@ -7045,7 +7106,8 @@
         "h": 4,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "pig_pen": {
       "anchors": {
@@ -7120,7 +7182,8 @@
         "h": 4,
         "w": 3
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     },
     "playhouse": {
       "anchors": {
@@ -7192,7 +7255,8 @@
       "kind": "building",
       "sway": [
         "flag"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "printing_press": {
       "anchors": {
@@ -7266,7 +7330,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "quarry": {
       "anchors": {
@@ -7350,7 +7415,8 @@
         "h": 8,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "quartz_quarry": {
       "anchors": {
@@ -7424,7 +7490,8 @@
         "h": 8,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "rendering_house": {
       "anchors": {
@@ -7508,7 +7575,8 @@
         "h": 3,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "sailmaker": {
       "anchors": {
@@ -7595,7 +7663,8 @@
       "kind": "building",
       "sway": [
         "cloth"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "salt_mine": {
       "anchors": {
@@ -7669,7 +7738,8 @@
         "h": 8,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "salt_pans": {
       "anchors": {
@@ -7748,7 +7818,8 @@
         "h": 9,
         "w": 5
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "salt_works": {
       "anchors": {
@@ -7832,7 +7903,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "sawmill": {
       "anchors": {
@@ -7916,7 +7988,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "school": {
       "anchors": {
@@ -7985,7 +8058,8 @@
         "h": 8,
         "w": 6
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "sheep_farm": {
       "anchors": {
@@ -8069,7 +8143,8 @@
         "h": 3,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "shipyard": {
       "anchors": {
@@ -8143,7 +8218,8 @@
         "h": 12,
         "w": 8
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "slaughterhouse": {
       "anchors": {
@@ -8227,7 +8303,8 @@
         "h": 4,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "sloop": {
       "anchors": {
@@ -8303,7 +8380,8 @@
       "sway": [
         "flag",
         "sail"
-      ]
+      ],
+      "voxels_per_tile": 20
     },
     "smelter": {
       "anchors": {
@@ -8387,7 +8465,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "soap_maker": {
       "anchors": {
@@ -8471,7 +8550,8 @@
         "h": 4,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "surgery": {
       "anchors": {
@@ -8543,7 +8623,8 @@
       "kind": "building",
       "sway": [
         "cloth"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "tailor": {
       "anchors": {
@@ -8620,7 +8701,8 @@
       "kind": "building",
       "sway": [
         "cloth"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "tannery": {
       "anchors": {
@@ -8704,7 +8786,8 @@
         "h": 4,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "tavern": {
       "anchors": {
@@ -8773,7 +8856,8 @@
         "h": 6,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "thread_spinner": {
       "anchors": {
@@ -8847,7 +8931,8 @@
         "h": 4,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "toolmaker": {
       "anchors": {
@@ -8931,7 +9016,8 @@
         "h": 4,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "trading_pier": {
       "anchors": {
@@ -9015,7 +9101,8 @@
         "h": 9,
         "w": 6
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "trading_post": {
       "anchors": {
@@ -9228,7 +9315,8 @@
       },
       "sway": [
         "flag"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "tree_plot": {
       "anchors": {
@@ -9278,7 +9366,8 @@
         "h": 1,
         "w": 1
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     },
     "university": {
       "anchors": {
@@ -9350,7 +9439,8 @@
       "kind": "building",
       "sway": [
         "cloth"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "vine_row": {
       "anchors": {
@@ -9400,7 +9490,8 @@
         "h": 1,
         "w": 1
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     },
     "vineyard": {
       "anchors": {
@@ -9474,7 +9565,8 @@
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "warehouse": {
       "anchors": {
@@ -9630,7 +9722,8 @@
       "sway": [
         "cloth",
         "flag"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "weaver_linen": {
       "anchors": {
@@ -9717,7 +9810,8 @@
       "kind": "building",
       "sway": [
         "cloth"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "weaver_wool": {
       "anchors": {
@@ -9804,7 +9898,8 @@
       "kind": "building",
       "sway": [
         "cloth"
-      ]
+      ],
+      "voxels_per_tile": 8
     },
     "wheat_farm": {
       "anchors": {
@@ -9888,7 +9983,8 @@
         "h": 4,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "wheat_field": {
       "anchors": {
@@ -9938,7 +10034,8 @@
         "h": 1,
         "w": 1
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     },
     "winepress": {
       "anchors": {
@@ -10022,7 +10119,8 @@
         "h": 9,
         "w": 6
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "woad_farm": {
       "anchors": {
@@ -10096,7 +10194,8 @@
         "h": 4,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "voxels_per_tile": 8
     },
     "woad_field": {
       "anchors": {
@@ -10146,7 +10245,8 @@
         "h": 1,
         "w": 1
       },
-      "kind": "field"
+      "kind": "field",
+      "voxels_per_tile": 8
     }
   },
   "palette_sha256": "46969c08e0b16e7f8c892a9992189668b0aac68546ca869c061707673e1047ca",

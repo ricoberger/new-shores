@@ -138,6 +138,83 @@ class WaterAnchorsTest(unittest.TestCase):
                     self.assertEqual(model.required_anchors(definitions, "test"), expected)
 
 
+def solid_tile_high(ctx):
+    """The whole footprint one tile high, at the recipe's density (ctx.vpt voxels per tile)."""
+    v = ctx.vox()
+    m = grid.mat("plaster")
+    for x in range(ctx.W):
+        for y in range(ctx.D):
+            for z in range(ctx.vpt):
+                v.set(x, y, z, m)
+    v.anchors["door"] = (ctx.W / 2, ctx.D, 0)
+    return v
+
+
+class VoxelsPerTileTest(unittest.TestCase):
+    """V7: a recipe may declare VOXELS_PER_TILE (8, 12 or 16); the output stays in tile units, the lite at 2 per tile."""
+
+    def test_a_recipe_at_16_round_trips_in_tile_units(self):
+        w, h = content_mod.footprint(CONTENT, "chapel")
+        for vpt in config.ALLOWED_VOXELS_PER_TILE:
+            with self.subTest(vpt=vpt):
+                files, entry, problems = model.build_id("chapel", "building", {"build": solid_tile_high, "scale": vpt}, CONTENT)
+                self.assertEqual(problems, [])
+                self.assertEqual(entry["voxels_per_tile"], vpt)
+                # The grid is the footprint at vpt voxels per tile.
+                v = files[0][3]
+                self.assertEqual((v.w, v.d), (w * vpt, h * vpt))
+                # Bounds in tiles (glTF: x, y up, z), whatever the density: a w × 1 × h box at the origin.
+                expected = {"min": [-w / 2, 0.0, -h / 2], "max": [w / 2, 1.0, h / 2]}
+                self.assertEqual(entry["bounds"], expected)
+                self.assertEqual(entry["file"]["bounds"], expected)
+                self.assertEqual(entry["file"]["lite"]["bounds"], expected)
+                # A box is 10 triangles at any density (greedy quads, no face toward the ground); the GLB's node scale is one voxel.
+                self.assertEqual(entry["file"]["triangles"], 10)
+                self.assertEqual(entry["file"]["lite"]["triangles"], 10)
+                doc, _ = glb.read(files[0][1])
+                self.assertAlmostEqual(glb.node_scale(doc), 1 / vpt, places=6)
+                lite = next(f for f in files if f[0].endswith(".lite.glb"))
+                doc, _ = glb.read(lite[1])
+                self.assertAlmostEqual(glb.node_scale(doc), 1 / config.LITE_VOXELS_PER_TILE, places=6)
+                # The door anchor (front centre, +y in recipe space: glTF −z) in tiles.
+                self.assertEqual(entry["anchors"]["door"], [0.0, 0.0, -h / 2])
+                # Budgets are per footprint tile, not per voxel.
+                self.assertEqual(entry["file"]["budget"], config.BUDGET_PER_TILE["building"] * w * h)
+
+    def test_the_lite_level_is_two_voxels_per_tile_at_every_density(self):
+        for vpt in config.ALLOWED_VOXELS_PER_TILE:
+            self.assertEqual(vpt // model.lite_factor(vpt), config.LITE_VOXELS_PER_TILE)
+        self.assertEqual(model.lite_factor(config.VOXELS_PER_TILE), config.LITE_DOWNSAMPLE)
+
+    def test_a_density_outside_the_allowed_list_fails_the_build(self):
+        _, _, problems = model.build_id("chapel", "building", {"build": solid_tile_high, "scale": 10}, CONTENT)
+        self.assertTrue(any("10 voxels per tile" in p for p in problems), problems)
+
+    def test_recipe_modules_read_voxels_per_tile(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, "fine.py"), "w", encoding="utf-8") as f:
+                f.write("VOXELS_PER_TILE = 16\n\ndef build(ctx):\n    return ctx.vox()\n")
+            with open(os.path.join(d, "plain.py"), "w", encoding="utf-8") as f:
+                f.write("def build(ctx):\n    return ctx.vox()\n")
+            recipes = model.recipe_modules(d)
+        self.assertEqual(recipes["fine"]["scale"], 16)
+        self.assertEqual(recipes["plain"]["scale"], config.VOXELS_PER_TILE)
+
+    def test_every_committed_model_entry_carries_its_density(self):
+        import json
+
+        with open(os.path.join(config.MODELS_DIR, "manifest.json"), encoding="utf-8") as f:
+            manifest = json.load(f)
+        recipes = model.recipe_modules()
+        for cid, entry in manifest["models"].items():
+            want = recipes[cid].get("scale", config.VOXELS_PER_TILE) if cid in recipes else config.VOXELS_PER_TILE
+            self.assertEqual(entry["voxels_per_tile"], want, cid)
+            if entry["kind"] != "ship":
+                self.assertIn(entry["voxels_per_tile"], config.ALLOWED_VOXELS_PER_TILE, cid)
+
+
 class PlaceholderTest(unittest.TestCase):
     #: One ID per footprint kind: water rows with a boat, smoke, levels with berths, slipway, house variants, field, pasture module with animals, service.
     SAMPLES = ("fisher", "smelter", "trading_post", "shipyard", "house_settlers", "wheat_field", "pasture", "chapel", "warehouse")

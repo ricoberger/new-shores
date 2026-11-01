@@ -40,11 +40,20 @@ THUMB_PX = 128
 MANIFEST_VERSION = 1
 #: The glTF asset.generator and manifest generator string (no version or timestamp: determinism).
 GENERATOR = "new-shores voxel build"
-#: Voxels per tile of the full building models (the lite level: LITE_DOWNSAMPLE times fewer).
+#: Voxels per tile of the full building models by default (the manifest's
+#: top-level `voxels_per_tile`; the lite level: LITE_DOWNSAMPLE times fewer).
 VOXELS_PER_TILE = 8
-#: Downsampling of the buildings' lite (far) level: 8 → 2 voxels per tile
-#: (D-057 §2; the far-budget mitigation of the prototype, dense far 442k → 152k).
-LITE_DOWNSAMPLE = 4
+#: Voxels per tile a building or field recipe may declare (`VOXELS_PER_TILE`
+#: in the recipe module, V7): finer detail on the larger D-062 footprints.
+#: The exporter scales to tile units and writes the value into the model's
+#: manifest entry; budgets stay per footprint tile.
+ALLOWED_VOXELS_PER_TILE = (8, 12, 16)
+#: Voxels per tile of every lite (far) model, whatever the full model's
+#: density (D-057 §2; the far-budget mitigation of the prototype, dense far
+#: 442k → 152k).
+LITE_VOXELS_PER_TILE = 2
+#: Downsampling of a default-density (8 per tile) model's lite level: 8 → 2.
+LITE_DOWNSAMPLE = VOXELS_PER_TILE // LITE_VOXELS_PER_TILE
 
 #: Palette groups whose colour names are valid roles (material colours;
 #: UI, status, route and light colours are not).

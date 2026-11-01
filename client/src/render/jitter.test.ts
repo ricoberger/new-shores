@@ -4,7 +4,7 @@ import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
-import { addJitter, JITTER_CLASSES, JitterPlugin, jitterClass, jitterOrigin, jitterRequested, jitterScale, jitterShade, MODEL_VPT, setJitterLod } from "./jitter";
+import { addJitter, JITTER_CLASSES, JitterPlugin, jitterClass, jitterGrid, jitterOrigin, jitterRequested, jitterScale, jitterShade, MODEL_VPT, setJitterLod } from "./jitter";
 
 const engine = new NullEngine();
 const scene = new Scene(engine);
@@ -115,5 +115,23 @@ describe("jitter cells of merged copies", () => {
     expect(code["CUSTOM_VERTEX_DEFINITIONS"]).toContain("attribute vec4 jitO");
     expect(code["CUSTOM_VERTEX_MAIN_END"]).toContain("#ifdef VOXJITO");
     expect(code["CUSTOM_VERTEX_MAIN_END"]).toContain("vJitP = positionUpdated * jitVpt;");
+    // Models of another density (V7 voxels_per_tile) carry their grid per vertex.
+    expect(code["CUSTOM_VERTEX_DEFINITIONS"]).toContain("attribute vec4 voxG");
+    expect(code["CUSTOM_VERTEX_MAIN_END"]).toContain("#elif defined(VOXJITG)");
+  });
+
+  it("stores a model's own density exactly (12 per tile is not a 1/32 scale step)", () => {
+    for (const vpt of [8, 12, 16]) {
+      const [ox, oy, oz, w] = jitterGrid(2.5, 0.25, -1.5, vpt);
+      expect(w).toBe(vpt);
+      // The shader: position × w − origin fraction lands on the model's voxel cells.
+      for (const local of [0, 1, 7]) {
+        const cell = (2.5 + local / vpt) * w - ox / 255;
+        expect(cell - Math.round(cell), `vpt ${vpt}`).toBeCloseTo(0, 2);
+      }
+      const cy = 0.25 * vpt - oy / 255;
+      expect(cy - Math.round(cy)).toBeCloseTo(0, 2);
+      expect(oz).toBe(Math.round(((-1.5 * vpt) % 1 + 1) % 1 * 255) % 256);
+    }
   });
 });

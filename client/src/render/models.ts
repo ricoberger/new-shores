@@ -28,7 +28,7 @@ import "@babylonjs/loaders/glTF/2.0/glTFLoader";
 import "@babylonjs/loaders/glTF/2.0/Extensions/KHR_mesh_quantization";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
-import { addJitter, MODEL_VPT } from "./jitter";
+import { addJitter, LITE_VPT, MODEL_VPT } from "./jitter";
 import { skyFill } from "./lighting";
 import { addSway } from "./sway";
 
@@ -59,6 +59,8 @@ export interface ModelEntry {
     [number, number, number] | undefined
   >;
   ship?: { length_tiles: number; masts: number; sail_scale: number };
+  /** Voxels per tile of the full model (a recipe's VOXELS_PER_TILE, V7: 8, 12 or 16; ships their own scale); absent: the manifest's default. Lite files are 2 per tile. */
+  voxels_per_tile?: number;
 }
 
 /** Manifest decoration entry (trees, bushes, rocks, tufts, stumps, outcrops; IDs decor_*). */
@@ -81,7 +83,7 @@ export interface LifeEntry {
 export interface ModelManifest {
   version: number;
   palette_sha256: string;
-  /** Voxels per tile of the full building models (assets/voxel). */
+  /** Voxels per tile of the full building models by default (assets/voxel); an entry may carry its own. */
   voxels_per_tile: number;
   /** Content IDs whose model is the build's automatic placeholder (no recipe yet). */
   placeholders: string[];
@@ -144,6 +146,16 @@ export function modelFileFor(entry: ModelEntry, b: Pick<BuildingDisplay, "id" | 
 /** The file to draw at a detail level (the lite file when asked for and present). */
 export function atDetail(file: ModelFile, detail: Detail): ModelFile {
   return detail === "lite" && file.lite ? file.lite : file;
+}
+
+/** Voxels per tile of a model entry's full files (the entry's own value, else the manifest default MODEL_VPT). */
+export function entryVpt(entry: Pick<ModelEntry, "voxels_per_tile">): number {
+  return entry.voxels_per_tile ?? MODEL_VPT;
+}
+
+/** Voxels per tile of a drawn file of an entry: LITE_VPT for its lite files, else the entry's density. */
+export function fileVpt(entry: Pick<ModelEntry, "voxels_per_tile">, file: Pick<ModelFile, "path">): number {
+  return file.path.endsWith(".lite.glb") ? LITE_VPT : entryVpt(entry);
 }
 
 /** Cache-busting URL of a model file: /models/<path>?v=<first 8 hex of its sha256>. */

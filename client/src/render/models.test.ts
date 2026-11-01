@@ -16,6 +16,8 @@ import {
   atDetail,
   DEFAULT_STATUS_Y,
   entryFiles,
+  entryVpt,
+  fileVpt,
   footprintScale,
   type ModelData,
   type ModelEntry,
@@ -122,6 +124,18 @@ describe("committed models are consistent with the manifest", () => {
     expect(Object.keys(manifest.models.warehouse?.levels ?? {})).toEqual(["1", "2", "3"]);
     expect(Object.keys(manifest.models.trading_post?.levels ?? {})).toEqual(["1", "2", "3", "4"]);
     for (const s of CONTENT_SHIPS) expect(manifest.models[s.id]?.attachments?.cargo, s.id).toBeDefined();
+  });
+
+  it("carries each model's voxels per tile (V7: 8, 12 or 16 for buildings and fields; the top-level value is the default)", () => {
+    for (const [id, e] of Object.entries(manifest.models)) {
+      expect(typeof e.voxels_per_tile, id).toBe("number");
+      if (e.kind !== "ship") expect([8, 12, 16], id).toContain(e.voxels_per_tile);
+    }
+    expect(entryVpt({})).toBe(manifest.voxels_per_tile);
+    expect(entryVpt({ voxels_per_tile: 16 })).toBe(16);
+    expect(fileVpt({ voxels_per_tile: 16 }, { path: "house.v0.glb" })).toBe(16);
+    // Lite files are 2 voxels per tile at every density.
+    expect(fileVpt({ voxels_per_tile: 16 }, { path: "house.v0.lite.glb" })).toBe(2);
   });
 
   it("every building and field model has the anchors its content needs (door, status, smoke, carts, boats, berths, slip, pasture animals)", () => {
