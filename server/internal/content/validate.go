@@ -180,6 +180,9 @@ func checkReferences(c *Catalogue) error {
 					col.add(FileBuildings, ent, fmt.Sprintf("warehouse.levels[%d]", i), "throughput must be > 0")
 				}
 				checkLevelCost(col, ent, fmt.Sprintf("warehouse.levels[%d].cost", i), i, l.Cost)
+				if l.Tier != "" {
+					tier(FileBuildings, ent, fmt.Sprintf("warehouse.levels[%d].tier", i), l.Tier)
+				}
 			}
 		}
 		if s := b.Service; s != nil {
@@ -271,6 +274,7 @@ func checkReferences(c *Catalogue) error {
 	}
 
 	checkFields(c, col)
+	checkChains(c, col)
 	checkIslands(c, col)
 
 	for _, s := range c.Ships {
@@ -372,6 +376,9 @@ func checkReferences(c *Catalogue) error {
 					col.add(FileNeeds, ent, field+".share", "must be in (0, 1]")
 				}
 			}
+			if n.IsChain() {
+				checkChainNeed(c, col, ent, n)
+			}
 			if n.IsGoods() || n.Category != "" {
 				if _, ok := c.NeedCategoryByID[n.Category]; !ok {
 					col.add(FileNeeds, ent, "category", "unknown need category %q (need_categories.json)", n.Category)
@@ -452,6 +459,86 @@ func checkNeedBuilding(c *Catalogue, col *collector, ent, field string, n *Need,
 		bt, nt := c.TierByID[b.Tier], c.TierByID[n.Tier]
 		if bt != nil && nt != nil && bt.Index > nt.Index {
 			col.add(FileNeeds, ent, field+".building", "%q is of tier %q, above the need's tier %q", id, b.Tier, n.Tier)
+		}
+	}
+}
+
+// checkChains validates the service chains (D-065): the ranks of a chain
+// are unique and contiguous from 1, and a chain building has one radius.
+func checkChains(c *Catalogue, col *collector) {
+	ranks := map[string]map[int]string{}
+	for _, b := range c.Buildings {
+		s := b.Service
+		if s == nil || s.Chain == "" {
+			continue
+		}
+		ent := fmt.Sprintf("building %q", b.ID)
+		if s.Rank < 1 {
+			col.add(FileBuildings, ent, "service.rank", "a chain building needs a rank >= 1")
+		}
+		if len(s.Levels) != 1 {
+			col.add(FileBuildings, ent, "service", "a chain building has exactly one radius (no levels)")
+		}
+		if ranks[s.Chain] == nil {
+			ranks[s.Chain] = map[int]string{}
+		}
+		if other, dup := ranks[s.Chain][s.Rank]; dup {
+			col.add(FileBuildings, ent, "service.rank", "rank %d of chain %q is already taken by %q", s.Rank, s.Chain, other)
+		} else {
+			ranks[s.Chain][s.Rank] = b.ID
+		}
+	}
+	for _, chain := range slices.Sorted(maps.Keys(ranks)) {
+		for r := 1; r <= len(ranks[chain]); r++ {
+			if _, ok := ranks[chain][r]; !ok {
+				col.add(FileBuildings, fmt.Sprintf("chain %q", chain), "service.rank", "ranks must be contiguous from 1: rank %d is missing", r)
+				break
+			}
+		}
+	}
+}
+
+// chainMaxRank is the highest rank of a chain (0 when no building has the
+// chain) and chainBuilding the building of the given rank (nil if none).
+func chainMaxRank(c *Catalogue, chain string) int {
+	top := 0
+	for _, b := range c.Buildings {
+		if b.Service != nil && b.Service.Chain == chain {
+			top = max(top, b.Service.Rank)
+		}
+	}
+	return top
+}
+
+func chainBuilding(c *Catalogue, chain string, rank int) *Building {
+	for _, b := range c.Buildings {
+		if b.Service != nil && b.Service.Chain == chain && b.Service.Rank == rank {
+			return b
+		}
+	}
+	return nil
+}
+
+// checkChainNeed validates a chain need (D-065): the chain exists, the
+// minimum rank exists in it and its building is unlocked by the need's
+// tier or a lower one.
+func checkChainNeed(c *Catalogue, col *collector, ent string, n *Need) {
+	top := chainMaxRank(c, n.Chain)
+	switch {
+	case top == 0:
+		col.add(FileNeeds, ent, "chain", "unknown service chain %q (no building declares it)", n.Chain)
+		return
+	case n.MinRank < 1 || n.MinRank > top:
+		col.add(FileNeeds, ent, "min_rank", "must be in 1..%d (the ranks of chain %q)", top, n.Chain)
+		return
+	}
+	if len(n.Goods) > 0 || len(n.Buildings) > 0 || n.FromTier != "" {
+		col.add(FileNeeds, ent, "chain", "a chain need has neither goods, buildings nor from_tier")
+	}
+	if b := chainBuilding(c, n.Chain, n.MinRank); b != nil {
+		bt, nt := c.TierByID[b.Tier], c.TierByID[n.Tier]
+		if bt != nil && nt != nil && bt.Index > nt.Index {
+			col.add(FileNeeds, ent, "min_rank", "the rank-%d building %q is of tier %q, above the need's tier %q", n.MinRank, b.ID, b.Tier, n.Tier)
 		}
 	}
 }

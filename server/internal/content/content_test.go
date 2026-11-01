@@ -433,7 +433,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"workforce on non-producer", FileBuildings,
-			[]string{`"service": { "radius": 16 }`, `"service": { "radius": 16 },
+			[]string{`"service": { "chain": "faith", "rank": 1, "radius": 16 }`, `"service": { "chain": "faith", "rank": 1, "radius": 16 },
     "workforce": { "tier": "settlers", "amount": 2 }`},
 			[]string{FileBuildings, `building "chapel"`, "workforce", "recipe"},
 		},
@@ -903,6 +903,7 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 		}
 	}
 	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:luxury,services=Services/need:services," +
+		"market=Market/need:market,faith=Faith/need:chapel,education=Education/good:books,culture=Culture/need:tavern," +
 		// D-060 civic services: the HUD set has no icons of their own yet.
 		"safety=Safety/need:safety,fire_protection=Fire protection/need:fire_protection,health=Health/need:health"
 	if got := strings.Join(cats, ","); got != want {

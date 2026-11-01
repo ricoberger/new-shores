@@ -2825,7 +2825,13 @@ components:
           enum: [required, optional]
         category:
           type: string
-          description: Goods needs only.
+          description: Need category (need_categories); set on goods needs, chain needs and categorised building needs.
+        chain:
+          type: string
+          description: Chain needs only (D-065) — the service chain whose building serves the house.
+        min_rank:
+          type: integer
+          description: Chain needs only (D-065) — the lowest rank of the chain that serves the house, within that building's own radius.
         building:
           type: string
           description: The public building of a building need with a single alternative (content building ID); absent for goods needs and services categories.
@@ -3667,6 +3673,9 @@ components:
                     type: integer
                     format: int64
                     description: Collector throughput (milli-units per minute).
+                  tier:
+                    type: string
+                    description: Tier that must be unlocked to upgrade into this level (D-065).
                   cost:
                     type: object
                     additionalProperties: false
@@ -3731,6 +3740,12 @@ components:
             radius:
               type: integer
               description: Service radius at level 1 (tiles).
+            chain:
+              type: string
+              description: Service chain of a chain building (D-065, e.g. `faith`); absent for the other public buildings.
+            rank:
+              type: integer
+              description: Rank within the chain (D-065), 1-based; a chain building has exactly one level.
             levels:
               type: array
               description: Levels in order (D-056); a public building without levels has one. Later levels are reached by `upgrade_building`.
@@ -3877,6 +3892,9 @@ components:
         icon:
           type: string
           description: HUD icon key (assets/icons/icons.json), e.g. `need:food`.
+        group:
+          type: string
+          description: Display group (D-065, e.g. `security`); categories with the same group are shown under one heading.
     ContentNeed:
       type: object
       additionalProperties: false

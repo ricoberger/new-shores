@@ -228,6 +228,8 @@ type tradingPostJSON struct {
 
 type warehouseLevelJSON struct {
 	ThroughputPerMin int64 `json:"throughput_per_min"`
+	// Tier must be unlocked to upgrade into the level (D-065).
+	Tier string `json:"tier,omitempty"`
 	// Cost is the upgrade cost into the level (absent on the first level).
 	Cost *costJSON `json:"cost,omitempty"`
 }
@@ -253,8 +255,11 @@ type roadJSON struct {
 
 // serviceJSON is a public building: radius is the first level's, levels
 // lists every level (D-056, upgrade_building).
+// Chain and Rank place a chain building (D-065).
 type serviceJSON struct {
 	Radius int                `json:"radius"`
+	Chain  string             `json:"chain,omitempty"`
+	Rank   int                `json:"rank,omitempty"`
 	Levels []serviceLevelJSON `json:"levels"`
 }
 
@@ -336,6 +341,8 @@ type needCategoryJSON struct {
 	Name string `json:"name"`
 	// Icon is a HUD icon key (assets/icons/icons.json), e.g. "need:food".
 	Icon string `json:"icon"`
+	// Group is the display group of the category ("security", D-065).
+	Group string `json:"group,omitempty"`
 }
 
 type needJSON struct {
@@ -349,6 +356,10 @@ type needJSON struct {
 	Goods     []needGoodJSON `json:"goods,omitempty"`
 	// Buildings are the alternatives of a building (services) need.
 	Buildings []needBuildingJSON `json:"buildings,omitempty"`
+	// Chain and MinRank make a chain need (D-065): served by any building
+	// of the chain with rank >= MinRank within its own radius.
+	Chain   string `json:"chain,omitempty"`
+	MinRank int    `json:"min_rank,omitempty"`
 }
 
 type needBuildingJSON struct {
@@ -491,7 +502,7 @@ func newContentPayload(c *content.Catalogue, lang string) contentPayload {
 		}
 	}
 	for _, nc := range c.NeedCategories {
-		p.NeedCategories = append(p.NeedCategories, needCategoryJSON{ID: nc.ID, Name: tx.name("need_categories", nc.ID, nc.Name), Icon: nc.Icon})
+		p.NeedCategories = append(p.NeedCategories, needCategoryJSON{ID: nc.ID, Name: tx.name("need_categories", nc.ID, nc.Name), Icon: nc.Icon, Group: nc.Group})
 	}
 	for i, n := range c.IslandNames {
 		p.IslandNames = append(p.IslandNames, islandNameJSON{Source: n, Name: c.Translate(lang, content.IslandNameKey(i), n)})
@@ -531,7 +542,7 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 	if wh := b.Warehouse; wh != nil {
 		bj.Warehouse = &warehouseJSON{Levels: []warehouseLevelJSON{}}
 		for _, l := range wh.Levels {
-			lj := warehouseLevelJSON{ThroughputPerMin: l.ThroughputPerMin}
+			lj := warehouseLevelJSON{ThroughputPerMin: l.ThroughputPerMin, Tier: l.Tier}
 			if l.Cost != nil {
 				cost := newCostJSON(*l.Cost)
 				lj.Cost = &cost
@@ -549,7 +560,7 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 		bj.Road = &roadJSON{MsPerTile: rd.MsPerTile, Shallows: rd.Shallows}
 	}
 	if s := b.Service; s != nil {
-		bj.Service = &serviceJSON{Radius: s.RadiusAt(1), Levels: []serviceLevelJSON{}}
+		bj.Service = &serviceJSON{Radius: s.RadiusAt(1), Chain: s.Chain, Rank: s.Rank, Levels: []serviceLevelJSON{}}
 		for _, l := range s.Levels {
 			lj := serviceLevelJSON{Radius: l.Radius, Tier: l.Tier}
 			if l.Cost != nil {
@@ -586,9 +597,8 @@ func newCostJSON(c content.Cost) costJSON {
 }
 
 func newNeedJSON(n *content.Need, tx texts) needJSON {
-	nj := needJSON{ID: n.ID, Name: tx.name("needs", n.ID, n.Name), Tier: n.Tier, FromTier: n.FromTier, Kind: n.Kind, WeightPpm: n.Weight}
+	nj := needJSON{ID: n.ID, Name: tx.name("needs", n.ID, n.Name), Tier: n.Tier, FromTier: n.FromTier, Kind: n.Kind, WeightPpm: n.Weight, Category: n.Category, Chain: n.Chain, MinRank: n.MinRank}
 	if n.IsGoods() {
-		nj.Category = n.Category
 		for _, g := range n.Goods {
 			nj.Goods = append(nj.Goods, needGoodJSON{Good: g.Good, PerResidentPerMin: g.PerResidentPerMin, SharePpm: g.Share})
 		}

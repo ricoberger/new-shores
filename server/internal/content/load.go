@@ -314,6 +314,7 @@ type rawBuilding struct {
 	Warehouse *struct {
 		Levels []struct {
 			Throughput json.Number            `json:"throughput_per_min"`
+			Tier       string                 `json:"tier"`
 			Cost       map[string]json.Number `json:"cost"`
 		} `json:"levels"`
 	} `json:"warehouse"`
@@ -328,7 +329,9 @@ type rawBuilding struct {
 		Shallows       bool        `json:"shallows"`
 	} `json:"road"`
 	Service *struct {
-		Radius int `json:"radius"`
+		Radius int    `json:"radius"`
+		Chain  string `json:"chain"`
+		Rank   int    `json:"rank"`
 		Levels []struct {
 			Radius int                    `json:"radius"`
 			Tier   string                 `json:"tier"`
@@ -376,9 +379,10 @@ type rawShip struct {
 }
 
 type rawNeedCategory struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Icon string `json:"icon"`
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Icon  string `json:"icon"`
+	Group string `json:"group"`
 }
 
 type rawNeed struct {
@@ -389,6 +393,8 @@ type rawNeed struct {
 	Weight   json.Number `json:"weight"`
 	Category string      `json:"category"`
 	FromTier string      `json:"from_tier"`
+	Chain    string      `json:"chain"`
+	MinRank  int         `json:"min_rank"`
 	Goods    []struct {
 		Good              string      `json:"good"`
 		PerResidentPerMin json.Number `json:"per_resident_per_min"`
@@ -614,7 +620,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			continue
 		}
 		col.displayName(FileNeedCategories, ent, rc.Name)
-		nc := &NeedCategory{ID: rc.ID, Name: rc.Name, Icon: rc.Icon}
+		nc := &NeedCategory{ID: rc.ID, Name: rc.Name, Icon: rc.Icon, Group: rc.Group}
 		cat.NeedCategories = append(cat.NeedCategories, nc)
 		cat.NeedCategoryByID[nc.ID] = nc
 	}
@@ -636,6 +642,8 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			Weight:   col.fixed(FileNeeds, ent, "weight", rn.Weight, 6),
 			Category: rn.Category,
 			FromTier: rn.FromTier,
+			Chain:    rn.Chain,
+			MinRank:  rn.MinRank,
 		}
 		for i, rb := range rn.Buildings {
 			// Shares have at most 3 decimal places and are kept in ppm.
@@ -827,6 +835,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		for i, l := range w.Levels {
 			lvl := WarehouseLevel{
 				ThroughputPerMin: col.fixed(file, ent, fmt.Sprintf("warehouse.levels[%d].throughput_per_min", i), l.Throughput, 3),
+				Tier:             l.Tier,
 			}
 			if l.Cost != nil {
 				cost := decodeCost(col, file, ent, l.Cost, goods)
@@ -851,7 +860,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 	if s := rb.Service; s != nil {
 		// A service has either one radius or levels (schema); the radius
 		// is the single level.
-		b.Service = &Service{}
+		b.Service = &Service{Chain: s.Chain, Rank: s.Rank}
 		if len(s.Levels) == 0 {
 			b.Service.Levels = []ServiceLevel{{Radius: s.Radius}}
 		}

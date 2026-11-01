@@ -175,7 +175,7 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 		},
 		{
 			"deposit without recipe",
-			[]string{`"service": { "radius": 14 }`, `"service": { "radius": 14 },
+			[]string{`"service": { "chain": "culture", "rank": 1, "radius": 14 }`, `"service": { "chain": "culture", "rank": 1, "radius": 14 },
     "requires_deposit": "stone"`},
 			[]string{FileBuildings, `building "tavern"`, "requires_deposit", "recipe"},
 		},
@@ -186,7 +186,7 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 		},
 		{
 			"fertility outside the work area",
-			[]string{`"service": { "radius": 14 }`, `"service": { "radius": 14 },
+			[]string{`"service": { "chain": "culture", "rank": 1, "radius": 14 }`, `"service": { "chain": "culture", "rank": 1, "radius": 14 },
     "fertility": "wheat"`},
 			[]string{FileBuildings, `building "tavern"`, "schema violation"},
 		},
