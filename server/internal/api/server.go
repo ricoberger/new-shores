@@ -117,6 +117,13 @@ type Config struct {
 	// message; other errors are internal.
 	DevReset    func(ctx context.Context, fixture string) (int64, error)
 	DevFixtures []string
+	// DevSnapshotLoad replaces the world with a decoded snapshot (D-066)
+	// and returns the new version; resumeNow shifts the world's times to
+	// the present first (store.ResumeAt, in place: the handler reports
+	// the shifted w). It mounts GET and POST
+	// /api/v1/dev/snapshot in dev mode only (Accounts == nil), like
+	// DevReset; nil leaves them absent (404).
+	DevSnapshotLoad func(ctx context.Context, w *sim.World, resumeNow bool) (int64, error)
 	// Version and Instance identify the server in /healthz and the
 	// X-Instance header (optional).
 	Version  string
@@ -190,6 +197,14 @@ func New(cfg Config) (*Server, error) {
 	}
 	if cfg.DevReset != nil && cfg.Accounts == nil {
 		s.routes["/api/v1/dev/reset"] = map[string]route{http.MethodPost: {s.postDevReset, requireSession}}
+	}
+	if cfg.DevSnapshotLoad != nil && cfg.Accounts == nil {
+		// Local tooling (make snapshot / snapshot-load): public, no
+		// session, like nothing else in dev mode needs one either.
+		s.routes["/api/v1/dev/snapshot"] = map[string]route{
+			http.MethodGet:  {s.getDevSnapshot, public},
+			http.MethodPost: {s.postDevSnapshot, public},
+		}
 	}
 	return s, nil
 }
