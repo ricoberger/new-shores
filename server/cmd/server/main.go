@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -67,6 +68,9 @@ type options struct {
 	timeScale   float64
 	seed        uint64
 	scenarios   string
+	fixture     string
+	snapshot    string
+	resumeNow   bool
 	logFormat   string
 
 	// Default mode (environment only).
@@ -110,6 +114,9 @@ func parseConfig(args []string, getenv func(string) string, stderr io.Writer) (o
 	fs.Float64Var(&o.timeScale, "time-scale", 1, "world seconds per wall-clock second (> 0; --dev only)")
 	fs.Uint64Var(&o.seed, "seed", devworld.DevSeed, fmt.Sprintf("archipelago seed of the dev world and its fixtures (1..%d; --dev only)", archipelago.MaxSeed))
 	fs.StringVar(&o.scenarios, "scenarios", "testdata/scenarios", "scenario directory of the played dev fixture (--dev only)")
+	fs.StringVar(&o.fixture, "fixture", "", "start the dev world from this fixture: "+strings.Join(devworld.Fixtures(), ", ")+" (--dev only; not with --snapshot)")
+	fs.StringVar(&o.snapshot, "snapshot", "", "start the dev world from this snapshot envelope file (make snapshot; --dev only; not with --fixture)")
+	fs.BoolVar(&o.resumeNow, "resume-now", false, "shift the --snapshot world's times to the present (no away summary)")
 	fs.StringVar(&o.logFormat, "log-format", envOr(getenv, "LOG_FORMAT", "text"), "log format: text or json (env LOG_FORMAT)")
 	if err := fs.Parse(args); err != nil {
 		return o, err
@@ -129,8 +136,10 @@ func parseConfig(args []string, getenv func(string) string, stderr io.Writer) (o
 		return o, fmt.Errorf("--seed must be in 1..%d, got %d", archipelago.MaxSeed, o.seed)
 	}
 	if !o.dev {
-		var timeScaleSet, seedSet, scenariosSet bool
+		var timeScaleSet, seedSet, scenariosSet, fixtureSet, snapshotSet bool
 		fs.Visit(func(f *flag.Flag) {
+			fixtureSet = fixtureSet || f.Name == "fixture"
+			snapshotSet = snapshotSet || f.Name == "snapshot" || f.Name == "resume-now"
 			timeScaleSet = timeScaleSet || f.Name == "time-scale"
 			seedSet = seedSet || f.Name == "seed"
 			scenariosSet = scenariosSet || f.Name == "scenarios"
@@ -144,6 +153,21 @@ func parseConfig(args []string, getenv func(string) string, stderr io.Writer) (o
 		if scenariosSet {
 			return o, errors.New("--scenarios requires --dev (dev fixtures only)")
 		}
+		if fixtureSet {
+			return o, errors.New("--fixture requires --dev (dev fixtures only)")
+		}
+		if snapshotSet {
+			return o, errors.New("--snapshot and --resume-now require --dev (dev snapshots only)")
+		}
+	}
+	if o.fixture != "" && !slices.Contains(devworld.Fixtures(), o.fixture) {
+		return o, fmt.Errorf("--fixture: unknown fixture %q (known: %s)", o.fixture, strings.Join(devworld.Fixtures(), ", "))
+	}
+	if o.fixture != "" && o.snapshot != "" {
+		return o, errors.New("--fixture and --snapshot are mutually exclusive")
+	}
+	if o.resumeNow && o.snapshot == "" {
+		return o, errors.New("--resume-now requires --snapshot")
 	}
 	if o.logFormat != "text" && o.logFormat != "json" {
 		return o, fmt.Errorf("--log-format must be text or json, got %q", o.logFormat)
@@ -328,6 +352,41 @@ func newHTTPServer(addr string, h http.Handler) *http.Server {
 	}
 }
 
+// devStartWorld builds the world the dev server starts with: the snapshot
+// (--snapshot, optionally shifted to the present with --resume-now), the
+// fixture (--fixture) or the default dev world at start.
+func devStartWorld(o options, cat *content.Catalogue, start time.Time, logger *slog.Logger) (*sim.World, error) {
+	switch {
+	case o.snapshot != "":
+		data, err := os.ReadFile(o.snapshot)
+		if err != nil {
+			return nil, fmt.Errorf("--snapshot: %w", err)
+		}
+		w, err := api.DecodeSnapshot(data, cat)
+		if err != nil {
+			return nil, fmt.Errorf("--snapshot %s: %w", o.snapshot, err)
+		}
+		if o.resumeNow {
+			store.ResumeAt(w, start)
+		}
+		logger.Info("dev world", "snapshot", o.snapshot, "seed", w.Seed, "resume_now", o.resumeNow, "last_evaluated_at", w.LastEvaluatedAt.Format(time.RFC3339))
+		return w, nil
+	case o.fixture != "":
+		w, err := devworld.NewFixtureWith(cat, o.fixture, o.seed, start, devworld.Options{Scenarios: os.DirFS(o.scenarios)})
+		if err != nil {
+			return nil, fmt.Errorf("--fixture %s: %w", o.fixture, err)
+		}
+		logger.Info("dev world", "fixture", o.fixture, "seed", w.Seed, "roll", w.ArchipelagoRoll, "generator_version", archipelago.GeneratorVersion)
+		return w, nil
+	}
+	w, err := devworld.New(cat, o.seed, start)
+	if err != nil {
+		return nil, err
+	}
+	logger.Info("dev world", "seed", w.Seed, "roll", w.ArchipelagoRoll, "generator_version", archipelago.GeneratorVersion)
+	return w, nil
+}
+
 func runDev(o options, logger *slog.Logger) error {
 	cat, err := content.Load(o.content)
 	if err != nil {
@@ -335,14 +394,13 @@ func runDev(o options, logger *slog.Logger) error {
 	}
 	clock := api.WallClock{}
 	start := clock.Now().Truncate(time.Millisecond)
-	w, err := devworld.New(cat, o.seed, start)
+	scale := api.TimeScale{Start: start, Scale: o.timeScale}
+	worldNow := func() time.Time { return scale.At(clock.Now()) }
+	w, err := devStartWorld(o, cat, start, logger)
 	if err != nil {
 		return err
 	}
-	logger.Info("dev world", "seed", w.Seed, "roll", w.ArchipelagoRoll, "generator_version", archipelago.GeneratorVersion)
-	scale := api.TimeScale{Start: start, Scale: o.timeScale}
 	hub := ws.NewHub(logger)
-	worldNow := func() time.Time { return scale.At(clock.Now()) }
 	mem := store.NewMemory(devWorldID, w, worldNow)
 	handler, err := api.New(api.Config{
 		Store:        mem,
@@ -366,6 +424,13 @@ func runDev(o options, logger *slog.Logger) error {
 			return mem.Reset(ctx, w)
 		},
 		DevFixtures: devworld.Fixtures(),
+		// Dev only: GET/POST /api/v1/dev/snapshot (make snapshot / snapshot-load).
+		DevSnapshotLoad: func(ctx context.Context, w *sim.World, resumeNow bool) (int64, error) {
+			if resumeNow {
+				store.ResumeAt(w, worldNow())
+			}
+			return mem.Reset(ctx, w)
+		},
 	})
 	if err != nil {
 		return err

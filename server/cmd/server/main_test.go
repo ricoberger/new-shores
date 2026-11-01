@@ -2,11 +2,17 @@ package main
 
 import (
 	"io"
+	"log/slog"
+	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/devworld"
+	"github.com/ricoberger/new-shores/server/internal/sim"
 )
 
 func TestParseFlags(t *testing.T) {
@@ -103,5 +109,84 @@ func TestDefaultModeRequiresDatabaseAndRedis(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%+v: %v", c, err)
 		}
+	}
+}
+
+// TestFixtureAndSnapshotFlags (D-066): --fixture and --snapshot pick the
+// dev start state; both need --dev, exclude each other, and --fixture is
+// validated against devworld.Fixtures().
+func TestFixtureAndSnapshotFlags(t *testing.T) {
+	o, err := parseFlags([]string{"--dev", "--fixture", "settled"}, io.Discard)
+	if err != nil || o.fixture != "settled" {
+		t.Fatalf("--fixture settled = %+v, %v", o, err)
+	}
+	o, err = parseFlags([]string{"--dev", "--snapshot", "s.json", "--resume-now"}, io.Discard)
+	if err != nil || o.snapshot != "s.json" || !o.resumeNow {
+		t.Fatalf("--snapshot = %+v, %v", o, err)
+	}
+	for _, args := range [][]string{
+		{"--fixture", "settled"},
+		{"--snapshot", "s.json"},
+		{"--resume-now"},
+		{"--dev", "--resume-now"},
+		{"--dev", "--fixture", "settled", "--snapshot", "s.json"},
+	} {
+		if _, err := parseFlags(args, io.Discard); err == nil {
+			t.Errorf("parseFlags(%v) succeeded", args)
+		}
+	}
+	_, err = parseFlags([]string{"--dev", "--fixture", "nope"}, io.Discard)
+	if err == nil || !strings.Contains(err.Error(), "nope") {
+		t.Fatalf("unknown fixture: %v", err)
+	}
+	for _, name := range devworld.Fixtures() {
+		if !strings.Contains(err.Error(), name) {
+			t.Errorf("error %q does not list the fixture %q", err, name)
+		}
+	}
+}
+
+// TestDevStartWorld: the start world is the fixture or the snapshot; a
+// snapshot keeps its times unless --resume-now moves them to the start.
+func TestDevStartWorld(t *testing.T) {
+	cat, err := content.Load("../../../content/old_coast")
+	if err != nil {
+		t.Fatal(err)
+	}
+	logger := slog.New(slog.DiscardHandler)
+	start := time.Date(2026, 3, 1, 12, 0, 0, 0, time.UTC)
+
+	w, err := devStartWorld(options{fixture: "town", seed: devworld.DevSeed}, cat, start, logger)
+	if err != nil || len(w.Islands[0].Buildings) == 0 || !w.LastEvaluatedAt.Equal(start) {
+		t.Fatalf("--fixture town: %v (evaluated %v)", err, w)
+	}
+
+	data, err := sim.Encode(w, cat.Region.Version)
+	if err != nil {
+		t.Fatal(err)
+	}
+	file := filepath.Join(t.TempDir(), "s.json")
+	if err := os.WriteFile(file, data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	later := start.Add(3 * time.Hour)
+	kept, err := devStartWorld(options{snapshot: file}, cat, later, logger)
+	if err != nil || !kept.LastEvaluatedAt.Equal(start) {
+		t.Fatalf("--snapshot: %v, evaluated %v, want %v", err, kept.LastEvaluatedAt, start)
+	}
+	shifted, err := devStartWorld(options{snapshot: file, resumeNow: true}, cat, later, logger)
+	if err != nil || !shifted.LastEvaluatedAt.Equal(later) {
+		t.Fatalf("--snapshot --resume-now: %v, evaluated %v, want %v", err, shifted.LastEvaluatedAt, later)
+	}
+
+	if _, err := devStartWorld(options{snapshot: filepath.Join(t.TempDir(), "missing.json")}, cat, start, logger); err == nil {
+		t.Error("missing snapshot file accepted")
+	}
+	bad := filepath.Join(t.TempDir(), "bad.json")
+	if err := os.WriteFile(bad, []byte(`{"schema_version":999999,"content_version":"x","world":{}}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := devStartWorld(options{snapshot: bad}, cat, start, logger); err == nil {
+		t.Error("snapshot of another schema version accepted")
 	}
 }
