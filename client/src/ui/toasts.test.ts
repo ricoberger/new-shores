@@ -34,7 +34,7 @@ describe("tier unlock toasts (D-056)", () => {
     setLanguage("de", false);
     const html = render();
     expect(html).toContain("Neue Stufe");
-    expect(html).toContain("Citizens freigeschaltet — 15 neue Gebäude");
+    expect(html).toContain("Citizens freigeschaltet – 15 neue Gebäude");
   });
 
   it("stays twice as long as a notice", () => {
