@@ -130,6 +130,10 @@ class CommittedTest(unittest.TestCase):
             entry = self.manifest["models"][cid]
             self.assertLessEqual(entry["file"]["triangles"], config.BUDGET_SHIPS[cid], cid)
             self.assertLessEqual(entry["attachments"]["cargo"]["triangles"], config.BUDGET_SHIP_CARGO, cid)
+            # The far LOD's lite ship (V7) within its budget; the cargo attachment has no lite file.
+            self.assertEqual(entry["file"]["lite"]["budget"], config.LITE_BUDGET_SHIPS[cid], cid)
+            self.assertLessEqual(entry["file"]["lite"]["triangles"], config.LITE_BUDGET_SHIPS[cid], cid)
+            self.assertNotIn("lite", entry["attachments"]["cargo"], cid)
         for cid, entry in self.manifest["decor"].items():
             for info in files_of(entry):
                 self.assertLessEqual(info["triangles"], config.BUDGET_DECOR, cid)

@@ -351,21 +351,50 @@ export function modelMesh(scene: Scene, name: string, data: ModelData, material?
   return mesh;
 }
 
+/** The hull file of a ship type at a detail level: its lite file at "lite" (V7, far LOD) unless that one failed, else the full file; null without a model. */
+export function shipFile(registry: ModelRegistry, type: string, detail: Detail = "full"): ModelFile | null {
+  const entry = registry.entry(type);
+  if (!entry || entry.kind !== "ship" || !entry.file) return null;
+  const want = atDetail(entry.file, detail);
+  return want !== entry.file && registry.failed(want) ? entry.file : want;
+}
+
+/** Triangles one ship of an entry draws at far LOD: its lite hull (V7, no cargo there), else the full hull (0 without a model). */
+export function shipFarTriangles(entry: ModelEntry | undefined): number {
+  const f = entry?.file;
+  return f ? (f.lite ?? f).triangles : 0;
+}
+
+/** Draw calls of one ship type at far LOD: the lite hull alone, else hull and cargo attachment. */
+export function shipFarDraws(entry: ModelEntry | undefined): number {
+  return entry?.file?.lite ? 1 : 2;
+}
+
 /**
  * The loaded model of a ship type in world orientation, scaled to unit
  * length (the ship layers scale instances like the placeholder), with its
  * cargo attachment; null while loading or without a model (requests the
- * files). A failed cargo attachment leaves the hull without crates.
+ * files). A failed cargo attachment leaves the hull without crates. At
+ * the lite detail (far LOD) the lite hull without cargo (V7); while it
+ * loads, the full hull bridges if it is already loaded. `file` is the
+ * hull file actually used.
  */
-export function shipModel(registry: ModelRegistry, type: string): { hull: ModelData; cargo: ModelData | null } | null {
+export function shipModel(registry: ModelRegistry, type: string, detail: Detail = "full"): { hull: ModelData; cargo: ModelData | null; file: ModelFile } | null {
   const entry = registry.entry(type);
-  if (!entry || entry.kind !== "ship" || !entry.file) return null;
+  const file = shipFile(registry, type, detail);
+  if (!entry?.file || !file) return null;
   const length = entry.ship?.length_tiles ?? 1;
+  if (file !== entry.file) {
+    const lite = registry.request(file);
+    if (lite) return { hull: worldData("ship", lite, 1 / length), cargo: null, file };
+    const full = registry.peek(entry.file);
+    return full ? { hull: worldData("ship", full, 1 / length), cargo: null, file: entry.file } : null;
+  }
   const hull = registry.request(entry.file);
   const cargoFile = entry.attachments?.cargo;
   const cargo = cargoFile ? registry.request(cargoFile) : null;
   if (!hull || (cargoFile && !cargo && !registry.failed(cargoFile))) return null;
-  return { hull: worldData("ship", hull, 1 / length), cargo: cargo ? worldData("ship", cargo, 1 / length) : null };
+  return { hull: worldData("ship", hull, 1 / length), cargo: cargo ? worldData("ship", cargo, 1 / length) : null, file };
 }
 
 /**

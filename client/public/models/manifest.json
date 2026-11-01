@@ -2278,6 +2278,25 @@
         },
         "budget": 6000,
         "bytes": 161020,
+        "lite": {
+          "bounds": {
+            "max": [
+              2.0,
+              2.4,
+              0.6
+            ],
+            "min": [
+              -1.4,
+              -0.2,
+              -0.6
+            ]
+          },
+          "budget": 600,
+          "bytes": 13528,
+          "path": "brig.lite.glb",
+          "sha256": "ab191a590e50cbbe7bbee152b9eb3b4525e6394fac4be336df47a4963ff660b2",
+          "triangles": 448
+        },
         "path": "brig.glb",
         "sha256": "fe778f7d79a6088d7dc07ecb5f2abc07467fffc86a7fb6daade292ec6acb63e7",
         "triangles": 5526
@@ -4257,6 +4276,25 @@
         },
         "budget": 7600,
         "bytes": 219640,
+        "lite": {
+          "bounds": {
+            "max": [
+              2.2,
+              3.2,
+              0.6
+            ],
+            "min": [
+              -1.6,
+              -0.2,
+              -0.6
+            ]
+          },
+          "budget": 800,
+          "bytes": 15724,
+          "path": "galleon.lite.glb",
+          "sha256": "a81952df4e6a1d4adfb19c329b426108552effa3f3038bbbd824fb5dd9739d61",
+          "triangles": 544
+        },
         "path": "galleon.glb",
         "sha256": "b23cb71125a0653012f032ed81375faf4954c557105e94c4d36ce7c239945244",
         "triangles": 7566
@@ -8367,6 +8405,25 @@
         },
         "budget": 2800,
         "bytes": 83720,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.4,
+              1.8,
+              0.4
+            ],
+            "min": [
+              -1.0,
+              -0.2,
+              -0.4
+            ]
+          },
+          "budget": 300,
+          "bytes": 7836,
+          "path": "sloop.lite.glb",
+          "sha256": "d3062bf44ee669b6d9cafd63c2bd7ff3186edacd32aa60ed3f27f50a4b490974",
+          "triangles": 236
+        },
         "path": "sloop.glb",
         "sha256": "b789bf88b87c650505b41cdc565a781eabc7add32fc357e3c0f7c249dbb2fb70",
         "triangles": 2744

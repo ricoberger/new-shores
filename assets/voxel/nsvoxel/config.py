@@ -75,6 +75,13 @@ LITE_BUDGET_PER_TILE = {"building": 40, "house": 45}
 #: triangles, cargo attachments 192, each with ~50 % headroom.
 BUDGET_SHIPS = {"sloop": 2800, "brig": 6000, "galleon": 7600}
 BUDGET_SHIP_CARGO = 300
+#: Lite (far LOD) ship models (V7): a recipe's `lite` builder at its scale /
+#: SHIP_LITE_DOWNSAMPLE voxels per tile (20 → 5: at the far ship scale about
+#: 2 voxels per world tile, like the buildings' lite level); hull, masts and
+#: sail silhouettes, no cargo attachment. Budgets from the far-budget
+#: brief (sloop / brig / galleon ≈ 300 / 600 / 800).
+SHIP_LITE_DOWNSAMPLE = 4
+LITE_BUDGET_SHIPS = {"sloop": 300, "brig": 600, "galleon": 800}
 #: Decoration (kind "decor": trees, bushes, rocks, crags, tufts, stumps,
 #: outcrops; merged by the hundreds per island chunk): prototype max 384
 #: (decor_tree_a).

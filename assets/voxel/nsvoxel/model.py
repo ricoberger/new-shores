@@ -73,6 +73,7 @@ def recipe_modules(recipes_dir=RECIPES_DIR):
                 "scale": getattr(mod, "VOXELS_PER_TILE", VPT),
                 "cargo": getattr(mod, "cargo", None),
                 "ship": getattr(mod, "SHIP", None),
+                "lite": getattr(mod, "lite", None),
                 "file": fname,
             }
     return out
@@ -179,6 +180,17 @@ def build_id(cid, kind, recipe, content):
             lname = fname[: -len(".glb")] + ".lite.glb"
             ldata, ln, lbounds = export.write_model(cid, lite_cells, ctx.W / f, ctx.D / f, scale * f)
             lbudget = lite_budget_of(cid, content)
+            if ln > lbudget:
+                problems.append(f"{lname}: {ln} triangles over the lite budget {lbudget}")
+            info["lite"] = export.file_info(lname, ldata, ln, lbounds, lbudget)
+            files.append((lname, ldata, ln, None, ctx))
+        if kind == "ship" and key is None and recipe.get("lite"):
+            # The ship's own lite model (V7), built at scale / SHIP_LITE_DOWNSAMPLE voxels per tile; no cargo at lite.
+            lv = recipe["lite"](ctx)
+            f = config.SHIP_LITE_DOWNSAMPLE
+            lname = fname[: -len(".glb")] + ".lite.glb"
+            ldata, ln, lbounds = export.write_model(cid, lv.cells, ctx.W / f, ctx.D / f, scale * f, offset=lv.offset)
+            lbudget = config.LITE_BUDGET_SHIPS[cid]
             if ln > lbudget:
                 problems.append(f"{lname}: {ln} triangles over the lite budget {lbudget}")
             info["lite"] = export.file_info(lname, ldata, ln, lbounds, lbudget)

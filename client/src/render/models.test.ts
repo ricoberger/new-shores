@@ -29,6 +29,8 @@ import {
   parseGlb,
   placement,
   rotationYaw,
+  shipFile,
+  shipModel,
   stableHash,
   statusHeight,
   toWorld,
@@ -269,6 +271,42 @@ describe("loading through the registry", () => {
     expect(reg.entry("chapel")).toBeUndefined();
     expect(reg.status().manifest).toBe(false);
     expect(warn).toHaveBeenCalledOnce();
+  });
+
+  it("draws ships with their lite hull at the lite detail (far LOD, V7), without cargo, bridged by a loaded full hull", async () => {
+    const fetchFn = vi.fn((url: string) => {
+      if (url.endsWith("manifest.json")) return ok(JSON.stringify(manifest));
+      const path = url.replace("/models/", "").split("?")[0] as string;
+      return ok(new Uint8Array(readFileSync(join(MODELS, path))));
+    });
+    const reg = new ModelRegistry(scene, { fetch: fetchFn });
+    await reg.loadManifest();
+    for (const type of ["sloop", "brig", "galleon"]) {
+      const e = manifest.models[type] as ModelEntry;
+      expect(e.file?.lite?.path, type).toBe(`${type}.lite.glb`);
+      expect(shipFile(reg, type, "full")?.path).toBe(`${type}.glb`);
+      expect(shipFile(reg, type, "lite")?.path).toBe(`${type}.lite.glb`);
+    }
+    // Nothing loaded yet: no model at either detail (the placeholder draws).
+    expect(shipModel(reg, "brig", "full")).toBeNull();
+    await vi.waitFor(() => expect(shipModel(reg, "brig", "full")).not.toBeNull());
+    const full = shipModel(reg, "brig", "full")!;
+    expect(full.file.path).toBe("brig.glb");
+    expect(full.cargo).not.toBeNull();
+    // The lite file is loading: the full hull bridges, without cargo.
+    const bridged = shipModel(reg, "brig", "lite")!;
+    expect(bridged.file.path).toBe("brig.glb");
+    expect(bridged.cargo).toBeNull();
+    await vi.waitFor(() => expect(shipModel(reg, "brig", "lite")?.file.path).toBe("brig.lite.glb"));
+    const lite = shipModel(reg, "brig", "lite")!;
+    expect(lite.cargo).toBeNull();
+    const lb = manifest.models.brig!.file!.lite!;
+    expect(lite.hull.indices.length).toBe(lb.triangles * 3);
+    expect(lb.triangles).toBeLessThanOrEqual(600);
+    // Scaled to unit length like the full hull (within two lite voxels of 0.2 tiles over the 2.6-tile hull).
+    const xs = (d: ModelData) => Array.from({ length: d.positions.length / 3 }, (_, i) => d.positions[i * 3] as number);
+    const span = (d: ModelData) => Math.max(...xs(d)) - Math.min(...xs(d));
+    expect(Math.abs(span(lite.hull) - span(full.hull))).toBeLessThan(0.4 / 2.6);
   });
 
   it("builds URLs with the first 8 hex digits of the sha256", () => {

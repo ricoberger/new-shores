@@ -215,6 +215,55 @@ class VoxelsPerTileTest(unittest.TestCase):
                 self.assertIn(entry["voxels_per_tile"], config.ALLOWED_VOXELS_PER_TILE, cid)
 
 
+class ShipLiteTest(unittest.TestCase):
+    """V7: every ship has a lite model for the far LOD — hull, masts and sails at 5 voxels per tile, the same length and anchors."""
+
+    def test_every_ship_has_a_lite_model_within_its_budget_and_the_full_length(self):
+        recipes = model.recipe_modules()
+        for cid in config.MODEL_SHIPS:
+            with self.subTest(cid=cid):
+                files, entry, problems = model.build_id(cid, "ship", recipes[cid], CONTENT)
+                self.assertEqual(problems, [])
+                lite = entry["file"]["lite"]
+                self.assertTrue(lite["path"].endswith(".lite.glb"))
+                self.assertEqual(lite["budget"], config.LITE_BUDGET_SHIPS[cid])
+                self.assertLessEqual(lite["triangles"], lite["budget"])
+                self.assertLess(lite["triangles"], entry["file"]["triangles"] / 5)
+                # Hull length at the waterline (glTF x) within one lite voxel of the full model's, bowsprit included.
+                vox = config.SHIP_LITE_DOWNSAMPLE / recipes[cid]["scale"]
+                full = entry["file"]["bounds"]
+                for i in (0, 2):
+                    self.assertAlmostEqual(lite["bounds"]["min"][i], full["min"][i], delta=vox + 1e-6)
+                    self.assertAlmostEqual(lite["bounds"]["max"][i], full["max"][i], delta=2 * vox + 1e-6)
+                # Masts and sails rise well above the hull (a silhouette, not a hull only).
+                self.assertGreater(lite["bounds"]["max"][1], 0.6 * full["max"][1])
+                self.assertLessEqual(lite["bounds"]["min"][1], 0.0)
+                # The entry's anchors (wake, status) serve both files; the cargo attachment has no lite file.
+                self.assertIn("wake", entry["anchors"])
+                self.assertNotIn("lite", entry["attachments"]["cargo"])
+                # The lite grid: sails (sway group sail), timber and the hull's trim band.
+                grid_ = recipes[cid]["lite"](files[0][4])
+                roles = {m[0] for m in grid_.cells.values()}
+                self.assertIn("canvas", roles)
+                self.assertIn("timber", roles)
+                self.assertIn("sail", {m[2] for m in grid_.cells.values() if len(m) > 2})
+
+    def test_a_lite_ship_over_its_budget_fails_the_build(self):
+        recipes = model.recipe_modules()
+
+        def dense(ctx):
+            v = ctx.vox(0, 0)
+            for x in range(-20, 20):
+                for y in range(-6, 6):
+                    for z in range(0, 8):
+                        if (x + y + z) % 2 == 0:
+                            v.set(x, y, z, grid.mat("timber"))
+            return v
+
+        _, _, problems = model.build_id("sloop", "ship", dict(recipes["sloop"], lite=dense), CONTENT)
+        self.assertTrue(any(".lite.glb" in p and "over the lite budget" in p for p in problems), problems)
+
+
 class PlaceholderTest(unittest.TestCase):
     #: One ID per footprint kind: water rows with a boat, smoke, levels with berths, slipway, house variants, field, pasture module with animals, service.
     SAMPLES = ("fisher", "smelter", "trading_post", "shipyard", "house_settlers", "wheat_field", "pasture", "chapel", "warehouse")

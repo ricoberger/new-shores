@@ -45,7 +45,7 @@ import { PlacementGhost } from "./ghost";
 import { GridOverlay } from "./grid";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
-import { type AssetsStatus, buildingAnchor, type Detail, ModelRegistry } from "./models";
+import { type AssetsStatus, buildingAnchor, type Detail, ModelRegistry, shipFarTriangles } from "./models";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
 import { LIFE_CLASSES, LifeLayer } from "./life";
@@ -831,7 +831,7 @@ export class GameRenderer {
    */
   private allocateFarTerrain(detailed: readonly IslandDetail[], masked: readonly MaskIsland[], ships: readonly { type: string }[]): number {
     let fleet = 0;
-    for (const s of ships) fleet += this.models.entry(s.type)?.file?.triangles ?? 0;
+    for (const s of ships) fleet += shipFarTriangles(this.models.entry(s.type));
     return allocateFarTerrain(detailed, this.mask.outlineTriangles(masked), fleet);
   }
 
