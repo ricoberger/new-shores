@@ -50,22 +50,30 @@ rates: `rate × (own max residents / higher max residents) × 0.5^(tier
 distance / 3)`, e.g. fish 0.010 → Citizens 0.0042, Merchants 0.0020,
 Patricians 0.0010. Weights: the own tier's categories share 0.6 of
 satisfaction, all lower tiers' categories 0.4 together (split equally
-per lower tier, then by the lower tier's own weights). **Services** are
-one cumulative category per house: every public building of the house's
-tier or below, share 0.6 each, with the radii of §7. The **civic
-services** (D-060) work the same way with one building each (share 1.0):
-**safety** (`city_guard`, from Citizens), **fire protection**
-(`fire_station`, from Merchants) and **health** (`surgery`, Patricians only), each a
-category of every house of its tier and above, counted in the upgrade
-gate (≥ 0.6) like any required category. The table lists each
-tier's **own** categories (weights relative within the tier).
+per lower tier, then by the lower tier's own weights). Public services
+(D-065, MECHANICS §6.2): every tier has a **market** category (the
+`market` alone, its level's radius) and the **chain** categories
+faith, education and culture with a minimum rank — any building of the
+chain with that rank or higher serves the house fully within its own
+radius (faith `chapel` 1 < `church` 2 < `cathedral` 3, education
+`school` 1 < `university` 2, culture `tavern` 1 < `playhouse` 2). The
+**security** group (D-060/D-065, display only) holds **safety**
+(`city_guard`, from Citizens), **fire protection** (`fire_station`, from
+Merchants) and **health** (`surgery`, Patricians only), one building
+each (share 1.0). Every category is a category of every house of its
+tier and above, counted in the upgrade gate (≥ 0.6) like any required
+category. The table lists each tier's **own** categories (weights
+relative within the tier; chains as `faith ≥ 2`).
 
 | Tier | Goods categories → acceptable goods | Building needs (radius) |
 |---|---|---|
-| Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | services 0.3: `market` 12, `chapel` 16 |
-| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | services 0.3: + `tavern` 14, `school` 16 · safety 0.1: `city_guard` 16 |
-| Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.09: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | services 0.24: + `church` 20, `playhouse` 24 · safety 0.08: `city_guard` 16/20 · fire protection 0.08: `fire_station` 16/20 |
-| Patricians | food 0.14: roast_beef 0.005 \| oysters 0.004 · drink 0.14: wine 0.004 \| grain_spirit 0.003 · clothing 0.14: fine_garments 0.003 \| lace 0.003 · comfort 0.14: candles 0.004 \| spectacles 0.002 · luxury 0.14: jewellery 0.001 \| instruments 0.001 | services 0.10: + `university` 24, `cathedral` 28 · safety/fire protection 0.06 each, health 0.08: `surgery` 20 |
+| Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | market 0.12: `market` 12 · faith ≥ 1 0.18: `chapel` 16 |
+| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | market 0.12: `market` 15 · faith ≥ 1, education ≥ 1 (`school` 16), culture ≥ 1 (`tavern` 14) 0.06 each · security: safety 0.1: `city_guard` 16 |
+| Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.09: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | market 0.096: `market` 18 · faith ≥ 2 (`church` 20), education ≥ 1, culture ≥ 2 (`playhouse` 24) 0.048 each · security: safety 0.08: `city_guard` 16, fire protection 0.08: `fire_station` 16 |
+| Patricians | food 0.14: roast_beef 0.005 \| oysters 0.004 · drink 0.14: wine 0.004 \| grain_spirit 0.003 · clothing 0.14: fine_garments 0.003 \| lace 0.003 · comfort 0.14: candles 0.004 \| spectacles 0.002 · luxury 0.14: jewellery 0.001 \| instruments 0.001 | market 0.04: `market` 21 · faith ≥ 3 (`cathedral` 28), education ≥ 2 (`university` 24), culture ≥ 2 0.02 each · security: safety/fire protection 0.06 each, health 0.08: `surgery` 20 |
+
+The market radius is that of its level (12/15/18/21, level *n* from
+tier *n*, D-065); the table lists the level the tier unlocks.
 
 Variety reserve (D-056, IDs reserved, not in the tier plan): fur_coats,
 tableware, confectionery, paintings.
@@ -135,7 +143,7 @@ ship is a sloop; the shipyard unlocks at tier 2 (D-056).
 | construction | stone, tools | `quarry` (stone slot → stone, 45 s) [8 S]; `iron_mine` (iron slot → iron_ore, 60 s) [10 S], `charcoal_burner` (wood → charcoal, 45 s) [4 S], `smelter` (iron_ore + charcoal → iron, 60 s) [8 S], `toolmaker` (iron → tools, 60 s) [8 S] | tools 1 : 1.3 : 1 : 1 |
 | ships | sails | `sailmaker` (hemp → sails, 60 s) [6 C] | — |
 
-Infrastructure: `trading_post` lvl 2, `road_paved`, `quay` (D-060), `tavern`, `school`,
+Infrastructure: `trading_post` lvl 2, `market` and `warehouse` lvl 2 (D-065), `road_paved`, `quay` (D-060), `tavern`, `school`,
 `city_guard`, `trading_pier`, `depot` (D-060), `shipyard` (sloop, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
 The construction chains (quarry, tool chain) are **Settler-staffed** per the
 bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
@@ -161,8 +169,8 @@ made by Citizens and glass (tier 4) by Citizens.
 One recipe per building (D-041): `leather_works` is a separate building from
 `tannery` rather than a second recipe.
 
-Infrastructure: `trading_post` lvl 3, `market` lvl 2, `church`,
-`playhouse`, `fire_station`, civic radius upgrades (D-062), `brig`
+Infrastructure: `trading_post` lvl 3, `market` and `warehouse` lvl 3 (D-065), `church`,
+`playhouse`, `fire_station` (one level, D-065), `brig`
 (4 slots), `house_merchants`;
 `harbourmaster_office` (world map, expeditions, contracts) is an ONLINE
 feature, not a tier gate, and not authored yet. Variety reserve
@@ -189,7 +197,7 @@ feature, not a tier gate, and not authored yet. Variety reserve
 (§11). Variety reserve (D-056): confectionery (`confectioner`), paintings
 (`mineral_quarry`, `studio`).
 
-Infrastructure: `trading_post` lvl 4, `market` lvl 3, `university`,
+Infrastructure: `trading_post` lvl 4, `market` and `warehouse` lvl 4 (D-065), `university`,
 `cathedral`, `surgery` (health, radius 20; glass cost, D-062),
 `galleon` (6 slots), `house_patricians`.
 
@@ -209,7 +217,7 @@ fills the house (D-056).
 
 ## 7. Buildings — reference table (D-054)
 
-**Status:** tiers 1–4 (the shipped set, content `old_coast-0.16.0`;
+**Status:** tiers 1–4 (the shipped set, content `old_coast-0.17.0`;
 tiers 1–2 since PR #27/#28, tier 3 since D-056 C3, tier 4 since D-056
 C4) are implemented exactly as listed, except the `(reserve)` rows and
 `harbourmaster_office` (an ONLINE feature).
@@ -245,9 +253,9 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `house_settlers` | 1 | 3×3 | — | Residence | 0 / 5 | 0 | — | R; all houses 3×3, upgrade in place |
 | `road_dirt` | 1 | 1×1 | — | road | see text | 0 | — |  |
 | `trading_post` | 1 | 6×6 | 1–2 | Trading Post (D-062) | see text | 0 | — | founding only; levels as below |
-| `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 0 | — | collector; radius and throughput per level |
-| `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 | — | R (was `market_small` until D-056 C3; that ID is retired); levels: lvl 1 radius 12; lvl 2 (tier 3) radius 16, 1000 gold / 15 planks / 30 stone; lvl 3 (tier 4) radius 20, 5000 gold / 15 planks / 45 stone / 15 bricks (D-056) |
-| `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 0 | — | R, radius 16; the 6×10 church is tier 3 |
+| `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 0 | — | collector; throughput per level, four levels (D-065, below) |
+| `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 12; lvl 2 (tier 2) radius 15, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 18, 1000 gold / 15 planks / 30 stone; lvl 4 (tier 4) radius 21, 5000 gold / 15 planks / 45 stone / 15 bricks (D-065) |
+| `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 0 | — | R, radius 16; faith rank 1 (D-065) |
 | `lumberjack` | 1 | 3×3 + 24 `tree_plot` | — | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest) |
 | `tree_plot` | 1 | 1×1 field | — | field tile | 1 g | 0 | — | lumberjack only; painted; grass or forest, no fertility (D-059) |
 | `sawmill` | 1 | 4×6 | — | Sawmill | 120 / 9 | 2 | 4 S | R |
@@ -286,14 +294,14 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `pig_pen` | 2 | 3×4 field | — | pasture module | 20 g / 5 planks | 0 | — | pig_farm only; grass |
 | `tannery` | 2 | 3×4 | — | Tannery | 180 / 6 / 6 | 2 | 8 C | R |
 | `sailmaker` | 2 | 4×8 | — | Ropemaker | 240 / 6 / 9 | 2 | 6 C | R |
-| `tavern` | 2 | 4×6 | — | Tavern | 250 / 15 / 0 | 2 | — | R, radius 14 |
-| `school` | 2 | 6×8 | — | Grammaticus | 1000 / 15 / 30 | 4 | — | R, radius 16 (D-056) |
-| `city_guard` | 2 | 4×4 | — | Watch post class | 200 / 10 / 6 | 2 | — | R, safety; radius 16 → 20 at Merchants (upgrade 200 gold / 10 planks / 6 stone) |
+| `tavern` | 2 | 4×6 | — | Tavern | 250 / 15 / 0 | 2 | — | R, radius 14; culture rank 1 (D-065) |
+| `school` | 2 | 6×8 | — | Grammaticus | 1000 / 15 / 30 | 4 | — | R, radius 16 (D-056); education rank 1 (D-065) |
+| `city_guard` | 2 | 4×4 | — | Watch post class | 200 / 10 / 6 | 2 | — | R, safety (security group); radius 16, one level (D-065) |
 | `house_merchants` | 3 | 3×3 | — | Residence | 400 / 5 / 3 / 3 | 0 | — | upgrade only |
-| `church` | 3 | 6×10 | — | Sanctuary | 1500 / 30 / 15 / 0 | 6 | — | R, radius 20 |
-| `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 30 / 60 / 30 | 15 | — | R, radius 24 (tier 3 since D-056) |
-| `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, fire protection; radius 16 → 20 at Merchants (upgrade 400 gold / 15 planks / 15 stone / 5 bricks) |
-| `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 4 | — | R, radius 20, health; one level, glass cost (D-062) |
+| `church` | 3 | 6×10 | — | Sanctuary | 1500 / 30 / 15 / 0 | 6 | — | R, radius 20; faith rank 2 (D-065) |
+| `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 30 / 60 / 30 | 15 | — | R, radius 24 (tier 3 since D-056); culture rank 2 (D-065) |
+| `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, fire protection (security group); radius 16, one level (D-065) |
+| `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 4 | — | R, radius 20, health (security group); one level, glass cost (D-062) |
 | `harbourmaster_office` | 3 | 5×5 | (reserve) | Repair Crane class | 1000 / 60 / 45 / 0 | 6 | — | world map, expeditions, contracts |
 | `butcher` | 3 | 4×5 | — | Victualler class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
 | `pastry_kitchen` | 3 | 4×5 | — | Bakery class | 320 / 5 / 9 / 3 | 4 | 8 M | R |
@@ -321,8 +329,8 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `brickworks` | 3 | 4×5 | — | Tiler | 90 / 9 / 0 / 0 | 3 | 8 C | R |
 | `coal_mine` | 3 | 3×8 on a coal slot | — | Iron Mine class | 180 / 6 / 6 / 0 | 2 | 10 C | R |
 | `house_patricians` | 4 | 3×3 | — | Residence | 1000 / 5 / 3 / 3 / 3 | 0 | — | upgrade only |
-| `university` | 4 | 12×12 | — | Library | 50000 / 45 / 45 / 60 / 0 | 45 | — | R, radius 24 |
-| `cathedral` | 4 | 12×16 | — | Temple | 60000 / 15 / 60 / 60 / 30 | 30 | — | R, radius 28 (D-056) |
+| `university` | 4 | 12×12 | — | Library | 50000 / 45 / 45 / 60 / 0 | 45 | — | R, radius 24; education rank 2 (D-065) |
+| `cathedral` | 4 | 12×16 | — | Temple | 60000 / 15 / 60 / 60 / 30 | 30 | — | R, radius 28 (D-056); faith rank 3 (D-065) |
 | `cattle_farm` | 4 | 4×5 + 5 `cattle_pasture` | — | Pig Farm class, large | 410 / 5 / 9 / 6 / 0 | 4 | 8 S | R, grass |
 | `slaughterhouse` | 4 | 4×4 | — | Fish Gutter class | 390 / 6 / 6 / 3 / 3 | 8 | 8 P | R |
 | `oyster_beds` | 4 | 6×12 | 3–4 | Oyster Bed | 480 / 12 / 9 / 6 / 0 | 3 | 6 S | R |
@@ -359,9 +367,12 @@ cap 500 / T 55 / 2 berths (upgrade 300 gold / 20 planks / 10 stone); lvl 3
 cap 800 / T 80 / 3 berths (600 gold / 30 planks / 20 stone); lvl 4 cap
 1 200 / T 110 / 4 berths (1 200 gold / 40 planks / 30 stone / 10 tools).
 Warehouse levels (provisional, throughput only — collectors have no
-radius rule in the sim): lvl 1 T 30; lvl 2 T 55 (150 gold / 10 planks /
-5 stone); lvl 3 T 80 (300 gold / 15 planks / 10 stone). A 6×6 hub earns
-its size with throughput (D-054); a reach rule would be a new decision.
+radius rule in the sim; level *n* needs tier *n*, D-065): lvl 1 T 30;
+lvl 2 T 50 (Citizens; 150 gold / 10 planks / 5 stone); lvl 3 T 70
+(Merchants; 300 gold / 15 planks / 10 stone); lvl 4 T 90 (Patricians;
+600 gold / 20 planks / 20 stone). A 6×6 hub earns its size with
+throughput (D-054); a reach rule would be a new decision. Market and
+warehouse level 4 have no model yet; the client draws level 3.
 
 Harbour extensions (D-060, provisional, numbers ours — no Anno
 counterpart): the **trading pier** adds 2 berths to its island's pool
@@ -525,7 +536,7 @@ Every building has `id`, `name`, `region` (must equal the region id),
 called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min` and
 `pause_category`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **12**, content **old_coast-0.16.0**: no migration while
+World schema **13**, content **old_coast-0.17.0** (D-065): no migration while
 undeployed; recreate local databases with `make down VOLUMES=1 && make up`.
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.
@@ -539,9 +550,9 @@ it carries:
 | `trading_post` | `levels[] {capacity, throughput_per_min, berths, cost?}` — level 1 has no cost (founding places it), later levels have one (`upgrade_trading_post`); with `water_rows` (per-column water prefix) | Trading Post, one per island |
 | `pier` | `berths` (≥ 1) — berths added to the island's pool; needs `water_rows`; no collector, service or levels (D-060) | trading_pier |
 | `depot` | `capacity` — fixed capacity per good added to the island; no levels, collector, service or pier (D-062) | depot |
-| `warehouse` | `levels[] {throughput_per_min, cost?}` — collector only, no capacity (`upgrade_warehouse`) | inland Warehouse |
+| `warehouse` | `levels[] {throughput_per_min, tier?, cost?}` — collector only, no capacity (`upgrade_warehouse`); every later level names the tier it needs (D-065) | inland Warehouse |
 | `road` | `seconds_per_tile`, `shallows?` (true: laid on the shallows instead of land, D-060) (building must be 1×1) | roads, quay |
-| `service` | `radius` or `levels[] {radius, tier?, cost?}`; market and civic upgrades (D-062), surgery has one radius | public buildings |
+| `service` | `radius` or `levels[] {radius, cost?}` (level *n* needs tier *n*, derived by the loader, D-065; only the market has levels); `chain` + `rank` for a chain building (one radius, D-065) | public buildings |
 | `work_area` | `fertility` (island-wide tag the island must carry, else `no_fertility`); no radius or terrain rule | farms (the lumberjack is a farm since D-059) |
 | `fields` | `type` (a field building's `field.type`), `required`, `max` | farms (D-051 part 4), lumberjack (D-059) |
 | `field` | `type`, `farm` (the farm type that owns it, or a list of farm types sharing the module: `cattle_pasture` serves `dairy_farm` and `cattle_farm`), `terrain[]`, `fertility?` — 1×1 (crops) or a pasture module (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires every listed farm to exist with a matching `fields.type` | pasture, wheat_field, orchard_plot, hemp_field, pig_pen, meadow, cattle_pasture, hop_field, woad_field, vine_row, tree_plot |
@@ -646,12 +657,18 @@ Quests that reward goods must mention that excess beyond capacity is lost
 ### need_categories.json and needs.json
 
 `need_categories.json` lists the display data per category: `{ id, name,
-icon }` (icon IDs from the HUD icon set; a test checks they exist).
+icon, group? }` (icon IDs from the HUD icon set; a test checks they
+exist). `group` is a display group the client shows the category under
+(D-065: `security` for safety, fire protection and health; the group's
+name is a client catalogue string); it has no rule effect.
 
 One entry per need: `{ id, name, tier, from_tier?, kind:
-required|optional, weight, category }` plus either `goods[] {good,
-per_resident_per_min, share?}` or, for services, `buildings[] {building,
-share?}` (the radius is the building's service level). Shares default to
+required|optional, weight, category }` plus one of `goods[] {good,
+per_resident_per_min, share?}`, `buildings[] {building, share?}` (the
+radius is the building's service level) or, for a chain need (D-065),
+`chain` and `min_rank` (served by any building of the chain with that
+rank or higher; the loader checks that the chain exists and has the
+rank). Shares default to
 1.0 for a lone alternative and 0.6 each otherwise (D-056). Required
 weights of a tier's own needs sum to exactly 1; `from_tier` marks a
 carried lower-tier category. See MECHANICS §6.2 for the semantics.
@@ -679,6 +696,7 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
 |---|---|
 | `market_small` | Renamed to `market` in D-056 C3 |
 | `theatre` | Retired for D-063; `playhouse` is a new ID, same cost/radius/ladder position. Roman recipe parked for a later southern region. |
+| `settlers_services`, `citizens_services`, `merchants_services`, `patricians_services` | Need IDs retired with the `services` category in D-065 (split into market and the faith/education/culture chains) |
 
 ### D-062 reference results (sim minutes, seed 1053001)
 
@@ -697,6 +715,57 @@ and building/island choices are the only pacing levers. The final Patrician
 measurement is conservative, not the earliest crossing. Merchants lose the
 health gate but these layout repairs cost about six minutes versus the
 old 223/258/291 replay. The checklist below retains older balancing history.
+
+### D-065 reference results (sim minutes, seed 1053001)
+
+The reference replays are generated from plans (D-067,
+`server/testdata/plans/*.plan.json`, `go run ./cmd/replay-plan`); a
+plan sets build order, counts, waits, island choice and layout hints,
+and the generator places. Before D-065 (generator only, D-062 content)
+and after (content `old_coast-0.17.0`):
+
+| Game | Milestones | Targets | Before D-065 | D-065 | Margins |
+|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 47 / 33 / 80 / 116 | 48 / 24 / 82 / 118 | 12 / 66 / 18 / 32 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 32 / 64 (23, 100) | 32 / 64 (11, 100) | 13 / 21; ≥ 15 earlier than without claims |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 217 / 243 / 271 | 224 / 256 / 369 | 16 / 14 / 51 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 798 / 836 / 939 | 826 / 866 / 1073 | 74 / 94 / 727 |
+
+Plan changes for D-065 are build order, counts and waits only:
+
+- The citizens plan's `chains` block lists the chain buildings by rank
+  and each tier's minimum rank (checked against the content). The
+  generator reserves chain plots by **coverage**, island-wide, once an
+  island's quarters are reserved: per chain, highest rank first, the
+  site that adds the most needed coverage; rank 1 at 100 % of the
+  houses (it gates every upgrade), higher ranks at 80 %, and a rank
+  stops when a site would add fewer than 32 tiles. Quarters without
+  `serves` (island 2 and island 6) get no chain plots; their chapel is
+  a civic building. Per-quarter reservation left 1 242 reserved tiles
+  unbuilt on the home island and did not fit; coverage reservation
+  leaves 0 (island 2: 16, island 6: 16, none of them chain plots).
+- Farms moved for room (the only buildings allowed to): pig farms #11–14
+  from the home island to island 6, with an extra sloop on route
+  "Stone out, pigs home": with every chain plot reserved, the home
+  island's last wheat farm (140 fields) found no grass area large
+  enough. Wheat cannot move (fertile only on islands 1, 5, 10 and 11).
+- Merchants: a school (education gates the Citizen → Merchant upgrade)
+  before the upgrades, church and playhouse before the categories
+  checkpoint (followed by a one-minute wait); island 2 gets a chapel;
+  the guard upgrade is gone (no levels).
+- Patricians: island 6 gets a chapel; home-3 and home-4 get their
+  schools, tavern, churches and playhouse around their first Citizen
+  upgrades, and their Settler and Citizen upgrades are interleaved
+  (lag 3); university and cathedral follow the first Patrician house;
+  the guard upgrades are gone.
+- The guard and fire radius stays 16 (D-065). With coverage reservation
+  it is not the binding constraint: the home island's binding resource
+  is grass for the last wheat farm, solved by moving pig farms.
+
+The upgrade gate now needs every chain category at its minimum rank:
+the other milestones move by −9 to +30 min, the Merchants' categories
+milestone by 98 min and the final Patrician measurement by 134 min, all
+within target.
 
 
 - For each tier, one good per category at 100 % must support the tier's
