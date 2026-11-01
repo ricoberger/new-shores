@@ -112,8 +112,9 @@ func TestBootstrapMerchants(t *testing.T) {
 	}
 
 	// Every category of every Merchant house >= 0.6: the first advance
-	// after the tier 1-2 prefix, in steps of ten advances, at which it
-	// holds must be at most minute 420, and it must still hold at the end.
+	// after the tier 1-2 prefix, in steps of ten advances and the last
+	// advance before the final wait, at which it holds must be at most
+	// minute 420, and it must still hold at the end.
 	checkMerchantNeeds := func(ds sim.DisplayState) (houses int, ok bool) {
 		ok = true
 		for _, is := range ds.Islands {
@@ -144,7 +145,9 @@ func TestBootstrapMerchants(t *testing.T) {
 		}
 	}
 	at := -1.0
-	for k := advances; k < total; k += 10 {
+	// The generated replay (D-067) reaches the condition at a checkpoint
+	// right before its final wait: the last sample, total-2.
+	for k := advances; k <= total-2; k = min(k+10, max(k+1, total-2)) {
 		r := runUntilAdvance(t, name, k)
 		m := snapshotMinutes(t, r, s, r.Snapshots[len(r.Snapshots)-1])
 		if _, ok := checkMerchantNeeds(r.Final); ok {

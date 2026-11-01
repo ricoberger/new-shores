@@ -1,0 +1,445 @@
+{
+  "name": "bootstrap_merchants",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "seed": {
+    "archipelago": 1053001,
+    "start": true
+  },
+  "snapshot_every": 10,
+  "continues": "bootstrap_citizens.plan.json",
+  "actions": [
+    {
+      "step": {
+        "update_route": {
+          "route": 1,
+          "name": "Planks out, tools home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "load": {
+                "planks": 50
+              },
+              "unload": [
+                "tools"
+              ]
+            },
+            {
+              "island": "isle-02",
+              "load": {
+                "tools": 50
+              },
+              "unload": [
+                "planks",
+                "stone"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "tavern"
+      }
+    },
+    {
+      "upgrade_trading_post": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 21
+      }
+    },
+    {
+      "civic": {
+        "quarter": "isle2-1",
+        "type": "market"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 6
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "quarry",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "create_route": {
+          "name": "Garments out, bricks home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "load": {
+                "wool_garments": 5
+              },
+              "unload": [
+                "bricks",
+                "stone"
+              ]
+            },
+            {
+              "island": "isle-02",
+              "load": {
+                "bricks": 30,
+                "stone": 40
+              },
+              "unload": [
+                "wool_garments"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 2,
+          "route": 2
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "dairy_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cheese_dairy",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "isle2-1",
+        "from": "house_settlers",
+        "count": 3
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tannery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "warehouse",
+        "count": 1,
+        "at": [
+          60,
+          95
+        ]
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "clay_pit",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "brickworks",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "charcoal_burner",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "dairy_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cheese_dairy",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tannery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "upgrade_trading_post": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "dairy_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cheese_dairy",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "fire_station"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "city_guard"
+      }
+    },
+    {
+      "upgrade_civic": {
+        "quarter": "home-1",
+        "type": "city_guard"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 3
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "hop_farm",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "update_route": {
+          "route": 1,
+          "name": "Hops and tools home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "unload": [
+                "tools",
+                "hops",
+                "planks",
+                "stone"
+              ]
+            },
+            {
+              "island": "isle-02",
+              "load": {
+                "hops": 50,
+                "tools": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "leather_works",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "paper_mill",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "printing_press",
+        "count": 1
+      }
+    },
+    {
+      "checkpoint": {
+        "name": "every Merchant category >= 0.6",
+        "needs": {
+          "house": "house_merchants",
+          "min_permille": 600
+        },
+        "max": "200m"
+      }
+    },
+    {
+      "wait": "30m"
+    }
+  ]
+}
