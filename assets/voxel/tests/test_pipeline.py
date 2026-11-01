@@ -275,6 +275,25 @@ class ShipLiteTest(unittest.TestCase):
         self.assertTrue(any(".lite.glb" in p and "over the lite budget" in p for p in problems), problems)
 
 
+class SheetTurnTest(unittest.TestCase):
+    """make model-sheet ROTATION=n: the sheet's camera turns by quarter turns (2: the backs, V7 step 5)."""
+
+    def test_a_half_turn_shows_another_view_and_a_full_turn_the_same(self):
+        import tempfile
+
+        build._init()
+        with tempfile.TemporaryDirectory() as d:
+            out = {}
+            for turn in (0, 2, 4):
+                path = os.path.join(d, f"t{turn}.png")
+                build.write_sheet(path, ["well"] if "well" in build._RECIPES else ["sloop"], cell=48, turn=turn)
+                with open(path, "rb") as f:
+                    out[turn] = f.read()
+            self.assertNotEqual(out[0], out[2])
+            self.assertEqual(out[0], out[4])
+        self.assertEqual(build.parse(["--only", "chapel", "--sheet", "x.png", "--turn", "2"]).turn, 2)
+
+
 class PlaceholderTest(unittest.TestCase):
     #: One ID per footprint kind: water rows with a boat, smoke, levels with berths, slipway, house variants, field, pasture module with animals, service.
     SAMPLES = ("fisher", "smelter", "trading_post", "shipyard", "house_settlers", "wheat_field", "pasture", "chapel", "warehouse")

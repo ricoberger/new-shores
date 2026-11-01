@@ -45,7 +45,8 @@
 #                     make shots FIXTURE=seafaring VIEW=far SEED=42
 #   make model-sheet  contact sheet of single models (recipe or placeholder) in
 #                     .experiment/sheets/<ids>.png, committed models untouched; without RECIPE
-#                     it lists the model IDs: make model-sheet RECIPE=fisher,house_settlers
+#                     it lists the model IDs: make model-sheet RECIPE=fisher,house_settlers;
+#                     ROTATION=0..3 turns the camera by quarter turns (2: the backs)
 #   make island-atlas SEED=<seed>[,<seed>]  PNG atlas of a seed's generated islands (tiles,
 #                     levels, rivers, plain, Trading Post/shipyard sites, deposits) and an
 #                     overview in .experiment/islands/atlas/<seed>/ (OUT= another directory);
@@ -165,7 +166,7 @@ ifeq ($(strip $(RECIPE)),)
 	@echo "usage: make model-sheet RECIPE=<id>[,<id>]   (sheet in $(SHEETS_OUT)/<ids>.png)"; echo "model IDs:"; $(ASSETS_BUILD) --list
 else
 	@mkdir -p $(SHEETS_OUT)
-	$(ASSETS_BUILD) --only $(RECIPE) --sheet $(SHEETS_OUT)/$(subst $(comma),-,$(RECIPE)).png
+	$(ASSETS_BUILD) --only $(RECIPE) --sheet $(SHEETS_OUT)/$(subst $(comma),-,$(RECIPE))$(if $(ROTATION),.r$(ROTATION)).png $(if $(ROTATION),--turn $(ROTATION))
 endif
 
 # Needs TEST_DATABASE_URL/TEST_REDIS_URL or a running Docker (testcontainers);
