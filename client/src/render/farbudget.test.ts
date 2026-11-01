@@ -20,7 +20,9 @@ import { type ModelData, type ModelManifest, ModelRegistry, parseGlb, shipFarDra
 // 2992 × 1700 window: the widest footprint). For the `make shots` fixtures
 // settled, patricians, played and seafaring (the unsettled start;
 // testdata/farbudget, captured from the dev server with capture.ts:
-// display and every island's tiles) it builds the islands as
+// display and every island's tiles) and `largest` (the settled fixture on
+// the seed whose home island is the largest of the large size class seen,
+// the camera over that island) it builds the islands as
 // the renderer does (IslandDetail with the committed models, headless),
 // runs the renderer's far terrain allocation (farmesh.ts
 // allocateFarTerrain, MaskLayer) for the camera at the cap over the
@@ -119,10 +121,15 @@ async function farViews(name: string): Promise<View[]> {
   const reg = registry(scene);
   await reg.loadManifest();
   // The archipelago's centre (shots.ts showArchipelago); the camera there focuses the home island.
-  const centre = {
-    x: (Math.min(...fx.islands.map((i) => i.position.x)) + Math.max(...fx.islands.map((i) => i.position.x + i.width))) / 2,
-    y: (Math.min(...fx.islands.map((i) => i.position.y)) + Math.max(...fx.islands.map((i) => i.position.y + i.height))) / 2,
-  };
+  // `largest`: the camera over the home island, the largest of its size class, in detail.
+  const home = fx.islands.find((i) => i.id === HOME) as IslandDisplay;
+  const centre =
+    name === "largest"
+      ? { x: home.position.x + home.width / 2, y: home.position.y + home.height / 2 }
+      : {
+          x: (Math.min(...fx.islands.map((i) => i.position.x)) + Math.max(...fx.islands.map((i) => i.position.x + i.width))) / 2,
+          y: (Math.min(...fx.islands.map((i) => i.position.y)) + Math.max(...fx.islands.map((i) => i.position.y + i.height))) / 2,
+        };
   expect(focusedIsland(fx.islands, centre)).toBe(HOME);
   const views: { device: string; aspect: number; rotation: number; footprint: ArchPoint[]; ids: string[] }[] = [];
   for (const [device, aspect] of Object.entries(DEVICES)) {
@@ -213,7 +220,15 @@ async function farViews(name: string): Promise<View[]> {
 describe("far budget at the zoom cap (D-048)", () => {
   const table: string[] = [];
   afterAll(() => console.log(`far view at the cap, heading 0 (fixture device: draws, triangles, home terrain, islands in relief / outline)\n${table.join("\n")}`));
-  for (const name of ["settled", "patricians", "played", "seafaring"] as const) {
+  it("largest: the home island is the largest of the large size class captured (23 691 land tiles), larger than the dev seed's", () => {
+    const land = (fx: Fixture, id: string) => (fx.tiles[id] as IslandTiles).terrain.filter((t) => t !== "water").length;
+    const largest = load("largest");
+    const settled = load("settled");
+    expect(largest.islands.find((i) => i.id === HOME)?.settled).toBe(true);
+    expect(land(largest, HOME)).toBe(23691);
+    expect(land(largest, HOME)).toBeGreaterThan(Math.max(...settled.islands.map((i) => land(settled, i.id))));
+  });
+  for (const name of ["settled", "patricians", "played", "seafaring", "largest"] as const) {
     const all = name === "settled" || name === "patricians";
     it(`${name}: ≤ ${FAR_DRAWS} draws and ≤ ${FAR_TRIS} triangles on desktop, phone and desktop-xl at every heading, the home island in relief${all ? ", every island in view in relief" : ""}`, async () => {
       const views = await farViews(name);
