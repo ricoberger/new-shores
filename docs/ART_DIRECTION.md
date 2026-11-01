@@ -140,6 +140,13 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   cliffs and sides in **stepped rock bands** (lower, upper, ledge). The
   shallows and the **foam** follow the stepped coast column by column
   (pixel foam, not a smooth line).
+- **Ship wakes (D-057 V2, V7):** a sailing ship trails two arms of foam
+  flecks (`render/wake.ts`, the `life_wake` model as thin instances)
+  from its stern: the manifest's `wake` anchor gives the stern and
+  `ship.wake_width` the width there, measured by the build at the
+  stern's waterline to ¼ tile (sloop 0.7, brig 0.9, galleon 1.1 tiles;
+  a recipe may declare it); each arm starts half of it out to the side.
+  Without the field the client uses the model's full bounds width.
 - **Far coast lines up with near:** the lite (2 columns per tile) and far
   (1 per tile) terrain are the near field downsampled, and a built
   island at far feeds its own far columns into the merged mask mesh, so
@@ -499,10 +506,15 @@ V3b — kept for the signature) — about 40–70 lines.
   `nsvoxel/jitter.py`; the shader's per-voxel jitter, §2) or, on cloth
   and leaf voxels (sway groups `sail`, `flag`, `cloth`, `canopy`), the
   sway weight (≤ 245); the manifest lists each model's sway groups.
-- **Roles for the model rework:** roofs per tier (T1 thatch, T2 orange
-  terracotta, T3 `tile-dark`, T4 slate) and the `brick` / `tile-dark`
-  roles follow D-064 §3 — named there, not applied yet (building roles
-  are unchanged in palette v2).
+- **Roles for the model rework (V7 roles, applied by the tier
+  sessions):** roofs per tier (T1 thatch, T2 orange terracotta, T3
+  `tile-dark`, T4 slate) and the `brick` / `tile-dark` roles follow
+  D-064 §3. Palette v3 names them: `brick` `#9C4A38` (industry,
+  warehouses, the depot; jitter class stone) and `tile-dark` `#6E3A33`
+  (the tier-3 burgundy tile; class roof), each with its shadow tone by
+  the documented rule; `terracotta` moved to `#C4663A` (the tier-2
+  orange, re-baked into every model that uses it). No recipe uses
+  `brick` or `tile-dark` yet.
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual
   only, D-042); one material (vertex colours). Every building reads by
@@ -541,9 +553,23 @@ V3b — kept for the signature) — about 40–70 lines.
   software rasteriser, `nsvoxel/render.py`). The build owns the folder
   and removes stale files. GLBs, manifest and thumbnails are committed,
   so the client builds without Python.
-- **Lite (far) tier:** buildings only; the full grid downsampled 4× (8 →
-  2 voxels per tile; a cell stays filled when ≥ 1/8 of its voxels are).
-  Fields, ships, decor and life props have no lite file.
+- **Voxels per tile (V7):** a building or field recipe may set
+  `VOXELS_PER_TILE` — 8 by default, 12 or 16 for finer detail on large
+  footprints (`ALLOWED_VOXELS_PER_TILE`; anything else fails the build).
+  The manifest records each model's `voxels_per_tile`; the client sizes
+  the shader's per-voxel jitter by it (a `voxG` vertex attribute where
+  models of different densities share a chunk mesh).
+- **Lite (far) tier:** buildings: the full grid downsampled to 2 voxels
+  per tile (4× at 8, 6× at 12, 8× at 16; a cell stays filled when ≥ 1/8
+  of its voxels are). **Ships (V7):** an authored lite per ship
+  (`<id>.lite.glb`; `_ships.py` `lite_hull` / `lite_mast` at a quarter
+  of the full grid, `SHIP_LITE_DOWNSAMPLE`: keel, planked side, bulwark,
+  stern castle, bowsprit, masts and sail silhouettes, no cargo) under its
+  own budget (`LITE_BUDGET_SHIPS`: sloop
+  300, brig 600, galleon 800; now 236 / 448 / 544 triangles); a plain
+  downsample came out over budget and noisy. Ships switch to the lite
+  with the buildings, one draw per ship type; the far allocation counts
+  the lite triangles. Fields, decor and life props have no lite file.
 - **Checks:** `make assets-check` rebuilds into a temp dir and compares
   byte for byte (CI runs it, no skip); `make assets-test` runs the
   Python tests (`assets/voxel/tests`: determinism, manifest, one model

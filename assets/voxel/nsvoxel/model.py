@@ -1,7 +1,8 @@
 """
 Recipes → model files: loads assets/voxel/recipes/<id>.py (or the
 auto-generated placeholder), builds every variant/level, meshes the full
-grid (8 voxels per tile) and the lite grid (downsampled 4×, 2 per tile),
+grid (8 voxels per tile, or the recipe's VOXELS_PER_TILE) and the lite
+grid (downsampled to 2 voxels per tile),
 checks anchors, footprint and the triangle budgets (config.py), and
 returns the files and the manifest entry (client/src/render/models.ts).
 """
@@ -14,7 +15,8 @@ from .grid import VPT
 
 RECIPES_DIR = config.RECIPES_DIR
 
-#: Default voxel tolerance outside the footprint (overhanging eaves, a crane jib): 0.25 tile.
+#: Default voxel tolerance outside the footprint (overhanging eaves, a crane jib): 0.25 tile
+#: (voxels at the default 8 per tile; scaled with a recipe's VOXELS_PER_TILE).
 FOOTPRINT_SLACK = 2
 
 
@@ -67,9 +69,11 @@ def recipe_modules(recipes_dir=RECIPES_DIR):
                 "build": mod.build,
                 "variants": getattr(mod, "VARIANTS", 0),
                 "levels": getattr(mod, "LEVELS", 0),
-                "scale": getattr(mod, "SCALE", VPT),
+                # VOXELS_PER_TILE (V7): the model's density; config.ALLOWED_VOXELS_PER_TILE for buildings and fields.
+                "scale": getattr(mod, "VOXELS_PER_TILE", VPT),
                 "cargo": getattr(mod, "cargo", None),
                 "ship": getattr(mod, "SHIP", None),
+                "lite": getattr(mod, "lite", None),
                 "file": fname,
             }
     return out
@@ -119,10 +123,12 @@ def check_grid(v, ctx, needed):
         return ["empty grid"]
     (x0, y0, z0), (x1, y1, z1) = v.bounds()
     if ctx.kind in ("building", "field"):
-        s = FOOTPRINT_SLACK
+        if ctx.vpt not in config.ALLOWED_VOXELS_PER_TILE:
+            problems.append(f"{ctx.vpt} voxels per tile (allowed: {', '.join(map(str, config.ALLOWED_VOXELS_PER_TILE))})")
+        s = FOOTPRINT_SLACK * ctx.vpt // VPT
         if x0 < -s or y0 < -s or x1 > ctx.W + s or y1 > ctx.D + s:
             problems.append(f"outside the footprint {ctx.W}×{ctx.D} voxels: x {x0}..{x1}, y {y0}..{y1}")
-        floor = -16 if ctx.water else 0
+        floor = -2 * ctx.vpt if ctx.water else 0
         if z0 < floor:
             problems.append(f"below the ground: z {z0}")
     missing = [a for a in needed if a not in v.anchors]
@@ -153,6 +159,7 @@ def build_id(cid, kind, recipe, content):
     main_ctx = None
     infos = {}
     sway = set()
+    wake_width = None
     for fname, key, ctx in outputs(cid, kind, recipe, content):
         ctx.needs = needed
         ctx.smoke = "smoke" in needed
@@ -169,11 +176,25 @@ def build_id(cid, kind, recipe, content):
         info = export.file_info(fname, data, n, bounds, budget)
         files.append((fname, data, n, v, ctx))
         if kind == "building" and (key is None or key[0] in ("variant", "level")):
-            f = config.LITE_DOWNSAMPLE
+            f = lite_factor(ctx.vpt)
             lite_cells = grid.downsample(v.cells, f, keep=max(2, f ** 3 // 8))
             lname = fname[: -len(".glb")] + ".lite.glb"
             ldata, ln, lbounds = export.write_model(cid, lite_cells, ctx.W / f, ctx.D / f, scale * f)
             lbudget = lite_budget_of(cid, content)
+            if ln > lbudget:
+                problems.append(f"{lname}: {ln} triangles over the lite budget {lbudget}")
+            info["lite"] = export.file_info(lname, ldata, ln, lbounds, lbudget)
+            files.append((lname, ldata, ln, None, ctx))
+        if kind == "ship" and key is None and "wake" in v.anchors:
+            # The wake's width at the stern (V7): declared by the recipe (SHIP wake_width) or measured.
+            wake_width = (recipe.get("ship") or {}).get("wake_width") or stern_beam(v, ctx)
+        if kind == "ship" and key is None and recipe.get("lite"):
+            # The ship's own lite model (V7), built at scale / SHIP_LITE_DOWNSAMPLE voxels per tile; no cargo at lite.
+            lv = recipe["lite"](ctx)
+            f = config.SHIP_LITE_DOWNSAMPLE
+            lname = fname[: -len(".glb")] + ".lite.glb"
+            ldata, ln, lbounds = export.write_model(cid, lv.cells, ctx.W / f, ctx.D / f, scale * f, offset=lv.offset)
+            lbudget = config.LITE_BUDGET_SHIPS[cid]
             if ln > lbudget:
                 problems.append(f"{lname}: {ln} triangles over the lite budget {lbudget}")
             info["lite"] = export.file_info(lname, ldata, ln, lbounds, lbudget)
@@ -208,6 +229,8 @@ def build_id(cid, kind, recipe, content):
     if kind == "life":
         entry["anchors"] = anchors
         return files, entry, problems
+    # The model's own density (the client's jitter grid); the manifest's top-level value is the default.
+    entry["voxels_per_tile"] = ctx.vpt
     if kind != "ship":
         entry["footprint"] = {"w": ctx.w, "h": ctx.h}
         anchors.setdefault("door", export.anchor_gltf((ctx.W / 2, ctx.D, 0), ctx.W, ctx.D, scale))
@@ -215,7 +238,27 @@ def build_id(cid, kind, recipe, content):
     entry["anchors"] = dict(sorted(anchors.items()))
     if kind == "ship":
         entry["ship"] = dict(recipe["ship"])
+        if wake_width:
+            entry["ship"]["wake_width"] = wake_width
     return files, entry, problems
+
+
+def stern_beam(v, ctx):
+    """
+    Width of a ship's hull across the stern at the waterline (tiles): the
+    cells of the `wake` anchor's column from the waterline up to a quarter
+    tile — where the wake's arms leave the hull (manifest ship.wake_width).
+    """
+    ax = int(v.anchors["wake"][0])
+    ys = [y for (x, y, z) in v.cells if x == ax and 0 <= z < max(1, ctx.vpt // 4)]
+    if not ys:
+        return 0.0
+    return export._r((max(ys) + 1 - min(ys)) / ctx.vpt)
+
+
+def lite_factor(vpt):
+    """Downsampling of a full grid at `vpt` voxels per tile to the lite level (config.LITE_VOXELS_PER_TILE)."""
+    return max(1, vpt // config.LITE_VOXELS_PER_TILE)
 
 
 def model_class(content, cid):

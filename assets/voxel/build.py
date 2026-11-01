@@ -12,6 +12,7 @@ Python 3 standard library only; deterministic bytes.
 """
 
 import argparse
+import math
 import json
 import multiprocessing
 import os
@@ -103,6 +104,7 @@ def parse(argv=None):
     ap.add_argument("--list", action="store_true", help="print the model IDs (recipe or placeholder) and exit")
     ap.add_argument("--only", default="", help="comma-separated IDs: build them without writing any output (with --sheet)")
     ap.add_argument("--sheet", default="", help="write a contact sheet PNG of the --only IDs")
+    ap.add_argument("--turn", type=int, default=0, help="the sheet's camera turned by quarter turns about the model (2: from the back, 180°)")
     ap.add_argument("--out", default=OUT_DIR)
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4)
     return ap.parse_args(argv)
@@ -177,7 +179,7 @@ def main(argv=None):
             recipe, _ = recipe_for(cid, kind, _RECIPES)
             problems += [f"{cid}: {p}" for p in model.build_id(cid, kind, recipe, _CONTENT)[2]]
         if args.sheet:
-            write_sheet(args.sheet, only)
+            write_sheet(args.sheet, only, turn=args.turn)
             print(f"sheet: {args.sheet}")
         if problems:
             print("\n".join(problems), file=sys.stderr)
@@ -246,8 +248,9 @@ def compare(built, committed):
     return 0
 
 
-def write_sheet(path, ids, cell=256, cols=4):
-    """A contact sheet of the given IDs (every variant/level, attachments included)."""
+def write_sheet(path, ids, cell=256, cols=4, turn=0):
+    """A contact sheet of the given IDs (every variant/level, attachments included), the camera turned by `turn` quarter turns (the game's ROTATION)."""
+    azimuth = render.AZIMUTH + turn * math.pi / 2
     imgs = []
     for cid in ids:
         kind = kind_for(_CONTENT, cid)
@@ -256,7 +259,7 @@ def write_sheet(path, ids, cell=256, cols=4):
             ctx.needs = model.required_anchors(_CONTENT, cid) if kind in ("building", "field") else []
             ctx.smoke = "smoke" in ctx.needs
             v = model.build_grid(recipe, kind, key, ctx)
-            rows = render.render(tri_list(v, ctx), cell * 2)
+            rows = render.render(tri_list(v, ctx), cell * 2, azimuth=azimuth)
             imgs.append(render.downsample(rows, cell * 2))
     rows, w, h = render.sheet(imgs, cols, cell)
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)

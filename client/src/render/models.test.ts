@@ -16,6 +16,8 @@ import {
   atDetail,
   DEFAULT_STATUS_Y,
   entryFiles,
+  entryVpt,
+  fileVpt,
   footprintScale,
   type ModelData,
   type ModelEntry,
@@ -27,6 +29,9 @@ import {
   parseGlb,
   placement,
   rotationYaw,
+  shipFile,
+  shipModel,
+  shipWakeSpec,
   stableHash,
   statusHeight,
   toWorld,
@@ -122,6 +127,18 @@ describe("committed models are consistent with the manifest", () => {
     expect(Object.keys(manifest.models.warehouse?.levels ?? {})).toEqual(["1", "2", "3"]);
     expect(Object.keys(manifest.models.trading_post?.levels ?? {})).toEqual(["1", "2", "3", "4"]);
     for (const s of CONTENT_SHIPS) expect(manifest.models[s.id]?.attachments?.cargo, s.id).toBeDefined();
+  });
+
+  it("carries each model's voxels per tile (V7: 8, 12 or 16 for buildings and fields; the top-level value is the default)", () => {
+    for (const [id, e] of Object.entries(manifest.models)) {
+      expect(typeof e.voxels_per_tile, id).toBe("number");
+      if (e.kind !== "ship") expect([8, 12, 16], id).toContain(e.voxels_per_tile);
+    }
+    expect(entryVpt({})).toBe(manifest.voxels_per_tile);
+    expect(entryVpt({ voxels_per_tile: 16 })).toBe(16);
+    expect(fileVpt({ voxels_per_tile: 16 }, { path: "house.v0.glb" })).toBe(16);
+    // Lite files are 2 voxels per tile at every density.
+    expect(fileVpt({ voxels_per_tile: 16 }, { path: "house.v0.lite.glb" })).toBe(2);
   });
 
   it("every building and field model has the anchors its content needs (door, status, smoke, carts, boats, berths, slip, pasture animals)", () => {
@@ -255,6 +272,65 @@ describe("loading through the registry", () => {
     expect(reg.entry("chapel")).toBeUndefined();
     expect(reg.status().manifest).toBe(false);
     expect(warn).toHaveBeenCalledOnce();
+  });
+
+  it("draws ships with their lite hull at the lite detail (far LOD, V7), without cargo, bridged by a loaded full hull", async () => {
+    const fetchFn = vi.fn((url: string) => {
+      if (url.endsWith("manifest.json")) return ok(JSON.stringify(manifest));
+      const path = url.replace("/models/", "").split("?")[0] as string;
+      return ok(new Uint8Array(readFileSync(join(MODELS, path))));
+    });
+    const reg = new ModelRegistry(scene, { fetch: fetchFn });
+    await reg.loadManifest();
+    for (const type of ["sloop", "brig", "galleon"]) {
+      const e = manifest.models[type] as ModelEntry;
+      expect(e.file?.lite?.path, type).toBe(`${type}.lite.glb`);
+      expect(shipFile(reg, type, "full")?.path).toBe(`${type}.glb`);
+      expect(shipFile(reg, type, "lite")?.path).toBe(`${type}.lite.glb`);
+    }
+    // Nothing loaded yet: no model at either detail (the placeholder draws).
+    expect(shipModel(reg, "brig", "full")).toBeNull();
+    await vi.waitFor(() => expect(shipModel(reg, "brig", "full")).not.toBeNull());
+    const full = shipModel(reg, "brig", "full")!;
+    expect(full.file.path).toBe("brig.glb");
+    expect(full.cargo).not.toBeNull();
+    // The lite file is loading: the full hull bridges, without cargo.
+    const bridged = shipModel(reg, "brig", "lite")!;
+    expect(bridged.file.path).toBe("brig.glb");
+    expect(bridged.cargo).toBeNull();
+    await vi.waitFor(() => expect(shipModel(reg, "brig", "lite")?.file.path).toBe("brig.lite.glb"));
+    const lite = shipModel(reg, "brig", "lite")!;
+    expect(lite.cargo).toBeNull();
+    const lb = manifest.models.brig!.file!.lite!;
+    expect(lite.hull.indices.length).toBe(lb.triangles * 3);
+    expect(lb.triangles).toBeLessThanOrEqual(600);
+    // Scaled to unit length like the full hull (within two lite voxels of 0.2 tiles over the 2.6-tile hull).
+    const xs = (d: ModelData) => Array.from({ length: d.positions.length / 3 }, (_, i) => d.positions[i * 3] as number);
+    const span = (d: ModelData) => Math.max(...xs(d)) - Math.min(...xs(d));
+    expect(Math.abs(span(lite.hull) - span(full.hull))).toBeLessThan(0.4 / 2.6);
+  });
+
+  it("reads each ship's wake width at the stern from the manifest (V7), per unit of hull length", async () => {
+    const reg = new ModelRegistry(scene, { fetch: (url: string) => (url.endsWith("manifest.json") ? ok(JSON.stringify(manifest)) : Promise.reject(new Error("no"))) });
+    await reg.loadManifest();
+    const widths: number[] = [];
+    for (const type of ["sloop", "brig", "galleon"]) {
+      const e = manifest.models[type] as ModelEntry;
+      const ww = e.ship?.wake_width as number;
+      expect(ww, type).toBeGreaterThan(0);
+      // Narrower than the hull's widest point (yards and sails included in the bounds).
+      expect(ww, type).toBeLessThanOrEqual(2 * e.bounds.max[2]);
+      const spec = shipWakeSpec(reg, type)!;
+      expect(spec.width).toBeCloseTo(ww / (e.ship?.length_tiles as number), 6);
+      widths.push(ww);
+    }
+    expect(widths[0]).toBeLessThan(widths[1]!);
+    expect(widths[1]).toBeLessThan(widths[2]!);
+    // Without wake_width: the hull's full width from the bounds.
+    const bare = { ...manifest, models: { sloop: { ...manifest.models.sloop!, ship: { length_tiles: 2, masts: 1, sail_scale: 1 } } } };
+    const reg2 = new ModelRegistry(scene, { fetch: () => ok(JSON.stringify(bare)) });
+    await reg2.loadManifest();
+    expect(shipWakeSpec(reg2, "sloop")!.width).toBeCloseTo((2 * manifest.models.sloop!.bounds.max[2]) / 2, 6);
   });
 
   it("builds URLs with the first 8 hex digits of the sha256", () => {

@@ -33,6 +33,21 @@
   border-bottom: 2px solid var(--ns-ui-brass);
 }
 
+/* Desktop (no touch layout) from 1200 px: the stats keep one line — the
+   left column is at least as wide as its content (gold, residents and
+   every construction material with large stocks, beside a wide island
+   name with all its resource badges); the island moves right off the
+   centre when it has to instead of the stats wrapping onto a second row. */
+@media (min-width: 1200px) {
+  .topBarDesktop {
+    grid-template-columns: minmax(max-content, 1fr) auto minmax(0, 1fr);
+  }
+
+  .topBarDesktop .hudLeft {
+    flex-wrap: nowrap;
+  }
+}
+
 .topBarPortrait {
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
@@ -670,6 +685,34 @@
   box-shadow: 0 2px 8px color-mix(in srgb, var(--ns-ui-ink) 45%, transparent);
 }
 
+/* A tier unlock (D-056): a brass-edged slip with a title, the tier's icon in brass. */
+.toastUnlock {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-left-color: var(--ns-ui-brass);
+  background: var(--ns-ui-parchment);
+}
+
+.toastUnlock > svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--ns-ui-brass);
+}
+
+.toastBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toastTitle {
+  font-family: var(--ns-font-display, serif);
+  font-size: 15px;
+  color: var(--ns-ui-dark-wood);
+}
+
 .backdrop {
   position: absolute;
   z-index: 10;
@@ -814,6 +857,23 @@
 
 .block {
   display: block;
+}
+
+/* A quest chain in the quest list: its name and progress, then its open quests. */
+.questChain + .questChain {
+  margin-top: 10px;
+  padding-top: 6px;
+  border-top: 2px solid var(--ns-ui-parchment-edge);
+}
+
+.questChain > .shipEntry:nth-child(2) {
+  border-top: none;
+}
+
+/* The chain's next quest: a quiet line under the open ones. */
+.questNext {
+  font-style: italic;
+  color: var(--ns-ui-ink-soft);
 }
 
 /* A route to pick in the ship panel. */

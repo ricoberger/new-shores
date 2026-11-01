@@ -89,7 +89,8 @@ describe("palette values (ART_DIRECTION §2)", () => {
       ochre: "#D9A85E",
       timber: "#6F4A2E",
       thatch: "#B98F4F",
-      terracotta: "#B5563B",
+      // D-064 §3: the tier-2 orange terracotta.
+      terracotta: "#C4663A",
       slate: "#5C6670",
       stone: "#B9B2A4",
       brass: "#C9A24A",
@@ -98,6 +99,9 @@ describe("palette values (ART_DIRECTION §2)", () => {
       iron: "#4E4F55",
       window: "#3B4A57",
       dye_blue: "#3F6F9C",
+      // V7 roles (D-064 §3), applied by the tier sessions: brick (industry, warehouses, depot) and the tier-3 dark tile.
+      brick: "#9C4A38",
+      tile_dark: "#6E3A33",
     });
     expect(UI).toMatchObject({ parchment: "#F1E6CC", dark_wood: "#4A3421", brass: "#C9A24A", ink: "#2B2117" });
     expect(LIGHT).toMatchObject({ sun: "#FFF1D6", sky: "#9DB7D9", grade: "#FFEBD4", shadow: "#2A2E3C" });

@@ -2,11 +2,18 @@
 // the display payload and every island's tiles of the `make shots` server
 // fixtures settled, patricians, played and seafaring (the unsettled start
 // at sea; server/internal/devworld),
-// trimmed to what the renderer reads and gzipped next to this file.
+// trimmed to what the renderer reads and gzipped next to this file; and
+// `largest`: the settled fixture on LARGEST_SEED, whose home island is the
+// largest of the large size class seen (23 691 land tiles against the dev
+// seed's 21 427; seeds 1–70 scanned, V7) — the biggest island drawn in
+// detail at the cap.
 //
-// Run with a dev server up (any port), from the client directory:
+// Run with a dev server up (any port), from the client directory, once on
+// the dev seed and once on LARGEST_SEED (the script picks by the seed):
 //   (cd ../server && go run ./cmd/server --dev --content ../content/old_coast --addr :18190) &
 //   node src/render/testdata/farbudget/capture.ts http://localhost:18190
+//   (cd ../server && go run ./cmd/server --dev --content ../content/old_coast --addr :18191 --seed 16) &
+//   node src/render/testdata/farbudget/capture.ts http://localhost:18191
 // Re-run when the devworld fixtures, the island generator or the content
 // change what these worlds hold.
 import { writeFileSync } from "node:fs";
@@ -14,7 +21,8 @@ import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 
 const api = process.argv[2] ?? "http://localhost:18190";
-const FIXTURES = ["settled", "patricians", "played", "seafaring"] as const;
+/** The seed whose settled home island is the largest of its size class (the `largest` fixture). */
+const LARGEST_SEED = 16;
 
 type Json = Record<string, unknown>;
 
@@ -24,7 +32,11 @@ async function get(path: string): Promise<Json> {
   return (await res.json()) as Json;
 }
 
-for (const fixture of FIXTURES) {
+const seed = ((await get("/api/v1/world")).display as { archipelago: { seed: number } }).archipelago.seed;
+const captures: { name: string; fixture: string }[] =
+  seed === LARGEST_SEED ? [{ name: "largest", fixture: "settled" }] : ["settled", "patricians", "played", "seafaring"].map((f) => ({ name: f, fixture: f }));
+
+for (const { name, fixture } of captures) {
   const reset = await fetch(`${api}/api/v1/dev/reset`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ fixture }) });
   if (!reset.ok) throw new Error(`reset ${fixture}: ${reset.status} ${await reset.text()}`);
   const display = (await get("/api/v1/world")).display as Json;
@@ -37,7 +49,7 @@ for (const fixture of FIXTURES) {
   for (const is of islands) tiles[is.id as string] = await get(`/api/v1/world/islands/${is.id as string}/tiles`);
   const ships = (display.ships as Json[]).map((s) => ({ id: s.id, type: s.type }));
   const out = { fixture, archipelago: display.archipelago, islands, ships, tiles };
-  const file = join(import.meta.dirname, `${fixture}.json.gz`);
+  const file = join(import.meta.dirname, `${name}.json.gz`);
   writeFileSync(file, gzipSync(JSON.stringify(out), { level: 9 }));
   console.log(`${file}: ${islands.length} islands, ${islands.reduce((n, is) => n + (is.buildings as unknown[]).length, 0)} buildings`);
 }

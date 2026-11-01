@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "groups": {
     "terrain": {
       "description": "Ground of the islands (ART_DIRECTION §2 and §4): grass noise, beach, forest floor, rock, cliffs, deposit outcrops, roads and ground decoration.",
@@ -44,20 +44,22 @@
       }
     },
     "buildings": {
-      "description": "Building materials of the procedural placeholders and the kit re-palette of the models (ART_DIRECTION §7): walls, roofs, timber, stone, metal, glass, sail canvas and dyed cloth.",
+      "description": "Building materials of the procedural placeholders and the kit re-palette of the models (ART_DIRECTION §7): walls, roofs, timber, stone, metal, glass, sail canvas and dyed cloth; brick and tile-dark are the V7 roles of D-064 §3 (industry, warehouses and the depot; the tier-3 burgundy roof), applied by the tier sessions.",
       "colors": {
         "plaster": "#E7D7B8",
         "ochre": "#D9A85E",
         "timber": "#6F4A2E",
         "thatch": "#B98F4F",
-        "terracotta": "#B5563B",
+        "terracotta": "#C4663A",
         "slate": "#5C6670",
         "stone": "#B9B2A4",
         "brass": "#C9A24A",
         "canvas": "#EDE3CC",
         "iron": "#4E4F55",
         "window": "#3B4A57",
-        "dye-blue": "#3F6F9C"
+        "dye-blue": "#3F6F9C",
+        "brick": "#9C4A38",
+        "tile-dark": "#6E3A33"
       }
     },
     "fields": {
@@ -80,7 +82,7 @@
         "ochre": "#7E5E3E",
         "timber": "#40291E",
         "thatch": "#6B5034",
-        "terracotta": "#693027",
+        "terracotta": "#723926",
         "slate": "#35394A",
         "stone": "#6B646C",
         "brass": "#755B31",
@@ -88,6 +90,8 @@
         "iron": "#2D2C38",
         "window": "#222939",
         "dye-blue": "#253E67",
+        "brick": "#5A2925",
+        "tile-dark": "#402022",
         "sand": "#84766E",
         "grass-a": "#405836",
         "grass-b": "#4C6341",
