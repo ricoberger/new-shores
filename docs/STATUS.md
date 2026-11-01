@@ -1,16 +1,17 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after #61 (CI green again) — D-064 palette merged;
-D-065 service chains and D-066 dev start state / snapshots next.
+docs sync; details live in the linked documents. Last update: after #62/#63 — D-065 service chains, D-066 dev
+snapshots and D-067 plan-generated reference games merged; the owner's
+tier 2–4 playtest is next.
 
 ## What exists
 
 | Area | State | Where |
 |---|---|---|
-| Simulation (pure Go, lazy, deterministic) | tiers 1–4 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename, batch field placement, terrain table, ship names, weighted need shares with cumulative tiers and a services category, building levels (`upgrade_building`), recipe input alternatives, upgrade gate ≥ 0.6, founding cargo exempt from slots, berths spaced by ship length, tier 3–4 deposits (one gold slot per archipelago), shared fields (`farm` list), `ship_count.type` quests, D-058 skeleton islands with terrace levels, rivers, islets, cliffs and skerries, sea routing on a 4-tile grid (`path` per leg, routed founding voyage); schema 12 | `server/internal/sim`, MECHANICS.md |
-| Content | `old_coast` 0.16.0: D-054 footprints/costs/fields, D-056 need model (shares 1.0 lone / 0.6, cumulative lower-tier rates, `services`), tiers 1–4 complete with two alternatives per category from tier 2 (Citizens bread/cheese, cider/mead, linen/leather_jerkins; Merchants sausages/pies, beer/brandy, coats/dyed_garments, books/soap; Patricians roast_beef/oysters, wine/grain_spirit, fine_garments/lace, candles/spectacles, jewellery/instruments), salt / bricks / coal / glass, 100 buildings, services ladder market → chapel → tavern → school → church → theatre → university → cathedral, civic needs safety/fire protection (Merchants) and health (Patricians), lumberjack with tree plots, quay / trading pier 6×9 / depot, playhouse (theatre retired), Anno-sized footprints with per-column `water_rows` (D-062/D-063), islands 192/112/64/16 + `scenic` skerries (spacing 50/120, straits ≥ 24, void ≤ 150) with iron/clay/salt/coal/quartz/copper/gold deposits, `smoke`/`boat` flags, sloop 1.2 (2 slots) / brig 1.0 / galleon 0.85, 12 intro + 5 + 6 + 6 tier quests; reference games 53/33/91/134 · 229/264/297 · 855/887/1437 | `content/old_coast`, CONTENT.md |
-| Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store and `POST /api/v1/dev/reset` | `server/internal/*`, ARCHITECTURE.md |
+| Simulation (pure Go, lazy, deterministic) | tiers 1–4 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename, batch field placement, terrain table, ship names, weighted need shares with cumulative tiers and a services category, building levels (`upgrade_building`), recipe input alternatives, upgrade gate ≥ 0.6, founding cargo exempt from slots, berths spaced by ship length, tier 3–4 deposits (one gold slot per archipelago), shared fields (`farm` list), `ship_count.type` quests, D-058 skeleton islands with terrace levels, rivers, islets, cliffs and skerries, sea routing on a 4-tile grid (`path` per leg, routed founding voyage); schema 13 | `server/internal/sim`, MECHANICS.md |
+| Content | `old_coast` 0.17.0: D-054 footprints/costs/fields, D-056 need model (shares 1.0 lone / 0.6, cumulative lower-tier rates), D-065 ranked service chains (faith chapel/church/cathedral, education school/university, culture tavern/playhouse; minimum rank per tier) with `goods` / `public` display groups, tiers 1–4 complete with two alternatives per category from tier 2 (Citizens bread/cheese, cider/mead, linen/leather_jerkins; Merchants sausages/pies, beer/brandy, coats/dyed_garments, books/soap; Patricians roast_beef/oysters, wine/grain_spirit, fine_garments/lace, candles/spectacles, jewellery/instruments), salt / bricks / coal / glass, 100 buildings, market and warehouse with four tier-gated levels (level 4 draws the level-3 model until V7), civic needs safety/fire protection (Merchants) and health (Patricians) with one radius each, lumberjack with tree plots, quay / trading pier 6×9 / depot, playhouse (theatre retired), Anno-sized footprints with per-column `water_rows` (D-062/D-063), islands 192/112/64/16 + `scenic` skerries (spacing 50/120, straits ≥ 24, void ≤ 150) with iron/clay/salt/coal/quartz/copper/gold deposits, `smoke`/`boat` flags, sloop 1.2 (2 slots) / brig 1.0 / galleon 0.85, 12 intro + 5 + 6 + 6 tier quests; reference games generated from plans (D-067, `server/testdata/plans`, `replay-plan`): 48/24/82/118 · 32/64 · 224/256/369 · 826/866/1073 | `content/old_coast`, CONTENT.md |
+| Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store, `--fixture` / `--snapshot` start state, `GET/POST /api/v1/dev/snapshot` and `POST /api/v1/dev/reset` (tooling routes, D-066) | `server/internal/*`, ARCHITECTURE.md |
 | Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA; `make shots` / `make model-sheet` for looking at the result (no e2e/visual/perf suites, D-052); **Almanac** — public reference at `/almanac` (tiers, buildings, goods with chain trees, needs, ships, quests, islands) generated from the served content, UI.md §9; terraced voxel terrain with rivers, bridges, cliffs, crags and skerries, route ribbons and ship legs along the routed paths (D-058) | `client/`, UI.md |
 | Art | **Procedural voxels (D-057; V1–V5 merged):** Python voxel recipes at 8 voxels/tile on the parts library v2 (`assets/voxel`, standard library only), greedy quads + baked AO/sun, lite = 2 voxels/tile, shader colour jitter; lively world — blended ground, stepped pixel coast with foam, rock bands, voxel roads, dense swaying decor, voxel smoke, sized construction stages, wakes, fixed warm daylight (D-064 palette v2: mid-green grass, neutral grey rock, teal sea, grey-blue shadows), voxel minimap; **all 93 buildings, fields and modules of tiers 1–4 and the three ships at target detail** (3 house variants per tier, flat colours + shader jitter, cloth sway groups, no placeholders); quantised GLBs (KHR_mesh_quantization); far at the cap 154 k tris (D-048 holds), dense mid 1.41 M, no pan frame > 50 ms; models folder 18.5 MB of 24 MiB | `assets/`, ART_DIRECTION.md |
 | CI | label-gated (`ci`): server (fmt/vet/lint/test, 30 m timeout, full suite), client (lint/typecheck/Vitest/build/assets-check), integration (Postgres + Redis); locally `make check` runs the server tests with `-short` (the tier-4 replays are skipped), `make server-test-full` the CI suite | `.github/workflows/ci.yaml` |
@@ -26,12 +27,14 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Decisions most relevant right now
 
-- **D-065** (accepted, not built) ranked service chains faith / education /
-  culture with a minimum rank per tier, security display group, market and
-  warehouse with four tier-gated levels, guard and fire station without
-  levels; **D-066** (accepted, not built) dev start state and snapshots via
-  `make dev FIXTURE= | SNAPSHOT=` and dev routes — no client dev-state
-  handling
+- **D-065** (built, #63) ranked service chains faith / education /
+  culture with a minimum rank per tier, needs shown under Goods / Public
+  buildings, market and warehouse with four tier-gated levels, guard and
+  fire station without levels; **D-067** (built, #63) reference games are
+  generated from plans — edit `server/testdata/plans/*.plan.json`, run
+  `go run ./cmd/replay-plan`, never the scenario JSON; **D-066** (built,
+  #62) dev start state and snapshots via `make dev FIXTURE= | SNAPSHOT=`,
+  `make snapshot` / `snapshot-load` — the client has no dev-state handling
 - **D-064** palette re-tune to Anno 1404 daylight (built, #60): grade
   `#FFEBD4`, fill 0.42, `SKY_WARMTH` 0.25, teal sea, mid-green grass,
   neutral rock; names the V7 roof-per-tier and `brick` / `tile-dark` roles
@@ -82,14 +85,14 @@ in the sync after a task unless the task says otherwise; nobody adds the
      by headroom with `farbudget.test.ts` (#56), the per-cell far outline and `desktop-xl` (#57), tile cache keyed on `GeneratorVersion` (#58) and the removal of the client-only fixtures (#59), the D-064
      palette (#60) and the CI fix (#61: tile-key test, `serviceIndex`
      3× faster `computeHouses`, 30 m timeout, `-short` in `make check`)
-     merged; **next, in order: D-065** service chains + four-level market/
-     warehouse + guard/fire without levels (level-4 market/warehouse reuse
-     the level-3 models until V7), **D-066** `--fixture` / `--snapshot` dev
-     start state with `make snapshot` export/load (client `?fixture=`
-     removed), then the owner's **tier 2–4 playtest** and **V6 part 2**
-     from its findings (second chains, market levels, services ladder, unlock
+     merged; ~~D-066 dev snapshots~~ (#62) and ~~D-065 service chains +
+     D-067 plan-generated replays~~ (#63: `server/internal/sim/scenario/plan`,
+     `cmd/replay-plan`, `internal/layout`, pig farms 11–14 moved to island 6)
+     merged; **next: the owner's tier 2–4 playtest** (`make dev
+     FIXTURE=played`, snapshots), then **V6 part 2 UI/flow** (Sonnet) and
+     **V7 pipeline + model rework** (Opus) in parallel from its findings (second chains, market levels, services ladder, unlock
      toasts, quest chains, long house cards, brig/galleon at the piers)
-     plus the open items: wheat / beach still a touch loud on the new grass, lite ship models (sloop/brig/galleon ≈ 300/600/800 tris; ships are 16 k at far on `played`), a tiles fixture for the far-budget guard, desktop top bar wrapping at 1280 px with six badges, chapel / Trading Post l2 back faces reading blue-grey, university re-fit (arcades, pilasters), per-model voxels-per-tile in the manifest,
+     plus the open items: long house cards (16+ rows at Patricians; public buildings below the fold), level-4 market / warehouse models, wheat / beach still a touch loud on the new grass, lite ship models (sloop/brig/galleon ≈ 300/600/800 tris; ships are 16 k at far on `played`), a tiles fixture for the far-budget guard, desktop top bar wrapping at 1280 px with six badges, chapel / Trading Post l2 back faces reading blue-grey, university re-fit (arcades, pilasters), per-model voxels-per-tile in the manifest,
      `wake_width` anchor, terracotta roof share in tier 3–4 quarters (D-063 §3), German
      read-through of island names and quest texts.
    - ~~Quantised GLB export~~ done (V3b/c, #42): 12.9 MB, ≈ 32
@@ -131,7 +134,7 @@ in the sync after a task unless the task says otherwise; nobody adds the
 ## How to run
 
 `make dev` (local), `make dev HOST=<lan-ip>` / `make preview HOST=<lan-ip>`
-(phone over LAN, `?stats=1` fps badge, `?fixture=<name>` dev fixtures: default, seafaring, town, settled, citizens, merchants, patricians, played — D-066 moves this to `make dev FIXTURE=`),
+(phone over LAN, `?stats=1` fps badge), `make dev FIXTURE=<name>` (default, seafaring, town, settled, citizens, merchants, patricians, played) or `SNAPSHOT=<file> [RESUME=now]`, `make snapshot [OUT=]` / `make snapshot-load FILE=` against the running dev server,
 `make up` (Compose stack), `make check` (server `-short`; `make
 server-test-full` for the tier-4 replays), `make assets` /
 `make assets-check` (Python 3, no other tools), `make model-sheet RECIPE=`.

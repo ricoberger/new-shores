@@ -479,7 +479,7 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   render DPR capped at 1.5, status icons as thin instances (one draw call
   per status), allocation-free cart updates; the (since retired)
   dense synthetic fixture ran at 27 draw calls (36 with the life layer;
-  `?life=0` disables it); `?stats=1` on `?fixture=played` (dev builds only)
+  `?life=0` disables it); `?stats=1` on `make dev FIXTURE=played` (dev builds only)
   shows live instance and particle counts.
 
 ## 9. The Almanac (public reference)

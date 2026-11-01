@@ -1736,7 +1736,9 @@ touch loud on `played` mid/far — V6 part 2 candidates.
      radius, a chapel only Settlers and Citizens. The market stays its
      own category (`market`, one building, levels as below); `services`
      as a catch-all category is retired.
-  2. **Security heading.** `safety`, `fire_protection` and `health`
+  2. **Security heading.** *(amended as built — see below: every
+     category carries a `group`, Goods / Public buildings; there is no
+     Security heading.)* `safety`, `fire_protection` and `health`
      keep their own needs and buildings (a fire station never stands
      in for the city guard) and are shown under one `security` group
      in the HUD and the house card (`need_categories.json` `group`).
@@ -1769,6 +1771,20 @@ touch loud on `played` mid/far — V6 part 2 candidates.
   "security" need satisfiable by any of the three (a fire station
   would replace the watch); per-chain radius overrides (nothing to
   tune yet).
+
+**As built** (#63, 2026-11-01): content 0.17.0, schema 13. Chains and
+ranks as decided; need weights: the former `services` weight is split
+market 40 % / chains equally. §2 amended: the lone "Security" heading
+looked odd, so **every** category carries a `group` — `goods` (food,
+drink, clothing, comfort, luxury) and `public` (market, faith,
+education, culture, safety, fire protection, health); the house card
+shows "Goods" / "Public buildings" with the carried lower-tier rows
+under Goods. Market levels 12/15/18/21 positional on the tier; warehouse
+levels 30/50/70/90 with an explicit `tier`; level 4 of both draws the
+level-3 model (recipes `LEVELS = 3`, asserted). Guard / fire station
+level-2 models retired. Radius 16 was not the binding constraint of
+the reference games — grass for the last wheat farm was (D-067).
+Reference results 48/24/82/118 · 32/64 · 224/256/369 · 826/866/1073.
 
 ## D-066 Dev world start state and snapshots belong to the server and the Makefile
 
@@ -1818,6 +1834,15 @@ touch loud on `played` mid/far — V6 part 2 candidates.
 - **Rejected:** export / load buttons in the dev drawer (the Makefile
   covers it); restarting the server per `make shots` fixture (doubles
   the run); a production save/load.
+
+**As built** (#62, 2026-11-01): as decided. `store.ResumeAt` shifts
+every absolute time (`*_ms` / `*_at`, guarded by a test that walks the
+encoded world), sets `LastSeenAt` to now and drops the away log and a
+pending summary; `GET /dev/snapshot` advances the world to now first
+without a version bump; 409 `snapshot_schema_mismatch` /
+`snapshot_content_mismatch` (content compares `Region.Version`), 400
+for garbage. `postDevReset` client helper and `DEV_HOOKS` removed with
+the fixture gate; `/dev/reset` keeps `requireSession` (a no-op in dev).
 
 ## D-067 Reference games are generated from declarative plans
 
@@ -1870,3 +1895,17 @@ touch loud on `played` mid/far — V6 part 2 candidates.
   does not converge for Patricians); allowing demolition in the
   reference games (hides a layout problem); softening D-065 back to
   shares (contradicts its intent).
+
+**As built** (#63, 2026-11-01): `server/internal/sim/scenario/plan`
+(plan format, coverage-based civic reservation from the chain radii,
+layout through the server's placement rules via `internal/layout`,
+whole-minute waits, emitter), `server/cmd/replay-plan` (`-plan -out`,
+`-check`), plans in `server/testdata/plans/`, `plan_test.go` asserts
+byte equality with the committed scenarios (`-update`). Reserving a full
+chain set per quarter left 1 242 unbuilt tiles and did not fit; by
+coverage it leaves 0. Pig farms 11–14 moved to island 6 with an extra
+sloop (the home island's grass was the constraint). Plan authoring
+levers used: warehouse location hints, stone-route steps around the
+cattle farms, land-use heuristics. Under the current rules the
+generated games were faster than the hand-patched ones (47/33/79/115 ·
+32/64 · 216/243/273 · 793/826/917) before D-065 was applied.

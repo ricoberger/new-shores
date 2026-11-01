@@ -809,7 +809,7 @@ permanent (no regression) and have no rate effect; the unlock moment is
 reported as a `tier_unlocked` boundary. Placing a building (or road) of a
 locked tier fails with `ErrTierLocked`; so does ordering a ship of a
 locked tier or upgrading a public building into a level of one. The
-unlocks (D-056) are 120 Settlers + small market + chapel (Citizens), 360
+unlocks (D-056) are 120 Settlers + market + chapel (Citizens), 360
 Citizens + tavern (Merchants) and 1 200 Merchants (Patricians; the
 church joins once it is authored). The client toasts an unlock it sees
 during a session with the number of new buildings.
