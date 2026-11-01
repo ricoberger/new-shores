@@ -161,9 +161,6 @@ describe("arithmetic of the tables", () => {
       ["church", "playhouse", "fire_station"],
       ["cathedral", "university", "surgery"],
     ]);
-    const safety = tiers[1]!.own.find((n) => n.category === "safety")!;
-    expect(safety.group).toBe("security");
-    expect(faith(1).group).toBeUndefined();
   });
 
   it("derives upstream chains from the recipes", () => {

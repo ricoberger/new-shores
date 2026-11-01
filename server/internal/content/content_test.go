@@ -969,7 +969,7 @@ func TestLoadRejectsInvalidNeedDisplayData(t *testing.T) {
 	}{
 		{
 			"missing category", FileNeedCategories,
-			[]string{`  { "id": "clothing", "name": "Clothing", "icon": "need:clothing" },
+			[]string{`  { "id": "clothing", "name": "Clothing", "icon": "need:clothing", "group": "goods" },
 `, ""},
 			[]string{FileNeeds, `need "settlers_clothing"`, "category", `unknown need category "clothing"`},
 		},

@@ -13,7 +13,7 @@
       "name": { "type": "string", "minLength": 1, "maxLength": 32 },
       "icon": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*:[a-z0-9_][a-z0-9_-]*$" },
       "group": {
-        "description": "Display group (D-065, e.g. security): categories with the same group are shown under one heading. Display data only.",
+        "description": "Display group (e.g. goods, public): categories with the same group are shown under one heading. Display data only.",
         "type": "string",
         "pattern": "^[a-z][a-z0-9_]*$"
       }

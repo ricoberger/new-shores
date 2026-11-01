@@ -57,10 +57,9 @@ faith, education and culture with a minimum rank — any building of the
 chain with that rank or higher serves the house fully within its own
 radius (faith `chapel` 1 < `church` 2 < `cathedral` 3, education
 `school` 1 < `university` 2, culture `tavern` 1 < `playhouse` 2). The
-**security** group (D-060/D-065, display only) holds **safety**
-(`city_guard`, from Citizens), **fire protection** (`fire_station`, from
-Merchants) and **health** (`surgery`, Patricians only), one building
-each (share 1.0). Every category is a category of every house of its
+civic services (D-060) are **safety** (`city_guard`, from Citizens),
+**fire protection** (`fire_station`, from Merchants) and **health**
+(`surgery`, Patricians only), one building each (share 1.0). Every category is a category of every house of its
 tier and above, counted in the upgrade gate (≥ 0.6) like any required
 category. The table lists each tier's **own** categories (weights
 relative within the tier; chains as `faith ≥ 2`).
@@ -68,9 +67,9 @@ relative within the tier; chains as `faith ≥ 2`).
 | Tier | Goods categories → acceptable goods | Building needs (radius) |
 |---|---|---|
 | Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | market 0.12: `market` 12 · faith ≥ 1 0.18: `chapel` 16 |
-| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | market 0.12: `market` 15 · faith ≥ 1, education ≥ 1 (`school` 16), culture ≥ 1 (`tavern` 14) 0.06 each · security: safety 0.1: `city_guard` 16 |
-| Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.09: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | market 0.096: `market` 18 · faith ≥ 2 (`church` 20), education ≥ 1, culture ≥ 2 (`playhouse` 24) 0.048 each · security: safety 0.08: `city_guard` 16, fire protection 0.08: `fire_station` 16 |
-| Patricians | food 0.14: roast_beef 0.005 \| oysters 0.004 · drink 0.14: wine 0.004 \| grain_spirit 0.003 · clothing 0.14: fine_garments 0.003 \| lace 0.003 · comfort 0.14: candles 0.004 \| spectacles 0.002 · luxury 0.14: jewellery 0.001 \| instruments 0.001 | market 0.04: `market` 21 · faith ≥ 3 (`cathedral` 28), education ≥ 2 (`university` 24), culture ≥ 2 0.02 each · security: safety/fire protection 0.06 each, health 0.08: `surgery` 20 |
+| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | market 0.12: `market` 15 · faith ≥ 1, education ≥ 1 (`school` 16), culture ≥ 1 (`tavern` 14) 0.06 each · safety 0.1: `city_guard` 16 |
+| Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.09: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | market 0.096: `market` 18 · faith ≥ 2 (`church` 20), education ≥ 1, culture ≥ 2 (`playhouse` 24) 0.048 each · safety 0.08: `city_guard` 16, fire protection 0.08: `fire_station` 16 |
+| Patricians | food 0.14: roast_beef 0.005 \| oysters 0.004 · drink 0.14: wine 0.004 \| grain_spirit 0.003 · clothing 0.14: fine_garments 0.003 \| lace 0.003 · comfort 0.14: candles 0.004 \| spectacles 0.002 · luxury 0.14: jewellery 0.001 \| instruments 0.001 | market 0.04: `market` 21 · faith ≥ 3 (`cathedral` 28), education ≥ 2 (`university` 24), culture ≥ 2 0.02 each · safety/fire protection 0.06 each, health 0.08: `surgery` 20 |
 
 The market radius is that of its level (12/15/18/21, level *n* from
 tier *n*, D-065); the table lists the level the tier unlocks.
@@ -296,12 +295,12 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `sailmaker` | 2 | 4×8 | — | Ropemaker | 240 / 6 / 9 | 2 | 6 C | R |
 | `tavern` | 2 | 4×6 | — | Tavern | 250 / 15 / 0 | 2 | — | R, radius 14; culture rank 1 (D-065) |
 | `school` | 2 | 6×8 | — | Grammaticus | 1000 / 15 / 30 | 4 | — | R, radius 16 (D-056); education rank 1 (D-065) |
-| `city_guard` | 2 | 4×4 | — | Watch post class | 200 / 10 / 6 | 2 | — | R, safety (security group); radius 16, one level (D-065) |
+| `city_guard` | 2 | 4×4 | — | Watch post class | 200 / 10 / 6 | 2 | — | R, safety; radius 16, one level (D-065) |
 | `house_merchants` | 3 | 3×3 | — | Residence | 400 / 5 / 3 / 3 | 0 | — | upgrade only |
 | `church` | 3 | 6×10 | — | Sanctuary | 1500 / 30 / 15 / 0 | 6 | — | R, radius 20; faith rank 2 (D-065) |
 | `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 30 / 60 / 30 | 15 | — | R, radius 24 (tier 3 since D-056); culture rank 2 (D-065) |
-| `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, fire protection (security group); radius 16, one level (D-065) |
-| `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 4 | — | R, radius 20, health (security group); one level, glass cost (D-062) |
+| `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, fire protection; radius 16, one level (D-065) |
+| `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 4 | — | R, radius 20, health; one level, glass cost (D-062) |
 | `harbourmaster_office` | 3 | 5×5 | (reserve) | Repair Crane class | 1000 / 60 / 45 / 0 | 6 | — | world map, expeditions, contracts |
 | `butcher` | 3 | 4×5 | — | Victualler class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
 | `pastry_kitchen` | 3 | 4×5 | — | Bakery class | 320 / 5 / 9 / 3 | 4 | 8 M | R |
@@ -658,9 +657,11 @@ Quests that reward goods must mention that excess beyond capacity is lost
 
 `need_categories.json` lists the display data per category: `{ id, name,
 icon, group? }` (icon IDs from the HUD icon set; a test checks they
-exist). `group` is a display group the client shows the category under
-(D-065: `security` for safety, fire protection and health; the group's
-name is a client catalogue string); it has no rule effect.
+exist). `group` is the display group the client shows the category
+under: `goods` (food, drink, clothing, comfort, luxury) or `public`
+(market, faith, education, culture, safety, fire protection, health),
+headed "Goods" and "Public buildings" (client catalogue strings); it has
+no rule effect.
 
 One entry per need: `{ id, name, tier, from_tier?, kind:
 required|optional, weight, category }` plus one of `goods[] {good,

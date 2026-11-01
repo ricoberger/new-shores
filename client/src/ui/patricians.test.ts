@@ -80,8 +80,8 @@ const content = {
 const text = (html: string) => html.replace(/<[^>]+>/g, "");
 
 // A full Patrician house as the server reports it: the needs in payload
-// order (own categories, market, chains and security, then the lower
-// tiers'), luxury the
+// order (own goods categories, market, chains and civic services, then the
+// lower tiers'), luxury the
 // worst at 60 % (one of two alternatives).
 type NeedEntry = { id: string; category?: string };
 const patricianNeeds = (shipped<(NeedEntry & { tier: string })[]>("needs.json")).filter((n) => n.tier === "patricians");
@@ -161,7 +161,7 @@ describe("tier 4 in the cards (D-056 C4)", () => {
     expect(html).not.toContain('data-testid="service-upgrade-button"');
   });
 
-  it("shows a Patrician house: its five categories, the market, the chains and the Security group, then the three lower tiers' categories, ungrouped", () => {
+  it("shows a Patrician house under two headings: Goods (its five categories, then the three lower tiers') and Public buildings", () => {
     const html = panel(house);
     const t = text(html);
     expect(t).toContain("Residents→ 40 / 40");
@@ -172,13 +172,6 @@ describe("tier 4 in the cards (D-056 C4)", () => {
       "patricians_clothing",
       "patricians_comfort",
       "patricians_luxury",
-      "patricians_market",
-      "patricians_faith",
-      "patricians_education",
-      "patricians_culture",
-      "patricians_safety",
-      "patricians_fire_protection",
-      "patricians_health",
       "patricians_settlers_food",
       "patricians_settlers_clothing",
       "patricians_citizens_food",
@@ -188,12 +181,21 @@ describe("tier 4 in the cards (D-056 C4)", () => {
       "patricians_merchants_drink",
       "patricians_merchants_clothing",
       "patricians_merchants_comfort",
+      "patricians_market",
+      "patricians_faith",
+      "patricians_education",
+      "patricians_culture",
+      "patricians_safety",
+      "patricians_fire_protection",
+      "patricians_health",
     ]);
-    // One flat list but for the Security heading (D-065): each carried row names its tier; no tier headings.
+    // Two headings, each right before its first row; each carried row names its tier; no tier headings.
     for (const label of ["Food (Settlers)", "Clothing (Settlers)", "Drink (Citizens)", "Comfort (Merchants)"]) expect(t).toContain(label);
     expect(html.match(/<tr[^>]*data-testid="house-need-(?!group-)/g)).toHaveLength(21);
-    expect(html.match(/data-testid="house-need-group-[a-z_]+"/g)).toEqual(['data-testid="house-need-group-security"']);
-    expect(html).not.toMatch(/<th[^>]*>(Settlers|Citizens|Merchants)<\/th>/);
+    expect(html.match(/data-testid="house-need-group-[a-z_]+"/g)).toEqual(['data-testid="house-need-group-goods"', 'data-testid="house-need-group-public"']);
+    expect(html).toMatch(/data-testid="house-need-group-goods"[^>]*><th[^>]*>Goods<\/th><\/tr><tr[^>]*data-testid="house-need-patricians_food"/);
+    expect(html).toMatch(/data-testid="house-need-group-public"[^>]*><th[^>]*>Public buildings<\/th><\/tr><tr[^>]*data-testid="house-need-patricians_market"/);
+    expect(html).not.toMatch(/Security|<th[^>]*>(Settlers|Citizens|Merchants)<\/th>/);
     // Luxury: its own icon and the server's fulfilment.
     const luxury = html.match(/data-testid="house-need-patricians_luxury"[^>]*>(.*?)<\/tr>/)![1]!;
     expect(text(luxury)).toBe("Luxury60 %");
@@ -208,5 +210,18 @@ describe("tier 4 in the cards (D-056 C4)", () => {
     expect(text(worst)).toContain("Luxury 60 %");
     expect(worst).toContain(`<path d="${ICON_PATHS["need:luxury"]}"`);
     expect(text(html.match(/data-testid="hud-tier-patricians"[^>]*>(.*?)<\/div>/)![1]!)).toContain("88 %");
+  });
+
+  it("names a public-building need plainly as the worst need, without its group", () => {
+    const fire = {
+      ...house,
+      needs: house.needs!.map((n) => ({ ...n, fulfilment_permille: n.id === "patricians_fire_protection" ? 400 : 1000 })),
+    } as BuildingDisplay;
+    const island: IslandDisplay = { ...home, buildings: [...base.buildings, fire] };
+    const defs = new Map((content.buildings as ContentBuilding[]).map((b) => [b.id, b]));
+    const html = renderToStaticMarkup(createElement(PopulationDetails, { rows: tierRows(island, content, defs), content, islandName: "Home" }));
+    const worst = text(html.match(/data-testid="hud-worst-need-patricians"[^>]*>(.*?)<\/span>/)![1]!);
+    expect(worst).toContain("Fire protection 40 %");
+    expect(worst).not.toMatch(/Public buildings|Security/);
   });
 });

@@ -104,7 +104,7 @@ export function needAlternatives(content: (NeedContent & Partial<Pick<Content, "
   return listOr(names);
 }
 
-/** The display group of a need category (need_categories[].group, D-065: "security"); undefined without one. */
+/** The display group of a need category (need_categories[].group: "goods" or "public"); undefined without one. */
 export function needGroup(content: NeedContent, category: string | undefined): string | undefined {
   if (!category) return undefined;
   return content?.need_categories?.find((c) => c.id === category)?.group || undefined;
@@ -112,10 +112,17 @@ export function needGroup(content: NeedContent, category: string | undefined): s
 
 /** The heading of a need group: the catalogue's name for a known group, else its ID. */
 export function needGroupName(group: string): string {
-  return group === "security" ? t("needs.group.security") : group;
+  switch (group) {
+    case "goods":
+      return t("needs.group.goods");
+    case "public":
+      return t("needs.group.public");
+    default:
+      return group;
+  }
 }
 
-/** A run of need entries in card order: a display group (D-065) and its members, or one ungrouped entry. */
+/** A run of need entries in card order: a display group and its members, or one ungrouped entry. */
 export interface NeedGroupRun<T> {
   group?: string;
   needs: T[];
@@ -124,13 +131,15 @@ export interface NeedGroupRun<T> {
 /**
  * The need entries of a house in card order (orderNeeds), with the members
  * of a display group pulled together at the position of the group's first
- * member and headed by it; the lower tiers' categories stay ungrouped.
+ * member and headed by it, in card order within the group: the lower
+ * tiers' carried categories join their category's group (Goods) after the
+ * tier's own ones.
  */
 export function groupNeeds<T extends NeedRef>(content: NeedContent, needs: readonly T[]): NeedGroupRun<T>[] {
   const runs: NeedGroupRun<T>[] = [];
   const byGroup = new Map<string, NeedGroupRun<T>>();
   for (const n of orderNeeds(content, needs)) {
-    const group = needFromTier(content, n.id) ? undefined : needGroup(content, n.category);
+    const group = needGroup(content, n.category);
     if (!group) {
       runs.push({ needs: [n] });
       continue;
@@ -145,13 +154,6 @@ export function groupNeeds<T extends NeedRef>(content: NeedContent, needs: reado
     }
   }
   return runs;
-}
-
-/** A need's label with its display group in front ("Security: Fire protection"), for places that show one need alone (the HUD). */
-export function needLabelWithGroup(content: NeedContent, n: NeedRef): string {
-  const label = needLabel(content, n);
-  const group = needFromTier(content, n.id) ? undefined : needGroup(content, n.category);
-  return group ? t("needs.groupedLabel", { group: needGroupName(group), name: label }) : label;
 }
 
 /**

@@ -3,7 +3,7 @@ import type { Content, DisplayState, Island, IslandDisplay } from "../api/client
 import { perMin, units } from "../display/format";
 import { percentSpace, t } from "../i18n";
 import { constructionGoods, islandResources, type TierRow, tierRows, worstNeedText } from "../display/hud";
-import { needCategory, needLabelWithGroup } from "../display/needs";
+import { needCategory, needLabel } from "../display/needs";
 import { goodIcon, needIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
@@ -100,7 +100,7 @@ export function PopulationDetails({ rows, content, islandName }: { rows: TierRow
     <>
       <strong>{t("topBar.populationOf", { island: islandName })}</strong>
       {rows.map((r) => {
-        const worst = worstNeedText(r.worst, (n) => needLabelWithGroup(content, n));
+        const worst = worstNeedText(r.worst, (n) => needLabel(content, n));
         const w = r.worst;
         return (
           <div className={`${styles.stat} ${styles.tierStat}`} key={r.tier} data-testid={`hud-tier-${r.tier}`}>

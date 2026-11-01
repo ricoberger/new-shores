@@ -341,7 +341,7 @@ type needCategoryJSON struct {
 	Name string `json:"name"`
 	// Icon is a HUD icon key (assets/icons/icons.json), e.g. "need:food".
 	Icon string `json:"icon"`
-	// Group is the display group of the category ("security", D-065).
+	// Group is the display group of the category ("goods", "public").
 	Group string `json:"group,omitempty"`
 }
 

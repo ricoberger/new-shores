@@ -694,7 +694,7 @@ type NeedCategory struct {
 	Name string
 	// Icon is a key of the HUD icon set (assets/icons/icons.json).
 	Icon string
-	// Group is the display group ("" none, e.g. "security", D-065):
+	// Group is the display group ("" none, e.g. "goods" or "public"):
 	// categories of one group are shown under one heading.
 	Group string
 }

@@ -15,7 +15,6 @@ import {
   needGroup,
   needGroupName,
   needLabel,
-  needLabelWithGroup,
   needName,
   orderNeeds,
   upgradeReasonText,
@@ -50,9 +49,10 @@ describe("need display names", () => {
     expect(needName(content, "settlers_clothing")).toBe("Clothing");
     expect(needName(content, "settlers_market")).toBe("Market");
     expect(needName(content, "merchants_faith")).toBe("Faith");
-    expect(needCategory(content, "market")).toEqual({ id: "market", name: "Market", icon: "need:market" });
-    expect(needCategory(content, "safety")).toEqual({ id: "safety", name: "Safety", icon: "need:safety", group: "security" });
-    expect(needCategory(content, "clothing")).toEqual({ id: "clothing", name: "Clothing", icon: "need:clothing" });
+    expect(needCategory(content, "market")).toEqual({ id: "market", name: "Market", icon: "need:market", group: "public" });
+    expect(needCategory(content, "safety")).toEqual({ id: "safety", name: "Safety", icon: "need:safety", group: "public" });
+    expect(needCategory(content, "food")).toEqual({ id: "food", name: "Food", icon: "need:food", group: "goods" });
+    expect(needCategory(content, "clothing")).toEqual({ id: "clothing", name: "Clothing", icon: "need:clothing", group: "goods" });
     expect(needCategory(content, "luxury").name).toBe("Luxury");
   });
 
@@ -126,7 +126,7 @@ describe("need alternatives (D-056)", () => {
   });
 });
 
-describe("service chains and the security group (D-065)", () => {
+describe("service chains (D-065) and the need groups", () => {
   const c = {
     ...content,
     buildings: [
@@ -150,28 +150,26 @@ describe("service chains and the security group (D-065)", () => {
     expect(needAlternatives(c, "citizens_education")).toBeUndefined();
   });
 
-  it("groups safety, fire protection and health under Security in the house card, not the lower tiers' categories", () => {
-    expect(needGroup(c, "health")).toBe("security");
-    expect(needGroup(c, "faith")).toBeUndefined();
+  it("groups the goods categories, carried ones included, and the public-building categories in card order", () => {
+    expect(needGroup(c, "health")).toBe("public");
+    expect(needGroup(c, "faith")).toBe("public");
+    expect(needGroup(c, "food")).toBe("goods");
     expect(needGroup(c, undefined)).toBeUndefined();
-    expect(needGroupName("security")).toBe("Security");
+    expect(needGroupName("goods")).toBe("Goods");
+    expect(needGroupName("public")).toBe("Public buildings");
     expect(needGroupName("wonders")).toBe("wonders");
     const runs = groupNeeds(c, [
       { id: "patricians_settlers_food", category: "food" },
+      { id: "patricians_food", category: "food" },
       { id: "patricians_safety", category: "safety" },
       { id: "patricians_market", category: "market" },
-      { id: "patricians_fire_protection", category: "fire_protection" },
       { id: "patricians_health", category: "health" },
+      { id: "patricians_mystery" },
     ]);
     expect(runs.map((r) => [r.group, r.needs.map((n) => n.id)])).toEqual([
-      ["security", ["patricians_safety", "patricians_fire_protection", "patricians_health"]],
-      [undefined, ["patricians_market"]],
-      [undefined, ["patricians_settlers_food"]],
+      ["goods", ["patricians_food", "patricians_settlers_food"]],
+      ["public", ["patricians_safety", "patricians_market", "patricians_health"]],
+      [undefined, ["patricians_mystery"]],
     ]);
-  });
-
-  it("names the group in front of a need shown alone (the HUD)", () => {
-    expect(needLabelWithGroup(c, { id: "merchants_fire_protection", category: "fire_protection" })).toBe("Security: Fire protection");
-    expect(needLabelWithGroup(c, { id: "merchants_faith", category: "faith" })).toBe("Faith");
   });
 });

@@ -13,7 +13,8 @@ const settlersFaith = `"chain": "faith",
     "min_rank": 1`
 
 // TestLoadServiceChains (D-065): the chain buildings declare chain, rank
-// and one radius; the categories of the security group carry the group.
+// and one radius; every category carries its display group (goods or
+// public buildings).
 func TestLoadServiceChains(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
@@ -34,13 +35,18 @@ func TestLoadServiceChains(t *testing.T) {
 			t.Errorf("%s service = %+v, want %+v", id, s, w)
 		}
 	}
-	for _, id := range []string{"safety", "fire_protection", "health"} {
-		if g := c.NeedCategoryByID[id].Group; g != "security" {
-			t.Errorf("category %s group = %q, want security", id, g)
-		}
+	groups := map[string]string{
+		"food": "goods", "drink": "goods", "clothing": "goods", "comfort": "goods", "luxury": "goods",
+		"market": "public", "faith": "public", "education": "public", "culture": "public",
+		"safety": "public", "fire_protection": "public", "health": "public",
 	}
-	if g := c.NeedCategoryByID["food"].Group; g != "" {
-		t.Errorf("category food group = %q, want none", g)
+	if len(c.NeedCategories) != len(groups) {
+		t.Errorf("%d need categories, want %d", len(c.NeedCategories), len(groups))
+	}
+	for id, want := range groups {
+		if g := c.NeedCategoryByID[id].Group; g != want {
+			t.Errorf("category %s group = %q, want %s", id, g, want)
+		}
 	}
 }
 

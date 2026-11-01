@@ -1,4 +1,3 @@
-import { needGroupName } from "../display/needs";
 import { t } from "../i18n";
 import { needIcon } from "../theme/iconSet";
 import { Icon } from "../ui/Icon";
@@ -14,7 +13,7 @@ function Need({ idx, n }: { idx: Index; n: NeedView }) {
         <caption style={{ textAlign: "left" }}>
           <h5 style={{ margin: "8px 0 2px", fontSize: "1rem" }}>
             <Icon path={needIcon({ category: n.category }, n.icon)} />{" "}
-            {n.group ? t("needs.groupedLabel", { group: needGroupName(n.group), name: n.categoryName }) : n.categoryName}{" "}
+            {n.categoryName}{" "}
             <span className={styles.small}>
               — {t("almanac.n.share", { percent: num(n.ownPercent, 0) })}
               {n.kind === "optional" ? t("almanac.n.optional") : ""}

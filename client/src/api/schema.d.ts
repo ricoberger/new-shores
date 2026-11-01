@@ -2652,7 +2652,7 @@ export interface components {
             name: string;
             /** @description HUD icon key (assets/icons/icons.json), e.g. `need:food`. */
             icon: string;
-            /** @description Display group (D-065, e.g. `security`); categories with the same group are shown under one heading. */
+            /** @description Display group (e.g. `goods`, `public`); categories with the same group are shown under one heading. */
             group?: string;
         };
         ContentNeed: {

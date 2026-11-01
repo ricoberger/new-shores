@@ -5,7 +5,7 @@
 // yield empty lists, never exceptions.
 import type { Content, ContentBuilding, ContentShip, ContentTier } from "../api/client";
 import type { components } from "../api/schema";
-import { chainBuildings, needGroup } from "../display/needs";
+import { chainBuildings } from "../display/needs";
 import { depositName, fertilityName } from "../display/tiers";
 import { currentLocale, percentSpace, t, tOr } from "../i18n";
 
@@ -210,8 +210,6 @@ export interface NeedView {
   /** Chain needs (D-065): the chain and the minimum rank that serves. */
   chain?: string;
   minRank?: number;
-  /** Display group of the category (D-065: security). */
-  group?: string;
 }
 
 export interface TierNeeds {
@@ -234,7 +232,6 @@ export function needsByTier(idx: Index): TierNeeds[] {
     const sum = own.reduce((s, n) => s + (n.weight ?? 0), 0);
     const views = own.map((n): NeedView => {
       const cat = n.category ?? "";
-      const group = needGroup(idx.content, cat);
       const building = (id: string, share: number): NeedAlternative => {
         const def = idx.building(id);
         const radii = def?.service?.levels?.map((l) => l.radius) ?? (def?.service ? [def.service.radius] : []);
@@ -265,7 +262,6 @@ export function needsByTier(idx: Index): TierNeeds[] {
         alternatives,
         services: (n.buildings?.length ?? 0) > 0 || !!n.chain,
         ...(n.chain ? { chain: n.chain, minRank: n.min_rank ?? 1 } : {}),
-        ...(group ? { group } : {}),
       };
     });
     const servicesAdded: string[] = [];

@@ -124,7 +124,7 @@ describe("tier 3 in the cards (D-056)", () => {
     expect(html).toContain('data-testid="service-upgrade-button"');
   });
 
-  it("shows a Merchant house of the reference game: residents, its own categories with comfort, then the carried ones", () => {
+  it("shows a Merchant house of the reference game: residents, Goods (its own categories with comfort, then the carried ones), then Public buildings", () => {
     const house = home.buildings.find((b) => b.type === "house_merchants")!;
     const html = panel(house);
     const t = text(html);
@@ -135,21 +135,22 @@ describe("tier 3 in the cards (D-056)", () => {
       "merchants_drink",
       "merchants_clothing",
       "merchants_comfort",
+      "merchants_settlers_food",
+      "merchants_settlers_clothing",
+      "merchants_citizens_food",
+      "merchants_citizens_drink",
+      "merchants_citizens_clothing",
       "merchants_market",
       "merchants_faith",
       "merchants_education",
       "merchants_culture",
       "merchants_safety",
       "merchants_fire_protection",
-      "merchants_settlers_food",
-      "merchants_settlers_clothing",
-      "merchants_citizens_food",
-      "merchants_citizens_drink",
-      "merchants_citizens_clothing",
     ]);
     expect(t).toContain("Food (Citizens)");
-    // Safety and fire protection under one Security heading (D-065), right before them.
-    expect(html).toMatch(/data-testid="house-need-group-security"[^>]*><th[^>]*>Security<\/th><\/tr><tr[^>]*data-testid="house-need-merchants_safety"/);
+    // Goods and Public buildings headings, each right before its group's first row.
+    expect(html).toMatch(/data-testid="house-need-group-goods"[^>]*><th[^>]*>Goods<\/th><\/tr><tr[^>]*data-testid="house-need-merchants_food"/);
+    expect(html).toMatch(/data-testid="house-need-group-public"[^>]*><th[^>]*>Public buildings<\/th><\/tr><tr[^>]*data-testid="house-need-merchants_market"/);
     // A chain need names the buildings of its rank or higher (D-065).
     expect(html).toMatch(/data-testid="house-need-merchants_faith" title="Church or Cathedral/);
     // Comfort: its own icon and the server's fulfilment.

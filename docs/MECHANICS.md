@@ -435,17 +435,20 @@ covers 0.6 and both cover it fully. A need is either:
   building next to it adds nothing. Chain buildings have one level.
   `served_by` lists every serving chain building; the reasons are those
   of a building need.
-- **Security (D-060/D-062/D-065):** safety (`city_guard`, Citizens and
+- **Civic services (D-060/D-062/D-065):** safety (`city_guard`, Citizens and
   up), fire protection (`fire_station`, Merchants and up) and health
   (`surgery`, Patricians only) are building needs of their own category
   with one building each (share 1.0); each higher tier lists the category
-  again with its own weight. The three categories share the display
-  group `security` (`need_categories[].group`), which only groups them in
-  the client and has no rule effect. They are required categories and
+  again with its own weight. They are required categories and
   count in the upgrade gate (§6.1). No new rule: a missing civic building
   lowers coverage, tax and growth; there are no fires, disease or crime
   events. City guard and fire station have one radius-16 level and no
   upgrade; the surgery has one radius-20 level and costs glass.
+- **Display groups:** every category names a display group
+  (`need_categories[].group`): `goods` for food, drink, clothing, comfort
+  and luxury, `public` for market, faith, education, culture, safety,
+  fire protection and health (Anno 1404's split). The client shows a
+  house's needs under these two headings; groups have no rule effect.
 - **Weights (D-065):** the former services weight of a tier is split
   0.4 to the market and the rest equally among its chain categories (Settlers
   market 0.12, faith 0.18; Citizens market 0.12, faith, education and
