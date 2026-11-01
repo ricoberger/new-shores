@@ -148,6 +148,10 @@ describe("tier 3 in the cards (D-056)", () => {
       "merchants_citizens_clothing",
     ]);
     expect(t).toContain("Food (Citizens)");
+    // Safety and fire protection under one Security heading (D-065), right before them.
+    expect(html).toMatch(/data-testid="house-need-group-security"[^>]*><th[^>]*>Security<\/th><\/tr><tr[^>]*data-testid="house-need-merchants_safety"/);
+    // A chain need names the buildings of its rank or higher (D-065).
+    expect(html).toMatch(/data-testid="house-need-merchants_faith" title="Church or Cathedral/);
     // Comfort: its own icon and the server's fulfilment.
     const comfort = html.match(/data-testid="house-need-merchants_comfort"[^>]*>(.*?)<\/tr>/)![1]!;
     expect(text(comfort)).toBe("Comfort60 %");

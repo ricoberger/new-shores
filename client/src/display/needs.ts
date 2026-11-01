@@ -10,11 +10,12 @@ import { listOr } from "./format";
 /** The parts of the content the lookups read; every list is optional (older or partial catalogues). */
 export type NeedContent = Partial<Pick<Content, "needs" | "need_categories" | "buildings" | "tiers">> | null | undefined;
 
-/** A goods-need category for display: its name and HUD icon key (undefined when the content does not know it). */
+/** A need category for display: its name, HUD icon key and display group (undefined when the content does not know it). */
 export interface NeedCategoryInfo {
   id: string;
   name: string;
   icon?: string;
+  group?: string;
 }
 
 /** The display name of a need (content ID, e.g. "settlers_food" → "Food"); the ID when unknown. */
@@ -25,7 +26,7 @@ export function needName(content: NeedContent, id: string): string {
 /** A goods-need category (e.g. "clothing" → Clothing with icon need:clothing); the ID as name when unknown. */
 export function needCategory(content: NeedContent, id: string): NeedCategoryInfo {
   const c = content?.need_categories?.find((x) => x.id === id);
-  return c ? { id, name: c.name || id, icon: c.icon } : { id, name: id };
+  return c ? { id, name: c.name || id, icon: c.icon, ...(c.group ? { group: c.group } : {}) } : { id, name: id };
 }
 
 /** A need as the display payloads reference it: the need ID plus its category or building. */
@@ -101,6 +102,56 @@ export function needAlternatives(content: (NeedContent & Partial<Pick<Content, "
   ];
   if (names.length < 2) return undefined;
   return listOr(names);
+}
+
+/** The display group of a need category (need_categories[].group, D-065: "security"); undefined without one. */
+export function needGroup(content: NeedContent, category: string | undefined): string | undefined {
+  if (!category) return undefined;
+  return content?.need_categories?.find((c) => c.id === category)?.group || undefined;
+}
+
+/** The heading of a need group: the catalogue's name for a known group, else its ID. */
+export function needGroupName(group: string): string {
+  return group === "security" ? t("needs.group.security") : group;
+}
+
+/** A run of need entries in card order: a display group (D-065) and its members, or one ungrouped entry. */
+export interface NeedGroupRun<T> {
+  group?: string;
+  needs: T[];
+}
+
+/**
+ * The need entries of a house in card order (orderNeeds), with the members
+ * of a display group pulled together at the position of the group's first
+ * member and headed by it; the lower tiers' categories stay ungrouped.
+ */
+export function groupNeeds<T extends NeedRef>(content: NeedContent, needs: readonly T[]): NeedGroupRun<T>[] {
+  const runs: NeedGroupRun<T>[] = [];
+  const byGroup = new Map<string, NeedGroupRun<T>>();
+  for (const n of orderNeeds(content, needs)) {
+    const group = needFromTier(content, n.id) ? undefined : needGroup(content, n.category);
+    if (!group) {
+      runs.push({ needs: [n] });
+      continue;
+    }
+    const run = byGroup.get(group);
+    if (run) {
+      run.needs.push(n);
+    } else {
+      const r = { group, needs: [n] };
+      byGroup.set(group, r);
+      runs.push(r);
+    }
+  }
+  return runs;
+}
+
+/** A need's label with its display group in front ("Security: Fire protection"), for places that show one need alone (the HUD). */
+export function needLabelWithGroup(content: NeedContent, n: NeedRef): string {
+  const label = needLabel(content, n);
+  const group = needFromTier(content, n.id) ? undefined : needGroup(content, n.category);
+  return group ? t("needs.groupedLabel", { group: needGroupName(group), name: label }) : label;
 }
 
 /**

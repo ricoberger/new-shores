@@ -80,8 +80,8 @@ const content = {
 const text = (html: string) => html.replace(/<[^>]+>/g, "");
 
 // A full Patrician house as the server reports it: the needs in payload
-// order (own categories, market, chains and civic services, then the
-// lower tiers'), luxury the
+// order (own categories, market, chains and security, then the lower
+// tiers'), luxury the
 // worst at 60 % (one of two alternatives).
 type NeedEntry = { id: string; category?: string };
 const patricianNeeds = (shipped<(NeedEntry & { tier: string })[]>("needs.json")).filter((n) => n.tier === "patricians");
@@ -161,7 +161,7 @@ describe("tier 4 in the cards (D-056 C4)", () => {
     expect(html).not.toContain('data-testid="service-upgrade-button"');
   });
 
-  it("shows a Patrician house: its five categories, the market, the chains and the civic services, then the three lower tiers' categories, ungrouped", () => {
+  it("shows a Patrician house: its five categories, the market, the chains and the Security group, then the three lower tiers' categories, ungrouped", () => {
     const html = panel(house);
     const t = text(html);
     expect(t).toContain("Residents→ 40 / 40");
@@ -189,10 +189,11 @@ describe("tier 4 in the cards (D-056 C4)", () => {
       "patricians_merchants_clothing",
       "patricians_merchants_comfort",
     ]);
-    // One flat list: each carried row names its tier; no group headings.
+    // One flat list but for the Security heading (D-065): each carried row names its tier; no tier headings.
     for (const label of ["Food (Settlers)", "Clothing (Settlers)", "Drink (Citizens)", "Comfort (Merchants)"]) expect(t).toContain(label);
-    expect(html.match(/<tr[^>]*data-testid="house-need-/g)).toHaveLength(21);
-    expect(html).not.toMatch(/house-need-group|<th[^>]*>(Settlers|Citizens|Merchants)<\/th>/);
+    expect(html.match(/<tr[^>]*data-testid="house-need-(?!group-)/g)).toHaveLength(21);
+    expect(html.match(/data-testid="house-need-group-[a-z_]+"/g)).toEqual(['data-testid="house-need-group-security"']);
+    expect(html).not.toMatch(/<th[^>]*>(Settlers|Citizens|Merchants)<\/th>/);
     // Luxury: its own icon and the server's fulfilment.
     const luxury = html.match(/data-testid="house-need-patricians_luxury"[^>]*>(.*?)<\/tr>/)![1]!;
     expect(text(luxury)).toBe("Luxury60 %");

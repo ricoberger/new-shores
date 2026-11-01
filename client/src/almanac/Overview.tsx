@@ -1,4 +1,5 @@
 import styles from "./almanac.module.css";
+import { needGroupName } from "../display/needs";
 import { percentSpace, t } from "../i18n";
 import { A, BuildingLink, Row } from "./parts";
 import { needsByTier, num, ppmPercent, tierViews, type Index } from "./model";
@@ -10,7 +11,10 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
   const tiers = tierViews(idx);
   const needs = needsByTier(idx);
   const ladder = needs.flatMap((tier) =>
-    tier.servicesAdded.map((b) => ({ building: b, tier: tier.name, radii: idx.building(b)?.service?.levels?.map((l) => l.radius) ?? [] })),
+    tier.servicesAdded.map((b) => {
+      const service = idx.building(b)?.service;
+      return { building: b, tier: tier.name, radii: service?.levels?.map((l) => l.radius) ?? [], chain: service?.chain, rank: service?.rank };
+    }),
   );
   return (
     <>
@@ -72,6 +76,7 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
               <tr>
                 <th scope="col">{t("almanac.o.building")}</th>
                 <th scope="col">{t("almanac.o.askedBy")}</th>
+                <th scope="col">{t("almanac.o.chain")}</th>
                 <th scope="col" className={styles.num}>
                   {t("almanac.o.radiusPerLevel")}
                 </th>
@@ -84,6 +89,7 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
                     <BuildingLink idx={idx} id={s.building} />
                   </td>
                   <td>{s.tier}</td>
+                  <td>{s.chain ? t("almanac.o.chainRank", { chain: idx.categoryName(s.chain) || s.chain, rank: s.rank ?? 1 }) : "—"}</td>
                   <td className={styles.num}>{s.radii.join(" / ") || "—"}</td>
                 </tr>
               ))}
@@ -120,7 +126,7 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
                 <tbody>
                   {tier.own.map((n) => (
                     <tr key={n.id}>
-                      <td>{n.categoryName}</td>
+                      <td>{n.group ? t("needs.groupedLabel", { group: needGroupName(n.group), name: n.categoryName }) : n.categoryName}</td>
                       <td className={styles.num}>{num(n.ownPercent, 0)}{percentSpace()}%</td>
                       <td>
                         {n.alternatives.map((a, i) => (

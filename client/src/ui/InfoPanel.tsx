@@ -3,7 +3,7 @@ import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../a
 import { percent, perMin, seconds, speedFactor, units } from "../display/format";
 import { countdownWithUnit, orderTiming, shipName as shipNameOf } from "../display/ships";
 import { fieldBuildingOf, footprintText } from "../display/fields";
-import { needAlternatives, needCategory, needLabel, orderNeeds, upgradeReasonText } from "../display/needs";
+import { groupNeeds, needAlternatives, needCategory, needGroupName, needLabel, upgradeReasonText } from "../display/needs";
 import { lockReason, tierUnlocked } from "../display/tiers";
 import { STATUS_STYLES, statusKey, statusLabel, statusText } from "../display/status";
 import { inSentence, t, tOr } from "../i18n";
@@ -709,21 +709,32 @@ export function InfoPanel({
               <div className={styles.sectionTitle}>{t("infoPanel.needs")}</div>
               <table className={styles.table}>
                 <tbody>
-                  {orderNeeds(content, b.needs ?? []).map((n) => (
-                    <tr
-                      key={n.id}
-                      data-testid={`house-need-${n.id}`}
-                      title={[needAlternatives(content, n.id), needReason(n.reason)].filter(Boolean).join(" — ") || undefined}
-                    >
-                      <td>
-                        <span className={styles.withIcon}>
-                          <Icon path={needIcon(n, n.category ? needCategory(content, n.category).icon : undefined)} />
-                          {needLabel(content, n)}
-                        </span>
-                      </td>
-                      <td>{percent(n.fulfilment_permille)}</td>
-                    </tr>
-                  ))}
+                  {groupNeeds(content, b.needs ?? []).flatMap((run) => [
+                    ...(run.group
+                      ? [
+                          <tr key={`group-${run.group}`} data-testid={`house-need-group-${run.group}`}>
+                            <th scope="rowgroup" colSpan={2} className={styles.needGroup}>
+                              {needGroupName(run.group)}
+                            </th>
+                          </tr>,
+                        ]
+                      : []),
+                    ...run.needs.map((n) => (
+                      <tr
+                        key={n.id}
+                        data-testid={`house-need-${n.id}`}
+                        title={[needAlternatives(content, n.id), needReason(n.reason)].filter(Boolean).join(" — ") || undefined}
+                      >
+                        <td className={run.group ? styles.needInGroup : undefined}>
+                          <span className={styles.withIcon}>
+                            <Icon path={needIcon(n, n.category ? needCategory(content, n.category).icon : undefined)} />
+                            {needLabel(content, n)}
+                          </span>
+                        </td>
+                        <td>{percent(n.fulfilment_permille)}</td>
+                      </tr>
+                    )),
+                  ])}
                 </tbody>
               </table>
             </div>

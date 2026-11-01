@@ -8,10 +8,14 @@ import { ICON_PATHS } from "../theme/icons";
 import {
   type NeedContent,
   chainBuildings,
+  groupNeeds,
   needAlternatives,
   needCategory,
   needFromTier,
+  needGroup,
+  needGroupName,
   needLabel,
+  needLabelWithGroup,
   needName,
   orderNeeds,
   upgradeReasonText,
@@ -47,6 +51,7 @@ describe("need display names", () => {
     expect(needName(content, "settlers_market")).toBe("Market");
     expect(needName(content, "merchants_faith")).toBe("Faith");
     expect(needCategory(content, "market")).toEqual({ id: "market", name: "Market", icon: "need:market" });
+    expect(needCategory(content, "safety")).toEqual({ id: "safety", name: "Safety", icon: "need:safety", group: "security" });
     expect(needCategory(content, "clothing")).toEqual({ id: "clothing", name: "Clothing", icon: "need:clothing" });
     expect(needCategory(content, "luxury").name).toBe("Luxury");
   });
@@ -121,7 +126,7 @@ describe("need alternatives (D-056)", () => {
   });
 });
 
-describe("service chains (D-065)", () => {
+describe("service chains and the security group (D-065)", () => {
   const c = {
     ...content,
     buildings: [
@@ -143,5 +148,30 @@ describe("service chains (D-065)", () => {
     // One building of the rank or higher: no alternatives to list.
     expect(needAlternatives(c, "patricians_faith")).toBeUndefined();
     expect(needAlternatives(c, "citizens_education")).toBeUndefined();
+  });
+
+  it("groups safety, fire protection and health under Security in the house card, not the lower tiers' categories", () => {
+    expect(needGroup(c, "health")).toBe("security");
+    expect(needGroup(c, "faith")).toBeUndefined();
+    expect(needGroup(c, undefined)).toBeUndefined();
+    expect(needGroupName("security")).toBe("Security");
+    expect(needGroupName("wonders")).toBe("wonders");
+    const runs = groupNeeds(c, [
+      { id: "patricians_settlers_food", category: "food" },
+      { id: "patricians_safety", category: "safety" },
+      { id: "patricians_market", category: "market" },
+      { id: "patricians_fire_protection", category: "fire_protection" },
+      { id: "patricians_health", category: "health" },
+    ]);
+    expect(runs.map((r) => [r.group, r.needs.map((n) => n.id)])).toEqual([
+      ["security", ["patricians_safety", "patricians_fire_protection", "patricians_health"]],
+      [undefined, ["patricians_market"]],
+      [undefined, ["patricians_settlers_food"]],
+    ]);
+  });
+
+  it("names the group in front of a need shown alone (the HUD)", () => {
+    expect(needLabelWithGroup(c, { id: "merchants_fire_protection", category: "fire_protection" })).toBe("Security: Fire protection");
+    expect(needLabelWithGroup(c, { id: "merchants_faith", category: "faith" })).toBe("Faith");
   });
 });

@@ -45,7 +45,8 @@ interface ContentJson {
   recipe?: unknown;
   smoke?: boolean;
   water_rows?: { min: number; max: number };
-  warehouse?: unknown;
+  warehouse?: { levels: unknown[] };
+  service?: { levels?: unknown[] };
   trading_post?: { levels: { berths?: number }[] };
   shipyard?: unknown;
 }
@@ -279,6 +280,25 @@ describe("variants and levels", () => {
     expect(modelFileFor(e, { id: 1, level: 7 })?.path).toBe("w.l2.glb");
     const v = { kind: "building", variants: [file("h.v0.glb"), file("h.v1.glb"), file("h.v2.glb")] } as unknown as ModelEntry;
     expect(modelFileFor(v, { id: 99 })?.path).toBe(`h.v${variantIndex(99, 3)}.glb`);
+  });
+
+  it("draw every content level of the committed models, the highest model above it (D-065: market and warehouse level 4)", () => {
+    for (const b of CONTENT_BUILDINGS) {
+      const n = Math.max(b.warehouse?.levels.length ?? 0, b.service?.levels?.length ?? 0, b.trading_post?.levels.length ?? 0);
+      const entry = manifest.models[b.id] as ModelEntry | undefined;
+      if (n < 2 || !entry?.levels) continue;
+      const highest = Math.max(...Object.keys(entry.levels).map(Number));
+      for (let level = 1; level <= n; level++) {
+        const want = entry.levels[String(Math.min(level, highest))];
+        expect(want, `${b.id} level ${level}`).toBeDefined();
+        expect(modelFileFor(entry, { id: 1, level })?.path, `${b.id} level ${level}`).toBe(want!.path);
+      }
+    }
+    const levelsOf = (id: string) => (manifest.models[id] as ModelEntry).levels!;
+    for (const id of ["market", "warehouse"]) {
+      const levels = levelsOf(id);
+      expect(modelFileFor(manifest.models[id] as ModelEntry, { id: 1, level: 4 })?.path, id).toBe((levels["4"] ?? levels["3"])!.path);
+    }
   });
 
   it("draw the lite file at the default zoom when there is one", () => {

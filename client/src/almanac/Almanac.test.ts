@@ -18,6 +18,11 @@ describe("almanac rendering", () => {
     for (const t of content.tiers) expect(out).toContain(t.name);
     expect(out).toContain(content.region.version);
     expect(out).not.toMatch(/undefined|NaN|\[object/);
+    // The service ladder (D-065): the chains' ranks and the market's four radii.
+    expect(out).toContain("Chain (rank)");
+    expect(out).toMatch(/Cathedral<\/a><\/td><td>Patricians<\/td><td>Faith \(3\)<\/td>/);
+    expect(out).toContain("12 / 15 / 18 / 21");
+    expect(out).toContain("Security: Safety");
   });
 
   it("renders every building once on the buildings page and links goods to their pages", () => {
@@ -49,6 +54,8 @@ describe("almanac rendering", () => {
     expect(needs).toContain("Per resident/min");
     expect(needs).toContain("0.008");
     expect(needs).toContain("60 %");
+    expect(needs).toContain("rank 2 or higher");
+    expect(needs).toContain("Security: Fire protection");
     const ships = html({ section: "ships" });
     for (const s of content.ships) expect(ships).toContain(`id="ship-${s.id}"`);
     expect(ships).toContain("2 slots × 50");
