@@ -1639,3 +1639,59 @@ University and cathedral: ochre → brick and terracotta → dark tile /
 slate; the round arcades, pilasters, pedimented hoods and palazzo
 massing of the university remain and are a re-fit candidate for a
 later models round. Region paragraph in GAME_DESIGN.
+
+## D-064 Palette re-tune to Anno 1404 daylight
+
+- **Status:** accepted (2026-10-31)
+- **Context:** a palette review for the Hanse / North-Sea setting
+  (D-063) argued that the build reads Mediterranean. Put next to the
+  Anno 1404 reference (D-050), the setting is not the problem: 1404 is
+  neutral-warm daylight with saturated local colour — teal-grey sea,
+  lush mid-green grass, cool grey rock, grey cobble and brown dirt,
+  grey-blue shadows. Our build overshoots "warm": an orange grade over
+  everything, yellow-green grass with ochre blotches, beige rock,
+  sand-coloured roads, cyan shallows over royal-blue deep. A probe
+  (variants B terrain + water, C B + light, D half light) confirmed
+  the re-tune on `settled` and `played` at every view.
+- **Decision:**
+  1. **One fixed warm daylight replaces "golden hour".** Sun colour
+     and direction unchanged; grade `#FFD9A0` → `#FFEBD4`, fill ratio
+     0.35 → 0.42, the sky fill leans less toward the sun
+     (`SKY_WARMTH` 0.38 → ≈ 0.25) and the blob-shadow colour moves to
+     grey-blue (`#2A2A35` → ≈ `#2A2E3C`). Still no day/night cycle or
+     seasons.
+  2. **Ground and sea follow the reference:** grass toward mid-green
+     (`#6E9E52` / `#84B063`), dry patches browner and half as frequent,
+     rock and cliff bands neutral grey with less ochre, dirt roads
+     brown, paved roads grey cobble, sand one step less yellow; deep
+     water teal (`#22627D`), shallows a step past the probe
+     (≈ `#4A9C9F`) without the warming step in `mapcolors.ts`; haze
+     cooler. Field colours re-tuned so pasture is not lime on the new
+     grass. Shadow tones keep the measured role × (0.58, 0.56, 0.66)
+     rule; the rule is documented in `palette.json`.
+  3. **Building roles are untouched now** (the model rework comes
+     later) but the re-tune names what that rework uses: roofs per
+     tier as in 1404 — T1 thatch, T2 orange terracotta (the terracotta
+     role moves toward `#C4663A`), T3 a new `tile-dark` role
+     (≈ `#6E3A33`, the burgundy tile), T4 slate — plus a `brick` role
+     (≈ `#9C4A38`) for industry, warehouses and the depot, whiter
+     plaster and less ochre on facades. This keeps D-063 §3's
+     terracotta-minority rule for tier 3–4 and makes it concrete.
+  4. **The palette stays one global file.** Region overlays for
+     water, terrain and light are deferred to the region-2 decision;
+     D-063 §3's "light stays the one golden hour everywhere" is
+     superseded by "one fixed daylight per region, the Old Coast's is
+     this one".
+- **Why:** the reference, not realism, is the yardstick (D-050); the
+  probe showed the town sits on the ground instead of floating on a
+  yellow carpet, and the roofs read better against it. Terrain, water
+  and light are runtime values — cheap to tune; only trees, crags and
+  shadow tones need `make assets`.
+- **Consequences:** `assets/palette.json` version bump, `make assets`
+  (manifest `palette_sha256`), `palette.test.ts` pins, ART_DIRECTION §2
+  (daylight, fill, shadow) and §4 (terrain colours), CONTENT field
+  colour table if listed. Model rework (V7) applies §3.
+- **Rejected:** cooling the sea and light to North-Sea grey (moves
+  away from the reference); keeping the golden-hour grade and only
+  changing terrain (the orange cast is the main overshoot); building
+  a region overlay system now (nothing to overlay yet).
