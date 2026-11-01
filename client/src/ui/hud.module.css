@@ -685,6 +685,34 @@
   box-shadow: 0 2px 8px color-mix(in srgb, var(--ns-ui-ink) 45%, transparent);
 }
 
+/* A tier unlock (D-056): a brass-edged slip with a title, the tier's icon in brass. */
+.toastUnlock {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-left-color: var(--ns-ui-brass);
+  background: var(--ns-ui-parchment);
+}
+
+.toastUnlock > svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--ns-ui-brass);
+}
+
+.toastBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toastTitle {
+  font-family: var(--ns-font-display, serif);
+  font-size: 15px;
+  color: var(--ns-ui-dark-wood);
+}
+
 .backdrop {
   position: absolute;
   z-index: 10;

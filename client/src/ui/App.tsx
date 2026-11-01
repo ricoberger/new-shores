@@ -43,7 +43,7 @@ import { RoutesPanel } from "./RoutesPanel";
 import { ShipmentDialog } from "./ShipmentDialog";
 import { ShipPanel } from "./ShipPanel";
 import { ShipsPanel } from "./ShipsPanel";
-import { type Toast, Toasts } from "./Toasts";
+import { type Toast, toastDuration, Toasts } from "./Toasts";
 import { DemolishBar, PlacementBar, RoadBar } from "./PlacementBar";
 import { Sheet } from "./Sheet";
 import { useLayout } from "./useLayout";
@@ -64,7 +64,6 @@ import { statsRequested } from "../dev/stats";
 
 /** Demolishing anything that cost more than this (milli-gold) is confirmed. */
 const CONFIRM_DEMOLISH_GOLD = 100_000;
-const TOAST_MS = 5000;
 
 /** Test hook (dev and E2E builds only; tree-shaken from production builds). */
 export interface TestHook {
@@ -226,10 +225,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const selectedShip = selectedShipId === null ? undefined : model?.ships.find((s) => s.id === selectedShipId);
   const warehouseType = content?.buildings.find((b) => b.trading_post)?.id ?? "";
 
-  const toast = useCallback((text: string) => {
+  const toast = useCallback((text: string, kind?: Toast["kind"]) => {
     const id = ++toastId.current;
-    setToasts((ts) => [...ts, { id, text }]);
-    setTimeout(() => setToasts((ts) => ts.filter((tl) => tl.id !== id)), TOAST_MS);
+    setToasts((ts) => [...ts, kind ? { id, text, kind } : { id, text }]);
+    setTimeout(() => setToasts((ts) => ts.filter((tl) => tl.id !== id)), toastDuration(kind));
   }, []);
 
   /** Sends a command; errors are toasts. Resolves to ok, the API error and the response. */
@@ -560,7 +559,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   // world models of this session.
   const prevModel = useRef(model);
   useEffect(() => {
-    for (const text of unlockToasts(prevModel.current, model, content)) toast(text);
+    for (const text of unlockToasts(prevModel.current, model, content)) toast(text, "unlock");
     prevModel.current = model;
   }, [model, content, toast]);
 

@@ -669,6 +669,7 @@ export const de: Record<keyof typeof en, string> = {
   "tier.waterEdge.front": "{count, one{Seine vordere Reihe muss} other{Seine vorderen {count} Reihen müssen}} im Wasser stehen — drehe es (R) zum Meer",
   "tier.waterEdge.land": "Nur seine vorderen Reihen dürfen im Wasser stehen",
   "tier.unlocked": "{name} freigeschaltet",
+  "toast.unlockTitle": "Neue Stufe",
   "tier.unlockedWith": "{name} freigeschaltet — {count} {count, one{neues Gebäude} other{neue Gebäude}}",
   "deposit.cover": "Muss ein Vorkommen ({kind}) bedecken",
   "deposit.cover.stone": "Muss ein Steinvorkommen bedecken",

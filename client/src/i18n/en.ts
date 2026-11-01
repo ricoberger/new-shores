@@ -667,6 +667,7 @@ export const en = {
   "tier.waterEdge.front": "Its {count, one{front row} other{{count} front rows}} must stand on the water — rotate it (R) to face the sea",
   "tier.waterEdge.land": "Only its front rows may stand on the water",
   "tier.unlocked": "{name} unlocked",
+  "toast.unlockTitle": "New tier",
   "tier.unlockedWith": "{name} unlocked — {count} new {count, one{building} other{buildings}}",
   "deposit.cover": "Must cover a {kind} deposit",
   "deposit.cover.stone": "Must cover a stone deposit",
