@@ -544,6 +544,20 @@
   text-align: left;
 }
 
+/* A need display group (D-065: Security) in a house card: a small heading row, its members indented. */
+.table th.needGroup {
+  padding-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ns-ui-ink-soft);
+}
+
+.table td.needInGroup {
+  padding-left: 12px;
+}
+
 .buttons {
   display: flex;
   gap: 6px;

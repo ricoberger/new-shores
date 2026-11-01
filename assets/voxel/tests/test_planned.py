@@ -116,8 +116,8 @@ class PlannedTest(unittest.TestCase):
         self.assertEqual(content.levels(base, "chapel"), 0)
         self.assertEqual(content.levels(c, "chapel"), 3)
         # The content's service levels (market, S1) win over the planned count.
-        self.assertEqual(content.levels(base, "market"), 3)
-        self.assertEqual(content.levels(c, "market"), 3)
+        self.assertEqual(content.levels(base, "market"), 4)
+        self.assertEqual(content.levels(c, "market"), 4)
         self.assertEqual(content.levels(c, "trading_post"), content.levels(base, "trading_post"))
         self.assertEqual(content.required_ids(c), content.required_ids(base))
 

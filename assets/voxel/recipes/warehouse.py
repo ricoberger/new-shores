@@ -4,11 +4,15 @@ with a wide two-leaf gate (1) that becomes a coursed-stone hall with
 dressed quoins, tiles and a loft door with a hoist (2) and gains a
 second, jettied hall and a yard crane (3); crates, sacks, barrels and a
 hand cart in the yard; level 3 adds a striped awning over the hall's
-front and a flag on the second hall (cloth, they sway).
+front and a flag on the second hall (cloth, they sway). The content's
+level 4 (D-065) has no model yet: the client draws level 3.
 """
 
 from nsvoxel import parts as P
 from nsvoxel.mats import CANVAS, PLASTER, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+
+#: Modelled levels; the content's level 4 (D-065) may follow in a later model round.
+LEVELS = 3
 
 AWNING_A = P.cloth(CANVAS, "cloth")
 AWNING_B = P.cloth(P.mat("dye-blue", 1.1), "cloth")

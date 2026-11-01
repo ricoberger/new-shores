@@ -403,34 +403,57 @@ covers 0.6 and both cover it fully. A need is either:
   growth (invariant, §13). Lower-tier goods are not accepted by higher
   tiers' own categories (D-033). Houses count as running consumers for
   warehouse throughput and upstream blocking (§4, §5).
-- **Services (building need):** `{category: services, weight, buildings:
-  [{building, share?}]}`, one cumulative category per tier listing the
-  public buildings of that tier and every lower one. An alternative
-  serves a house when a building of that type is within its **service
-  radius** of the house — Euclidean distance between tile centres from
-  the **nearest footprint tile of the house** to the **nearest footprint
-  tile** of the public building (D-042) — and is road-connected to a
-  warehouse and not paused; the house itself must be connected (§3). The
-  radius is that of the building's current **level** (`service.levels`;
-  the small market 12/16/20, raised with `upgrade_building`, which needs
-  the level's tier unlocked and its cost). Coverage = `min(1, Σ share)`
-  over the serving alternatives. Without a serving building the UI
-  reason is, in precedence, `not_connected`, `paused`, `out_of_range`.
-  The display lists every serving building as `served_by` (IDs), so the
-  client can highlight serving buildings and, inverted, the houses a
-  building serves without evaluating the distance rule.
-- **Civic services (D-060/D-062):** safety (`city_guard`, Citizens and up),
-  fire protection (`fire_station`, Merchants and up) and health (`surgery`,
-  Patricians only) are building needs of their own category with one building
-  each (share 1.0), evaluated exactly like services and cumulative the
-  same way (each higher tier lists the category again with its own
-  weight). They are required categories and count in the upgrade gate
-  (§6.1). No new rule: a missing civic building lowers coverage, tax and
-  growth; there are no fires, disease or crime events. City guard and fire
-  station have radius 16, upgraded to 20 at Merchants. Surgery has one
-  radius-20 level and costs glass; Merchants no longer require health.
-  Patrician health weight is 0.08 (from services); Merchant services
-  regains 0.08. All own-tier weights still sum to one.
+- **Building need:** `{category, weight, buildings: [{building,
+  share?}]}`. An alternative serves a house when a building of that type
+  is within its **service radius** of the house — Euclidean distance
+  between tile centres from the **nearest footprint tile of the house** to
+  the **nearest footprint tile** of the public building (D-042) — and is
+  road-connected to a warehouse and not paused; the house itself must be
+  connected (§3). The radius is that of the building's current **level**
+  (`service.levels`). Coverage = `min(1, Σ share)` over the serving
+  alternatives. Without a serving building the UI reason is, in
+  precedence, `not_connected`, `paused`, `out_of_range`. The display
+  lists every serving building as `served_by` (IDs), so the client can
+  highlight serving buildings and, inverted, the houses a building serves
+  without evaluating the distance rule.
+- **Market (D-065):** every tier has a `market` category served by the
+  market alone (share 1.0). The market has four levels with radius
+  12/15/18/21, raised in place with `upgrade_building`; level *n* needs
+  tier *n* unlocked (Settlers place level 1; Citizens, Merchants and
+  Patricians unlock levels 2–4) and the level's cost.
+- **Chain need (D-065):** `{category, weight, chain, min_rank}`. The
+  public buildings of a chain carry a rank (`service.chain`/`rank`):
+  faith chapel 1 < church 2 < cathedral 3, education school 1 <
+  university 2, culture tavern 1 < playhouse 2. A chain need is served
+  (coverage 1) by **any** building of its chain whose rank is at least
+  `min_rank`, within **that building's own radius** and under the same
+  connection and pause rules as a building need; there is no partial
+  coverage from a lower rank. Minimum ranks: Settlers faith 1; Citizens
+  faith, education and culture 1; Merchants faith 2, education 1,
+  culture 2; Patricians faith 3, education 2, culture 2. So one church
+  serves Settlers, Citizens and Merchants around it, and a lower-rank
+  building next to it adds nothing. Chain buildings have one level.
+  `served_by` lists every serving chain building; the reasons are those
+  of a building need.
+- **Civic services (D-060/D-062/D-065):** safety (`city_guard`, Citizens and
+  up), fire protection (`fire_station`, Merchants and up) and health
+  (`surgery`, Patricians only) are building needs of their own category
+  with one building each (share 1.0); each higher tier lists the category
+  again with its own weight. They are required categories and
+  count in the upgrade gate (§6.1). No new rule: a missing civic building
+  lowers coverage, tax and growth; there are no fires, disease or crime
+  events. City guard and fire station have one radius-16 level and no
+  upgrade; the surgery has one radius-20 level and costs glass.
+- **Display groups:** every category names a display group
+  (`need_categories[].group`): `goods` for food, drink, clothing, comfort
+  and luxury, `public` for market, faith, education, culture, safety,
+  fire protection and health (Anno 1404's split). The client shows a
+  house's needs under these two headings; groups have no rule effect.
+- **Weights (D-065):** the former services weight of a tier is split
+  0.4 to the market and the rest equally among its chain categories (Settlers
+  market 0.12, faith 0.18; Citizens market 0.12, faith, education and
+  culture 0.06 each; Merchants 0.096 and 0.048 each; Patricians 0.04 and
+  0.02 each). All own-tier weights still sum to one.
 - **Cumulative tiers:** a house also carries the goods categories of
   every lower tier (`from_tier`), with that tier's goods at a reduced
   rate: `rate × (own max / higher max) × 0.5^(dist / 3)`, where *own max*

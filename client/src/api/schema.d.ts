@@ -1890,8 +1890,12 @@ export interface components {
             id: string;
             /** @enum {string} */
             kind: "required" | "optional";
-            /** @description Goods needs only. */
+            /** @description Need category (need_categories); set on goods needs, chain needs and categorised building needs. */
             category?: string;
+            /** @description Chain needs only (D-065) — the service chain whose building serves the house. */
+            chain?: string;
+            /** @description Chain needs only (D-065) — the lowest rank of the chain that serves the house, within that building's own radius. */
+            min_rank?: number;
             /** @description The public building of a building need with a single alternative (content building ID); absent for goods needs and services categories. */
             building?: string;
             /**
@@ -2493,6 +2497,8 @@ export interface components {
                      * @description Collector throughput (milli-units per minute).
                      */
                     throughput_per_min: number;
+                    /** @description Tier that must be unlocked to upgrade into this level (D-065). */
+                    tier?: string;
                     /**
                      * @description Upgrade cost into this level (`upgrade_warehouse`);
                      *     absent on the first level, which the building cost
@@ -2539,6 +2545,10 @@ export interface components {
             service?: {
                 /** @description Service radius at level 1 (tiles). */
                 radius: number;
+                /** @description Service chain of a chain building (D-065, e.g. `faith`); absent for the other public buildings. */
+                chain?: string;
+                /** @description Rank within the chain (D-065), 1-based; a chain building has exactly one level. */
+                rank?: number;
                 /** @description Levels in order (D-056); a public building without levels has one. Later levels are reached by `upgrade_building`. */
                 levels: {
                     /** @description Service radius (tiles). */
@@ -2642,6 +2652,8 @@ export interface components {
             name: string;
             /** @description HUD icon key (assets/icons/icons.json), e.g. `need:food`. */
             icon: string;
+            /** @description Display group (e.g. `goods`, `public`); categories with the same group are shown under one heading. */
+            group?: string;
         };
         ContentNeed: {
             id: string;
@@ -2657,8 +2669,12 @@ export interface components {
              * @description Satisfaction weight (ppm, normalised; own-tier categories share 0.6 when the tier carries lower-tier categories).
              */
             weight: number;
-            /** @description Goods needs only. */
+            /** @description Need category (need_categories); set on goods needs, chain needs and categorised building needs. */
             category?: string;
+            /** @description Chain needs only (D-065) — the service chain whose buildings serve the house. */
+            chain?: string;
+            /** @description Chain needs only (D-065) — the lowest rank of the chain that serves the house, within that building's own radius. */
+            min_rank?: number;
             /** @description Goods needs only. */
             goods?: {
                 good: string;

@@ -76,12 +76,19 @@
       "levels": [
         { "throughput_per_min": 30 },
         {
-          "throughput_per_min": 55,
+          "throughput_per_min": 50,
+          "tier": "citizens",
           "cost": { "gold": 150, "planks": 10, "stone": 5 }
         },
         {
-          "throughput_per_min": 80,
+          "throughput_per_min": 70,
+          "tier": "merchants",
           "cost": { "gold": 300, "planks": 15, "stone": 10 }
+        },
+        {
+          "throughput_per_min": 90,
+          "tier": "patricians",
+          "cost": { "gold": 600, "planks": 20, "stone": 20 }
         }
       ]
     }
@@ -100,8 +107,9 @@
     "service": {
       "levels": [
         { "radius": 12 },
-        { "radius": 16, "tier": "merchants", "cost": { "gold": 1000, "planks": 15, "stone": 30 } },
-        { "radius": 20, "tier": "patricians", "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } }
+        { "radius": 15, "cost": { "gold": 400, "planks": 10, "stone": 10 } },
+        { "radius": 18, "cost": { "gold": 1000, "planks": 15, "stone": 30 } },
+        { "radius": 21, "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } }
       ]
     }
   },
@@ -116,7 +124,7 @@
     "cost": { "gold": 100, "planks": 6 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "service": { "radius": 16 }
+    "service": { "chain": "faith", "rank": 1, "radius": 16 }
   },
   {
     "id": "lumberjack",
@@ -335,7 +343,7 @@
     "cost": { "gold": 250, "planks": 15 },
     "upkeep_per_min": 2,
     "pause_category": "public",
-    "service": { "radius": 14 }
+    "service": { "chain": "culture", "rank": 1, "radius": 14 }
   },
   {
     "id": "school",
@@ -348,7 +356,7 @@
     "cost": { "gold": 1000, "planks": 15, "stone": 30 },
     "upkeep_per_min": 4,
     "pause_category": "public",
-    "service": { "radius": 16 }
+    "service": { "chain": "education", "rank": 1, "radius": 16 }
   },
   {
     "id": "city_guard",
@@ -361,12 +369,7 @@
     "cost": { "gold": 200, "planks": 10, "stone": 6 },
     "upkeep_per_min": 2,
     "pause_category": "public",
-    "service": {
-      "levels": [
-        { "radius": 16 },
-        { "radius": 20, "tier": "merchants", "cost": { "gold": 200, "planks": 10, "stone": 6 } }
-      ]
-    }
+    "service": { "radius": 16 }
   },
   {
     "id": "wheat_farm",
@@ -842,7 +845,7 @@
     "cost": { "gold": 1500, "planks": 30, "stone": 15 },
     "upkeep_per_min": 6,
     "pause_category": "public",
-    "service": { "radius": 20 }
+    "service": { "chain": "faith", "rank": 2, "radius": 20 }
   },
   {
     "id": "playhouse",
@@ -856,7 +859,7 @@
     "cost": { "gold": 15000, "planks": 30, "stone": 60, "bricks": 30 },
     "upkeep_per_min": 15,
     "pause_category": "public",
-    "service": { "radius": 24 }
+    "service": { "chain": "culture", "rank": 2, "radius": 24 }
   },
   {
     "id": "fire_station",
@@ -869,12 +872,7 @@
     "cost": { "gold": 400, "planks": 15, "stone": 15, "bricks": 5 },
     "upkeep_per_min": 4,
     "pause_category": "public",
-    "service": {
-      "levels": [
-        { "radius": 16 },
-        { "radius": 20, "tier": "merchants", "cost": { "gold": 400, "planks": 15, "stone": 15, "bricks": 5 } }
-      ]
-    }
+    "service": { "radius": 16 }
   },
   {
     "id": "surgery",
@@ -1318,7 +1316,7 @@
     "cost": { "gold": 50000, "planks": 45, "stone": 45, "bricks": 60 },
     "upkeep_per_min": 45,
     "pause_category": "public",
-    "service": { "radius": 24 }
+    "service": { "chain": "education", "rank": 2, "radius": 24 }
   },
   {
     "id": "cathedral",
@@ -1331,7 +1329,7 @@
     "cost": { "gold": 60000, "planks": 15, "stone": 60, "bricks": 60, "glass": 30 },
     "upkeep_per_min": 30,
     "pause_category": "public",
-    "service": { "radius": 28 }
+    "service": { "chain": "faith", "rank": 3, "radius": 28 }
   },
   {
     "id": "cattle_farm",

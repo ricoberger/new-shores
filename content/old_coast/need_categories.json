@@ -1,11 +1,14 @@
 [
-  { "id": "food", "name": "Food", "icon": "need:food" },
-  { "id": "drink", "name": "Drink", "icon": "need:drink" },
-  { "id": "clothing", "name": "Clothing", "icon": "need:clothing" },
-  { "id": "comfort", "name": "Comfort", "icon": "need:comfort" },
-  { "id": "luxury", "name": "Luxury", "icon": "need:luxury" },
-  { "id": "services", "name": "Services", "icon": "need:services" },
-  { "id": "safety", "name": "Safety", "icon": "need:safety" },
-  { "id": "fire_protection", "name": "Fire protection", "icon": "need:fire_protection" },
-  { "id": "health", "name": "Health", "icon": "need:health" }
+  { "id": "food", "name": "Food", "icon": "need:food", "group": "goods" },
+  { "id": "drink", "name": "Drink", "icon": "need:drink", "group": "goods" },
+  { "id": "clothing", "name": "Clothing", "icon": "need:clothing", "group": "goods" },
+  { "id": "comfort", "name": "Comfort", "icon": "need:comfort", "group": "goods" },
+  { "id": "luxury", "name": "Luxury", "icon": "need:luxury", "group": "goods" },
+  { "id": "market", "name": "Market", "icon": "need:market", "group": "public" },
+  { "id": "faith", "name": "Faith", "icon": "need:chapel", "group": "public" },
+  { "id": "education", "name": "Education", "icon": "good:books", "group": "public" },
+  { "id": "culture", "name": "Culture", "icon": "need:tavern", "group": "public" },
+  { "id": "safety", "name": "Safety", "icon": "need:safety", "group": "public" },
+  { "id": "fire_protection", "name": "Fire protection", "icon": "need:fire_protection", "group": "public" },
+  { "id": "health", "name": "Health", "icon": "need:health", "group": "public" }
 ]

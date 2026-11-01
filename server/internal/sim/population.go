@@ -47,7 +47,9 @@ import (
 // Building needs are per house: fulfilled when the house is connected and a
 // non-paused, road-connected building of the type has a footprint tile
 // within Euclidean distance radius of the nearest footprint tile of the
-// house (tile centres, D-042).
+// house (tile centres, D-042). A chain need (D-065) is fulfilled by any such
+// building of the chain with rank >= the need's minimum rank, within that
+// building's own radius.
 
 // Goods need reasons and building need reasons (display).
 const (
@@ -370,7 +372,7 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 					res.reason = NeedOK
 				}
 			} else {
-				if services == nil {
+				if services.byType == nil {
 					services = indexServices(is, c)
 				}
 				res.reason, res.servedBy, res.fulfilment = buildingNeed(services, def, b, need)
@@ -430,11 +432,17 @@ func growthRate(rules content.Rules, satisfaction int64) int64 {
 	return -mulDivAny(rules.DeclinePerMin*unitsPerMilliPerMin, rules.GrowthThreshold-satisfaction, ppm)
 }
 
-// serviceIndex lists the buildings of an island by type, in the island's
-// building order, for the types that have a service block (the only ones
-// that can serve a building need). It is built once per rate computation
-// so that a house does not scan every building of the island per need.
-type serviceIndex map[string]serviceBuildings
+// serviceIndex lists the buildings of an island by type and by chain, in
+// the island's building order, for the types that have a service block
+// (the only ones that can serve a building need). It is built once per
+// rate computation so that a house does not scan every building of the
+// island per need.
+type serviceIndex struct {
+	byType map[string]serviceBuildings
+	// byChain lists, per service chain (D-065), the type groups of its
+	// buildings.
+	byChain map[string][]serviceBuildings
+}
 
 type serviceBuildings struct {
 	def       *content.Building
@@ -442,9 +450,9 @@ type serviceBuildings struct {
 }
 
 func indexServices(is *Island, c *content.Catalogue) serviceIndex {
-	idx := serviceIndex{}
+	idx := serviceIndex{byType: map[string]serviceBuildings{}}
 	for _, b := range is.Buildings {
-		sb, ok := idx[b.Type]
+		sb, ok := idx.byType[b.Type]
 		if !ok {
 			def := c.BuildingByID[b.Type]
 			if def == nil || def.Service == nil {
@@ -453,42 +461,80 @@ func indexServices(is *Island, c *content.Catalogue) serviceIndex {
 			sb.def = def
 		}
 		sb.buildings = append(sb.buildings, b)
-		idx[b.Type] = sb
+		idx.byType[b.Type] = sb
+	}
+	for _, id := range sortedKeys(idx.byType) {
+		if sb := idx.byType[id]; sb.def.Service.Chain != "" {
+			if idx.byChain == nil {
+				idx.byChain = map[string][]serviceBuildings{}
+			}
+			idx.byChain[sb.def.Service.Chain] = append(idx.byChain[sb.def.Service.Chain], sb)
+		}
 	}
 	return idx
 }
 
-// buildingNeed evaluates a building (services) need for one connected
-// house (D-056): every alternative building type that serves the house
-// adds its share, coverage = min(1, sum). A type serves when one of its
-// buildings reaches the house within the service radius of its level and
-// is usable (not paused, connected). It returns the reason (NeedOK when an
-// alternative serves), the IDs of the serving buildings (ascending order
-// of the island's buildings; empty unless NeedOK) and the coverage (ppm).
-// Without a serving building the reason is the most actionable among the
-// buildings in range: not_connected over paused over out_of_range.
+// serveState collects the buildings that serve one house for one need.
+type serveState struct {
+	reason string
+	served []int64
+}
+
+// consider records the building b of the type def if it reaches the house
+// (within the radius of its own level) and is usable: not paused and
+// connected. Without a serving building the reason is the most actionable
+// among the buildings in range: not_connected over paused over
+// out_of_range.
+func (st *serveState) consider(def *content.Building, b *Building, house *Building, hw, hh int) bool {
+	if !withinRadius(def, b, house.X, house.Y, hw, hh, def.Service.RadiusAt(b.Level)) {
+		return false
+	}
+	switch {
+	case b.Paused:
+		if st.reason == NeedOutOfRange {
+			st.reason = NeedPaused
+		}
+	case b.AssignedWarehouseID == 0:
+		st.reason = NeedNotConnected
+	default:
+		st.served = append(st.served, b.ID)
+		return true
+	}
+	return false
+}
+
+// buildingNeed evaluates a building need for one connected house (D-056,
+// D-065). An alternatives need: every alternative building type that
+// serves the house adds its share, coverage = min(1, sum). A chain need
+// (chain + min_rank): served when any building of the chain with rank >=
+// min_rank reaches the house within its own radius; coverage is 1 when
+// served, else 0. A building serves when it is within the service radius
+// of its level and usable (not paused, connected). It returns the reason
+// (NeedOK when served), the IDs of the serving buildings (ascending; empty
+// unless NeedOK) and the coverage (ppm). Without a serving building the
+// reason is the most actionable among the buildings in range:
+// not_connected over paused over out_of_range.
 func buildingNeed(services serviceIndex, houseDef *content.Building, house *Building, need *content.Need) (string, []int64, int64) {
 	hw, hh := footprint(houseDef, house.Rotation)
-	reason := NeedOutOfRange
-	var served []int64
+	st := serveState{reason: NeedOutOfRange}
 	var coverage int64
-	for _, nb := range need.Buildings {
-		serves := false
-		sb := services[nb.Building]
-		for _, b := range sb.buildings {
-			def := sb.def
-			if !withinRadius(def, b, house.X, house.Y, hw, hh, def.Service.RadiusAt(b.Level)) {
+	if need.IsChain() {
+		for _, sb := range services.byChain[need.Chain] {
+			if sb.def.Service.Rank < need.MinRank {
 				continue
 			}
-			switch {
-			case b.Paused:
-				if reason == NeedOutOfRange {
-					reason = NeedPaused
+			for _, b := range sb.buildings {
+				if st.consider(sb.def, b, house, hw, hh) {
+					coverage = ppm
 				}
-			case b.AssignedWarehouseID == 0:
-				reason = NeedNotConnected
-			default:
-				served = append(served, b.ID)
+			}
+		}
+	}
+	for _, nb := range need.Buildings {
+		serves := false
+		sb := services.byType[nb.Building]
+		for _, b := range sb.buildings {
+			if st.consider(sb.def, b, house, hw, hh) {
 				serves = true
 			}
 		}
@@ -496,11 +542,11 @@ func buildingNeed(services serviceIndex, houseDef *content.Building, house *Buil
 			coverage += nb.Share
 		}
 	}
-	if len(served) > 0 {
-		slices.Sort(served)
-		return NeedOK, served, min(coverage, ppm)
+	if len(st.served) > 0 {
+		slices.Sort(st.served)
+		return NeedOK, st.served, min(coverage, ppm)
 	}
-	return reason, nil, 0
+	return st.reason, nil, 0
 }
 
 // withinRadius reports whether the footprint of b and the footprint

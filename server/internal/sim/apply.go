@@ -1156,6 +1156,9 @@ func needCap(n *content.Need) int64 {
 	for _, nb := range n.Buildings {
 		sum += nb.Share
 	}
+	if n.IsChain() {
+		sum += ppm
+	}
 	return min(sum, ppm)
 }
 

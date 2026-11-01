@@ -1,0 +1,519 @@
+{
+  "name": "bootstrap_citizens",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "seed": {
+    "archipelago": 1053001,
+    "start": true
+  },
+  "road": "road_dirt",
+  "chains": {
+    "buildings": {
+      "culture": [
+        "tavern",
+        "playhouse"
+      ],
+      "education": [
+        "school",
+        "university"
+      ],
+      "faith": [
+        "chapel",
+        "church",
+        "cathedral"
+      ]
+    },
+    "min_rank": {
+      "settlers": {
+        "faith": 1
+      },
+      "citizens": {
+        "faith": 1,
+        "education": 1,
+        "culture": 1
+      },
+      "merchants": {
+        "faith": 2,
+        "education": 1,
+        "culture": 2
+      },
+      "patricians": {
+        "faith": 3,
+        "education": 2,
+        "culture": 2
+      }
+    }
+  },
+  "quarters": [
+    {
+      "id": "home-1",
+      "island": "isle-01",
+      "civic": [
+        "market",
+        "chapel",
+        "tavern",
+        "school",
+        "city_guard",
+        "fire_station",
+        "surgery"
+      ],
+      "reach": [
+        "church"
+      ],
+      "houses": 40,
+      "serves": {
+        "citizens": 14,
+        "merchants": 12,
+        "patricians": 4
+      },
+      "rings": [
+        {
+          "houses": 10,
+          "civic": 2
+        },
+        {
+          "houses": 14,
+          "civic": 5
+        }
+      ]
+    },
+    {
+      "id": "isle2-1",
+      "island": "isle-02",
+      "civic": [
+        "market",
+        "chapel",
+        "city_guard"
+      ],
+      "houses": 32,
+      "rings": [
+        {
+          "houses": 28,
+          "civic": 2
+        }
+      ]
+    },
+    {
+      "id": "home-2",
+      "island": "isle-01",
+      "near": [
+        119,
+        99
+      ],
+      "civic": [
+        "market",
+        "chapel"
+      ],
+      "houses": 16
+    },
+    {
+      "id": "home-3",
+      "island": "isle-01",
+      "near": [
+        93,
+        22
+      ],
+      "civic": [
+        "market",
+        "chapel",
+        "city_guard",
+        "fire_station",
+        "surgery"
+      ],
+      "houses": 36,
+      "serves": {
+        "merchants": 26
+      },
+      "rings": [
+        {
+          "houses": 10,
+          "civic": 2
+        }
+      ]
+    },
+    {
+      "id": "isle6-1",
+      "island": "isle-06",
+      "near": [
+        57,
+        95
+      ],
+      "civic": [
+        "market",
+        "chapel",
+        "city_guard"
+      ],
+      "houses": 20,
+      "rings": [
+        {
+          "houses": 15,
+          "civic": 2
+        }
+      ]
+    },
+    {
+      "id": "home-4",
+      "island": "isle-01",
+      "near": [
+        57,
+        46
+      ],
+      "civic": [
+        "market",
+        "chapel",
+        "city_guard",
+        "fire_station",
+        "surgery"
+      ],
+      "houses": 28,
+      "serves": {
+        "merchants": 12
+      },
+      "rings": [
+        {
+          "houses": 16,
+          "civic": 2
+        }
+      ]
+    },
+    {
+      "id": "home-5",
+      "island": "isle-01",
+      "near": [
+        105,
+        159
+      ],
+      "civic": [
+        "market",
+        "chapel"
+      ],
+      "houses": 22
+    }
+  ],
+  "actions": [
+    {
+      "step": {
+        "sail_ship": {
+          "ship": 1,
+          "to": "isle-01"
+        }
+      }
+    },
+    {
+      "found": {
+        "ship": 1,
+        "island": "isle-01",
+        "at": [
+          163,
+          149,
+          90
+        ]
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "market"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-1",
+        "count": 22
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "chapel"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-1",
+        "count": 7
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-1",
+        "count": 5
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-1",
+        "count": 2
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "manual_shipment": {
+          "ship": 1,
+          "to": "isle-02",
+          "cargo": {
+            "planks": 40
+          }
+        }
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-1",
+        "count": 3
+      }
+    },
+    {
+      "found": {
+        "ship": 1,
+        "island": "isle-02",
+        "at": [
+          214,
+          109,
+          90
+        ]
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "shipyard",
+        "count": 1
+      }
+    },
+    {
+      "order_ship": {
+        "island": "isle-01",
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "quarry",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "create_route": {
+          "name": "Stone out, tools home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "load": {
+                "planks": 50,
+                "stone": 50
+              },
+              "unload": [
+                "tools"
+              ]
+            },
+            {
+              "island": "isle-02",
+              "load": {
+                "tools": 50
+              },
+              "unload": [
+                "stone",
+                "planks"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 1,
+          "route": 1
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 5
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "charcoal_burner",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "iron_mine",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "smelter",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "toolmaker",
+        "count": 1
+      }
+    },
+    {
+      "checkpoint": {
+        "name": "tools on the start island",
+        "stock": {
+          "island": "isle-01",
+          "good": "tools"
+        },
+        "max": "90m"
+      }
+    },
+    {
+      "wait": "30m"
+    }
+  ]
+}

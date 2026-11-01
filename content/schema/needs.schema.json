@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/ricoberger/new-shores/content/schema/needs.schema.json",
   "title": "Needs",
-  "description": "Needs per tier (CONTENT §2, §11, MECHANICS §6.2). A need is either a goods need (a category with acceptable goods) or a building need (services, D-056: the public buildings of the tier or below that serve the house within their service radius, buildings.json service levels). Every acceptable good and every building alternative has a share (D-056): category coverage = min(1, sum of the shares of the supplied alternatives x their supply ratio). The share is optional: when absent the loader uses 1.0 for a lone alternative and 0.6 for each of two or more; an authored share wins. kind: required needs count toward satisfaction (own-tier required weights sum to 1; see from_tier for lower-tier categories); optional needs are shown but have no effect (the optional tax bonus was removed by D-056). name is the player-facing name (1–32 printable characters; display data only); a goods need's category must be listed in need_categories.json.",
+  "description": "Needs per tier (CONTENT §2, §11, MECHANICS §6.2). A need is a goods need (a category with acceptable goods), a building need (D-056: alternative public buildings of the tier or below that serve the house within their service radius) or a chain need (D-065: chain + min_rank, served by any building of a service chain with rank >= min_rank within its own radius). Every acceptable good and every building alternative has a share (D-056): category coverage = min(1, sum of the shares of the supplied alternatives x their supply ratio). The share is optional: when absent the loader uses 1.0 for a lone alternative and 0.6 for each of two or more; an authored share wins. kind: required needs count toward satisfaction (own-tier required weights sum to 1; see from_tier for lower-tier categories); optional needs are shown but have no effect (the optional tax bonus was removed by D-056). name is the player-facing name (1–32 printable characters; display data only); a goods need's category must be listed in need_categories.json.",
   "type": "array",
   "items": {
     "type": "object",
@@ -33,6 +33,15 @@
           }
         }
       },
+      "chain": {
+        "description": "Service chain of a chain need (D-065): served when any building of the chain with rank >= min_rank reaches the house within its own radius. Needs a category and min_rank.",
+        "$ref": "#/$defs/id"
+      },
+      "min_rank": {
+        "description": "Minimum rank of the chain building that serves a chain need (D-065).",
+        "type": "integer",
+        "minimum": 1
+      },
       "buildings": {
         "type": "array",
         "minItems": 1,
@@ -50,11 +59,15 @@
     "oneOf": [
       {
         "required": ["category", "goods"],
-        "not": { "required": ["buildings"] }
+        "not": { "anyOf": [{ "required": ["buildings"] }, { "required": ["chain"] }, { "required": ["min_rank"] }] }
       },
       {
         "required": ["buildings"],
-        "not": { "anyOf": [{ "required": ["goods"] }, { "required": ["from_tier"] }] }
+        "not": { "anyOf": [{ "required": ["goods"] }, { "required": ["from_tier"] }, { "required": ["chain"] }, { "required": ["min_rank"] }] }
+      },
+      {
+        "required": ["category", "chain", "min_rank"],
+        "not": { "anyOf": [{ "required": ["goods"] }, { "required": ["from_tier"] }, { "required": ["buildings"] }] }
       }
     ]
   },

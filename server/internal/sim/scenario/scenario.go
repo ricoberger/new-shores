@@ -575,6 +575,66 @@ func RunSteps(s *Scenario, c *content.Catalogue, n int) (*sim.World, error) {
 	return w, nil
 }
 
+// Session executes steps one at a time on a scenario's world without a
+// report: the reference-game generator (plan, D-067) tries each command
+// there and records the steps that succeed. A failed command leaves the
+// world unchanged (sim.Apply), so the recorded steps replay to the same
+// world.
+type Session struct {
+	r *runner
+}
+
+// NewSession builds the scenario's world (its steps are not run).
+func NewSession(s *Scenario, c *content.Catalogue) (*Session, error) {
+	l := sim.NewLedger()
+	w, err := BuildWorld(s, c, l)
+	if err != nil {
+		return nil, err
+	}
+	return &Session{r: &runner{s: s, c: c, w: w, l: l, report: &Report{Name: s.Name}, noSnapshots: true}}, nil
+}
+
+// Step executes one step (expect_error is not supported).
+func (s *Session) Step(st Step) error {
+	if _, err := st.kind(); err != nil {
+		return err
+	}
+	if st.ExpectError != "" {
+		return errors.New("session: expect_error is not supported")
+	}
+	return s.r.step(0, st)
+}
+
+// Try executes steps on a copy of the session's world and returns the
+// copy; the session is unchanged.
+func (s *Session) Try(steps ...Step) (*sim.World, error) {
+	return s.TryEach(steps, nil)
+}
+
+// TryEach is Try that calls each (when not nil) with the copy after every
+// step.
+func (s *Session) TryEach(steps []Step, each func(*sim.World)) (*sim.World, error) {
+	cp := &runner{s: s.r.s, c: s.r.c, w: s.r.w.Clone(), l: sim.NewLedger(), report: &Report{Name: s.r.s.Name}, noSnapshots: true}
+	for _, st := range steps {
+		if _, err := st.kind(); err != nil {
+			return nil, err
+		}
+		if st.ExpectError != "" {
+			return nil, errors.New("session: expect_error is not supported")
+		}
+		if err := cp.step(0, st); err != nil {
+			return cp.w, err
+		}
+		if each != nil {
+			each(cp.w)
+		}
+	}
+	return cp.w, nil
+}
+
+// World returns the session's world; callers must not change it.
+func (s *Session) World() *sim.World { return s.r.w }
+
 // firstTradingPostType returns the first building type with a
 // trading_post block.
 func firstTradingPostType(c *content.Catalogue) string {
@@ -676,6 +736,8 @@ type runner struct {
 	tiers      []string
 	populated  map[string]bool
 	lastAdv    int
+	// noSnapshots skips the snapshots of advances (Session).
+	noSnapshots bool
 }
 
 // Run executes the scenario and returns its report. A failing step fails the
@@ -944,7 +1006,7 @@ func (r *runner) step(i int, st Step) error {
 		r.report.BoundaryCount += len(bs)
 		r.boundaries += len(bs)
 		r.recordPauseEvents(bs)
-		if r.wantSnapshot(i) {
+		if !r.noSnapshots && r.wantSnapshot(i) {
 			r.report.Snapshots = append(r.report.Snapshots, r.snapshot(i, r.boundaries))
 			r.boundaries = 0
 		}

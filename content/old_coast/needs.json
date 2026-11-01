@@ -18,13 +18,23 @@
     "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.005 }]
   },
   {
-    "id": "settlers_services",
-    "name": "Services",
+    "id": "settlers_market",
+    "name": "Market",
     "tier": "settlers",
     "kind": "required",
-    "weight": 0.3,
-    "category": "services",
-    "buildings": [{ "building": "market" }, { "building": "chapel" }]
+    "weight": 0.12,
+    "category": "market",
+    "buildings": [{ "building": "market" }]
+  },
+  {
+    "id": "settlers_faith",
+    "name": "Faith",
+    "tier": "settlers",
+    "kind": "required",
+    "weight": 0.18,
+    "category": "faith",
+    "chain": "faith",
+    "min_rank": 1
   },
   {
     "id": "citizens_food",
@@ -63,18 +73,43 @@
     ]
   },
   {
-    "id": "citizens_services",
-    "name": "Services",
+    "id": "citizens_market",
+    "name": "Market",
     "tier": "citizens",
     "kind": "required",
-    "weight": 0.3,
-    "category": "services",
-    "buildings": [
-      { "building": "market" },
-      { "building": "chapel" },
-      { "building": "tavern" },
-      { "building": "school" }
-    ]
+    "weight": 0.12,
+    "category": "market",
+    "buildings": [{ "building": "market" }]
+  },
+  {
+    "id": "citizens_faith",
+    "name": "Faith",
+    "tier": "citizens",
+    "kind": "required",
+    "weight": 0.06,
+    "category": "faith",
+    "chain": "faith",
+    "min_rank": 1
+  },
+  {
+    "id": "citizens_education",
+    "name": "Education",
+    "tier": "citizens",
+    "kind": "required",
+    "weight": 0.06,
+    "category": "education",
+    "chain": "education",
+    "min_rank": 1
+  },
+  {
+    "id": "citizens_culture",
+    "name": "Culture",
+    "tier": "citizens",
+    "kind": "required",
+    "weight": 0.06,
+    "category": "culture",
+    "chain": "culture",
+    "min_rank": 1
   },
   {
     "id": "citizens_safety",
@@ -154,20 +189,43 @@
     ]
   },
   {
-    "id": "merchants_services",
-    "name": "Services",
+    "id": "merchants_market",
+    "name": "Market",
     "tier": "merchants",
     "kind": "required",
-    "weight": 0.24,
-    "category": "services",
-    "buildings": [
-      { "building": "market" },
-      { "building": "chapel" },
-      { "building": "tavern" },
-      { "building": "school" },
-      { "building": "church" },
-      { "building": "playhouse" }
-    ]
+    "weight": 0.096,
+    "category": "market",
+    "buildings": [{ "building": "market" }]
+  },
+  {
+    "id": "merchants_faith",
+    "name": "Faith",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.048,
+    "category": "faith",
+    "chain": "faith",
+    "min_rank": 2
+  },
+  {
+    "id": "merchants_education",
+    "name": "Education",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.048,
+    "category": "education",
+    "chain": "education",
+    "min_rank": 1
+  },
+  {
+    "id": "merchants_culture",
+    "name": "Culture",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.048,
+    "category": "culture",
+    "chain": "culture",
+    "min_rank": 2
   },
   {
     "id": "merchants_safety",
@@ -307,22 +365,43 @@
     ]
   },
   {
-    "id": "patricians_services",
-    "name": "Services",
+    "id": "patricians_market",
+    "name": "Market",
     "tier": "patricians",
     "kind": "required",
-    "weight": 0.10,
-    "category": "services",
-    "buildings": [
-      { "building": "market" },
-      { "building": "chapel" },
-      { "building": "tavern" },
-      { "building": "school" },
-      { "building": "church" },
-      { "building": "playhouse" },
-      { "building": "university" },
-      { "building": "cathedral" }
-    ]
+    "weight": 0.04,
+    "category": "market",
+    "buildings": [{ "building": "market" }]
+  },
+  {
+    "id": "patricians_faith",
+    "name": "Faith",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.02,
+    "category": "faith",
+    "chain": "faith",
+    "min_rank": 3
+  },
+  {
+    "id": "patricians_education",
+    "name": "Education",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.02,
+    "category": "education",
+    "chain": "education",
+    "min_rank": 2
+  },
+  {
+    "id": "patricians_culture",
+    "name": "Culture",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.02,
+    "category": "culture",
+    "chain": "culture",
+    "min_rank": 2
   },
   {
     "id": "patricians_safety",

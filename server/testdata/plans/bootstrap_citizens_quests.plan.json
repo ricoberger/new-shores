@@ -1,0 +1,12 @@
+{
+  "name": "bootstrap_citizens_quests",
+  "description": "D-062: the exact Citizens command sequence, with quest claims and whole-minute waits only.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "seed": {
+    "archipelago": 1053001,
+    "start": true
+  },
+  "actions_of": "bootstrap_citizens.plan.json",
+  "claim_quests": "isle-01"
+}

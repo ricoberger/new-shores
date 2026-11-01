@@ -55,12 +55,16 @@ const content = {
         radius: 12,
         levels: [
           { radius: 12 },
-          { radius: 16, tier: "merchants", cost: { gold: 1_000_000, materials: { planks: 15_000, stone: 30_000 } } },
-          { radius: 20, tier: "patricians", cost: { gold: 5_000_000, materials: { planks: 15_000, stone: 45_000, bricks: 15_000 } } },
+          { radius: 15, tier: "citizens", cost: { gold: 400_000, materials: { planks: 10_000, stone: 10_000 } } },
+          { radius: 18, tier: "merchants", cost: { gold: 1_000_000, materials: { planks: 15_000, stone: 30_000 } } },
+          { radius: 21, tier: "patricians", cost: { gold: 5_000_000, materials: { planks: 15_000, stone: 45_000, bricks: 15_000 } } },
         ],
       },
     }),
     def("house_merchants", "Merchant house", { tier: "merchants", category: "housing", house: { tier: "merchants" } }),
+    def("chapel", "Chapel", { service: { radius: 16, chain: "faith", rank: 1, levels: [{ radius: 16 }] } }),
+    def("church", "Church", { tier: "merchants", service: { radius: 20, chain: "faith", rank: 2, levels: [{ radius: 20 }] } }),
+    def("cathedral", "Cathedral", { tier: "patricians", service: { radius: 28, chain: "faith", rank: 3, levels: [{ radius: 28 }] } }),
   ],
   ships: [
     { id: "sloop", name: "Sloop", tier: "citizens", slots: 2, slot_size: 50_000, build_ms: 120_000, upkeep_per_min: 1_000, cost: { gold: 100_000, materials: { planks: 20_000, sails: 10_000 } } },
@@ -109,46 +113,57 @@ describe("tier 3 in the cards (D-056)", () => {
     expect(text(html.match(/data-testid="shipyard-cost-brig">(.*?)<\/div>/)![1]!)).toBe("1500 gold·60Planks·20Sails·10Tools·5:00 min build");
   });
 
-  it("shows a market at level 2 with its radius and the Patrician-locked level 3", () => {
-    const html = panel(plain(9_002, "market", { level: 2 }));
+  it("shows a market at level 3 of 4 (D-065) with its radius and the Patrician-locked level 4", () => {
+    const html = panel(plain(9_002, "market", { level: 3 }));
     const t = text(html);
-    expect(t).toContain("Level2 / 3");
-    expect(t).toContain("Radius16 tiles");
-    expect(t).toContain("Upgrade to level 3");
-    expect(t).toContain("20 tiles radius");
+    expect(t).toContain("Level3 / 4");
+    expect(t).toContain("Radius18 tiles");
+    expect(t).toContain("Upgrade to level 4");
+    expect(t).toContain("21 tiles radius");
     expect(t).toContain("Needs Patricians");
     expect(html).toContain('data-testid="service-upgrade-button"');
   });
 
-  it("shows a Merchant house of the reference game: residents, its own categories with comfort, then the carried ones", () => {
+  it("shows a Merchant house of the reference game: residents, Goods (its own categories with comfort, then the carried ones), then Public buildings", () => {
     const house = home.buildings.find((b) => b.type === "house_merchants")!;
     const html = panel(house);
     const t = text(html);
     expect(t).toContain("Residents→ 25 / 25");
-    const rows = [...html.matchAll(/data-testid="house-need-([a-z_]+)"/g)].map((m) => m[1]);
+    const rows = [...html.matchAll(/data-testid="house-need-(?!group-)([a-z_]+)"/g)].map((m) => m[1]);
     expect(rows).toEqual([
       "merchants_food",
       "merchants_drink",
       "merchants_clothing",
       "merchants_comfort",
-      "merchants_services",
-      "merchants_safety",
-      "merchants_fire_protection",
       "merchants_settlers_food",
       "merchants_settlers_clothing",
       "merchants_citizens_food",
       "merchants_citizens_drink",
       "merchants_citizens_clothing",
+      "merchants_market",
+      "merchants_faith",
+      "merchants_education",
+      "merchants_culture",
+      "merchants_safety",
+      "merchants_fire_protection",
     ]);
     expect(t).toContain("Food (Citizens)");
+    // Goods and Public buildings headings, each right before its group's first row.
+    expect(html).toMatch(/data-testid="house-need-group-goods"[^>]*><th[^>]*>Goods<\/th><\/tr><tr[^>]*data-testid="house-need-merchants_food"/);
+    expect(html).toMatch(/data-testid="house-need-group-public"[^>]*><th[^>]*>Public buildings<\/th><\/tr><tr[^>]*data-testid="house-need-merchants_market"/);
+    // A chain need names the buildings of its rank or higher (D-065).
+    expect(html).toMatch(/data-testid="house-need-merchants_faith" title="Church or Cathedral/);
     // Comfort: its own icon and the server's fulfilment.
     const comfort = html.match(/data-testid="house-need-merchants_comfort"[^>]*>(.*?)<\/tr>/)![1]!;
     expect(text(comfort)).toBe("Comfort60 %");
     expect(comfort).toContain(`<path d="${ICON_PATHS["need:comfort"]}"`);
-    // The civic services (D-060): one building each, served by the civic cluster.
+    // The civic services (D-060): one building each, served by the civic cluster; the
+    // chains (D-065) by the church and the playhouse of the reference game.
     for (const [id, label] of [
       ["merchants_safety", "Safety100 %"],
       ["merchants_fire_protection", "Fire protection100 %"],
+      ["merchants_faith", "Faith100 %"],
+      ["merchants_culture", "Culture100 %"],
     ]) {
       const row = html.match(new RegExp(`data-testid="house-need-${id}"[^>]*>(.*?)</tr>`))![1]!;
       expect(text(row)).toBe(label);

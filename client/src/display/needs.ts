@@ -10,11 +10,12 @@ import { listOr } from "./format";
 /** The parts of the content the lookups read; every list is optional (older or partial catalogues). */
 export type NeedContent = Partial<Pick<Content, "needs" | "need_categories" | "buildings" | "tiers">> | null | undefined;
 
-/** A goods-need category for display: its name and HUD icon key (undefined when the content does not know it). */
+/** A need category for display: its name, HUD icon key and display group (undefined when the content does not know it). */
 export interface NeedCategoryInfo {
   id: string;
   name: string;
   icon?: string;
+  group?: string;
 }
 
 /** The display name of a need (content ID, e.g. "settlers_food" → "Food"); the ID when unknown. */
@@ -25,7 +26,7 @@ export function needName(content: NeedContent, id: string): string {
 /** A goods-need category (e.g. "clothing" → Clothing with icon need:clothing); the ID as name when unknown. */
 export function needCategory(content: NeedContent, id: string): NeedCategoryInfo {
   const c = content?.need_categories?.find((x) => x.id === id);
-  return c ? { id, name: c.name || id, icon: c.icon } : { id, name: id };
+  return c ? { id, name: c.name || id, icon: c.icon, ...(c.group ? { group: c.group } : {}) } : { id, name: id };
 }
 
 /** A need as the display payloads reference it: the need ID plus its category or building. */
@@ -73,19 +74,86 @@ export function orderNeeds<T extends { id: string }>(content: NeedContent, needs
 }
 
 /**
+ * The buildings of a service chain (D-065) that serve a minimum rank: every
+ * building of the chain with rank >= minRank, by rank (content order
+ * within a rank).
+ */
+export function chainBuildings(content: NeedContent, chain: string, minRank: number): string[] {
+  return (content?.buildings ?? [])
+    .filter((b) => b.service?.chain === chain && (b.service.rank ?? 0) >= minRank)
+    .sort((a, b) => (a.service?.rank ?? 0) - (b.service?.rank ?? 0))
+    .map((b) => b.id);
+}
+
+/**
  * The alternatives of a need from the content (D-056 weighted shares), as
- * display names in content order: "Bread or Cheese", "Small market,
- * Chapel, Tavern or School". Undefined for an unknown need or a need with
- * a single alternative.
+ * display names in content order: "Bread or Cheese"; for a chain need
+ * (D-065) the chain's buildings of the minimum rank or higher: "Church or
+ * Cathedral". Undefined for an unknown need or a need with a single
+ * alternative.
  */
 export function needAlternatives(content: (NeedContent & Partial<Pick<Content, "goods">>) | null | undefined, id: string): string | undefined {
   const n = content?.needs?.find((x) => x.id === id);
+  const buildingName = (b: string) => content?.buildings?.find((x) => x.id === b)?.name || b;
   const names = [
     ...(n?.goods ?? []).map((g) => content?.goods?.find((x) => x.id === g.good)?.name || g.good),
-    ...(n?.buildings ?? []).map((b) => content?.buildings?.find((x) => x.id === b.building)?.name || b.building),
+    ...(n?.buildings ?? []).map((b) => buildingName(b.building)),
+    ...(n?.chain ? chainBuildings(content, n.chain, n.min_rank ?? 1).map(buildingName) : []),
   ];
   if (names.length < 2) return undefined;
   return listOr(names);
+}
+
+/** The display group of a need category (need_categories[].group: "goods" or "public"); undefined without one. */
+export function needGroup(content: NeedContent, category: string | undefined): string | undefined {
+  if (!category) return undefined;
+  return content?.need_categories?.find((c) => c.id === category)?.group || undefined;
+}
+
+/** The heading of a need group: the catalogue's name for a known group, else its ID. */
+export function needGroupName(group: string): string {
+  switch (group) {
+    case "goods":
+      return t("needs.group.goods");
+    case "public":
+      return t("needs.group.public");
+    default:
+      return group;
+  }
+}
+
+/** A run of need entries in card order: a display group and its members, or one ungrouped entry. */
+export interface NeedGroupRun<T> {
+  group?: string;
+  needs: T[];
+}
+
+/**
+ * The need entries of a house in card order (orderNeeds), with the members
+ * of a display group pulled together at the position of the group's first
+ * member and headed by it, in card order within the group: the lower
+ * tiers' carried categories join their category's group (Goods) after the
+ * tier's own ones.
+ */
+export function groupNeeds<T extends NeedRef>(content: NeedContent, needs: readonly T[]): NeedGroupRun<T>[] {
+  const runs: NeedGroupRun<T>[] = [];
+  const byGroup = new Map<string, NeedGroupRun<T>>();
+  for (const n of orderNeeds(content, needs)) {
+    const group = needGroup(content, n.category);
+    if (!group) {
+      runs.push({ needs: [n] });
+      continue;
+    }
+    const run = byGroup.get(group);
+    if (run) {
+      run.needs.push(n);
+    } else {
+      const r = { group, needs: [n] };
+      byGroup.set(group, r);
+      runs.push(r);
+    }
+  }
+  return runs;
 }
 
 /**

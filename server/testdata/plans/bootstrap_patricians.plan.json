@@ -1,0 +1,3190 @@
+{
+  "name": "bootstrap_patricians",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. Farms moved off the start island (the D-065 chain plots leave isle-01 too little grass for its last wheat_farm, and wheat grows only on isle-01 among the settled islands): the 11th to 14th pig_farm stand on isle-06, served by a fourth sloop on a new route 4 (stone out, pigs home); later ships and routes are renumbered; the eighth wheat_farm comes before the second apiary.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "seed": {
+    "archipelago": 1053001,
+    "start": true
+  },
+  "snapshot_every": 10,
+  "continues": "bootstrap_merchants.plan.json",
+  "actions": [
+    {
+      "step": {
+        "update_route": {
+          "route": 1,
+          "name": "Hops home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "unload": [
+                "hops",
+                "tools",
+                "iron",
+                "bricks",
+                "stone"
+              ]
+            },
+            {
+              "island": "isle-02",
+              "load": {
+                "hops": 50,
+                "stone": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 5
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "isle2-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 2
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 3
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 3
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "hop_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "leather_works",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-2",
+        "type": "market"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-2",
+        "type": "chapel"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-2",
+        "count": 16
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "market"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "chapel"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 3
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "city_guard"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "fire_station"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "hop_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "unassign_ship": {
+          "ship": 2
+        }
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "manual_shipment": {
+          "ship": 2,
+          "to": "isle-06",
+          "cargo": {
+            "planks": 100
+          }
+        }
+      }
+    },
+    {
+      "found": {
+        "ship": 2,
+        "island": "isle-06",
+        "at": [
+          59,
+          107,
+          180
+        ]
+      }
+    },
+    {
+      "civic": {
+        "quarter": "isle6-1",
+        "type": "market"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "isle6-1",
+        "type": "chapel"
+      }
+    },
+    {
+      "step": {
+        "create_route": {
+          "name": "Hemp home",
+          "stops": [
+            {
+              "island": "isle-06",
+              "load": {
+                "hemp": 30
+              }
+            },
+            {
+              "island": "isle-01",
+              "unload": [
+                "hemp"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 2,
+          "route": 3
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "hemp_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sailmaker",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "order_ship": {
+        "island": "isle-01",
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 3,
+          "route": 3
+        }
+      }
+    },
+    {
+      "step": {
+        "unassign_ship": {
+          "ship": 2
+        }
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 2,
+          "route": 2
+        }
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "school"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "school-2"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "tavern"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "playhouse"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "church"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "church-2"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "hop_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "leather_works",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "dairy_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cheese_dairy",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "printing_press",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tannery",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-3",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "hop_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "market"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "chapel"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "city_guard"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "fire_station"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "leather_works",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "hop_farm",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "dairy_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cheese_dairy",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "order_ship": {
+        "island": "isle-01",
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "step": {
+        "create_route": {
+          "name": "Stone out, pigs home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "load": {
+                "stone": 30
+              },
+              "unload": [
+                "pigs"
+              ]
+            },
+            {
+              "island": "isle-06",
+              "load": {
+                "pigs": 50
+              },
+              "unload": [
+                "stone"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 4,
+          "route": 4
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "hop_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
+        "count": 1
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "leather_works",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "printing_press",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-5",
+        "type": "market"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-5",
+        "type": "chapel"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "paper_mill",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tannery",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "upgrade_trading_post": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "hop_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "school-2"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "church-2"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "dairy_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cheese_dairy",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "leather_works",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "hop_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "warehouse",
+        "count": 1,
+        "at": [
+          169,
+          52
+        ]
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "update_route": {
+          "route": 3,
+          "name": "Island goods",
+          "stops": [
+            {
+              "island": "isle-06",
+              "load": {
+                "brass": 30,
+                "glass": 40,
+                "grapes": 50,
+                "thread": 30
+              },
+              "unload": [
+                "stone",
+                "bricks"
+              ]
+            },
+            {
+              "island": "isle-01",
+              "load": {
+                "bricks": 20,
+                "stone": 30
+              },
+              "unload": [
+                "glass",
+                "brass",
+                "thread",
+                "grapes",
+                "hemp"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "step": {
+        "update_route": {
+          "route": 1,
+          "name": "Hops home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "unload": [
+                "hops",
+                "tools",
+                "iron",
+                "stone"
+              ]
+            },
+            {
+              "island": "isle-02",
+              "load": {
+                "hops": 50,
+                "iron": 30
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "step": {
+        "update_route": {
+          "route": 2,
+          "name": "Bricks home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "unload": [
+                "bricks",
+                "stone",
+                "planks",
+                "wool_garments"
+              ]
+            },
+            {
+              "island": "isle-02",
+              "load": {
+                "bricks": 50,
+                "stone": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "order_ship": {
+        "island": "isle-01",
+        "ship_type": "brig"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "charcoal_burner",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "charcoal_burner",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "winepress",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 5,
+          "route": 3
+        }
+      }
+    },
+    {
+      "order_ship": {
+        "island": "isle-01",
+        "ship_type": "galleon"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "copper_mine",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "isle6-1",
+        "from": "house_settlers",
+        "count": 2
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 2
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "quartz_quarry",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "isle6-1",
+        "from": "house_settlers",
+        "count": 2
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 2
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "glass_smelter",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "isle6-1",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 2
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "glass_smelter",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 2
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "thread_spinner",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "vineyard",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "vineyard",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 2
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "vineyard",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "create_route": {
+          "name": "Farm goods",
+          "stops": [
+            {
+              "island": "isle-02",
+              "load": {
+                "cattle": 30,
+                "hops": 60,
+                "milk": 60,
+                "pigs": 120,
+                "salt": 60
+              }
+            },
+            {
+              "island": "isle-01",
+              "unload": [
+                "pigs",
+                "salt",
+                "milk",
+                "cattle",
+                "hops"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 6,
+          "route": 5
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "surgery"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_merchants",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "university"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "cathedral"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "copper_smelter",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle6-1",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "surgery"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "surgery"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_merchants",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "salt_pans",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_merchants",
+        "count": 2
+      }
+    },
+    {
+      "step": {
+        "update_route": {
+          "route": 2,
+          "name": "Bricks home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "unload": [
+                "bricks",
+                "stone",
+                "planks",
+                "wool_garments"
+              ]
+            },
+            {
+              "island": "isle-02",
+              "load": {
+                "bricks": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "cattle_farm",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cooperage",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "slaughterhouse",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "update_route": {
+          "route": 3,
+          "name": "Island goods",
+          "stops": [
+            {
+              "island": "isle-06",
+              "load": {
+                "brass": 30,
+                "glass": 40,
+                "grapes": 50,
+                "thread": 30
+              }
+            },
+            {
+              "island": "isle-01",
+              "unload": [
+                "glass",
+                "brass",
+                "thread",
+                "grapes",
+                "hemp",
+                "stone",
+                "bricks"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "cattle_farm",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "update_route": {
+          "route": 2,
+          "name": "Bricks home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "unload": [
+                "bricks",
+                "stone",
+                "planks",
+                "wool_garments"
+              ]
+            },
+            {
+              "island": "isle-02",
+              "load": {
+                "bricks": 50,
+                "stone": 50
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 2
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "lace_maker",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "luthier",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "optician",
+        "count": 1
+      }
+    },
+    {
+      "checkpoint": {
+        "name": "every Patrician category >= 0.6",
+        "needs": {
+          "house": "house_patricians",
+          "min_permille": 600
+        },
+        "max": "600m"
+      }
+    },
+    {
+      "wait": "30m"
+    }
+  ]
+}

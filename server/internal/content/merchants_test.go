@@ -144,7 +144,10 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 		// Own categories: 0.17 each (clothing 0.09) and services 0.16 of the own 0.6.
 		"merchants_food:food:sausages=6000/pies=5000:102000", "merchants_drink:drink:beer=6000/brandy=4000:102000",
 		"merchants_clothing:clothing:coats=4000/dyed_garments=4000:54000", "merchants_comfort:comfort:books=2000/soap=3000:102000",
-		"merchants_services:services:market=600000/chapel=600000/tavern=600000/school=600000/church=600000/playhouse=600000:144000",
+		// D-065: market 40 % of the former services weight, the three
+		// chains the rest; faith rank 2 (church), education 1, culture 2.
+		"merchants_market:market:market=1000000:57600", "merchants_faith:faith:faith>=2:28800",
+		"merchants_education:education:education>=1:28800", "merchants_culture:culture:culture>=2:28800",
 		// Civic services (D-060), 0.08 each: fire protection from services,
 		// health from clothing, safety (the Citizens' category, cumulative
 		// like services) from services.
@@ -186,9 +189,9 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 	if up := map[string]Qty{"church": 6000, "playhouse": 15000}; c.BuildingByID["church"].UpkeepPerMin != up["church"] || c.BuildingByID["playhouse"].UpkeepPerMin != up["playhouse"] {
 		t.Error("church/playhouse upkeep")
 	}
-	// The market's level 2 is the Merchants' (radius 16).
-	if m := c.BuildingByID["market"]; m.Service.RadiusAt(2) != 16 || m.LevelTier(2) != "merchants" {
-		t.Errorf("market level 2 = %d %s", m.Service.RadiusAt(2), m.LevelTier(2))
+	// The market's level 3 is the Merchants' (radius 18, D-065).
+	if m := c.BuildingByID["market"]; m.Service.RadiusAt(3) != 18 || m.LevelTier(3) != "merchants" {
+		t.Errorf("market level 3 = %d %s", m.Service.RadiusAt(3), m.LevelTier(3))
 	}
 	// The brig is the Merchants' ship, built at the shipyard.
 	if b := c.ShipByID["brig"]; b == nil || b.Tier != "merchants" || !slices.Contains(c.BuildingByID["shipyard"].Shipyard.Ships, "brig") {

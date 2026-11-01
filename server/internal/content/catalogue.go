@@ -459,6 +459,9 @@ type Warehouse struct {
 type WarehouseLevel struct {
 	// ThroughputPerMin in milli-units per minute.
 	ThroughputPerMin Qty
+	// Tier must be unlocked to upgrade into this level (D-065; "" none,
+	// always "" on the first level).
+	Tier string
 	// Cost is the upgrade cost into this level; nil for the first level
 	// (placed with the building cost), set for every later level.
 	Cost *Cost
@@ -494,6 +497,8 @@ func (b *Building) LevelTier(level int) string {
 		return ""
 	}
 	switch {
+	case b.Warehouse != nil:
+		return b.Warehouse.Levels[level-1].Tier
 	case b.Service != nil:
 		return b.Service.Levels[level-1].Tier
 	}
@@ -554,6 +559,11 @@ type Road struct {
 // Levels raise the radius (D-056: market 12 / 16 / 20); a service
 // without levels has one.
 type Service struct {
+	// Chain and Rank place a chain building (D-065: faith, education,
+	// culture) in its ranked chain; Chain is "" for the other public
+	// buildings. A chain building has exactly one radius (one level).
+	Chain  string
+	Rank   int
 	Levels []ServiceLevel
 }
 
@@ -661,6 +671,12 @@ type Need struct {
 	// Buildings are the alternatives of a building need (services, D-056):
 	// public buildings whose service radius reaches the house.
 	Buildings []NeedBuilding
+
+	// Chain and MinRank make a chain need (D-065): served when any
+	// building of the service chain with rank >= MinRank reaches the house
+	// within its own radius. Category names its display category.
+	Chain   string
+	MinRank int
 }
 
 // NeedBuilding is an alternative of a building need.
@@ -678,6 +694,9 @@ type NeedCategory struct {
 	Name string
 	// Icon is a key of the HUD icon set (assets/icons/icons.json).
 	Icon string
+	// Group is the display group ("" none, e.g. "goods" or "public"):
+	// categories of one group are shown under one heading.
+	Group string
 }
 
 // NeedGood is an acceptable good of a goods need.
@@ -707,4 +726,7 @@ const OwnTierWeight int64 = 600_000
 func (n *Need) IsGoods() bool { return len(n.Goods) > 0 }
 
 // IsBuilding reports whether n is a building (services) need.
-func (n *Need) IsBuilding() bool { return len(n.Buildings) > 0 }
+func (n *Need) IsBuilding() bool { return len(n.Buildings) > 0 || n.Chain != "" }
+
+// IsChain reports whether the need is a chain need (D-065).
+func (n *Need) IsChain() bool { return n.Chain != "" }

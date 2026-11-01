@@ -141,9 +141,26 @@ describe("arithmetic of the tables", () => {
       ["cheese", 0.6, 0.006],
     ]);
     expect(food.alternatives[0]?.providers.length).toBeGreaterThan(0);
-    const services = needsByTier(idx)[0]!.own.find((n) => n.services)!;
-    expect(services.alternatives.map((a) => a.radius)).toEqual([12, 16]);
-    expect(needsByTier(idx)[1]?.servicesAdded.length).toBeGreaterThan(0);
+    const tiers = needsByTier(idx);
+    const market = tiers[0]!.own.find((n) => n.category === "market")!;
+    expect(market.alternatives.map((a) => [a.id, a.share, a.radii])).toEqual([["market", 1, [12, 15, 18, 21]]]);
+    // Chain needs (D-065): every building of the minimum rank or higher, each covering fully.
+    const faith = (tier: number) => tiers[tier]!.own.find((n) => n.chain === "faith")!;
+    expect(faith(0).alternatives.map((a) => [a.id, a.share, a.radius])).toEqual([
+      ["chapel", 1, 16],
+      ["church", 1, 20],
+      ["cathedral", 1, 28],
+    ]);
+    expect(faith(2)).toMatchObject({ services: true, minRank: 2 });
+    expect(faith(2).alternatives.map((a) => a.id)).toEqual(["church", "cathedral"]);
+    expect(faith(3).alternatives.map((a) => a.id)).toEqual(["cathedral"]);
+    // The ladder: a chain building is asked for by the tier that first needs its rank.
+    expect(tiers.map((t) => t.servicesAdded)).toEqual([
+      ["market", "chapel"],
+      ["school", "tavern", "city_guard"],
+      ["church", "playhouse", "fire_station"],
+      ["cathedral", "university", "surgery"],
+    ]);
   });
 
   it("derives upstream chains from the recipes", () => {
