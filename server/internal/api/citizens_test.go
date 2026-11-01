@@ -21,7 +21,7 @@ import (
 // reference game (golden t, scenario bootstrap_citizens) is built up to just
 // before its first upgrade_house, served from the in-memory store, and the
 // upgrade is issued over HTTP. The Display payload shows the Citizen house
-// with its six needs, growth and tax rates, and Citizens in the population.
+// with its needs, growth and tax rates, and Citizens in the population.
 func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	c := shippedCatalogue(t)
 	s, err := scenario.Load(os.DirFS(filepath.Join(repoRoot(t), "server", "testdata", "scenarios")), "bootstrap_citizens.json")
@@ -95,10 +95,11 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 				for _, n := range b.Needs {
 					needs = append(needs, n.Category+n.Building)
 				}
-				// Own categories with one services category and safety
-				// (city guard, D-060), then the Settlers' food and
-				// clothing (cumulative tiers, D-056).
-				if want := []string{"food", "drink", "clothing", "services", "safetycity_guard", "food", "clothing"}; !slices.Equal(needs, want) {
+				// Own categories with the market, the faith, education
+				// and culture chains (D-065) and safety (city guard,
+				// D-060), then the Settlers' food and clothing
+				// (cumulative tiers, D-056).
+				if want := []string{"food", "drink", "clothing", "marketmarket", "faith", "education", "culture", "safetycity_guard", "food", "clothing"}; !slices.Equal(needs, want) {
 					t.Errorf("needs = %v, want %v", needs, want)
 				}
 				if wantPopulation && *b.TaxRatePerMin <= 0 {
@@ -121,25 +122,27 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	if res.status != http.StatusOK {
 		t.Fatalf("GET /world: %d %s", res.status, res.body)
 	}
-	// Right after the upgrade only market and chapel are in reach (0.6
-	// each fills services, D-056: 0.18), plus the Settlers' fish and wool
-	// garments of the town (0.4 of satisfaction): 0.58, above the growth
-	// threshold; the house pays Citizens tax.
+	// Right after the upgrade only market and chapel are in reach (the
+	// market and faith weights, 0.12 and 0.06 of the own 0.6: 0.108,
+	// D-065), plus the Settlers' fish and wool garments of the town (0.4
+	// of satisfaction): 0.508, above the growth threshold; the house pays
+	// Citizens tax.
 	floor := check(res.body, true)
-	if *floor.SatisfactionPermille != 580 || *floor.GrowthRatePerMin != 580 {
+	if *floor.SatisfactionPermille != 508 || *floor.GrowthRatePerMin != 508 {
 		t.Errorf("floor house: satisfaction %d growth %d", *floor.SatisfactionPermille, *floor.GrowthRatePerMin)
 	}
 
 	// Supply every Citizens need with both alternatives (D-056: one fills
 	// 0.6): bread and cheese, cider and mead, linen garments and leather
 	// jerkins arrive (seeded into the stored world like a delivery), and a
-	// tavern and a city guard are built over HTTP next to the house. After a clock advance
+	// tavern, a city guard and a school are built over HTTP next to the
+	// house. After a clock advance
 	// the house is fully satisfied and grows.
 	ts.mutateWorld(func(world *sim.World) {
-		world.Gold += 1_000_000
+		world.Gold += 3_000_000
 		for good, n := range map[string]sim.Qty{
 			"bread": 50_000, "cheese": 50_000, "cider": 50_000, "mead": 50_000, "linen_garments": 50_000, "leather_jerkins": 50_000,
-			"stone": 20_000, "planks": 30_000,
+			"stone": 60_000, "planks": 60_000,
 		} {
 			if err := sim.AddStock(world, c, islandID, good, n, nil); err != nil {
 				t.Fatal(err)
@@ -154,68 +157,75 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	if res.status != http.StatusOK {
 		t.Fatalf("demolish settler house: %d %s", res.status, res.body)
 	}
-	var guardX, guardY int
-	ts.mutateWorld(func(world *sim.World) {
-		// A 4x4 guard no longer fits in a single 3x3 house slot. Clear a
-		// small neighbouring block through real demolition commands.
-		for y := house.Y - 8; y <= house.Y+8; y++ {
-			for x := house.X - 8; x <= house.X+8; x++ {
-				tmp := world.Clone()
-				is := tmp.Island(islandID)
-				ok := true
-				ids := map[int64]bool{}
-				roads := []sim.Pos{}
-				for yy := y; yy < y+4; yy++ {
-					for xx := x; xx < x+4; xx++ {
-						if !is.InBounds(xx, yy) {
-							ok = false
-							continue
-						}
-						if b := is.BuildingAt(c, xx, yy); b != nil {
-							if b.Type != "house_settlers" || b.ID == house.ID {
+	// The city guard (safety, D-060) and the school (education, D-065)
+	// do not fit in a single 3x3 house slot: clear a neighbouring block of
+	// Settler houses for each through real demolition commands, then
+	// place it over HTTP.
+	for _, typ := range []string{"city_guard", "school"} {
+		def := c.BuildingByID[typ]
+		var siteX, siteY int
+		found := false
+		ts.mutateWorld(func(world *sim.World) {
+			for y := house.Y - 12; y <= house.Y+12 && !found; y++ {
+				for x := house.X - 12; x <= house.X+12 && !found; x++ {
+					tmp := world.Clone()
+					is := tmp.Island(islandID)
+					ok := true
+					ids := map[int64]bool{}
+					roads := []sim.Pos{}
+					for yy := y; yy < y+def.Height; yy++ {
+						for xx := x; xx < x+def.Width; xx++ {
+							if !is.InBounds(xx, yy) {
 								ok = false
+								continue
 							}
-							ids[b.ID] = true
-						}
-						if is.RoadAt(xx, yy) != "" {
-							roads = append(roads, sim.Pos{X: xx, Y: yy})
+							if b := is.BuildingAt(c, xx, yy); b != nil {
+								if b.Type != "house_settlers" || b.ID == house.ID {
+									ok = false
+								}
+								ids[b.ID] = true
+							}
+							if is.RoadAt(xx, yy) != "" {
+								roads = append(roads, sim.Pos{X: xx, Y: yy})
+							}
 						}
 					}
-				}
-				if !ok {
-					continue
-				}
-				for id := range ids {
-					if sim.Apply(tmp, c, sim.Demolish{IslandID: islandID, BuildingID: id}) != nil {
+					if !ok {
+						continue
+					}
+					for id := range ids {
+						if sim.Apply(tmp, c, sim.Demolish{IslandID: islandID, BuildingID: id}) != nil {
+							ok = false
+						}
+					}
+					if len(roads) > 0 && sim.Apply(tmp, c, sim.DemolishRoad{IslandID: islandID, Tiles: roads}) != nil {
 						ok = false
 					}
+					if !ok || sim.CheckSite(is, c, def, x, y, 0) != nil {
+						continue
+					}
+					if sim.Apply(tmp, c, sim.PlaceBuilding{IslandID: islandID, Type: typ, X: x, Y: y}) != nil {
+						continue
+					}
+					b := is.Buildings[len(is.Buildings)-1]
+					if b.AssignedWarehouseID == 0 || is.Building(house.ID).AssignedWarehouseID == 0 {
+						continue
+					}
+					if sim.Apply(tmp, c, sim.Demolish{IslandID: islandID, BuildingID: b.ID}) != nil {
+						continue
+					}
+					*world = *tmp
+					siteX, siteY, found = x, y, true
 				}
-				if len(roads) > 0 && sim.Apply(tmp, c, sim.DemolishRoad{IslandID: islandID, Tiles: roads}) != nil {
-					ok = false
-				}
-				if !ok || sim.CheckSite(is, c, c.BuildingByID["city_guard"], x, y, 0) != nil {
-					continue
-				}
-				if sim.Apply(tmp, c, sim.PlaceBuilding{IslandID: islandID, Type: "city_guard", X: x, Y: y}) != nil {
-					continue
-				}
-				b := is.Buildings[len(is.Buildings)-1]
-				if b.AssignedWarehouseID == 0 {
-					continue
-				}
-				if sim.Apply(tmp, c, sim.Demolish{IslandID: islandID, BuildingID: b.ID}) != nil {
-					continue
-				}
-				*world = *tmp
-				guardX, guardY = x, y
-				return
 			}
+		})
+		if !found {
+			t.Fatalf("no neighbouring block for the %s", typ)
 		}
-		t.Fatal("no neighbouring 4x4 guard block")
-	})
-	res = ts.command(fmt.Sprintf(`{"type":"place_building","island_id":%q,"building_type":"city_guard","x":%d,"y":%d,"rotation":0}`, islandID, guardX, guardY), nil)
-	if res.status != http.StatusOK {
-		t.Fatalf("place city guard: %d %s", res.status, res.body)
+		res = ts.command(fmt.Sprintf(`{"type":"place_building","island_id":%q,"building_type":%q,"x":%d,"y":%d,"rotation":0}`, islandID, typ, siteX, siteY), nil)
+		if res.status != http.StatusOK {
+			t.Fatalf("place %s: %d %s", typ, res.status, res.body)
+		}
 	}
 	ts.clock.Add(30 * time.Second)
 	res = ts.do(http.MethodGet, "/api/v1/world", "", true)

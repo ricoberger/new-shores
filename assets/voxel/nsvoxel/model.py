@@ -66,6 +66,7 @@ def recipe_modules(recipes_dir=RECIPES_DIR):
             out[cid] = {
                 "build": mod.build,
                 "variants": getattr(mod, "VARIANTS", 0),
+                "levels": getattr(mod, "LEVELS", 0),
                 "scale": getattr(mod, "SCALE", VPT),
                 "cargo": getattr(mod, "cargo", None),
                 "ship": getattr(mod, "SHIP", None),
@@ -100,6 +101,10 @@ def outputs(cid, kind, recipe, content):
     defn = content["buildings"][cid]
     n = recipe.get("variants", 0)
     levels = content_mod.levels(content, cid)
+    if recipe.get("levels"):
+        # A recipe that models fewer levels than the content (LEVELS, D-065: market and
+        # warehouse level 4): the client draws the highest model below a higher level.
+        levels = min(levels, recipe["levels"])
     if n:
         return [(f"{cid}.v{i}.glb", ("variant", i), Ctx(cid, kind, w, h, defn, variant=i, scale=scale)) for i in range(n)]
     if levels:

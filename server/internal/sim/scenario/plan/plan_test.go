@@ -3,10 +3,13 @@ package plan
 import (
 	"bytes"
 	"flag"
+	"maps"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
 var update = flag.Bool("update", false, "rewrite the scenarios the plans generate")
@@ -81,5 +84,30 @@ func TestLoadValidatesChains(t *testing.T) {
 	}
 	if _, err := Load(path); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// TestCheckChains: the plans' chains must match the content's (D-065).
+func TestCheckChains(t *testing.T) {
+	c, err := content.Load(filepath.Join(root, "content/old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := Load(filepath.Join(root, "server/testdata/plans/bootstrap_citizens.plan.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := checkChains(p.Chains, c); err != nil {
+		t.Fatal(err)
+	}
+	swapped := &Chains{Buildings: maps.Clone(p.Chains.Buildings), MinRank: p.Chains.MinRank}
+	swapped.Buildings["faith"] = []string{"church", "chapel", "cathedral"}
+	if checkChains(swapped, c) == nil {
+		t.Error("swapped ranks accepted")
+	}
+	lower := &Chains{Buildings: p.Chains.Buildings, MinRank: maps.Clone(p.Chains.MinRank)}
+	lower.MinRank["merchants"] = map[string]int{"faith": 1, "education": 1, "culture": 2}
+	if checkChains(lower, c) == nil {
+		t.Error("a lower minimum rank accepted")
 	}
 }

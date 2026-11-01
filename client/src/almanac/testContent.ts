@@ -33,6 +33,7 @@ function category(b: Raw): string {
 export function loadContent(dir: string): Content {
   const d = join(REPO, dir);
   const buildingsRaw: Raw[] = read(d, "buildings.json");
+  const tierIDs = (read(d, "tiers.json") as Raw[]).map((t) => t.id as string);
   const buildings = buildingsRaw.map((b) => {
     const out: Raw = {
       id: b.id,
@@ -69,14 +70,19 @@ export function loadContent(dir: string): Content {
         })),
       };
     if (b.warehouse)
-      out.warehouse = { levels: b.warehouse.levels.map((l: Raw) => ({ throughput_per_min: m(l.throughput_per_min), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };
+      out.warehouse = { levels: b.warehouse.levels.map((l: Raw) => ({ throughput_per_min: m(l.throughput_per_min), ...(l.tier ? { tier: l.tier } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };
     if (b.road) out.road = { ms_per_tile: m(b.road.seconds_per_tile), shallows: !!b.road.shallows };
     if (b.pier) out.pier = { berths: b.pier.berths };
     if (b.depot)
       out.depot = { capacity: m(b.depot.capacity) };
     if (b.service) {
       const levels: Raw[] = b.service.levels ?? [{ radius: b.service.radius }];
-      out.service = { radius: levels[0]?.radius, levels: levels.map((l) => ({ radius: l.radius, ...(l.tier ? { tier: l.tier } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };
+      out.service = {
+        radius: levels[0]?.radius,
+        ...(b.service.chain ? { chain: b.service.chain, rank: b.service.rank } : {}),
+        // Level n needs tier n (D-065), derived like the server does.
+        levels: levels.map((l, i) => ({ radius: l.radius, ...(i > 0 && tierIDs[i] ? { tier: tierIDs[i] } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })),
+      };
     }
     if (b.work_area?.fertility) out.work_area = { fertility: b.work_area.fertility };
     if (b.workforce) out.workforce = { tier: b.workforce.tier, amount: m(b.workforce.amount) };
@@ -111,7 +117,8 @@ export function loadContent(dir: string): Content {
         kind: n.kind,
         weight: Math.round(n.weight * 1_000_000),
         ...(n.from_tier ? { from_tier: n.from_tier } : {}),
-        ...(n.category && !n.buildings ? { category: n.category } : {}),
+        ...(n.category ? { category: n.category } : {}),
+        ...(n.chain ? { chain: n.chain, min_rank: n.min_rank } : {}),
         ...(n.goods ? { goods: n.goods.map((g: Raw) => ({ good: g.good, per_resident_per_min: Math.round(g.per_resident_per_min * 1_000_000), share: share(g.share) })) } : {}),
         ...(n.buildings ? { buildings: n.buildings.map((b: Raw) => ({ building: b.building, share: share(b.share) })) } : {}),
       };

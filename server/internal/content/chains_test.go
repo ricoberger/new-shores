@@ -7,10 +7,10 @@ import (
 	"testing"
 )
 
-// settlersServicesBuildings is the building list of the settlers' services
-// need (content/old_coast/needs.json); the chain tests replace it by a
-// chain need.
-const settlersServicesBuildings = `"buildings": [{ "building": "market" }, { "building": "chapel" }]`
+// settlersFaith is the chain part of the settlers' faith need
+// (content/old_coast/needs.json); the chain tests vary it.
+const settlersFaith = `"chain": "faith",
+    "min_rank": 1`
 
 // TestLoadServiceChains (D-065): the chain buildings declare chain, rank
 // and one radius; the categories of the security group carry the group.
@@ -44,25 +44,33 @@ func TestLoadServiceChains(t *testing.T) {
 	}
 }
 
-// TestLoadChainNeed: a chain need loads with chain and minimum rank and is a
-// building need without alternatives.
+// TestLoadChainNeed: the chain needs load with chain and minimum rank, as a
+// building need without alternatives; D-065 ladder per tier.
 func TestLoadChainNeed(t *testing.T) {
-	dir := copyContent(t, FileNeeds, settlersServicesBuildings, `"chain": "faith", "min_rank": 1`)
-	c, err := LoadWithSchemas(dir, filepath.Join(repoRoot(t), "content", "schema"))
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
-	var found bool
-	for _, n := range c.NeedsByTier["settlers"] {
-		if n.ID == "settlers_services" {
-			found = true
-			if !n.IsChain() || !n.IsBuilding() || n.IsGoods() || n.Chain != "faith" || n.MinRank != 1 || len(n.Buildings) != 0 {
-				t.Errorf("need = %+v", n)
+	want := map[string]string{
+		"settlers_faith": "faith>=1",
+		"citizens_faith": "faith>=1", "citizens_education": "education>=1", "citizens_culture": "culture>=1",
+		"merchants_faith": "faith>=2", "merchants_education": "education>=1", "merchants_culture": "culture>=2",
+		"patricians_faith": "faith>=3", "patricians_education": "education>=2", "patricians_culture": "culture>=2",
+	}
+	seen := 0
+	for _, needs := range c.NeedsByTier {
+		for _, n := range needs {
+			if !n.IsChain() {
+				continue
+			}
+			seen++
+			if got := needBuildings(n); got != want[n.ID] || !n.IsBuilding() || n.IsGoods() || len(n.Buildings) != 0 || n.Chain != n.Category {
+				t.Errorf("%s = %s (category %s), want %s", n.ID, got, n.Category, want[n.ID])
 			}
 		}
 	}
-	if !found {
-		t.Fatal("no settlers_services need")
+	if seen != len(want) {
+		t.Errorf("%d chain needs, want %d", seen, len(want))
 	}
 }
 
@@ -106,27 +114,27 @@ func TestLoadRejectsInvalidChains(t *testing.T) {
 		},
 		{
 			"min_rank beyond the chain", FileNeeds,
-			[]string{settlersServicesBuildings, `"chain": "faith", "min_rank": 4`},
-			[]string{FileNeeds, `need "settlers_services"`, "min_rank", "1..3"},
+			[]string{settlersFaith, `"chain": "faith", "min_rank": 4`},
+			[]string{FileNeeds, `need "settlers_faith"`, "min_rank", "1..3"},
 		},
 		{
 			"unknown chain", FileNeeds,
-			[]string{settlersServicesBuildings, `"chain": "choir", "min_rank": 1`},
-			[]string{FileNeeds, `need "settlers_services"`, `unknown service chain "choir"`},
+			[]string{settlersFaith, `"chain": "choir", "min_rank": 1`},
+			[]string{FileNeeds, `need "settlers_faith"`, `unknown service chain "choir"`},
 		},
 		{
 			"min-rank building above the need's tier", FileNeeds,
-			[]string{settlersServicesBuildings, `"chain": "faith", "min_rank": 3`},
-			[]string{FileNeeds, `need "settlers_services"`, `"cathedral" is of tier "patricians"`},
+			[]string{settlersFaith, `"chain": "faith", "min_rank": 3`},
+			[]string{FileNeeds, `need "settlers_faith"`, `"cathedral" is of tier "patricians"`},
 		},
 		{
 			"chain with buildings", FileNeeds,
-			[]string{settlersServicesBuildings, `"chain": "faith", "min_rank": 1, ` + settlersServicesBuildings},
+			[]string{settlersFaith, settlersFaith + `, "buildings": [{ "building": "market" }]`},
 			[]string{FileNeeds, "schema violation"},
 		},
 		{
 			"chain without min_rank", FileNeeds,
-			[]string{settlersServicesBuildings, `"chain": "faith"`},
+			[]string{settlersFaith, `"chain": "faith"`},
 			[]string{FileNeeds, "schema violation"},
 		},
 		{

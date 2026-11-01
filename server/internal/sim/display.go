@@ -961,8 +961,8 @@ func displayHouse(bd *BuildingDisplay, h *houseCalc) {
 			FulfilmentPermille: n.fulfilment / 1000, Reason: n.reason,
 		}
 		if len(n.need.Buildings) == 1 {
-			// A lone public building names the need; a services category
-			// with alternatives is named by its category.
+			// A lone public building names the need; a chain need and a
+			// need with alternatives are named by their category.
 			nd.Building = n.need.Buildings[0].Building
 		}
 		if gs := n.goods; gs != nil {

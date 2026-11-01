@@ -233,6 +233,9 @@ func (g *gen) segment(s segment) error {
 		g.startAt = g.world().LastEvaluatedAt
 	}
 	if s.chains != nil {
+		if err := checkChains(s.chains, g.c); err != nil {
+			return fmt.Errorf("%s: %w", s.name, err)
+		}
 		g.chains = s.chains
 	}
 	for _, q := range s.quarters {
@@ -372,6 +375,9 @@ func (g *gen) do(st scenario.Step, what string) error {
 		}
 		if waited >= g.maxWait {
 			return fmt.Errorf("%s: still failing after %s: %w", what, waited, err)
+		}
+		if waited == 0 {
+			g.logf("%s waits: %v", what, err)
 		}
 		if err := g.wait(time.Minute); err != nil {
 			return err

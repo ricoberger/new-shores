@@ -55,8 +55,11 @@ func TestLoadCitizensContent(t *testing.T) {
 		// Two alternatives per category from tier 2 (D-056 §5).
 		"citizens_food:food:bread=8000/cheese=6000:120000", "citizens_drink:drink:cider=6000/mead=5000:120000",
 		"citizens_clothing:clothing:linen_garments=5000/leather_jerkins=4000:120000",
-		// Services (D-056): one cumulative category, 0.6 per building.
-		"citizens_services:services:market=600000/chapel=600000/tavern=600000/school=600000:180000",
+		// D-065: the former services category split into the market (40 %
+		// of its 0.3) and the faith / education / culture chains (the rest,
+		// equally); each chain is served by any building of rank >= 1.
+		"citizens_market:market:market=1000000:72000", "citizens_faith:faith:faith>=1:36000",
+		"citizens_education:education:education>=1:36000", "citizens_culture:culture:culture>=1:36000",
 		// Civic service (D-060): safety, 0.1 taken from services.
 		"citizens_safety:safety:city_guard=1000000:60000",
 		// Lower-tier categories (D-056): 0.4 split 0.5 : 0.2.
@@ -65,9 +68,9 @@ func TestLoadCitizensContent(t *testing.T) {
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("citizens needs = %v (weights %d), want %v", got, weights, want)
 	}
-	// D-012: the Settlers' goods needs are unchanged; services (D-056)
-	// are market and chapel.
-	if n := c.NeedsByTier["settlers"]; len(n) != 3 || n[0].Goods[0].Good != "fish" || n[1].Goods[0].Good != "wool_garments" || needBuildings(n[2]) != "market=600000/chapel=600000" {
+	// D-012: the Settlers' goods needs are unchanged; their services
+	// (D-065) are the market and faith rank 1.
+	if n := c.NeedsByTier["settlers"]; len(n) != 4 || n[0].Goods[0].Good != "fish" || n[1].Goods[0].Good != "wool_garments" || needBuildings(n[2]) != "market=1000000" || needBuildings(n[3]) != "faith>=1" {
 		t.Errorf("settlers needs changed: %+v", n)
 	}
 
@@ -506,6 +509,9 @@ func TestBalanceChecklist(t *testing.T) {
 // needBuildings renders the building alternatives of a need as
 // "building=share/...".
 func needBuildings(n *Need) string {
+	if n.IsChain() {
+		return fmt.Sprintf("%s>=%d", n.Chain, n.MinRank)
+	}
 	var parts []string
 	for _, nb := range n.Buildings {
 		parts = append(parts, fmt.Sprintf("%s=%d", nb.Building, nb.Share))

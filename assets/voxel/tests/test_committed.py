@@ -182,8 +182,15 @@ class CommittedTest(unittest.TestCase):
         models = self.manifest["models"]
         for house in ("house_settlers", "house_citizens"):
             self.assertEqual(len(models[house]["variants"]), 3, house)
+        recipes = model.recipe_modules()
         for cid in ("warehouse", "trading_post", "market"):
-            self.assertEqual(sorted(models[cid]["levels"]), [str(i) for i in range(1, content.levels(CONTENT, cid) + 1)], cid)
+            n = content.levels(CONTENT, cid)
+            n = min(n, recipes[cid]["levels"] or n)
+            self.assertEqual(sorted(models[cid]["levels"]), [str(i) for i in range(1, n + 1)], cid)
+        # Level 4 of the market and the warehouse (D-065) has no model yet; the client draws level 3.
+        for cid in ("warehouse", "market"):
+            self.assertEqual(content.levels(CONTENT, cid), 4, cid)
+            self.assertNotIn("4", models[cid]["levels"], cid)
         for cid in config.MODEL_SHIPS:
             ship = models[cid]["ship"]
             self.assertAlmostEqual(ship["length_tiles"], CONTENT["ships"][cid]["length_tiles"], places=6, msg=cid)

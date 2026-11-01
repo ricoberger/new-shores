@@ -51,8 +51,13 @@ describe("HUD icon set", () => {
     const goods = content("goods.json") as { id: string }[];
     expect(goods).toHaveLength(65);
     for (const g of goods) expect(ICON_PATHS[`good:${g.id}`], g.id).toBeTruthy();
+    // A need shows its category's content icon (need_categories[].icon), else need:<category> or need:<building>.
+    const categories = content("need_categories.json") as { id: string; icon?: string }[];
     const needs = content("needs.json") as { category?: string; building?: string }[];
-    for (const n of needs) expect(ICON_PATHS[n.category ? `need:${n.category}` : `need:${n.building}`], JSON.stringify(n)).toBeTruthy();
+    for (const n of needs) {
+      const key = categories.find((c) => c.id === n.category)?.icon ?? (n.category ? `need:${n.category}` : `need:${n.building}`);
+      expect(ICON_PATHS[key], JSON.stringify(n)).toBeTruthy();
+    }
     for (const k of Object.keys(STATUS_STYLES) as StatusKey[]) expect(ICON_PATHS[`status:${k}`], k).toBeTruthy();
     for (const c of ["houses", "production", "public", "harbour", "roads", "other"]) expect(ICON_PATHS[`category:${c}`], c).toBeTruthy();
   });

@@ -3,7 +3,8 @@ Market place (5 × 6, levels 1–3; D-057 §3): a paved square with a kerb,
 striped stalls with goods in baskets and crates round a roofed well,
 benches, trees, barrels and sacks; level 2 adds a timber-framed market
 hall over an open arcade, level 3 a coursed-ochre-stone hall with dressed
-quoins, shuttered windows and a bell turret.
+quoins, shuttered windows and a bell turret. The content's level 4
+(D-065) has no model yet: the client draws level 3.
 """
 
 from nsvoxel import parts as P
@@ -11,6 +12,9 @@ from nsvoxel.grid import mat
 from nsvoxel.mats import CANVAS, OCHRE, PLASTER, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT, BRASS, WHEAT, APPLE, DYE_BLUE
 
 STRIPES = (mat("dye-blue"), mat("terracotta"), mat("ochre"), mat("hemp-mark", 1.2))
+#: Modelled levels; the content's level 4 (D-065) may follow in a later model round.
+LEVELS = 3
+
 GOODS = (WHEAT, APPLE, mat("orchard"), mat("canvas", 0.9), mat("timber", 1.4))
 
 

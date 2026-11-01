@@ -76,12 +76,19 @@
       "levels": [
         { "throughput_per_min": 30 },
         {
-          "throughput_per_min": 55,
+          "throughput_per_min": 50,
+          "tier": "citizens",
           "cost": { "gold": 150, "planks": 10, "stone": 5 }
         },
         {
-          "throughput_per_min": 80,
+          "throughput_per_min": 70,
+          "tier": "merchants",
           "cost": { "gold": 300, "planks": 15, "stone": 10 }
+        },
+        {
+          "throughput_per_min": 90,
+          "tier": "patricians",
+          "cost": { "gold": 600, "planks": 20, "stone": 20 }
         }
       ]
     }
@@ -100,8 +107,9 @@
     "service": {
       "levels": [
         { "radius": 12 },
-        { "radius": 16, "tier": "merchants", "cost": { "gold": 1000, "planks": 15, "stone": 30 } },
-        { "radius": 20, "tier": "patricians", "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } }
+        { "radius": 15, "cost": { "gold": 400, "planks": 10, "stone": 10 } },
+        { "radius": 18, "cost": { "gold": 1000, "planks": 15, "stone": 30 } },
+        { "radius": 21, "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } }
       ]
     }
   },
@@ -361,12 +369,7 @@
     "cost": { "gold": 200, "planks": 10, "stone": 6 },
     "upkeep_per_min": 2,
     "pause_category": "public",
-    "service": {
-      "levels": [
-        { "radius": 16 },
-        { "radius": 20, "tier": "merchants", "cost": { "gold": 200, "planks": 10, "stone": 6 } }
-      ]
-    }
+    "service": { "radius": 16 }
   },
   {
     "id": "wheat_farm",
@@ -869,12 +872,7 @@
     "cost": { "gold": 400, "planks": 15, "stone": 15, "bricks": 5 },
     "upkeep_per_min": 4,
     "pause_category": "public",
-    "service": {
-      "levels": [
-        { "radius": 16 },
-        { "radius": 20, "tier": "merchants", "cost": { "gold": 400, "planks": 15, "stone": 15, "bricks": 5 } }
-      ]
-    }
+    "service": { "radius": 16 }
   },
   {
     "id": "surgery",

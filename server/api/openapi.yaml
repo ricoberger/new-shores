@@ -3919,7 +3919,13 @@ components:
           description: Satisfaction weight (ppm, normalised; own-tier categories share 0.6 when the tier carries lower-tier categories).
         category:
           type: string
-          description: Goods needs only.
+          description: Need category (need_categories); set on goods needs, chain needs and categorised building needs.
+        chain:
+          type: string
+          description: Chain needs only (D-065) — the service chain whose buildings serve the house.
+        min_rank:
+          type: integer
+          description: Chain needs only (D-065) — the lowest rank of the chain that serves the house, within that building's own radius.
         goods:
           type: array
           description: Goods needs only.

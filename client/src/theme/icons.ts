@@ -208,7 +208,6 @@ export const ICON_PATHS: Readonly<Record<string, string>> = {
   "need:luxury": P[71],
   "need:market": P[69],
   "need:safety": P[74],
-  "need:services": P[69],
   "need:tavern": P[73],
   "status:input_starved": P[82],
   "status:low_efficiency": P[85],

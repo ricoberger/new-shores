@@ -4,7 +4,6 @@
   { "id": "clothing", "name": "Clothing", "icon": "need:clothing" },
   { "id": "comfort", "name": "Comfort", "icon": "need:comfort" },
   { "id": "luxury", "name": "Luxury", "icon": "need:luxury" },
-  { "id": "services", "name": "Services", "icon": "need:services" },
   { "id": "market", "name": "Market", "icon": "need:market" },
   { "id": "faith", "name": "Faith", "icon": "need:chapel" },
   { "id": "education", "name": "Education", "icon": "good:books" },

@@ -5,7 +5,17 @@ import { describe, expect, it } from "vitest";
 import type { Content } from "../api/client";
 import { needIcon } from "../theme/iconSet";
 import { ICON_PATHS } from "../theme/icons";
-import { type NeedContent, needAlternatives, needCategory, needFromTier, needLabel, needName, orderNeeds, upgradeReasonText } from "./needs";
+import {
+  type NeedContent,
+  chainBuildings,
+  needAlternatives,
+  needCategory,
+  needFromTier,
+  needLabel,
+  needName,
+  orderNeeds,
+  upgradeReasonText,
+} from "./needs";
 
 // The shipped content files carry the names (content/old_coast), so the
 // lookup is checked against the real catalogue shape and an empty one.
@@ -34,9 +44,9 @@ describe("need display names", () => {
   it("names needs and categories from the content catalogue", () => {
     expect(needName(content, "settlers_food")).toBe("Food");
     expect(needName(content, "settlers_clothing")).toBe("Clothing");
-    expect(needName(content, "settlers_services")).toBe("Services");
-    expect(needName(content, "citizens_services")).toBe("Services");
-    expect(needCategory(content, "services")).toEqual({ id: "services", name: "Services", icon: "need:services" });
+    expect(needName(content, "settlers_market")).toBe("Market");
+    expect(needName(content, "merchants_faith")).toBe("Faith");
+    expect(needCategory(content, "market")).toEqual({ id: "market", name: "Market", icon: "need:market" });
     expect(needCategory(content, "clothing")).toEqual({ id: "clothing", name: "Clothing", icon: "need:clothing" });
     expect(needCategory(content, "luxury").name).toBe("Luxury");
   });
@@ -53,7 +63,7 @@ describe("need display names", () => {
 
   it("labels a need entry by its name, else its category's or building's name, else its ID", () => {
     expect(needLabel(content, { id: "settlers_food", category: "food" })).toBe("Food");
-    expect(needLabel(content, { id: "settlers_services", category: "services" })).toBe("Services");
+    expect(needLabel(content, { id: "citizens_education", category: "education" })).toBe("Education");
     // Unknown need IDs (content drift): the category or building name.
     expect(needLabel(content, { id: "x_drink", category: "drink" })).toBe("Drink");
     expect(needLabel(content, { id: "x_market", building: "market" })).toBe("Small market");
@@ -108,5 +118,30 @@ describe("need alternatives (D-056)", () => {
     expect(needAlternatives(c, "settlers_food")).toBeUndefined();
     expect(needAlternatives(c, "nobody")).toBeUndefined();
     expect(needAlternatives(null, "citizens_food")).toBeUndefined();
+  });
+});
+
+describe("service chains (D-065)", () => {
+  const c = {
+    ...content,
+    buildings: [
+      { id: "chapel", name: "Chapel", service: { chain: "faith", rank: 1, radius: 16 } },
+      { id: "cathedral", name: "Cathedral", service: { chain: "faith", rank: 3, radius: 28 } },
+      { id: "church", name: "Church", service: { chain: "faith", rank: 2, radius: 20 } },
+      { id: "school", name: "School", service: { chain: "education", rank: 1, radius: 16 } },
+      { id: "city_guard", name: "City guard", service: { radius: 16 } },
+    ],
+  } as unknown as Content;
+
+  it("lists a chain's buildings of the minimum rank or higher, by rank", () => {
+    expect(chainBuildings(c, "faith", 1)).toEqual(["chapel", "church", "cathedral"]);
+    expect(chainBuildings(c, "faith", 2)).toEqual(["church", "cathedral"]);
+    expect(chainBuildings(c, "faith", 4)).toEqual([]);
+    expect(chainBuildings(null, "faith", 1)).toEqual([]);
+    expect(needAlternatives(c, "settlers_faith")).toBe("Chapel, Church or Cathedral");
+    expect(needAlternatives(c, "merchants_faith")).toBe("Church or Cathedral");
+    // One building of the rank or higher: no alternatives to list.
+    expect(needAlternatives(c, "patricians_faith")).toBeUndefined();
+    expect(needAlternatives(c, "citizens_education")).toBeUndefined();
   });
 });

@@ -1,10 +1,12 @@
 package plan
 
 import (
+	"errors"
 	"fmt"
 	"maps"
 	"slices"
 
+	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/layout"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 )
@@ -19,8 +21,10 @@ import (
 // chainTilesPerHouse tiles per house of its core house land nearest the
 // centre (houses fill the land from the centre; upgrades take the houses
 // most plots cover). While plots of rank >= r cover less than chainShare
-// of that land in some quarter, the rank-r building is reserved at the
-// connectable site that adds the most needed coverage over all those
+// (rank 1, which gates every upgrade: chainShareFirst) of that land in
+// some quarter and a site adds at least chainMinGain tiles of it, the
+// rank-r building is reserved at the connectable site that adds the most
+// needed coverage over all those
 // quarters (among the sites within chainSlack of the best, the one
 // covering the most of all served land less its grass tiles). A site may
 // take house land, but not the served land, while each quarter can still
@@ -28,24 +32,33 @@ import (
 
 const (
 	// chainShare (percent) of the land a rank's houses need must be
-	// covered.
-	chainShare = 80
+	// covered; rank 1 gates every upgrade above the first tier, so its
+	// land is covered whole (chainShareFirst).
+	chainShare      = 80
+	chainShareFirst = 100
 	// chainSlack (percent): the sites whose gain is within it of the best
 	// prefer the most served land covered less grass tiles.
 	chainSlack = 10
 	// chainTilesPerHouse is the land a served house takes near the centre:
 	// its footprint and its share of the roads.
-	chainTilesPerHouse = 14
+	chainTilesPerHouse = 16
+	// chainMinGain is the least needed coverage (tiles) a further plot
+	// must add.
+	chainMinGain = 2 * chainTilesPerHouse
 )
+
+// errSmallGain: no site adds chainMinGain tiles of needed coverage.
+var errSmallGain = errors.New("no site adds enough coverage")
 
 // chainNeed is a quarter's demand on one rank of a chain.
 type chainNeed struct {
 	q       *quarter
 	land    []int
 	covered map[int]bool
+	share   int // percent of land to cover
 }
 
-func (cn *chainNeed) short() bool { return len(cn.covered)*100 < len(cn.land)*chainShare }
+func (cn *chainNeed) short() bool { return len(cn.covered)*100 < len(cn.land)*cn.share }
 
 // reserveChains reserves the chain plots of an island once all its
 // quarters are reserved.
@@ -86,7 +99,10 @@ func (g *gen) reserveChains(island string) error {
 					continue
 				}
 				land := q.coreLand(cl)
-				cn := &chainNeed{q: q, land: land[:min(len(land), n*chainTilesPerHouse)], covered: map[int]bool{}}
+				cn := &chainNeed{q: q, land: land[:min(len(land), n*chainTilesPerHouse)], covered: map[int]bool{}, share: chainShare}
+				if rank == 1 {
+					cn.share = chainShareFirst
+				}
 				for _, pl := range g.islandPlots(island) {
 					if g.rankOf(chain, pl.typ) >= rank {
 						g.cover(cn.covered, cn.land, pl.typ, pl.x, pl.y, pl.rot, cl.w)
@@ -106,6 +122,12 @@ func (g *gen) reserveChains(island string) error {
 					break
 				}
 				pl, err := g.reserveChainPlot(island, typ, open, served)
+				if errors.Is(err, errSmallGain) {
+					for _, cn := range open {
+						g.logf("chain %s rank %d: %s keeps %d of %d tiles covered", chain, rank, cn.q.spec.ID, len(cn.covered), len(cn.land))
+					}
+					break
+				}
 				if err != nil {
 					return fmt.Errorf("%s (rank %d of %s) for %s, %d of %d tiles covered: %w", typ, rank, chain, open[0].q.spec.ID, len(open[0].covered), len(open[0].land), err)
 				}
@@ -226,7 +248,7 @@ func (g *gen) reserveChainPlot(island, typ string, open []*chainNeed, served map
 				}
 			}
 			// Only the coverage a quarter still needs counts.
-			want := (len(cn.land)*chainShare+99)/100 - len(cn.covered)
+			want := (len(cn.land)*cn.share+99)/100 - len(cn.covered)
 			n += min(add, want)
 		}
 		if n == 0 {
@@ -244,6 +266,9 @@ func (g *gen) reserveChainPlot(island, typ string, open []*chainNeed, served map
 		return nil, fmt.Errorf("no site adds coverage near (%d,%d)", anchor.X, anchor.Y)
 	}
 	slices.SortStableFunc(cands, func(a, b cand) int { return b.gain - a.gain })
+	if cands[0].gain < chainMinGain {
+		return nil, errSmallGain
+	}
 	good := cands[0].gain - cands[0].gain*chainSlack/100
 	k := 0
 	for k < len(cands) && cands[k].gain >= good {
@@ -294,17 +319,18 @@ func (g *gen) unbuiltPlotTiles(island string, chain bool) int {
 	return n
 }
 
-// checkServes reports a quarter with more houses at or above a tier than
-// its serves declares there (the chain plots were reserved for fewer);
-// houses still below their final tier count toward the higher ones.
+// checkServes reports a quarter that declares serves with more houses at
+// or above a tier than its serves declares there (the chain plots were
+// reserved for fewer); houses still below their final tier count toward
+// the higher ones.
 func (g *gen) checkServes() error {
 	if g.chains == nil {
 		return nil
 	}
 	for _, q := range g.order {
 		is := g.world().Island(q.spec.Island)
-		if is == nil {
-			continue
+		if is == nil || q.spec.Serves == nil {
+			continue // no chain plots reserved for the quarter's houses
 		}
 		count := map[string]int{}
 		for _, id := range q.houses {
@@ -323,6 +349,38 @@ func (g *gen) checkServes() error {
 			served += q.spec.Serves[tier]
 			if have > served {
 				return fmt.Errorf("quarter %s has %d houses of tier %s or above, serves %d", q.spec.ID, have, tier, served)
+			}
+		}
+	}
+	return nil
+}
+
+// checkChains reports a plan's chains that differ from the content's: each
+// building's chain and rank (its position, from 1) and each tier's minimum
+// rank per chain need.
+func checkChains(ch *Chains, c *content.Catalogue) error {
+	for _, chain := range slices.Sorted(maps.Keys(ch.Buildings)) {
+		for i, typ := range ch.Buildings[chain] {
+			def := c.BuildingByID[typ]
+			if def == nil || def.Service == nil || def.Service.Chain != chain || def.Service.Rank != i+1 {
+				return fmt.Errorf("chains: %s is not rank %d of %q in the content", typ, i+1, chain)
+			}
+		}
+	}
+	for _, t := range c.Tiers {
+		want := map[string]int{}
+		for _, n := range c.NeedsByTier[t.ID] {
+			if n.IsChain() && n.Kind == content.NeedRequired && n.Tier == t.ID {
+				want[n.Chain] = n.MinRank
+			}
+		}
+		got := ch.MinRank[t.ID]
+		if len(got) != len(want) {
+			return fmt.Errorf("chains: tier %q needs ranks %v in the content, the plan has %v", t.ID, want, got)
+		}
+		for chain, r := range want {
+			if got[chain] != r {
+				return fmt.Errorf("chains: tier %q needs ranks %v in the content, the plan has %v", t.ID, want, got)
 			}
 		}
 	}

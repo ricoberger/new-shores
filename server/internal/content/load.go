@@ -84,6 +84,7 @@ func LoadWithSchemas(dir, schemaDir string) (*Catalogue, error) {
 	if err != nil {
 		return nil, err
 	}
+	deriveServiceLevelTiers(c)
 	if err := checkReferences(c); err != nil {
 		return nil, err
 	}
@@ -334,7 +335,6 @@ type rawBuilding struct {
 		Rank   int    `json:"rank"`
 		Levels []struct {
 			Radius int                    `json:"radius"`
-			Tier   string                 `json:"tier"`
 			Cost   map[string]json.Number `json:"cost"`
 		} `json:"levels"`
 	} `json:"service"`
@@ -865,7 +865,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 			b.Service.Levels = []ServiceLevel{{Radius: s.Radius}}
 		}
 		for _, l := range s.Levels {
-			lvl := ServiceLevel{Radius: l.Radius, Tier: l.Tier}
+			lvl := ServiceLevel{Radius: l.Radius}
 			if l.Cost != nil {
 				cost := decodeCost(col, file, ent, l.Cost, goods)
 				lvl.Cost = &cost
@@ -978,4 +978,20 @@ func defaultShare(alternatives int) int64 {
 		return ShareLone
 	}
 	return ShareAlternative
+}
+
+// deriveServiceLevelTiers sets the tier gate of the levels of a public
+// building (D-065): level n needs tier n unlocked (the n-th tier of
+// tiers.json), so the market's four levels follow the four tiers. The
+// first level has no gate; levels beyond the tiers keep none and are
+// rejected by checkReferences.
+func deriveServiceLevelTiers(c *Catalogue) {
+	for _, b := range c.Buildings {
+		if b.Service == nil {
+			continue
+		}
+		for i := 1; i < len(b.Service.Levels) && i < len(c.Tiers); i++ {
+			b.Service.Levels[i].Tier = c.Tiers[i].ID
+		}
+	}
 }

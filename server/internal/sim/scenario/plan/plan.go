@@ -73,7 +73,9 @@ type Quarter struct {
 	// Houses is the number of houses the quarter must hold.
 	Houses int `json:"houses"`
 	// Serves counts the quarter's houses per tier (above the first) that
-	// the chains must cover; the plan's upgrades may not exceed it.
+	// the chains must cover; the plan's upgrades may not exceed it. A
+	// quarter without serves gets no chain plots (its own civic plots
+	// only).
 	Serves map[string]int `json:"serves,omitempty"`
 	// Rings let some of them stand where only the first civic plots
 	// cover them.

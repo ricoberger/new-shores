@@ -499,6 +499,12 @@
       }
     },
     {
+      "civic": {
+        "quarter": "isle6-1",
+        "type": "chapel"
+      }
+    },
+    {
       "step": {
         "create_route": {
           "name": "Hemp home",
@@ -761,10 +767,46 @@
       }
     },
     {
+      "civic": {
+        "quarter": "home-3",
+        "type": "school"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "school-2"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "tavern"
+      }
+    },
+    {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "playhouse"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "church"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
+        "type": "church-2"
       }
     },
     {
@@ -837,14 +879,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -890,14 +932,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -957,14 +999,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1010,14 +1052,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1037,14 +1079,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1096,14 +1138,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1194,14 +1236,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1227,14 +1269,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1247,14 +1289,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1320,14 +1362,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1354,14 +1396,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1387,14 +1429,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1481,14 +1523,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1514,14 +1556,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1559,28 +1601,16 @@
       }
     },
     {
-      "upgrade_civic": {
-        "quarter": "home-3",
-        "type": "city_guard"
-      }
-    },
-    {
-      "upgrade_civic": {
-        "quarter": "home-4",
-        "type": "city_guard"
-      }
-    },
-    {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1639,14 +1669,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1659,14 +1689,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1733,14 +1763,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1825,14 +1855,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1885,14 +1915,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1924,14 +1954,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1970,14 +2000,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -2024,20 +2054,14 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-1",
-        "type": "church"
       }
     },
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -2070,7 +2094,7 @@
     {
       "upgrade": {
         "quarter": "home-3",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -2213,9 +2237,21 @@
       }
     },
     {
+      "civic": {
+        "quarter": "home-4",
+        "type": "school-2"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "church-2"
+      }
+    },
+    {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
@@ -2268,14 +2304,14 @@
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -2328,14 +2364,14 @@
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -2349,13 +2385,6 @@
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_citizens",
-        "count": 1
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-4",
         "from": "house_settlers",
         "count": 1
       }
@@ -2371,6 +2400,13 @@
       "upgrade": {
         "quarter": "home-4",
         "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-4",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -2398,14 +2434,14 @@
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -2457,14 +2493,14 @@
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -2748,7 +2784,7 @@
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
@@ -2855,9 +2891,21 @@
       }
     },
     {
+      "civic": {
+        "quarter": "home-1",
+        "type": "university"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "cathedral"
+      }
+    },
+    {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -2915,7 +2963,7 @@
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
@@ -2929,7 +2977,7 @@
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -2995,14 +3043,14 @@
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_citizens",
+        "from": "house_settlers",
         "count": 1
       }
     },
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -3093,7 +3141,7 @@
     {
       "upgrade": {
         "quarter": "home-4",
-        "from": "house_settlers",
+        "from": "house_citizens",
         "count": 1
       }
     },

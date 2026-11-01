@@ -661,8 +661,9 @@ func (g *gen) civic(c *Civic) error {
 	return nil
 }
 
-// upgrade upgrades Count houses of type From in the quarter (those most
-// plots cover, then the oldest), each waiting until it can.
+// upgrade upgrades Count houses of type From in the quarter, each waiting
+// until one can: of those that can, the one most plots cover, then the
+// oldest (the chain plots need not cover every house of the quarter).
 func (g *gen) upgrade(u *Upgrade) error {
 	q := g.quarters[u.Quarter]
 	if q == nil {
@@ -675,15 +676,25 @@ func (g *gen) upgrade(u *Upgrade) error {
 			todo = append(todo, b)
 		}
 	}
-	// The houses most plots cover first, then the oldest.
-	slices.SortStableFunc(todo, func(a, b *sim.Building) int { return q.coverCount(g.c, b) - q.coverCount(g.c, a) })
-	todo = todo[:min(len(todo), u.Count)]
 	if len(todo) < u.Count {
 		return fmt.Errorf("quarter %s has %d houses of type %s, want %d", u.Quarter, len(todo), u.From, u.Count)
 	}
-	for _, b := range todo {
-		st := scenario.Step{Upgrade: &scenario.At{Island: q.spec.Island, X: b.X, Y: b.Y}}
-		if err := g.do(st, fmt.Sprintf("upgrade %s at (%d,%d)", u.From, b.X, b.Y)); err != nil {
+	// The houses most plots cover first, then the oldest.
+	slices.SortStableFunc(todo, func(a, b *sim.Building) int { return q.coverCount(g.c, b) - q.coverCount(g.c, a) })
+	step := func(b *sim.Building) scenario.Step {
+		return scenario.Step{Upgrade: &scenario.At{Island: q.spec.Island, X: b.X, Y: b.Y}}
+	}
+	for range u.Count {
+		pick := 0
+		for k, b := range todo {
+			if _, err := g.sess.Try(step(b)); err == nil {
+				pick = k
+				break
+			}
+		}
+		b := todo[pick]
+		todo = slices.Delete(todo, pick, pick+1)
+		if err := g.do(step(b), fmt.Sprintf("upgrade %s at (%d,%d)", u.From, b.X, b.Y)); err != nil {
 			return err
 		}
 	}

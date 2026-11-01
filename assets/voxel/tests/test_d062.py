@@ -24,8 +24,8 @@ ROLES = palette.load()[0]
 D062 = {
     "trading_post": ((6, 6), (1, 2), ("door", "cart", "berth_1", "berth_2", "berth_3", "berth_4"), 4),
     "chapel": ((3, 5), None, ("door",), 1),
-    "city_guard": ((4, 4), None, ("door",), 2),
-    "fire_station": ((4, 5), None, ("door",), 2),
+    "city_guard": ((4, 4), None, ("door",), 1),
+    "fire_station": ((4, 5), None, ("door",), 1),
     "surgery": ((4, 6), None, ("door",), 1),
     "trading_pier": ((6, 9), (5, 6), ("berth_1", "berth_2", "cart"), 1),
     "depot": ((4, 11), (7, 9), ("cart", "door"), 1),
@@ -197,12 +197,11 @@ class D062Test(unittest.TestCase):
     def test_the_city_guard_is_warm_sandstone_not_grey(self):
         files, _, _ = self.built("city_guard")
         by_path = {f[0]: f[3] for f in files}
-        for level in (1, 2):
-            with self.subTest(level=level):
-                v = by_path[f"city_guard.l{level}.glb"]
-                roles = [m[0] for m in v.cells.values()]
-                self.assertLess(roles.count("stone") / len(roles), 0.03)
-                self.assertGreater(roles.count("cliff-upper") / len(roles), 0.2)
+        # One model: the guard has no levels since D-065.
+        v = by_path["city_guard.glb"]
+        roles = [m[0] for m in v.cells.values()]
+        self.assertLess(roles.count("stone") / len(roles), 0.03)
+        self.assertGreater(roles.count("cliff-upper") / len(roles), 0.2)
 
     def test_the_surgery_is_a_patricians_stone_and_brick_house(self):
         self.assertEqual(CONTENT["buildings"]["surgery"]["tier"], "patricians")

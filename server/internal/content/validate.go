@@ -195,11 +195,8 @@ func checkReferences(c *Catalogue) error {
 					col.add(FileBuildings, ent, field+".radius", "must not be below the previous level's")
 				}
 				checkLevelCost(col, ent, field+".cost", i, l.Cost)
-				switch {
-				case i == 0 && l.Tier != "":
-					col.add(FileBuildings, ent, field+".tier", "the first level has no tier condition")
-				case l.Tier != "":
-					tier(FileBuildings, ent, field+".tier", l.Tier)
+				if i > 0 && l.Tier == "" {
+					col.add(FileBuildings, ent, field, "level %d needs tier %d, but the region has only %d tiers", i+1, i+1, len(c.Tiers))
 				}
 			}
 			if b.TradingPost != nil || b.Warehouse != nil {

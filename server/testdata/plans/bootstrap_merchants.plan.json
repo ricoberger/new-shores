@@ -64,6 +64,12 @@
       }
     },
     {
+      "civic": {
+        "quarter": "isle2-1",
+        "type": "chapel"
+      }
+    },
+    {
       "houses": {
         "quarter": "isle2-1",
         "count": 6
@@ -312,9 +318,9 @@
       }
     },
     {
-      "upgrade_civic": {
+      "civic": {
         "quarter": "home-1",
-        "type": "city_guard"
+        "type": "school"
       }
     },
     {
@@ -427,6 +433,21 @@
         "type": "printing_press",
         "count": 1
       }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "church"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "playhouse"
+      }
+    },
+    {
+      "wait": "1m"
     },
     {
       "checkpoint": {

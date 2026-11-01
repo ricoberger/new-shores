@@ -87,9 +87,6 @@
         "city_guard"
       ],
       "houses": 32,
-      "serves": {
-        "citizens": 4
-      },
       "rings": [
         {
           "houses": 28,
@@ -148,9 +145,6 @@
         "city_guard"
       ],
       "houses": 20,
-      "serves": {
-        "citizens": 5
-      },
       "rings": [
         {
           "houses": 15,
@@ -267,6 +261,12 @@
       }
     },
     {
+      "civic": {
+        "quarter": "home-1",
+        "type": "chapel"
+      }
+    },
+    {
       "build": {
         "island": "isle-01",
         "type": "fisher",
@@ -291,12 +291,6 @@
       "houses": {
         "quarter": "home-1",
         "count": 5
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-1",
-        "type": "chapel"
       }
     },
     {

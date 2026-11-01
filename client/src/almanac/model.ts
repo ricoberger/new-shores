@@ -5,6 +5,7 @@
 // yield empty lists, never exceptions.
 import type { Content, ContentBuilding, ContentShip, ContentTier } from "../api/client";
 import type { components } from "../api/schema";
+import { chainBuildings } from "../display/needs";
 import { depositName, fertilityName } from "../display/tiers";
 import { currentLocale, percentSpace, t, tOr } from "../i18n";
 
@@ -206,6 +207,9 @@ export interface NeedView {
   alternatives: NeedAlternative[];
   /** Whether the alternatives are building services. */
   services: boolean;
+  /** Chain needs (D-065): the chain and the minimum rank that serves. */
+  chain?: string;
+  minRank?: number;
 }
 
 export interface TierNeeds {
@@ -214,7 +218,7 @@ export interface TierNeeds {
   own: NeedView[];
   /** Tiers whose categories this tier carries at reduced rates (cumulative). */
   carried: string[];
-  /** Services added at this tier (not in a lower tier's services list), in list order. */
+  /** Services added at this tier (not in a lower tier's services list; of a chain, the minimum rank's buildings), in list order. */
   servicesAdded: string[];
 }
 
@@ -227,8 +231,12 @@ export function needsByTier(idx: Index): TierNeeds[] {
     const carried = [...new Set(mine.filter((n) => n.from_tier).map((n) => n.from_tier as string))];
     const sum = own.reduce((s, n) => s + (n.weight ?? 0), 0);
     const views = own.map((n): NeedView => {
-      // Services needs carry no category in the payload; their category is the one named "services".
-      const cat = n.category ?? (n.buildings?.length ? "services" : "");
+      const cat = n.category ?? "";
+      const building = (id: string, share: number): NeedAlternative => {
+        const def = idx.building(id);
+        const radii = def?.service?.levels?.map((l) => l.radius) ?? (def?.service ? [def.service.radius] : []);
+        return { id, kind: "building", share, radius: def?.service?.radius, radii, providers: [id] };
+      };
       const alternatives: NeedAlternative[] = [
         ...(n.goods ?? []).map(
           (g): NeedAlternative => ({
@@ -239,11 +247,9 @@ export function needsByTier(idx: Index): TierNeeds[] {
             providers: idx.producers(g.good).map((b) => b.id),
           }),
         ),
-        ...(n.buildings ?? []).map((b): NeedAlternative => {
-          const def = idx.building(b.building);
-          const radii = def?.service?.levels?.map((l) => l.radius) ?? (def?.service ? [def.service.radius] : []);
-          return { id: b.building, kind: "building", share: (b.share ?? 0) / 1_000_000, radius: def?.service?.radius, radii, providers: [b.building] };
-        }),
+        ...(n.buildings ?? []).map((b) => building(b.building, (b.share ?? 0) / 1_000_000)),
+        // A chain need (D-065): every building of the chain with rank >= the minimum serves it fully.
+        ...(n.chain ? chainBuildings(idx.content, n.chain, n.min_rank ?? 1).map((id) => building(id, 1)) : []),
       ];
       return {
         id: n.id,
@@ -254,13 +260,16 @@ export function needsByTier(idx: Index): TierNeeds[] {
         kind: n.kind,
         ownPercent: sum > 0 ? ((n.weight ?? 0) / sum) * 100 : 0,
         alternatives,
-        services: (n.buildings?.length ?? 0) > 0,
+        services: (n.buildings?.length ?? 0) > 0 || !!n.chain,
+        ...(n.chain ? { chain: n.chain, minRank: n.min_rank ?? 1 } : {}),
       };
     });
     const servicesAdded: string[] = [];
     for (const v of views) {
       if (!v.services) continue;
       for (const a of v.alternatives) {
+        // A chain need asks for its minimum rank; the higher ranks are asked for by the tiers that need them.
+        if (v.chain && idx.building(a.id)?.service?.rank !== v.minRank) continue;
         if (!seenServices.has(a.id)) {
           seenServices.add(a.id);
           servicesAdded.push(a.id);
@@ -337,7 +346,7 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   b.trading_post?.levels?.forEach((l, i) =>
     levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, throughput: l.throughput_per_min / 1000, berths: l.berths }),
   );
-  b.warehouse?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), throughput: l.throughput_per_min / 1000 }));
+  b.warehouse?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), throughput: l.throughput_per_min / 1000, tier: l.tier }));
   b.service?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), radius: l.radius, tier: l.tier }));
   const cycle = r?.cycle_ms ?? 0;
   const modules = idx.modulesOf(b.id).map((m) => ({ building: m.id }));

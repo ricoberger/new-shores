@@ -20,10 +20,13 @@ import (
 // S1 documents named it for the need model, which shipped as 8) and
 // version 11 the D-058 terrain (Tile.Level and Tile.Height, the river,
 // islet and cliff terrains, roads on rivers), and version 12 the per-column
-// water rows (D-062). Versions 1-11 have no
+// water rows (D-062), and version 13 the ranked service chains (D-065:
+// guard and fire station lose their levels, the market and the warehouse
+// have four; a stored level 2 of a guard or fire station is not migrated).
+// Versions 1-12 have no
 // migration path (the game was not deployed; a fresh database is needed:
 // make down VOLUMES=1 && make up).
-const SchemaVersion = 12
+const SchemaVersion = 13
 
 // Envelope is the versioned persistence format of a world
 // (docs/ARCHITECTURE.md §4.1).

@@ -260,7 +260,9 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 		"patricians_food:food:roast_beef=5000/oysters=4000:84000", "patricians_drink:drink:wine=4000/grain_spirit=3000:84000",
 		"patricians_clothing:clothing:fine_garments=3000/lace=3000:84000", "patricians_comfort:comfort:candles=4000/spectacles=2000:84000",
 		"patricians_luxury:luxury:jewellery=1000/instruments=1000:84000",
-		"patricians_services:services:market=600000/chapel=600000/tavern=600000/school=600000/church=600000/playhouse=600000/university=600000/cathedral=600000:60000",
+		// D-065: faith rank 3 (cathedral), education 2 (university), culture 2.
+		"patricians_market:market:market=1000000:24000", "patricians_faith:faith:faith>=3:12000",
+		"patricians_education:education:education>=2:12000", "patricians_culture:culture:culture>=2:12000",
 		// Civic services (D-060), cumulative like services: 0.06 each from services.
 		"patricians_safety:safety:city_guard=1000000:36000", "patricians_fire_protection:fire_protection:fire_station=1000000:36000",
 		"patricians_health:health:surgery=1000000:48000",
@@ -336,10 +338,10 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 			t.Errorf("%s = %+v", id, b)
 		}
 	}
-	// The market's level 3 is the Patricians' (radius 20); the trading post's
-	// level 4 holds 1200 with 4 berths (CONTENT §7).
-	if m := c.BuildingByID["market"]; m.LevelCount() != 3 || m.Service.RadiusAt(3) != 20 || m.LevelTier(3) != "patricians" {
-		t.Errorf("market level 3 = %d %s", m.Service.RadiusAt(3), m.LevelTier(3))
+	// The market's level 4 is the Patricians' (radius 21, D-065); the
+	// trading post's level 4 holds 1200 with 4 berths (CONTENT §7).
+	if m := c.BuildingByID["market"]; m.LevelCount() != 4 || m.Service.RadiusAt(4) != 21 || m.LevelTier(4) != "patricians" {
+		t.Errorf("market level 4 = %d %s", m.Service.RadiusAt(4), m.LevelTier(4))
 	}
 	if tp := c.BuildingByID["trading_post"]; tp.LevelCount() != 4 || fmt.Sprint(tp.LevelCost(4).Gold, tp.LevelCost(4).Materials) != "1200000 [{planks 40000} {stone 30000} {tools 10000}]" {
 		t.Errorf("trading_post level 4 = %+v", tp.LevelCost(4))

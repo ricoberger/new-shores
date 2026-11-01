@@ -73,16 +73,31 @@ export function orderNeeds<T extends { id: string }>(content: NeedContent, needs
 }
 
 /**
+ * The buildings of a service chain (D-065) that serve a minimum rank: every
+ * building of the chain with rank >= minRank, by rank (content order
+ * within a rank).
+ */
+export function chainBuildings(content: NeedContent, chain: string, minRank: number): string[] {
+  return (content?.buildings ?? [])
+    .filter((b) => b.service?.chain === chain && (b.service.rank ?? 0) >= minRank)
+    .sort((a, b) => (a.service?.rank ?? 0) - (b.service?.rank ?? 0))
+    .map((b) => b.id);
+}
+
+/**
  * The alternatives of a need from the content (D-056 weighted shares), as
- * display names in content order: "Bread or Cheese", "Small market,
- * Chapel, Tavern or School". Undefined for an unknown need or a need with
- * a single alternative.
+ * display names in content order: "Bread or Cheese"; for a chain need
+ * (D-065) the chain's buildings of the minimum rank or higher: "Church or
+ * Cathedral". Undefined for an unknown need or a need with a single
+ * alternative.
  */
 export function needAlternatives(content: (NeedContent & Partial<Pick<Content, "goods">>) | null | undefined, id: string): string | undefined {
   const n = content?.needs?.find((x) => x.id === id);
+  const buildingName = (b: string) => content?.buildings?.find((x) => x.id === b)?.name || b;
   const names = [
     ...(n?.goods ?? []).map((g) => content?.goods?.find((x) => x.id === g.good)?.name || g.good),
-    ...(n?.buildings ?? []).map((b) => content?.buildings?.find((x) => x.id === b.building)?.name || b.building),
+    ...(n?.buildings ?? []).map((b) => buildingName(b.building)),
+    ...(n?.chain ? chainBuildings(content, n.chain, n.min_rank ?? 1).map(buildingName) : []),
   ];
   if (names.length < 2) return undefined;
   return listOr(names);

@@ -2669,8 +2669,12 @@ export interface components {
              * @description Satisfaction weight (ppm, normalised; own-tier categories share 0.6 when the tier carries lower-tier categories).
              */
             weight: number;
-            /** @description Goods needs only. */
+            /** @description Need category (need_categories); set on goods needs, chain needs and categorised building needs. */
             category?: string;
+            /** @description Chain needs only (D-065) — the service chain whose buildings serve the house. */
+            chain?: string;
+            /** @description Chain needs only (D-065) — the lowest rank of the chain that serves the house, within that building's own radius. */
+            min_rank?: number;
             /** @description Goods needs only. */
             goods?: {
                 good: string;

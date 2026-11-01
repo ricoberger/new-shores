@@ -3085,89 +3085,49 @@
           -2.0
         ]
       },
+      "file": {
+        "bounds": {
+          "max": [
+            2.0,
+            2.625,
+            2.0
+          ],
+          "min": [
+            -2.0,
+            0.0,
+            -2.0
+          ]
+        },
+        "budget": 8000,
+        "bytes": 106648,
+        "lite": {
+          "bounds": {
+            "max": [
+              2.0,
+              2.5,
+              2.0
+            ],
+            "min": [
+              -2.0,
+              0.0,
+              -2.0
+            ]
+          },
+          "budget": 640,
+          "bytes": 12124,
+          "path": "city_guard.lite.glb",
+          "sha256": "9d91360e35e8dd388e6a40a133833137dbf2b2356b3109d2b4b2497fa793322e",
+          "triangles": 326
+        },
+        "path": "city_guard.glb",
+        "sha256": "ccb139d2cd8c7f3689895ab97a17132fcae54a2fee1f0de24777339d4877f79e",
+        "triangles": 3492
+      },
       "footprint": {
         "h": 4,
         "w": 4
       },
-      "kind": "building",
-      "levels": {
-        "1": {
-          "bounds": {
-            "max": [
-              2.0,
-              2.625,
-              2.0
-            ],
-            "min": [
-              -2.0,
-              0.0,
-              -2.0
-            ]
-          },
-          "budget": 8000,
-          "bytes": 106648,
-          "lite": {
-            "bounds": {
-              "max": [
-                2.0,
-                2.5,
-                2.0
-              ],
-              "min": [
-                -2.0,
-                0.0,
-                -2.0
-              ]
-            },
-            "budget": 640,
-            "bytes": 12124,
-            "path": "city_guard.l1.lite.glb",
-            "sha256": "9d91360e35e8dd388e6a40a133833137dbf2b2356b3109d2b4b2497fa793322e",
-            "triangles": 326
-          },
-          "path": "city_guard.l1.glb",
-          "sha256": "ccb139d2cd8c7f3689895ab97a17132fcae54a2fee1f0de24777339d4877f79e",
-          "triangles": 3492
-        },
-        "2": {
-          "bounds": {
-            "max": [
-              2.0,
-              2.625,
-              2.0
-            ],
-            "min": [
-              -2.0,
-              0.0,
-              -2.0
-            ]
-          },
-          "budget": 8000,
-          "bytes": 106648,
-          "lite": {
-            "bounds": {
-              "max": [
-                2.0,
-                2.5,
-                2.0
-              ],
-              "min": [
-                -2.0,
-                0.0,
-                -2.0
-              ]
-            },
-            "budget": 640,
-            "bytes": 12124,
-            "path": "city_guard.l2.lite.glb",
-            "sha256": "9d91360e35e8dd388e6a40a133833137dbf2b2356b3109d2b4b2497fa793322e",
-            "triangles": 326
-          },
-          "path": "city_guard.l2.glb",
-          "sha256": "ccb139d2cd8c7f3689895ab97a17132fcae54a2fee1f0de24777339d4877f79e",
-          "triangles": 3492
-        }
-      }
+      "kind": "building"
     },
     "clay_pit": {
       "anchors": {
@@ -4074,89 +4034,49 @@
           -2.5
         ]
       },
+      "file": {
+        "bounds": {
+          "max": [
+            2.0,
+            4.625,
+            2.5
+          ],
+          "min": [
+            -2.0,
+            0.0,
+            -2.5
+          ]
+        },
+        "budget": 10000,
+        "bytes": 141488,
+        "lite": {
+          "bounds": {
+            "max": [
+              2.0,
+              4.5,
+              2.5
+            ],
+            "min": [
+              -2.0,
+              0.0,
+              -2.5
+            ]
+          },
+          "budget": 800,
+          "bytes": 13568,
+          "path": "fire_station.lite.glb",
+          "sha256": "2f00105511f6bd10cf1ef0c7979866aaeeacf242675a398550c27d7bc6690c99",
+          "triangles": 350
+        },
+        "path": "fire_station.glb",
+        "sha256": "ab4f246969b153fbe1d9617e6923a707de9c3e225d91ccaa981a93dabecb4f50",
+        "triangles": 4482
+      },
       "footprint": {
         "h": 5,
         "w": 4
       },
-      "kind": "building",
-      "levels": {
-        "1": {
-          "bounds": {
-            "max": [
-              2.0,
-              4.625,
-              2.5
-            ],
-            "min": [
-              -2.0,
-              0.0,
-              -2.5
-            ]
-          },
-          "budget": 10000,
-          "bytes": 141488,
-          "lite": {
-            "bounds": {
-              "max": [
-                2.0,
-                4.5,
-                2.5
-              ],
-              "min": [
-                -2.0,
-                0.0,
-                -2.5
-              ]
-            },
-            "budget": 800,
-            "bytes": 13568,
-            "path": "fire_station.l1.lite.glb",
-            "sha256": "2f00105511f6bd10cf1ef0c7979866aaeeacf242675a398550c27d7bc6690c99",
-            "triangles": 350
-          },
-          "path": "fire_station.l1.glb",
-          "sha256": "ab4f246969b153fbe1d9617e6923a707de9c3e225d91ccaa981a93dabecb4f50",
-          "triangles": 4482
-        },
-        "2": {
-          "bounds": {
-            "max": [
-              2.0,
-              4.625,
-              2.5
-            ],
-            "min": [
-              -2.0,
-              0.0,
-              -2.5
-            ]
-          },
-          "budget": 10000,
-          "bytes": 141488,
-          "lite": {
-            "bounds": {
-              "max": [
-                2.0,
-                4.5,
-                2.5
-              ],
-              "min": [
-                -2.0,
-                0.0,
-                -2.5
-              ]
-            },
-            "budget": 800,
-            "bytes": 13568,
-            "path": "fire_station.l2.lite.glb",
-            "sha256": "2f00105511f6bd10cf1ef0c7979866aaeeacf242675a398550c27d7bc6690c99",
-            "triangles": 350
-          },
-          "path": "fire_station.l2.glb",
-          "sha256": "ab4f246969b153fbe1d9617e6923a707de9c3e225d91ccaa981a93dabecb4f50",
-          "triangles": 4482
-        }
-      }
+      "kind": "building"
     },
     "fisher": {
       "anchors": {

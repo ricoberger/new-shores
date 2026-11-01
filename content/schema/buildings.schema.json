@@ -163,7 +163,7 @@
         }
       },
       "service": {
-        "description": "A public building serving houses within its radius (building needs). Either one radius or levels (D-056, upgrade_building): the first level is placed with the building cost; every later level needs a cost and may need a tier unlocked.",
+        "description": "A public building serving houses within its radius (building needs). Either one radius or levels (D-056, upgrade_building): the first level is placed with the building cost; every later level needs a cost; level n of a building with levels needs tier n unlocked (positional, D-065: the loader derives it from the tier order).",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -184,7 +184,7 @@
             "prefixItems": [
               {
                 "$ref": "#/$defs/service_level",
-                "not": { "anyOf": [{ "required": ["cost"] }, { "required": ["tier"] }] }
+                "not": { "required": ["cost"] }
               }
             ],
             "items": {
@@ -351,11 +351,6 @@
       "required": ["radius"],
       "properties": {
         "radius": { "type": "integer", "minimum": 1 },
-        "tier": {
-          "description": "Tier that must be unlocked to upgrade into this level.",
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$"
-        },
         "cost": {
           "description": "Upgrade cost into this level (gold from the world, materials from the island).",
           "$ref": "#/$defs/cost"

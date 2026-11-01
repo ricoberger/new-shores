@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.16.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.17.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 120 {
@@ -100,9 +100,9 @@ func TestLoadOldCoast(t *testing.T) {
 		wantHouse, wantNeeds := "", 0
 		switch id {
 		case "merchants":
-			wantHouse, wantNeeds = "house_merchants", 12
+			wantHouse, wantNeeds = "house_merchants", 15
 		case "patricians":
-			wantHouse, wantNeeds = "house_patricians", 18
+			wantHouse, wantNeeds = "house_patricians", 21
 		}
 		if got != want || tr.House != wantHouse || len(c.NeedsByTier[id]) != wantNeeds {
 			t.Errorf("%s = %q (house %q), want %q", id, got, tr.House, want)
@@ -294,8 +294,17 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	wh := c.BuildingByID["warehouse"]
 	if wh.Warehouse == nil || waterRange(wh).Max != 0 || wh.Coastal || wh.Tier != "settlers" || wh.Warehouse.Levels[0] != (WarehouseLevel{ThroughputPerMin: 30_000}) ||
-		len(wh.Warehouse.Levels) != 3 || wh.Warehouse.Levels[2].ThroughputPerMin != 80_000 {
+		len(wh.Warehouse.Levels) != 4 || wh.Warehouse.Levels[3].ThroughputPerMin != 90_000 {
 		t.Errorf("warehouse = %+v", wh.Warehouse)
+	}
+	// D-065: warehouse throughput 30 / 50 / 70 / 90, levels 2-4 gated on
+	// Citizens / Merchants / Patricians.
+	var whLevels []string
+	for i, l := range wh.Warehouse.Levels {
+		whLevels = append(whLevels, fmt.Sprintf("%d:%s", l.ThroughputPerMin/1000, wh.LevelTier(i+1)))
+	}
+	if got := strings.Join(whLevels, " "); got != "30: 50:citizens 70:merchants 90:patricians" {
+		t.Errorf("warehouse levels = %s", got)
 	}
 	if c.BuildingByID["road_dirt"].Road.MsPerTile != 1000 {
 		t.Error("road_dirt seconds_per_tile")
@@ -303,8 +312,8 @@ func TestLoadOldCoast(t *testing.T) {
 	if c.BuildingByID["chapel"].Service.RadiusAt(1) != 16 || c.BuildingByID["chapel"].Upgradable() {
 		t.Error("chapel service")
 	}
-	// Market levels (D-056): radius 12 / 16 / 20; levels 2 and 3 need
-	// Merchants and Patricians; level 3 costs bricks (C3).
+	// Market levels (D-065): radius 12 / 15 / 18 / 21; level n needs tier n
+	// (positional); level 4 costs bricks (C3).
 	market := c.BuildingByID["market"]
 	var levels []string
 	for i, l := range market.Service.Levels {
@@ -314,7 +323,7 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 		levels = append(levels, fmt.Sprintf("%d:%s:%s", l.Radius, market.LevelTier(i+1), cost))
 	}
-	if got := strings.Join(levels, " "); market.Name != "Market" || got != "12::- 16:merchants:1000000 [{planks 15000} {stone 30000}] 20:patricians:5000000 [{bricks 15000} {planks 15000} {stone 45000}]" {
+	if got := strings.Join(levels, " "); market.Name != "Market" || got != "12::- 15:citizens:400000 [{planks 10000} {stone 10000}] 18:merchants:1000000 [{planks 15000} {stone 30000}] 21:patricians:5000000 [{bricks 15000} {planks 15000} {stone 45000}]" {
 		t.Errorf("market %q levels = %s", market.Name, got)
 	}
 	for id, amount := range map[string]Qty{"lumberjack": 4000, "sawmill": 4000, "fisher": 4000, "sheep_farm": 4000, "weaver_wool": 6000} {
@@ -329,10 +338,10 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 
 	needs := c.NeedsByTier["settlers"]
-	if len(needs) != 3 {
+	if len(needs) != 4 {
 		t.Fatalf("needs = %+v", needs)
 	}
-	food, clothing, services := needs[0], needs[1], needs[2]
+	food, clothing, marketNeed, faith := needs[0], needs[1], needs[2], needs[3]
 	if food.ID != "settlers_food" || food.Kind != NeedRequired || food.Category != "food" || food.Weight != 500_000 ||
 		len(food.Goods) != 1 || food.Goods[0] != (NeedGood{"fish", 10_000, ShareLone}) || !food.IsGoods() {
 		t.Errorf("food = %+v", food)
@@ -341,9 +350,14 @@ func TestLoadOldCoast(t *testing.T) {
 		len(clothing.Goods) != 1 || clothing.Goods[0] != (NeedGood{"wool_garments", 5_000, ShareLone}) {
 		t.Errorf("clothing = %+v", clothing)
 	}
-	if services.ID != "settlers_services" || services.Kind != NeedRequired || services.Category != "services" || needBuildings(services) != "market=600000/chapel=600000" ||
-		services.Weight != 300_000 || services.IsGoods() || !services.IsBuilding() {
-		t.Errorf("services = %+v", services)
+	// D-065: the market is its own category, faith a chain need.
+	if marketNeed.ID != "settlers_market" || marketNeed.Kind != NeedRequired || marketNeed.Category != "market" || needBuildings(marketNeed) != "market=1000000" ||
+		marketNeed.Weight != 120_000 || marketNeed.IsGoods() || !marketNeed.IsBuilding() || marketNeed.IsChain() {
+		t.Errorf("market need = %+v", marketNeed)
+	}
+	if faith.ID != "settlers_faith" || faith.Category != "faith" || faith.Chain != "faith" || faith.MinRank != 1 || faith.Weight != 180_000 ||
+		faith.IsGoods() || !faith.IsBuilding() || !faith.IsChain() || len(faith.Buildings) != 0 {
+		t.Errorf("faith = %+v", faith)
 	}
 }
 
@@ -406,8 +420,8 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"mixed shape", FileNeeds,
-			[]string{`"category": "services",`, `"category": "services", "goods": [{ "good": "fish", "per_resident_per_min": 0.01 }],`},
-			[]string{FileNeeds, `need "settlers_services"`, "schema violation"},
+			[]string{`"category": "market",`, `"category": "market", "goods": [{ "good": "fish", "per_resident_per_min": 0.01 }],`},
+			[]string{FileNeeds, `need "settlers_market"`, "schema violation"},
 		},
 		{
 			"duplicate good in category", FileNeeds,
@@ -722,42 +736,46 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{FileNeeds, `need "citizens_settlers_food"`, "goods", "must list the goods"},
 		},
 		{
-			"from_tier on a building need", FileNeeds,
-			[]string{`{ "building": "school" }
-    ]`, `{ "building": "school" }
-    ], "from_tier": "settlers"`},
-			[]string{FileNeeds, `need "citizens_services"`, "schema violation"},
+			"from_tier on a chain need", FileNeeds,
+			[]string{`"chain": "faith",
+    "min_rank": 1`, `"chain": "faith",
+    "min_rank": 1, "from_tier": "settlers"`},
+			[]string{FileNeeds, `need "settlers_faith"`, "schema violation"},
 		},
 		{
-			"services alternative without a service block", FileNeeds,
-			[]string{`{ "building": "school" }
-    ]`, `{ "building": "school" }, { "building": "fisher" }
-    ]`},
-			[]string{FileNeeds, `need "citizens_services"`, "buildings[4].building", "not a public building"},
+			"market alternative without a service block", FileNeeds,
+			[]string{`"buildings": [{ "building": "market" }]`, `"buildings": [{ "building": "market" }, { "building": "fisher" }]`},
+			[]string{FileNeeds, `need "settlers_market"`, "buildings[1].building", "not a public building"},
 		},
 		{
-			"services alternative of a higher tier", FileNeeds,
-			[]string{`[{ "building": "market" }, { "building": "chapel" }]`, `[{ "building": "market" }, { "building": "tavern" }]`},
-			[]string{FileNeeds, `need "settlers_services"`, "buildings[1].building", "above the need's tier"},
+			"market alternative of a higher tier", FileNeeds,
+			[]string{`"buildings": [{ "building": "market" }]`, `"buildings": [{ "building": "tavern" }]`},
+			[]string{FileNeeds, `need "settlers_market"`, "buildings[0].building", "above the need's tier"},
 		},
 		{
-			"duplicate services alternative", FileNeeds,
-			[]string{`[{ "building": "market" }, { "building": "chapel" }]`, `[{ "building": "market" }, { "building": "market" }]`},
-			[]string{FileNeeds, `need "settlers_services"`, "buildings[1].building", "duplicate building"},
+			"duplicate market alternative", FileNeeds,
+			[]string{`"buildings": [{ "building": "market" }]`, `"buildings": [{ "building": "market" }, { "building": "market" }]`},
+			[]string{FileNeeds, `need "settlers_market"`, "buildings[1].building", "duplicate building"},
 		},
 		{
-			"service level of an unknown tier", FileBuildings,
-			[]string{`"tier": "merchants", "cost"`, `"tier": "nobles", "cost"`},
-			[]string{FileBuildings, `building "market"`, "service.levels[1].tier", `unknown tier "nobles"`},
+			"service level tier is not authored", FileBuildings,
+			[]string{`{ "radius": 15, "cost"`, `{ "radius": 15, "tier": "merchants", "cost"`},
+			[]string{FileBuildings, `building "market"`, "schema violation"},
+		},
+		{
+			"service levels beyond the tiers", FileBuildings,
+			[]string{`{ "radius": 21, "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } }`, `{ "radius": 21, "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } },
+        { "radius": 24, "cost": { "gold": 9000 } }`},
+			[]string{FileBuildings, `building "market"`, "service.levels[4]", "only 4 tiers"},
 		},
 		{
 			"service level radius shrinks", FileBuildings,
-			[]string{`{ "radius": 16, "tier"`, `{ "radius": 10, "tier"`},
+			[]string{`{ "radius": 15, "cost"`, `{ "radius": 10, "cost"`},
 			[]string{FileBuildings, `building "market"`, "service.levels[1].radius", "previous level"},
 		},
 		{
 			"service upgrade level without cost", FileBuildings,
-			[]string{`{ "radius": 16, "tier": "merchants", "cost": { "gold": 1000, "planks": 15, "stone": 30 } }`, `{ "radius": 16, "tier": "merchants" }`},
+			[]string{`{ "radius": 15, "cost": { "gold": 400, "planks": 10, "stone": 10 } }`, `{ "radius": 15 }`},
 			[]string{FileBuildings, `building "market"`, "schema violation"},
 		},
 		{
@@ -902,7 +920,7 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 			t.Errorf("NeedCategoryByID[%q] = %+v", nc.ID, c.NeedCategoryByID[nc.ID])
 		}
 	}
-	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:luxury,services=Services/need:services," +
+	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:luxury," +
 		"market=Market/need:market,faith=Faith/need:chapel,education=Education/good:books,culture=Culture/need:tavern," +
 		// D-060 civic services: the HUD set has no icons of their own yet.
 		"safety=Safety/need:safety,fire_protection=Fire protection/need:fire_protection,health=Health/need:health"
@@ -916,17 +934,17 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 		}
 	}
 	wantNames := map[string]string{
-		"settlers_food": "Food", "settlers_clothing": "Clothing", "settlers_services": "Services",
-		"citizens_food": "Food", "citizens_drink": "Drink", "citizens_clothing": "Clothing", "citizens_services": "Services",
+		"settlers_food": "Food", "settlers_clothing": "Clothing", "settlers_market": "Market", "settlers_faith": "Faith",
+		"citizens_food": "Food", "citizens_drink": "Drink", "citizens_clothing": "Clothing", "citizens_market": "Market", "citizens_faith": "Faith", "citizens_education": "Education", "citizens_culture": "Culture",
 		"citizens_safety": "Safety", "merchants_safety": "Safety", "patricians_safety": "Safety",
 		"merchants_fire_protection":  "Fire protection",
 		"patricians_fire_protection": "Fire protection", "patricians_health": "Health",
 		"citizens_settlers_food": "Food", "citizens_settlers_clothing": "Clothing",
 		"merchants_food": "Food", "merchants_drink": "Drink", "merchants_clothing": "Clothing", "merchants_comfort": "Comfort",
-		"merchants_services": "Services", "merchants_settlers_food": "Food", "merchants_settlers_clothing": "Clothing",
+		"merchants_market": "Market", "merchants_faith": "Faith", "merchants_education": "Education", "merchants_culture": "Culture", "merchants_settlers_food": "Food", "merchants_settlers_clothing": "Clothing",
 		"merchants_citizens_food": "Food", "merchants_citizens_drink": "Drink", "merchants_citizens_clothing": "Clothing",
 		"patricians_food": "Food", "patricians_drink": "Drink", "patricians_clothing": "Clothing", "patricians_comfort": "Comfort",
-		"patricians_luxury": "Luxury", "patricians_services": "Services", "patricians_settlers_food": "Food", "patricians_settlers_clothing": "Clothing",
+		"patricians_luxury": "Luxury", "patricians_market": "Market", "patricians_faith": "Faith", "patricians_education": "Education", "patricians_culture": "Culture", "patricians_settlers_food": "Food", "patricians_settlers_clothing": "Clothing",
 		"patricians_citizens_food": "Food", "patricians_citizens_drink": "Drink", "patricians_citizens_clothing": "Clothing",
 		"patricians_merchants_food": "Food", "patricians_merchants_drink": "Drink", "patricians_merchants_clothing": "Clothing",
 		"patricians_merchants_comfort": "Comfort",
@@ -977,8 +995,8 @@ func TestLoadRejectsInvalidNeedDisplayData(t *testing.T) {
 		},
 		{
 			"need without name", FileNeeds,
-			[]string{`"name": "Services",`, ""},
-			[]string{FileNeeds, `need "settlers_services"`, "schema violation"},
+			[]string{`"name": "Market",`, ""},
+			[]string{FileNeeds, `need "settlers_market"`, "schema violation"},
 		},
 		{
 			"need empty name", FileNeeds,
@@ -1125,7 +1143,7 @@ func TestNeedShareDefaults(t *testing.T) {
 		t.Fatal(err)
 	}
 	needs := c.NeedsByTier["settlers"]
-	if needs[0].Goods[0].Share != 500_000 || needBuildings(needs[2]) != "market=750000/chapel=600000" || needs[1].Goods[0].Share != ShareLone {
+	if needs[0].Goods[0].Share != 500_000 || needBuildings(needs[2]) != "market=750000" || needs[1].Goods[0].Share != ShareLone {
 		t.Errorf("authored shares = %+v %+v %+v", needs[0].Goods, needs[1].Goods, needs[2].Buildings)
 	}
 	dir = copyContent(t, FileNeeds, `{ "building": "market" }`, `{ "building": "market", "share": 1.5 }`)
@@ -1207,7 +1225,23 @@ func TestRetiredIDsAreNotReused(t *testing.T) {
 			t.Errorf("retired ID %q is in use", id)
 		}
 	}
-	if m := c.BuildingByID["market"]; m == nil || m.Name != "Market" || m.Service == nil || len(m.Service.Levels) != 3 {
+	// D-065: the services category and the *_services needs are retired.
+	if _, ok := c.NeedCategoryByID["services"]; ok {
+		t.Error("retired need category services is in use")
+	}
+	for _, needs := range c.NeedsByTier {
+		for _, n := range needs {
+			if strings.HasSuffix(n.ID, "_services") || n.Category == "services" {
+				t.Errorf("retired need %q (category %q) is in use", n.ID, n.Category)
+			}
+		}
+	}
+	if m := c.BuildingByID["market"]; m == nil || m.Name != "Market" || m.Service == nil || len(m.Service.Levels) != 4 {
 		t.Errorf("market = %+v", m)
+	}
+	for _, id := range []string{"city_guard", "fire_station"} {
+		if b := c.BuildingByID[id]; b.Upgradable() || len(b.Service.Levels) != 1 || b.Service.RadiusAt(1) != 16 {
+			t.Errorf("%s = %+v, want one radius 16 and no upgrade (D-065)", id, b.Service)
+		}
 	}
 }
