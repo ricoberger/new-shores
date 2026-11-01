@@ -33,6 +33,21 @@
   border-bottom: 2px solid var(--ns-ui-brass);
 }
 
+/* Desktop (no touch layout) from 1200 px: the stats keep one line — the
+   left column is at least as wide as its content (gold, residents and
+   every construction material with large stocks, beside a wide island
+   name with all its resource badges); the island moves right off the
+   centre when it has to instead of the stats wrapping onto a second row. */
+@media (min-width: 1200px) {
+  .topBarDesktop {
+    grid-template-columns: minmax(max-content, 1fr) auto minmax(0, 1fr);
+  }
+
+  .topBarDesktop .hudLeft {
+    flex-wrap: nowrap;
+  }
+}
+
 .topBarPortrait {
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:

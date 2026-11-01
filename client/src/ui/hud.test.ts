@@ -191,6 +191,21 @@ describe("HUD components", () => {
       expect(html).not.toContain('data-testid="island-card-close"');
     });
 
+    it("keeps the desktop stats on one line from 1200 px (1280 × 800 with six materials), not on touch layouts", () => {
+      const cls = (html: string) => /<div class="([^"]*)"/.exec(html)?.[1] ?? "";
+      const desktop = cls(renderToStaticMarkup(createElement(TopBar, props as never)));
+      const portrait = cls(renderToStaticMarkup(createElement(TopBar, { ...props, compact: "portrait" } as never)));
+      const landscape = cls(renderToStaticMarkup(createElement(TopBar, { ...props, compact: "landscape" } as never)));
+      expect(desktop).toMatch(/topBarDesktop/);
+      expect(portrait).not.toMatch(/topBarDesktop/);
+      expect(landscape).not.toMatch(/topBarDesktop/);
+      // The rule: a left column at least as wide as its content, no wrapping, only on wide desktop windows.
+      const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "hud.module.css"), "utf8");
+      const rule = /@media \(min-width: 1200px\) \{([\s\S]*?)\n\}/.exec(css)?.[1] ?? "";
+      expect(rule).toMatch(/\.topBarDesktop \{\s*grid-template-columns: minmax\(max-content, 1fr\) auto minmax\(0, 1fr\);/);
+      expect(rule).toMatch(/\.topBarDesktop \.hudLeft \{\s*flex-wrap: nowrap;/);
+    });
+
     it("keeps the same stats on a phone, with the island on its own row", () => {
       const html = renderToStaticMarkup(createElement(TopBar, { ...props, compact: "portrait" } as never));
       for (const id of ["hud-gold-chip", "hud-population-chip", "hud-materials-chip", "hud-island-name"]) expect(html).toContain(`data-testid="${id}"`);
