@@ -248,6 +248,17 @@ class ShipLiteTest(unittest.TestCase):
                 self.assertIn("timber", roles)
                 self.assertIn("sail", {m[2] for m in grid_.cells.values() if len(m) > 2})
 
+    def test_the_wake_width_is_the_stern_beam_or_declared(self):
+        recipes = model.recipe_modules()
+        for cid, half in (("sloop", 8), ("brig", 10), ("galleon", 12)):
+            _, entry, _ = model.build_id(cid, "ship", recipes[cid], CONTENT)
+            # The stern transom is one voxel narrower than the half-beam to each side (_ships.half_beam).
+            self.assertAlmostEqual(entry["ship"]["wake_width"], 2 * (half - 1) / recipes[cid]["scale"], places=6)
+            self.assertLess(entry["ship"]["wake_width"], 2 * entry["bounds"]["max"][2] + 1e-6)
+        declared = dict(recipes["sloop"], ship=dict(recipes["sloop"]["ship"], wake_width=0.5))
+        _, entry, _ = model.build_id("sloop", "ship", declared, CONTENT)
+        self.assertEqual(entry["ship"]["wake_width"], 0.5)
+
     def test_a_lite_ship_over_its_budget_fails_the_build(self):
         recipes = model.recipe_modules()
 

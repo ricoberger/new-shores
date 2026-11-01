@@ -473,7 +473,7 @@ export class ArchipelagoLayer {
     for (const [type, list] of byType) {
       const { inst, cargo, model } = this.shipInstances(type, detail);
       const scale = baseScale * this.lengthRatio(type);
-      const wakeSpec = shipWakeSpec(this.registry, type) ?? { stern: 0.42, beam: 0.18 };
+      const wakeSpec = shipWakeSpec(this.registry, type) ?? { stern: 0.42, width: 0.36 };
       // A model's origin is its waterline (at the sea surface); the placeholder floats on y = SHIP_Y.
       const sy = model && this.lod !== "far" ? SEA_LEVEL : y;
       inst.resize(list.length);
@@ -495,7 +495,7 @@ export class ArchipelagoLayer {
         // Sails fill while under way (the sway shader's sentinel).
         if (sailing(s, p)) {
           inst.colors[i * 4 + 3] = SAILING_ALPHA;
-          if (p && this.bobbing && this.lod !== "far") this.wakeShips.push({ id: s.id, x: point.x, y: point.y, heading: p.heading, stern: wakeSpec.stern * scale, beam: wakeSpec.beam * scale, scale });
+          if (p && this.bobbing && this.lod !== "far") this.wakeShips.push({ id: s.id, x: point.x, y: point.y, heading: p.heading, stern: wakeSpec.stern * scale, width: wakeSpec.width * scale, scale });
         }
         // Crates on deck while carrying cargo, at the same matrix.
         if (cargo && s.cargo.length > 0) {

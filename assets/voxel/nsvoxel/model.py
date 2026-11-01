@@ -159,6 +159,7 @@ def build_id(cid, kind, recipe, content):
     main_ctx = None
     infos = {}
     sway = set()
+    wake_width = None
     for fname, key, ctx in outputs(cid, kind, recipe, content):
         ctx.needs = needed
         ctx.smoke = "smoke" in needed
@@ -184,6 +185,9 @@ def build_id(cid, kind, recipe, content):
                 problems.append(f"{lname}: {ln} triangles over the lite budget {lbudget}")
             info["lite"] = export.file_info(lname, ldata, ln, lbounds, lbudget)
             files.append((lname, ldata, ln, None, ctx))
+        if kind == "ship" and key is None and "wake" in v.anchors:
+            # The wake's width at the stern (V7): declared by the recipe (SHIP wake_width) or measured.
+            wake_width = (recipe.get("ship") or {}).get("wake_width") or stern_beam(v, ctx)
         if kind == "ship" and key is None and recipe.get("lite"):
             # The ship's own lite model (V7), built at scale / SHIP_LITE_DOWNSAMPLE voxels per tile; no cargo at lite.
             lv = recipe["lite"](ctx)
@@ -234,7 +238,22 @@ def build_id(cid, kind, recipe, content):
     entry["anchors"] = dict(sorted(anchors.items()))
     if kind == "ship":
         entry["ship"] = dict(recipe["ship"])
+        if wake_width:
+            entry["ship"]["wake_width"] = wake_width
     return files, entry, problems
+
+
+def stern_beam(v, ctx):
+    """
+    Width of a ship's hull across the stern at the waterline (tiles): the
+    cells of the `wake` anchor's column from the waterline up to a quarter
+    tile — where the wake's arms leave the hull (manifest ship.wake_width).
+    """
+    ax = int(v.anchors["wake"][0])
+    ys = [y for (x, y, z) in v.cells if x == ax and 0 <= z < max(1, ctx.vpt // 4)]
+    if not ys:
+        return 0.0
+    return export._r((max(ys) + 1 - min(ys)) / ctx.vpt)
 
 
 def lite_factor(vpt):

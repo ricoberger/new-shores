@@ -199,6 +199,9 @@ class CommittedTest(unittest.TestCase):
             ship = models[cid]["ship"]
             self.assertAlmostEqual(ship["length_tiles"], CONTENT["ships"][cid]["length_tiles"], places=6, msg=cid)
             self.assertIn("cargo", models[cid]["attachments"], cid)
+            # The wake leaves the stern (V7): narrower than the hull's widest point, wider than nothing.
+            self.assertGreater(ship["wake_width"], 0, cid)
+            self.assertLessEqual(ship["wake_width"], 2 * models[cid]["bounds"]["max"][2], cid)
 
 
 if __name__ == "__main__":

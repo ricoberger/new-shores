@@ -31,6 +31,7 @@ import {
   rotationYaw,
   shipFile,
   shipModel,
+  shipWakeSpec,
   stableHash,
   statusHeight,
   toWorld,
@@ -307,6 +308,29 @@ describe("loading through the registry", () => {
     const xs = (d: ModelData) => Array.from({ length: d.positions.length / 3 }, (_, i) => d.positions[i * 3] as number);
     const span = (d: ModelData) => Math.max(...xs(d)) - Math.min(...xs(d));
     expect(Math.abs(span(lite.hull) - span(full.hull))).toBeLessThan(0.4 / 2.6);
+  });
+
+  it("reads each ship's wake width at the stern from the manifest (V7), per unit of hull length", async () => {
+    const reg = new ModelRegistry(scene, { fetch: (url: string) => (url.endsWith("manifest.json") ? ok(JSON.stringify(manifest)) : Promise.reject(new Error("no"))) });
+    await reg.loadManifest();
+    const widths: number[] = [];
+    for (const type of ["sloop", "brig", "galleon"]) {
+      const e = manifest.models[type] as ModelEntry;
+      const ww = e.ship?.wake_width as number;
+      expect(ww, type).toBeGreaterThan(0);
+      // Narrower than the hull's widest point (yards and sails included in the bounds).
+      expect(ww, type).toBeLessThanOrEqual(2 * e.bounds.max[2]);
+      const spec = shipWakeSpec(reg, type)!;
+      expect(spec.width).toBeCloseTo(ww / (e.ship?.length_tiles as number), 6);
+      widths.push(ww);
+    }
+    expect(widths[0]).toBeLessThan(widths[1]!);
+    expect(widths[1]).toBeLessThan(widths[2]!);
+    // Without wake_width: the hull's full width from the bounds.
+    const bare = { ...manifest, models: { sloop: { ...manifest.models.sloop!, ship: { length_tiles: 2, masts: 1, sail_scale: 1 } } } };
+    const reg2 = new ModelRegistry(scene, { fetch: () => ok(JSON.stringify(bare)) });
+    await reg2.loadManifest();
+    expect(shipWakeSpec(reg2, "sloop")!.width).toBeCloseTo((2 * manifest.models.sloop!.bounds.max[2]) / 2, 6);
   });
 
   it("builds URLs with the first 8 hex digits of the sha256", () => {

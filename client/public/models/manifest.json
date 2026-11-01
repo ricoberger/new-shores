@@ -2305,7 +2305,8 @@
       "ship": {
         "length_tiles": 2.6,
         "masts": 2,
-        "sail_scale": 1.0
+        "sail_scale": 1.0,
+        "wake_width": 0.9
       },
       "sway": [
         "flag",
@@ -4303,7 +4304,8 @@
       "ship": {
         "length_tiles": 3.2,
         "masts": 3,
-        "sail_scale": 1.0
+        "sail_scale": 1.0,
+        "wake_width": 1.1
       },
       "sway": [
         "flag",
@@ -8432,7 +8434,8 @@
       "ship": {
         "length_tiles": 2.0,
         "masts": 1,
-        "sail_scale": 1.0
+        "sail_scale": 1.0,
+        "wake_width": 0.7
       },
       "sway": [
         "flag",

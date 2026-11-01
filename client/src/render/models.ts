@@ -58,7 +58,8 @@ export interface ModelEntry {
     string,
     [number, number, number] | undefined
   >;
-  ship?: { length_tiles: number; masts: number; sail_scale: number };
+  /** Ship block; `wake_width` (V7): the wake's width at the stern in model tiles (the stern beam, or the recipe's). */
+  ship?: { length_tiles: number; masts: number; sail_scale: number; wake_width?: number };
   /** Voxels per tile of the full model (a recipe's VOXELS_PER_TILE, V7: 8, 12 or 16; ships their own scale); absent: the manifest's default. Lite files are 2 per tile. */
   voxels_per_tile?: number;
 }
@@ -438,16 +439,17 @@ export function lifeAnchor(registry: ModelRegistry | null, id: string, name: str
 /**
  * Where a ship's wake starts and how wide it is, per unit of hull length
  * (the ship layers scale the instance by length): the distance from the
- * origin back to the manifest's `wake` anchor (the stern) and the hull's
- * half-beam from its bounds. Null without the entry or the anchor.
+ * origin back to the manifest's `wake` anchor (the stern) and the wake's
+ * width there, the manifest's `ship.wake_width` (V7; without one the
+ * hull's full width from its bounds). Null without the entry or the anchor.
  */
-export function shipWakeSpec(registry: ModelRegistry | null, type: string): { stern: number; beam: number } | null {
+export function shipWakeSpec(registry: ModelRegistry | null, type: string): { stern: number; width: number } | null {
   const entry = registry?.entry(type);
   const a = entry?.anchors["wake"];
   if (!entry || entry.kind !== "ship" || !a) return null;
   const length = entry.ship?.length_tiles ?? 1;
-  const beam = Math.max(-entry.bounds.min[2], entry.bounds.max[2]);
-  return { stern: Math.abs(a[0]) / length, beam: beam / length };
+  const width = entry.ship?.wake_width ?? 2 * Math.max(-entry.bounds.min[2], entry.bounds.max[2]);
+  return { stern: Math.abs(a[0]) / length, width: width / length };
 }
 
 /** Meshes of a ship model (thin-instanced by the caller; always active, the instances move). */

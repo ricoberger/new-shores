@@ -27,8 +27,8 @@ export interface WakeShip {
   heading: number;
   /** Distance from the ship's origin back to its stern, the manifest's `wake` anchor (tiles). */
   stern: number;
-  /** Half-beam of the hull (tiles): the arms leave the stern this far to each side. */
-  beam: number;
+  /** Width of the wake at the stern (tiles; the manifest's ship.wake_width, V7): the arms leave the stern's sides, half of it to each side. */
+  width: number;
   /** The ship's instance scale: its voxels are that much larger than the world's, and so are the wake's. */
   scale: number;
 }
@@ -94,7 +94,7 @@ export class ShipWake {
           if (arm === 0 && i > WAKE_FLECKS / 2) continue;
           if (hash01(s.id, i, arm, step) > 0.35 + 0.6 * fade) continue;
           // The arms leave the hull's sides at the stern and open out from there.
-          const side = arm * (s.beam + t * Math.tan(WAKE_SPREAD));
+          const side = arm * (s.width / 2 + t * Math.tan(WAKE_SPREAD));
           const x = s.x + bx * (s.stern + t) + nx * side;
           const y = s.y + by * (s.stern + t) + ny * side;
           // Quarter turns only, so the voxels stay on the world's axes; snapped to the ship's voxel grid.
