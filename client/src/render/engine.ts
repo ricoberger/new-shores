@@ -67,8 +67,8 @@ const SHIP_PICK_PX = 18;
 const DRAG_TURN_PER_PX = 0.5 / 120;
 const LABEL_Y = 0.4;
 
-/** Where the camera starts: an island (default: the first) at the near default zoom, or the whole archipelago. */
-export type InitialCamera = { kind: "island"; id?: string } | { kind: "fit" };
+/** Where the camera starts: an island (default: the settled one, else the first) at the near default zoom. */
+export type InitialCamera = { kind: "island"; id?: string };
 
 
 /** What the HUD needs to know about the camera. */
@@ -1056,24 +1056,19 @@ export class GameRenderer {
 
   private placeInitialCamera(): void {
     const ic = this.initialCamera;
-    if (ic.kind === "fit") {
-      const b = this.arch.bounds();
-      if (b) this.rig.setCamera({ x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2, half: this.rig.zoomRange().max });
-    } else {
-      const d = this.sync.getSnapshot().server?.display;
-      const islands = d?.islands ?? [];
-      // The start at sea (D-051, D-053): nothing settled yet and the ship
-      // at sea near the archipelago's centre — the camera opens on the
-      // ship at the far zoom that shows the whole archipelago for the
-      // choice of the home island.
-      const sea = ic.id === undefined && !islands.some((x) => x.settled) ? d?.ships.find((s) => s.position) : undefined;
-      const is = islands.find((x) => x.id === ic.id) ?? islands.find((x) => x.settled) ?? islands[0];
-      if (sea?.position) {
-        const p = seaPoint(sea.position);
-        this.rig.setCamera({ x: p.x, y: p.y, half: this.rig.zoomRange().max });
-      } else if (is) {
-        this.rig.setCamera({ x: is.position.x + is.width / 2, y: is.position.y + is.height / 2, half: NEAR_DEFAULT_HALF_HEIGHT });
-      }
+    const d = this.sync.getSnapshot().server?.display;
+    const islands = d?.islands ?? [];
+    // The start at sea (D-051, D-053): nothing settled yet and the ship
+    // at sea near the archipelago's centre — the camera opens on the
+    // ship at the far zoom that shows the whole archipelago for the
+    // choice of the home island.
+    const sea = ic.id === undefined && !islands.some((x) => x.settled) ? d?.ships.find((s) => s.position) : undefined;
+    const is = islands.find((x) => x.id === ic.id) ?? islands.find((x) => x.settled) ?? islands[0];
+    if (sea?.position) {
+      const p = seaPoint(sea.position);
+      this.rig.setCamera({ x: p.x, y: p.y, half: this.rig.zoomRange().max });
+    } else if (is) {
+      this.rig.setCamera({ x: is.position.x + is.width / 2, y: is.position.y + is.height / 2, half: NEAR_DEFAULT_HALF_HEIGHT });
     }
     this.lod = initialLod(this.rig.view().half);
   }
