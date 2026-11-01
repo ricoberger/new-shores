@@ -27,6 +27,7 @@ import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
 import { type DecodedMask, decodeMask, MASK_WATER, maskAt, maskTerrain } from "../display/mask";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 import { anchorBob, SAILING_ALPHA, sailing, waiting } from "./sway";
+import { dashPieces } from "./dash";
 import { type Detail, type ModelRegistry, shipFile, shipMeshes, shipModel, shipWakeSpec } from "./models";
 import { ARROW_BRIGHT, ARROW_DIM, HAZE, SELECTION } from "./palette";
 import { ShipWake, type WakeShip } from "./wake";
@@ -38,6 +39,9 @@ export const SEA_LEVEL = TERRAIN_SEA_LEVEL;
 /** Ships slightly above the water at far LOD (drawn larger); at near/mid on the water. */
 const SHIP_Y_FAR = GROUND_TOP + 0.05;
 const SHIP_Y = 0;
+/** The draft ribbon's dashes and gaps, in ribbon widths. */
+const DRAFT_DASH = 8;
+const DRAFT_GAP = 6;
 /** Ship instance scale at near/mid LOD and at far LOD (≥ 1.5×, so ships stay visible zoomed out). */
 export const SHIP_SCALE = 5;
 export const SHIP_SCALE_FAR = 4;
@@ -316,14 +320,16 @@ export class ArchipelagoLayer {
       const pts = legs.flatMap((leg) => leg.slice(0, -1));
       if (pts.length < 2) continue;
       keep.add(l.key);
-      const geomKey = JSON.stringify([pts, width]);
+      // The editor's draft is dashed: not a route yet (legs without a known voyage are straight lines until it is saved).
+      const dashed = l.key === "draft";
+      const geomKey = JSON.stringify([pts, width, dashed]);
       let line = this.routeLines.get(l.key);
       if (!line || line.key !== geomKey) {
         line?.mesh.dispose();
         line?.material.dispose();
         const material = new StandardMaterial(l.key, this.scene);
         material.disableLighting = true;
-        const mesh = this.buildLine(l.key, pts, width);
+        const mesh = this.buildLine(l.key, pts, width, dashed);
         mesh.material = material;
         line = { mesh, material, key: geomKey, color: l.color };
         this.routeLines.set(l.key, line);
@@ -354,15 +360,16 @@ export class ArchipelagoLayer {
     this.arrows.commit();
   }
 
-  /** A closed polyline of flat quads (archipelago coordinates). */
-  private buildLine(name: string, pts: readonly ArchPoint[], width: number): Mesh {
+  /** A closed polyline of flat quads (archipelago coordinates); dashed: DRAFT_DASH × width on, DRAFT_GAP × width off. */
+  private buildLine(name: string, pts: readonly ArchPoint[], width: number, dashed = false): Mesh {
     const positions: number[] = [];
     const indices: number[] = [];
     const normals: number[] = [];
     const h = width / 2;
-    for (let i = 0; i < pts.length; i++) {
-      const a = pts[i] as ArchPoint;
-      const b = pts[(i + 1) % pts.length] as ArchPoint;
+    const segments: [ArchPoint, ArchPoint][] = dashed
+      ? dashPieces(pts, DRAFT_DASH * width, DRAFT_GAP * width)
+      : pts.map((a, i) => [a, pts[(i + 1) % pts.length] as ArchPoint]);
+    for (const [a, b] of segments) {
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const len = Math.hypot(dx, dy);
