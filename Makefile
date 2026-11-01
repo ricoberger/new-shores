@@ -1,6 +1,6 @@
 # Verification and development targets mirroring AGENTS.md §4.
 #
-#   make check        server + content + client checks (no browser needed)
+#   make check        server (-short) + content + client checks (no browser needed)
 #   make dev          dev server (in-memory world) + Vite, Ctrl-C stops both;
 #                     `make dev HOST=<lan-ip>` serves both on the LAN (phone testing)
 #   make preview      e2e-mode build (fixtures, ?stats=1) served by `vite preview` on
@@ -10,6 +10,10 @@
 #                     environment or `make up HTTP_PORT=…`); make logs
 #   make down         stop the stack; `make down VOLUMES=1` also deletes the
 #                     database volume (0/false/no/unset keep it)
+#   make server-test-short  go test -short ./... (what `make check` runs: the minutes-long
+#                     reference games and 200-seed sweeps are skipped)
+#   make server-test-full   go test ./... without -short, 30 m timeout (the CI suite; also
+#                     `make server-test`)
 #   make makefile-test  dry-run checks of the up/down targets
 #   make server-integration  Go integration tests (PostgreSQL + Redis)
 #   make assets       rebuild client/public/models (voxel GLBs, manifest.json, thumbs/) from
@@ -61,14 +65,14 @@ COMPOSE_ENV := $(if $(filter command line,$(origin HTTP_PORT)),HTTP_PORT=$(HTTP_
 # and no keep it; any other value is an error (never a silent -v).
 DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUMES)),$(error VOLUMES must be 1 (delete the database volume) or 0/false/no/unset (keep it), got '$(VOLUMES)')))
 
-.PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
+.PHONY: check server-check server-fmt server-vet server-lint server-test server-test-short server-test-full content-test \
 	client-install client-check client-lint client-typecheck client-test client-build dev preview \
 	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet \
 	island-atlas
 
 check: server-check content-test client-check makefile-test assets-test
 
-server-check: server-fmt server-vet server-lint server-test
+server-check: server-fmt server-vet server-lint server-test-short
 
 server-fmt:
 	@cd $(SERVER_DIR) && out="$$(gofmt -l .)" && if [ -n "$$out" ]; then echo "gofmt needed:"; echo "$$out"; exit 1; fi
@@ -79,8 +83,13 @@ server-vet:
 server-lint:
 	cd $(SERVER_DIR) && golangci-lint run
 
-server-test:
-	cd $(SERVER_DIR) && go test ./...
+server-test: server-test-full
+
+server-test-short:
+	cd $(SERVER_DIR) && go test -short -timeout 30m ./...
+
+server-test-full:
+	cd $(SERVER_DIR) && go test -timeout 30m ./...
 
 content-test:
 	cd $(SERVER_DIR) && go test ./internal/content/...
@@ -148,7 +157,7 @@ endif
 # Needs TEST_DATABASE_URL/TEST_REDIS_URL or a running Docker (testcontainers);
 # skipped otherwise (failed when CI is set).
 server-integration:
-	cd $(SERVER_DIR) && go test -tags 'integration testevents' -count=1 ./...
+	cd $(SERVER_DIR) && go test -timeout 30m -tags 'integration testevents' -count=1 ./...
 
 up:
 	$(COMPOSE_ENV)$(COMPOSE) up -d --build

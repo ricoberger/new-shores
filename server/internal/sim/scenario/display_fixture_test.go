@@ -112,6 +112,9 @@ func TestDisplayFixtures(t *testing.T) {
 		n++
 		name := strings.TrimSuffix(filepath.Base(f), ".json")
 		t.Run(name, func(t *testing.T) {
+			if name == "bootstrap_patricians" && testing.Short() {
+				t.Skip("slow: run without -short")
+			}
 			data, err := json.MarshalIndent(buildDisplayFixture(t, name), "", "  ")
 			if err != nil {
 				t.Fatal(err)

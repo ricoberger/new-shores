@@ -70,6 +70,9 @@ func patricianNeeds(ds sim.DisplayState) (houses int, ok bool) {
 // tier-4 chains on at least two other islands, shipped home by routes;
 // no permanent insolvency.
 func TestBootstrapPatricians(t *testing.T) {
+	if testing.Short() {
+		t.Skip("slow: run without -short")
+	}
 	const name = "bootstrap_patricians"
 	s := loadScenario(t, name)
 	if !s.Seed.Start || s.Seed.Gold != "" || len(s.Seed.Stock) != 0 || len(s.Seed.Workforce) != 0 {
