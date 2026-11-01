@@ -4,6 +4,7 @@
 // drives the page through the window.__newShores hook and writes
 // .experiment/shots/<set>/<fixture>-<view>-<device>.png (presets:
 // <fixture>-<preset>-<device>.png). Run through `npm run shots`.
+// HUD=0 hides every element but the canvases, so also the grading and vignette overlays.
 import { type ChildProcess, spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";

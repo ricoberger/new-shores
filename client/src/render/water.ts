@@ -85,7 +85,7 @@ function rippleTexture(scene: Scene, h: Float32Array): RawTexture {
 
 /**
  * The deep sea's colour: the palette's deep a little toward the shallows
- * and warmed (D-057 V2: a warmer sea under the golden-hour sun).
+ * (render/mapcolors.ts seaDeepRgb; not warmed since D-064).
  */
 export function seaDeep(): Color3 {
   const [r, g, b] = seaDeepRgb();

@@ -1,21 +1,21 @@
 {
-  "version": 1,
+  "version": 2,
   "groups": {
     "terrain": {
       "description": "Ground of the islands (ART_DIRECTION §2 and §4): grass noise, beach, forest floor, rock, cliffs, deposit outcrops, roads and ground decoration.",
       "colors": {
-        "sand": "#E8D6A3",
-        "grass-a": "#7FA85A",
-        "grass-b": "#93B86A",
-        "dry": "#B9B46A",
-        "forest-floor": "#4F7A3A",
-        "mountain": "#8E8A82",
-        "cliff": "#A89A80",
+        "sand": "#E2D2A6",
+        "grass-a": "#6E9E52",
+        "grass-b": "#84B063",
+        "dry": "#A79B62",
+        "forest-floor": "#4A7640",
+        "mountain": "#86888A",
+        "cliff": "#9A938A",
         "deposit-iron": "#8A5E48",
-        "road-dirt": "#A88760",
-        "road-paved": "#B9B2A4",
-        "road-border": "#DCCDA6",
-        "tree-crown": "#5E8E45",
+        "road-dirt": "#96744F",
+        "road-paved": "#9FA09B",
+        "road-border": "#CEBF99",
+        "tree-crown": "#55884A",
         "flower": "#E9C64B",
         "unsettled": "#B8B2A3"
       }
@@ -23,23 +23,23 @@
     "water": {
       "description": "Sea surface from the shallows to the deep, the coastal foam line and the haze the sea fades into (also the clear colour).",
       "colors": {
-        "shallows": "#4FB1B0",
-        "deep": "#1F5F8B",
+        "shallows": "#4A9C9F",
+        "deep": "#22627D",
         "foam": "#F4F6F0",
-        "haze": "#B9C9CB"
+        "haze": "#AEC1C4"
       }
     },
     "island": {
-      "description": "Diorama island slab and plateaus (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line; warm grey mountain rock with sandstone and ochre strata (the cliff bands), crags and the moss on its lowest rim.",
+      "description": "Diorama island slab and plateaus (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, light on top and cooler and darker toward the AO-darkened foot under the water line; neutral grey mountain rock with muted sandstone strata (the cliff bands), crags and the moss on its lowest rim (D-064).",
       "colors": {
-        "sand-rim": "#E2CC93",
-        "cliff-upper": "#B79C76",
-        "cliff-ledge": "#9E8A6C",
-        "cliff-lower": "#877766",
+        "sand-rim": "#DCC896",
+        "cliff-upper": "#AC9A81",
+        "cliff-ledge": "#968874",
+        "cliff-lower": "#82776C",
         "cliff-foot": "#4F4A55",
-        "rock-light": "#B5AD9F",
-        "rock": "#958D82",
-        "rock-deep": "#6C655E",
+        "rock-light": "#B0ADAA",
+        "rock": "#918D8C",
+        "rock-deep": "#686568",
         "moss": "#7F9A55"
       }
     },
@@ -63,10 +63,10 @@
     "fields": {
       "description": "Field decoration per field type (D-049): base and mark colour; unknown types use a stable building colour.",
       "colors": {
-        "pasture": "#8DB85A",
-        "pasture-mark": "#A9CF78",
-        "wheat": "#D9B84A",
-        "wheat-mark": "#B8952E",
+        "pasture": "#8CB665",
+        "pasture-mark": "#A4CA7E",
+        "wheat": "#CFB04A",
+        "wheat-mark": "#B08E30",
         "hemp": "#6F9E4C",
         "hemp-mark": "#4F7E34",
         "orchard": "#86A95E",
@@ -74,7 +74,7 @@
       }
     },
     "shadows": {
-      "description": "Two-tone shadow tone per material role (same names as the buildings, terrain, fields, water and island roles): baked ambient occlusion in the models blends a role's colour toward its shadow tone — darker and cooler, so shadows read violet-blue under the warm grade instead of grey.",
+      "description": "Two-tone shadow tone per material role (same names as the buildings, terrain, fields, water and island roles): baked ambient occlusion in the models blends a role's colour toward its shadow tone. Rule (D-064): shadow = role multiplied per sRGB channel by (0.58, 0.56, 0.66), rounded — darker and bluer; the rock roles (rock-light, rock, rock-deep) keep their deeper ratios (≈ 0.53, 0.52, 0.59–0.64).",
       "colors": {
         "plaster": "#867879",
         "ochre": "#7E5E3E",
@@ -88,40 +88,40 @@
         "iron": "#2D2C38",
         "window": "#222939",
         "dye-blue": "#253E67",
-        "sand": "#87786C",
-        "grass-a": "#4A5E3B",
-        "grass-b": "#556746",
-        "dry": "#6B6546",
-        "forest-floor": "#2E4426",
-        "mountain": "#524D56",
-        "cliff": "#615654",
+        "sand": "#84766E",
+        "grass-a": "#405836",
+        "grass-b": "#4C6341",
+        "dry": "#615741",
+        "forest-floor": "#2B422A",
+        "mountain": "#4D4C5B",
+        "cliff": "#59525B",
         "deposit-iron": "#503530",
-        "road-dirt": "#614C3F",
-        "road-paved": "#6B646C",
-        "road-border": "#80736E",
-        "tree-crown": "#37502E",
+        "road-dirt": "#574134",
+        "road-paved": "#5C5A66",
+        "road-border": "#786B65",
+        "tree-crown": "#324D31",
         "flower": "#876F32",
         "unsettled": "#6B646C",
-        "pasture": "#52673B",
-        "pasture-mark": "#62744F",
-        "wheat": "#7E6731",
-        "wheat-mark": "#6B531E",
+        "pasture": "#516642",
+        "pasture-mark": "#5F7153",
+        "wheat": "#786331",
+        "wheat-mark": "#664F1F",
         "hemp": "#405832",
         "hemp-mark": "#2E4722",
         "orchard": "#4E5F3E",
         "orchard-mark": "#69271F",
-        "shallows": "#2E6374",
-        "deep": "#12355C",
+        "shallows": "#2B5769",
+        "deep": "#143753",
         "foam": "#8E8A9E",
-        "haze": "#6B7186",
-        "sand-rim": "#837261",
-        "cliff-upper": "#6A574E",
-        "cliff-ledge": "#5C4D47",
-        "cliff-lower": "#4E4343",
+        "haze": "#656D81",
+        "sand-rim": "#807063",
+        "cliff-upper": "#645655",
+        "cliff-ledge": "#574C4C",
+        "cliff-lower": "#4B4347",
         "cliff-foot": "#2E2938",
-        "rock-light": "#5F5A5E",
-        "rock": "#4F4A4F",
-        "rock-deep": "#3A353C",
+        "rock-light": "#5C5A65",
+        "rock": "#4D4A55",
+        "rock-deep": "#383542",
         "moss": "#4A5638"
       }
     },
@@ -191,15 +191,15 @@
       }
     },
     "light": {
-      "description": "Fixed golden hour (ART_DIRECTION §2): warm sun key, cool sky fill at fill-ratio of the key (the lit materials' ambient term), the warm grading tint and the blob-shadow colour.",
+      "description": "Fixed warm daylight (ART_DIRECTION §2, D-064): neutral-warm sun key, cool sky fill at fill-ratio of the key (the lit materials' ambient term), the neutral-warm grading tint and the grey-blue blob-shadow colour.",
       "colors": {
         "sun": "#FFF1D6",
         "sky": "#9DB7D9",
-        "grade": "#FFD9A0",
-        "shadow": "#2A2A35"
+        "grade": "#FFEBD4",
+        "shadow": "#2A2E3C"
       },
       "values": {
-        "fill-ratio": 0.35
+        "fill-ratio": 0.42
       }
     }
   }

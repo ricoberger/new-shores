@@ -11,7 +11,7 @@ look and its Blender pipeline are gone.
 
 Anno 1404 at a glance: a warm, sunlit, lived-in archipelago. Ochre plaster
 and terracotta roofs, deep green trees, turquoise shallows over sand turning
-to deep blue, a low warm sun with long soft shadows, and lots of small life
+to teal-grey, warm daylight with long soft shadows, and lots of small life
 — carts, people, boats, smoke, gulls.
 
 We cannot match its painterly textures with flat-coloured voxels, so
@@ -32,8 +32,13 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 
 ## 2. Light, palette, time of day
 
-- **Fixed golden hour.** No day/night cycle, no seasons. Every screenshot
-  and the mobile budget stay predictable.
+- **Fixed warm daylight (D-064).** Neutral-warm daylight with saturated
+  local colour, as in the Anno 1404 reference — it replaced the earlier
+  golden hour, whose orange grade overshot. No day/night cycle, no
+  seasons. Every screenshot and the mobile budget stay predictable.
+  Values (`assets/palette.json` `light`): grade `#FFEBD4` (the HTML
+  overlay, multiply at 16 %), fill ratio 0.42, `SKY_WARMTH` 0.25, blob
+  shadow `#2A2E3C` (grey-blue); sun `#FFF1D6` and its direction unchanged.
 - **Sun:** one world-fixed warm key light placed so that, at the default
   camera rotation, **shadows fall toward the camera's lower right** and the
   faces turned to the camera are lit — with our north-east-looking camera
@@ -41,10 +46,11 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   "south-west" of the first draft; colour ≈ `#FFF1D6`, intensity 1.0,
   38° elevation. The sky fill is applied as the materials' ambient term
   so shadows are never black: the palette's sky (≈ `#9DB7D9`) leaned
-  38 % toward the sun's colour (a warm bounce off the sunlit ground) at
-  1.25 × the 35 % fill ratio (`render/lighting.ts` `skyFillColor`), so
-  the camera-facing walls, which get the fill only, read warm brown-grey
-  rather than slate blue. Other camera rotations are partly back-lit, as
+  25 % toward the sun's colour (a warm bounce off the sunlit ground,
+  `SKY_WARMTH`) at 1.25 × the 42 % fill ratio (`render/lighting.ts`
+  `skyFillColor`), so the camera-facing walls, which get the fill only,
+  read light grey-brown rather than slate blue, and shadows keep a
+  grey-blue. Other camera rotations are partly back-lit, as
   in Anno.
 - **Shadows:** soft blob/contact shadows under buildings, trees and ships
   at every quality (merged static mesh per island and layer — one draw
@@ -71,17 +77,18 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   only.
 - **Previews** (ghosts, road drag, field paint) are pulled toward the
   camera with a polygon offset so they never z-fight with the ground.
-- **Palette v1** (single source `assets/palette.json`; the voxel build's
+- **Palette v2** (D-064; single source `assets/palette.json`; the voxel build's
   vertex colours, terrain materials and CSS variables all read it):
 
 | Role | Colours |
 |---|---|
-| Terrain | sand `#E8D6A3` · grass `#7FA85A` / `#93B86A` · dry patches `#B9B46A` · forest floor `#4F7A3A` · mountain `#8E8A82` · cliff `#A89A80` |
-| Water | shallows `#4FB1B0` → deep `#1F5F8B` · foam `#F4F6F0` |
+| Terrain | sand `#E2D2A6` · grass `#6E9E52` / `#84B063` · dry patches `#A79B62` · forest floor `#4A7640` · tree crown `#55884A` · mountain `#86888A` · cliff `#9A938A` · dirt road `#96744F` · paved road `#9FA09B` |
+| Water | shallows `#4A9C9F` → deep `#22627D` · foam `#F4F6F0` · haze `#AEC1C4` |
 | Buildings | plaster `#E7D7B8` · ochre `#D9A85E` · timber `#6F4A2E` · thatch `#B98F4F` · terracotta roof `#B5563B` · slate `#5C6670` · stone `#B9B2A4` · brass `#C9A24A` · plus (art task 3) `canvas` (sails), `iron`, `window`, `dye-blue` — exact values in `assets/palette.json` |
 | UI chrome | parchment `#F1E6CC` · dark wood `#4A3421` · brass `#C9A24A` · ink `#2B2117` |
-| Shadows (D-050) | one cooler, lower-value **shadow tone per role** (`shadows` group) used by the AO/two-tone bake; thatch keeps extra chroma in shadow |
-| Island (D-050) | cliff bands (warm rock), sand rim, plateau rock and moss cap, shelf water (`island` group) |
+| Shadows (D-050, D-064) | one cooler, lower-value **shadow tone per role** (`shadows` group) used by the AO/two-tone bake: role × (0.58, 0.56, 0.66) per sRGB channel, the rock roles a little deeper; thatch keeps extra chroma in shadow |
+| Island (D-050, D-064) | cliff bands (muted sandstone over grey), sand rim, neutral grey plateau rock and moss cap, shelf water (`island` group) |
+| Fields (D-064) | pasture `#8CB665` / mark `#A4CA7E` (fresher than the grass, not lime) · wheat `#CFB04A` / mark `#B08E30` (golden, a step less saturated) — exact values in `assets/palette.json` |
 | Status | keep the current colour-blind-safe set; icons always paired with colour |
 
 ## 3. One continuous world (D-048)
@@ -122,7 +129,8 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   colour of each column comes from a per-island **ground texture** (one
   texel per column, nearest sampling) through a material plugin
   (`render/groundshader.ts`): grass blends smoothly between the two grass
-  tones and dry patches across tiles, with a per-voxel brightness jitter
+  tones and brown dry patches across tiles (D-064: half as frequent,
+  `render/terrain.ts` `groundColor`), with a per-voxel brightness jitter
   in three steps; sides keep their vertex colours. Only the faces looking
   straight up take the texture, so the triangle count stays that of the
   greedy mesh.
@@ -180,7 +188,7 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   columns to the tile; the pair lattice shifts half a step from level to
   level and the rim and the terrace edges beside rock follow noise
   (about a column) — uneven tops, not stacked plates.
-  **Warm grey** rock with sandstone and ochre strata (the cliff bands)
+  **Neutral grey** rock (D-064) with muted sandstone strata (the cliff bands)
   in its walls, darker at the foot, moss only on the lowest rim; the
   ground around it is grey **scree** with small boulders. A big crag
   (`decor_peak_a/b`) stands on every peak, clusters of crags along the
@@ -254,10 +262,11 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   by up to 1.3 × to cover the same ground; `render/trees.ts`
   `FAR_TREE_TRIS`, `display/scatter.ts` `thinTrees`).
 - **Water:** shallows→deep gradient by distance from the coast, slow noise
-  animation, subtle specular; the deep is the palette's deep 12 % toward
-  the shallows and warmed (`render/mapcolors.ts` `seaDeepRgb`, shared with
-  the minimap). The sea plane extends past the camera bounds and fades
-  into a warm haze — never a hard edge. Unsettled islands show true
+  animation, subtle specular; teal-grey rather than cyan over royal blue
+  (D-064): the deep is the palette's deep 12 % toward the shallows, not
+  warmed (`render/mapcolors.ts` `seaDeepRgb`, shared with the minimap).
+  The sea plane extends past the camera bounds and fades into a cool
+  grey haze — never a hard edge. Unsettled islands show true
   colours at every zoom, like settled ones (labels and settled badges
   tell them apart).
 - **Minimap:** an island with loaded tiles is drawn per tile (terrain
@@ -490,6 +499,10 @@ V3b — kept for the signature) — about 40–70 lines.
   `nsvoxel/jitter.py`; the shader's per-voxel jitter, §2) or, on cloth
   and leaf voxels (sway groups `sail`, `flag`, `cloth`, `canopy`), the
   sway weight (≤ 245); the manifest lists each model's sway groups.
+- **Roles for the model rework:** roofs per tier (T1 thatch, T2 orange
+  terracotta, T3 `tile-dark`, T4 slate) and the `brick` / `tile-dark`
+  roles follow D-064 §3 — named there, not applied yet (building roles
+  are unchanged in palette v2).
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual
   only, D-042); one material (vertex colours). Every building reads by
@@ -564,8 +577,8 @@ V3b — kept for the signature) — about 40–70 lines.
 
 ## 8. Post-processing and sound
 
-- Nearly free effects only: soft vignette (all qualities) and a slight
-  warm colour grading (high) — both composited as HTML overlays above the
+- Nearly free effects only: soft vignette (all qualities) and a
+  light warm grading (D-064; high) — both composited as HTML overlays above the
   canvas, below labels and HUD, because per-material image processing cost
   ≈ 5 ms/frame on the phone probe; FXAA at high on hardware WebGL (skipped
   on software rasterisers so headless runs stay fast; `?fxaa=1` forces it

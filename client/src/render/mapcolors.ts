@@ -1,7 +1,7 @@
 /**
  * Flat colours of the voxel world for 2D views (the minimap, D-048): the
  * ground role each mask terrain is drawn with (render/terrain.ts
- * groundColor without its noise), the relief of loaded tiles and the warmed deep sea
+ * groundColor without its noise), the relief of loaded tiles and the deep sea
  * (render/water.ts). Free of Babylon so that the HUD can import it.
  */
 import { MASK_COAST, MASK_FOREST, MASK_GRASS, MASK_MOUNTAIN } from "../display/mask";
@@ -25,10 +25,9 @@ const lerp = (a: Rgb, b: Rgb, t: number): Rgb => [a[0] + (b[0] - a[0]) * t, a[1]
 /** Share of the shallows in the deep sea's colour. */
 const SEA_TEAL = 0.12;
 
-/** The deep sea: the palette's deep a little toward the shallows and warmed (D-057 V2). */
+/** The deep sea: the palette's deep a little toward the shallows (no warming step since D-064). */
 export function seaDeepRgb(): Rgb {
-  const d = lerp(rgbOf(WATER.deep), rgbOf(WATER.shallows), SEA_TEAL);
-  return [Math.min(1, d[0] * 1.08 + 0.015), Math.min(1, d[1] * 1.03), d[2] * 0.97];
+  return lerp(rgbOf(WATER.deep), rgbOf(WATER.shallows), SEA_TEAL);
 }
 
 /** The minimap's sea. */

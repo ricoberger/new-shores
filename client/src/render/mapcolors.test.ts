@@ -28,11 +28,16 @@ describe("map colours", () => {
     expect(mapTileRgb("islet", 0, 1)).toEqual(mapTileRgb("mountain", 0, 1));
   });
 
-  it("use the renderer's warmed deep sea", () => {
+  it("use the renderer's deep sea: the palette's deep 12 % toward the shallows, not warmed (D-064)", () => {
     const s = seaDeep();
     expect(MAP_SEA).toBe(hexOf([s.r, s.g, s.b]));
     expect(MAP_SEA).not.toBe(WATER.deep.toLowerCase());
     expect(hexOf(rgbOf(WATER.deep))).toBe(WATER.deep.toLowerCase());
-    expect(seaDeepRgb()[0]).toBeGreaterThan(rgbOf(WATER.deep)[0]);
+    const [dr, dg, db] = rgbOf(WATER.deep);
+    const [sr, sg, sb] = rgbOf(WATER.shallows);
+    const [r, g, b] = seaDeepRgb();
+    expect(r).toBeCloseTo(dr + (sr - dr) * 0.12, 6);
+    expect(g).toBeCloseTo(dg + (sg - dg) * 0.12, 6);
+    expect(b).toBeCloseTo(db + (sb - db) * 0.12, 6);
   });
 });
