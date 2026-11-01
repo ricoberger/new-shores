@@ -159,8 +159,9 @@ service before the servers start.
 ### Checks and tests
 
 - `make check` (server, content and client: gofmt, vet, golangci-lint,
-  `go test`, eslint, typecheck, Vitest). Go tests cover the simulation, API
-  and store; Vitest covers the client's display logic.
+  `go test -short`, eslint, typecheck, Vitest). Go tests cover the simulation, API
+  and store; Vitest covers the client's display logic. `make server-test-full`
+  runs the minutes-long tier-4 replays that `-short` skips (CI runs them).
 - `make shots` writes screenshots of the game (fixed camera and clock) and
   `make model-sheet RECIPE=<id>` a contact sheet of a model, see "Asset
   build" for both; they are the review tools of the polish phase (needs

@@ -1696,6 +1696,19 @@ later models round. Region paragraph in GAME_DESIGN.
   changing terrain (the orange cast is the main overshoot); building
   a region overlay system now (nothing to overlay yet).
 
+**As built** (#60, 2026-11-01): palette v2 — grass `#6E9E52` /
+`#84B063`, dry `#A79B62` at half frequency (`smoothstep(0.66, 0.84)`),
+mountain `#86888A`, cliff bands at 2/3 saturation, dirt `#96744F`,
+cobble `#9FA09B`, sand `#E2D2A6` / rim `#DCC896`, shallows `#4A9C9F`,
+deep `#22627D` without the `mapcolors.ts` warming step, haze `#AEC1C4`;
+grade `#FFEBD4`, fill ratio 0.42, `SKY_WARMTH` 0.25, blob shadow
+`#2A2E3C`; pasture `#8CB665` / `#A4CA7E`, wheat `#CFB04A` / `#B08E30`.
+Shadow tones by the measured rule, now written into `palette.json`.
+`make assets` re-baked all models (vertex colours only; budgets and the
+18.53 MiB folder unchanged). Known: `make shots HUD=0` also hides the
+grade overlay (noted in the shots tool); wheat and beach still read a
+touch loud on `played` mid/far — V6 part 2 candidates.
+
 ## D-065 Ranked public-service chains, a security group, four-level market and warehouse
 
 - **Status:** accepted (2026-11-01)
@@ -1756,3 +1769,52 @@ later models round. Region paragraph in GAME_DESIGN.
   "security" need satisfiable by any of the three (a fire station
   would replace the watch); per-chain radius overrides (nothing to
   tune yet).
+
+## D-066 Dev world start state and snapshots belong to the server and the Makefile
+
+- **Status:** accepted (2026-11-01)
+- **Context:** every `make dev` / `make preview` starts the in-memory
+  world at zero or at a fixture chosen by the client (`?fixture=`,
+  `ServerFixtureGate`, `POST /api/v1/dev/reset`). Playtesting tiers 2–4
+  means replaying hours, and the fixtures are authored states, not the
+  owner's own towns. The world already has a versioned, deterministic
+  persistence format (`sim.Encode` / `DecodeWith`, ARCHITECTURE §4.1);
+  the dev server simply never writes it anywhere.
+- **Decision:**
+  1. **The server decides the dev start state.** `server --dev` gains
+     `--fixture <name>` (any name of `devworld.Fixtures()`) and
+     `--snapshot <file>` (an envelope); `make dev` / `make preview`
+     pass them through as `FIXTURE=` / `SNAPSHOT=`.
+  2. **Snapshots are envelopes.** `GET /api/v1/dev/snapshot` returns
+     the current world as the envelope JSON; `POST /api/v1/dev/snapshot`
+     replaces the in-memory world with one: normal `DecodeWith`
+     migrations, schema or content mismatch answered with a code (409),
+     pending events reconciled, world version bumped so open clients
+     refetch. `LastEvaluatedAt` is kept (the load plays the away
+     summary); `?resume=now` shifts the world to the present. Makefile:
+     `make snapshot [OUT=]` (default `.snapshots/<seed>-<timestamp>.json`,
+     git-ignored) and `make snapshot-load FILE= [RESUME=now]`.
+  3. **The client has no dev-state handling.** `?fixture=`,
+     `fixtureFromSearch` and `ServerFixtureGate` are removed;
+     `POST /api/v1/dev/reset` stays as a tooling route for `make shots`
+     and the e2e specs, which switch fixtures inside one server
+     process. The dev routes are `--dev` only and session-less (local
+     tooling); production builds have none of them.
+  4. **This is developer tooling, not save/load.** Player save/load
+     stays out of scope (AGENTS §2); the Compose stack (`make up`,
+     PostgreSQL worlds) is not covered — an admin export is a later
+     ONLINE task.
+- **Why:** one entry point (the Makefile) for fixtures and snapshots,
+  the client stays free of dev concepts, and the owner's playtest towns
+  survive restarts and schema-neutral content changes.
+- **Consequences:** two dev routes and two flags, Makefile targets and
+  header, `.snapshots/` in `.gitignore`, Go tests (round trip export →
+  reset → import → identical display and pending events, mismatch 409,
+  `--snapshot` / `--fixture` start-up), `make makefile-test`; the client
+  loses `client/src/dev/fixture.ts` and the fixture gate; README / STATUS
+  / ARCHITECTURE `src/dev` line updated in the docs sync. Snapshots
+  taken before a schema bump do not load (undeployed: no migrations) —
+  hence D-065 ships first.
+- **Rejected:** export / load buttons in the dev drawer (the Makefile
+  covers it); restarting the server per `make shots` fixture (doubles
+  the run); a production save/load.
