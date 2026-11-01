@@ -101,6 +101,17 @@ in as the fixed player "Developer". The API is at
   `--time-scale 10`, client `VITE_TIME_SCALE=10` so its extrapolation keeps
   up). Without the client setting the display lags between re-fetches.
   `--time-scale` is only accepted with `--dev`.
+- **Start state:** `make dev FIXTURE=<name>` starts the world from a dev
+  fixture (`default`, `seafaring`, `town`, `settled`, `citizens`,
+  `merchants`, `patricians` or `played`; `--fixture`, only with `--dev`);
+  `make preview` takes the same variables.
+- **Snapshots (dev tooling, not save/load):** `make snapshot [OUT=file]`
+  saves the running dev server's world to `.snapshots/<seed>-<time>.json`
+  (git-ignored); `make dev SNAPSHOT=<file> [RESUME=now]` starts from it;
+  `make snapshot-load FILE=<file> [RESUME=now]` replaces the running
+  world. Without `RESUME=now` the load plays "while you were away";
+  with it the world continues from the present. A snapshot loads only on
+  the same schema and content version.
 - Other server flags: `--addr` (default `:8080`), `--content` (region
   directory), `--cors-origin` (comma-separated browser origins allowed to
   call the API; default `http://localhost:5173,http://127.0.0.1:5173`),
@@ -112,11 +123,11 @@ in as the fixed player "Developer". The API is at
   `http://$HOST:5173` and `http://$HOST:4173`; open `http://$HOST:5173` on the
   phone. Without `HOST` nothing changes.
 - **`make preview [HOST=<lan-ip>]`:** builds the client in E2E mode
-  (`VITE_E2E=1`: fixtures and the `?stats=1` fps badge are available) and
+  (`VITE_E2E=1`: the `?stats=1` fps badge is available) and
   serves the bundle with `vite preview` on :4173 (`--host` with `HOST`)
   against the same in-memory dev server. Use it for fps numbers on a phone:
   Vite's unbundled dev serving is slower than a bundle. Open
-  `http://$HOST:4173/?fixture=played&stats=1`.
+  `http://$HOST:4173/?stats=1` (start it with `make preview FIXTURE=played`).
 - **`POST /api/v1/dev/reset` (tests only):** replaces the dev server's
   in-memory world with a fresh dev fixture (optional body
   `{"fixture": "default" | "seafaring" | "town" | "settled" | "citizens" | "merchants" | "patricians" | "played"}`, see
@@ -190,14 +201,14 @@ service before the servers start.
   camera), one-finger road drawing, ship drag-to-send. Phones get bottom
   sheets, a scrolling build bar, a collapsible minimap and a collapsed top
   bar; the mouse keeps click-to-place.
-- **Fixtures** (`make dev` and `make preview`, which run the `--dev` server;
-  not `make up`): `?fixture=<name>` resets the dev server's world to a
-  server fixture (`default`, `seafaring`, `town`, `settled`, `citizens`,
-  `merchants`, `patricians` or `played`, the list `devworld.Fixtures`; an
-  unknown name shows the server's error) and opens the game, e.g.
-  <http://localhost:5173/?fixture=played> under `make dev`. `played` is the
+- **Fixtures** (`make dev FIXTURE=<name>` and `make preview FIXTURE=<name>`,
+  which run the `--dev` server; not `make up`): the server starts its world
+  from a server fixture (`default`, `seafaring`, `town`, `settled`,
+  `citizens`, `merchants`, `patricians` or `played`, the list
+  `devworld.Fixtures`; an unknown name is an error that lists them), e.g.
+  `make dev FIXTURE=played`. `played` is the
   Patricians reference game: a large town on four tiers.
-  `?stats=1` (dev and E2E builds, with or without a fixture) shows a small
+  `?stats=1` (dev and E2E builds) shows a small
   fps badge bottom left: fps, frame ms (p95), draw calls, triangles, JS
   heap (Chromium only), LOD and model detail.
   `?quality=high|low` overrides the render quality the layout selects

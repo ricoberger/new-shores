@@ -164,6 +164,47 @@ func TestMemoryDueEvents(t *testing.T) {
 	}
 }
 
+// TestMemoryReset (D-066): Reset replaces the world, drops the pending
+// events of the old one, creates events for the due moments of the new one,
+// increases the version and signals Changed.
+func TestMemoryReset(t *testing.T) {
+	ctx := context.Background()
+	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	oldDue := start.Add(2 * time.Minute)
+	newDue := start.Add(7 * time.Minute)
+	m := NewMemory("w", dueWorld(start, oldDue), func() time.Time { return start })
+	if p := m.Pending(); len(p) != 1 || !p[0].DueAt.Equal(oldDue) {
+		t.Fatalf("pending before = %+v", p)
+	}
+	v0, _ := m.Version(ctx, "w")
+	v, err := m.Reset(ctx, dueWorld(start, newDue))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != v0+1 {
+		t.Errorf("version = %d, want %d", v, v0+1)
+	}
+	if got, _ := m.Version(ctx, "w"); got != v {
+		t.Errorf("Version = %d, Reset answered %d", got, v)
+	}
+	p := m.Pending()
+	if len(p) != 1 || p[0].Kind != sim.DueShipBuilt || !p[0].DueAt.Equal(newDue) {
+		t.Fatalf("pending after = %+v, want only the new world's ship_built at %s", p, newDue)
+	}
+	select {
+	case <-m.Changed():
+	default:
+		t.Error("Reset did not signal a change")
+	}
+	// An empty world has no pending events at all.
+	if _, err := m.Reset(ctx, sim.NewWorld(start)); err != nil {
+		t.Fatal(err)
+	}
+	if p := m.Pending(); len(p) != 0 {
+		t.Errorf("pending after an empty reset = %+v", p)
+	}
+}
+
 // TestMemoryProcessNext: an event is processed at its due time on a copy
 // of the world; success commits (version + 1) with follow-ups, failure
 // drops the event and keeps the world.

@@ -66,14 +66,14 @@ new-shores/
 │   ├── internal/ws/            WebSocket hub, Redis pub/sub
 │   ├── internal/auth/          sessions, argon2id, email verification
 │   ├── internal/payments/      ledger + provider adapters (stripe, appstore, play)
-│   ├── internal/devworld/      dev world and dev fixtures (--dev; one list, `Fixtures()`)
+│   ├── internal/devworld/      dev world and dev fixtures (--dev; one list, `Fixtures()`; `--fixture` picks the start state)
 │   └── testdata/               golden fixtures (shared with client tests)
 ├── client/                     Vite + React + Babylon.js
 │   ├── src/api/                generated types (openapi-typescript), fetch/ws client
 │   ├── src/display/            extrapolation + display model
 │   ├── src/render/             Babylon scene, voxel terrain, chunks, instancing, pickers
 │   ├── src/ui/                 React HUD, panels, build menu, world map
-│   ├── src/dev/                dev/E2E-only `?fixture=` hook (server fixtures), `?stats=1`
+│   ├── src/dev/                dev/E2E-only `?stats=1` fps badge (no dev-state handling, D-066)
 │   ├── public/models/          voxel GLBs + manifest.json + thumbs/ (generated, committed)
 │   └── e2e/tools/              `make shots` script (Playwright as a library)
 ├── assets/
@@ -104,8 +104,17 @@ the deferred Patrician surgeries. Shared display fixtures and schema-12
 state/terrain envelopes regenerate through the existing scenario tests;
 schema-11 envelopes remain rejected historical inputs. `played` replays the
 Patricians game. The client-only synthetic fixtures (dense, showcase,
-archipelago) are gone: every `?fixture=` name and every `make shots`
-fixture is a server fixture; `make model-sheet` shows single models.
+archipelago) are gone: every `make shots` fixture is a server fixture;
+`make model-sheet` shows single models. The dev server decides its start
+state (D-066): `make dev FIXTURE=<name>` / `server --dev --fixture <name>`
+starts from a fixture of `devworld.Fixtures()`, `make dev SNAPSHOT=<file>`
+/ `--snapshot <file>` from a saved envelope (`RESUME=now` /
+`--resume-now` shifts it to the present). The dev routes are
+`POST /api/v1/dev/reset` (fixture switch for `make shots` and the e2e
+specs, tooling) and `GET` / `POST /api/v1/dev/snapshot` (`make snapshot` /
+`make snapshot-load`); all are `--dev` only, session-less and absent from
+production builds. The client has no dev-state handling (`?fixture=` is
+gone).
 
 ## 4. Server
 
@@ -433,9 +442,7 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   fixture of the one list `devworld.Fixtures()` (`default`, `town`,
   `settled`, `seafaring`, `citizens`, `merchants`, `patricians`,
   `played`), clears pending dev events and publishes; `make shots` uses
-  it for every fixture. In dev and E2E builds `?fixture=<name>` posts it
-  from the page (an unknown name shows the server's error), then opens the
-  game.
+  it for every fixture (the client no longer posts it, D-066).
   `played` (D-059) replays `server/testdata/scenarios/
   bootstrap_patricians.json` (dev server flag `--scenarios`, default
   `testdata/scenarios`) so that it ends at now; the ~40 s replay is
