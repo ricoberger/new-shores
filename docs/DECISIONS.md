@@ -1818,3 +1818,55 @@ touch loud on `played` mid/far — V6 part 2 candidates.
 - **Rejected:** export / load buttons in the dev drawer (the Makefile
   covers it); restarting the server per `make shots` fixture (doubles
   the run); a production save/load.
+
+## D-067 Reference games are generated from declarative plans
+
+- **Status:** accepted (2026-11-01)
+- **Context:** the pacing proof of the game is four reference replays
+  (`server/testdata/scenarios/bootstrap_{citizens,citizens_quests,
+  merchants,patricians}.json`, up to 7 863 hand-authored steps) with
+  targets citizens ≤ 60/90/100/150, quests ≤ 45/85, merchants
+  ≤ 240/270/420, patricians ≤ 900/960/1800 minutes. Every rule that
+  touches placement breaks them: D-062 repaired them by hand (#54) and
+  D-065 cannot pass at all — under the old `services` category market +
+  chapel already gave coverage 1.0, so the replays never reserved plots
+  for schools, taverns, churches, playhouses, universities, cathedrals;
+  under binding chains there is no room, and the only way out of the
+  session was demolition, which the reference tests forbid.
+- **Decision:**
+  1. **Plans, not steps, are the source.** A reference game is a
+     declarative plan file (`server/testdata/plans/<name>.plan.json`):
+     build order with counts and tiers, island assignment, quarters with
+     **reserved civic plots** (chain buildings, market, guard, fire
+     station, surgery) sized from content footprints, routes, and the
+     named checkpoints. A generator (`server/cmd/replay-plan`, logic in
+     `server/internal/sim/scenario/plan`) lays out footprints and roads
+     against the loaded terrain through the server's own placement
+     validation, inserts whole-minute waits where stock is short, and
+     emits the step JSON.
+  2. **The committed scenario is the generator's output.** A test
+     regenerates each plan and asserts byte equality with the checked-in
+     scenario (`-update` rewrites it, like the goldens); the existing
+     target tests stay unchanged. Editing the JSON by hand is no longer
+     a path.
+  3. **Reference games never demolish, never grant stock, never pause
+     for advantage** — the levers are layout, build order, waits and
+     island assignment (as #54 stated). Targets are not relaxed; a miss
+     is reported with the generated game as evidence.
+  4. `devworld`'s `played` fixture and the display fixtures keep
+     replaying `bootstrap_patricians`; nothing else depends on the
+     format change.
+- **Why:** rule changes should cost one plan edit, not a day of
+  patching; the generator makes the "is the pacing still right" question
+  answerable after every content change, including D-065 and the V7
+  footprints to come.
+- **Consequences:** D-065 lands on top of the generator (the chain rule
+  needs the reserved plots). First the generator reproduces the current
+  targets under the current rules; then the D-065 data and rule are
+  applied and the plans gain the chain buildings. STATUS and CONTENT §12
+  reference the plans; the temporary repair tools of #54 and the D-065
+  session are superseded.
+- **Rejected:** hand-patching the replays once more (third time, and it
+  does not converge for Patricians); allowing demolition in the
+  reference games (hides a layout problem); softening D-065 back to
+  shares (contradicts its intent).
