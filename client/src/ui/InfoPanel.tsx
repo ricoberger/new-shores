@@ -165,6 +165,13 @@ const UPGRADE_HINTS: Record<string, () => string> = {
   no_house: () => t("infoPanel.upgrade.hint.no_house"),
 };
 
+/** The house of the highest tier: there is no upgrade to offer (never from the server's reason). Unknown tiers keep the button. */
+function isTopTierHouse(content: Content, b: BuildingDisplay): boolean {
+  const tierId = content.buildings.find((d) => d.id === b.type)?.house?.tier;
+  const tier = content.tiers.find((x) => x.id === tierId);
+  return tier !== undefined && content.tiers[tier.index + 1] === undefined;
+}
+
 function upgradeHint(content: Content, model: DisplayState, island: IslandDisplay, b: BuildingDisplay, reason: string): string {
   const [code, category, percent] = reason.split(":") as [string, string | undefined, string | undefined];
   const tiers = content.tiers;
@@ -820,25 +827,18 @@ export function InfoPanel({
             <Icon path={toolIcon("upgrade")} /> {t("infoPanel.upgrade")}
           </button>
         )}
-        {b.residents !== undefined && (
-          // The server says whether the upgrade would succeed (D-027): enabled only then, the reason as the tooltip and as a short line below.
-          <span className={styles.upgradeGroup}>
-            <button
-              type="button"
-              className={styles.button}
-              onClick={onUpgrade}
-              disabled={!b.upgrade?.available}
-              title={b.upgrade && !b.upgrade.available && b.upgrade.reason ? upgradeReasonText(content, b.upgrade.reason) : undefined}
-              data-testid="info-upgrade"
-            >
-              <Icon path={toolIcon("upgrade")} /> {t("infoPanel.upgrade")}
-            </button>
-            {b.upgrade && !b.upgrade.available && b.upgrade.reason && (
-              <span className={`${styles.small} ${styles.warn}`} data-testid="info-upgrade-hint">
-                {upgradeHint(content, model, island, b, b.upgrade.reason)}
-              </span>
-            )}
-          </span>
+        {b.residents !== undefined && !isTopTierHouse(content, b) && (
+          // The server says whether the upgrade would succeed (D-027): enabled only then, the reason as the tooltip and, below all buttons, as a short line.
+          <button
+            type="button"
+            className={styles.button}
+            onClick={onUpgrade}
+            disabled={!b.upgrade?.available}
+            title={b.upgrade && !b.upgrade.available && b.upgrade.reason ? upgradeReasonText(content, b.upgrade.reason) : undefined}
+            data-testid="info-upgrade"
+          >
+            <Icon path={toolIcon("upgrade")} /> {t("infoPanel.upgrade")}
+          </button>
         )}
         {order && (
           <button type="button" className={styles.button} onClick={onCancelShipOrder} data-testid="shipyard-cancel">
@@ -854,6 +854,11 @@ export function InfoPanel({
         <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onDemolish} data-testid="info-demolish">
           <Icon path={toolIcon("demolish")} /> {t("infoPanel.demolish")}
         </button>
+        {b.residents !== undefined && !isTopTierHouse(content, b) && b.upgrade && !b.upgrade.available && b.upgrade.reason && (
+          <span className={`${styles.small} ${styles.warn} ${styles.upgradeHint}`} data-testid="info-upgrade-hint">
+            {upgradeHint(content, model, island, b, b.upgrade.reason)}
+          </span>
+        )}
       </div>
     </div>
   );

@@ -161,6 +161,15 @@ describe("tier 4 in the cards (D-056 C4)", () => {
     expect(html).not.toContain('data-testid="service-upgrade-button"');
   });
 
+  it("offers no Upgrade on a Patrician house (the highest tier), whatever the server says, but keeps it on lower tiers", () => {
+    const upgrade = { available: false, reason: "no_house" };
+    const top = panel({ ...house, upgrade } as BuildingDisplay);
+    expect(top).not.toContain('data-testid="info-upgrade"');
+    expect(top).not.toContain("info-upgrade-hint");
+    const merchants = plain(9_003, "house_merchants", { residents: 8_000, residents_floor: 2_000, residents_max: 8_000, upgrade: { available: false, reason: "not_full" } });
+    expect(panel(merchants)).toContain('data-testid="info-upgrade"');
+  });
+
   it("shows a Patrician house under two headings: Goods (its five categories, then the three lower tiers') and Public buildings", () => {
     const html = panel(house);
     const t = text(html);

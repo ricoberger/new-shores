@@ -273,7 +273,7 @@ UI shows the same numbers the server uses.
 - Needs: one row per need (icon and name on the left, fulfilment % on the
   right, no bar), the reason if not met as a tooltip ("short supply",
   "no supply on the island", "out of range").
-- Upgrade button with cost and lock reason.
+- Upgrade button; when it is disabled, the server's reason is one short line below all footer buttons (they keep their size) and the button's tooltip; none on a house of the highest tier, like the levelled buildings at their last level.
 
 **Trading Post**
 
