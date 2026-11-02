@@ -188,7 +188,7 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, accoun
   const name = island ? island.name || island.id : "…";
 
   return (
-    <div className={`${styles.topBar} ${compact === "portrait" ? styles.topBarPortrait : ""}`}>
+    <div className={`${styles.topBar} ${compact === "portrait" ? styles.topBarPortrait : compact === null ? styles.topBarDesktop : ""}`}>
       <div className={styles.hudLeft}>
         <div className={styles.hudGroup}>
           <HudChip

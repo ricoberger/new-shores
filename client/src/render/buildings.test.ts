@@ -9,7 +9,7 @@ import { Matrix, Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
-import { BuildingLayer, mergeItems, RISE_MS, scaffoldClass, stageClass, STAGES, stageMatrix, VISUAL_BUILD_MS } from "./buildings";
+import { BuildingLayer, mergeItems, voxelGrid, RISE_MS, scaffoldClass, stageClass, STAGES, stageMatrix, VISUAL_BUILD_MS } from "./buildings";
 import { rotatedFootprint } from "../display/geometry";
 import { type ModelData, type ModelManifest, ModelRegistry, parseGlb, placement } from "./models";
 
@@ -377,6 +377,16 @@ describe("stageMatrix", () => {
     const data = { positions: new Float32Array([0, 0.25, 0]), normals: new Float32Array([0, 1, 0]), colors: new Float32Array([1, 1, 1, 1]), indices: new Uint32Array([0, 0, 0]) } as unknown as Parameters<typeof mergeItems>[0][number]["data"];
     const v = mergeItems([{ data, cx: 1, cy: 0.5, cz: -1, yaw: 0, sx: 1, sz: 1, tint: [1, 1, 1, 1] }]);
     expect(Array.from(v.positions!)).toEqual([1, 0.75, -1]);
+  });
+
+  it("gives merged chunks a per-vertex voxel grid only when a model's density differs from the material's (V7)", () => {
+    const data = { positions: new Float32Array([0, 0, 0, 1, 0, 0]), normals: new Float32Array(6), colors: new Float32Array(8), indices: new Uint32Array([0, 1, 0]) } as unknown as Parameters<typeof mergeItems>[0][number]["data"];
+    expect(voxelGrid([{ data, cx: 1.5, cz: 2, vpt: 8 }, { data, cx: 0, cz: 0 }], 8)).toBeNull();
+    const g = voxelGrid([{ data, cx: 1.5, cz: 2, vpt: 8 }, { data, cx: 0.25, cy: 0.5, cz: 0, vpt: 16 }], 8)!;
+    expect(g).toHaveLength(4 * 4);
+    // Per vertex: the origin's fraction in the model's cells (xyz) and its voxels per tile (w).
+    expect(Array.from(g.subarray(0, 8))).toEqual([0, 0, 0, 8, 0, 0, 0, 8]);
+    expect(Array.from(g.subarray(8, 16))).toEqual([0, 0, 0, 16, 0, 0, 0, 16]);
   });
 
   it("picks the footprint class nearest the footprint, so the stage voxels stretch little", () => {

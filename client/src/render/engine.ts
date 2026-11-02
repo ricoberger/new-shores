@@ -45,7 +45,7 @@ import { PlacementGhost } from "./ghost";
 import { GridOverlay } from "./grid";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
-import { type AssetsStatus, buildingAnchor, type Detail, ModelRegistry } from "./models";
+import { type AssetsStatus, buildingAnchor, type Detail, ModelRegistry, shipFarTriangles } from "./models";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
 import { LIFE_CLASSES, LifeLayer } from "./life";
@@ -66,9 +66,6 @@ const SHIP_PICK_PX = 18;
 /** Right-drag rotation: quarter turns per CSS pixel of horizontal movement (45° per 120 px). */
 const DRAG_TURN_PER_PX = 0.5 / 120;
 const LABEL_Y = 0.4;
-
-/** Where the camera starts: an island (default: the first) at the near default zoom, or the whole archipelago. */
-export type InitialCamera = { kind: "island"; id?: string } | { kind: "fit" };
 
 
 /** What the HUD needs to know about the camera. */
@@ -270,7 +267,6 @@ export class GameRenderer {
     private readonly sync: RenderSource,
     private readonly tool: () => Tool,
     private readonly events: RendererEvents,
-    private readonly initialCamera: InitialCamera = { kind: "island" },
     quality: Quality = "high",
     /** Keep FXAA at "high" also on software WebGL (?fxaa=1, the visual test of the FXAA path). */
     forceFxaa = false,
@@ -831,7 +827,7 @@ export class GameRenderer {
    */
   private allocateFarTerrain(detailed: readonly IslandDetail[], masked: readonly MaskIsland[], ships: readonly { type: string }[]): number {
     let fleet = 0;
-    for (const s of ships) fleet += this.models.entry(s.type)?.file?.triangles ?? 0;
+    for (const s of ships) fleet += shipFarTriangles(this.models.entry(s.type));
     return allocateFarTerrain(detailed, this.mask.outlineTriangles(masked), fleet);
   }
 
@@ -1055,25 +1051,20 @@ export class GameRenderer {
   }
 
   private placeInitialCamera(): void {
-    const ic = this.initialCamera;
-    if (ic.kind === "fit") {
-      const b = this.arch.bounds();
-      if (b) this.rig.setCamera({ x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2, half: this.rig.zoomRange().max });
-    } else {
-      const d = this.sync.getSnapshot().server?.display;
-      const islands = d?.islands ?? [];
-      // The start at sea (D-051, D-053): nothing settled yet and the ship
-      // at sea near the archipelago's centre — the camera opens on the
-      // ship at the far zoom that shows the whole archipelago for the
-      // choice of the home island.
-      const sea = ic.id === undefined && !islands.some((x) => x.settled) ? d?.ships.find((s) => s.position) : undefined;
-      const is = islands.find((x) => x.id === ic.id) ?? islands.find((x) => x.settled) ?? islands[0];
-      if (sea?.position) {
-        const p = seaPoint(sea.position);
-        this.rig.setCamera({ x: p.x, y: p.y, half: this.rig.zoomRange().max });
-      } else if (is) {
-        this.rig.setCamera({ x: is.position.x + is.width / 2, y: is.position.y + is.height / 2, half: NEAR_DEFAULT_HALF_HEIGHT });
-      }
+    const d = this.sync.getSnapshot().server?.display;
+    const islands = d?.islands ?? [];
+    // The start at sea (D-051, D-053): nothing settled yet and the ship
+    // at sea near the archipelago's centre — the camera opens on the
+    // ship at the far zoom that shows the whole archipelago for the
+    // choice of the home island.
+    const sea = !islands.some((x) => x.settled) ? d?.ships.find((s) => s.position) : undefined;
+    // Else the settled (home) island, else the first, at the near default zoom.
+    const is = islands.find((x) => x.settled) ?? islands[0];
+    if (sea?.position) {
+      const p = seaPoint(sea.position);
+      this.rig.setCamera({ x: p.x, y: p.y, half: this.rig.zoomRange().max });
+    } else if (is) {
+      this.rig.setCamera({ x: is.position.x + is.width / 2, y: is.position.y + is.height / 2, half: NEAR_DEFAULT_HALF_HEIGHT });
     }
     this.lod = initialLod(this.rig.view().half);
   }

@@ -12,7 +12,7 @@ import { islandSeed } from "../display/scatter";
 import type { ArchPoint } from "../display/ships";
 import { allocateFarTerrain, FAR_SCENERY_TRIS, FAR_TRIS, type MaskIsland, MaskLayer, reliefOrder } from "./farmesh";
 import { IslandDetail } from "./island";
-import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./models";
+import { type ModelData, type ModelManifest, ModelRegistry, parseGlb, shipFarDraws, shipFarTriangles } from "./models";
 
 // Far-view budget guard (D-048, D-057 §5; ARCHITECTURE §5a): at the zoom
 // cap (max_half_extent 120) the far LOD must stay within 250 k triangles
@@ -20,7 +20,9 @@ import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./m
 // 2992 × 1700 window: the widest footprint). For the `make shots` fixtures
 // settled, patricians, played and seafaring (the unsettled start;
 // testdata/farbudget, captured from the dev server with capture.ts:
-// display and every island's tiles) it builds the islands as
+// display and every island's tiles) and `largest` (the settled fixture on
+// the seed whose home island is the largest of the large size class seen,
+// the camera over that island) it builds the islands as
 // the renderer does (IslandDetail with the committed models, headless),
 // runs the renderer's far terrain allocation (farmesh.ts
 // allocateFarTerrain, MaskLayer) for the camera at the cap over the
@@ -28,13 +30,13 @@ import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./m
 // at every 45° heading, and checks the triangles drawn per layer:
 //
 //   models_lite, far_trees, blob_buildings_far   the home island (fixed)
-//   ships                                        the fleet's models
+//   ships                                        the fleet's lite hulls
 //   terrain_lite                                 fine or coarse (allocation)
 //   mask_terrain                                 neighbours: outlines + relief
 //   scenery                                      sea, haze, landmarks
 //
-// the draw calls (the home island's enabled meshes, the mask mesh, hull and
-// cargo per ship type, FAR_SCENERY_DRAWS), and the allocation: the home
+// the draw calls (the home island's enabled meshes, the mask mesh, the lite
+// hull per ship type, FAR_SCENERY_DRAWS), and the allocation: the home
 // island always in relief; on settled and patricians in the shots' view
 // (heading 0) on desktop and phone at its fine lite terrain with every
 // island in view in relief (other headings see more islands: the farther
@@ -119,10 +121,15 @@ async function farViews(name: string): Promise<View[]> {
   const reg = registry(scene);
   await reg.loadManifest();
   // The archipelago's centre (shots.ts showArchipelago); the camera there focuses the home island.
-  const centre = {
-    x: (Math.min(...fx.islands.map((i) => i.position.x)) + Math.max(...fx.islands.map((i) => i.position.x + i.width))) / 2,
-    y: (Math.min(...fx.islands.map((i) => i.position.y)) + Math.max(...fx.islands.map((i) => i.position.y + i.height))) / 2,
-  };
+  // `largest`: the camera over the home island, the largest of its size class, in detail.
+  const home = fx.islands.find((i) => i.id === HOME) as IslandDisplay;
+  const centre =
+    name === "largest"
+      ? { x: home.position.x + home.width / 2, y: home.position.y + home.height / 2 }
+      : {
+          x: (Math.min(...fx.islands.map((i) => i.position.x)) + Math.max(...fx.islands.map((i) => i.position.x + i.width))) / 2,
+          y: (Math.min(...fx.islands.map((i) => i.position.y)) + Math.max(...fx.islands.map((i) => i.position.y + i.height))) / 2,
+        };
   expect(focusedIsland(fx.islands, centre)).toBe(HOME);
   const views: { device: string; aspect: number; rotation: number; footprint: ArchPoint[]; ids: string[] }[] = [];
   for (const [device, aspect] of Object.entries(DEVICES)) {
@@ -151,9 +158,10 @@ async function farViews(name: string): Promise<View[]> {
     d.setDetail("lite");
   }
   const homeDetail = details.get(HOME) as IslandDetail;
-  const fleet = fx.ships.reduce((n, s) => n + (manifest.models[s.type]?.file?.triangles ?? 0), 0);
-  // One hull and one cargo mesh per ship type (render/archipelago.ts).
-  const fleetDraws = 2 * new Set(fx.ships.map((s) => s.type)).size;
+  // Every ship draws its lite hull at far (V7; the full hull and cargo without one), as the renderer estimates it.
+  const fleet = fx.ships.reduce((n, s) => n + shipFarTriangles(manifest.models[s.type]), 0);
+  // One lite hull mesh per ship type (hull and cargo without a lite file; render/archipelago.ts).
+  const fleetDraws = [...new Set(fx.ships.map((s) => s.type))].reduce((n, t) => n + shipFarDraws(manifest.models[t]), 0);
   // The home island's meshes drawn at far (enabled, visible, not empty).
   const homeRoot = scene.getTransformNodeByName(`island_${HOME}`);
   const homeDraws = scene.meshes.filter((m) => m.isEnabled() && m.isVisible && m.getTotalIndices() > 0 && homeRoot && m.isDescendantOf(homeRoot)).length;
@@ -212,7 +220,15 @@ async function farViews(name: string): Promise<View[]> {
 describe("far budget at the zoom cap (D-048)", () => {
   const table: string[] = [];
   afterAll(() => console.log(`far view at the cap, heading 0 (fixture device: draws, triangles, home terrain, islands in relief / outline)\n${table.join("\n")}`));
-  for (const name of ["settled", "patricians", "played", "seafaring"] as const) {
+  it("largest: the home island is the largest of the large size class captured (23 691 land tiles), larger than the dev seed's", () => {
+    const land = (fx: Fixture, id: string) => (fx.tiles[id] as IslandTiles).terrain.filter((t) => t !== "water").length;
+    const largest = load("largest");
+    const settled = load("settled");
+    expect(largest.islands.find((i) => i.id === HOME)?.settled).toBe(true);
+    expect(land(largest, HOME)).toBe(23691);
+    expect(land(largest, HOME)).toBeGreaterThan(Math.max(...settled.islands.map((i) => land(settled, i.id))));
+  });
+  for (const name of ["settled", "patricians", "played", "seafaring", "largest"] as const) {
     const all = name === "settled" || name === "patricians";
     it(`${name}: ≤ ${FAR_DRAWS} draws and ≤ ${FAR_TRIS} triangles on desktop, phone and desktop-xl at every heading, the home island in relief${all ? ", every island in view in relief" : ""}`, async () => {
       const views = await farViews(name);

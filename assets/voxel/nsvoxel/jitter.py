@@ -26,10 +26,13 @@ ROLE_CLASS = {
     "deposit-iron": STONE,
     "road-paved": STONE,
     "road-border": STONE,
+    # Brick (V7, D-064 §3): masonry, as strong as stone.
+    "brick": STONE,
     # Roofs: strong.
     "terracotta": ROOF,
     "thatch": ROOF,
     "slate": ROOF,
+    "tile-dark": ROOF,
     # Plaster, painted and woven surfaces: light.
     "plaster": PLASTER,
     "ochre": PLASTER,

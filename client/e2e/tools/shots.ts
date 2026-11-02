@@ -267,12 +267,15 @@ async function waitLod(page: Page, lod: View): Promise<void> {
   });
 }
 
-async function shoot(page: Page, file: string, written: string[]): Promise<void> {
+async function shoot(page: Page, file: string, written: string[], game = true): Promise<void> {
   mkdirSync(dirname(file), { recursive: true });
   await page.screenshot({ path: file, timeout: 90_000, animations: "disabled", caret: "hide" });
   written.push(file);
   const name = relative(process.cwd(), file) || file;
-  if (process.env.STATS?.trim() === "1") {
+  // The renderer's counters exist in the game only (not on an almanac page).
+  if (!game) {
+    console.log(name);
+  } else if (process.env.STATS?.trim() === "1") {
     // Perf sanity (polish rounds): the renderer's counters of the shot's frame.
     // Load timing of the page (ms since navigation): first frame, focused island with its full tiles.
     const s = await page.evaluate(() => ({ draws: window.__newShores!.drawCalls(), tris: window.__newShores!.triangles(), meshes: window.__newShores!.meshesCreated() }));
@@ -932,7 +935,30 @@ function foundingShot(docked: boolean): { fixture: Fixture; device: Device; run:
   };
 }
 
-const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly Device[]; patch?: (w: WorldResponse) => void; run: (page: Page) => Promise<void> }> = {
+/**
+ * A preset either opens the game on its fixture and runs on it, or, with
+ * `almanac`, opens that almanac path (no session, no world: the fixture is
+ * unused) and shoots the page once its content is shown.
+ */
+const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly Device[]; patch?: (w: WorldResponse) => void; almanac?: string; run: (page: Page) => Promise<void> }> = {
+  // The almanac's overview page (the opening page of /almanac) on both devices.
+  "almanac-overview": {
+    fixture: "default",
+    device: ["desktop", "phone"],
+    almanac: "/almanac",
+    run: async (page) => {
+      await page.getByTestId("almanac-search").waitFor({ state: "visible" });
+    },
+  },
+  // One building page of the almanac (deep link, scrolled to its card): the bakery, with inputs, a chain and a tier.
+  "almanac-building": {
+    fixture: "default",
+    device: ["desktop", "phone"],
+    almanac: "/almanac/buildings/bakery",
+    run: async (page) => {
+      await page.locator("#building-bakery").waitFor({ state: "visible" });
+    },
+  },
   "founding-ghost": foundingShot(false),
   "founding-docked": foundingShot(true),
   "playhouse-menu": {
@@ -1438,6 +1464,21 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
 async function takePreset(browser: Browser, preset: Preset, dir: string, written: string[]): Promise<void> {
   const p = PRESET_RUN[preset];
   for (const device of typeof p.device === "string" ? [p.device] : p.device) {
+    if (p.almanac !== undefined) {
+      const context = await browser.newContext(DEVICE_OPTIONS[device]);
+      try {
+        const page = await context.newPage();
+        page.on("pageerror", (e) => console.error(`page error (${preset}, ${device}): ${e.message}`));
+        await page.goto(p.almanac);
+        await p.run(page);
+        await page.addStyleTag({ content: "*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }" });
+        await page.evaluate(() => document.fonts.ready.then(() => undefined));
+        await shoot(page, resolve(dir, `${preset}-${device}.png`), written, false);
+      } finally {
+        await context.close();
+      }
+      continue;
+    }
     const { page, close } = await open(browser, device, p.fixture, true, p.patch);
     try {
       if (preset === "sheet") await page.waitForFunction(() => window.__newShores!.quality() === "low", undefined, { timeout: 10_000 });

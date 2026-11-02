@@ -72,7 +72,6 @@ export function GameCanvas({ sync, tool, events, onRenderer, quality, forceFxaa 
         inspectIsland: (id) => ev().inspectIsland(id),
         camera: (info) => ev().camera(info),
       },
-      undefined,
       qualityRef.current,
       fxaaRef.current,
       lifeRef.current,

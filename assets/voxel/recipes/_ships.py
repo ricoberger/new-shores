@@ -15,6 +15,13 @@ attachment shows one prop per cargo slot (2 / 4 / 6) on its free deck,
 clear of masts, cabin and boom. Anchors: `status` (the pipeline's
 default) and `wake` (the stern at the waterline, where the wake starts).
 Hull lengths at the waterline are length_tiles × SCALE (2 / 2.6 / 3.2).
+
+Lite (far LOD, V7): each ship has its own simplified lite model at
+SCALE / 4 = 5 voxels per tile — the hull with its trim band, the masts,
+the sails as flat slabs and the pennants, no cargo — so the far view
+reads hull, masts and sail silhouettes within the lite budgets
+(config.LITE_BUDGET_SHIPS). It shares the full model's anchors and
+length.
 """
 
 from nsvoxel.grid import mat, shade_of
@@ -236,6 +243,93 @@ def galleon(ctx):
     return v
 
 
+# ---------------------------------------------------------------- lite
+
+#: Full-model voxels per lite voxel (config.SHIP_LITE_DOWNSAMPLE): the lite models are built at SCALE / LITE voxels per tile.
+LITE = 4
+
+
+def lite_hull(v, length, beam, trim, castle=0, forecastle=0):
+    """
+    The lite hull, in lite voxels covering the full hull (stern to stem): a
+    tarred keel row, the planked side, the trim band as the bulwark round an
+    open deck, a stern castle `castle` voxels long (one storey higher), a
+    forecastle and the bowsprit. Returns (stern x, bow x) in lite voxels.
+    """
+    h = length // 2
+    lo, hi = (-h) // LITE, -(-h // LITE)
+    bw = max(2, (beam + LITE // 2) // LITE)
+
+    def hw_at(x):
+        c = min(h - 1, max(-h, x * LITE + LITE // 2))
+        return min(bw, max(1, int(round(half_beam(c, length, beam) / LITE + 0.25))))
+
+    for x in range(lo, hi):
+        hw = hw_at(x)
+        if hw > 1:
+            v.box(x, -hw + 1, -1, x + 1, hw - 1, 0, BOTTOM)
+        v.box(x, -hw, 0, x + 1, hw, 1, COURSE_A)
+        for y in range(-hw, hw):
+            edge = y in (-hw, hw - 1) or x in (lo, hi - 1)
+            v.set(x, y, 1, trim if edge else None)
+            if not edge:
+                v.set(x, y, 0, PLANK)
+    for x in range(lo, lo + castle):
+        hw = hw_at(x)
+        v.box(x, -hw, 1, x + 1, hw, 2, TIMBER)
+        v.box(x, -hw, 2, x + 1, hw, 3, trim)
+    for x in range(hi - forecastle - 1, hi - 1) if forecastle else ():
+        hw = hw_at(x)
+        v.box(x, -hw, 1, x + 1, hw, 2, TIMBER)
+    # The bowsprit, as long as the full model's (length / 5 voxels).
+    n = max(2, round(length / 5 / LITE))
+    for k in range(n):
+        v.set(hi + k, 0, 1 + k // 2, TIMBER_DARK)
+    return lo, hi
+
+
+def lite_mast(v, x, top, sails):
+    """A lite mast at x up to `top` with square sails (z0, z1, half-width) as slabs across the hull, and its pennant."""
+    v.box(x, 0, 1, x + 1, 1, top, TIMBER_DARK)
+    for z0, z1, w in sails:
+        v.box(x, -w, z0, x + 1, w, z1, SAIL)
+    v.set(x - 1, 0, top - 1, FLAG)
+
+
+def sloop_lite(ctx):
+    v = ctx.vox(0, 0)
+    lo, _ = lite_hull(v, HULL_LENGTH["sloop"], 8, OCHRE)
+    v.box(0, 0, 1, 1, 1, 9, TIMBER_DARK)  # the mast
+    v.set(-1, 0, 8, FLAG)
+    for z in range(2, 8):  # the gaff sail behind the mast, narrowing upward
+        v.box(-4 + (z - 2) // 3, 0, z, 0, 1, z + 1, SAIL)
+    for z in range(2, 7):  # the jib toward the bowsprit
+        v.box(1, 0, z, 1 + max(1, (8 - z) * 4 // 6), 1, z + 1, SAIL)
+    v.set(lo, 0, 2, BRASS)  # the stern lantern
+    return v
+
+
+def brig_lite(ctx):
+    v = ctx.vox(0, 0)
+    lite_hull(v, HULL_LENGTH["brig"], 10, TERRACOTTA, castle=2)
+    lite_mast(v, 2, 12, [(3, 6, 2), (6, 9, 1)])
+    lite_mast(v, -2, 11, [(3, 6, 2), (6, 8, 1)])
+    for z in range(3, 8):  # the jib
+        v.box(3, 0, z, 3 + max(1, (9 - z) * 3 // 6), 1, z + 1, SAIL)
+    return v
+
+
+def galleon_lite(ctx):
+    v = ctx.vox(0, 0)
+    lite_hull(v, HULL_LENGTH["galleon"], 12, DYE_BLUE, castle=3, forecastle=2)
+    lite_mast(v, 3, 14, [(3, 6, 2), (7, 10, 2), (10, 13, 1)])
+    lite_mast(v, -1, 16, [(4, 7, 3), (7, 11, 2), (11, 14, 1)])
+    lite_mast(v, -5, 12, [(5, 7, 1), (7, 10, 1)])
+    for z in range(3, 10):  # the jib
+        v.box(4, 0, z, 4 + max(1, (11 - z) * 4 // 8), 1, z + 1, SAIL)
+    return v
+
+
 # ---------------------------------------------------------------- cargo
 
 #: Deck spots (x, y) of the cargo props per ship, one per cargo slot (2 / 4 / 6), clear of masts, cabins and the sloop's boom.
@@ -280,7 +374,7 @@ def cargo(ctx):
 
 
 RECIPES = {
-    "sloop": {"build": sloop, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0}},
-    "brig": {"build": brig, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.6, "masts": 2, "sail_scale": 1.0}},
-    "galleon": {"build": galleon, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 3.2, "masts": 3, "sail_scale": 1.0}},
+    "sloop": {"build": sloop, "lite": sloop_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0}},
+    "brig": {"build": brig, "lite": brig_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.6, "masts": 2, "sail_scale": 1.0}},
+    "galleon": {"build": galleon, "lite": galleon_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 3.2, "masts": 3, "sail_scale": 1.0}},
 }

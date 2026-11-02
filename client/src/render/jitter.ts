@@ -18,7 +18,8 @@
  * Local positions keep the pattern fixed to the model: deterministic, no
  * crawling while a ship sails, a building rises or the camera moves. The
  * grid is the material's (8 per tile for the full models, 2 for the lite
- * tier, 16 for the life props). Global switch: `jitterShade.amount` (0 at
+ * tier, 16 for the life props), or per vertex (JIT_VPT_ATTRIBUTE) where
+ * models of other densities (manifest `voxels_per_tile`, V7) share a mesh. Global switch: `jitterShade.amount` (0 at
  * far LOD, where a voxel is below a pixel, and with `?jitter=0` for A/B
  * comparisons). Render-only; no state.
  */
@@ -57,6 +58,25 @@ export function jitterOrigin(x: number, y: number, z: number, s: number, vpt: nu
     return Math.round((c - Math.floor(c)) * 255) % 256;
   };
   return [f(x), f(y), f(z), Math.round(s * JIT_SCALE_STEPS)];
+}
+
+/**
+ * Merged model chunks that hold a model at another density than the
+ * material's (a recipe's VOXELS_PER_TILE: 12 or 16, the manifest entry's
+ * `voxels_per_tile`) carry the voxel grid per vertex instead: `voxG`
+ * (4 bytes, xyz normalised) is the fraction of the copy's origin in its
+ * voxel cells and w its voxels per unit (an integer byte, not a scale, so
+ * 12 per tile stays exact). The shader uses position × w − xyz.
+ */
+export const JIT_VPT_ATTRIBUTE = "voxG";
+
+/** The `voxG` bytes of a model with `vpt` voxels per unit placed at (x, y, z) (mesh units, unscaled). */
+export function jitterGrid(x: number, y: number, z: number, vpt: number): [number, number, number, number] {
+  const f = (v: number) => {
+    const c = v * vpt;
+    return Math.round((c - Math.floor(c)) * 255) % 256;
+  };
+  return [f(x), f(y), f(z), Math.min(255, Math.max(1, Math.round(vpt)))];
 }
 
 /**
@@ -103,17 +123,19 @@ export class JitterPlugin extends MaterialPluginBase {
     material: Material,
     private readonly vpt: number,
   ) {
-    super(material, "Jitter", 220, { VOXJITTER: false, VOXJITO: false });
+    super(material, "Jitter", 220, { VOXJITTER: false, VOXJITO: false, VOXJITG: false });
     this._enable(true);
   }
 
   override prepareDefines(defines: Record<string, unknown>, _scene?: unknown, mesh?: AbstractMesh): void {
     defines["VOXJITTER"] = true;
     defines["VOXJITO"] = !!mesh?.isVerticesDataPresent(JIT_ATTRIBUTE);
+    defines["VOXJITG"] = !defines["VOXJITO"] && !!mesh?.isVerticesDataPresent(JIT_VPT_ATTRIBUTE);
   }
 
   override getAttributes(attributes: string[], _scene?: unknown, mesh?: AbstractMesh): void {
     if (mesh?.isVerticesDataPresent(JIT_ATTRIBUTE)) attributes.push(JIT_ATTRIBUTE);
+    else if (mesh?.isVerticesDataPresent(JIT_VPT_ATTRIBUTE)) attributes.push(JIT_VPT_ATTRIBUTE);
   }
 
   override getClassName(): string {
@@ -139,11 +161,13 @@ export class JitterPlugin extends MaterialPluginBase {
   override getCustomCode(shaderType: string): Record<string, string> | null {
     if (shaderType === "vertex") {
       return {
-        CUSTOM_VERTEX_DEFINITIONS: "varying vec3 vJitP;\nvarying vec3 vJitN;\nvarying vec2 vJitS;\n#ifdef VOXJITO\nattribute vec4 jitO;\n#endif",
+        CUSTOM_VERTEX_DEFINITIONS: "varying vec3 vJitP;\nvarying vec3 vJitN;\nvarying vec2 vJitS;\n#ifdef VOXJITO\nattribute vec4 jitO;\n#endif\n#ifdef VOXJITG\nattribute vec4 voxG;\n#endif",
         CUSTOM_VERTEX_MAIN_END: `
 #if defined(VOXJITTER) && defined(VERTEXCOLOR) && defined(WEBGL2)
 #ifdef VOXJITO
   vJitP = positionUpdated * (jitVpt / (max(jitO.w * 255.0, 1.0) / ${JIT_SCALE_STEPS}.0)) - jitO.xyz;
+#elif defined(VOXJITG)
+  vJitP = positionUpdated * max(voxG.w * 255.0, 1.0) - voxG.xyz;
 #else
   vJitP = positionUpdated * jitVpt;
 #endif

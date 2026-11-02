@@ -17,7 +17,7 @@ import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
 import type { Island, IslandDisplay, RouteDisplay, ShipDisplay } from "../api/client";
 import type { Rect } from "../display/camera";
-import type { Lod } from "../display/lod";
+import { detailForLod, type Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
 import { ribbonLegs, ribbonsShown } from "../display/routes";
 import { alongPath, anchorSlots, type ArchPoint, berthAnchor, type Berths, type Dock, islandAnchor, type IslandPlacement, seaPoint, shipPlacement } from "../display/ships";
@@ -27,7 +27,8 @@ import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
 import { type DecodedMask, decodeMask, MASK_WATER, maskAt, maskTerrain } from "../display/mask";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 import { anchorBob, SAILING_ALPHA, sailing, waiting } from "./sway";
-import { type ModelRegistry, shipMeshes, shipModel, shipWakeSpec } from "./models";
+import { dashPieces } from "./dash";
+import { type Detail, type ModelRegistry, shipFile, shipMeshes, shipModel, shipWakeSpec } from "./models";
 import { ARROW_BRIGHT, ARROW_DIM, HAZE, SELECTION } from "./palette";
 import { ShipWake, type WakeShip } from "./wake";
 
@@ -38,6 +39,9 @@ export const SEA_LEVEL = TERRAIN_SEA_LEVEL;
 /** Ships slightly above the water at far LOD (drawn larger); at near/mid on the water. */
 const SHIP_Y_FAR = GROUND_TOP + 0.05;
 const SHIP_Y = 0;
+/** The draft ribbon's dashes and gaps, in ribbon widths. */
+const DRAFT_DASH = 8;
+const DRAFT_GAP = 6;
 /** Ship instance scale at near/mid LOD and at far LOD (≥ 1.5×, so ships stay visible zoomed out). */
 export const SHIP_SCALE = 5;
 export const SHIP_SCALE_FAR = 4;
@@ -108,7 +112,8 @@ export class ArchipelagoLayer {
   private readonly sea: Sea;
   private readonly haze: Mesh;
   /** Ship instances per type, with the cargo attachment where the model has one; model: the voxel model (else the placeholder). */
-  private readonly ships = new Map<string, { inst: ColoredInstances; cargo: ColoredInstances | null; model: boolean }>();
+  /** Ship instances per type and detail (`type|full`, `type|lite`: the far LOD's lite hulls, V7); `path` is the hull file drawn (null: the placeholder). */
+  private readonly ships = new Map<string, { inst: ColoredInstances; cargo: ColoredInstances | null; model: boolean; path: string | null }>();
   private readonly arrows: ColoredInstances;
   private readonly routeLines = new Map<string, RouteLine>();
   private ring: Mesh;
@@ -315,14 +320,16 @@ export class ArchipelagoLayer {
       const pts = legs.flatMap((leg) => leg.slice(0, -1));
       if (pts.length < 2) continue;
       keep.add(l.key);
-      const geomKey = JSON.stringify([pts, width]);
+      // The editor's draft is dashed: not a route yet (legs without a known voyage are straight lines until it is saved).
+      const dashed = l.key === "draft";
+      const geomKey = JSON.stringify([pts, width, dashed]);
       let line = this.routeLines.get(l.key);
       if (!line || line.key !== geomKey) {
         line?.mesh.dispose();
         line?.material.dispose();
         const material = new StandardMaterial(l.key, this.scene);
         material.disableLighting = true;
-        const mesh = this.buildLine(l.key, pts, width);
+        const mesh = this.buildLine(l.key, pts, width, dashed);
         mesh.material = material;
         line = { mesh, material, key: geomKey, color: l.color };
         this.routeLines.set(l.key, line);
@@ -353,15 +360,16 @@ export class ArchipelagoLayer {
     this.arrows.commit();
   }
 
-  /** A closed polyline of flat quads (archipelago coordinates). */
-  private buildLine(name: string, pts: readonly ArchPoint[], width: number): Mesh {
+  /** A closed polyline of flat quads (archipelago coordinates); dashed: DRAFT_DASH × width on, DRAFT_GAP × width off. */
+  private buildLine(name: string, pts: readonly ArchPoint[], width: number, dashed = false): Mesh {
     const positions: number[] = [];
     const indices: number[] = [];
     const normals: number[] = [];
     const h = width / 2;
-    for (let i = 0; i < pts.length; i++) {
-      const a = pts[i] as ArchPoint;
-      const b = pts[(i + 1) % pts.length] as ArchPoint;
+    const segments: [ArchPoint, ArchPoint][] = dashed
+      ? dashPieces(pts, DRAFT_DASH * width, DRAFT_GAP * width)
+      : pts.map((a, i) => [a, pts[(i + 1) % pts.length] as ArchPoint]);
+    for (const [a, b] of segments) {
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const len = Math.hypot(dx, dy);
@@ -386,26 +394,35 @@ export class ArchipelagoLayer {
   }
 
   /**
-   * The instances of a ship type: the model (and its cargo attachment)
-   * once loaded, the placeholder before and without one — swapped on the
-   * first frame after the model arrives.
+   * The instances of a ship type at a detail level: the model (and its
+   * cargo attachment; none at lite) once loaded, the placeholder before and
+   * without one — swapped on the first frame after the model arrives. A
+   * lite set bridges with the full hull until the lite file has loaded.
    */
-  private shipInstances(type: string): { inst: ColoredInstances; cargo: ColoredInstances | null; model: boolean } {
-    let s = this.ships.get(type);
-    if (s?.model) return s;
-    const model = this.registry ? shipModel(this.registry, type) : null;
-    if (s && !model) return s;
+  private shipInstances(type: string, detail: Detail): { inst: ColoredInstances; cargo: ColoredInstances | null; model: boolean } {
+    const key = `${type}|${detail}`;
+    let s = this.ships.get(key);
+    const want = this.registry ? shipFile(this.registry, type, detail) : null;
+    if (s?.model && s.path === want?.path) return s;
+    // Bridged by the full hull: keep it until the wanted file is there (no rebuild per frame).
+    if (s?.model && want && this.registry && !this.registry.peek(want)) {
+      this.registry.request(want);
+      if (!this.registry.failed(want)) return s;
+    }
+    const model = this.registry ? shipModel(this.registry, type, detail) : null;
+    if (s && (!model || model.file.path === s.path)) return s;
     if (s) {
       s.inst.mesh.dispose(false, true);
       s.cargo?.mesh.dispose(false, true);
     }
+    const name = detail === "lite" ? `ships_lite_${type}` : `ships_${type}`;
     if (model) {
-      const m = shipMeshes(this.scene, `ships_${type}`, model);
-      s = { inst: new ColoredInstances(m.hull), cargo: m.cargo ? new ColoredInstances(m.cargo) : null, model: true };
+      const m = shipMeshes(this.scene, name, model);
+      s = { inst: new ColoredInstances(m.hull), cargo: m.cargo ? new ColoredInstances(m.cargo) : null, model: true, path: model.file.path };
     } else {
-      s = { inst: new ColoredInstances(shipTemplate(this.scene, `ships_${type}`)), cargo: null, model: false };
+      s = { inst: new ColoredInstances(shipTemplate(this.scene, name)), cargo: null, model: false, path: null };
     }
-    this.ships.set(type, s);
+    this.ships.set(key, s);
     return s;
   }
 
@@ -417,7 +434,7 @@ export class ArchipelagoLayer {
 
   /** Ship types drawn with the placeholder in the last frame. */
   shipPlaceholders(): string[] {
-    return [...this.ships.entries()].filter(([, s]) => !s.model && s.inst.size() > 0).map(([t]) => t);
+    return [...new Set([...this.ships.entries()].filter(([, s]) => !s.model && s.inst.size() > 0).map(([k]) => k.split("|")[0] as string))];
   }
 
   /** Width of the selection ring's tube (and of the highlighted route's ribbon), the same at every diameter. */
@@ -440,8 +457,11 @@ export class ArchipelagoLayer {
       if (!list) byType.set(s.type, (list = []));
       list.push(s);
     }
-    for (const [type, s] of this.ships) {
-      if (byType.has(type)) continue;
+    // Ships switch to their lite hulls with the buildings (display/lod.ts detailForLod).
+    const detail = detailForLod(this.lod);
+    for (const [key, s] of this.ships) {
+      const [type, d] = key.split("|");
+      if (d === detail && byType.has(type as string)) continue;
       s.inst.resize(0);
       s.cargo?.resize(0);
     }
@@ -458,9 +478,9 @@ export class ArchipelagoLayer {
     let blob = 0;
     this.wakeShips.length = 0;
     for (const [type, list] of byType) {
-      const { inst, cargo, model } = this.shipInstances(type);
+      const { inst, cargo, model } = this.shipInstances(type, detail);
       const scale = baseScale * this.lengthRatio(type);
-      const wakeSpec = shipWakeSpec(this.registry, type) ?? { stern: 0.42, beam: 0.18 };
+      const wakeSpec = shipWakeSpec(this.registry, type) ?? { stern: 0.42, width: 0.36 };
       // A model's origin is its waterline (at the sea surface); the placeholder floats on y = SHIP_Y.
       const sy = model && this.lod !== "far" ? SEA_LEVEL : y;
       inst.resize(list.length);
@@ -482,7 +502,7 @@ export class ArchipelagoLayer {
         // Sails fill while under way (the sway shader's sentinel).
         if (sailing(s, p)) {
           inst.colors[i * 4 + 3] = SAILING_ALPHA;
-          if (p && this.bobbing && this.lod !== "far") this.wakeShips.push({ id: s.id, x: point.x, y: point.y, heading: p.heading, stern: wakeSpec.stern * scale, beam: wakeSpec.beam * scale, scale });
+          if (p && this.bobbing && this.lod !== "far") this.wakeShips.push({ id: s.id, x: point.x, y: point.y, heading: p.heading, stern: wakeSpec.stern * scale, width: wakeSpec.width * scale, scale });
         }
         // Crates on deck while carrying cargo, at the same matrix.
         if (cargo && s.cargo.length > 0) {

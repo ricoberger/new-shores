@@ -130,6 +130,10 @@ class CommittedTest(unittest.TestCase):
             entry = self.manifest["models"][cid]
             self.assertLessEqual(entry["file"]["triangles"], config.BUDGET_SHIPS[cid], cid)
             self.assertLessEqual(entry["attachments"]["cargo"]["triangles"], config.BUDGET_SHIP_CARGO, cid)
+            # The far LOD's lite ship (V7) within its budget; the cargo attachment has no lite file.
+            self.assertEqual(entry["file"]["lite"]["budget"], config.LITE_BUDGET_SHIPS[cid], cid)
+            self.assertLessEqual(entry["file"]["lite"]["triangles"], config.LITE_BUDGET_SHIPS[cid], cid)
+            self.assertNotIn("lite", entry["attachments"]["cargo"], cid)
         for cid, entry in self.manifest["decor"].items():
             for info in files_of(entry):
                 self.assertLessEqual(info["triangles"], config.BUDGET_DECOR, cid)
@@ -195,6 +199,9 @@ class CommittedTest(unittest.TestCase):
             ship = models[cid]["ship"]
             self.assertAlmostEqual(ship["length_tiles"], CONTENT["ships"][cid]["length_tiles"], places=6, msg=cid)
             self.assertIn("cargo", models[cid]["attachments"], cid)
+            # The wake leaves the stern (V7): narrower than the hull's widest point, wider than nothing.
+            self.assertGreater(ship["wake_width"], 0, cid)
+            self.assertLessEqual(ship["wake_width"], 2 * models[cid]["bounds"]["max"][2], cid)
 
 
 if __name__ == "__main__":

@@ -26,16 +26,17 @@ import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { CreateCylinder } from "@babylonjs/core/Meshes/Builders/cylinderBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
+import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
-import { type Detail, type ModelData, type ModelEntry, type ModelFile, type ModelRegistry, atDetail, lifeModel, modelFileFor, placement, worldData } from "./models";
+import { type Detail, type ModelData, type ModelEntry, type ModelFile, type ModelRegistry, atDetail, fileVpt, lifeModel, modelFileFor, placement, worldData } from "./models";
 import { rotatedFootprint } from "../display/geometry";
 import { buildingColor, DOOR, INACTIVE_TINT, PAUSED_TINT, roofColor, SELECTION } from "./palette";
 import { skyFill } from "./lighting";
-import { addJitter, LITE_VPT, MODEL_VPT } from "./jitter";
+import { addJitter, JIT_VPT_ATTRIBUTE, jitterGrid, LITE_VPT, MODEL_VPT } from "./jitter";
 import { addSway } from "./sway";
 import { ColoredInstances } from "./shipmesh";
 import { chunkAt, liteGroupOf } from "../display/chunks";
@@ -217,6 +218,33 @@ export function mergeItems(items: readonly { data: ModelData; cx: number; cy?: n
   out.colors = colors;
   out.indices = indices;
   return out;
+}
+
+/**
+ * The per-vertex voxel grid (jitter.ts JIT_VPT_ATTRIBUTE) of merged items
+ * in mergeItems order, or null when every item has the material's density
+ * (the material's uniform grid then serves, as before V7). Each vertex gets
+ * its copy's origin fraction and its model's voxels per tile.
+ */
+export function voxelGrid(items: readonly { data: ModelData; cx: number; cy?: number; cz: number; vpt?: number }[], materialVpt: number): Uint8Array | null {
+  if (items.every((it) => (it.vpt ?? materialVpt) === materialVpt)) return null;
+  let nv = 0;
+  for (const it of items) nv += it.data.positions.length / 3;
+  const out = new Uint8Array(nv * 4);
+  let v = 0;
+  for (const it of items) {
+    const g = jitterGrid(it.cx, it.cy ?? 0, it.cz, it.vpt ?? materialVpt);
+    const n = it.data.positions.length / 3;
+    for (let i = 0; i < n; i++) out.set(g, (v + i) * 4);
+    v += n;
+  }
+  return out;
+}
+
+/** Sets a mesh's per-vertex voxel grid (voxelGrid; null: none). */
+export function applyVoxelGrid(mesh: Mesh, grid: Uint8Array | null): void {
+  if (!grid) return;
+  mesh.setVerticesBuffer(new VertexBuffer(mesh.getEngine(), grid, JIT_VPT_ATTRIBUTE, { updatable: false, stride: 4, size: 4, type: VertexBuffer.UNSIGNED_BYTE, normalized: true }));
 }
 
 /** Rise-in scale at progress t (0..1): ease-out with a slight overshoot. */
@@ -495,14 +523,16 @@ export class BuildingLayer {
       const old = chunks.get(key);
       if (old?.key === sig) continue;
       old?.mesh?.dispose();
-      const data = mergeItems(
-        items.map((it) => {
-          const p = placement(it.entry, it.def, it.b);
-          return { data: it.data, cx: p.cx, cy: this.baseOf(it.b, it.def), cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b, this.tinted) };
-        }),
-      );
-      const mesh = new Mesh(`${material === this.liteMaterial ? "models_lite" : "models"}_${key}`, this.scene);
+      const placed = items.map((it) => {
+        const p = placement(it.entry, it.def, it.b);
+        return { data: it.data, cx: p.cx, cy: this.baseOf(it.b, it.def), cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b, this.tinted), vpt: fileVpt(it.entry, it.file) };
+      });
+      const data = mergeItems(placed);
+      const lite = material === this.liteMaterial;
+      const mesh = new Mesh(`${lite ? "models_lite" : "models"}_${key}`, this.scene);
       data.applyToMesh(mesh);
+      // Models at another density than the material's (V7 VOXELS_PER_TILE) carry their voxel grid per vertex.
+      applyVoxelGrid(mesh, voxelGrid(placed, lite ? LITE_VPT : MODEL_VPT));
       // The field models' share of the chunk (the per-layer stats, GameRenderer.activeLayers).
       const fieldTris = items.reduce((n, it) => n + (it.def.field ? it.data.indices.length / 3 : 0), 0);
       if (fieldTris > 0) mesh.metadata = { fieldTris };
@@ -561,8 +591,12 @@ export class BuildingLayer {
       let inst = this.risingMeshes.get(path);
       if (!inst) {
         const mesh = new Mesh(`rising_${path}`, this.scene);
-        mergeItems([{ data: (items[0] as Item).data, cx: 0, cz: 0, yaw: 0, sx: 1, sz: 1, tint: WHITE }]).applyToMesh(mesh);
-        mesh.material = path.includes(".lite.") ? this.liteMaterial : this.material;
+        const first = items[0] as Item;
+        const one = [{ data: first.data, cx: 0, cz: 0, yaw: 0, sx: 1, sz: 1, tint: WHITE, vpt: fileVpt(first.entry, first.file) }];
+        mergeItems(one).applyToMesh(mesh);
+        const lite = path.includes(".lite.");
+        applyVoxelGrid(mesh, voxelGrid(one, lite ? LITE_VPT : MODEL_VPT));
+        mesh.material = lite ? this.liteMaterial : this.material;
         mesh.parent = this.parent;
         mesh.isPickable = false;
         mesh.alwaysSelectAsActiveMesh = true;

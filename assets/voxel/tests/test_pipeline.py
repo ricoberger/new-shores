@@ -138,6 +138,162 @@ class WaterAnchorsTest(unittest.TestCase):
                     self.assertEqual(model.required_anchors(definitions, "test"), expected)
 
 
+def solid_tile_high(ctx):
+    """The whole footprint one tile high, at the recipe's density (ctx.vpt voxels per tile)."""
+    v = ctx.vox()
+    m = grid.mat("plaster")
+    for x in range(ctx.W):
+        for y in range(ctx.D):
+            for z in range(ctx.vpt):
+                v.set(x, y, z, m)
+    v.anchors["door"] = (ctx.W / 2, ctx.D, 0)
+    return v
+
+
+class VoxelsPerTileTest(unittest.TestCase):
+    """V7: a recipe may declare VOXELS_PER_TILE (8, 12 or 16); the output stays in tile units, the lite at 2 per tile."""
+
+    def test_a_recipe_at_16_round_trips_in_tile_units(self):
+        w, h = content_mod.footprint(CONTENT, "chapel")
+        for vpt in config.ALLOWED_VOXELS_PER_TILE:
+            with self.subTest(vpt=vpt):
+                files, entry, problems = model.build_id("chapel", "building", {"build": solid_tile_high, "scale": vpt}, CONTENT)
+                self.assertEqual(problems, [])
+                self.assertEqual(entry["voxels_per_tile"], vpt)
+                # The grid is the footprint at vpt voxels per tile.
+                v = files[0][3]
+                self.assertEqual((v.w, v.d), (w * vpt, h * vpt))
+                # Bounds in tiles (glTF: x, y up, z), whatever the density: a w × 1 × h box at the origin.
+                expected = {"min": [-w / 2, 0.0, -h / 2], "max": [w / 2, 1.0, h / 2]}
+                self.assertEqual(entry["bounds"], expected)
+                self.assertEqual(entry["file"]["bounds"], expected)
+                self.assertEqual(entry["file"]["lite"]["bounds"], expected)
+                # A box is 10 triangles at any density (greedy quads, no face toward the ground); the GLB's node scale is one voxel.
+                self.assertEqual(entry["file"]["triangles"], 10)
+                self.assertEqual(entry["file"]["lite"]["triangles"], 10)
+                doc, _ = glb.read(files[0][1])
+                self.assertAlmostEqual(glb.node_scale(doc), 1 / vpt, places=6)
+                lite = next(f for f in files if f[0].endswith(".lite.glb"))
+                doc, _ = glb.read(lite[1])
+                self.assertAlmostEqual(glb.node_scale(doc), 1 / config.LITE_VOXELS_PER_TILE, places=6)
+                # The door anchor (front centre, +y in recipe space: glTF −z) in tiles.
+                self.assertEqual(entry["anchors"]["door"], [0.0, 0.0, -h / 2])
+                # Budgets are per footprint tile, not per voxel.
+                self.assertEqual(entry["file"]["budget"], config.BUDGET_PER_TILE["building"] * w * h)
+
+    def test_the_lite_level_is_two_voxels_per_tile_at_every_density(self):
+        for vpt in config.ALLOWED_VOXELS_PER_TILE:
+            self.assertEqual(vpt // model.lite_factor(vpt), config.LITE_VOXELS_PER_TILE)
+        self.assertEqual(model.lite_factor(config.VOXELS_PER_TILE), config.LITE_DOWNSAMPLE)
+
+    def test_a_density_outside_the_allowed_list_fails_the_build(self):
+        _, _, problems = model.build_id("chapel", "building", {"build": solid_tile_high, "scale": 10}, CONTENT)
+        self.assertTrue(any("10 voxels per tile" in p for p in problems), problems)
+
+    def test_recipe_modules_read_voxels_per_tile(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, "fine.py"), "w", encoding="utf-8") as f:
+                f.write("VOXELS_PER_TILE = 16\n\ndef build(ctx):\n    return ctx.vox()\n")
+            with open(os.path.join(d, "plain.py"), "w", encoding="utf-8") as f:
+                f.write("def build(ctx):\n    return ctx.vox()\n")
+            recipes = model.recipe_modules(d)
+        self.assertEqual(recipes["fine"]["scale"], 16)
+        self.assertEqual(recipes["plain"]["scale"], config.VOXELS_PER_TILE)
+
+    def test_every_committed_model_entry_carries_its_density(self):
+        import json
+
+        with open(os.path.join(config.MODELS_DIR, "manifest.json"), encoding="utf-8") as f:
+            manifest = json.load(f)
+        recipes = model.recipe_modules()
+        for cid, entry in manifest["models"].items():
+            want = recipes[cid].get("scale", config.VOXELS_PER_TILE) if cid in recipes else config.VOXELS_PER_TILE
+            self.assertEqual(entry["voxels_per_tile"], want, cid)
+            if entry["kind"] != "ship":
+                self.assertIn(entry["voxels_per_tile"], config.ALLOWED_VOXELS_PER_TILE, cid)
+
+
+class ShipLiteTest(unittest.TestCase):
+    """V7: every ship has a lite model for the far LOD — hull, masts and sails at 5 voxels per tile, the same length and anchors."""
+
+    def test_every_ship_has_a_lite_model_within_its_budget_and_the_full_length(self):
+        recipes = model.recipe_modules()
+        for cid in config.MODEL_SHIPS:
+            with self.subTest(cid=cid):
+                files, entry, problems = model.build_id(cid, "ship", recipes[cid], CONTENT)
+                self.assertEqual(problems, [])
+                lite = entry["file"]["lite"]
+                self.assertTrue(lite["path"].endswith(".lite.glb"))
+                self.assertEqual(lite["budget"], config.LITE_BUDGET_SHIPS[cid])
+                self.assertLessEqual(lite["triangles"], lite["budget"])
+                self.assertLess(lite["triangles"], entry["file"]["triangles"] / 5)
+                # Hull length at the waterline (glTF x) within one lite voxel of the full model's, bowsprit included.
+                vox = config.SHIP_LITE_DOWNSAMPLE / recipes[cid]["scale"]
+                full = entry["file"]["bounds"]
+                for i in (0, 2):
+                    self.assertAlmostEqual(lite["bounds"]["min"][i], full["min"][i], delta=vox + 1e-6)
+                    self.assertAlmostEqual(lite["bounds"]["max"][i], full["max"][i], delta=2 * vox + 1e-6)
+                # Masts and sails rise well above the hull (a silhouette, not a hull only).
+                self.assertGreater(lite["bounds"]["max"][1], 0.6 * full["max"][1])
+                self.assertLessEqual(lite["bounds"]["min"][1], 0.0)
+                # The entry's anchors (wake, status) serve both files; the cargo attachment has no lite file.
+                self.assertIn("wake", entry["anchors"])
+                self.assertNotIn("lite", entry["attachments"]["cargo"])
+                # The lite grid: sails (sway group sail), timber and the hull's trim band.
+                grid_ = recipes[cid]["lite"](files[0][4])
+                roles = {m[0] for m in grid_.cells.values()}
+                self.assertIn("canvas", roles)
+                self.assertIn("timber", roles)
+                self.assertIn("sail", {m[2] for m in grid_.cells.values() if len(m) > 2})
+
+    def test_the_wake_width_is_the_stern_beam_or_declared(self):
+        recipes = model.recipe_modules()
+        for cid, half in (("sloop", 8), ("brig", 10), ("galleon", 12)):
+            _, entry, _ = model.build_id(cid, "ship", recipes[cid], CONTENT)
+            # The stern transom is one voxel narrower than the half-beam to each side (_ships.half_beam).
+            self.assertAlmostEqual(entry["ship"]["wake_width"], 2 * (half - 1) / recipes[cid]["scale"], places=6)
+            self.assertLess(entry["ship"]["wake_width"], 2 * entry["bounds"]["max"][2] + 1e-6)
+        declared = dict(recipes["sloop"], ship=dict(recipes["sloop"]["ship"], wake_width=0.5))
+        _, entry, _ = model.build_id("sloop", "ship", declared, CONTENT)
+        self.assertEqual(entry["ship"]["wake_width"], 0.5)
+
+    def test_a_lite_ship_over_its_budget_fails_the_build(self):
+        recipes = model.recipe_modules()
+
+        def dense(ctx):
+            v = ctx.vox(0, 0)
+            for x in range(-20, 20):
+                for y in range(-6, 6):
+                    for z in range(0, 8):
+                        if (x + y + z) % 2 == 0:
+                            v.set(x, y, z, grid.mat("timber"))
+            return v
+
+        _, _, problems = model.build_id("sloop", "ship", dict(recipes["sloop"], lite=dense), CONTENT)
+        self.assertTrue(any(".lite.glb" in p and "over the lite budget" in p for p in problems), problems)
+
+
+class SheetTurnTest(unittest.TestCase):
+    """make model-sheet ROTATION=n: the sheet's camera turns by quarter turns (2: the backs, V7 step 5)."""
+
+    def test_a_half_turn_shows_another_view_and_a_full_turn_the_same(self):
+        import tempfile
+
+        build._init()
+        with tempfile.TemporaryDirectory() as d:
+            out = {}
+            for turn in (0, 2, 4):
+                path = os.path.join(d, f"t{turn}.png")
+                build.write_sheet(path, ["well"] if "well" in build._RECIPES else ["sloop"], cell=48, turn=turn)
+                with open(path, "rb") as f:
+                    out[turn] = f.read()
+            self.assertNotEqual(out[0], out[2])
+            self.assertEqual(out[0], out[4])
+        self.assertEqual(build.parse(["--only", "chapel", "--sheet", "x.png", "--turn", "2"]).turn, 2)
+
+
 class PlaceholderTest(unittest.TestCase):
     #: One ID per footprint kind: water rows with a boat, smoke, levels with berths, slipway, house variants, field, pasture module with animals, service.
     SAMPLES = ("fisher", "smelter", "trading_post", "shipyard", "house_settlers", "wheat_field", "pasture", "chapel", "warehouse")

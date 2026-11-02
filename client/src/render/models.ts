@@ -28,7 +28,7 @@ import "@babylonjs/loaders/glTF/2.0/glTFLoader";
 import "@babylonjs/loaders/glTF/2.0/Extensions/KHR_mesh_quantization";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
-import { addJitter, MODEL_VPT } from "./jitter";
+import { addJitter, LITE_VPT, MODEL_VPT } from "./jitter";
 import { skyFill } from "./lighting";
 import { addSway } from "./sway";
 
@@ -58,7 +58,10 @@ export interface ModelEntry {
     string,
     [number, number, number] | undefined
   >;
-  ship?: { length_tiles: number; masts: number; sail_scale: number };
+  /** Ship block; `wake_width` (V7): the wake's width at the stern in model tiles (the stern beam, or the recipe's). */
+  ship?: { length_tiles: number; masts: number; sail_scale: number; wake_width?: number };
+  /** Voxels per tile of the full model (a recipe's VOXELS_PER_TILE, V7: 8, 12 or 16; ships their own scale); absent: the manifest's default. Lite files are 2 per tile. */
+  voxels_per_tile?: number;
 }
 
 /** Manifest decoration entry (trees, bushes, rocks, tufts, stumps, outcrops; IDs decor_*). */
@@ -81,7 +84,7 @@ export interface LifeEntry {
 export interface ModelManifest {
   version: number;
   palette_sha256: string;
-  /** Voxels per tile of the full building models (assets/voxel). */
+  /** Voxels per tile of the full building models by default (assets/voxel); an entry may carry its own. */
   voxels_per_tile: number;
   /** Content IDs whose model is the build's automatic placeholder (no recipe yet). */
   placeholders: string[];
@@ -144,6 +147,16 @@ export function modelFileFor(entry: ModelEntry, b: Pick<BuildingDisplay, "id" | 
 /** The file to draw at a detail level (the lite file when asked for and present). */
 export function atDetail(file: ModelFile, detail: Detail): ModelFile {
   return detail === "lite" && file.lite ? file.lite : file;
+}
+
+/** Voxels per tile of a model entry's full files (the entry's own value, else the manifest default MODEL_VPT). */
+export function entryVpt(entry: Pick<ModelEntry, "voxels_per_tile">): number {
+  return entry.voxels_per_tile ?? MODEL_VPT;
+}
+
+/** Voxels per tile of a drawn file of an entry: LITE_VPT for its lite files, else the entry's density. */
+export function fileVpt(entry: Pick<ModelEntry, "voxels_per_tile">, file: Pick<ModelFile, "path">): number {
+  return file.path.endsWith(".lite.glb") ? LITE_VPT : entryVpt(entry);
 }
 
 /** Cache-busting URL of a model file: /models/<path>?v=<first 8 hex of its sha256>. */
@@ -339,21 +352,50 @@ export function modelMesh(scene: Scene, name: string, data: ModelData, material?
   return mesh;
 }
 
+/** The hull file of a ship type at a detail level: its lite file at "lite" (V7, far LOD) unless that one failed, else the full file; null without a model. */
+export function shipFile(registry: ModelRegistry, type: string, detail: Detail = "full"): ModelFile | null {
+  const entry = registry.entry(type);
+  if (!entry || entry.kind !== "ship" || !entry.file) return null;
+  const want = atDetail(entry.file, detail);
+  return want !== entry.file && registry.failed(want) ? entry.file : want;
+}
+
+/** Triangles one ship of an entry draws at far LOD: its lite hull (V7, no cargo there), else the full hull (0 without a model). */
+export function shipFarTriangles(entry: ModelEntry | undefined): number {
+  const f = entry?.file;
+  return f ? (f.lite ?? f).triangles : 0;
+}
+
+/** Draw calls of one ship type at far LOD: the lite hull alone, else hull and cargo attachment. */
+export function shipFarDraws(entry: ModelEntry | undefined): number {
+  return entry?.file?.lite ? 1 : 2;
+}
+
 /**
  * The loaded model of a ship type in world orientation, scaled to unit
  * length (the ship layers scale instances like the placeholder), with its
  * cargo attachment; null while loading or without a model (requests the
- * files). A failed cargo attachment leaves the hull without crates.
+ * files). A failed cargo attachment leaves the hull without crates. At
+ * the lite detail (far LOD) the lite hull without cargo (V7); while it
+ * loads, the full hull bridges if it is already loaded. `file` is the
+ * hull file actually used.
  */
-export function shipModel(registry: ModelRegistry, type: string): { hull: ModelData; cargo: ModelData | null } | null {
+export function shipModel(registry: ModelRegistry, type: string, detail: Detail = "full"): { hull: ModelData; cargo: ModelData | null; file: ModelFile } | null {
   const entry = registry.entry(type);
-  if (!entry || entry.kind !== "ship" || !entry.file) return null;
+  const file = shipFile(registry, type, detail);
+  if (!entry?.file || !file) return null;
   const length = entry.ship?.length_tiles ?? 1;
+  if (file !== entry.file) {
+    const lite = registry.request(file);
+    if (lite) return { hull: worldData("ship", lite, 1 / length), cargo: null, file };
+    const full = registry.peek(entry.file);
+    return full ? { hull: worldData("ship", full, 1 / length), cargo: null, file: entry.file } : null;
+  }
   const hull = registry.request(entry.file);
   const cargoFile = entry.attachments?.cargo;
   const cargo = cargoFile ? registry.request(cargoFile) : null;
   if (!hull || (cargoFile && !cargo && !registry.failed(cargoFile))) return null;
-  return { hull: worldData("ship", hull, 1 / length), cargo: cargo ? worldData("ship", cargo, 1 / length) : null };
+  return { hull: worldData("ship", hull, 1 / length), cargo: cargo ? worldData("ship", cargo, 1 / length) : null, file };
 }
 
 /**
@@ -397,16 +439,17 @@ export function lifeAnchor(registry: ModelRegistry | null, id: string, name: str
 /**
  * Where a ship's wake starts and how wide it is, per unit of hull length
  * (the ship layers scale the instance by length): the distance from the
- * origin back to the manifest's `wake` anchor (the stern) and the hull's
- * half-beam from its bounds. Null without the entry or the anchor.
+ * origin back to the manifest's `wake` anchor (the stern) and the wake's
+ * width there, the manifest's `ship.wake_width` (V7; without one the
+ * hull's full width from its bounds). Null without the entry or the anchor.
  */
-export function shipWakeSpec(registry: ModelRegistry | null, type: string): { stern: number; beam: number } | null {
+export function shipWakeSpec(registry: ModelRegistry | null, type: string): { stern: number; width: number } | null {
   const entry = registry?.entry(type);
   const a = entry?.anchors["wake"];
   if (!entry || entry.kind !== "ship" || !a) return null;
   const length = entry.ship?.length_tiles ?? 1;
-  const beam = Math.max(-entry.bounds.min[2], entry.bounds.max[2]);
-  return { stern: Math.abs(a[0]) / length, beam: beam / length };
+  const width = entry.ship?.wake_width ?? 2 * Math.max(-entry.bounds.min[2], entry.bounds.max[2]);
+  return { stern: Math.abs(a[0]) / length, width: width / length };
 }
 
 /** Meshes of a ship model (thin-instanced by the caller; always active, the instances move). */
