@@ -90,8 +90,8 @@ export function groundTiles(
  * Paints the yards into the field's top colours (after the roads and the
  * fields): paved yards cobbles, dirt yards packed earth with stones whose
  * edge toward a non-yard column frays into the ground, sand and planks.
- * Only columns on their tile's flat ground whose colour is still the base's
- * (no road, no field) take the paint.
+ * Only columns on their tile's flat ground and off the roads take the
+ * paint (a road's worn edge does: the yard is the ground there).
  */
 export function paintYards(f: Field, base: PaintBase, yards: readonly YardTile[], seed: number): void {
   const vpt = TERRAIN_VPT;
@@ -107,7 +107,7 @@ export function paintYards(f: Field, base: PaintBase, yards: readonly YardTile[]
         if (i < 0 || j < 0 || i >= f.nx || j >= f.ny) continue;
         const k = j * f.nx + i;
         const fl = f.flat ? (f.flat[k] as number) : 0;
-        if ((f.h[k] as number) !== fl || (base.h[k] as number) !== fl || f.top[k] !== base.top[k]) continue;
+        if ((f.h[k] as number) !== fl || (base.h[k] as number) !== fl || f.road?.[k]) continue;
         const r = hash2(i, j, seed + 81);
         switch (t.kind) {
           case "paved":

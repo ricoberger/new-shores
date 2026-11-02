@@ -1,23 +1,26 @@
-// Roads as voxel paths in the terrain (D-057 V2; ART_DIRECTION §4), render
-// data only: the road tiles of an island painted into the near field —
-// a path two columns wide (half a tile) along the tile's centre with an
-// arm to every road neighbour, so corners, T-junctions and crossings are
-// unions of the same columns, sunk one voxel below the grass; a column
-// of worn edge on both sides, on the flat ground of the tile's terrace
-// level (render/terraces.ts); where a road tile meets a road neighbour one
-// level lower, the road climbs across the tile, one voxel per column (a
-// ramp cut into the terrace edge). River tiles carry bridges instead
-// (render/terraces.ts). Dirt roads are packed earth with jittered
-// stones; the paved road is cobbles in three shades with a kerb of light
-// stone. Quays (D-060) stand on the water: the whole tile is a stone
-// wharf deck at the level of the shore, its walls stone into the water
-// below; toward open water a timber fender runs along the edge, with an
-// iron bollard on it every third tile. Heights, side kinds and top
-// colours change; the island's terrain mesh and ground texture are
-// rebuilt from them (render/terrain.ts).
+// Roads as paint in the terrain (D-068, after D-057 V2; ART_DIRECTION §4),
+// render data only: the road tiles of an island painted into the near
+// field's top colours — a path two columns wide (half a tile) along the
+// tile's centre with an arm to every road neighbour, so corners,
+// T-junctions and crossings are unions of the same columns, flush with
+// the ground; a column of worn edge on both sides, on the flat ground of
+// the tile's terrace level (render/terraces.ts). Dirt roads are packed
+// earth with jittered stones; the paved road is cobbles in three shades
+// with a kerb colour (render/groundpaint.ts, shared with the yards; the
+// far view downsamples the same colours). The road changes no height but
+// where the terrace's road ramp climbs (render/terraces.ts IslandGround:
+// a road tile with a road neighbour one level lower rises across the
+// tile, one voxel per column). River tiles carry bridges instead
+// (render/terraces.ts). Quays (D-060) stand on the water: the whole tile
+// is a stone wharf deck at the level of the shore, its walls stone into
+// the water below; toward open water a timber fender runs along the
+// edge, with an iron bollard on it every third tile. The island's terrain
+// mesh (ramps and quays) and ground texture are rebuilt from the result
+// (render/terrain.ts).
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { hash2 } from "../display/noise";
 import { ISLAND, TERRAIN } from "../theme/palette";
+import { cobbleTop, DIRT, dirtTop, KERB, mixTop, STONE, STONE_DARK } from "./groundpaint";
 import { c3 } from "./palette";
 import type { RoadTile } from "./roads";
 import { LEVEL_STEPS } from "./terraces";
@@ -31,14 +34,6 @@ const RAMP_DIRS = [
   [0, -1],
 ] as const;
 
-/** Height of a road column (steps): one voxel below the grass. */
-export const ROAD_H = -1;
-
-const DIRT = c3(TERRAIN.road_dirt);
-const PAVED = c3(TERRAIN.road_paved);
-const KERB = c3(TERRAIN.road_border);
-const STONE = c3(ISLAND.rock_light);
-const STONE_DARK = c3(ISLAND.rock);
 const LUSH = c3(TERRAIN.grass_a).scale(0.92);
 const TIMBER = c3(TERRAIN.road_dirt).scale(0.55);
 const IRON = c3(ISLAND.rock).scale(0.45);
@@ -68,8 +63,9 @@ export function fieldBase(f: Field): FieldBase {
 
 /**
  * Paints the roads into the field (from its base: removed roads go back
- * to the ground). Returns the columns whose height changed (their meshes
- * need a rebuild; colour changes only touch the ground texture).
+ * to the ground). Returns the columns whose height changed — only road
+ * ramps and quays (their meshes need a rebuild; colour changes only
+ * touch the ground texture).
  */
 export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[], seed: number): number[] {
   const vpt = TERRAIN_VPT;
@@ -104,12 +100,6 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
     if (has(t.x - 1, t.y)) for (let a = 0; a < lo; a++) for (let b = lo; b <= hi; b++) put(a, b);
     if (has(t.x + 1, t.y)) for (let a = hi + 1; a < vpt; a++) for (let b = lo; b <= hi; b++) put(a, b);
   }
-  const mix = (p: number, c: Color3, t: number) => {
-    const r = ((p >> 16) & 255) / 255;
-    const g = ((p >> 8) & 255) / 255;
-    const b = (p & 255) / 255;
-    return pack({ r: r + (c.r - r) * t, g: g + (c.g - g) * t, b: b + (c.b - b) * t });
-  };
   const flat = (k: number) => (f.flat ? (f.flat[k] as number) : 0);
   // A tile's level (steps) from the flat ground of its first column (-1 off the field).
   const level = (x: number, y: number) => (x < 0 || y < 0 || x * vpt >= nx || y * vpt >= ny ? -1 : flat(y * vpt * nx + x * vpt));
@@ -128,6 +118,8 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   };
   const ramps = new Map<string, readonly [number, number] | null>();
   const painted = new Set<number>();
+  if (!f.road || f.road.length !== nx * ny) f.road = new Uint8Array(nx * ny);
+  else f.road.fill(0);
   for (const [k, kind] of road) {
     const i = k % nx;
     const j = (k - i) / nx;
@@ -149,17 +141,11 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
       // The flat ground of the tile's level, or down a terrace's own ramp (never the beach or a rim at level 0).
       h = bh;
     } else continue;
-    f.h[k] = h + ROAD_H;
+    f.h[k] = h;
+    f.road[k] = kind;
     painted.add(k);
     const r = hash2(i, j, seed + 61);
-    if (kind === 2) {
-      // Cobbles: three shades, a dark joint now and then.
-      const shade = r < 0.33 ? 0.88 : r < 0.66 ? 0.97 : 1.05;
-      f.top[k] = pack(r > 0.95 ? STONE_DARK.scale(0.9) : PAVED.scale(shade));
-    } else {
-      // Packed earth with stones.
-      f.top[k] = pack(r < 0.05 ? STONE_DARK : r < 0.13 ? STONE : DIRT.scale(0.93 + 0.1 * hash2(i, j, seed + 62)));
-    }
+    f.top[k] = kind === 2 ? cobbleTop(r) : dirtTop(r, hash2(i, j, seed + 62));
   }
   // Quays: a stone deck over the whole tile, a timber fender along the edges toward open water, a bollard every third tile.
   const quays = tiles.filter(isQuayTile);
@@ -185,6 +171,7 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
         const mid = (edges.n && b === 0 && a === lo) || (!edges.n && edges.e && a === vpt - 1 && b === lo) || (!edges.n && !edges.e && edges.s && b === vpt - 1 && a === hi) || (!edges.n && !edges.e && !edges.s && edges.w && a === 0 && b === hi);
         f.h[k] = bollard && mid ? BOLLARD_H : QUAY_H;
         (f.kind as Uint8Array)[k] = SIDE_ROCK;
+        f.road[k] = 3;
         painted.add(k);
         const r = hash2(i, j, seed + 64);
         if (bollard && mid) f.top[k] = pack(IRON);
@@ -214,8 +201,8 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
       const q = b * nx + a;
       if (road.has(q) || (base.h[q] as number) !== flat(q) || f.top[q] !== base.top[q]) continue;
       const w = hash2(a, b, seed + 63);
-      if (kind === 2) f.top[q] = w < 0.75 ? pack(KERB.scale(0.95 + 0.08 * w)) : mix(base.top[q] as number, KERB, 0.5);
-      else if (w < 0.85) f.top[q] = mix(base.top[q] as number, DIRT, 0.5 + 0.4 * w);
+      if (kind === 2) f.top[q] = w < 0.75 ? pack(KERB.scale(0.95 + 0.08 * w)) : mixTop(base.top[q] as number, KERB, 0.5);
+      else if (w < 0.85) f.top[q] = mixTop(base.top[q] as number, DIRT, 0.5 + 0.4 * w);
     }
   }
   const changed: number[] = [];
@@ -245,8 +232,8 @@ export function fieldGround(type: string): "furrows" | "pasture" | "orchard" | "
  * the field models stand on it, D-068): crop fields are ploughed soil in
  * furrows along the tile's x, pastures a lusher grass, orchards grass mown
  * in rows, meadows and tree plots the terrain's grass. The whole footprint
- * (`w` × `h` from the anchor, 1 × 1 without). Road and lowered columns
- * keep their colour.
+ * (`w` × `h` from the anchor, 1 × 1 without). Road columns and columns
+ * off the tile's flat ground keep their colour.
  */
 export function paintFields(f: Field, base: FieldBase, fields: readonly FieldTile[], seed: number): void {
   const vpt = TERRAIN_VPT;
@@ -260,7 +247,7 @@ export function paintFields(f: Field, base: FieldBase, fields: readonly FieldTil
         if (i < 0 || j < 0 || i >= f.nx || j >= f.ny) continue;
         const k = j * f.nx + i;
         const fl = f.flat ? (f.flat[k] as number) : 0;
-        if ((f.h[k] as number) !== fl || (base.h[k] as number) !== fl) continue;
+        if ((f.h[k] as number) !== fl || (base.h[k] as number) !== fl || f.road?.[k]) continue;
         const r = hash2(i, j, seed + 71);
         const p = base.top[k] as number;
         const grass = new Color3(((p >> 16) & 255) / 255, ((p >> 8) & 255) / 255, (p & 255) / 255);

@@ -149,7 +149,7 @@ describe("per-island merged-layer rebuilds", () => {
 describe("chunked static layers", () => {
   const road = (x: number, y: number) => ({ x, y, type: "road" }) as IslandDisplay["roads"][number];
 
-  it("rebuild exactly the chunks a change touches (also a road join across a chunk's edge)", () => {
+  it("rebuild exactly the chunks a change touches: a road moves trees, no terrain (flush paint, D-068)", () => {
     const w = world();
     w.show(w.islands);
     // The empty island: no roads or buildings yet; chunks of 32 tiles.
@@ -159,14 +159,15 @@ describe("chunked static layers", () => {
     // A forest tile well inside the chunk right of the seam: its trees give way to the road.
     const one = next(w.islands, (is) => is.id === EMPTY && is.roads.push(road(sm.forest.x, sm.forest.y)));
     w.show(one);
-    expect(d.chunkRebuilds.roads).toEqual([sm.right]);
+    expect(d.rebuilds.roads).toBe(2);
+    expect(d.chunkRebuilds.roads).toEqual([]);
     expect(d.chunkRebuilds.decoration).toEqual([sm.right]);
-    // A road at x 31 next to one at x 32: the tile across the edge gains its arm, so both chunks rebuild.
+    // A road join across the chunk edge changes no height either: only the ground texture.
     const two = next(one, (is) => is.id === EMPTY && is.roads.push(road(sm.x, sm.y)));
     w.show(two);
-    expect(d.chunkRebuilds.roads).toEqual([sm.right]);
     w.show(next(two, (is) => is.id === EMPTY && is.roads.push(road(sm.x - 1, sm.y))));
-    expect([...d.chunkRebuilds.roads].sort()).toEqual([sm.left, sm.right].sort());
+    expect(d.rebuilds.roads).toBe(4);
+    expect(d.chunkRebuilds.roads).toEqual([]);
     // Other islands rebuilt nothing.
     expect(w.details.get("isle-13")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 1 });
   });
@@ -339,11 +340,11 @@ describe("incremental build (display/buildqueue.ts)", () => {
     // Built with the payload: a change afterwards rebuilds only the chunks it touches.
     expect(d.builtWith(is, sync.defs)).toBe(true);
     const moved = structuredClone(is);
-    // A road on a grass tile well inside a chunk (roads sink into the ground, never the beach).
+    // A road on a grass tile well inside a chunk: painted flush (D-068), no chunk mesh rebuilds.
     const tile = seam(st).grass;
     moved.roads.push({ ...tile, type: "road" } as IslandDisplay["roads"][number]);
     d.update(moved, sync.defs);
-    expect(d.chunkRebuilds.roads).toEqual([seam(st).right]);
+    expect(d.chunkRebuilds.roads).toEqual([]);
     expect(d.rebuilds.roads).toBe(2);
     steps.dispose();
   });

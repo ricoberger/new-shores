@@ -23,8 +23,8 @@ import { BERTH_ANCHORS, type ModelAnchor, pierHeading, pierPoint } from "./ships
 export const CART_CAPACITY = 1000;
 export const MAX_CARTS = 3;
 
-/** Road surface height: one voxel below the grass (render/roadvoxels.ts ROAD_H, steps of 1/8 tile). */
-const ROAD_H = -0.125;
+/** Road surface height above the ground: the road is painted, flush with it (D-068; ramps and bridges are IslandGround's). */
+const ROAD_H = 0;
 /** Wheel pivots of the cart models (assets/voxel/recipes/_life.py wheel anchors, tiles: ahead of the centre, height). */
 export const WHEEL_AHEAD = 0.15;
 export const WHEEL_HEIGHT = 0.0969;
