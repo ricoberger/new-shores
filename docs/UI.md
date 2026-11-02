@@ -233,6 +233,7 @@ UI shows the same numbers the server uses.
   the Harbour tab, water-edge like the Trading Post (quays count as
   coast; their ghost shows the free shallows tint with the quay tool).
 - Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the radius ring is not implemented.
+- Producers and collectors: selecting a producer tints the Warehouse or Trading Post it delivers to (`assigned_warehouse_id`) green, selecting a Warehouse or Trading Post tints every producer delivering to it, not their fields (`client/src/display/served.ts`, the same selection tint).
 - Confirm on click/tap; the server validates and responds; the ghost becomes
   the building when the response arrives (round-trip ≈ 100 ms; show a brief
   "building" animation regardless).

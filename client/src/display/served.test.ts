@@ -22,4 +22,19 @@ describe("servedRelated", () => {
   it("ignores other buildings", () => {
     expect(servedRelated(b(10), all, producer)).toEqual([]);
   });
+
+  it("links a producer with the Warehouse or Trading Post it delivers to, in both directions", () => {
+    const rates = { inputs: {}, outputs: {} };
+    const fisher = b(20, { assigned_warehouse_id: 30, rates });
+    const lumberjack = b(21, { assigned_warehouse_id: 30, rates });
+    const other = b(22, { assigned_warehouse_id: 31, rates });
+    const warehouse = b(30);
+    const everything = [fisher, lumberjack, other, warehouse, b(31), ...all];
+    expect(servedRelated(fisher, everything, producer)).toEqual([30]);
+    expect(servedRelated(warehouse, everything, producer)).toEqual([20, 21]);
+    expect(servedRelated(b(31), everything, producer)).toEqual([22]);
+    expect(servedRelated(b(32), everything, producer)).toEqual([]);
+    // 0 = not connected: nothing to show.
+    expect(servedRelated(b(23, { assigned_warehouse_id: 0, rates }), everything, producer)).toEqual([]);
+  });
 });
