@@ -9175,14 +9175,14 @@
     "paper_mill": {
       "anchors": {
         "cart": [
-          0.5,
+          -1.0,
           0.0,
-          -2.5
+          -2.6667
         ],
         "chimney": [
-          -1.4375,
-          2.25,
-          1.8125
+          1.25,
+          4.3333,
+          2.0833
         ],
         "door": [
           0.0,
@@ -9190,43 +9190,43 @@
           -3.0
         ],
         "smoke": [
-          -1.4375,
-          2.375,
-          1.8125
+          1.25,
+          4.4167,
+          2.0833
         ],
         "status": [
           0.0,
-          3.75,
+          4.5,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          3.5,
-          2.875
+          1.9167,
+          4.25,
+          3.0
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -2.375
+          -2.9167
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            3.5,
-            2.875
+            1.9167,
+            4.25,
+            3.0
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -2.375
+            -2.9167
           ]
         },
         "budget": 12000,
-        "bytes": 142628,
+        "bytes": 201492,
         "ground": [
           [
             "none",
@@ -9242,58 +9242,58 @@
           ],
           [
             "none",
+            "dirt",
+            "dirt",
+            "dirt"
+          ],
+          [
+            "none",
+            "dirt",
+            "dirt",
+            "dirt"
+          ],
+          [
+            "none",
+            "dirt",
+            "dirt",
+            "dirt"
+          ],
+          [
+            "none",
             "none",
             "none",
             "none"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
+              4.0,
               3.0
             ],
             "min": [
-              -2.0,
+              -1.5,
               0.0,
               -2.5
             ]
           },
           "budget": 960,
-          "bytes": 11896,
+          "bytes": 10708,
           "path": "paper_mill.lite.glb",
-          "sha256": "58ddb59bf535d8b1a97f894efbffad061ab8fb3b458166d515e11223276a9344",
-          "triangles": 320
+          "sha256": "d006a6804726b8fdeb5d15bf8fcc8b6dceb6ae987873790da96058962d94c486",
+          "triangles": 280
         },
         "path": "paper_mill.glb",
-        "sha256": "ac67db7414e041d8a3a32ae835d5f08ea8c7dbbe548d304a1fc66c771f7cd5b2",
-        "triangles": 4414
+        "sha256": "10abaefac3b34e692eb844bc4587a173c3cad27cb9aeefb08a968a0d3e8a1782",
+        "triangles": 6194
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "pastry_kitchen": {
       "anchors": {
