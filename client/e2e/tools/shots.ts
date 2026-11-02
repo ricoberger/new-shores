@@ -817,6 +817,40 @@ async function terraceEdgeSpot(page: Page, type: string, roadside: boolean): Pro
 }
 
 /** The ghost of a building across a terrace edge (stepped plinth), desktop near: "ok" (valid, beside a road), "no_road" (yellow) or "invalid" (red: the building's fertility or deposit is missing). */
+/** Opens the tier tab of the build menu that lists a building (the menu has one tab per tier). */
+async function openBuildTab(page: Page, type: string): Promise<void> {
+  for (const tab of await page.locator('button[data-testid^="build-tab-"]').all()) {
+    await tab.click();
+    if (await page.getByTestId(`build-${type}`).waitFor({ state: "visible", timeout: 800 }).then(() => true, () => false)) return;
+  }
+  throw new Error(`no build tab lists ${type}`);
+}
+
+/** A ghost of `type` three tiles beside the middle building of `near` (a type prefix) on the island with the most buildings. */
+function linkedGhost(type: string, fixture: Fixture, near: string): { fixture: Fixture; device: Device[]; run: (page: Page) => Promise<void> } {
+  return {
+    fixture,
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      const at = await page.evaluate((prefix) => {
+        const d = window.__newShores!.getServer()!.display;
+        const is = d.islands.reduce((a, b) => (b.buildings.length > a.buildings.length ? b : a));
+        const list = is.buildings.filter((x) => x.type.startsWith(prefix));
+        const b = list[Math.floor(list.length / 2)]!;
+        return { island: is.id, x: b.x + 3, y: b.y, ox: is.position.x, oy: is.position.y };
+      }, near);
+      await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half: 12, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await openBuildTab(page, type);
+      await page.getByTestId(`build-${type}`).click();
+      const p = await tileAt(page, at.island, at.x, at.y);
+      await page.mouse.move(p.x, p.y);
+      await page.waitForFunction(() => window.__newShores!.ghostValidity() !== null, undefined, { timeout: 10_000 });
+    },
+  };
+}
+
 function ghostTerrace(type: string, state: "ok" | "no_road" | "invalid"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
     fixture: "settled",
@@ -827,10 +861,7 @@ function ghostTerrace(type: string, state: "ok" | "no_road" | "invalid"): { fixt
       await settle(page);
       if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
       await page.getByTestId("build-menu").waitFor({ state: "visible" });
-      for (const tab of await page.locator('[data-testid^="build-tab-"]').all()) {
-        await tab.click();
-        if (await page.getByTestId(`build-${type}`).waitFor({ state: "visible", timeout: 800 }).then(() => true, () => false)) break;
-      }
+      await openBuildTab(page, type);
       await page.getByTestId(`build-${type}`).click();
       const p = await tileAt(page, s.island, s.x, s.y);
       await page.mouse.move(p.x + 4, p.y + 4);
@@ -840,7 +871,7 @@ function ghostTerrace(type: string, state: "ok" | "no_road" | "invalid"): { fixt
 }
 
 /** A water-edge building (the fisher, or the 4×11 depot of D-062) on a real diagonal coast: valid, one tile inland, one tile seaward. */
-function ghostWater(offset: -1 | 0 | 1, type = "fisher", tab = "production"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+function ghostWater(offset: -1 | 0 | 1, type = "fisher"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
     fixture: "settled",
     device: "desktop",
@@ -879,7 +910,7 @@ function ghostWater(offset: -1 | 0 | 1, type = "fisher", tab = "production"): { 
       await setCamera(page, { x: is.position.x + site.x + def.width / 2, y: is.position.y + site.y + def.height / 2, half: 10, rotation: 0 });
       await settle(page);
       if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
-      await page.getByTestId(`build-tab-${tab}`).click();
+      await openBuildTab(page, type);
       await page.getByTestId(`build-${type}`).click();
       const p = await tileAt(page, is.id, site.x, y);
       await page.mouse.move(p.x + 2, p.y + 2);
@@ -965,7 +996,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
     fixture: "merchants", device: "desktop",
     run: async (page) => {
       if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
-      await page.getByTestId("build-tab-public").click();
+      await openBuildTab(page, "playhouse");
       await page.getByTestId("build-playhouse").scrollIntoViewIfNeeded();
       await page.mouse.move(5, 400);
     },
@@ -1017,6 +1048,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
     device: "desktop",
     run: async (page) => {
       await selectBuilding(page, "warehouse", { x: 1, y: 1 }, HALF.near, { level: 1 });
+    },
+  },
+  // The warehouse card with its Producers section expanded (every assigned producer listed).
+  "warehouse-producers": {
+    fixture: "played",
+    device: "desktop",
+    run: async (page) => {
+      await selectBuilding(page, "warehouse", { x: 1, y: 1 }, HALF.near, { level: 1 });
+      await page.getByTestId("collector-producers").locator("summary").click();
     },
   },
   "service-card": {
@@ -1180,19 +1220,25 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half: 6, rotation: 0 });
       await settle(page);
       await page.getByTestId("dock-build").click();
-      await page.getByTestId("build-tab-production").click();
+      await openBuildTab(page, "quarry");
       await page.getByTestId("build-quarry").click();
       const p = await tileAt(page, "isle-01", at.x, at.y);
       await page.mouse.move(p.x, p.y);
       await page.waitForFunction(() => window.__newShores!.ghostValidity() === "invalid", undefined, { timeout: 10_000 });
     },
   },
+  // Placement ghosts that tint what they would be linked with (desktop and phone): the chapel the houses it serves, a house
+  // the services reaching it, a warehouse the producers, a sawmill the warehouses and Trading Post.
+  "ghost-service": linkedGhost("chapel", "settled", "house_"),
+  "ghost-house": linkedGhost("house_settlers", "played", "chapel"),
+  "ghost-warehouse": linkedGhost("warehouse", "played", "sawmill"),
+  "ghost-producer": linkedGhost("sawmill", "played", "trading_post"),
   "ghost-water-valid": ghostWater(0),
   "ghost-water-in": ghostWater(1),
   "ghost-water-out": ghostWater(-1),
   // The depot (4×11, water rows 7–9) on a real diagonal coast: valid, and one tile too far out (red tiles where a column has ten water tiles).
-  "ghost-depot-valid": ghostWater(0, "depot", "harbour"),
-  "ghost-depot-out": ghostWater(-1, "depot", "harbour"),
+  "ghost-depot-valid": ghostWater(0, "depot"),
+  "ghost-depot-out": ghostWater(-1, "depot"),
   // The ghost across a terrace edge on the settled fixture (stepped plinth, desktop near): a 3×3 house and a 6×6 warehouse valid; "invalid" is red for a 3×4 hemp farm (no hemp on the island) and yellow ("no road") for a 5×6 market: no 3×3 or 6×6 building has a client-side red rule, and the warehouse needs no road.
   "ghost-terrace-3": ghostTerrace("house_settlers", "ok"),
   "ghost-terrace-3-invalid": ghostTerrace("hemp_farm", "invalid"),
@@ -1218,14 +1264,14 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.mouse.move(5, 400);
     },
   },
-  // The build menu of the merchants fixture on its Production tab, scrolled to the tier-3 end, desktop and phone.
+  // The build menu of the merchants fixture on its Merchants tab, scrolled to its end, desktop and phone.
   "merchant-build-menu": {
     fixture: "merchants",
     device: ["desktop", "phone"],
     run: async (page) => {
       await page.getByTestId("dock-build").click();
       await page.getByTestId("build-menu").waitFor({ state: "visible" });
-      await page.getByTestId("build-tab-production").click();
+      await page.getByTestId("build-tab-merchants").click();
       await page.evaluate(() => {
         for (const el of document.querySelectorAll<HTMLElement>('[data-testid="build-menu"] *')) {
           if (el.scrollWidth > el.clientWidth) el.scrollLeft = el.scrollWidth;
@@ -1254,14 +1300,14 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.mouse.move(5, 400);
     },
   },
-  // The build menu of the patricians fixture on its Production tab, scrolled to the tier-4 end, desktop and phone.
+  // The build menu of the patricians fixture on its Patricians tab, scrolled to its end, desktop and phone.
   "patrician-build-menu": {
     fixture: "patricians",
     device: ["desktop", "phone"],
     run: async (page) => {
       await page.getByTestId("dock-build").click();
       await page.getByTestId("build-menu").waitFor({ state: "visible" });
-      await page.getByTestId("build-tab-production").click();
+      await page.getByTestId("build-tab-patricians").click();
       await page.evaluate(() => {
         for (const el of document.querySelectorAll<HTMLElement>('[data-testid="build-menu"] *')) {
           if (el.scrollWidth > el.clientWidth) el.scrollLeft = el.scrollWidth;
@@ -1273,12 +1319,31 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   // The played world's harbour (D-060): quay with a fisher on it, trading pier with the galleon, depot (desktop and phone, near).
   harbour: { fixture: "patricians", device: ["desktop", "phone"], run: harbour },
   // The build menu open (phone portrait).
+  // The build menu, desktop and phone: the current tier's tab (played fixture, all tiers unlocked), then on the settled fixture (tier I) the first tab and a locked tier opened to look ahead.
   "build-menu": {
     fixture: "played",
-    device: "phone",
+    device: ["desktop", "phone"],
     run: async (page) => {
       await page.getByTestId("dock-build").click();
       await page.getByTestId("build-menu").waitFor({ state: "visible" });
+    },
+  },
+  "build-menu-tier-1": {
+    fixture: "settled",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+      await page.getByTestId("build-tab-settlers").click();
+    },
+  },
+  "build-menu-locked": {
+    fixture: "settled",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+      await page.locator('button[data-testid^="build-tab-"][class*="tabLocked"]').first().click();
     },
   },
   // The warnings panel open (desktop).
@@ -1431,6 +1496,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.getByTestId("hud-population-chip").click();
       await page.getByTestId("hud-tier-settlers").waitFor({ state: "visible" });
 
+    },
+  },
+  // The population popup with all four tiers (worst unmet need under each), pinned open (desktop).
+  "top-bar-population-tiers": {
+    fixture: "patricians",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("hud-population-chip").click();
+      await page.getByTestId("hud-tier-settlers").waitFor({ state: "visible" });
     },
   },
   // A sloop on a leg (desktop), camera centred on ship 2.

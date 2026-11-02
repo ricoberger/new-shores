@@ -150,7 +150,7 @@
   flex-direction: column;
   gap: 4px;
   min-width: 190px;
-  max-width: min(320px, calc(100vw - 16px));
+  max-width: min(440px, calc(100vw - 16px));
 }
 
 .hudPopover .stat {
@@ -163,8 +163,29 @@
   white-space: nowrap;
 }
 
+/* A tier: name, count and satisfaction on one line (the popup grows to fit them, up to the viewport), the
+   short-of-workers and worst-need lines beneath, close to their tier. */
 .hudPopover .tierStat {
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr) auto auto;
+  column-gap: 12px;
+  row-gap: 2px;
+}
+
+.hudPopover .tierStat > .shortOfWorkers,
+.hudPopover .tierStat > .worstNeed {
+  grid-column: 1 / -1;
+}
+
+/* Tiers are set apart from each other. */
+.hudPopover .tierStat + .tierStat {
+  margin-top: 8px;
+}
+
+.hudPopover .tierStat .label,
+.hudPopover .tierStat .value,
+.hudPopover .tierStat .satisfaction {
+  white-space: nowrap;
 }
 
 /* The focused island: name and resource icons as one button (the island card). */
@@ -295,6 +316,75 @@
   background: var(--ns-ui-parchment-dark);
   border-radius: 6px 6px 0 0;
   padding: 4px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 220px;
+}
+
+/* A locked tier: dimmed, still openable to look ahead; its unmet unlock conditions are the subtitle. */
+.tabLocked {
+  opacity: 0.65;
+}
+
+.tabNumeral {
+  font-variant-caps: normal;
+  letter-spacing: 0.04em;
+}
+
+.tabSub {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--ns-ui-ink-soft);
+}
+
+/* One group of cards (General, Production, …) in the sideways strip: a small label above its cards. */
+.buildGroup {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.buildGroup + .buildGroup {
+  margin-left: 12px;
+}
+
+.groupLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ns-ui-brass);
+}
+
+.groupItems {
+  display: flex;
+  gap: 6px;
+}
+
+/* A line of a build card: cost parts or upkeep and what the building does; one line, the card is as wide as it needs. */
+.cardLine {
+  display: flex;
+  align-items: center;
+  gap: 0 6px;
+  white-space: nowrap;
+}
+
+.flow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0 4px;
+}
+
+/* Every part of a card line is a centred flex box, so text, icons, commas and arrows share one middle line. */
+.cardLine > *,
+.flow > * {
+  display: inline-flex;
+  align-items: center;
 }
 
 .tabActive {
@@ -319,28 +409,6 @@
   gap: 4px;
 }
 
-/* Brass tier badge in the corner of a building card (the numeral is
-   decorative; the tier name is in the card's accessible name). */
-.tierBadge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 4px;
-  border-radius: 11px;
-  border: 1px solid var(--ns-ui-dark-wood);
-  background: linear-gradient(var(--ns-ui-brass-light), var(--ns-ui-brass));
-  color: var(--ns-ui-ink);
-  font-family: var(--ns-font-display);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-}
-
 /* Inset from the bar's edges so scrolled cards are clipped before the brass
    border (6px) and keep the bar's 8px start (2px inner padding). */
 .items {
@@ -357,10 +425,14 @@
 .item {
   position: relative;
   color: var(--ns-ui-ink);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  /* Name, cost and what it does on the left, the thumbnail top right across those three rows, then one note row
+     (deposit or lock reason). Every card has the same four rows, so all cards are equally high. */
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto auto auto;
+  align-content: start;
+  justify-content: start;
+  row-gap: 2px;
   min-width: 150px;
   text-align: left;
   border: 1px solid var(--ns-ui-brass);
@@ -372,19 +444,27 @@
     inset 0 0 0 3px var(--ns-ui-parchment-edge);
 }
 
-/* Room for the model thumbnail in the card's bottom-right corner. */
-.item:has(.itemThumb:not([hidden])) {
-  padding-right: 64px;
-  min-width: 214px;
+.item > :not(.itemThumb) {
+  grid-column: 1;
+  min-width: 0;
 }
 
 .itemThumb {
-  position: absolute;
-  right: 4px;
-  bottom: 4px;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  align-self: start;
+  margin-left: 16px;
   width: 56px;
   height: 56px;
   pointer-events: none;
+}
+
+/* The note row spans the card on one line; a long text makes the card wider. */
+.item > .cardNote {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  min-height: 1.3em;
+  white-space: nowrap;
 }
 
 .item:disabled {
@@ -398,7 +478,6 @@
 
 .itemName {
   font-weight: 600;
-  padding-right: 26px;
 }
 
 .small {
@@ -559,18 +638,15 @@
   text-align: left;
 }
 
-/* A need display group (D-065: Security) in a house card: a small heading row, its members indented. */
-.table th.needGroup {
+/* A goods category with several needs (one per tier) in a house card: its name as a row, the needs below it aligned with the name. */
+.table th.needCategory {
   padding-top: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ns-ui-ink-soft);
+  font-weight: 400;
 }
 
+/* Starts under the category's name: cell padding, icon and the icon's gap. */
 .table td.needInGroup {
-  padding-left: 12px;
+  padding-left: calc(4px + 1.15em + 4px);
 }
 
 .buttons {
@@ -986,15 +1062,12 @@
   opacity: 0.6;
 }
 
-/* Save / Delete stay visible below the scrolling body of a panel. */
-/* A house's Upgrade button with the reason it is disabled below it. */
-.upgradeGroup {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+/* Why a house cannot upgrade: one line under all the footer buttons, which keep their size. */
+.upgradeHint {
+  flex-basis: 100%;
 }
 
+/* Save / Delete stay visible below the scrolling body of a panel. */
 .panelFooter {
   flex: 0 0 auto;
   flex-wrap: wrap;
@@ -1350,21 +1423,13 @@
 
 .buildMenuDense .item {
   min-width: 132px;
-  max-width: 180px;
   padding: 4px 6px;
 }
 
-.buildMenuDense .item:has(.itemThumb:not([hidden])) {
-  min-width: 180px;
-  max-width: 220px;
-  padding-right: 46px;
-}
-
 .buildMenuDense .itemThumb {
-  width: 40px;
-  height: 40px;
-  right: 3px;
-  bottom: 3px;
+  width: 44px;
+  height: 44px;
+  margin-left: 12px;
 }
 
 .toastsPhone {

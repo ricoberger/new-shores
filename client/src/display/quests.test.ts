@@ -70,7 +70,7 @@ describe("quests", () => {
       "Settlers 88/120",
     );
     expect(objectiveText({ kind: "stock", good: "tools", island: "start", current: 2_500, target: 10_000, met: false }, content)).toBe(
-      "Tools in stock on start 2/10",
+      "Tools in stock on start 2/10\u00a0t",
     );
     expect(objectiveProgress({ kind: "satisfaction", tier: "settlers", current: 500, target: 800, met: false })).toBe("50/80 %");
     expect(objectiveProgress({ kind: "satisfaction", tier: "citizens", current: -1, target: 800, met: false })).toBe("–/80 %");
@@ -82,7 +82,7 @@ describe("quests", () => {
 
   it("describes rewards and whether a claim needs an island", () => {
     expect(rewardText(content.quests[0]!, content)).toBe("25 gold");
-    expect(rewardText(content.quests[2]!, content)).toBe("45 Planks");
+    expect(rewardText(content.quests[2]!, content)).toBe("45\u00a0t Planks");
     expect(rewardsGoods(content.quests[0])).toBe(false);
     expect(rewardsGoods(content.quests[2])).toBe(true);
   });
@@ -101,8 +101,8 @@ describe("away summary", () => {
     expect(v.population).toEqual([{ tier: "settlers", name: "Settlers", before: "32", after: "8" }]);
     expect(v.islands.map((is) => is.name)).toEqual(["Start"]);
     const planks = v.islands[0]!.goods.find((g) => g.good === "planks")!;
-    expect(planks).toMatchObject({ name: "Planks", produced: "158", stock: "300/300" });
-    expect(v.islands[0]!.goods.find((g) => g.good === "fish")).toMatchObject({ consumed: "31", stock: "0/300" });
+    expect(planks).toMatchObject({ name: "Planks", produced: "158\u00a0t", stock: "300/300\u00a0t" });
+    expect(v.islands[0]!.goods.find((g) => g.good === "fish")).toMatchObject({ consumed: "31\u00a0t", stock: "0/300\u00a0t" });
     expect(v.paused).toBe(8);
     expect(v.stillPaused).toEqual(["Lumberjack #3 (Start)", "Lumberjack #4 (Start)", "Sawmill #5 (Start)"]);
     expect(v.shipsArrived).toBe(1);

@@ -3508,8 +3508,9 @@ components:
           description: |
             Build-menu group derived by the server from the capability
             blocks: house → houses, recipe, field or warehouse →
-            production, service → public, trading_post or shipyard →
-            harbour, road → roads; other for none of these. The Trading
+            production, service → public, trading_post, shipyard, pier,
+            depot or a shallows road (the quay) → harbour, any other
+            road → roads; other for none of these. The Trading
             Post is placed only by `found_island`, never from the build
             menu.
         width:

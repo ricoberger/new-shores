@@ -61,7 +61,7 @@ describe("statusText", () => {
         for (const b of is.buildings) {
           if (b.status !== "input_starved") continue;
           const s = statusText(b, is, d, content);
-          expect(s.sentence).toMatch(/^Missing: .+ \(-?\d+\.\d\/min\)/);
+          expect(s.sentence).toMatch(/^Missing: .+ \(-?\d+\.\d\u00a0t\/min\)/);
           return;
         }
       }

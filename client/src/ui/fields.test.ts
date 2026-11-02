@@ -106,8 +106,9 @@ describe("fields in the HUD (D-051 part 4)", () => {
         onDemolishTool: () => {},
       }),
     );
-    const order = [...html.matchAll(/data-testid="build-([a-z_]+)"/g)].map((m) => m[1]).filter((id) => id !== "menu" && id !== "size" && !id?.startsWith("tab-"));
-    expect(order).toEqual(["lumberjack", "sheep_farm", "weaver_wool"]);
+    const order = [...html.matchAll(/<button[^>]*data-testid="build-([a-z_]+)"/g)].map((m) => m[1]).filter((id) => id !== "demolish" && !id?.startsWith("tab"));
+    // General (Market, Warehouse), Production, Public; the Trading Post is not built from the menu.
+    expect(order).toEqual(["market", "warehouse", "lumberjack", "sheep_farm", "weaver_wool", "tavern"]);
     expect(html).not.toContain('data-testid="build-pasture"');
     // Every card carries its model thumbnail from the asset build (decorative).
     expect(html.match(/<img [^>]*src="\/models\/thumbs\/sheep_farm.png"[^>]*>/)?.[0]).toContain('alt=""');
@@ -126,9 +127,9 @@ describe("fields in the HUD (D-051 part 4)", () => {
         onDemolishTool: () => {},
       }),
     );
-    for (const id of ["lumberjack", "sheep_farm", "weaver_wool"]) {
+    for (const id of ["market", "warehouse", "lumberjack", "sheep_farm", "weaver_wool", "tavern"]) {
       expect(html.match(new RegExp(`<button[^>]*data-testid="build-${id}"[^>]*>`))?.[0]).toContain("disabled");
-      expect(html).toContain(`data-testid="build-lock-${id}">Loading island…</span>`);
+      expect(html).toMatch(new RegExp(`data-testid="build-lock-${id}"[^>]*>Loading island…</span>`));
     }
   });
 
@@ -204,8 +205,8 @@ describe("fields in the HUD (D-051 part 4)", () => {
     const html = panel(tavern, island, model);
     expect(html).toMatch(/<details[^>]*data-testid="info-details"(?![^>]*\bopen\b)/);
     expect(text(html)).toContain("Radius14 tiles");
-    expect(text(html)).toContain("Upkeep6.0 $/min");
-    expect(text(panel({ ...tavern, paused: true }, island, model))).toContain("Upkeep0.0 $/min");
+    expect(text(html)).toContain("Upkeep6.0 gold/min");
+    expect(text(panel({ ...tavern, paused: true }, island, model))).toContain("Upkeep0.0 gold/min");
   });
 
   it("shows a levelled market's level, radius and next level with its tier lock, with Upgrade in the footer (D-056)", () => {
@@ -236,15 +237,21 @@ describe("fields in the HUD (D-051 part 4)", () => {
     const html = panel(wh, withProducers, model);
     const t = text(html);
     expect(t).toContain("DetailsLevel1 / 3");
-    expect(t).toContain("Throughput30.0/min");
+    expect(t).toContain("Throughput30.0\u00a0t/min");
     expect(t).toContain("Load40 %");
     expect(t).toContain("Producers (2)");
     // The producers are collapsed by default.
     expect(html).toMatch(/<details[^>]*data-testid="collector-producers"(?![^>]*\bopen\b)/);
     expect(t).not.toContain("#8100");
     expect(html).toContain('data-testid="collector-producer-8101"');
+    // Every producer gets a row, however many there are (no "and n more").
+    const many = Array.from({ length: 20 }, (_, n) => ({ ...base, id: 8_200 + n, type: "lumberjack", assigned_warehouse_id: 8_001, rates: { inputs: {}, outputs: {} } }) as unknown as BuildingDisplay);
+    const manyHtml = panel(wh, { ...island, buildings: [...island.buildings, wh, ...many] }, model);
+    expect(text(manyHtml)).toContain("Producers (20)");
+    expect(manyHtml.match(/data-testid="collector-producer-\d+"/g)).toHaveLength(20);
+    expect(text(manyHtml)).not.toContain("more");
     expect(t).toContain("Upgrade to level 2");
-    expect(t).toContain("55.0/min throughput");
+    expect(t).toContain("55.0\u00a0t/min throughput");
     expect(t).not.toContain("adds no capacity");
     // The button is pinned in the footer: after the preview, next to Move.
     expect(html.indexOf("warehouse-upgrade-button")).toBeGreaterThan(html.indexOf("Upgrade to level"));
@@ -258,7 +265,7 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(text(panel(wh, island, model))).toContain("Producers (0)None yet");
   });
 
-  it("shows the Trading Post as rows: details, pier, inventory and the next level", () => {
+  it("shows the Trading Post as rows: details, inventory and the next level", () => {
     const model = fixture("settlers_grow");
     const island = { ...model.islands[0]!, inventory: { wool: { stock: 120_000, capacity: 300_000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: -1_000 } } } as IslandDisplay;
     const tp = {
@@ -273,10 +280,10 @@ describe("fields in the HUD (D-051 part 4)", () => {
     } as unknown as BuildingDisplay;
     const html = panel(tp, island, model);
     const t = text(html);
-    expect(t).toContain("DetailsLevel1 / 2Capacity300 per goodThroughput30.0/minLoad40 %Berths1 / 2 free");
-    expect(t).toContain("PierShip #1at the pierShip #2waiting");
-    expect(t).toContain("InventoryWool120 / 300−1.0Producers (0)");
-    expect(t).toContain("Upgrade to level 2500 capacity per good·2 berths·55.0/min throughput");
+    expect(t).toContain("DetailsLevel1 / 2Capacity300\u00a0t per goodThroughput30.0\u00a0t/minLoad40 %Berths1 / 2 free (1 at piers) · 1 waiting");
+    expect(html).not.toContain("trading-post-pier");
+    expect(t).toContain("InventoryWool120/300\u00a0t−1.0\u00a0t/minProducers (0)");
+    expect(t).toContain("Upgrade to level 2500\u00a0t capacity per good·2 berths·55.0\u00a0t/min throughput");
     expect(t).not.toContain("Net/min");
     // Net rate: red below 0, green above, plain at 0 (and when it rounds to 0.0).
     const net = (rate: number) => {
@@ -288,11 +295,11 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(net(0)).toBe("");
     expect(net(40)).toBe("");
     expect(html).not.toContain("trading-post-queue");
-    // The button is pinned in the footer; no pier section without ships.
+    // The button is pinned in the footer; the waiting count only with a queue.
     expect(html.indexOf("trading-post-upgrade-button")).toBeGreaterThan(html.indexOf("Upgrade to level"));
     const empty = panel({ ...tp, berths: { total: 2, busy: 0, ships: [], queue: [] } }, island, model);
-    expect(empty).not.toContain('data-testid="trading-post-pier"');
     expect(text(empty)).toContain("Berths2 / 2 free");
+    expect(text(empty)).not.toContain("waiting");
     // The last level: no preview, no button.
     const top = panel({ ...tp, level: 2 }, island, model);
     expect(text(top)).not.toContain("Upgrade to level");

@@ -1,5 +1,6 @@
 import { t } from "../i18n";
 import styles from "./almanac.module.css";
+import { tonsText } from "../display/format";
 import { num, shipView, type Index } from "./model";
 import { BuildingLink, Cost, Row, Thumb } from "./parts";
 import { useScrollTo } from "./useScrollTo";
@@ -25,7 +26,7 @@ export function Ships({ idx, id }: { idx: Index; id?: string }) {
             </div>
             <dl className={styles.defs}>
               <Row label={t("almanac.s.cargo")}>
-                {t("almanac.s.cargoValue", { slots: s.slots, size: num(s.slotSize), total: num(s.totalCapacity) })}
+                {t("almanac.s.cargoValue", { slots: s.slots, size: tonsText(num(s.slotSize)), total: tonsText(num(s.totalCapacity)) })}
               </Row>
               <Row label={t("almanac.s.speed")}>{t("almanac.s.speedValue", { factor: num(s.speed) })}</Row>
               <Row label={t("almanac.b.cost")}>

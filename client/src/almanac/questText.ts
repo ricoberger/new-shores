@@ -3,6 +3,7 @@
 // (The in-game `display/quests.ts` formats progress of a running world; the
 // almanac has no world, only the target of the content.)
 import { t } from "../i18n";
+import { tonsText } from "../display/format";
 import { milli, num, type ContentObjective, type ContentQuest, type Index } from "./model";
 
 /** One objective as a sentence fragment, e.g. "Lay 10 tiles of Dirt road". */
@@ -21,7 +22,7 @@ export function objectiveSentence(o: ContentObjective, idx: Index): string {
     case "population":
       return t("almanac.obj.population", { amount: milli(n), tier: idx.tierName(o.tier) });
     case "stock":
-      return t("almanac.obj.stock", { amount: milli(n), good: idx.goodName(o.good) }) + where;
+      return t("almanac.obj.stock", { amount: tonsText(milli(n)), good: idx.goodName(o.good) }) + where;
     case "route_exists":
       return t("almanac.obj.route");
     case "island_settled":

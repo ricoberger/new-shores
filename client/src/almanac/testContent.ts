@@ -24,7 +24,7 @@ function category(b: Raw): string {
   if (b.house) return "houses";
   if (b.recipe || b.field || b.warehouse) return "production";
   if (b.service) return "public";
-  if (b.trading_post || b.shipyard || b.pier || b.depot) return "harbour";
+  if (b.trading_post || b.shipyard || b.pier || b.depot || (b.road as Raw | undefined)?.shallows) return "harbour";
   if (b.road) return "roads";
   return "other";
 }

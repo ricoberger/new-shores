@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Content, DisplayState } from "../api/client";
 import { t } from "../i18n";
-import { units } from "../display/format";
+import { tons, tonsRatio } from "../display/format";
 import { objectiveText, questDef, questTitle, rewardText, rewardsGoods } from "../display/quests";
 import { CloseButton } from "./CloseButton";
 import { questChains } from "./questChains";
@@ -146,7 +146,7 @@ function ClaimIsland({ model, content, questId, onClaim, onCancel }: ClaimIsland
           const g = island.inventory[good];
           return (
             <div key={good} className={styles.small} data-testid={`quest-claim-stock-${good}`}>
-              {t("quests.claimStock", { amount: units(amount), good: goodName(good), stock: units(g?.stock ?? 0), capacity: units(g?.capacity ?? 0) })}
+              {t("quests.claimStock", { amount: tons(amount), good: goodName(good), stock: tonsRatio(g?.stock ?? 0, g?.capacity ?? 0) })}
             </div>
           );
         })}

@@ -15,7 +15,7 @@ import { errorText } from "../api/errors";
 import { inSentence, t, tOr } from "../i18n";
 import { founderFor, type PendingFounding, pendingFoundingStep } from "../display/archipelago";
 import { serverTimeMs } from "../display/extrapolate";
-import { units } from "../display/format";
+import { tons, units } from "../display/format";
 import { countdown, shipName } from "../display/ships";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
@@ -267,7 +267,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     const def = defs.get(b.type);
     if (def && def.cost.gold > CONFIRM_DEMOLISH_GOLD) {
       const materials = Object.entries(def.cost.materials)
-        .map(([g, n]) => `${units(n)} ${content?.goods.find((x) => x.id === g)?.name ?? g}`)
+        .map(([g, n]) => `${tons(n)} ${content?.goods.find((x) => x.id === g)?.name ?? g}`)
         .join(", ");
       setConfirm({
         title: t("app.demolish.title", { name: def.name }),

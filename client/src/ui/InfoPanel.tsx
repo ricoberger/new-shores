@@ -1,9 +1,9 @@
 import { type ReactNode, useRef } from "react";
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
-import { percent, perMin, seconds, speedFactor, units } from "../display/format";
-import { countdownWithUnit, orderTiming, shipName as shipNameOf } from "../display/ships";
-import { fieldBuildingOf, footprintText } from "../display/fields";
-import { groupNeeds, needAlternatives, needCategory, needGroupName, needLabel, upgradeReasonText } from "../display/needs";
+import { percent, perMin, seconds, speedFactor, tons, tonsPerMin, tonsRatio, units } from "../display/format";
+import { countdownWithUnit, orderTiming } from "../display/ships";
+import { fieldBuildingOf } from "../display/fields";
+import { groupByCategory, groupNeeds, needAlternatives, needCategory, needGoods, needGroupName, needLabel, upgradeReasonText } from "../display/needs";
 import { lockReason, tierUnlocked } from "../display/tiers";
 import { STATUS_STYLES, statusKey, statusLabel, statusText } from "../display/status";
 import { inSentence, t, tOr } from "../i18n";
@@ -78,16 +78,6 @@ export function StatusIcon({ building, seal = false }: { building: BuildingDispl
     <span className={seal ? `${styles.icon} ${styles.seal}` : styles.icon} style={{ background: s.color }} title={statusLabel(key)} role="img" aria-label={statusLabel(key)}>
       <Icon path={statusIcon(key)} />
     </span>
-  );
-}
-
-/** The building's size row of a Details table (D-054: footprint, water rows, a farm's fields). */
-function SizeRow({ def, content }: { def: Content["buildings"][number]; content: Content }) {
-  return (
-    <tr>
-      <td>{t("infoPanel.size")}</td>
-      <td data-testid="info-size">{footprintText(def, content)}</td>
-    </tr>
   );
 }
 
@@ -175,6 +165,13 @@ const UPGRADE_HINTS: Record<string, () => string> = {
   no_house: () => t("infoPanel.upgrade.hint.no_house"),
 };
 
+/** The house of the highest tier: there is no upgrade to offer (never from the server's reason). Unknown tiers keep the button. */
+function isTopTierHouse(content: Content, b: BuildingDisplay): boolean {
+  const tierId = content.buildings.find((d) => d.id === b.type)?.house?.tier;
+  const tier = content.tiers.find((x) => x.id === tierId);
+  return tier !== undefined && content.tiers[tier.index + 1] === undefined;
+}
+
 function upgradeHint(content: Content, model: DisplayState, island: IslandDisplay, b: BuildingDisplay, reason: string): string {
   const [code, category, percent] = reason.split(":") as [string, string | undefined, string | undefined];
   const tiers = content.tiers;
@@ -227,9 +224,9 @@ function UpgradePreview({
       <DotRow
         testId={`${testId}-stats`}
         items={[
-          ...(next.capacity !== undefined ? [<span key="capacity">{t("infoPanel.capacityPerGood", { amount: units(next.capacity) })}</span>] : []),
+          ...(next.capacity !== undefined ? [<span key="capacity">{t("infoPanel.capacityPerGood", { amount: tons(next.capacity) })}</span>] : []),
           ...(next.berths !== undefined ? [<span key="berths">{t("infoPanel.berthsCount", { count: next.berths })}</span>] : []),
-          ...(next.throughput_per_min !== undefined ? [<span key="throughput">{t("infoPanel.throughputRate", { rate: perMin(next.throughput_per_min) })}</span>] : []),
+          ...(next.throughput_per_min !== undefined ? [<span key="throughput">{t("infoPanel.throughputRate", { rate: tonsPerMin(next.throughput_per_min) })}</span>] : []),
           ...(next.radius !== undefined ? [<span key="radius">{t("infoPanel.radiusTiles", { count: next.radius })}</span>] : []),
         ]}
       />
@@ -258,9 +255,9 @@ function UpgradePreview({
                 className={`${styles.withIcon} ${have < n ? styles.warn : ""}`}
                 data-short={have < n || undefined}
                 data-testid={`${testId}-cost-${g}`}
-                title={t("infoPanel.inStock", { amount: units(have) })}
+                title={t("infoPanel.inStock", { amount: tons(have) })}
               >
-                {units(n)}
+                {tons(n)}
                 <Icon path={goodIcon(g)} />
                 {goodName(g)}
               </span>
@@ -289,14 +286,13 @@ function AssignedProducers({
     <details className={styles.section} data-testid="collector-producers">
       <summary className={styles.detailsSummary}>{t("infoPanel.producers", { count: producers.length })}</summary>
       {producers.length === 0 && <div className={styles.small}>{t("infoPanel.noneYet")}</div>}
-      {producers.slice(0, 8).map((p) => (
+      {producers.map((p) => (
         <div key={p.id}>
           <button type="button" className={styles.link} onClick={() => onSelectBuilding(p.id)} data-testid={`collector-producer-${p.id}`}>
             {name(p.type)}
           </button>
         </div>
       ))}
-      {producers.length > 8 && <div className={styles.small}>{t("infoPanel.andMore", { count: producers.length - 8 })}</div>}
     </details>
   );
 }
@@ -313,9 +309,10 @@ function islandBerths(island: IslandDisplay): NonNullable<BuildingDisplay["berth
 
 /**
  * A trading pier (D-060): the berths it adds and the island's berths busy
- * and free (the Trading Post's queue serves all of them). Display only.
+ * and free, with the ships queued for them (the Trading Post's queue serves
+ * all of them). Display only.
  */
-function PierSection({ def, island, content }: { def: Content["buildings"][number]; island: IslandDisplay; content: Content }) {
+function PierSection({ def, island }: { def: Content["buildings"][number]; island: IslandDisplay }) {
   const berths = islandBerths(island);
   return (
     <div className={styles.section} data-testid="pier-panel">
@@ -331,10 +328,14 @@ function PierSection({ def, island, content }: { def: Content["buildings"][numbe
               <td>{t("infoPanel.islandBerths")}</td>
               <td data-testid="pier-island-berths">
                 {t("infoPanel.berthsFree", { free: Math.max(0, berths.total - berths.busy), total: berths.total })}
+                {berths.queue.length > 0 && (
+                  <span className={styles.small} data-testid="pier-berths-waiting">
+                    {t("infoPanel.berthsWaiting", { count: berths.queue.length })}
+                  </span>
+                )}
               </td>
             </tr>
           )}
-          <SizeRow def={def} content={content} />
         </tbody>
       </table>
     </div>
@@ -342,11 +343,10 @@ function PierSection({ def, island, content }: { def: Content["buildings"][numbe
 }
 
 /** A depot adds fixed capacity, without an upgrade block (D-062). */
-function DepotSection({ building: b, def, island, content }: {
+function DepotSection({ building: b, def, island }: {
   building: BuildingDisplay;
   def: Content["buildings"][number];
   island: IslandDisplay;
-  content: Content;
 }) {
   return (
     <div data-testid="depot-panel">
@@ -356,13 +356,12 @@ function DepotSection({ building: b, def, island, content }: {
           <tbody>
             <tr>
               <td>{t("infoPanel.adds")}</td>
-              <td data-testid="depot-capacity">{t("infoPanel.capacityPerGood", { amount: units(b.capacity ?? def.depot?.capacity ?? 0) })}</td>
+              <td data-testid="depot-capacity">{t("infoPanel.capacityPerGood", { amount: tons(b.capacity ?? def.depot?.capacity ?? 0) })}</td>
             </tr>
             <tr>
               <td>{t("infoPanel.islandCapacity")}</td>
-              <td data-testid="depot-island-capacity">{t("infoPanel.perGood", { amount: units(islandCapacity(island)) })}</td>
+              <td data-testid="depot-island-capacity">{t("infoPanel.perGood", { amount: tons(islandCapacity(island)) })}</td>
             </tr>
-            <SizeRow def={def} content={content} />
           </tbody>
         </table>
       </div>
@@ -392,7 +391,6 @@ function TradingPostSection({
   onSelectBuilding: (id: number) => void;
 }) {
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
-  const shipName = (id: number) => shipNameOf(model.ships, id);
   const def = content.buildings.find((d) => d.id === b.type);
   // The berths of the level (content) until the server reports them.
   const levelBerths = def?.trading_post?.levels[(b.level ?? 1) - 1]?.berths ?? 0;
@@ -413,13 +411,13 @@ function TradingPostSection({
             <tr>
               <td>{t("infoPanel.capacity")}</td>
               <td data-testid="trading-post-capacity">
-                {t("infoPanel.perGood", { amount: units(b.capacity ?? 0) })}
-                {islandCapacity(island) > (b.capacity ?? 0) && <span className={styles.small}>{t("infoPanel.inDepots", { amount: units(islandCapacity(island) - (b.capacity ?? 0)) })}</span>}
+                {t("infoPanel.perGood", { amount: tons(b.capacity ?? 0) })}
+                {islandCapacity(island) > (b.capacity ?? 0) && <span className={styles.small}>{t("infoPanel.inDepots", { amount: tons(islandCapacity(island) - (b.capacity ?? 0)) })}</span>}
               </td>
             </tr>
             <tr>
               <td>{t("infoPanel.throughput")}</td>
-              <td>{t("infoPanel.perMinute", { rate: perMin(b.throughput_per_min ?? 0) })}</td>
+              <td>{tonsPerMin(b.throughput_per_min ?? 0)}</td>
             </tr>
             <tr>
               <td>{t("infoPanel.load")}</td>
@@ -430,33 +428,16 @@ function TradingPostSection({
               <td data-testid="trading-post-berths">
                 {t("infoPanel.berthsFree", { free, total: berths.total })}
                 {berths.total > levelBerths && levelBerths > 0 && <span className={styles.small}>{t("infoPanel.atPiers", { count: berths.total - levelBerths })}</span>}
+                {berths.queue.length > 0 && (
+                  <span className={styles.small} data-testid="trading-post-berths-waiting">
+                    {t("infoPanel.berthsWaiting", { count: berths.queue.length })}
+                  </span>
+                )}
               </td>
             </tr>
-            {def && <SizeRow def={def} content={content} />}
           </tbody>
         </table>
       </div>
-      {(berths.ships.length > 0 || berths.queue.length > 0) && (
-        <div className={styles.section} data-testid="trading-post-pier">
-          <div className={styles.sectionTitle}>{t("infoPanel.pier")}</div>
-          <table className={styles.table}>
-            <tbody>
-              {berths.ships.map((id) => (
-                <tr key={id}>
-                  <td>{shipName(id)}</td>
-                  <td>{t("infoPanel.atThePier")}</td>
-                </tr>
-              ))}
-              {berths.queue.map((id) => (
-                <tr key={id}>
-                  <td>{shipName(id)}</td>
-                  <td>{t("infoPanel.waiting")}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
       <div className={styles.section} data-testid="trading-post-inventory">
         <div className={styles.sectionTitle}>{t("infoPanel.inventory")}</div>
         <table className={styles.table}>
@@ -467,10 +448,10 @@ function TradingPostSection({
                   <GoodName id={good} name={goodName(good)} />
                 </td>
                 <td>
-                  {units(g.stock)} / {units(g.capacity)}
+                  {tonsRatio(g.stock, g.capacity)}
                 </td>
                 <td className={netClass(perMin(g.rate_per_min, true))} data-testid={`trading-post-net-${good}`}>
-                  {perMin(g.rate_per_min, true)}
+                  {tonsPerMin(g.rate_per_min, true)}
                 </td>
               </tr>
             ))}
@@ -568,7 +549,7 @@ export function InfoPanel({
                         <td>
                           <GoodName id={good} name={goodName(good)} />
                         </td>
-                        <td data-testid={`rate-input-${good}`}>{t("infoPanel.perMinute", { rate: perMin(rate) })}</td>
+                        <td data-testid={`rate-input-${good}`}>{tonsPerMin(rate)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -584,7 +565,7 @@ export function InfoPanel({
                       <td>
                         <GoodName id={good} name={goodName(good)} />
                       </td>
-                      <td data-testid={`rate-output-${good}`}>{t("infoPanel.perMinute", { rate: perMin(rate) })}</td>
+                      <td data-testid={`rate-output-${good}`}>{tonsPerMin(rate)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -594,7 +575,6 @@ export function InfoPanel({
               <summary className={styles.detailsSummary}>{t("infoPanel.details")}</summary>
               <table className={`${styles.table} ${styles.detailsTable}`}>
                 <tbody>
-                  {def && <SizeRow def={def} content={content} />}
                   {b.cycle_seconds !== undefined && (
                     <tr>
                       <td>{t("infoPanel.cycle")}</td>
@@ -648,7 +628,7 @@ export function InfoPanel({
                           {t("infoPanel.buffer")} <GoodName id={good} name={goodName(good)} />
                         </td>
                         <td>
-                          {units(stock)}/{units(b.buffer?.capacity ?? 0)}
+                          {tonsRatio(stock, b.buffer?.capacity ?? 0)}
                         </td>
                       </tr>
                     ))}
@@ -675,7 +655,6 @@ export function InfoPanel({
                   <td>{t("infoPanel.radius")}</td>
                   <td data-testid="info-radius">{t("infoPanel.tiles", { count: def.service.levels[(b.level ?? 1) - 1]?.radius ?? def.service.radius })}</td>
                 </tr>
-                <SizeRow def={def} content={content} />
                 <tr>
                   <td>{t("infoPanel.upkeep")}</td>
                   <td data-testid="info-upkeep">{t("infoPanel.upkeepRate", { rate: perMin(b.paused ? 0 : def.upkeep_per_min) })}</td>
@@ -705,39 +684,61 @@ export function InfoPanel({
                 </tbody>
               </table>
             </div>
-            <div className={styles.section}>
-              <div className={styles.sectionTitle}>{t("infoPanel.needs")}</div>
-              <table className={styles.table}>
-                <tbody>
-                  {groupNeeds(content, b.needs ?? []).flatMap((run) => [
-                    ...(run.group
-                      ? [
-                          <tr key={`group-${run.group}`} data-testid={`house-need-group-${run.group}`}>
-                            <th scope="rowgroup" colSpan={2} className={styles.needGroup}>
-                              {needGroupName(run.group)}
-                            </th>
-                          </tr>,
-                        ]
-                      : []),
-                    ...run.needs.map((n) => (
-                      <tr
-                        key={n.id}
-                        data-testid={`house-need-${n.id}`}
-                        title={[needAlternatives(content, n.id), needReason(n.reason)].filter(Boolean).join(" — ") || undefined}
-                      >
-                        <td className={run.group ? styles.needInGroup : undefined}>
-                          <span className={styles.withIcon}>
-                            <Icon path={needIcon(n, n.category ? needCategory(content, n.category).icon : undefined)} />
-                            {needLabel(content, n)}
-                          </span>
-                        </td>
-                        <td>{percent(n.fulfilment_permille)}</td>
-                      </tr>
-                    )),
-                  ])}
-                </tbody>
-              </table>
-            </div>
+            {groupNeeds(content, b.needs ?? []).map((run) => (
+              <div key={run.group ?? run.needs[0]?.id} className={styles.section}>
+                {run.group && (
+                  <div className={styles.sectionTitle} data-testid={`house-need-group-${run.group}`}>
+                    {needGroupName(run.group)}
+                  </div>
+                )}
+                <table className={styles.table}>
+                  <tbody>
+                    {groupByCategory(content, run.needs).flatMap((cat) => {
+                      // A goods category is a heading row, its needs (one per tier, the lowest first) below it, each named by its goods.
+                      const heading = cat.category !== undefined && needGoods(content, cat.needs[0]!.id) !== undefined;
+                      const info = cat.category ? needCategory(content, cat.category) : undefined;
+                      return [
+                        ...(heading && info
+                          ? [
+                              <tr key={`category-${cat.category}`} data-testid={`house-need-category-${cat.category}`}>
+                                <th scope="rowgroup" colSpan={2} className={styles.needCategory}>
+                                  <span className={styles.withIcon}>
+                                    <Icon path={needIcon({ category: cat.category }, info.icon)} />
+                                    {info.name}
+                                  </span>
+                                </th>
+                              </tr>,
+                            ]
+                          : []),
+                        ...cat.needs.map((n) => {
+                          const goods = needGoods(content, n.id);
+                          const label = goods ?? needLabel(content, n);
+                          return (
+                            <tr
+                              key={n.id}
+                              data-testid={`house-need-${n.id}`}
+                              title={[goods === undefined ? needAlternatives(content, n.id) : undefined, needReason(n.reason)].filter(Boolean).join(" — ") || undefined}
+                            >
+                              <td className={heading ? styles.needInGroup : undefined}>
+                                {heading ? (
+                                  label
+                                ) : (
+                                  <span className={styles.withIcon}>
+                                    <Icon path={needIcon(n, n.category ? needCategory(content, n.category).icon : undefined)} />
+                                    {label}
+                                  </span>
+                                )}
+                              </td>
+                              <td>{percent(n.fulfilment_permille)}</td>
+                            </tr>
+                          );
+                        }),
+                      ];
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ))}
           </>
         )}
 
@@ -759,7 +760,7 @@ export function InfoPanel({
                   <DotRow
                     items={[
                       <span key="cargo">
-                        {t("infoPanel.cargo", { slots: ship.slots, size: units(ship.slot_size) })}
+                        {t("infoPanel.cargo", { slots: ship.slots, size: tons(ship.slot_size) })}
                       </span>,
                       <span key="speed">{t("infoPanel.speed", { factor: speedFactor(ship.speed_permille ?? 1000) })}</span>,
                       <span key="upkeep">{t("infoPanel.upkeepShip", { rate: perMin(ship.upkeep_per_min) })}</span>,
@@ -772,8 +773,8 @@ export function InfoPanel({
                         {t("infoPanel.goldAmount", { amount: units(ship.cost.gold) })}
                       </span>,
                       ...Object.entries(ship.cost.materials).map(([g, n]) => (
-                        <span key={g} className={`${styles.withIcon} ${stock(g) < n ? styles.warn : ""}`} title={t("infoPanel.inStock", { amount: units(stock(g)) })}>
-                          {units(n)}
+                        <span key={g} className={`${styles.withIcon} ${stock(g) < n ? styles.warn : ""}`} title={t("infoPanel.inStock", { amount: tons(stock(g)) })}>
+                          {tons(n)}
                           <Icon path={goodIcon(g)} />
                           {goodName(g)}
                         </span>
@@ -792,8 +793,8 @@ export function InfoPanel({
             onSelectBuilding={onSelectBuilding}
           />
         )}
-        {def?.pier && <PierSection def={def} island={island} content={content} />}
-        {def?.depot && <DepotSection building={b} def={def} island={island} content={content} />}
+        {def?.pier && <PierSection def={def} island={island} />}
+        {def?.depot && <DepotSection building={b} def={def} island={island} />}
         {b.level !== undefined && def?.warehouse && (
           <div data-testid="warehouse-panel">
             <div className={styles.section}>
@@ -808,13 +809,12 @@ export function InfoPanel({
                   </tr>
                   <tr>
                     <td>{t("infoPanel.throughput")}</td>
-                    <td data-testid="warehouse-throughput">{t("infoPanel.perMinute", { rate: perMin(b.throughput_per_min ?? 0) })}</td>
+                    <td data-testid="warehouse-throughput">{tonsPerMin(b.throughput_per_min ?? 0)}</td>
                   </tr>
                   <tr>
                     <td>{t("infoPanel.load")}</td>
                     <td data-testid="warehouse-load">{percent(b.load_permille ?? 0)}</td>
                   </tr>
-                  <SizeRow def={def} content={content} />
                 </tbody>
               </table>
             </div>
@@ -849,25 +849,18 @@ export function InfoPanel({
             <Icon path={toolIcon("upgrade")} /> {t("infoPanel.upgrade")}
           </button>
         )}
-        {b.residents !== undefined && (
-          // The server says whether the upgrade would succeed (D-027): enabled only then, the reason as the tooltip and as a short line below.
-          <span className={styles.upgradeGroup}>
-            <button
-              type="button"
-              className={styles.button}
-              onClick={onUpgrade}
-              disabled={!b.upgrade?.available}
-              title={b.upgrade && !b.upgrade.available && b.upgrade.reason ? upgradeReasonText(content, b.upgrade.reason) : undefined}
-              data-testid="info-upgrade"
-            >
-              <Icon path={toolIcon("upgrade")} /> {t("infoPanel.upgrade")}
-            </button>
-            {b.upgrade && !b.upgrade.available && b.upgrade.reason && (
-              <span className={`${styles.small} ${styles.warn}`} data-testid="info-upgrade-hint">
-                {upgradeHint(content, model, island, b, b.upgrade.reason)}
-              </span>
-            )}
-          </span>
+        {b.residents !== undefined && !isTopTierHouse(content, b) && (
+          // The server says whether the upgrade would succeed (D-027): enabled only then, the reason as the tooltip and, below all buttons, as a short line.
+          <button
+            type="button"
+            className={styles.button}
+            onClick={onUpgrade}
+            disabled={!b.upgrade?.available}
+            title={b.upgrade && !b.upgrade.available && b.upgrade.reason ? upgradeReasonText(content, b.upgrade.reason) : undefined}
+            data-testid="info-upgrade"
+          >
+            <Icon path={toolIcon("upgrade")} /> {t("infoPanel.upgrade")}
+          </button>
         )}
         {order && (
           <button type="button" className={styles.button} onClick={onCancelShipOrder} data-testid="shipyard-cancel">
@@ -883,6 +876,11 @@ export function InfoPanel({
         <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onDemolish} data-testid="info-demolish">
           <Icon path={toolIcon("demolish")} /> {t("infoPanel.demolish")}
         </button>
+        {b.residents !== undefined && !isTopTierHouse(content, b) && b.upgrade && !b.upgrade.available && b.upgrade.reason && (
+          <span className={`${styles.small} ${styles.warn} ${styles.upgradeHint}`} data-testid="info-upgrade-hint">
+            {upgradeHint(content, model, island, b, b.upgrade.reason)}
+          </span>
+        )}
       </div>
     </div>
   );

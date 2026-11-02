@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
-import { perMin, speedFactor, units } from "../display/format";
+import { perMin, speedFactor, tons, tonsRatio } from "../display/format";
 import { currentLocale, t, tRich } from "../i18n";
 import { ShipStatusLine } from "./ShipsPanel";
 import { goodIcon, toolIcon } from "../theme/iconSet";
@@ -136,7 +136,7 @@ export function ShipPanel({
           </div>
         )}
         <div className={styles.small} data-testid="ship-panel-capacity">
-          {t("shipPanel.capacity", { count: s.slots, size: units(s.slot_size) })}
+          {t("shipPanel.capacity", { count: s.slots, size: tons(s.slot_size) })}
         </div>
         {s.state === "waiting_for_berth" && (
           <div className={styles.small} data-testid="ship-panel-berth">
@@ -159,7 +159,7 @@ export function ShipPanel({
               <div key={i} className={styles.slot} title={goodName(c.good)} data-testid={`ship-panel-slot-${i}`}>
                 <Icon path={goodIcon(c.good)} />
                 <span className={styles.small}>
-                  {units(c.amount)} / {units(s.slot_size)}
+                  {tonsRatio(c.amount, s.slot_size)}
                 </span>
                 <span className={styles.srOnly}>{goodName(c.good)}</span>
               </div>

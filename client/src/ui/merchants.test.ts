@@ -43,6 +43,12 @@ const content = {
     { id: "tools", name: "Tools" },
     { id: "stone", name: "Stone" },
     { id: "bricks", name: "Bricks" },
+    { id: "sausages", name: "Sausages" },
+    { id: "pies", name: "Pies" },
+    { id: "bread", name: "Bread" },
+    { id: "cheese", name: "Cheese" },
+    { id: "books", name: "Books" },
+    { id: "soap", name: "Soap" },
   ],
   needs: shipped<{ id: string; name: string }[]>("needs.json"),
   need_categories: shipped<{ id: string; name: string; icon: string }[]>("need_categories.json"),
@@ -109,8 +115,8 @@ describe("tier 3 in the cards (D-056)", () => {
     expect(t.indexOf("SloopOrder")).toBeLessThan(t.indexOf("BrigOrder"));
     expect(html).toContain('data-testid="shipyard-order-brig"');
     expect(text(html.match(/data-testid="shipyard-ship-brig">(.*?)<\/button>/)![0])).toContain("Brig");
-    expect(t).toContain("4×50 cargo·1.0× speed·4.0 $/min upkeep");
-    expect(text(html.match(/data-testid="shipyard-cost-brig">(.*?)<\/div>/)![1]!)).toBe("1500 gold·60Planks·20Sails·10Tools·5:00 min build");
+    expect(t).toContain("4×50\u00a0t cargo·1.0× speed·4.0 gold/min upkeep");
+    expect(text(html.match(/data-testid="shipyard-cost-brig">(.*?)<\/div>/)![1]!)).toBe("1500 gold·60\u00a0tPlanks·20\u00a0tSails·10\u00a0tTools·5:00 min build");
   });
 
   it("shows a market at level 3 of 4 (D-065) with its radius and the Patrician-locked level 4", () => {
@@ -131,15 +137,15 @@ describe("tier 3 in the cards (D-056)", () => {
     expect(t).toContain("Residents→ 25 / 25");
     const rows = [...html.matchAll(/data-testid="house-need-(?!group-)([a-z_]+)"/g)].map((m) => m[1]);
     expect(rows).toEqual([
+      "merchants_settlers_food",
+      "merchants_citizens_food",
       "merchants_food",
+      "merchants_citizens_drink",
       "merchants_drink",
+      "merchants_settlers_clothing",
+      "merchants_citizens_clothing",
       "merchants_clothing",
       "merchants_comfort",
-      "merchants_settlers_food",
-      "merchants_settlers_clothing",
-      "merchants_citizens_food",
-      "merchants_citizens_drink",
-      "merchants_citizens_clothing",
       "merchants_market",
       "merchants_faith",
       "merchants_education",
@@ -147,16 +153,23 @@ describe("tier 3 in the cards (D-056)", () => {
       "merchants_safety",
       "merchants_fire_protection",
     ]);
-    expect(t).toContain("Food (Citizens)");
-    // Goods and Public buildings headings, each right before its group's first row.
-    expect(html).toMatch(/data-testid="house-need-group-goods"[^>]*><th[^>]*>Goods<\/th><\/tr><tr[^>]*data-testid="house-need-merchants_food"/);
-    expect(html).toMatch(/data-testid="house-need-group-public"[^>]*><th[^>]*>Public buildings<\/th><\/tr><tr[^>]*data-testid="house-need-merchants_market"/);
+    // Each category once with its needs below it, named by their goods; no tier names.
+    expect(html.match(/data-testid="house-need-category-[a-z_]+"/g)).toEqual(['data-testid="house-need-category-food"', 'data-testid="house-need-category-drink"', 'data-testid="house-need-category-clothing"', 'data-testid="house-need-category-comfort"']);
+    expect(t).not.toMatch(/\((Settlers|Citizens)\)/);
+    expect(text(html.match(/data-testid="house-need-merchants_food"[^>]*>(.*?)<\/tr>/)![1]!)).toBe("Sausages or Pies60 %");
+    expect(text(html.match(/data-testid="house-need-merchants_citizens_food"[^>]*>(.*?)<\/tr>/)![1]!)).toBe("Bread or Cheese60 %");
+    // Goods and Public buildings are section headings (no "Needs" heading), each right before its table.
+    expect(html).toMatch(/data-testid="house-need-group-goods">Goods<\/div><table/);
+    expect(html).toMatch(/data-testid="house-need-group-public">Public buildings<\/div><table/);
+    expect(t).not.toContain("Needs");
     // A chain need names the buildings of its rank or higher (D-065).
     expect(html).toMatch(/data-testid="house-need-merchants_faith" title="Church or Cathedral/);
     // Comfort: its own icon and the server's fulfilment.
     const comfort = html.match(/data-testid="house-need-merchants_comfort"[^>]*>(.*?)<\/tr>/)![1]!;
-    expect(text(comfort)).toBe("Comfort60 %");
-    expect(comfort).toContain(`<path d="${ICON_PATHS["need:comfort"]}"`);
+    expect(text(comfort)).toBe("Books or Soap60 %");
+    const comfortHeading = html.match(/data-testid="house-need-category-comfort"[^>]*>(.*?)<\/tr>/)![1]!;
+    expect(text(comfortHeading)).toBe("Comfort");
+    expect(comfortHeading).toContain(`<path d="${ICON_PATHS["need:comfort"]}"`);
     // The civic services (D-060): one building each, served by the civic cluster; the
     // chains (D-065) by the church and the playhouse of the reference game.
     for (const [id, label] of [

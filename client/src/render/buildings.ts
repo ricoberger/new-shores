@@ -715,7 +715,8 @@ export class BuildingLayer {
   select(b: BuildingDisplay | undefined, def: ContentBuilding | undefined, chain: readonly number[] = []): void {
     const id = b && def ? b.id : null;
     const key = (ids: ReadonlySet<number>) => [...ids].sort((x, y) => x - y).join(",");
-    const tinted = id === null ? NONE : new Set([id, ...chain]);
+    // A chain without a selection (the ghost's would-serve houses) is tinted too.
+    const tinted = id === null && chain.length === 0 ? NONE : new Set(id === null ? chain : [id, ...chain]);
     if (id !== this.selectedId || key(tinted) !== key(this.tinted)) {
       this.selectedId = id;
       this.tinted = tinted;

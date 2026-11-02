@@ -164,8 +164,39 @@ UI shows the same numbers the server uses.
   right of the first line; nothing overlaps. The minimap
   collapses to its toggle (portrait starts collapsed); the compass shows
   with the expanded minimap only.
-- **Build menu:** categories → items with cost, upkeep, lock reason and a
-  128 px model **thumbnail**; items are never disabled for cost.
+- **Build menu** (`ui/BuildMenu.tsx`, `display/buildMenu.ts`): one tab per
+  content tier, **numeral and name** ("I Settlers"), the current tier (the
+  highest the server reports unlocked) selected by default. A locked tier's
+  tab is dimmed and shows its unmet unlock conditions as the subtitle
+  ("88/120 Settlers · Build Chapel", only what is still missing); it can be opened to look ahead, its cards
+  are dimmed and disabled with the lock reason. Inside a tab the cards stay
+  one sideways-scrolling row, in groups with a small label at each group's
+  start (empty groups are hidden): **General** (the tier's house where it
+  can be placed, roads, then the Market and the Warehouse), **Production**
+  (ordered along the chains: no inputs first, then by the depth of the
+  recipe's inputs, content order within a step; fields are not listed),
+  **Public** and **Harbour** (shipyard, pier, depot, then the quay, a road
+  on the shallows that the server files under harbour). The groups follow
+  the server's `category`, except houses, roads, the Warehouse and the
+  Market, which are General; the Trading Post is never listed and houses of
+  later tiers are upgrade-only.
+  A card shows the name and the 128 px model **thumbnail** in its upper
+  right corner, and two lines, each on one line; below them is a note row
+  that every card has (so all cards are equally high in every tab): the
+  lock reason of a locked tier, else empty. Lines never wrap
+  and are never cut with an ellipsis: a long line makes the card wider.
+  1. the cost: gold and each material with its good icon and tonnes,
+     separated by dots `·`; a part the player cannot cover right now (gold, or the island's
+     stock) is red. This is a display hint from the numbers the client has:
+     items are never disabled for cost and the server decides. No stock
+     numbers, no size or footprint;
+  2. upkeep ("2.0 gold/min"), a dot `·`, then for production `in → out` with
+     good icons (several inputs separated by commas; a farm: its field type without a count, "Wheat field →
+     Wheat"; a mine or quarry: the deposit it needs, "Quartz deposit →
+     Quartz"), for a public building only the need category it serves
+     ("Faith", no radius). A missing fertility replaces this line with a red "Needs
+     wheat fertility" (not what the island has; the placement ghost's hint
+     keeps that).
 - **Panels:** parchment with a 3 px dark-wood border and inset light-wood
   edge (10 px radius; build cards 7 px); status badges as wax seals (ink
   bands, parchment ring). Every panel has a fixed title row with an icon
@@ -232,7 +263,8 @@ UI shows the same numbers the server uses.
   public buildings in the Public tab; the trading pier and depot are in
   the Harbour tab, water-edge like the Trading Post (quays count as
   coast; their ghost shows the free shallows tint with the quay tool).
-- Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the radius ring is not implemented.
+- Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the radius ring is not implemented. The ghost tints the houses it would serve (client hint from the content radius; the server's `served_by` is the truth once built): `wouldServe` in `display/served.ts` takes the houses on the ghost's island whose nearest footprint tile is within the level-1 radius (a moved building: its own level) of the ghost's nearest footprint tile; it does not check the road connection or paused state, because the display has no connectivity, so a tinted house may still be unserved. The tint follows the ghost and clears when it leaves the island or the tool closes. The same hint for other ghosts (`ghostRelated`): a house tints the service buildings on its island whose own radius (their current level) reaches it; a Warehouse tints every producer (a building with a recipe) on the island, a producer every Warehouse and the Trading Post of the island. Who delivers to whom is the nearest collector by road, which the display cannot compute, so the latter two mark candidates, not the assignment (`assigned_warehouse_id` is the truth once built).
+- Producers and collectors: selecting a producer tints the Warehouse or Trading Post it delivers to (`assigned_warehouse_id`) green, selecting a Warehouse or Trading Post tints every producer delivering to it, not their fields (`client/src/display/served.ts`, the same selection tint).
 - Confirm on click/tap; the server validates and responds; the ghost becomes
   the building when the response arrives (round-trip ≈ 100 ms; show a brief
   "building" animation regardless).
@@ -254,11 +286,11 @@ UI shows the same numbers the server uses.
 **Production building**
 
 - Name, status icon + sentence + suggested fix (MECHANICS §14).
-- Inputs: per good, this building's `consumption/min` (one row like Output; the island stock and net rate are in the Trading Post card).
-- Output: `production/min` (the final rate, all factors included).
+- Inputs: per good, this building's `consumption` in t/min (one row like Output; the island stock and net rate are in the Trading Post card).
+- Output: `production` in t/min (the final rate, all factors included).
 - A collapsed **Details** section (closed by default): one row per value, each on one line
   (cycle length in seconds, efficiency %, throughput factor, workers as the
-  workforce factor in % (the shortage itself is the status sentence), upkeep like a ship's (`$/min`, 0 while paused), the assigned collector by name (click to
+  workforce factor in % (the shortage itself is the status sentence), upkeep like a ship's (`gold/min`, 0 while paused), the assigned collector by name (click to
   select), transfer delay, buffers). Farms show
   a fields block above it only when it has something to say: a warning
   when fields are not connected and "Add <field>" while the farm is
@@ -269,31 +301,37 @@ UI shows the same numbers the server uses.
 **House**
 
 - A "Residents" heading, then two rows like the producer Details: "Residents  ↑ current / max" (the arrow is the growth direction) and "Satisfaction  %"; no bars.
-- Needs: one row per need (icon and name on the left, fulfilment % on the
-  right, no bar), the reason if not met as a tooltip ("short supply",
-  "no supply on the island", "out of range").
-- Upgrade button with cost and lock reason.
+- No "Needs" heading: **Goods** and **Public buildings** are section headings
+  like Residents. In Goods each category appears once as a heading row (icon
+  and name), also with a single need. Its needs, one per tier the house
+  carries (Food of its own tier and of the lower tiers), are below it, aligned
+  with the name, the lowest tier first, each named by its goods ("Fish",
+  "Roast beef or Oysters") with the server's fulfilment %. No tier names
+  and no aggregate per category (the client computes no rule). Public
+  buildings: one row per category (icon and name, fulfilment %). The reason if
+  not met is the tooltip ("short supply", "no supply on the island", "out of
+  range"); a building or chain need lists its buildings there.
+- Upgrade button; when it is disabled, the server's reason is one short line below all footer buttons (they keep their size) and the button's tooltip; none on a house of the highest tier, like the levelled buildings at their last level.
 
 **Trading Post**
 
 - A "Details" heading with rows (no bars): Level `n / max`, Capacity `per
   good` (with depots: "+ n in depots", the island total is the
-  inventory's), Throughput `/min`, Load `%`, Berths `free / total free`
-  (with trading piers: "(n at piers)").
-- "Pier" (only with ships): one row per ship at the pier ("at the pier") or
-  waiting for a berth ("waiting"), by name and ID.
+  inventory's), Throughput `t/min`, Load `%`, Berths `free / total free`
+  (with trading piers: "(n at piers)"; with ships queued for a berth: " · n
+  waiting"). There is no per-ship list: the ships are in the ships panel.
 - "Inventory": one row per good, icon and name, `stock / capacity` and the
   signed net rate (green above 0, red below, plain at 0); no header row, no filter yet.
 - A collapsed "Producers (n)" like the Warehouse's.
 - "Upgrade to level n" (not at the last level): one grey line with the next
-  level's numbers ("500 capacity per good · 2 berths · 55.0/min
+  level's numbers ("500 t capacity per good · 2 berths · 55.0 t/min
   throughput") and the cost line (gold, goods with icons, " · " between the
   items, red when short). The **Upgrade** button is pinned in the footer.
 
 **Trading pier** (D-060)
 
 - Rows: Berths "+n" (what the pier adds) and the island's berths free /
-  total; Move and Demolish in the footer (no levels, never paused).
+  total (" · n waiting" while ships are queued); no size row; Move and Demolish in the footer (no levels, never paused).
 
 **Depot** (D-060)
 
@@ -317,12 +355,12 @@ UI shows the same numbers the server uses.
 **Warehouse**
 
 - A "Details" heading above the rows (no bars): Level `n / max`,
-  Throughput `/min`, Load `%`. No capacity row — capacity is the Trading
+  Throughput `t/min`, Load `%`. No capacity row — capacity is the Trading
   Post's.
 - A collapsed "Producers (n)": one row per assigned producer, the name a link
-  that selects it (no ID); "None yet" without any, "and n more" after eight.
+  that selects it (no ID); "None yet" without any. All producers are listed (the card body scrolls).
 - "Upgrade to level n" (not at the last level): one grey line with the next
-  level's numbers ("55.0/min throughput") and one cost line (gold, goods with
+  level's numbers ("55.0 t/min throughput") and one cost line (gold, goods with
   icons, " · " between the items; what the balance or stock does not cover is
   red). The **Upgrade** button is pinned in the footer next to Move and
   Demolish (a warehouse cannot be paused). The Trading Post shares the
@@ -446,7 +484,7 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   properties (`client/src/theme/palette.css`); the renderer reads the same
   file. Parchment panels with a dark-wood border and brass accent line,
   dark-wood top bar and build bar, Cinzel titles, Source Sans 3 text,
-  brass tier badges on building cards, parchment toasts, the away summary
+  the tier tabs of the build menu, parchment toasts, the away summary
   as a letter, status as a wax-seal badge; bottom sheets, minimap and
   dialogs share the theme. Icons for goods, needs, statuses and tools from
   the pinned game-icons set; a **Credits** dialog (account menu) carries
@@ -460,7 +498,13 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
 - Every number in the UI is a server number or a linear extrapolation of one;
   never a client-side rule result (D-027).
 - Every negative state has a cause and a suggested fix in one sentence.
-- Rates are always shown per minute; quantities as integers.
+- Rates are always shown per minute; quantities as integers. Goods are measured
+  in tonnes, abbreviated `t`, everywhere: rates `{rate} t/min`, stocks `{n} t`,
+  capacities and buffers `{n}/{cap} t`, ship cargo and slot sizes, costs,
+  rewards and trading offers (catalogue keys `unit.t`, `unit.tRatio`,
+  `unit.tPerMin`, helpers in `client/src/display/format.ts`; the German text
+  uses the same `t`, with the locale's decimal separator and a no-break space
+  before the unit). Gold and population carry no unit.
 - Confirmation only for irreversible actions with cost; everything else is
   one tap.
 - Colour-blind-safe palette for validity and status; icons always accompany

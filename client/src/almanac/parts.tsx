@@ -1,4 +1,5 @@
 // Small shared pieces of the almanac pages: links, thumbnails, icons, costs.
+import { tonsText } from "../display/format";
 import { useState, type MouseEvent, type ReactNode } from "react";
 import { t } from "../i18n";
 import { goodIcon } from "../theme/iconSet";
@@ -70,7 +71,7 @@ export function Cost({ idx, parts }: { idx: Index; parts: CostPart[] }) {
           {i > 0 && ", "}
           {p.good ? (
             <>
-              {num(p.amount)} × <GoodLink idx={idx} id={p.good} />
+              {tonsText(num(p.amount))} <GoodLink idx={idx} id={p.good} />
             </>
           ) : (
             <>{t("almanac.goldAmount", { amount: num(p.amount) })}</>

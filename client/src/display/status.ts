@@ -3,7 +3,7 @@
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
 import { STATUS } from "../theme/palette";
 import { inSentence, t } from "../i18n";
-import { percent, perMin, units } from "./format";
+import { percent, perMin, tonsPerMin, tonsRatio, units } from "./format";
 
 export type StatusKey =
   | "paused_player"
@@ -94,13 +94,13 @@ export function statusText(b: BuildingDisplay, island: IslandDisplay, display: D
       };
     }
     case "input_starved": {
-      const goods = (b.status_goods ?? []).map((g) => t("status.input_starved.good", { name: goodName(content, g), rate: perMin(island.inventory[g]?.rate_per_min ?? 0) }));
+      const goods = (b.status_goods ?? []).map((g) => t("status.input_starved.good", { name: goodName(content, g), rate: tonsPerMin(island.inventory[g]?.rate_per_min ?? 0) }));
       return { key, sentence: t("status.input_starved.sentence", { goods: goods.join(", ") || t("status.input_starved.inputs") }), fix: t("status.input_starved.fix") };
     }
     case "warehouse_full": {
       const parts = (b.status_goods ?? []).map((g) => {
         const inv = island.inventory[g];
-        return t("status.warehouse_full.good", { name: goodName(content, g), stock: units(inv?.stock ?? 0), capacity: units(inv?.capacity ?? 0) });
+        return t("status.warehouse_full.good", { name: goodName(content, g), stock: tonsRatio(inv?.stock ?? 0, inv?.capacity ?? 0) });
       });
       return { key, sentence: parts.join(", ") || t("status.warehouse_full.sentence"), fix: t("status.warehouse_full.fix") };
     }

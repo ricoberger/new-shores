@@ -41,7 +41,7 @@ describe("tiers", () => {
       ],
       islands: [],
     } as unknown as DisplayState;
-    expect(lockReason(model, content, "citizens")).toBe("Needs Citizens — Settlers 88/120, Chapel");
+    expect(lockReason(model, content, "citizens")).toBe("Needs Citizens — 88/120 Settlers · Build Chapel");
     expect(lockReason(model, content, "settlers")).toBeNull();
     expect(tierUnlocked(model, "citizens")).toBe(false);
     // Conditions met but not yet evaluated, or no model: just the tier.

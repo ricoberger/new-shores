@@ -7,7 +7,7 @@ import (
 
 // The content payload carries the harbour buildings of D-060: the
 // trading pier's berths, the depot's fixed capacity and the quay's shallows flag,
-// all in the Harbour or Roads build tab.
+// all in the Harbour group of the build menu (the quay is a road on the shallows).
 func TestHarbourContentPayload(t *testing.T) {
 	p := newContentPayload(shippedCatalogue(t), "en")
 	byID := map[string]buildingJSON{}
@@ -21,7 +21,7 @@ func TestHarbourContentPayload(t *testing.T) {
 	if depot.Category != categoryHarbour || depot.Depot == nil || depot.Depot.Capacity != 150_000 {
 		t.Fatalf("depot = %+v", depot)
 	}
-	if quay.Category != categoryRoads || quay.Road == nil || !quay.Road.Shallows || quay.Road.MsPerTile != 600 {
+	if quay.Category != categoryHarbour || quay.Road == nil || !quay.Road.Shallows || quay.Road.MsPerTile != 600 {
 		t.Errorf("quay = %+v", quay)
 	}
 	raw, err := json.Marshal(byID["market"])

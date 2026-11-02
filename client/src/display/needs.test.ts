@@ -8,7 +8,9 @@ import { ICON_PATHS } from "../theme/icons";
 import {
   type NeedContent,
   chainBuildings,
+  groupByCategory,
   groupNeeds,
+  needGoods,
   needAlternatives,
   needCategory,
   needFromTier,
@@ -170,6 +172,52 @@ describe("service chains (D-065) and the need groups", () => {
       ["goods", ["patricians_food", "patricians_settlers_food"]],
       ["public", ["patricians_safety", "patricians_market", "patricians_health"]],
       [undefined, ["patricians_mystery"]],
+    ]);
+  });
+});
+
+describe("needGoods and groupByCategory", () => {
+  const c = {
+    goods: [
+      { id: "bread", name: "Bread" },
+      { id: "cheese", name: "Cheese" },
+      { id: "fish", name: "Fish" },
+    ],
+    needs: [
+      { id: "citizens_food", goods: [{ good: "bread" }, { good: "cheese" }] },
+      { id: "settlers_food", goods: [{ good: "fish" }] },
+      { id: "settlers_market", buildings: [{ building: "market" }] },
+    ],
+  } as unknown as Parameters<typeof needGoods>[0];
+
+  it("names the goods of a goods need as alternatives, nothing for other needs", () => {
+    expect(needGoods(c, "citizens_food")).toBe("Bread or Cheese");
+    expect(needGoods(c, "settlers_food")).toBe("Fish");
+    expect(needGoods(c, "settlers_market")).toBeUndefined();
+    expect(needGoods(c, "nobody")).toBeUndefined();
+    expect(needGoods(null, "citizens_food")).toBeUndefined();
+  });
+
+  it("pulls the needs of a category together at its first need, the lowest tier first", () => {
+    const tiers = { tiers: [{ id: "settlers", index: 0 }, { id: "citizens", index: 1 }, { id: "merchants", index: 2 }], needs: [
+      { id: "m_food", tier: "merchants" },
+      { id: "m_drink", tier: "merchants" },
+      { id: "m_settlers_food", tier: "merchants", from_tier: "settlers" },
+      { id: "m_citizens_food", tier: "merchants", from_tier: "citizens" },
+    ] } as unknown as Parameters<typeof groupByCategory>[0];
+    const runs = groupByCategory(tiers, [
+      { id: "m_food", category: "food" },
+      { id: "m_drink", category: "drink" },
+      { id: "m_citizens_food", category: "food" },
+      { id: "m_settlers_food", category: "food" },
+      { id: "x" },
+      { id: "y" },
+    ]);
+    expect(runs.map((r) => [r.category, r.needs.map((n) => n.id)])).toEqual([
+      ["food", ["m_settlers_food", "m_citizens_food", "m_food"]],
+      ["drink", ["m_drink"]],
+      [undefined, ["x"]],
+      [undefined, ["y"]],
     ]);
   });
 });

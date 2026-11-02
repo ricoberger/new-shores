@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
-import { units } from "../display/format";
+import { tonsRatio } from "../display/format";
 import { t } from "../i18n";
 import { draftChanged, effectRows } from "../display/routes";
 import type { Draft, DraftStop } from "../display/view";
@@ -76,7 +76,7 @@ export function RouteEditor(p: Props) {
     });
   const stock = (island: string, good: string) => {
     const g = model.islands.find((i) => i.id === island)?.inventory[good];
-    return g ? `${units(g.stock)}/${units(g.capacity)}` : "—";
+    return g ? tonsRatio(g.stock, g.capacity) : "—";
   };
   const firstGood = content.goods[0]?.id ?? "";
   /** A stop's load and unload rules as one list (loads first), each with its index in its own list. */

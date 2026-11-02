@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { Content, DisplayState, Island, IslandDisplay } from "../api/client";
-import { perMin, units } from "../display/format";
+import { perMin, tonsRatio, units } from "../display/format";
 import { percentSpace, t } from "../i18n";
 import { constructionGoods, islandResources, type TierRow, tierRows, worstNeedText } from "../display/hud";
 import { needCategory, needLabel } from "../display/needs";
@@ -149,7 +149,7 @@ export function MaterialsDetails({ goods, island, goodName }: { goods: string[];
             {goodName(g)}
           </span>
           <span className={styles.value}>
-            {units(island?.inventory[g]?.stock ?? 0)} / {units(island?.inventory[g]?.capacity ?? 0)}
+            {tonsRatio(island?.inventory[g]?.stock ?? 0, island?.inventory[g]?.capacity ?? 0)}
           </span>
         </div>
       ))}

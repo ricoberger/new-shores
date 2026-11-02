@@ -4,7 +4,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { Content, DisplayState } from "../api/client";
 import { cargoCoversWarehouse, depositCounts, foundingShips, islandSummary } from "./archipelago";
-import { createdRouteId, draftFromRoute, ribbonLegs, ribbonsShown, signedUnits, stopsFromDraft } from "./routes";
+import { signedTons } from "./format";
+import { createdRouteId, draftFromRoute, ribbonLegs, ribbonsShown, stopsFromDraft } from "./routes";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -51,9 +52,9 @@ describe("route drafts", () => {
     const d = draftFromRoute(r);
     expect(d.stops[0]!.load[0]).toEqual({ good: "wood", max: 100 });
     expect(stopsFromDraft(d)).toEqual(r.stops);
-    expect(signedUnits(-50_000)).toBe("−50");
-    expect(signedUnits(40_000)).toBe("+40");
-    expect(signedUnits(0)).toBe("0");
+    expect(signedTons(-50_000)).toBe("−50\u00a0t");
+    expect(signedTons(40_000)).toBe("+40\u00a0t");
+    expect(signedTons(0)).toBe("0\u00a0t");
     expect(createdRouteId([r], [r, { ...r, id: 2 }])).toBe(2);
     expect(createdRouteId([r], [r])).toBeNull();
   });
