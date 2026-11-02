@@ -7010,7 +7010,7 @@
             ]
           },
           "budget": 4860,
-          "bytes": 127600,
+          "bytes": 127780,
           "ground": [
             [
               "dirt",
@@ -7042,14 +7042,14 @@
               ]
             },
             "budget": 405,
-            "bytes": 6892,
+            "bytes": 6800,
             "path": "house_settlers.v0.lite.glb",
-            "sha256": "26279c7d5991a0cc174672baaf3fe3c9fd94de99d3916ea0384ab43cbec6323e",
-            "triangles": 160
+            "sha256": "815d9209aae315b961a3ed3c568094f7c74d36b323c18d81097e52694c8dcd6c",
+            "triangles": 158
           },
           "path": "house_settlers.v0.glb",
-          "sha256": "e1885063bab7ed8c8921d633227984aeb5e1f715c11131e9c625512cc3f5a567",
-          "triangles": 4182
+          "sha256": "79cee2cad0361d659e1384037cddbe7455bf691a3cededbe37c0463e5b535405",
+          "triangles": 4164
         },
         {
           "bounds": {
@@ -7065,7 +7065,7 @@
             ]
           },
           "budget": 4860,
-          "bytes": 126688,
+          "bytes": 128200,
           "ground": [
             [
               "dirt",
@@ -7103,8 +7103,8 @@
             "triangles": 164
           },
           "path": "house_settlers.v1.glb",
-          "sha256": "0158a1f7d82a8fab762ce810ee5de7228b13684b6266f29324c586e087fb939b",
-          "triangles": 4078
+          "sha256": "c3fd1f79e705a77235410108c4de94004a891784cd44137fb027e1ffa09899be",
+          "triangles": 4122
         },
         {
           "bounds": {
@@ -7120,7 +7120,7 @@
             ]
           },
           "budget": 4860,
-          "bytes": 127648,
+          "bytes": 127756,
           "ground": [
             [
               "dirt",
@@ -7158,8 +7158,8 @@
             "triangles": 172
           },
           "path": "house_settlers.v2.glb",
-          "sha256": "b9e588c38d6164dd17be94060b58063ccc30e31f17a559b846358b3eb606307e",
-          "triangles": 4310
+          "sha256": "10b4eb11f456416fdb9e69447f69546d083c22caf0732b2f01c4e49c38da528b",
+          "triangles": 4288
         }
       ],
       "voxels_per_tile": 12

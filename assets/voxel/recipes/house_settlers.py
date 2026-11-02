@@ -21,7 +21,7 @@ VOXELS_PER_TILE = 12
 BOARDS = mat("timber", 0.95)
 LOGS = mat("timber", 0.8)
 PLINTH = mat("stone", 1.1)
-BASE = 3  # first wall course: two pale plinth courses under it
+BASE = 2  # first wall course: one pale stone band under it, flush with the walls
 
 
 def stack(v, x, y, z0, z1, w=3, d=3):
@@ -37,8 +37,8 @@ def stack(v, x, y, z0, z1, w=3, d=3):
 
 
 def footing(v, x0, y0, x1, y1):
-    """Two courses of pale stone the house stands on, proud of the walls."""
-    P.plinth(v, x0, y0, x1, y1, 1, PLINTH, out=1, h=2)
+    """One course of pale stone the house stands on, flush with the walls (a colour band; the wall meets the painted ground)."""
+    P.plinth(v, x0, y0, x1, y1, 1, PLINTH, out=0)
     P.fill(v, x0, y0, x1, y1, 1, BASE, PLINTH)
 
 
