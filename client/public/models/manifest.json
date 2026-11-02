@@ -11434,14 +11434,14 @@
     "slaughterhouse": {
       "anchors": {
         "cart": [
-          1.25,
+          -0.8333,
           0.0,
-          -1.75
+          -1.5
         ],
         "chimney": [
-          -1.1875,
-          3.0,
-          1.0625
+          0.9167,
+          4.9167,
+          1.0833
         ],
         "door": [
           0.0,
@@ -11449,61 +11449,61 @@
           -2.0
         ],
         "smoke": [
-          -1.1875,
-          3.125,
-          1.0625
+          0.9167,
+          5.0,
+          1.0833
         ],
         "status": [
           0.0,
-          3.375,
+          5.0833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          3.125,
-          1.75
+          2.0,
+          4.8333,
+          2.0
         ],
         "min": [
-          -1.875,
+          -1.75,
           0.0,
-          -2.0
+          -1.3333
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            3.125,
-            1.75
+            2.0,
+            4.8333,
+            2.0
           ],
           "min": [
-            -1.875,
+            -1.75,
             0.0,
-            -2.0
+            -1.3333
           ]
         },
         "budget": 8000,
-        "bytes": 83904,
+        "bytes": 89448,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
             "paved",
@@ -11515,32 +11515,32 @@
         "lite": {
           "bounds": {
             "max": [
-              2.0,
-              3.0,
-              2.0
+              1.5,
+              4.5,
+              1.5
             ],
             "min": [
-              -2.0,
+              -1.5,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 640,
-          "bytes": 11200,
+          "bytes": 5956,
           "path": "slaughterhouse.lite.glb",
-          "sha256": "c83c63851f485460d5f1244f9b3dc25d53bcea2a03fff1e1c1f6a95c78090cc7",
-          "triangles": 286
+          "sha256": "fc6d0cdd56201ef6cca5cbd7cea9ba8862fa7927ee50741a236376a800a67d45",
+          "triangles": 132
         },
         "path": "slaughterhouse.glb",
-        "sha256": "3494271a2530ad3a555d4532106c369472d8459744e3444e9050ae41730920b5",
-        "triangles": 2602
+        "sha256": "f7783d2d8407d2e34cd03494fe5c46297917f34853afdc5fc3c519dd190bec49",
+        "triangles": 2792
       },
       "footprint": {
         "h": 4,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "sloop": {
       "anchors": {
