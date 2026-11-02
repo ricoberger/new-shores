@@ -26,7 +26,7 @@ TIERS = ("settlers", "citizens")
 #: Roles with no authored shade steps (courses, stripes, rows): adjacent voxels of one role share one colour.
 FLAT_ROLES = ("plaster", "brass")
 #: Model files with a sway group among tiers 1–2 (LIFE_LAYER §7): hung cloth, sails on frames, awnings and flags.
-SWAY_ALLOWED = {"weaver_wool.glb", "weaver_linen.glb", "sailmaker.glb", "trading_post.l4.glb"}
+SWAY_ALLOWED = {"weaver_wool.glb", "weaver_linen.glb", "sailmaker.glb", "trading_post.l1.glb", "trading_post.l2.glb", "trading_post.l3.glb", "trading_post.l4.glb"}
 
 
 def tier_ids():

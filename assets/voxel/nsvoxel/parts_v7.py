@@ -13,11 +13,13 @@ roof), `plank_shed` a boarded shed with a door under a gable roof, `stack` a
 stone chimney of any width with a pot, `stairs` a plank stair beside a wall.
 """
 
+from types import SimpleNamespace
+
 from . import parts as _p  # first: parts imports detail at its end
 from . import detail as _d
 from . import detail_v4 as _v
 from .grid import hash3, shade_of
-from .mats import PLASTER, STONE, STONE_DARK, STONE_LIGHT, TERRACOTTA, TIMBER, TIMBER_DARK, TIMBER_LIGHT, WINDOW, BRASS
+from .mats import CANVAS, IRON, THATCH_DARK, PLASTER, STONE, STONE_DARK, STONE_LIGHT, TERRACOTTA, TIMBER, TIMBER_DARK, TIMBER_LIGHT, WINDOW, BRASS
 
 #: The three stone shades of rubble: dark, mid, pale.
 RUBBLE = (0.66, 0.84, 1.0)
@@ -393,3 +395,65 @@ def round_arcade(f, a0, a1, z0, h, bay=6, pier=2, depth=3, back=None, pier_m=Non
                 f.put(a - p, z0 + j, pier_m)
         for p in range(1, pier + 1):
             f.put(a - p, z0 + spring, _d.DRESSED, out=1)
+
+
+def roof_span(x0, x1, y0, y1, z, ov, along):
+    return SimpleNamespace(x0=x0, x1=x1, y0=y0, y1=y1, z=z, ov=ov, along=along)
+
+
+def thatch_finish(v, r, seed, dark=THATCH_DARK, eave=True):
+    """Thatch patches baked into the courses and a ragged eave (as the settlers' houses)."""
+    zlo = r.z
+    for (x, y, z), m in list(v.cells.items()):
+        if m[0] != "thatch" or z < zlo or not (r.x0 - r.ov <= x < r.x1 + r.ov and r.y0 - r.ov <= y < r.y1 + r.ov):
+            continue
+        h = hash3(x // 8, y // 6, z // 4, seed)
+        if h < 0.2:
+            v.set(x, y, z, shade_of(m, 0.78))
+        elif h > 0.86:
+            v.set(x, y, z, shade_of(m, 1.14))
+    edge = []
+    if r.along == "x":
+        for x in range(r.x0 - r.ov, r.x1 + r.ov):
+            edge += [(x, r.y0 - r.ov, -1, 0), (x, r.y1 + r.ov - 1, 1, 0)]
+    else:
+        for y in range(r.y0 - r.ov, r.y1 + r.ov):
+            edge += [(r.x0 - r.ov, y, 0, -1), (r.x1 + r.ov - 1, y, 0, 1)]
+    for x, y, dy, dx in edge if eave else ():
+        n = 1 + int(hash3(x // 4 if dx == 0 else 0, y // 4 if dy == 0 else 0, 5, seed + 9) * 2.4)
+        for i in range(1, n + 1):
+            if not v.has(x, y, r.z - i):
+                v.set(x, y, r.z - i, shade_of(dark, 1.0 if i % 2 else 0.88))
+
+
+def store_goods(v, spots, seed=0):
+    """A few large crates, tall casks and sack piles on (x, y) spots."""
+    for k, (x, y) in enumerate(spots):
+        if k % 3 == 0:
+            _p.cask(v, x, y, 1, h=5)
+            _p.cask(v, x + 4, y, 1, h=4)
+        elif k % 3 == 1:
+            _p.box_crate(v, x, y, 1, s=4)
+            _p.box_crate(v, x + 1, y + 1, 5, s=3)
+        else:
+            _p.sacks(v, x, y, 1, n=3, m=CANVAS)
+
+
+def loft_door(v, face_plane, a, z, w=5, h=7, frame=None, beam_z=None, rope=10, length=8, side="y+"):
+    """A loading door in the upper storey of a front gable and a hoist beam with a pulley, a rope and a load above it."""
+    f = _p.Face(v, side, face_plane)
+    _p.entrance(f, a, z, w, h, leaf=TIMBER, frame=frame or TIMBER_DARK, step=None, hinges=False, knob=IRON)
+    for j in range(h):
+        f.put(a + w // 2, z + j, TIMBER_DARK, out=-1)
+    _v.hoist(f, a + w // 2, beam_z or z + h + 4, length=length, rope=rope, load=TIMBER_LIGHT)
+
+
+def gate(f, a, w, h, frame=None, arch=False):
+    """A wide two-leaf gate (a stone arch when `arch`)."""
+    if arch:
+        _p.entrance(f, a, 2, w, h, leaf=TIMBER, frame=frame or _p.DRESSED, step=None, arch=True, hinges=False, knob=IRON)
+        for j in range(h - 1):
+            f.put(a + w // 2 - 1, 2 + j, TIMBER_DARK, out=-1)
+            f.put(a + w // 2, 2 + j, TIMBER_DARK, out=-1)
+    else:
+        _p.barn_gate(f, a, 2, w, h)

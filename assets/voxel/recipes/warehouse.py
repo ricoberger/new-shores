@@ -11,8 +11,6 @@ gables with two finials, dormers and a steep slate roof. Brick (D-064 §3) is
 the warehouse role: the ground floor of level 3 and all of level 4. Dirt yard at levels 1–2, cobbles at 3–4.
 """
 
-from types import SimpleNamespace
-
 from nsvoxel import detail_v4 as V
 from nsvoxel import detail_v5 as Q
 from nsvoxel import parts as P
@@ -38,68 +36,6 @@ CREAM = mat("plaster", 0.95)
 BRICK_SHADES = (0.9, 1.0, 1.08)
 
 
-def span(x0, x1, y0, y1, z, ov, along):
-    return SimpleNamespace(x0=x0, x1=x1, y0=y0, y1=y1, z=z, ov=ov, along=along)
-
-
-def thatch_finish(v, r, seed, dark=THATCH_DARK, eave=True):
-    """Thatch patches baked into the courses and a ragged eave (as the settlers' houses)."""
-    zlo = r.z
-    for (x, y, z), m in list(v.cells.items()):
-        if m[0] != "thatch" or z < zlo or not (r.x0 - r.ov <= x < r.x1 + r.ov and r.y0 - r.ov <= y < r.y1 + r.ov):
-            continue
-        h = hash3(x // 8, y // 6, z // 4, seed)
-        if h < 0.2:
-            v.set(x, y, z, shade_of(m, 0.78))
-        elif h > 0.86:
-            v.set(x, y, z, shade_of(m, 1.14))
-    edge = []
-    if r.along == "x":
-        for x in range(r.x0 - r.ov, r.x1 + r.ov):
-            edge += [(x, r.y0 - r.ov, -1, 0), (x, r.y1 + r.ov - 1, 1, 0)]
-    else:
-        for y in range(r.y0 - r.ov, r.y1 + r.ov):
-            edge += [(r.x0 - r.ov, y, 0, -1), (r.x1 + r.ov - 1, y, 0, 1)]
-    for x, y, dy, dx in edge if eave else ():
-        n = 1 + int(hash3(x // 4 if dx == 0 else 0, y // 4 if dy == 0 else 0, 5, seed + 9) * 2.4)
-        for i in range(1, n + 1):
-            if not v.has(x, y, r.z - i):
-                v.set(x, y, r.z - i, shade_of(dark, 1.0 if i % 2 else 0.88))
-
-
-def goods(v, spots, seed=0):
-    """A few large crates, tall casks and sack piles on (x, y) spots."""
-    for k, (x, y) in enumerate(spots):
-        if k % 3 == 0:
-            P.cask(v, x, y, 1, h=5)
-            P.cask(v, x + 4, y, 1, h=4)
-        elif k % 3 == 1:
-            P.box_crate(v, x, y, 1, s=4)
-            P.box_crate(v, x + 1, y + 1, 5, s=3)
-        else:
-            P.sacks(v, x, y, 1, n=3, m=CANVAS)
-
-
-def loft(v, face_plane, a, z, w=5, h=7, frame=None, beam_z=None, rope=10, length=8, side="y+"):
-    """A loading door in the upper storey of a front gable and a hoist beam with a pulley, a rope and a load above it."""
-    f = P.Face(v, side, face_plane)
-    P.entrance(f, a, z, w, h, leaf=TIMBER, frame=frame or TIMBER_DARK, step=None, hinges=False, knob=IRON)
-    for j in range(h):
-        f.put(a + w // 2, z + j, TIMBER_DARK, out=-1)
-    V.hoist(f, a + w // 2, beam_z or z + h + 4, length=length, rope=rope, load=TIMBER_LIGHT)
-
-
-def gate(f, a, w, h, frame=None, arch=False):
-    """A wide two-leaf gate (a stone arch when `arch`)."""
-    if arch:
-        P.entrance(f, a, 2, w, h, leaf=TIMBER, frame=frame or P.DRESSED, step=None, arch=True, hinges=False, knob=IRON)
-        for j in range(h - 1):
-            f.put(a + w // 2 - 1, 2 + j, TIMBER_DARK, out=-1)
-            f.put(a + w // 2, 2 + j, TIMBER_DARK, out=-1)
-    else:
-        P.barn_gate(f, a, 2, w, h)
-
-
 def level1(v, seed):
     thatch = mat("thatch", 0.8)  # the weathered thatch of the settlers' house v0
     x0, y0, x1, y1 = 22, 8, 52, 50
@@ -108,9 +44,9 @@ def level1(v, seed):
     P.fill(v, x0, y0, x1, y1, 1, BASE, PLINTH)
     P.boarded(v, x0, y0, x1, y1, BASE, top, m=BOARDS, batten=TIMBER, every=4)
     r = P.roof(v, x0, x1, y0, y1, top, "thatch", along="y", rise=2.0, ov=2, gable=BOARDS, seed=seed, m=thatch)
-    thatch_finish(v, r, seed)
+    W.thatch_finish(v, r, seed)
     f = P.Face(v, "y+", y1 - 1)
-    gate(f, 31, 12, 10)
+    W.gate(f, 31, 12, 10)
     V.hoist(f, 37, r.ridge_z - 5, length=9, rope=8, load=TIMBER_LIGHT)
     for a in (27, 45):
         P.casement(f, a, 7, 2, 3, frame=None, sill=TIMBER_LIGHT, shutters=TIMBER_LIGHT, bars=False)
@@ -124,10 +60,10 @@ def level1(v, seed):
     # The open lean-to shed against the west wall.
     sx0, sx1, sy0, sy1 = 8, 22, 24, 46
     P.lean_to(v, sx0, sx1, sy0, sy1, 9, "thatch", down="x-", ov=1, m=mat("thatch", 1.1), posts=True, seed=seed)
-    thatch_finish(v, span(sx0, sx1, sy0, sy1, 9, 1, "y"), seed + 4, eave=False)
-    goods(v, [(10, 27), (14, 27), (18, 27), (10, 33), (14, 33), (18, 33), (11, 39), (16, 39)])
+    W.thatch_finish(v, W.roof_span(sx0, sx1, sy0, sy1, 9, 1, "y"), seed + 4, eave=False)
+    W.store_goods(v, [(10, 27), (14, 27), (18, 27), (10, 33), (14, 33), (18, 33), (11, 39), (16, 39)])
     P.woodpile(v, 56, 12, 1, length=8, along="y", rows=3)
-    goods(v, [(30, 56), (36, 58), (44, 56), (52, 54)])
+    W.store_goods(v, [(30, 56), (36, 58), (44, 56), (52, 54)])
     P.handcart(v, 12, 56, 1, along="x", load=CANVAS)
 
 
@@ -137,15 +73,15 @@ def stone_wing(v, x0, y0, x1, y1, along, ground, top, roof, ridge, shades, verge
 
 def level2(v, seed):
     a = stone_wing(v, 6, 28, 44, 56, "x", 12, 24, TERRACOTTA, TERRA_RIDGE, SHADE_TILE, 0.66, seed, windows={"y+": (0, 2), "x-": (1,)}, shutters=mat("dye-blue"))
-    gate(a.face("y+"), 19, 10, 10, arch=True)
+    W.gate(a.face("y+"), 19, 10, 10, arch=True)
     b = stone_wing(v, 46, 8, 66, 56, "y", 12, 27, TERRACOTTA, TERRA_RIDGE, SHADE_TILE, 0.66, seed + 1, rise=1.5, windows={"y+": (0,), "x-": (0, 2)}, shutters=mat("dye-green") if False else mat("dye-blue"))
-    gate(b.face("y+"), 52, 8, 9, arch=True)
-    loft(v, b.upper[3] - 1, 54, 14, frame=P.DRESSED, beam_z=27 + 4, rope=11)
+    W.gate(b.face("y+"), 52, 8, 9, arch=True)
+    W.loft_door(v, b.upper[3] - 1, 54, 14, frame=P.DRESSED, beam_z=27 + 4, rope=11)
     V.balcony(a.face("y+"), 8, 17, 13, depth=2)
     W.dormer(v, a.roof, 10, 16, "y+", wall=PLASTER, frame=TIMBER_LIGHT, course=3, h=6, m=TERRACOTTA, ridge=TERRA_RIDGE, shades=SHADE_TILE, verge=0.66)
     W.dormer(v, a.roof, 30, 36, "y+", wall=PLASTER, frame=TIMBER_LIGHT, course=3, h=6, m=TERRACOTTA, ridge=TERRA_RIDGE, shades=SHADE_TILE, verge=0.66)
     W.stack(v, 12, 36, a.roof.ridge_z - 2, a.roof.ridge_z + 4, 3, 3)
-    goods(v, [(8, 61), (30, 62), (50, 62)])
+    W.store_goods(v, [(8, 61), (30, 62), (50, 62)])
     P.handcart(v, 20, 66, 1, along="x", load=CANVAS)
 
 
@@ -155,15 +91,15 @@ def level3(v, seed):
     b = stone_wing(v, 50, 8, 68, 56, "y", 12, 28, **kw, seed=seed + 1, rise=1.5, windows={"y+": (), "x-": (0, 2)})
     c = stone_wing(v, 2, 12, 18, 56, "y", 12, 25, **kw, seed=seed + 2, rise=1.5, windows={"y+": (), "x+": (0, 2)})
     back = shade_of(mat("stone", 0.95), 0.5)
-    gate(a.face("y+"), 29, 10, 10, arch=True)
+    W.gate(a.face("y+"), 29, 10, 10, arch=True)
     W.round_arcade(b.face("y+"), 50, 68, 2, 9, bay=6, pier=2, depth=3, back=back, pier_m=BRICK, arch_m=BRICK)
     W.round_arcade(c.face("y+"), 2, 18, 2, 9, bay=5, pier=2, depth=3, back=back, pier_m=BRICK, arch_m=BRICK)
-    loft(v, b.upper[3] - 1, 57, 14, frame=P.DRESSED, beam_z=28 + 4, rope=11)
-    loft(v, c.upper[3] - 1, 8, 14, frame=P.DRESSED, beam_z=25 + 4, rope=11)
+    W.loft_door(v, b.upper[3] - 1, 57, 14, frame=P.DRESSED, beam_z=28 + 4, rope=11)
+    W.loft_door(v, c.upper[3] - 1, 8, 14, frame=P.DRESSED, beam_z=25 + 4, rope=11)
     for x0 in (24, 36):
         W.dormer(v, a.roof, x0, x0 + 6, "y+", wall=PLASTER, frame=Q.DRESSED, course=3, h=6, m=TILE, ridge=TILE_RIDGE, shades=SHADE_TILE, verge=0.62)
     W.stack(v, 30, 34, a.roof.ridge_z - 2, a.roof.ridge_z + 4, 3, 3)
-    goods(v, [(52, 60), (4, 60), (22, 62), (36, 62)])
+    W.store_goods(v, [(52, 60), (4, 60), (22, 62), (36, 62)])
 
 
 def level4(v, seed):
@@ -190,14 +126,14 @@ def level4(v, seed):
                 W.arched_window(ff, a, z, 5, h)
         for a in range(y0 + 5, y1 - 6, 8):
             W.arched_window(fx, a, z, 5, h)
-    loft(v, y1 - 1, cx - 2, 13, frame=Q.DRESSED, beam_z=top + 4, rope=13, length=9)
+    W.loft_door(v, y1 - 1, cx - 2, 13, frame=Q.DRESSED, beam_z=top + 4, rope=13, length=9)
     W.stepped_gable(v, r, "y+", m=BRICK, coping=Q.DRESSED, balls="apex")
     W.stepped_gable(v, r, "y-", m=BRICK, coping=Q.DRESSED, balls="apex")
     for a in (18, 34, 50):
         W.dormer(v, r, a, a + 6, "x-", wall=CREAM, frame=Q.DRESSED, course=3, h=6, m=SLATE, ridge=SLATE_RIDGE, shades=SHADE_SLATE, verge=0.66, kind="slate")
     P.roof_chimney(v, r, x1 - 10, y0 + 14, above=3, brick=True, pots=2)
-    goods(v, [(16, 68), (30, 69), (46, 68)])
-    goods(v, [(4, 20), (4, 40)])
+    W.store_goods(v, [(16, 68), (30, 69), (46, 68)])
+    W.store_goods(v, [(4, 20), (4, 40)])
 
 
 def build(ctx):

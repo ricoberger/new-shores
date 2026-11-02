@@ -12592,7 +12592,7 @@
           2.85
         ],
         "cart": [
-          1.4,
+          1.4167,
           0.0,
           -2.5
         ],
@@ -12603,20 +12603,20 @@
         ],
         "status": [
           0.0,
-          4.25,
+          4.4167,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          3.0,
-          4.0,
-          3.125
+          2.8333,
+          4.1667,
+          3.0
         ],
         "min": [
-          -3.0,
-          -1.0,
-          -2.5
+          -2.9167,
+          -1.0833,
+          -3.25
         ]
       },
       "footprint": {
@@ -12628,18 +12628,18 @@
         "1": {
           "bounds": {
             "max": [
-              3.0,
-              2.75,
-              2.875
+              2.8333,
+              3.1667,
+              3.0
             ],
             "min": [
-              -3.0,
-              -1.0,
-              -2.5
+              -2.6667,
+              -1.0833,
+              -2.9167
             ]
           },
           "budget": 18000,
-          "bytes": 82416,
+          "bytes": 245204,
           "ground": [
             [
               "none",
@@ -12652,8 +12652,8 @@
             [
               "dirt",
               "dirt",
-              "none",
-              "none",
+              "dirt",
+              "dirt",
               "dirt",
               "dirt"
             ],
@@ -12693,41 +12693,41 @@
           "lite": {
             "bounds": {
               "max": [
-                3.0,
+                2.5,
                 3.0,
                 3.0
               ],
               "min": [
                 -3.0,
-                -0.5,
-                -2.0
+                -1.0,
+                -3.0
               ]
             },
             "budget": 1440,
-            "bytes": 7084,
+            "bytes": 13956,
             "path": "trading_post.l1.lite.glb",
-            "sha256": "a10e4975bfbea90bbb9dedca1ba33f1776d4e02ac018b1868a06a5981d0478ae",
-            "triangles": 168
+            "sha256": "f2191acaac90566c2971ca0cc8551a8393f171035781e5aad0919e067828b61e",
+            "triangles": 372
           },
           "path": "trading_post.l1.glb",
-          "sha256": "f33946ed7995963e8a058ca8d96d558dfa3ad7a428bede9514d7ce43427c6c56",
-          "triangles": 2624
+          "sha256": "64e0bc3947613b41f1ce56060ae45db77f11d75cf435caf9252f66028fca71e1",
+          "triangles": 8022
         },
         "2": {
           "bounds": {
             "max": [
-              3.0,
-              2.375,
-              3.125
+              2.75,
+              4.0833,
+              3.0
             ],
             "min": [
-              -3.0,
-              -1.0,
-              -2.5
+              -2.9167,
+              -1.0833,
+              -3.0
             ]
           },
           "budget": 18000,
-          "bytes": 92300,
+          "bytes": 352296,
           "ground": [
             [
               "none",
@@ -12740,184 +12740,8 @@
             [
               "dirt",
               "dirt",
-              "none",
-              "none",
-              "dirt",
-              "dirt"
-            ],
-            [
               "dirt",
               "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ]
-          ],
-          "lite": {
-            "bounds": {
-              "max": [
-                3.0,
-                2.5,
-                3.0
-              ],
-              "min": [
-                -3.0,
-                -0.5,
-                -2.0
-              ]
-            },
-            "budget": 1440,
-            "bytes": 8844,
-            "path": "trading_post.l2.lite.glb",
-            "sha256": "1cdb252edfda5d3eaef309d1adf0f13da85c46346a42201aa698f217d97be0fd",
-            "triangles": 216
-          },
-          "path": "trading_post.l2.glb",
-          "sha256": "cca9c48f6a0abfa89fec4bdc48db4043fdffec0bf36562f3d68458475820ebf9",
-          "triangles": 2922
-        },
-        "3": {
-          "bounds": {
-            "max": [
-              3.0,
-              3.125,
-              3.125
-            ],
-            "min": [
-              -3.0,
-              -1.0,
-              -2.5
-            ]
-          },
-          "budget": 18000,
-          "bytes": 121268,
-          "ground": [
-            [
-              "none",
-              "none",
-              "none",
-              "none",
-              "none",
-              "none"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "none",
-              "none",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ]
-          ],
-          "lite": {
-            "bounds": {
-              "max": [
-                3.0,
-                3.5,
-                3.0
-              ],
-              "min": [
-                -3.0,
-                -0.5,
-                -2.5
-              ]
-            },
-            "budget": 1440,
-            "bytes": 10624,
-            "path": "trading_post.l3.lite.glb",
-            "sha256": "87e8c9c6540fbb31e1afe1c2c35cef6a58a0a0d003a601ab2709e08d913c1157",
-            "triangles": 302
-          },
-          "path": "trading_post.l3.glb",
-          "sha256": "c33423546a7ad2d6616c9619934cd5bf09d159d6d716c0741fca1fd040e26614",
-          "triangles": 3848
-        },
-        "4": {
-          "bounds": {
-            "max": [
-              3.0,
-              4.0,
-              3.125
-            ],
-            "min": [
-              -3.0,
-              -1.0,
-              -2.5
-            ]
-          },
-          "budget": 18000,
-          "bytes": 172996,
-          "ground": [
-            [
-              "none",
-              "none",
-              "none",
-              "none",
-              "none",
-              "none"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "none",
-              "none",
               "dirt",
               "dirt"
             ],
@@ -12963,25 +12787,201 @@
               ],
               "min": [
                 -3.0,
-                -0.5,
-                -2.5
+                -1.0,
+                -3.0
               ]
             },
             "budget": 1440,
-            "bytes": 12740,
+            "bytes": 17232,
+            "path": "trading_post.l2.lite.glb",
+            "sha256": "ed80a5fc30f4e4372f18c920cb1612992aa6e5a85fa4b22c627d932e492f9ebf",
+            "triangles": 486
+          },
+          "path": "trading_post.l2.glb",
+          "sha256": "c46205b54ff501b816589b8440f7357dc4569755c76d0ca0775469abc2ffd5fc",
+          "triangles": 10924
+        },
+        "3": {
+          "bounds": {
+            "max": [
+              2.75,
+              4.1667,
+              3.0
+            ],
+            "min": [
+              -2.9167,
+              -1.0833,
+              -3.0833
+            ]
+          },
+          "budget": 18000,
+          "bytes": 343672,
+          "ground": [
+            [
+              "none",
+              "none",
+              "none",
+              "none",
+              "none",
+              "none"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ]
+          ],
+          "lite": {
+            "bounds": {
+              "max": [
+                3.0,
+                4.0,
+                3.0
+              ],
+              "min": [
+                -3.0,
+                -1.5,
+                -3.0
+              ]
+            },
+            "budget": 1440,
+            "bytes": 18632,
+            "path": "trading_post.l3.lite.glb",
+            "sha256": "deca99bcf412d48febd78cc8d215be2eccec90d4aa18c50fd86f795687502481",
+            "triangles": 524
+          },
+          "path": "trading_post.l3.glb",
+          "sha256": "e5b06eed563d30005dffe3d27f380b90ed49a2143a9f0d04d32c59e07821f0c6",
+          "triangles": 10724
+        },
+        "4": {
+          "bounds": {
+            "max": [
+              2.75,
+              3.6667,
+              3.0
+            ],
+            "min": [
+              -2.8333,
+              -1.0833,
+              -3.25
+            ]
+          },
+          "budget": 18000,
+          "bytes": 286528,
+          "ground": [
+            [
+              "none",
+              "none",
+              "none",
+              "none",
+              "none",
+              "none"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ]
+          ],
+          "lite": {
+            "bounds": {
+              "max": [
+                3.0,
+                3.5,
+                3.0
+              ],
+              "min": [
+                -3.0,
+                -1.5,
+                -3.5
+              ]
+            },
+            "budget": 1440,
+            "bytes": 18768,
             "path": "trading_post.l4.lite.glb",
-            "sha256": "277f4bc604bb0c26d7f1b5fe37526eb182763c62c7c123f0b42397a0d5e21a6a",
-            "triangles": 364
+            "sha256": "d7a6d4d67041c9ec8df197065237188baadc60f9be86c8b805d04856b8ede265",
+            "triangles": 512
           },
           "path": "trading_post.l4.glb",
-          "sha256": "4507ed84053e0f7c164a641454325f90cbcedfad8afb1c156814a2f67d468b80",
-          "triangles": 5528
+          "sha256": "2e8e1b00392af0a10f4a531ad2cc73cd21ba302caef75cf2febbbb5ebd12a628",
+          "triangles": 9568
         }
       },
       "sway": [
         "flag"
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "tree_plot": {
       "anchors": {

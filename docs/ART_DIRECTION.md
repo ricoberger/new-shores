@@ -476,7 +476,11 @@ land buildings).
   light coping, optional ball finials and a volute-like foot), `W.dormer`
   (a tiled dormer on an along-x or along-y roof), `W.arched_window` (a tall
   two-light window, round head, light surround, dark glass), `W.round_window`
-  (an oculus for a gable field) and `W.round_arcade` (semicircular arches).
+  (an oculus for a gable field) and `W.round_arcade` (semicircular arches) (semicircular arches, optional `arch_m` ring).
+  For the warehouse and the trading post: `W.loft_door` (a loading door with a
+  hoist beam, pulley, rope and load), `W.gate`, `W.store_goods` (a few large
+  crates, casks and sacks) and `W.thatch_finish` (baked thatch patches and a
+  ragged eave).
   `P.roof`, `W.framed_house`, `Q.palazzo`, `Q.tower` and `dormer_on` take
   `shades=(even, odd)` for the course shades of the roof and `verge` for the
   verge shade; with a darker `ridge` they give the strong course lines of the

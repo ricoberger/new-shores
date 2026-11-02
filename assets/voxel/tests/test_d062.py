@@ -32,9 +32,9 @@ D062 = {
     "playhouse": ((11, 14), None, ("door",), 1),
 }
 #: Voxels of the model's water rows: the deck of the pier (all six; D-062: 5–6 in the content), the Trading Post's front row. The depot is a platform with its own test.
-MODEL_WATER = {"trading_post": 8, "trading_pier": 48}
+MODEL_WATER = {"trading_post": 12, "trading_pier": 48}
 #: Model files that carry a sway group (cloth) and the group.
-SWAY = {"trading_post.l4.glb": ["flag"], "surgery.glb": ["cloth"], "playhouse.glb": ["flag"]}
+SWAY = {"trading_post.l1.glb": ["flag"], "trading_post.l2.glb": ["flag"], "trading_post.l3.glb": ["flag"], "trading_post.l4.glb": ["flag"], "surgery.glb": ["cloth"], "playhouse.glb": ["flag"]}
 
 
 def bounds_ok(v, lo, hi):
@@ -285,7 +285,7 @@ class D062Test(unittest.TestCase):
         self.assertTrue(all((x, y, -1) not in v.cells for x in range(6, 26) for y in range(8, dep.LAND_Y) if (x, y) not in dep.PILES))
 
     def test_nothing_solid_stands_over_the_water_rows_and_only_piles_reach_below_ground(self):
-        # The water rows hold decks, ramps, quay edges, posts and piles; walls and roofs stand on the land rows behind them.
+        # The water rows hold decks, ramps, quay edges, posts, piles and banner cloth; walls and roofs stand on the land rows behind them.
         for cid, rows in MODEL_WATER.items():
             files, _, _ = self.built(cid)
             for f in files:
@@ -295,7 +295,7 @@ class D062Test(unittest.TestCase):
                     if z < 0:
                         self.assertLess(y, rows + 2, (cid, f[0], x, y, z))
                     if y < rows and z > 4:
-                        self.assertIn(m[0], ("timber", "iron", "brass", "canvas"), (cid, f[0], x, y, z, m))
+                        self.assertIn(m[0], ("timber", "iron", "brass", "canvas", "dye-blue"), (cid, f[0], x, y, z, m))
 
     def test_the_playhouse_roof_is_mostly_dark_and_brown_with_little_terracotta(self):
         import importlib.util
