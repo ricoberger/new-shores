@@ -5931,14 +5931,14 @@
     "goldsmith": {
       "anchors": {
         "cart": [
-          1.25,
+          -0.8333,
           0.0,
-          -1.75
+          -1.5
         ],
         "chimney": [
-          1.0625,
-          3.375,
-          0.9375
+          0.9167,
+          4.9167,
+          1.0833
         ],
         "door": [
           0.0,
@@ -5946,61 +5946,61 @@
           -2.0
         ],
         "smoke": [
-          1.0625,
-          3.5,
-          0.9375
+          0.9167,
+          5.0,
+          1.0833
         ],
         "status": [
           0.0,
-          3.75,
+          5.0833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.75,
-          3.5,
-          1.75
+          2.0,
+          4.8333,
+          1.9167
         ],
         "min": [
-          -1.75,
+          -2.0,
           0.0,
-          -2.0
+          -1.3333
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.75,
-            3.5,
-            1.75
+            2.0,
+            4.8333,
+            1.9167
           ],
           "min": [
-            -1.75,
+            -2.0,
             0.0,
-            -2.0
+            -1.3333
           ]
         },
         "budget": 8000,
-        "bytes": 71852,
+        "bytes": 80984,
         "ground": [
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
             "paved",
@@ -6012,32 +6012,32 @@
         "lite": {
           "bounds": {
             "max": [
-              2.0,
-              3.5,
-              2.0
+              1.5,
+              4.5,
+              1.5
             ],
             "min": [
-              -2.0,
+              -1.5,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 640,
-          "bytes": 11112,
+          "bytes": 6908,
           "path": "goldsmith.lite.glb",
-          "sha256": "afb9ce84e55d65f0ac7862ccbfa3bdb872cd08f6ef260e7b091eb70b8cfbbd9d",
-          "triangles": 294
+          "sha256": "f62c391c49a7fa49cc36ba1b08c53817b9c2946b7401615670f5627384526140",
+          "triangles": 164
         },
         "path": "goldsmith.glb",
-        "sha256": "66e45f96d311602b6aebbf00a28ef08f7141753a3fac3ffdc72ad345eca5f62a",
-        "triangles": 2392
+        "sha256": "01ddd454d130a1d88128d7f10f7882f50fe18204394e97375d2bcdf93e47d34c",
+        "triangles": 2588
       },
       "footprint": {
         "h": 4,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "grain_distillery": {
       "anchors": {
