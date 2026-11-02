@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { Content, DisplayState, Island, IslandDisplay } from "../api/client";
-import { perMin, tons, tonsRatio, units } from "../display/format";
+import { perMin, tonsRatio, units } from "../display/format";
 import { percentSpace, t } from "../i18n";
 import { constructionGoods, islandResources, type TierRow, tierRows, worstNeedText } from "../display/hud";
 import { needCategory, needLabel } from "../display/needs";
@@ -228,7 +228,7 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, accoun
               trigger={goods.map((g) => (
                 <span key={g} className={styles.hudMaterial} data-testid={`hud-material-${g}`}>
                   <Icon path={goodIcon(g)} />
-                  <span className={styles.value}>{tons(island?.inventory[g]?.stock ?? 0)}</span>
+                  <span className={styles.value}>{units(island?.inventory[g]?.stock ?? 0)}</span>
                 </span>
               ))}
             >
