@@ -5111,9 +5111,9 @@
     "fashion_house": {
       "anchors": {
         "cart": [
-          2.0,
+          -1.3333,
           0.0,
-          3.0
+          -3.0
         ],
         "door": [
           0.0,
@@ -5122,44 +5122,65 @@
         ],
         "status": [
           0.0,
-          4.75,
+          4.4167,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.375,
-          4.5,
-          3.5
+          2.5,
+          4.1667,
+          3.3333
         ],
         "min": [
-          -2.375,
+          -2.5,
           0.0,
-          -2.875
+          -3.4167
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.375,
-            4.5,
-            3.5
+            2.5,
+            4.1667,
+            3.3333
           ],
           "min": [
-            -2.375,
+            -2.5,
             0.0,
-            -2.875
+            -3.4167
           ]
         },
         "budget": 17500,
-        "bytes": 169844,
+        "bytes": 96796,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "paved",
+            "none",
+            "none"
           ],
           [
             "paved",
@@ -5176,63 +5197,42 @@
             "paved"
           ],
           [
+            "none",
             "paved",
             "paved",
             "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              2.5,
-              4.5,
-              3.5
+              2.0,
+              4.0,
+              3.0
             ],
             "min": [
-              -2.5,
+              -2.0,
               0.0,
               -3.0
             ]
           },
           "budget": 1400,
-          "bytes": 18220,
+          "bytes": 9444,
           "path": "fashion_house.lite.glb",
-          "sha256": "f2fb69cfd8056925781d958bf646b15dfb2bc46fe9fbc77e05d04f29cb119f45",
-          "triangles": 522
+          "sha256": "0c5652b36a010f1e3963042d45dcbcd9b704497f0d9fd106e3e482100b6a4fc3",
+          "triangles": 220
         },
         "path": "fashion_house.glb",
-        "sha256": "898d50e6ecc66d2ccdf907c66e66511d3e44c0dd3a21237e63c23171c75e9a44",
-        "triangles": 5666
+        "sha256": "6cee7a41b42231e1a694eeaaab82a997fef83900a25e0a937e473751ef396337",
+        "triangles": 2902
       },
       "footprint": {
         "h": 7,
         "w": 5
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "fire_station": {
       "anchors": {
