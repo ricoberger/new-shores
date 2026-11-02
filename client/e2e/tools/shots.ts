@@ -826,6 +826,31 @@ async function openBuildTab(page: Page, type: string): Promise<void> {
   throw new Error(`no build tab lists ${type}`);
 }
 
+/** A ghost of `type` three tiles beside the middle building of `near` (a type prefix) on the island with the most buildings. */
+function linkedGhost(type: string, fixture: Fixture, near: string): { fixture: Fixture; device: Device[]; run: (page: Page) => Promise<void> } {
+  return {
+    fixture,
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      const at = await page.evaluate((prefix) => {
+        const d = window.__newShores!.getServer()!.display;
+        const is = d.islands.reduce((a, b) => (b.buildings.length > a.buildings.length ? b : a));
+        const list = is.buildings.filter((x) => x.type.startsWith(prefix));
+        const b = list[Math.floor(list.length / 2)]!;
+        return { island: is.id, x: b.x + 3, y: b.y, ox: is.position.x, oy: is.position.y };
+      }, near);
+      await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half: 12, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await openBuildTab(page, type);
+      await page.getByTestId(`build-${type}`).click();
+      const p = await tileAt(page, at.island, at.x, at.y);
+      await page.mouse.move(p.x, p.y);
+      await page.waitForFunction(() => window.__newShores!.ghostValidity() !== null, undefined, { timeout: 10_000 });
+    },
+  };
+}
+
 function ghostTerrace(type: string, state: "ok" | "no_road" | "invalid"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
     fixture: "settled",
@@ -1202,6 +1227,12 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.waitForFunction(() => window.__newShores!.ghostValidity() === "invalid", undefined, { timeout: 10_000 });
     },
   },
+  // Placement ghosts that tint what they would be linked with (desktop and phone): the chapel the houses it serves, a house
+  // the services reaching it, a warehouse the producers, a sawmill the warehouses and Trading Post.
+  "ghost-service": linkedGhost("chapel", "settled", "house_"),
+  "ghost-house": linkedGhost("house_settlers", "played", "chapel"),
+  "ghost-warehouse": linkedGhost("warehouse", "played", "sawmill"),
+  "ghost-producer": linkedGhost("sawmill", "played", "trading_post"),
   "ghost-water-valid": ghostWater(0),
   "ghost-water-in": ghostWater(1),
   "ghost-water-out": ghostWater(-1),

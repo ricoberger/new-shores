@@ -17,7 +17,7 @@ import type { SyncSnapshot } from "../api/sync";
 import { archipelagoRect, type CameraView, frameIslandView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
 import { fieldsUnder, type PaintDrag, paintAnchors, paintCountText, paintTiles, planPaint } from "../display/fieldpaint";
-import { servedRelated } from "../display/served";
+import { ghostRelated, servedRelated } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad, rectQuadOverlap } from "../display/frustum";
 import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
 import { visibleChunks } from "../display/chunks";
@@ -200,6 +200,11 @@ export class GameRenderer {
   private readonly ghost: PlacementGhost;
   private lookups = new Map<string, IslandLookups>();
   private lastGhostHint: string | null = null;
+  /** What the placement ghost would be linked with (houses it serves, buildings serving it, producers or collectors), tinted like a selection (a hint). */
+  private ghostTint: readonly number[] = [];
+  private ghostTintKey = "";
+  /** What the tint was computed for (ghost tile, rotation, level, server version): the frame loop skips unchanged. */
+  private ghostTintFor = "";
   /** Validity the placement ghost was drawn with in the last frame (null: hidden). */
   private ghostValid: "ok" | "no_road" | "invalid" | null = null;
   /** The last pointer was a mouse or pen (the ghost follows it, not a touch-pending tile). */
@@ -1089,10 +1094,22 @@ export class GameRenderer {
       const chain = b && found ? farmChain(b, found.island.buildings) : null;
       const def = b ? this.defs.get(b.type) : undefined;
       const related = b && found ? servedRelated(b, found.island.buildings, def) : [];
-      d.select(b, def, chain?.farm ? [chain.farm.id, ...chain.fields.map((f) => f.id), ...related] : related);
+      d.select(b, def, [...(chain?.farm ? [chain.farm.id, ...chain.fields.map((f) => f.id)] : []), ...related, ...this.ghostTint]);
     }
     // Tinting rebuilds the chunk meshes, which are the shadow casters.
     this.refreshCasters();
+  }
+
+  /**
+   * Tints these buildings like the selected one's related buildings (a placement ghost's would-serve
+   * houses); an empty list clears it. Rebuilds the tint only when the set changes.
+   */
+  setGhostTint(ids: readonly number[]): void {
+    const key = [...ids].sort((x, y) => x - y).join(",");
+    if (key === this.ghostTintKey) return;
+    this.ghostTintKey = key;
+    this.ghostTint = ids;
+    this.applySelection();
   }
 
   /** Selection ring, highlighted route and the edited route's draft stops. */
@@ -1579,7 +1596,22 @@ export class GameRenderer {
       this.ghost.hide();
       this.ghostValid = null;
       this.setGhostHint(null);
+      this.ghostTintFor = "";
+      this.setGhostTint([]);
       return;
+    }
+    // The ghost tints the buildings it would be linked with (client hint from content, display/served.ts).
+    const server = this.sync.getSnapshot().server;
+    if ((tool.kind === "build" || tool.kind === "move") && server) {
+      const level = (tool.kind === "move" ? this.findBuilding(tool.buildingId)?.b.level : undefined) ?? 1;
+      const key = `${def.id}|${tl.island}|${tl.x}|${tl.y}|${tool.rotation}|${level}|${server.version}`;
+      if (key !== this.ghostTintFor) {
+        this.ghostTintFor = key;
+        this.setGhostTint(ghostRelated({ type: def.id, island: tl.island, x: tl.x, y: tl.y, rotation: tool.rotation, level }, { buildings: [...this.defs.values()] }, server.display));
+      }
+    } else {
+      this.ghostTintFor = "";
+      this.setGhostTint([]);
     }
     const fertilities = l?.statics?.fertilities ?? [];
     const fertility = fertilityNeed(def, fertilities);
