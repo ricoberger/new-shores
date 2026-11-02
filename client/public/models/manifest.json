@@ -10277,14 +10277,14 @@
     "rendering_house": {
       "anchors": {
         "cart": [
-          -0.75,
+          -0.3333,
           0.0,
-          -1.375
+          -1.0
         ],
         "chimney": [
-          0.9375,
-          2.375,
-          0.8125
+          0.4167,
+          4.3333,
+          0.5833
         ],
         "door": [
           0.0,
@@ -10292,53 +10292,53 @@
           -1.5
         ],
         "smoke": [
-          0.9375,
-          2.5,
-          0.8125
+          0.4167,
+          4.4167,
+          0.5833
         ],
         "status": [
           0.0,
-          2.75,
+          4.5,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.375,
-          2.5,
-          1.375
+          1.5,
+          4.25,
+          1.4167
         ],
         "min": [
-          -1.5,
+          -1.3333,
           0.0,
-          -1.5
+          -1.4167
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.375,
-            2.5,
-            1.375
+            1.5,
+            4.25,
+            1.4167
           ],
           "min": [
-            -1.5,
+            -1.3333,
             0.0,
-            -1.5
+            -1.4167
           ]
         },
         "budget": 4500,
-        "bytes": 59972,
+        "bytes": 116756,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none"
           ],
           [
             "dirt",
@@ -10350,31 +10350,31 @@
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              4.0,
               1.5
             ],
             "min": [
               -1.5,
               0.0,
-              -1.5
+              -1.0
             ]
           },
           "budget": 360,
-          "bytes": 7980,
+          "bytes": 7744,
           "path": "rendering_house.lite.glb",
-          "sha256": "68fe07e49133e200e9d9d39cbb8976075295bcae5834973434d29b861b57df4c",
-          "triangles": 194
+          "sha256": "122e6415c99902e27bd729bbd6344009210b4130b6b2ff0087ecd2a7ef793816",
+          "triangles": 200
         },
         "path": "rendering_house.glb",
-        "sha256": "84e976cfd98040040dd623f5e06ec9b80c83fb9e7b7b45a2fe015448747c8903",
-        "triangles": 1866
+        "sha256": "a1efb75ccff3a633aa31f2414182fd7ffad0a8c745aa4b47a38e47cad3dc1dca",
+        "triangles": 3580
       },
       "footprint": {
         "h": 3,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "sailmaker": {
       "anchors": {
