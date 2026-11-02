@@ -565,6 +565,13 @@ land buildings).
   only, D-042); one material (vertex colours). Every building reads by
   its good at mid zoom (one readable signature prop per production
   building); farms show a fenced yard and their field type.
+- **Yards per tier:** Settlers/Citizens dirt, Merchants/Patricians
+  paved (cobbles); production buildings dirt unless the recipe says
+  otherwise. A house declares one yard over its whole footprint
+  (`P.yard`, D-068).
+- **No outset plinth on land buildings;** foundations are a flush
+  one-voxel stone band (`P.plinth(…, out=0)`; the block parts default
+  to `plinth_out=0`).
 - **Tier language:** Settlers = timber frame + thatch, single storey;
   Citizens = plaster + terracotta, 1½–2 storeys with dormers; Merchants =
   stone ground floor, gables, slate, two storeys + attic; Patricians =
