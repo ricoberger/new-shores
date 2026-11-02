@@ -279,9 +279,8 @@ UI shows the same numbers the server uses.
 - A "Details" heading with rows (no bars): Level `n / max`, Capacity `per
   good` (with depots: "+ n in depots", the island total is the
   inventory's), Throughput `t/min`, Load `%`, Berths `free / total free`
-  (with trading piers: "(n at piers)").
-- "Pier" (only with ships): one row per ship at the pier ("at the pier") or
-  waiting for a berth ("waiting"), by name and ID.
+  (with trading piers: "(n at piers)"; with ships queued for a berth: " · n
+  waiting"). There is no per-ship list: the ships are in the ships panel.
 - "Inventory": one row per good, icon and name, `stock / capacity` and the
   signed net rate (green above 0, red below, plain at 0); no header row, no filter yet.
 - A collapsed "Producers (n)" like the Warehouse's.
@@ -293,7 +292,7 @@ UI shows the same numbers the server uses.
 **Trading pier** (D-060)
 
 - Rows: Berths "+n" (what the pier adds) and the island's berths free /
-  total; Move and Demolish in the footer (no levels, never paused).
+  total (" · n waiting" while ships are queued); no size row; Move and Demolish in the footer (no levels, never paused).
 
 **Depot** (D-060)
 

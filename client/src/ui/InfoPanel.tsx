@@ -1,8 +1,8 @@
 import { type ReactNode, useRef } from "react";
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
 import { percent, perMin, seconds, speedFactor, tons, tonsPerMin, tonsRatio, units } from "../display/format";
-import { countdownWithUnit, orderTiming, shipName as shipNameOf } from "../display/ships";
-import { fieldBuildingOf, footprintText } from "../display/fields";
+import { countdownWithUnit, orderTiming } from "../display/ships";
+import { fieldBuildingOf } from "../display/fields";
 import { groupNeeds, needAlternatives, needCategory, needGroupName, needLabel, upgradeReasonText } from "../display/needs";
 import { lockReason, tierUnlocked } from "../display/tiers";
 import { STATUS_STYLES, statusKey, statusLabel, statusText } from "../display/status";
@@ -78,16 +78,6 @@ export function StatusIcon({ building, seal = false }: { building: BuildingDispl
     <span className={seal ? `${styles.icon} ${styles.seal}` : styles.icon} style={{ background: s.color }} title={statusLabel(key)} role="img" aria-label={statusLabel(key)}>
       <Icon path={statusIcon(key)} />
     </span>
-  );
-}
-
-/** The building's size row of a Details table (D-054: footprint, water rows, a farm's fields). */
-function SizeRow({ def, content }: { def: Content["buildings"][number]; content: Content }) {
-  return (
-    <tr>
-      <td>{t("infoPanel.size")}</td>
-      <td data-testid="info-size">{footprintText(def, content)}</td>
-    </tr>
   );
 }
 
@@ -313,9 +303,10 @@ function islandBerths(island: IslandDisplay): NonNullable<BuildingDisplay["berth
 
 /**
  * A trading pier (D-060): the berths it adds and the island's berths busy
- * and free (the Trading Post's queue serves all of them). Display only.
+ * and free, with the ships queued for them (the Trading Post's queue serves
+ * all of them). Display only.
  */
-function PierSection({ def, island, content }: { def: Content["buildings"][number]; island: IslandDisplay; content: Content }) {
+function PierSection({ def, island }: { def: Content["buildings"][number]; island: IslandDisplay }) {
   const berths = islandBerths(island);
   return (
     <div className={styles.section} data-testid="pier-panel">
@@ -331,10 +322,14 @@ function PierSection({ def, island, content }: { def: Content["buildings"][numbe
               <td>{t("infoPanel.islandBerths")}</td>
               <td data-testid="pier-island-berths">
                 {t("infoPanel.berthsFree", { free: Math.max(0, berths.total - berths.busy), total: berths.total })}
+                {berths.queue.length > 0 && (
+                  <span className={styles.small} data-testid="pier-berths-waiting">
+                    {t("infoPanel.berthsWaiting", { count: berths.queue.length })}
+                  </span>
+                )}
               </td>
             </tr>
           )}
-          <SizeRow def={def} content={content} />
         </tbody>
       </table>
     </div>
@@ -342,11 +337,10 @@ function PierSection({ def, island, content }: { def: Content["buildings"][numbe
 }
 
 /** A depot adds fixed capacity, without an upgrade block (D-062). */
-function DepotSection({ building: b, def, island, content }: {
+function DepotSection({ building: b, def, island }: {
   building: BuildingDisplay;
   def: Content["buildings"][number];
   island: IslandDisplay;
-  content: Content;
 }) {
   return (
     <div data-testid="depot-panel">
@@ -362,7 +356,6 @@ function DepotSection({ building: b, def, island, content }: {
               <td>{t("infoPanel.islandCapacity")}</td>
               <td data-testid="depot-island-capacity">{t("infoPanel.perGood", { amount: tons(islandCapacity(island)) })}</td>
             </tr>
-            <SizeRow def={def} content={content} />
           </tbody>
         </table>
       </div>
@@ -392,7 +385,6 @@ function TradingPostSection({
   onSelectBuilding: (id: number) => void;
 }) {
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
-  const shipName = (id: number) => shipNameOf(model.ships, id);
   const def = content.buildings.find((d) => d.id === b.type);
   // The berths of the level (content) until the server reports them.
   const levelBerths = def?.trading_post?.levels[(b.level ?? 1) - 1]?.berths ?? 0;
@@ -430,32 +422,16 @@ function TradingPostSection({
               <td data-testid="trading-post-berths">
                 {t("infoPanel.berthsFree", { free, total: berths.total })}
                 {berths.total > levelBerths && levelBerths > 0 && <span className={styles.small}>{t("infoPanel.atPiers", { count: berths.total - levelBerths })}</span>}
+                {berths.queue.length > 0 && (
+                  <span className={styles.small} data-testid="trading-post-berths-waiting">
+                    {t("infoPanel.berthsWaiting", { count: berths.queue.length })}
+                  </span>
+                )}
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-      {(berths.ships.length > 0 || berths.queue.length > 0) && (
-        <div className={styles.section} data-testid="trading-post-pier">
-          <div className={styles.sectionTitle}>{t("infoPanel.pier")}</div>
-          <table className={styles.table}>
-            <tbody>
-              {berths.ships.map((id) => (
-                <tr key={id}>
-                  <td>{shipName(id)}</td>
-                  <td>{t("infoPanel.atThePier")}</td>
-                </tr>
-              ))}
-              {berths.queue.map((id) => (
-                <tr key={id}>
-                  <td>{shipName(id)}</td>
-                  <td>{t("infoPanel.waiting")}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
       <div className={styles.section} data-testid="trading-post-inventory">
         <div className={styles.sectionTitle}>{t("infoPanel.inventory")}</div>
         <table className={styles.table}>
@@ -789,8 +765,8 @@ export function InfoPanel({
             onSelectBuilding={onSelectBuilding}
           />
         )}
-        {def?.pier && <PierSection def={def} island={island} content={content} />}
-        {def?.depot && <DepotSection building={b} def={def} island={island} content={content} />}
+        {def?.pier && <PierSection def={def} island={island} />}
+        {def?.depot && <DepotSection building={b} def={def} island={island} />}
         {b.level !== undefined && def?.warehouse && (
           <div data-testid="warehouse-panel">
             <div className={styles.section}>

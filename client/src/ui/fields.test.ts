@@ -258,7 +258,7 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(text(panel(wh, island, model))).toContain("Producers (0)None yet");
   });
 
-  it("shows the Trading Post as rows: details, pier, inventory and the next level", () => {
+  it("shows the Trading Post as rows: details, inventory and the next level", () => {
     const model = fixture("settlers_grow");
     const island = { ...model.islands[0]!, inventory: { wool: { stock: 120_000, capacity: 300_000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: -1_000 } } } as IslandDisplay;
     const tp = {
@@ -273,8 +273,8 @@ describe("fields in the HUD (D-051 part 4)", () => {
     } as unknown as BuildingDisplay;
     const html = panel(tp, island, model);
     const t = text(html);
-    expect(t).toContain("DetailsLevel1 / 2Capacity300\u00a0t per goodThroughput30.0\u00a0t/minLoad40 %Berths1 / 2 free");
-    expect(t).toContain("PierShip #1at the pierShip #2waiting");
+    expect(t).toContain("DetailsLevel1 / 2Capacity300\u00a0t per goodThroughput30.0\u00a0t/minLoad40 %Berths1 / 2 free (1 at piers) · 1 waiting");
+    expect(html).not.toContain("trading-post-pier");
     expect(t).toContain("InventoryWool120/300\u00a0t−1.0\u00a0t/minProducers (0)");
     expect(t).toContain("Upgrade to level 2500\u00a0t capacity per good·2 berths·55.0\u00a0t/min throughput");
     expect(t).not.toContain("Net/min");
@@ -288,11 +288,11 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(net(0)).toBe("");
     expect(net(40)).toBe("");
     expect(html).not.toContain("trading-post-queue");
-    // The button is pinned in the footer; no pier section without ships.
+    // The button is pinned in the footer; the waiting count only with a queue.
     expect(html.indexOf("trading-post-upgrade-button")).toBeGreaterThan(html.indexOf("Upgrade to level"));
     const empty = panel({ ...tp, berths: { total: 2, busy: 0, ships: [], queue: [] } }, island, model);
-    expect(empty).not.toContain('data-testid="trading-post-pier"');
     expect(text(empty)).toContain("Berths2 / 2 free");
+    expect(text(empty)).not.toContain("waiting");
     // The last level: no preview, no button.
     const top = panel({ ...tp, level: 2 }, island, model);
     expect(text(top)).not.toContain("Upgrade to level");
