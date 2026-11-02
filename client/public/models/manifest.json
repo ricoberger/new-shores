@@ -12123,6 +12123,11 @@
     },
     "tavern": {
       "anchors": {
+        "cart": [
+          1.0,
+          0.0,
+          -2.6667
+        ],
         "door": [
           0.0,
           0.0,
@@ -12130,37 +12135,37 @@
         ],
         "status": [
           0.0,
-          4.125,
+          3.9167,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.875,
-          2.375
+          3.6667,
+          3.0
         ],
         "min": [
-          -1.75,
+          -2.0,
           0.0,
-          -2.75
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
             2.0,
-            3.875,
-            2.375
+            3.6667,
+            3.0
           ],
           "min": [
-            -1.75,
+            -2.0,
             0.0,
-            -2.75
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 150524,
+        "bytes": 195768,
         "ground": [
           [
             "none",
@@ -12176,58 +12181,58 @@
           ],
           [
             "none",
+            "dirt",
+            "dirt",
+            "dirt"
+          ],
+          [
             "none",
+            "dirt",
+            "dirt",
+            "dirt"
+          ],
+          [
             "none",
+            "dirt",
+            "dirt",
+            "dirt"
+          ],
+          [
+            "none",
+            "dirt",
+            "dirt",
             "none"
-          ],
-          [
-            "none",
-            "none",
-            "none",
-            "none"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              2.0,
+              1.5,
               3.5,
-              2.5
+              3.0
             ],
             "min": [
               -2.0,
               0.0,
-              -3.0
+              -2.5
             ]
           },
           "budget": 960,
-          "bytes": 14572,
+          "bytes": 7780,
           "path": "tavern.lite.glb",
-          "sha256": "4eca007ecc447ea8572916d292407257f8cbd7e9d0c701361f709685b7470b52",
-          "triangles": 378
+          "sha256": "e1cf0a666806cfd04bd94c1c808006967ca83f4abdd7c55482c3ec84406ba7e8",
+          "triangles": 204
         },
         "path": "tavern.glb",
-        "sha256": "022f006b564a2cead6ae324a1960043889fcbded758522ecd73fa3532df992d3",
-        "triangles": 4654
+        "sha256": "beee754c423a4e27cc36ca1e660557f09b7c9dca9b562213ab36c0dc8a5c3d44",
+        "triangles": 5970
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "thread_spinner": {
       "anchors": {
