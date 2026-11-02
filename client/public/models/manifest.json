@@ -14156,14 +14156,14 @@
     "wheat_farm": {
       "anchors": {
         "cart": [
-          0.875,
+          0.5,
           0.0,
-          -1.75
+          -1.3333
         ],
         "chimney": [
-          -0.9375,
-          2.5,
-          -0.8125
+          0.2917,
+          2.1667,
+          0.9583
         ],
         "door": [
           0.0,
@@ -14171,48 +14171,48 @@
           -2.0
         ],
         "smoke": [
-          -0.9375,
-          2.625,
-          -0.8125
+          0.2917,
+          2.25,
+          0.9583
         ],
         "status": [
           0.0,
-          3.0,
+          2.5,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.625,
-          2.75,
-          1.75
+          1.5,
+          2.25,
+          2.0
         ],
         "min": [
-          -1.375,
+          -1.5,
           0.0,
-          -1.75
+          -2.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.625,
-            2.75,
-            1.75
+            1.5,
+            2.25,
+            2.0
           ],
           "min": [
-            -1.375,
+            -1.5,
             0.0,
-            -1.75
+            -2.0
           ]
         },
         "budget": 6000,
-        "bytes": 81140,
+        "bytes": 168228,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none"
           ],
           [
             "dirt",
@@ -14225,7 +14225,7 @@
             "dirt"
           ],
           [
-            "dirt",
+            "none",
             "dirt",
             "dirt"
           ]
@@ -14234,31 +14234,31 @@
           "bounds": {
             "max": [
               1.5,
-              3.0,
-              2.0
+              2.0,
+              1.5
             ],
             "min": [
               -1.5,
               0.0,
-              -1.5
+              -2.0
             ]
           },
           "budget": 480,
-          "bytes": 8988,
+          "bytes": 7760,
           "path": "wheat_farm.lite.glb",
-          "sha256": "02226a835449870849d1c2014ecf017a189be83dc9c42fc55064761fbc87338c",
-          "triangles": 228
+          "sha256": "cb3674fb4201900f41215e8061a114612eb83d22a9ed11f410cabc9f793d40f2",
+          "triangles": 186
         },
         "path": "wheat_farm.glb",
-        "sha256": "dc627e965c9621b23d2d2dce9971b655eef7e2c91111e1a88ffd892e667c35f9",
-        "triangles": 2484
+        "sha256": "af1dca67c1312639a8a7677a801c81d9bf45744fa00ac9223f0de0c66c849bc0",
+        "triangles": 5344
       },
       "footprint": {
         "h": 4,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "wheat_field": {
       "anchors": {
@@ -14301,7 +14301,7 @@
         "budget": 410,
         "bytes": 7176,
         "path": "wheat_field.glb",
-        "sha256": "2a5c04f8b7621e5d2422fb8f8e5a6cc194d5ccdb0bf2f864b87e417a2f2051b8",
+        "sha256": "d69523e0b504c5787d1fa0431793b1734b9f2ed7ff9b345104b576331963b145",
         "triangles": 162
       },
       "footprint": {
