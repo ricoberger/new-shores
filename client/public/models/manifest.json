@@ -11791,14 +11791,14 @@
     "soap_maker": {
       "anchors": {
         "cart": [
-          0.25,
+          -0.3333,
           0.0,
-          -1.75
+          -1.5
         ],
         "chimney": [
-          0.9375,
-          3.5,
-          1.0625
+          0.4167,
+          4.3333,
+          1.0833
         ],
         "door": [
           0.0,
@@ -11806,43 +11806,43 @@
           -2.0
         ],
         "smoke": [
-          0.9375,
-          3.625,
-          1.0625
+          0.4167,
+          4.4167,
+          1.0833
         ],
         "status": [
           0.0,
-          3.875,
+          4.5,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          3.625,
+          4.25,
           2.0
         ],
         "min": [
           -1.5,
           0.0,
-          -2.0
+          -1.6667
         ]
       },
       "file": {
         "bounds": {
           "max": [
             1.5,
-            3.625,
+            4.25,
             2.0
           ],
           "min": [
             -1.5,
             0.0,
-            -2.0
+            -1.6667
           ]
         },
         "budget": 6000,
-        "bytes": 91416,
+        "bytes": 137968,
         "ground": [
           [
             "none",
@@ -11855,9 +11855,9 @@
             "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none"
           ],
           [
             "dirt",
@@ -11869,31 +11869,31 @@
           "bounds": {
             "max": [
               1.5,
-              3.5,
+              4.0,
               2.0
             ],
             "min": [
               -1.5,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 480,
-          "bytes": 9764,
+          "bytes": 7468,
           "path": "soap_maker.lite.glb",
-          "sha256": "646223525bf02e6292fdbbd99311dc4c09424c1db54028f53bad10bf3592d4ee",
-          "triangles": 248
+          "sha256": "14509530c7c03091a03cb82c135ffc94948882e62dade5973dd4732638e72742",
+          "triangles": 196
         },
         "path": "soap_maker.glb",
-        "sha256": "985026da79911ba021aa40ed8a864bf246f4c7e3c60cb3b949d66cde1cae3407",
-        "triangles": 2778
+        "sha256": "5238df8d6e410fdea7c45f4b78963f6fd1057e020b1e80fed4d0269cef5544f9",
+        "triangles": 4218
       },
       "footprint": {
         "h": 4,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "surgery": {
       "anchors": {
