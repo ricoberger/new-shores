@@ -5691,9 +5691,9 @@
     "gold_mine": {
       "anchors": {
         "cart": [
-          0.625,
+          -0.5,
           0.0,
-          -3.5
+          -3.8333
         ],
         "door": [
           0.0,
@@ -5702,42 +5702,62 @@
         ],
         "status": [
           0.0,
-          2.75,
+          3.4167,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.5,
+          3.1667,
           4.0
         ],
         "min": [
           -1.5,
           0.0,
-          -3.875
+          -3.8333
         ]
       },
       "file": {
         "bounds": {
           "max": [
             1.5,
-            2.5,
+            3.1667,
             4.0
           ],
           "min": [
             -1.5,
             0.0,
-            -3.875
+            -3.8333
           ]
         },
         "budget": 12000,
-        "bytes": 131040,
+        "bytes": 228488,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
           ],
           [
             "dirt",
@@ -5750,63 +5770,40 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              3.0,
               4.0
             ],
             "min": [
               -1.5,
               0.0,
-              -4.0
+              -3.5
             ]
           },
           "budget": 960,
-          "bytes": 14164,
+          "bytes": 9840,
           "path": "gold_mine.lite.glb",
-          "sha256": "af76c23038730aa0cf3ab9ec0a9f7a4da0c06bffc14ca05692589e2d9059731f",
-          "triangles": 386
+          "sha256": "a85d3f01caa742b04bdcbb88ceace2aa3bd77a5a2796652056289844383628ac",
+          "triangles": 250
         },
         "path": "gold_mine.glb",
-        "sha256": "672e4a6ca2a72e21d391f2fc03269da74f168b24a5cfd475ffc0023fc5391869",
-        "triangles": 4302
+        "sha256": "12c69b6996d3748963e7a40bd7f049ee11dae0158ab044447ca2a165c8479be6",
+        "triangles": 7832
       },
       "footprint": {
         "h": 8,
         "w": 3
       },
       "kind": "building",
-      "sway": [
-        "flag"
-      ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "gold_smelter": {
       "anchors": {
