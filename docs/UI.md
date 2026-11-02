@@ -258,7 +258,7 @@ UI shows the same numbers the server uses.
 - Output: `production` in t/min (the final rate, all factors included).
 - A collapsed **Details** section (closed by default): one row per value, each on one line
   (cycle length in seconds, efficiency %, throughput factor, workers as the
-  workforce factor in % (the shortage itself is the status sentence), upkeep like a ship's (`$/min`, 0 while paused), the assigned collector by name (click to
+  workforce factor in % (the shortage itself is the status sentence), upkeep like a ship's (`gold/min`, 0 while paused), the assigned collector by name (click to
   select), transfer delay, buffers). Farms show
   a fields block above it only when it has something to say: a warning
   when fields are not connected and "Add <field>" while the farm is

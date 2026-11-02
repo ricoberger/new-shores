@@ -204,8 +204,8 @@ describe("fields in the HUD (D-051 part 4)", () => {
     const html = panel(tavern, island, model);
     expect(html).toMatch(/<details[^>]*data-testid="info-details"(?![^>]*\bopen\b)/);
     expect(text(html)).toContain("Radius14 tiles");
-    expect(text(html)).toContain("Upkeep6.0 $/min");
-    expect(text(panel({ ...tavern, paused: true }, island, model))).toContain("Upkeep0.0 $/min");
+    expect(text(html)).toContain("Upkeep6.0 gold/min");
+    expect(text(panel({ ...tavern, paused: true }, island, model))).toContain("Upkeep0.0 gold/min");
   });
 
   it("shows a levelled market's level, radius and next level with its tier lock, with Upgrade in the footer (D-056)", () => {

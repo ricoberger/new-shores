@@ -37,7 +37,7 @@ export function shipWhere(s: ShipDisplay, nowMs: number, islandName: (id: string
 /**
  * A ship's state with its live countdown or place ("On route · arrives in
  * 19:00"), the same line in the list and in the ship panel. A ship paused
- * for lack of gold shows "$ unpaid" after the state.
+ * for lack of gold shows "gold unpaid" after the state.
  */
 export function ShipStatusLine({
   ship: s,

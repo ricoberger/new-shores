@@ -577,7 +577,7 @@ describe("HUD components", () => {
       const html = panel({});
       expect(text(html)).not.toContain("Ships");
       expect(text(html)).toContain("SloopOrder");
-      expect(text(html)).toContain("2×50\u00a0t cargo·1.0× speed·1.0 $/min upkeep");
+      expect(text(html)).toContain("2×50\u00a0t cargo·1.0× speed·1.0 gold/min upkeep");
       expect(text(html)).toContain("Idle");
     });
 
