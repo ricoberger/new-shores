@@ -2462,14 +2462,14 @@
     "butcher": {
       "anchors": {
         "cart": [
-          -0.875,
+          0.8333,
           0.0,
           -2.0
         ],
         "chimney": [
-          -0.75,
-          1.75,
-          0.625
+          1.4167,
+          4.1667,
+          1.5833
         ],
         "door": [
           0.0,
@@ -2477,46 +2477,58 @@
           -2.5
         ],
         "smoke": [
-          -0.75,
-          1.875,
-          0.625
+          1.4167,
+          4.25,
+          1.5833
         ],
         "status": [
           0.0,
-          3.625,
+          4.3333,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.125,
-          3.375,
-          2.25
+          2.0833,
+          4.0833,
+          2.5
         ],
         "min": [
           -2.0,
           0.0,
-          -1.75
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.125,
-            3.375,
-            2.25
+            2.0833,
+            4.0833,
+            2.5
           ],
           "min": [
             -2.0,
             0.0,
-            -1.75
+            -2.5
           ]
         },
         "budget": 10000,
-        "bytes": 108304,
+        "bytes": 172800,
         "ground": [
           [
-            "dirt",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt",
             "dirt"
@@ -2528,53 +2540,41 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
+              4.0,
               2.5
             ],
             "min": [
-              -2.0,
+              -1.5,
               0.0,
-              -2.0
+              -2.5
             ]
           },
           "budget": 800,
-          "bytes": 11780,
+          "bytes": 9020,
           "path": "butcher.lite.glb",
-          "sha256": "cc87c9fbde1e8b10ddab1fb3dba404375cb07de47445557d4d04e2eb8abd7526",
-          "triangles": 318
+          "sha256": "3b37d7b1c33b3f3ca53c5a15df569837892c8250658498df5d848ac70443cc1e",
+          "triangles": 234
         },
         "path": "butcher.glb",
-        "sha256": "4f93c08499e09673b4e2a8ac48c6e6e2414d71dd680bdd5bf14672460dcc2cbb",
-        "triangles": 3388
+        "sha256": "9049797981155cb73092b170d77b2d9da5447ca130117a9577e67628db1ba2da",
+        "triangles": 5216
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "candle_foundry": {
       "anchors": {

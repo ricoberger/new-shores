@@ -1,68 +1,48 @@
 """
-Butcher (4 × 5; D-057 §3): a long thatched hall — stone ground floor,
-half-timber gables, a wide shop hatch with a counter of meat and hooks
-of hams — beside an open smoking shed on posts with a thatched roof and
-a smoke louvre (smoke), sides of meat hanging from its rails; a
-chopping block, a scalding tub, salt casks, a woodpile and a cart.
+Butcher (4 × 5; V7 rework after the Anno 1404 butcher's shop, tier III): a
+stone-and-timber shop under dark burgundy tiles with a slim chimney (smoke)
+and a wide shop hatch, beside an open smoking shed on posts with a tiled
+roof from whose rails sides of red meat and hams hang; a chopping block, a
+scalding tub, salt casks, a woodpile and a cart; a low forecourt wall.
+12 voxels per tile; dirt in the yard, the rest grass.
 """
 
 from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
+from nsvoxel import parts_kit as K
 from nsvoxel.grid import mat
-from nsvoxel.mats import CANVAS, PLASTER, STONE_DARK, THATCH_DARK, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel.mats import TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-MEAT = mat("terracotta", 1.18)
-FAT = mat("plaster", 1.05)
-HAM = mat("terracotta", 0.85)
-
+VOXELS_PER_TILE = 12
 GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+MEAT = mat("terracotta", 1.25)
+HAM = mat("terracotta", 0.9)
 
 
 def build(ctx):
-    v = ctx.vox()  # 32 × 40
-    seed = 101
-    P.yard(v, 0, 0, 32, 40, "dirt", seed=seed)
-    P.yard(v, 0, 26, 32, 40, "paved", seed=seed)
-    # Hall: stone ground floor, framed plaster upper storey, steep thatch.
-    b = P.building(v, 13, 8, 31, 22, "citizen", along="x", upper=PLASTER, seed=seed, spacing=4, kind="thatch", rise=1.4, height=15)
-    f, F = b.face("y+"), b.face("y+", upper=True)
-    # The shop hatch: a wide opening with a counter of cuts and hams hanging above.
-    for a in range(15, 23):
-        for z in range(3, 7):
-            f.put(a, z, TIMBER_DARK)
-    v.box(15, 22, 2, 23, 24, 3, TIMBER_LIGHT)
-    for x in range(15, 23, 2):
-        v.set(x, 22, 3, MEAT if x % 4 else FAT)
-    V.hanging(v, 16, 23, 22, 7, [(HAM, 2), (MEAT, 2)], every=2)
-    v.box(15, 22, 7, 23, 23, 8, TIMBER_DARK)  # hook rail
-    V.face_awning(f, 14, 24, 8, depth=2, stripes=(mat("terracotta", 1.0), CANVAS))
-    P.entrance(f, 25, 2, 3, 5)
-    P.casement(F, 17, 10, 2, 3, frame=None, sill=TIMBER_LIGHT, shutters=TIMBER)
-    P.casement(F, 26, 10, 2, 3, frame=None, sill=TIMBER_LIGHT, shutters=TIMBER)
-    P.casement(b.face("x+"), 15, 3, 2, 3, frame=P.DRESSED, sill=P.DRESSED)
-    P.casement(b.face("x-", upper=True), 15, 10, 2, 3, frame=None, sill=TIMBER_LIGHT)
-    V.signboard(f, 28, 7, w=2, h=2, colour=MEAT)
-    # Smoking shed against the hall's west wall: posts, thatch, a smoke louvre, sides of meat in rows.
-    P.lean_to(v, 1, 13, 6, 24, 11, "thatch", down="x-", posts=True, seed=seed)
-    v.box(1, 6, 1, 13, 7, 4, STONE_DARK)  # low back wall
-    for y in (10, 14, 18, 22):
-        v.box(2, y, 9, 12, y + 1, 10, TIMBER_DARK)
-        V.hanging(v, 3, 12, y, 9, [(MEAT, 4), (FAT, 3), (HAM, 3)], every=2)
-    v.box(4, 12, 1, 10, 18, 2, STONE_DARK)  # the smoke pit
-    v.box(5, 13, 1, 9, 17, 2, mat("iron", 0.6))
-    v.box(8, 13, 13, 12, 17, 15, THATCH_DARK)  # louvre high on the roof
-    v.box(9, 14, 15, 11, 16, 16, TIMBER_DARK)
-    v.anchor("chimney", 10, 15, 15)
-    v.anchor("smoke", 10, 15, 16)
-    # Back yard: scalding tub, woodpile; front: chopping block, salt casks, cart.
-    V.vat(v, 20, 4, 1, r=2.5, h=3, liquid=mat("shallows", 0.9))
-    P.woodpile(v, 24, 2, 1, length=7, along="x", rows=2)
-    P.chopping_block(v, 4, 28)
-    for x in (8, 11):
-        P.cask(v, x, 27, 1, lid=FAT)
-    P.handcart(v, 15, 30, 1, along="x", load=MEAT)
-    P.sacks(v, 24, 27, 1, n=2, m=CANVAS)
-    P.lamp_post(v, 29, 28)
-    v.anchor("cart", 9, 36, 1)
-    P.scatter(v, 0, 0, 32, 26, 0.015, seed=seed, kinds=("pebble", "tuft"))
+    v = ctx.vox()  # 48 × 60
+    seed = 19
+    K.ground(v, 24, 38, 21, 18, seed)
+    h = K.hall(v, 22, 6, 46, 28, 3, "x", seed, door=("y+", 36), smoke=True, chim=(40, 10), wins=[])
+    P.casement(h.face("y+"), 26, 4, 8, 5, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED, bars=False)
+    v.box(26, 29, 3, 34, 31, 4, TIMBER_LIGHT)  # the counter
+    # The smoking shed on posts at the west.
+    for x in (2, 18):
+        for y in (8, 12, 20, 26):
+            v.box(x, y, 1, x + 1, y + 1, 12, TIMBER_DARK)
+    K.lean(v, 2, 19, 8, 27, 12, "y+", tier=3, posts=False)
+    v.box(2, 12, 11, 19, 13, 12, TIMBER)
+    v.box(2, 20, 11, 19, 21, 12, TIMBER)
+    V.hanging(v, 3, 18, 12, 11, ((MEAT, 5), (HAM, 4)), every=3)
+    V.hanging(v, 3, 18, 20, 11, ((HAM, 4), (MEAT, 5)), every=3)
+    P.chopping_block(v, 8, 34, 1)
+    P.cask(v, 26, 40, 1, h=4)
+    P.cask(v, 30, 40, 1, h=4)
+    P.woodpile(v, 4, 44, 1, length=8, along="x", rows=3)
+    P.handcart(v, 28, 46, 1, along="x", load=MEAT)
+    v.anchor("cart", 34, 54, 1)
+    K.low_wall(v, 2, 56, 16, 58, 3, seed)
+    K.low_wall(v, 30, 56, 46, 58, 3, seed + 1)
+    K.tufts(v, seed)
     return P.colour_jitter(v, seed=seed)
