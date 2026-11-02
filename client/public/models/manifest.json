@@ -4986,14 +4986,14 @@
     "dyer_works": {
       "anchors": {
         "cart": [
-          -0.75,
+          -1.3333,
           0.0,
-          -2.25
+          -2.0
         ],
         "chimney": [
-          -0.75,
-          3.25,
-          -0.375
+          1.4167,
+          4.0,
+          1.5833
         ],
         "door": [
           0.0,
@@ -5001,50 +5001,64 @@
           -2.5
         ],
         "smoke": [
-          -0.75,
-          3.375,
-          -0.375
+          1.4167,
+          4.0833,
+          1.5833
         ],
         "status": [
           0.0,
-          3.5,
+          4.1667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.625,
-          3.25,
-          2.25
+          2.5,
+          3.9167,
+          2.5
         ],
         "min": [
-          -2.375,
+          -2.5,
           0.0,
-          -2.375
+          -2.4167
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.625,
-            3.25,
-            2.25
+            2.5,
+            3.9167,
+            2.5
           ],
           "min": [
-            -2.375,
+            -2.5,
             0.0,
-            -2.375
+            -2.4167
           ]
         },
         "budget": 12500,
-        "bytes": 119956,
+        "bytes": 206872,
         "ground": [
           [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
             "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none"
           ],
           [
             "dirt",
@@ -5054,49 +5068,35 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              3.0,
+              2.5,
               3.5,
               2.5
             ],
             "min": [
               -2.5,
               0.0,
-              -2.5
+              -2.0
             ]
           },
           "budget": 1000,
-          "bytes": 14896,
+          "bytes": 11064,
           "path": "dyer_works.lite.glb",
-          "sha256": "eba821ae17f4d9981dfa6ac633ea7f47f3f421599f2eaaad032a32be79644042",
-          "triangles": 420
+          "sha256": "4a95cdcbc18a1f65a88a78804ca3da05ea57bcbacd9e0716ce03d0fcd389d198",
+          "triangles": 302
         },
         "path": "dyer_works.glb",
-        "sha256": "04dc6fd38ed8b8682377c6a17ec94b89516848d9ecd04b21b9110c5610278340",
-        "triangles": 3678
+        "sha256": "3a11fd5ddd39711412a56f654ded4a12c31406ad8c73552eb92024159adf184d",
+        "triangles": 6192
       },
       "footprint": {
         "h": 5,
@@ -5106,7 +5106,7 @@
       "sway": [
         "cloth"
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "fashion_house": {
       "anchors": {
