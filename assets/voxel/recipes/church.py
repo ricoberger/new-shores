@@ -47,7 +47,7 @@ def build(ctx):
     P.path(v, [(x, y) for x in range(4, 12) for y in range(38, 42)], kind="paved")
     # Nave along y.
     x0, x1, y0, y1 = 13, 35, 16, 58
-    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=0)
     P.coursed_stone(v, x0, y0, x1, y1, 1, 19, WARM, seed)
     P.dressed_quoins(v, x0, y0, x1, y1, 2, 19, m=DRESSED)
     for y in range(y0 + 3, y1 - 1, 7):
@@ -79,7 +79,7 @@ def build(ctx):
             v.set(a, yy, z, WINDOW)
     # West tower at the front: three stages, portal, clock, belfry, spire.
     tx0, tx1, ty0, ty1 = 17, 31, 56, 70
-    P.plinth(v, tx0, ty0, tx1, ty1, 1, STONE_DARK, out=1)
+    P.plinth(v, tx0, ty0, tx1, ty1, 1, STONE_DARK, out=0)
     P.coursed_stone(v, tx0, ty0, tx1, ty1, 1, 44, WARM, seed + 1)
     P.dressed_quoins(v, tx0, ty0, tx1, ty1, 2, 44, m=DRESSED)
     for z in (17, 31):

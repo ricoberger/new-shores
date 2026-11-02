@@ -24,7 +24,7 @@ def build(ctx):
     P.yard(v, 0, 0, 24, 32, "grass", seed=seed)
     P.yard(v, 2, 16, 22, 30, "dirt", seed=seed)
     # Oast: a square kiln tower in brick courses, a steep pyramid roof and a cowl.
-    P.plinth(v, 2, 3, 10, 11, 1, P.STONE_DARK if hasattr(P, "STONE_DARK") else STONE, out=1)
+    P.plinth(v, 2, 3, 10, 11, 1, P.STONE_DARK if hasattr(P, "STONE_DARK") else STONE, out=0)
     for z in range(1, 15):
         for x in range(2, 10):
             for y in range(3, 11):

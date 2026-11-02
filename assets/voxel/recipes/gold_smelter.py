@@ -26,7 +26,7 @@ def build(ctx):
     Q.furnace(v, 3, 3, size=14, tiers=4, step=4, seed=seed)
     # Strongroom.
     x0, y0, x1, y1 = 20, 4, 31, 20
-    P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=0)
     Q.ashlar(v, x0, y0, x1, y1, 1, 12)
     Q.cornice(v, x0, y0, x1, y1, 12)
     r = P.roof(v, x0, x1, y0, y1, 13, "tiles", hip=True, m=ROOF, seed=seed, eaves=False)

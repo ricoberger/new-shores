@@ -30,7 +30,7 @@ def build(ctx):
     P.entrance(b.face("y+"), 8, 2, 3, 5)
     # The kiln: a square stone tower, a steep roof and the cowl on top.
     x0, y0, x1, y1 = 17, 8, 29, 20
-    P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=0)
     P.coursed_stone(v, x0, y0, x1, y1, 1, 18, mat("stone", 1.0), seed)
     P.dressed_quoins(v, x0, y0, x1, y1, 1, 18)
     r = P.roof(v, x0, x1, y0, y1, 18, "tiles", hip=True, rise=1.5, m=KILN_ROOF, seed=seed)

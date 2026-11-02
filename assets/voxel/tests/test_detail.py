@@ -173,5 +173,33 @@ class DetailHelperTest(unittest.TestCase):
         self.assertGreater(len(set(tops.values())), 1)
 
 
+class FlushPlinthTest(unittest.TestCase):
+    """No proud plinth on a land building: the plinth is a stone band flush with the wall above it (colour, not geometry)."""
+
+    def footprint(self, v, z):
+        return {(x, y) for (x, y, zz) in v.cells if zz == z}
+
+    def test_the_block_parts_lay_a_flush_band(self):
+        from nsvoxel import detail_d060, detail_v4, detail_v5
+
+        blocks = {
+            "building": lambda v: P.building(v, 6, 6, 22, 18, style="citizen", seed=1),
+            "townhouse": lambda v: detail_v4.townhouse(v, 6, 6, 22, 18, seed=1),
+            "palazzo": lambda v: detail_v5.palazzo(v, 6, 6, 22, 18, seed=1),
+            "warm_hall": lambda v: detail_d060.warm_hall(v, 6, 6, 22, 18, 9, seed=1),
+        }
+        for name, make in blocks.items():
+            v = Vox(32, 32, 48)
+            make(v)
+            band = self.footprint(v, 1)
+            self.assertEqual(band, {(x, y) for x in range(6, 22) for y in range(6, 18)}, name)
+            self.assertLessEqual(band, self.footprint(v, 2), name)
+
+    def test_the_old_proud_plinth_is_opt_in(self):
+        v = Vox(32, 32, 48)
+        P.building(v, 6, 6, 22, 18, style="settler", plinth_out=1)
+        self.assertIn((5, 5), self.footprint(v, 1))
+
+
 if __name__ == "__main__":
     unittest.main()

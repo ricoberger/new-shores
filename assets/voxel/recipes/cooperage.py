@@ -36,7 +36,7 @@ def build(ctx):
     P.yard(v, 0, 0, 32, 48, "dirt", seed=seed)
     # Barrel hall: three closed walls, the front open on posts.
     x0, y0, x1, y1 = 2, 3, 30, 22
-    P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=0)
     Q.ashlar(v, x0, y0, x1, y1, 1, 11, core=False)
     v.box(x0 + 1, y1 - 1, 1, x1 - 1, y1, 9, None)
     for x in (x0, 9, 16, 23, x1 - 1):

@@ -20,7 +20,7 @@ def build(ctx):
     P.yard(v, 2, 20, 30, 36, "dirt", seed=seed)
     # Byre at the back.
     x0, y0, x1, y1 = 2, 3, 22, 14
-    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=0)
     P.fill(v, x0, y0, x1, y1, 1, 2, STONE_DARK)
     P.boarded(v, x0, y0, x1, y1, 2, 10)
     P.roof(v, x0, x1, y0, y1, 10, "thatch", along="x", gable=TIMBER_LIGHT, seed=seed)

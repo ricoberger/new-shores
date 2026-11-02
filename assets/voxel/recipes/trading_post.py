@@ -95,7 +95,7 @@ def build(ctx):
     if lv == 4:
         # Counting house with a flag tower on the east side.
         cx0, cy0, cx1, cy1 = 36, 24, 46, 38
-        P.plinth(v, cx0, cy0, cx1, cy1, 1, STONE_DARK, out=1)
+        P.plinth(v, cx0, cy0, cx1, cy1, 1, STONE_DARK, out=0)
         P.coursed_stone(v, cx0, cy0, cx1, cy1, 1, 8, STONE, seed)
         P.dressed_quoins(v, cx0, cy0, cx1, cy1, 2, 8)
         P.jetty_course(v, cx0, cy0, cx1, cy1, 8)

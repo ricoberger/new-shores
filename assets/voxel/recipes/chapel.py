@@ -20,7 +20,7 @@ def build(ctx):
     P.yard(v, 0, 0, 24, 40, "grass", seed=seed)
     P.path(v, [(x, y) for x in range(10, 14) for y in range(34, 40)], kind="paved")
     x0, y0, x1, y1 = 5, 3, 19, 29
-    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=0)
     P.coursed_stone(v, x0, y0, x1, y1, 1, 12, STONE_LIGHT, seed)
     P.dressed_quoins(v, x0, y0, x1, y1, 2, 12, m=P.mat("stone", 1.22))
     # Buttresses on the long sides.
@@ -34,7 +34,7 @@ def build(ctx):
     top = r.ridge_z + 1
     # The porch: a low gabled box on the front, the pointed door in its gable end.
     px0, px1, py0, py1 = 8, 16, 29, 35
-    P.plinth(v, px0, py0, px1, py1, 1, STONE_DARK, out=1)
+    P.plinth(v, px0, py0, px1, py1, 1, STONE_DARK, out=0)
     P.coursed_stone(v, px0, py0, px1, py1, 1, 9, STONE_LIGHT, seed + 3)
     P.dressed_quoins(v, px0, py0, px1, py1, 2, 9, m=P.mat("stone", 1.22))
     P.roof(v, px0, px1, py0, py1, 9, "tiles", along="y", rise=1.2, gable=STONE_LIGHT, seed=seed)

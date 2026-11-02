@@ -23,7 +23,7 @@ def build(ctx):
     P.yard(v, 1, 18, 21, 39, "dirt", seed=seed)
     # The byre: stone lower storey, boarded loft, tiled roof.
     x0, y0, x1, y1 = 2, 2, 30, 15
-    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=0)
     P.coursed_stone(v, x0, y0, x1, y1, 1, 8, STONE, seed)
     P.dressed_quoins(v, x0, y0, x1, y1, 1, 8)
     P.boarded(v, x0, y0, x1, y1, 8, 13)

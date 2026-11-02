@@ -57,7 +57,7 @@ def build(ctx):
     P.cask(v, 7, 45, 1, h=3)
     # Strongroom: dressed ashlar, iron door, barred windows, brass finial.
     x0, y0, x1, y1 = 12, 32, 22, 44
-    P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=0)
     Q.ashlar(v, x0, y0, x1, y1, 1, 11)
     Q.cornice(v, x0, y0, x1, y1, 11)
     r = P.roof(v, x0, x1, y0, y1, 12, "tiles", hip=True, m=ROOF, seed=seed, eaves=False)

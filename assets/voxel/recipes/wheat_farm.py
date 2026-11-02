@@ -18,7 +18,7 @@ def build(ctx):
     P.yard(v, 0, 0, 24, 3, "grass", seed=seed)
     # Barn at the back.
     x0, y0, x1, y1 = 2, 3, 22, 15
-    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=0)
     P.fill(v, x0, y0, x1, y1, 1, 2, STONE_DARK)
     P.boarded(v, x0, y0, x1, y1, 2, 12)
     r = P.roof(v, x0, x1, y0, y1, 12, "thatch", along="x", gable=TIMBER_LIGHT, seed=seed)

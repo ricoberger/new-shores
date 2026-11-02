@@ -24,7 +24,7 @@ def build(ctx):
     P.yard(v, 0, 24, 32, 48, "dirt", seed=seed)
     # Drying hall along y on the east: stone ground floor, louvred timber loft.
     x0, x1, y0, y1 = 14, 30, 2, 30
-    P.plinth(v, x0, y0, x1, y1)
+    P.plinth(v, x0, y0, x1, y1, out=0)
     P.coursed_stone(v, x0, y0, x1, y1, 1, 8, seed=seed)
     P.dressed_quoins(v, x0, y0, x1, y1, 1, 8)
     P.jetty_course(v, x0, y0, x1, y1, 8)

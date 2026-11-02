@@ -44,7 +44,7 @@ VERDIGRIS = mat("shallows", 0.78)
 # ---------------------------------------------------------------- the merchant townhouse
 
 
-def townhouse(v, x0, y0, x1, y1, along="x", ground=9, top=17, infill=None, frame=TIMBER_DARK, roof=None, kind="tiles", rise=None, hip=False, seed=0, spacing=4, braces=True, rail=None, gable_jetty=True, z0=1, ov=1):
+def townhouse(v, x0, y0, x1, y1, along="x", ground=9, top=17, infill=None, frame=TIMBER_DARK, roof=None, kind="tiles", rise=None, hip=False, seed=0, spacing=4, braces=True, rail=None, gable_jetty=True, z0=1, ov=1, plinth_out=0):
     """
     A merchant's townhouse block (tier 3): a proud plinth at z0, a tall
     coursed-stone ground floor with dressed quoins up to `ground`, a jetty
@@ -57,7 +57,7 @@ def townhouse(v, x0, y0, x1, y1, along="x", ground=9, top=17, infill=None, frame
     faces, roof).
     """
     infill = infill or mat("ochre")
-    _d.plinth(v, x0, y0, x1, y1, z0, STONE_DARK, out=1)
+    _d.plinth(v, x0, y0, x1, y1, z0, STONE_DARK, out=plinth_out)  # flush band (V7); 1: the old proud plinth
     _d.fill(v, x0, y0, x1, y1, z0, z0 + 1, STONE_DARK)
     _d.coursed_stone(v, x0, y0, x1, y1, z0 + 1, ground, STONE, seed)
     _d.dressed_quoins(v, x0, y0, x1, y1, z0 + 1, ground)

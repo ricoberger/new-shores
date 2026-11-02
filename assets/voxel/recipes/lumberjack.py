@@ -20,7 +20,7 @@ def build(ctx):
     P.yard(v, 0, 0, 3, 24, "grass", seed=seed)
     # Log cabin.
     x0, y0, x1, y1 = 4, 5, 16, 14
-    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=0)
     P.fill(v, x0, y0, x1, y1, 1, 2, STONE_DARK)
     P.log_walls(v, x0, y0, x1, y1, 2, 9)
     r = P.roof(v, x0, x1, y0, y1, 9, "thatch", along="x", gable=TIMBER, seed=seed, m=THATCH)

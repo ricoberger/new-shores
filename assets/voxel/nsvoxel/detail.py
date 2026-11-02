@@ -1028,10 +1028,12 @@ STYLES_V2 = {
 }
 
 
-def building(v, x0, y0, x1, y1, style="settler", along="x", wall=None, upper=None, z0=1, height=None, roof=None, kind=None, rise=None, hip=False, seed=0, jetty=True, ov=1, spacing=4, braces=True):
+def building(v, x0, y0, x1, y1, style="settler", along="x", wall=None, upper=None, z0=1, height=None, roof=None, kind=None, rise=None, hip=False, seed=0, jetty=True, ov=1, spacing=4, braces=True, plinth_out=0):
     """
     A whole building block in a tier style (D-057 §3), the core of P.house:
-    a proud stone plinth at z0, then
+    a stone plinth band at z0 — flush with the walls (plinth_out=0, the
+    default since V7: the wall meets the painted ground; 1: the old proud
+    plinth) — then
       settler      pegged timber frame with plaster infill, thatch;
       citizen      coursed-stone ground floor with dressed quoins, a jettied
                    (one voxel wider) timber-framed upper storey from z0 + 7,
@@ -1046,7 +1048,7 @@ def building(v, x0, y0, x1, y1, style="settler", along="x", wall=None, upper=Non
     infill = wall or st["infill"]
     k = kind or (roof_kind(roof) if roof is not None else st["roof"])
     rm = roof if roof is not None else None
-    plinth(v, x0, y0, x1, y1, z0, STONE_DARK, out=1)
+    plinth(v, x0, y0, x1, y1, z0, STONE_DARK, out=plinth_out)
     fill(v, x0, y0, x1, y1, z0, z0 + 1, STONE_DARK)
     ground = (x0, y0, x1, y1)
     up = ground

@@ -23,7 +23,7 @@ def build(ctx):
     P.yard(v, 0, 36, 40, 48, "paved", seed=seed)
     # Kettle house: tall stone hall along y, tiles, the copper hood on the ridge.
     x0, x1, y0, y1 = 16, 30, 6, 32
-    P.plinth(v, x0, y0, x1, y1)
+    P.plinth(v, x0, y0, x1, y1, out=0)
     P.coursed_stone(v, x0, y0, x1, y1, 1, 15, seed=seed)
     P.dressed_quoins(v, x0, y0, x1, y1, 1, 15)
     r = P.roof(v, x0, x1, y0, y1, 15, "tiles", along="y", rise=1.3, seed=seed, m=mat("terracotta", 0.8))

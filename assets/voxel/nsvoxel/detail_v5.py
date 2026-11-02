@@ -116,16 +116,16 @@ class Palazzo:
         return P.span(side, x0, y0, x1, y1)
 
 
-def palazzo(v, x0, y0, x1, y1, storeys=(8, 6, 6), z0=1, upper=PLASTER, base=ASHLAR, roof=TERRACOTTA, kind="tiles", along="x", hip=False, rise=None, ov=1, seed=0, ridge=None, gable=None, quoins=False):
+def palazzo(v, x0, y0, x1, y1, storeys=(8, 6, 6), z0=1, upper=PLASTER, base=ASHLAR, roof=TERRACOTTA, kind="tiles", along="x", hip=False, rise=None, ov=1, seed=0, ridge=None, gable=None, quoins=False, plinth_out=0):
     """
     A Patrician block (D-057 §3, tier language "dressed stone, ornament,
-    three storeys"): a proud plinth at z0, an ashlar ground floor
+    three storeys"): a plinth band at z0 (flush; plinth_out=1: proud), an ashlar ground floor
     storeys[0] high, plastered (flat `upper`) upper storeys (dressed
     quoins with quoins=True), a string course at every floor line, a two-step cornice and a
     roof of courses (`roof` material, `kind`, hipped or gabled). The volume
     is filled solid. Returns a Palazzo.
     """
-    P.plinth(v, x0, y0, x1, y1, z0, STONE_DARK, out=1)
+    P.plinth(v, x0, y0, x1, y1, z0, STONE_DARK, out=plinth_out)  # flush band (V7); 1: the old proud plinth
     P.fill(v, x0, y0, x1, y1, z0, z0 + 1, STONE_DARK)
     z = z0 + 1
     floors = [z]

@@ -116,7 +116,7 @@ def stage(v):
 def stage_house(v, seed):
     """The taller stage house behind the hall: framed walls, a gable roof of brown slate and a roof lantern."""
     x0, x1, y0, y1 = 26, 62, 3, 26
-    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=0)
     P.fill(v, x0, y0, x1, y1, 1, 2, STONE_DARK)
     P.half_timber(v, x0, y0, x1, y1, 2, 19, PLASTER, TIMBER, spacing=6, braces=("x-", "x+"))
     r = P.roof(v, x0, x1, y0, y1, 19, "tiles", along="x", rise=1.25, m=BROWN_SLATE[0], ridge=RIDGE_SLATE, gable=PLASTER, seed=seed)

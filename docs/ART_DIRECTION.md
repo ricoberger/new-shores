@@ -430,11 +430,18 @@ of a land footprint flat at z = 0) and reports voxels not connected to the
 ground (`floating voxels`); fix a one-voxel gap with `P.tie_floating(v)`
 (water models: `ground=0`) or a real support.
 
+No land building has a proud plinth: the wall meets the painted ground
+directly. Where a building wants a foundation it is a one-voxel stone band
+flush with the wall (colour, not geometry): `P.plinth(…, out=0)`, and the
+block parts (`P.building`, `townhouse`, `Q.palazzo`, `warm_hall`) lay it by
+default (`plinth_out=0`; `plinth_out=1` is the old proud plinth, not for
+land buildings).
+
 - **Building:** `b = P.building(v, x0, y0, x1, y1, style, along=…)`
   with style `settler` (pegged timber frame, plaster, thatch),
   `citizen` (coursed-stone ground floor with dressed quoins, jettied
   framed upper storey, tiles), `stone` or `stonethatch`. It lays the
-  proud plinth, fills hidden volumes solid (only the shell is meshed)
+  flush plinth band, fills hidden volumes solid (only the shell is meshed)
   and returns `b.face(side, upper=False)` for openings and `b.roof`
   (`ridge_z`, `surface(x, y)`) for chimneys and dormers. Lower-level
   parts (`coursed_stone`, `dressed_quoins`, `half_timber`, `boarded`,
@@ -455,8 +462,8 @@ ground (`floating voxels`); fix a one-voxel gap with `P.tie_floating(v)`
   `sheaf`, `stone_blocks`, `lamp_post`, `flower_bed`. One signature prop
   per producer must read at mid zoom.
 - **Tier 4 (Patricians, V5):** `nsvoxel/detail_v5.py` (imported as
-  `Q`) adds parts on top of `P` without changing it: `Q.palazzo` (proud
-  plinth, ashlar ground floor, plastered upper storeys, string courses,
+  `Q`) adds parts on top of `P` without changing it: `Q.palazzo` (flush
+  plinth band, ashlar ground floor, plastered upper storeys, string courses,
   cornice, roof; `.face`, `.roof`, `.top`), `Q.ashlar`,
   `Q.string_course`, `Q.cornice`, `Q.pilasters`; openings `Q.window`
   (hood `key`, `pediment`, `cornice`), `Q.lancet`, `Q.rose_window`,

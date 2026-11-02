@@ -74,7 +74,7 @@ def build(ctx):
         P.casement(b.face("y-"), a, 4, 2, 3, frame=D.SANDSTONE_TRIM, sill=D.SANDSTONE_TRIM)
     # Tower on the front corner: coursed stone, a corbel course, a crenellated parapet.
     tx0, ty0, tx1, ty1 = 22, 13, 29, 20
-    P.plinth(v, tx0, ty0, tx1, ty1, 1, D.SANDSTONE_PLINTH, out=1)
+    P.plinth(v, tx0, ty0, tx1, ty1, 1, D.SANDSTONE_PLINTH, out=0)
     P.coursed_stone(v, tx0, ty0, tx1, ty1, 1, 18, TOWER, seed)
     P.dressed_quoins(v, tx0, ty0, tx1, ty1, 2, 18, m=D.SANDSTONE_QUOIN)
     Q.string_course(v, tx0, ty0, tx1, ty1, 17, m=D.SANDSTONE_TRIM)
