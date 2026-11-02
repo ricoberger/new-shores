@@ -7508,9 +7508,9 @@
     "leather_works": {
       "anchors": {
         "cart": [
+          -0.6667,
           0.0,
-          0.0,
-          -1.875
+          -1.6667
         ],
         "door": [
           0.0,
@@ -7519,18 +7519,18 @@
         ],
         "status": [
           0.0,
-          2.5,
+          3.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.25,
-          1.875
+          3.4167,
+          2.0
         ],
         "min": [
-          -1.375,
+          -1.5,
           0.0,
           -2.0
         ]
@@ -7539,22 +7539,27 @@
         "bounds": {
           "max": [
             1.5,
-            2.25,
-            1.875
+            3.4167,
+            2.0
           ],
           "min": [
-            -1.375,
+            -1.5,
             0.0,
             -2.0
           ]
         },
         "budget": 6000,
-        "bytes": 51240,
+        "bytes": 133528,
         "ground": [
           [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
             "dirt",
@@ -7562,45 +7567,40 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              3.5,
               2.0
             ],
             "min": [
               -1.5,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 480,
-          "bytes": 6632,
+          "bytes": 6672,
           "path": "leather_works.lite.glb",
-          "sha256": "1ded5709e9a9143a12a53f23c2fe4224174f677660cb4d4272d1fbe540eb25f5",
-          "triangles": 154
+          "sha256": "4727e8cb5f07855c9d8a676e43b0800351c0332d855f2c098d47c1787786e3a8",
+          "triangles": 166
         },
         "path": "leather_works.glb",
-        "sha256": "017faed77da9b969bc0f81ab31fb426d708475dc8dbd04986f378f443f332ede",
-        "triangles": 1572
+        "sha256": "cfefacc5c5ad21182e26d09c505d48afd75237446a514ed55a6773f726ab7b42",
+        "triangles": 4010
       },
       "footprint": {
         "h": 4,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "lumberjack": {
       "anchors": {
