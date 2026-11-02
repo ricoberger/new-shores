@@ -381,6 +381,9 @@ func buildingCategory(b *content.Building) string {
 		return categoryPublic
 	case b.TradingPost != nil, b.Shipyard != nil, b.Pier != nil, b.Depot != nil:
 		return categoryHarbour
+	case b.Road != nil && b.Road.Shallows:
+		// The quay is a road on the shallows, but a harbour building to the player.
+		return categoryHarbour
 	case b.Road != nil:
 		return categoryRoads
 	}

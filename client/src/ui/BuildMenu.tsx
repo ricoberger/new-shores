@@ -1,15 +1,13 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
 import { t } from "../i18n";
-import { footprintText } from "../display/fields";
-import { perMin, tonsRatio, units } from "../display/format";
-import { depositText, fertilityName, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
-import { categoryIcon, goodIcon, toolIcon } from "../theme/iconSet";
+import { buildCost, buildMenuGroups, buildTierTabs, defaultBuildTier, serviceNeedCategory } from "../display/buildMenu";
+import { perMin, tons, units } from "../display/format";
+import { depositName, fertilityName, fertilityNeed, lockReason } from "../display/tiers";
+import { goodIcon, needIcon, resourceIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
 import type { Tool } from "./tools";
-
-const CATEGORIES: ContentBuilding["category"][] = ["houses", "production", "public", "harbour", "roads", "other"];
 
 interface Props {
   content: Content | null;
@@ -25,6 +23,8 @@ interface Props {
   onDemolishTool: () => void;
   /** Short landscape phones: the same menu with a tighter density (smaller cards and thumbnails). */
   dense?: boolean;
+  /** The tier tab opened first instead of the current one (screenshots, tests). */
+  initialTier?: string;
 }
 
 // i18n-ignore: Roman numerals are the same in every language
@@ -41,40 +41,58 @@ export function tierNumeral(index: number): string {
 }
 
 /**
- * Build menu grouped by the server-derived category. Items are never
- * disabled for cost (the server decides, D-027); each material shows the
- * island stock next to the cost (have/need) for information only. Items of
- * a tier that is not unlocked show the server's unmet unlock conditions;
- * houses of later tiers are reached by upgrading only and not listed.
- * Fertility and deposit requirements are shown with a lookup of the
- * island's static data.
+ * Build menu: one tab per content tier (numeral and name; a locked tier is dimmed with its unmet unlock
+ * conditions as subtitle, and can be opened to look ahead), inside a tab the cards in groups General,
+ * Production (along the chains), Public and Harbour. Items are never disabled for cost (the server decides,
+ * D-027): cost parts the player cannot cover right now are only shown red. Items of a tier that is not
+ * unlocked are dimmed with the server's unmet unlock conditions; houses of later tiers are reached by
+ * upgrading only and not listed. Fertility requirements are shown with a lookup of the island's static data.
  */
-export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, dense = false }: Props) {
-  const [category, setCategory] = useState<ContentBuilding["category"]>("houses");
+const cap = (v: string) => v.charAt(0).toUpperCase() + v.slice(1);
+
+export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, dense = false, initialTier }: Props) {
+  const [chosen, setChosen] = useState<string | null>(initialTier ?? null);
   if (!content) return null;
-  // Fields are not listed: they are added from their farm's panel (D-051 part 4).
-  const listed = content.buildings.filter((b) => listedInBuildMenu(b, content));
-  const present = CATEGORIES.filter((c) => listed.some((b) => b.category === c));
-  // The first present category when the chosen one has no buildings.
-  const shown = present.includes(category) ? category : (present[0] ?? category);
-  const inventory = model?.islands.find((is) => is.id === islandId)?.inventory ?? {};
+  const tabs = buildTierTabs(model, content);
+  // The current tier unless the player opened another one (or the chosen one is gone).
+  const shown = tabs.find((tab) => tab.id === chosen)?.id ?? defaultBuildTier(tabs);
+  const island = model?.islands.find((is) => is.id === islandId);
+  const stock = (good: string) => island?.inventory[good]?.stock ?? 0;
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
   const activeId = tool.kind === "build" ? tool.buildingType : tool.kind === "road" ? tool.roadType : null;
+  const lockText = (b: ContentBuilding) => (loading ? t("build.loadingIsland") : (lockReason(model, content, b.tier) ?? ""));
+  const goodChip = (good: string, key: string, extra?: string) => (
+    <span key={key} className={`${styles.withIcon} ${extra ?? ""}`} title={goodName(good)}>
+      <Icon path={goodIcon(good)} />
+      {goodName(good)}
+    </span>
+  );
 
   return (
     <div className={`${styles.buildMenu} ${dense ? styles.buildMenuDense : ""}`} data-testid="build-menu">
       <div className={styles.tabBar}>
-        <div className={styles.tabs} role="group" aria-label={t("build.categories")}>
-          {present.map((c) => (
+        <div className={styles.tabs} role="group" aria-label={t("build.tiers")}>
+          {tabs.map((tab) => (
             <button
-              key={c}
+              key={tab.id}
               type="button"
-              aria-pressed={c === shown}
-              className={`${styles.tab} ${c === shown ? styles.tabActive : ""}`}
-              onClick={() => setCategory(c)}
-              data-testid={`build-tab-${c}`}
+              aria-pressed={tab.id === shown}
+              className={`${styles.tab} ${tab.id === shown ? styles.tabActive : ""} ${tab.unlocked ? "" : styles.tabLocked}`}
+              onClick={() => setChosen(tab.id)}
+              title={tab.unlocked ? undefined : (lockReason(model, content, tab.id) ?? undefined)}
+              data-testid={`build-tab-${tab.id}`}
             >
-              <Icon path={categoryIcon(c)} /> {t(`build.category.${c}`)}
+              <span className={styles.tabTitle}>
+                <span className={styles.tabNumeral} aria-hidden="true">
+                  {tierNumeral(tab.index)}
+                </span>{" "}
+                {tab.name}
+              </span>
+              {tab.subtitle && (
+                <span className={styles.tabSub} data-testid={`build-tab-sub-${tab.id}`}>
+                  {tab.subtitle}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -92,78 +110,112 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
         </button>
       </div>
       <div className={styles.items}>
-        {listed
-          .filter((b) => b.category === shown)
-          .map((b) => {
-            const tierLocked = !tierUnlocked(model, b.tier);
-            const locked = tierLocked || loading;
-            const fertility = fertilityNeed(b, fertilities);
-            const tierIndex = content.tiers.findIndex((x) => x.id === b.tier);
-            const tierName = content.tiers[tierIndex]?.name ?? b.tier;
-            return (
-              <button
-                key={b.id}
-                type="button"
-                className={`${styles.item} ${activeId === b.id ? styles.itemActive : ""}`}
-                disabled={locked}
-                aria-pressed={activeId === b.id}
-                onClick={() => onSelect(b)}
-                data-testid={`build-${b.id}`}
-                title={b.description}
-              >
-                {tierIndex >= 0 && (
-                  <span className={styles.tierBadge} title={t("build.tierTitle", { name: tierName, tier: tierIndex + 1 })}>
-                    <span aria-hidden="true">{tierNumeral(tierIndex)}</span>
-                    <span className={styles.srOnly}>, {tierName}</span>
-                  </span>
-                )}
-                {/* The model's thumbnail from the asset build (decorative: the name is the label); hidden when it has none. */}
-                <img
-                  className={styles.itemThumb}
-                  src={thumbUrl(b.id)}
-                  alt=""
-                  width={64}
-                  height={64}
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e) => {
-                    e.currentTarget.hidden = true;
-                  }}
-                />
-                <span className={styles.itemName}>{b.name}</span>
-                <span className={styles.small}>
-                  {t("build.cost", { gold: units(b.cost.gold), upkeep: perMin(b.upkeep_per_min) })}
-                </span>
-                <span className={styles.small} data-testid={`build-size-${b.id}`}>
-                  {footprintText(b, content)}
-                </span>
-                {Object.entries(b.cost.materials).map(([good, need]) => (
-                  <span key={good} className={`${styles.small} ${styles.withIcon}`}>
-                    <Icon path={goodIcon(good)} />
-                    {goodName(good)}: {tonsRatio(inventory[good]?.stock ?? 0, need)}
-                  </span>
-                ))}
-                {fertility && (
-                  <span
-                    className={`${styles.small} ${fertility.present ? styles.ok : styles.lock}`}
-                    data-testid={`build-fertility-${b.id}`}
-                  >
-                    {fertility.present ? t("build.fertilityOk", { name: fertilityName(fertility.fertility) }) : missingFertilityText(fertility.fertility, fertilities)}
-                  </span>
-                )}
-                {b.requires_deposit && (
-                  <span className={styles.small} data-testid={`build-deposit-${b.id}`}>
-                    {depositText(b.requires_deposit)}
-                  </span>
-                )}
-                {locked && (
-                  <span className={styles.lock} data-testid={`build-lock-${b.id}`}>
-                    {loading ? t("build.loadingIsland") : lockReason(model, content, b.tier)}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+        {shown &&
+          buildMenuGroups(content, shown).map((run) => (
+            <div key={run.group} className={styles.buildGroup} data-testid={`build-group-${run.group}`}>
+              <div className={styles.groupLabel}>{t(`build.group.${run.group}`)}</div>
+              <div className={styles.groupItems}>
+                {run.items.map((b) => {
+                  const locked = !tabs.find((tab) => tab.id === b.tier)?.unlocked || loading;
+                  const fertility = fertilityNeed(b, fertilities);
+                  const cost = buildCost(b, model?.gold ?? 0, stock);
+                  const needCategory = b.service ? serviceNeedCategory(content, b) : undefined;
+                  const fieldDef = b.fields ? content.buildings.find((x) => x.id === b.fields?.type) : undefined;
+                  return (
+                    <button
+                      key={b.id}
+                      type="button"
+                      className={`${styles.item} ${activeId === b.id ? styles.itemActive : ""}`}
+                      disabled={locked}
+                      aria-pressed={activeId === b.id}
+                      onClick={() => onSelect(b)}
+                      data-testid={`build-${b.id}`}
+                      title={b.description}
+                    >
+                      {/* The model's thumbnail from the asset build (decorative: the name is the label); hidden when it has none. */}
+                      <img
+                        className={styles.itemThumb}
+                        src={thumbUrl(b.id)}
+                        alt=""
+                        width={64}
+                        height={64}
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.hidden = true;
+                        }}
+                      />
+                      <span className={styles.itemName}>{b.name}</span>
+                      <span className={`${styles.small} ${styles.cardLine}`} data-testid={`build-cost-${b.id}`}>
+                        <span className={cost.gold.short ? styles.warn : undefined} data-short={cost.gold.short || undefined}>
+                          {t("build.goldCost", { amount: units(cost.gold.amount) })}
+                        </span>
+                        {cost.materials.map((m) => (
+                          <Fragment key={m.good}>
+                            <span aria-hidden="true">·</span>
+                            <span className={`${styles.withIcon} ${m.short ? styles.warn : ""}`} data-short={m.short || undefined} title={goodName(m.good)}>
+                              <Icon path={goodIcon(m.good)} />
+                              {tons(m.amount)}
+                            </span>
+                          </Fragment>
+                        ))}
+                      </span>
+                      {fertility && !fertility.present ? (
+                        <span className={`${styles.small} ${styles.warn} ${styles.cardLine}`} data-testid={`build-fertility-${b.id}`}>
+                          {t("build.needsFertility", { fertility: fertilityName(fertility.fertility) })}
+                        </span>
+                      ) : (
+                        <span className={`${styles.small} ${styles.cardLine}`} data-testid={`build-info-${b.id}`}>
+                          <span>{t("infoPanel.upkeepRate", { rate: perMin(b.upkeep_per_min) })}</span>
+                          {(b.recipe || b.service) && <span aria-hidden="true">·</span>}
+                          {b.recipe && (
+                            <span className={styles.flow}>
+                              {b.requires_deposit && (
+                                <span className={styles.withIcon} data-testid={`build-deposit-${b.id}`}>
+                                  <Icon path={resourceIcon("deposit", b.requires_deposit)} />
+                                  {t("almanac.chain.deposit", { name: cap(depositName(b.requires_deposit)) })}
+                                </span>
+                              )}
+                              {b.fields && b.fields.required > 0 ? (
+                                <span>{fieldDef?.name ?? b.fields.type}</span>
+                              ) : (
+                                b.recipe.inputs.map((i, n, all) => (
+                                  <span key={`in-${i.good}`}>
+                                    {goodChip(i.good, `in-${i.good}`)}
+                                    {n < all.length - 1 && ","}
+                                  </span>
+                                ))
+                              )}
+                              <span aria-hidden="true">→</span>
+                              {b.recipe.outputs.map((o) => goodChip(o.good, `out-${o.good}`))}
+                            </span>
+                          )}
+                          {b.service && (
+                            <span className={styles.flow}>
+                              {needCategory && (
+                                <span className={styles.withIcon}>
+                                  <Icon path={needIcon({ category: needCategory.id }, needCategory.icon)} />
+                                  {needCategory.name}
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </span>
+                      )}
+                      {/* The note row (always there, so every card is equally high): why the tier is locked. */}
+                      {locked ? (
+                        <span className={`${styles.lock} ${styles.cardNote}`} data-testid={`build-lock-${b.id}`}>
+                          {lockText(b)}
+                        </span>
+                      ) : (
+                        <span className={styles.cardNote} aria-hidden="true" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
       </div>
     </div>
   );

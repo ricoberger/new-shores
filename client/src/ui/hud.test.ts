@@ -663,17 +663,21 @@ describe("HUD components", () => {
       );
     const strip = (html: string) => html.replace(/<[^>]+>/g, "");
 
-    it("shows every build card's size: a farm with its fields at the maximum, a pier with its water rows", () => {
+    it("shows no size on a build card; a farm names its field type", () => {
+      const farmed = {
+        ...sized,
+        buildings: sized.buildings.map((b) =>
+          b.id === "wheat_farm" ? { ...b, recipe: { inputs: [], outputs: [{ good: "wheat", amount: 1_000 }], cycle_ms: 60_000 } } : b,
+        ),
+      } as unknown as Content;
       const html = renderToStaticMarkup(
-        createElement(BuildMenu, { content: sized, model: null, islandId: "start", fertilities: [], tool: NO_TOOL, onSelect: () => {}, onDemolishTool: () => {} }),
+        createElement(BuildMenu, { content: farmed, model: null, islandId: "start", fertilities: [], tool: NO_TOOL, onSelect: () => {}, onDemolishTool: () => {} }),
       );
-      const size = (id: string) => strip(html.match(new RegExp(`<span[^>]*data-testid="build-size-${id}"[^>]*>[^<]*</span>`))?.[0] ?? "");
-      expect(size("wheat_farm")).toBe("3×4 + 140 fields");
-      expect(size("sheep_farm")).toBe("3×3 + 3 pastures of 3×3");
-      expect(size("fisher")).toBe("3×8 (3 rows on water)");
+      expect(html).not.toContain("build-size-");
+      expect(strip(html.match(/data-testid="build-info-wheat_farm"[^>]*>(.*?)<\/button>/)?.[1] ?? "")).toContain("Wheat field");
       // Fields and the Trading Post are not built from the menu.
-      expect(html).not.toContain("build-size-wheat_field");
-      expect(html).not.toContain("build-size-trading_post");
+      expect(html).not.toContain('data-testid="build-wheat_field"');
+      expect(html).not.toContain('data-testid="build-trading_post"');
     });
 
     it("has no Size row in the Details of a farm, a producer and the Trading Post", () => {

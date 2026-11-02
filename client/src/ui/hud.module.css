@@ -316,6 +316,75 @@
   background: var(--ns-ui-parchment-dark);
   border-radius: 6px 6px 0 0;
   padding: 4px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 220px;
+}
+
+/* A locked tier: dimmed, still openable to look ahead; its unmet unlock conditions are the subtitle. */
+.tabLocked {
+  opacity: 0.65;
+}
+
+.tabNumeral {
+  font-variant-caps: normal;
+  letter-spacing: 0.04em;
+}
+
+.tabSub {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--ns-ui-ink-soft);
+}
+
+/* One group of cards (General, Production, …) in the sideways strip: a small label above its cards. */
+.buildGroup {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.buildGroup + .buildGroup {
+  margin-left: 12px;
+}
+
+.groupLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ns-ui-brass);
+}
+
+.groupItems {
+  display: flex;
+  gap: 6px;
+}
+
+/* A line of a build card: cost parts or upkeep and what the building does; one line, the card is as wide as it needs. */
+.cardLine {
+  display: flex;
+  align-items: center;
+  gap: 0 6px;
+  white-space: nowrap;
+}
+
+.flow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0 4px;
+}
+
+/* Every part of a card line is a centred flex box, so text, icons, commas and arrows share one middle line. */
+.cardLine > *,
+.flow > * {
+  display: inline-flex;
+  align-items: center;
 }
 
 .tabActive {
@@ -340,28 +409,6 @@
   gap: 4px;
 }
 
-/* Brass tier badge in the corner of a building card (the numeral is
-   decorative; the tier name is in the card's accessible name). */
-.tierBadge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 4px;
-  border-radius: 11px;
-  border: 1px solid var(--ns-ui-dark-wood);
-  background: linear-gradient(var(--ns-ui-brass-light), var(--ns-ui-brass));
-  color: var(--ns-ui-ink);
-  font-family: var(--ns-font-display);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-}
-
 /* Inset from the bar's edges so scrolled cards are clipped before the brass
    border (6px) and keep the bar's 8px start (2px inner padding). */
 .items {
@@ -378,10 +425,14 @@
 .item {
   position: relative;
   color: var(--ns-ui-ink);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  /* Name, cost and what it does on the left, the thumbnail top right across those three rows, then one note row
+     (deposit or lock reason). Every card has the same four rows, so all cards are equally high. */
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto auto auto;
+  align-content: start;
+  justify-content: start;
+  row-gap: 2px;
   min-width: 150px;
   text-align: left;
   border: 1px solid var(--ns-ui-brass);
@@ -393,19 +444,27 @@
     inset 0 0 0 3px var(--ns-ui-parchment-edge);
 }
 
-/* Room for the model thumbnail in the card's bottom-right corner. */
-.item:has(.itemThumb:not([hidden])) {
-  padding-right: 64px;
-  min-width: 214px;
+.item > :not(.itemThumb) {
+  grid-column: 1;
+  min-width: 0;
 }
 
 .itemThumb {
-  position: absolute;
-  right: 4px;
-  bottom: 4px;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  align-self: start;
+  margin-left: 16px;
   width: 56px;
   height: 56px;
   pointer-events: none;
+}
+
+/* The note row spans the card on one line; a long text makes the card wider. */
+.item > .cardNote {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  min-height: 1.3em;
+  white-space: nowrap;
 }
 
 .item:disabled {
@@ -419,7 +478,6 @@
 
 .itemName {
   font-weight: 600;
-  padding-right: 26px;
 }
 
 .small {
@@ -1365,21 +1423,13 @@
 
 .buildMenuDense .item {
   min-width: 132px;
-  max-width: 180px;
   padding: 4px 6px;
 }
 
-.buildMenuDense .item:has(.itemThumb:not([hidden])) {
-  min-width: 180px;
-  max-width: 220px;
-  padding-right: 46px;
-}
-
 .buildMenuDense .itemThumb {
-  width: 40px;
-  height: 40px;
-  right: 3px;
-  bottom: 3px;
+  width: 44px;
+  height: 44px;
+  margin-left: 12px;
 }
 
 .toastsPhone {

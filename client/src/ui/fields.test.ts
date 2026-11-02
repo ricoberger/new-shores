@@ -106,8 +106,9 @@ describe("fields in the HUD (D-051 part 4)", () => {
         onDemolishTool: () => {},
       }),
     );
-    const order = [...html.matchAll(/data-testid="build-([a-z_]+)"/g)].map((m) => m[1]).filter((id) => id !== "menu" && id !== "size" && !id?.startsWith("tab-"));
-    expect(order).toEqual(["lumberjack", "sheep_farm", "weaver_wool"]);
+    const order = [...html.matchAll(/<button[^>]*data-testid="build-([a-z_]+)"/g)].map((m) => m[1]).filter((id) => id !== "demolish" && !id?.startsWith("tab"));
+    // General (Market, Warehouse), Production, Public; the Trading Post is not built from the menu.
+    expect(order).toEqual(["market", "warehouse", "lumberjack", "sheep_farm", "weaver_wool", "tavern"]);
     expect(html).not.toContain('data-testid="build-pasture"');
     // Every card carries its model thumbnail from the asset build (decorative).
     expect(html.match(/<img [^>]*src="\/models\/thumbs\/sheep_farm.png"[^>]*>/)?.[0]).toContain('alt=""');
@@ -126,9 +127,9 @@ describe("fields in the HUD (D-051 part 4)", () => {
         onDemolishTool: () => {},
       }),
     );
-    for (const id of ["lumberjack", "sheep_farm", "weaver_wool"]) {
+    for (const id of ["market", "warehouse", "lumberjack", "sheep_farm", "weaver_wool", "tavern"]) {
       expect(html.match(new RegExp(`<button[^>]*data-testid="build-${id}"[^>]*>`))?.[0]).toContain("disabled");
-      expect(html).toContain(`data-testid="build-lock-${id}">Loading island…</span>`);
+      expect(html).toMatch(new RegExp(`data-testid="build-lock-${id}"[^>]*>Loading island…</span>`));
     }
   });
 

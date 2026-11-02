@@ -164,8 +164,39 @@ UI shows the same numbers the server uses.
   right of the first line; nothing overlaps. The minimap
   collapses to its toggle (portrait starts collapsed); the compass shows
   with the expanded minimap only.
-- **Build menu:** categories → items with cost, upkeep, lock reason and a
-  128 px model **thumbnail**; items are never disabled for cost.
+- **Build menu** (`ui/BuildMenu.tsx`, `display/buildMenu.ts`): one tab per
+  content tier, **numeral and name** ("I Settlers"), the current tier (the
+  highest the server reports unlocked) selected by default. A locked tier's
+  tab is dimmed and shows its unmet unlock conditions as the subtitle
+  ("88/120 Settlers · Build Chapel", only what is still missing); it can be opened to look ahead, its cards
+  are dimmed and disabled with the lock reason. Inside a tab the cards stay
+  one sideways-scrolling row, in groups with a small label at each group's
+  start (empty groups are hidden): **General** (the tier's house where it
+  can be placed, roads, then the Market and the Warehouse), **Production**
+  (ordered along the chains: no inputs first, then by the depth of the
+  recipe's inputs, content order within a step; fields are not listed),
+  **Public** and **Harbour** (shipyard, pier, depot, then the quay, a road
+  on the shallows that the server files under harbour). The groups follow
+  the server's `category`, except houses, roads, the Warehouse and the
+  Market, which are General; the Trading Post is never listed and houses of
+  later tiers are upgrade-only.
+  A card shows the name and the 128 px model **thumbnail** in its upper
+  right corner, and two lines, each on one line; below them is a note row
+  that every card has (so all cards are equally high in every tab): the
+  lock reason of a locked tier, else empty. Lines never wrap
+  and are never cut with an ellipsis: a long line makes the card wider.
+  1. the cost: gold and each material with its good icon and tonnes,
+     separated by dots `·`; a part the player cannot cover right now (gold, or the island's
+     stock) is red. This is a display hint from the numbers the client has:
+     items are never disabled for cost and the server decides. No stock
+     numbers, no size or footprint;
+  2. upkeep ("2.0 gold/min"), a dot `·`, then for production `in → out` with
+     good icons (several inputs separated by commas; a farm: its field type without a count, "Wheat field →
+     Wheat"; a mine or quarry: the deposit it needs, "Quartz deposit →
+     Quartz"), for a public building only the need category it serves
+     ("Faith", no radius). A missing fertility replaces this line with a red "Needs
+     wheat fertility" (not what the island has; the placement ghost's hint
+     keeps that).
 - **Panels:** parchment with a 3 px dark-wood border and inset light-wood
   edge (10 px radius; build cards 7 px); status badges as wax seals (ink
   bands, parchment ring). Every panel has a fixed title row with an icon
@@ -453,7 +484,7 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   properties (`client/src/theme/palette.css`); the renderer reads the same
   file. Parchment panels with a dark-wood border and brass accent line,
   dark-wood top bar and build bar, Cinzel titles, Source Sans 3 text,
-  brass tier badges on building cards, parchment toasts, the away summary
+  the tier tabs of the build menu, parchment toasts, the away summary
   as a letter, status as a wax-seal badge; bottom sheets, minimap and
   dialogs share the theme. Icons for goods, needs, statuses and tools from
   the pinned game-icons set; a **Credits** dialog (account menu) carries

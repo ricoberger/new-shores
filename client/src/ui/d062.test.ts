@@ -50,14 +50,19 @@ describe("D-062 / D-063 cards", () => {
   });
   it("lists playhouse rather than theatre, and locks surgery until Patricians", () => {
     const publicContent = { ...content, buildings: content.buildings.filter((b) => b.category === "public") };
-    const html = renderToStaticMarkup(createElement(BuildMenu, {
-      content: publicContent, model: { ...model, tiers: model.tiers.map((tier) => ({ ...tier, unlocked: tier.id !== "patricians" })) },
-      islandId: island.id, fertilities: [], tool: NO_TOOL, onSelect: noop, onDemolishTool: noop,
-    }));
-    expect(html).toContain('data-testid="build-playhouse"');
-    expect(html).not.toContain('data-testid="build-theatre"');
-    expect(html).toContain("A timber-framed playhouse");
-    expect(html).toContain('data-testid="build-lock-surgery"');
-    expect(html).not.toContain('data-testid="build-lock-playhouse"');
+    const menu = (initialTier: string) =>
+      renderToStaticMarkup(createElement(BuildMenu, {
+        content: publicContent, model: { ...model, tiers: model.tiers.map((tier) => ({ ...tier, unlocked: tier.id !== "patricians" })) },
+        islandId: island.id, fertilities: [], tool: NO_TOOL, onSelect: noop, onDemolishTool: noop, initialTier,
+      }));
+    // Merchants (unlocked): the playhouse, no theatre; Patricians (locked, opened to look ahead): the surgery with its lock reason.
+    const merchants = menu("merchants");
+    expect(merchants).toContain('data-testid="build-playhouse"');
+    expect(merchants).not.toContain('data-testid="build-theatre"');
+    expect(merchants).toContain("A timber-framed playhouse");
+    expect(merchants).not.toContain('data-testid="build-lock-playhouse"');
+    const patricians = menu("patricians");
+    expect(patricians).toContain('data-testid="build-lock-surgery"');
+    expect(patricians).not.toContain('data-testid="build-playhouse"');
   });
 });

@@ -23,24 +23,35 @@ export function tierUnlocked(model: DisplayState | null, tierId: string): boolea
 }
 
 /**
+ * The unmet unlock conditions of a tier from the server's unlock progress, e.g. "88/120 Settlers · Build Chapel"
+ * (the tab subtitle); empty when the tier is unlocked or the server reports nothing for it.
+ */
+export function lockParts(model: DisplayState | null, content: Content, tierId: string): string {
+  const tier = model?.tiers.find((t) => t.id === tierId);
+  if (!tier || tier.unlocked) return "";
+  const tierName = (id: string) => content.tiers.find((t) => t.id === id)?.name ?? id;
+  const parts: string[] = [];
+  for (const [id, p] of Object.entries(tier.population)) {
+    if (p.have < p.need) parts.push(t("tier.unlockPopulation", { tier: tierName(id), have: units(p.have), need: units(p.need) }));
+  }
+  for (const [id, built] of Object.entries(tier.buildings)) {
+    if (!built) parts.push(t("tier.unlockBuilding", { building: content.buildings.find((b) => b.id === id)?.name ?? id }));
+  }
+  return parts.join(" · ");
+}
+
+/**
  * Lock reason of a tier from the server's unlock progress, e.g.
- * "Needs Citizens — Settlers 88/120, Chapel". Only unmet conditions are
+ * "Needs Citizens — 88/120 Settlers · Build Chapel". Only unmet conditions are
  * listed; null when the tier is unlocked.
  */
 export function lockReason(model: DisplayState | null, content: Content, tierId: string): string | null {
   const tier = model?.tiers.find((t) => t.id === tierId);
   if (tier?.unlocked) return null;
-  const tierName = (id: string) => content.tiers.find((t) => t.id === id)?.name ?? id;
-  const head = t("tier.needs", { tier: tierName(tierId) });
-  if (!tier) return head;
-  const parts: string[] = [];
-  for (const [id, p] of Object.entries(tier.population)) {
-    if (p.have < p.need) parts.push(`${tierName(id)} ${units(p.have)}/${units(p.need)}`);
-  }
-  for (const [id, built] of Object.entries(tier.buildings)) {
-    if (!built) parts.push(content.buildings.find((b) => b.id === id)?.name ?? id);
-  }
-  return parts.length > 0 ? t("tier.needsWith", { head, parts: parts.join(", ") }) : head;
+  const tierName = content.tiers.find((t) => t.id === tierId)?.name ?? tierId;
+  const head = t("tier.needs", { tier: tierName });
+  const parts = lockParts(model, content, tierId);
+  return parts ? t("tier.needsWith", { head, parts }) : head;
 }
 
 /**
