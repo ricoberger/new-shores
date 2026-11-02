@@ -65,11 +65,12 @@ class TierDetailTest(unittest.TestCase):
                 self.assertEqual("smoke" in entry["anchors"], smoke)
                 w, h = content.footprint(CONTENT, cid)
                 cls = model.model_class(CONTENT, cid)
+                vpt = self.recipes[cid].get("scale", config.VOXELS_PER_TILE)
                 for f in files:
                     v = f[3]
                     if v is None:  # the lite file
                         continue
-                    self.assertEqual((v.w, v.d), (w * config.VOXELS_PER_TILE, h * config.VOXELS_PER_TILE), f[0])
+                    self.assertEqual((v.w, v.d), (w * vpt, h * vpt), f[0])
                 for info in [entry.get("file")] + entry.get("variants", []) + list(entry.get("levels", {}).values()):
                     if not info:
                         continue
@@ -131,13 +132,15 @@ class TierDetailTest(unittest.TestCase):
             self.assertEqual(len(entry["variants"]), 3, cid)
             full = [f[3] for f in files if f[3] is not None]
             self.assertEqual(len({frozenset(v.cells.items()) for v in full}), 3, cid)
+            # Densities differ per recipe (V7: 8 / 12 / 16 voxels per tile): compare per tile volume and tile face.
+            d = model.recipe_modules()[cid].get("scale", 8) / 8
             stats[cid] = [
-                (len(v.cells), sum(1 for m in v.cells.values() if m[0] == "window"), {m[0] for m in v.cells.values()})
+                (len(v.cells) / d**3, sum(1 for m in v.cells.values() if m[0] == "window") / d**2, {m[0] for m in v.cells.values()})
                 for v in full
             ]
         settlers, citizens = stats["house_settlers"], stats["house_citizens"]
-        # Every citizen house has more voxels and glazing than any settler house, and a tiled roof.
-        self.assertGreater(min(s[0] for s in citizens), max(s[0] for s in settlers))
+        # Every citizen house has more glazing than any settler house, and a tiled roof (V7: the voxel count
+        # is no longer a tier measure — the reworked settler houses fill their whole footprint).
         self.assertGreater(min(s[1] for s in citizens), max(s[1] for s in settlers))
         for _, _, roles in citizens:
             self.assertIn("terracotta", roles)

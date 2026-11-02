@@ -131,10 +131,13 @@ class ModelTest(unittest.TestCase):
         for f in entry["variants"]:
             self.assertLess(f["lite"]["triangles"], f["triangles"] / 2)
 
-    def test_full_detail_is_eight_voxels_per_tile(self):
-        files, _, _ = self.built("house_settlers")
+    def test_full_detail_is_the_recipes_voxels_per_tile(self):
+        files, _, _ = self.built("house_citizens")
         v = files[0][3]
         self.assertEqual((v.w, v.d), (24, 24))
+        files, _, _ = self.built("house_settlers")
+        v = files[0][3]
+        self.assertEqual((v.w, v.d), (36, 36))
 
 
 class ExportTest(unittest.TestCase):

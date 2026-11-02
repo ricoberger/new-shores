@@ -5446,14 +5446,14 @@
         ],
         "status": [
           0.0,
-          3.5,
+          3.3333,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          3.25,
+          3.0833,
           1.5
         ],
         "min": [
@@ -5472,7 +5472,7 @@
           "bounds": {
             "max": [
               1.5,
-              3.125,
+              2.8333,
               1.5
             ],
             "min": [
@@ -5482,7 +5482,7 @@
             ]
           },
           "budget": 4860,
-          "bytes": 74304,
+          "bytes": 144752,
           "lite": {
             "bounds": {
               "max": [
@@ -5497,20 +5497,20 @@
               ]
             },
             "budget": 405,
-            "bytes": 6912,
+            "bytes": 7536,
             "path": "house_settlers.v0.lite.glb",
-            "sha256": "08da85cc57de40a1d7ff5a1b909852dc519772ca4faad48abfb2685552fb53b7",
-            "triangles": 166
+            "sha256": "e27814e8639ec9df91b699e7bb180a31aab3a74f98d163260f20208d84fc905e",
+            "triangles": 182
           },
           "path": "house_settlers.v0.glb",
-          "sha256": "ebf8828526db7b87bbea0dac6a0a17c14c301ba64fea069e799f3402c5619824",
-          "triangles": 2418
+          "sha256": "45df16da3b2d215e4332904326bb8a5fd22d7e92c2ac2bd12233dfa189b08766",
+          "triangles": 4822
         },
         {
           "bounds": {
             "max": [
               1.5,
-              3.25,
+              2.75,
               1.5
             ],
             "min": [
@@ -5520,45 +5520,7 @@
             ]
           },
           "budget": 4860,
-          "bytes": 82648,
-          "lite": {
-            "bounds": {
-              "max": [
-                1.5,
-                3.0,
-                1.5
-              ],
-              "min": [
-                -1.5,
-                0.0,
-                -1.5
-              ]
-            },
-            "budget": 405,
-            "bytes": 7236,
-            "path": "house_settlers.v1.lite.glb",
-            "sha256": "7dd96dca9df65abf677582390c3ffed3cf421811b4c56577090418ae4447423d",
-            "triangles": 172
-          },
-          "path": "house_settlers.v1.glb",
-          "sha256": "5edf740d9a147b3a83d38b841755fd671da1802a9a6287208bb0bd3da3af7187",
-          "triangles": 2718
-        },
-        {
-          "bounds": {
-            "max": [
-              1.5,
-              2.875,
-              1.5
-            ],
-            "min": [
-              -1.5,
-              0.0,
-              -1.5
-            ]
-          },
-          "budget": 4860,
-          "bytes": 75232,
+          "bytes": 147908,
           "lite": {
             "bounds": {
               "max": [
@@ -5573,17 +5535,55 @@
               ]
             },
             "budget": 405,
-            "bytes": 7992,
+            "bytes": 9324,
+            "path": "house_settlers.v1.lite.glb",
+            "sha256": "3e6dfd707168dcd88b95ab641ec4119033105fde17c4540a23d8072d39dcea66",
+            "triangles": 224
+          },
+          "path": "house_settlers.v1.glb",
+          "sha256": "9c5d3483c9f1600702ba072acea06755ac3f6b9c34194ed34ba96141c57ff476",
+          "triangles": 4852
+        },
+        {
+          "bounds": {
+            "max": [
+              1.5,
+              3.0833,
+              1.5
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -1.5
+            ]
+          },
+          "budget": 4860,
+          "bytes": 140776,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                3.0,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 7204,
             "path": "house_settlers.v2.lite.glb",
-            "sha256": "150d6ee39e985ef2452adee6228074d80c67e838c3b10494e59bbd5345dba2e1",
-            "triangles": 210
+            "sha256": "9af6539053297f3f970119bd2cdbdef56563f4f0ef3709c179543249ac14a2b8",
+            "triangles": 180
           },
           "path": "house_settlers.v2.glb",
-          "sha256": "0ec2d7a73154c96c7e9d1fb4346cf2c679f2c3642d951670c35933357685c64f",
-          "triangles": 2450
+          "sha256": "060ae33778ee10145ebca1d58e847c62c332976da9b582811e34277be926de03",
+          "triangles": 4794
         }
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "iron_mine": {
       "anchors": {
