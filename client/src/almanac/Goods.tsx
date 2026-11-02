@@ -2,6 +2,7 @@ import { t, tRich } from "../i18n";
 import { goodIcon } from "../theme/iconSet";
 import { Icon } from "../ui/Icon";
 import styles from "./almanac.module.css";
+import { tonsPerMinText } from "../display/format";
 import { chain, goodTypeName, goodView, num, type ChainNode, type Index } from "./model";
 import { A, BuildingLink, GoodLink } from "./parts";
 
@@ -21,7 +22,7 @@ function ChainTree({ idx, node }: { idx: Index; node: ChainNode }) {
         <ul key={v.building}>
           <li>
             <span className={styles.chainSlot}>
-              {tRich("almanac.goods.madeBy", { building: <BuildingLink idx={idx} id={v.building} />, rate: num(v.perMin) })}
+              {tRich("almanac.goods.madeBy", { building: <BuildingLink idx={idx} id={v.building} />, rate: tonsPerMinText(num(v.perMin)) })}
               {v.inputs.length === 0
                 ? v.site.length > 0
                   ? t("almanac.goods.withSite", { site: v.site.join(", ") })
@@ -77,7 +78,7 @@ function GoodPage({ idx, id }: { idx: Index; id: string }) {
             <ul className={styles.list}>
               {v.producedBy.map((p) => (
                 <li key={p.building}>
-                  <BuildingLink idx={idx} id={p.building} /> — {t("infoPanel.perMinute", { rate: num(p.perMin) })}
+                  <BuildingLink idx={idx} id={p.building} /> — {tonsPerMinText(num(p.perMin))}
                 </li>
               ))}
             </ul>
@@ -91,7 +92,7 @@ function GoodPage({ idx, id }: { idx: Index; id: string }) {
             <ul className={styles.list}>
               {v.consumedBy.map((c) => (
                 <li key={c.building}>
-                  <BuildingLink idx={idx} id={c.building} /> — {t("infoPanel.perMinute", { rate: num(c.perMin) })}{c.alternative ? ` ${t("almanac.goods.orAlternative")}` : ""}
+                  <BuildingLink idx={idx} id={c.building} /> — {tonsPerMinText(num(c.perMin))}{c.alternative ? ` ${t("almanac.goods.orAlternative")}` : ""}
                 </li>
               ))}
               {v.neededBy.map((n) => (

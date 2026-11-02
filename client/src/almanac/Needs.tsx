@@ -2,6 +2,7 @@ import { t } from "../i18n";
 import { needIcon } from "../theme/iconSet";
 import { Icon } from "../ui/Icon";
 import styles from "./almanac.module.css";
+import { tonsPerMinText } from "../display/format";
 import { needsByTier, num, ppmPercent, type Index, type NeedView } from "./model";
 import { BuildingLink, GoodLink } from "./parts";
 import { useScrollTo } from "./useScrollTo";
@@ -38,7 +39,7 @@ function Need({ idx, n }: { idx: Index; n: NeedView }) {
             <tr key={a.id}>
               <td>{a.kind === "good" ? <GoodLink idx={idx} id={a.id} /> : <BuildingLink idx={idx} id={a.id} />}</td>
               <td className={styles.num}>{ppmPercent(a.share * 1_000_000)}</td>
-              <td className={styles.num}>{a.kind === "good" ? num(a.perResident ?? 0, 4) : a.radius === undefined ? "—" : t("infoPanel.tiles", { count: a.radius })}</td>
+              <td className={styles.num}>{a.kind === "good" ? tonsPerMinText(num(a.perResident ?? 0, 4)) : a.radius === undefined ? "—" : t("infoPanel.tiles", { count: a.radius })}</td>
               <td>
                 {a.kind === "good"
                   ? a.providers.map((b, i) => (

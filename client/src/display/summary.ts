@@ -2,7 +2,7 @@
 import type { Content } from "../api/client";
 import type { components } from "../api/schema";
 import { currentLocale, t } from "../i18n";
-import { units } from "./format";
+import { tons, tonsRatio, units } from "./format";
 import { questTitle } from "./quests";
 import { unlockText } from "./tiers";
 
@@ -128,10 +128,10 @@ export function summaryView(
           .map(([good, g]) => ({
             good,
             name: goodName(good),
-            produced: units(g.produced),
-            consumed: units(g.consumed),
-            lost: units(g.lost),
-            stock: `${units(g.stock_after)}/${units(g.capacity)}`,
+            produced: tons(g.produced),
+            consumed: tons(g.consumed),
+            lost: tons(g.lost),
+            stock: tonsRatio(g.stock_after, g.capacity),
           })),
       })),
     paused: s.auto_paused,

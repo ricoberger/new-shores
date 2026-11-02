@@ -236,7 +236,7 @@ describe("fields in the HUD (D-051 part 4)", () => {
     const html = panel(wh, withProducers, model);
     const t = text(html);
     expect(t).toContain("DetailsLevel1 / 3");
-    expect(t).toContain("Throughput30.0/min");
+    expect(t).toContain("Throughput30.0\u00a0t/min");
     expect(t).toContain("Load40 %");
     expect(t).toContain("Producers (2)");
     // The producers are collapsed by default.
@@ -244,7 +244,7 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(t).not.toContain("#8100");
     expect(html).toContain('data-testid="collector-producer-8101"');
     expect(t).toContain("Upgrade to level 2");
-    expect(t).toContain("55.0/min throughput");
+    expect(t).toContain("55.0\u00a0t/min throughput");
     expect(t).not.toContain("adds no capacity");
     // The button is pinned in the footer: after the preview, next to Move.
     expect(html.indexOf("warehouse-upgrade-button")).toBeGreaterThan(html.indexOf("Upgrade to level"));
@@ -273,10 +273,10 @@ describe("fields in the HUD (D-051 part 4)", () => {
     } as unknown as BuildingDisplay;
     const html = panel(tp, island, model);
     const t = text(html);
-    expect(t).toContain("DetailsLevel1 / 2Capacity300 per goodThroughput30.0/minLoad40 %Berths1 / 2 free");
+    expect(t).toContain("DetailsLevel1 / 2Capacity300\u00a0t per goodThroughput30.0\u00a0t/minLoad40 %Berths1 / 2 free");
     expect(t).toContain("PierShip #1at the pierShip #2waiting");
-    expect(t).toContain("InventoryWool120 / 300−1.0Producers (0)");
-    expect(t).toContain("Upgrade to level 2500 capacity per good·2 berths·55.0/min throughput");
+    expect(t).toContain("InventoryWool120/300\u00a0t−1.0\u00a0t/minProducers (0)");
+    expect(t).toContain("Upgrade to level 2500\u00a0t capacity per good·2 berths·55.0\u00a0t/min throughput");
     expect(t).not.toContain("Net/min");
     // Net rate: red below 0, green above, plain at 0 (and when it rounds to 0.0).
     const net = (rate: number) => {

@@ -1,5 +1,6 @@
 import styles from "./almanac.module.css";
 import { t } from "../i18n";
+import { tonsPerMinText, tonsText } from "../display/format";
 import { buildingGroups, categoryName, buildingView, num, tierViews, type BuildingView, type FlowView, type Index } from "./model";
 import { A, BuildingLink, Cost, GoodAlternatives, Row, Thumb } from "./parts";
 
@@ -10,7 +11,7 @@ function Flows({ idx, flows, empty }: { idx: Index; flows: FlowView[]; empty: st
       {flows.map((f, i) => (
         <span key={f.goods.join("|")}>
           {i > 0 && ", "}
-          <GoodAlternatives idx={idx} goods={f.goods} /> {t("infoPanel.perMinute", { rate: num(f.perMin) })}
+          <GoodAlternatives idx={idx} goods={f.goods} /> {tonsPerMinText(num(f.perMin))}
         </span>
       ))}
     </>
@@ -75,7 +76,7 @@ export function BuildingCard({ idx, view, linked, level = 3 }: { idx: Index; vie
         {view.radius !== undefined && <Row label={t("almanac.b.serviceRadius")}>{t("infoPanel.tiles", { count: view.levels.length > 1 ? view.levels.map((l) => l.radius).join(" / ") : view.radius })}</Row>}
         {view.roadSecondsPerTile !== undefined && <Row label={t("almanac.b.transfer")}>{t("almanac.b.secondsPerTile", { count: num(view.roadSecondsPerTile) })}</Row>}
         {view.shallows && <Row label={t("almanac.b.site")}>{t("almanac.b.shallows")}</Row>}
-        {view.depotCapacity !== undefined && <Row label={t("infoPanel.adds")}>{t("infoPanel.capacityPerGood", { amount: num(view.depotCapacity) })}</Row>}
+        {view.depotCapacity !== undefined && <Row label={t("infoPanel.adds")}>{t("infoPanel.capacityPerGood", { amount: tonsText(num(view.depotCapacity)) })}</Row>}
         {view.pierBerths !== undefined && <Row label={t("infoPanel.berths")}>{t("almanac.b.pierBerths", { count: view.pierBerths })}</Row>}
         {view.ships.length > 0 && (
           <Row label={t("almanac.b.builds")}>
@@ -142,8 +143,8 @@ function Levels({ idx, view }: { idx: Index; view: BuildingView }) {
                 {l.level}
                 {l.tier ? <span className={styles.small}> ({idx.tierName(l.tier)})</span> : null}
               </td>
-              {has("capacity") && <td className={styles.num}>{l.capacity === undefined ? "" : num(l.capacity)}</td>}
-              {has("throughput") && <td className={styles.num}>{l.throughput === undefined ? "" : num(l.throughput)}</td>}
+              {has("capacity") && <td className={styles.num}>{l.capacity === undefined ? "" : tonsText(num(l.capacity))}</td>}
+              {has("throughput") && <td className={styles.num}>{l.throughput === undefined ? "" : tonsPerMinText(num(l.throughput))}</td>}
               {has("berths") && <td className={styles.num}>{l.berths ?? ""}</td>}
               {has("radius") && <td className={styles.num}>{l.radius ?? ""}</td>}
               <td>{l.level === 1 ? <span className={styles.small}>{t("almanac.b.builtAsIs")}</span> : <Cost idx={idx} parts={l.cost} />}</td>

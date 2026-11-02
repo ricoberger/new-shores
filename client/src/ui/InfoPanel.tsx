@@ -1,6 +1,6 @@
 import { type ReactNode, useRef } from "react";
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
-import { percent, perMin, seconds, speedFactor, units } from "../display/format";
+import { percent, perMin, seconds, speedFactor, tons, tonsPerMin, tonsRatio, units } from "../display/format";
 import { countdownWithUnit, orderTiming, shipName as shipNameOf } from "../display/ships";
 import { fieldBuildingOf, footprintText } from "../display/fields";
 import { groupNeeds, needAlternatives, needCategory, needGroupName, needLabel, upgradeReasonText } from "../display/needs";
@@ -227,9 +227,9 @@ function UpgradePreview({
       <DotRow
         testId={`${testId}-stats`}
         items={[
-          ...(next.capacity !== undefined ? [<span key="capacity">{t("infoPanel.capacityPerGood", { amount: units(next.capacity) })}</span>] : []),
+          ...(next.capacity !== undefined ? [<span key="capacity">{t("infoPanel.capacityPerGood", { amount: tons(next.capacity) })}</span>] : []),
           ...(next.berths !== undefined ? [<span key="berths">{t("infoPanel.berthsCount", { count: next.berths })}</span>] : []),
-          ...(next.throughput_per_min !== undefined ? [<span key="throughput">{t("infoPanel.throughputRate", { rate: perMin(next.throughput_per_min) })}</span>] : []),
+          ...(next.throughput_per_min !== undefined ? [<span key="throughput">{t("infoPanel.throughputRate", { rate: tonsPerMin(next.throughput_per_min) })}</span>] : []),
           ...(next.radius !== undefined ? [<span key="radius">{t("infoPanel.radiusTiles", { count: next.radius })}</span>] : []),
         ]}
       />
@@ -258,9 +258,9 @@ function UpgradePreview({
                 className={`${styles.withIcon} ${have < n ? styles.warn : ""}`}
                 data-short={have < n || undefined}
                 data-testid={`${testId}-cost-${g}`}
-                title={t("infoPanel.inStock", { amount: units(have) })}
+                title={t("infoPanel.inStock", { amount: tons(have) })}
               >
-                {units(n)}
+                {tons(n)}
                 <Icon path={goodIcon(g)} />
                 {goodName(g)}
               </span>
@@ -356,11 +356,11 @@ function DepotSection({ building: b, def, island, content }: {
           <tbody>
             <tr>
               <td>{t("infoPanel.adds")}</td>
-              <td data-testid="depot-capacity">{t("infoPanel.capacityPerGood", { amount: units(b.capacity ?? def.depot?.capacity ?? 0) })}</td>
+              <td data-testid="depot-capacity">{t("infoPanel.capacityPerGood", { amount: tons(b.capacity ?? def.depot?.capacity ?? 0) })}</td>
             </tr>
             <tr>
               <td>{t("infoPanel.islandCapacity")}</td>
-              <td data-testid="depot-island-capacity">{t("infoPanel.perGood", { amount: units(islandCapacity(island)) })}</td>
+              <td data-testid="depot-island-capacity">{t("infoPanel.perGood", { amount: tons(islandCapacity(island)) })}</td>
             </tr>
             <SizeRow def={def} content={content} />
           </tbody>
@@ -413,13 +413,13 @@ function TradingPostSection({
             <tr>
               <td>{t("infoPanel.capacity")}</td>
               <td data-testid="trading-post-capacity">
-                {t("infoPanel.perGood", { amount: units(b.capacity ?? 0) })}
-                {islandCapacity(island) > (b.capacity ?? 0) && <span className={styles.small}>{t("infoPanel.inDepots", { amount: units(islandCapacity(island) - (b.capacity ?? 0)) })}</span>}
+                {t("infoPanel.perGood", { amount: tons(b.capacity ?? 0) })}
+                {islandCapacity(island) > (b.capacity ?? 0) && <span className={styles.small}>{t("infoPanel.inDepots", { amount: tons(islandCapacity(island) - (b.capacity ?? 0)) })}</span>}
               </td>
             </tr>
             <tr>
               <td>{t("infoPanel.throughput")}</td>
-              <td>{t("infoPanel.perMinute", { rate: perMin(b.throughput_per_min ?? 0) })}</td>
+              <td>{tonsPerMin(b.throughput_per_min ?? 0)}</td>
             </tr>
             <tr>
               <td>{t("infoPanel.load")}</td>
@@ -467,10 +467,10 @@ function TradingPostSection({
                   <GoodName id={good} name={goodName(good)} />
                 </td>
                 <td>
-                  {units(g.stock)} / {units(g.capacity)}
+                  {tonsRatio(g.stock, g.capacity)}
                 </td>
                 <td className={netClass(perMin(g.rate_per_min, true))} data-testid={`trading-post-net-${good}`}>
-                  {perMin(g.rate_per_min, true)}
+                  {tonsPerMin(g.rate_per_min, true)}
                 </td>
               </tr>
             ))}
@@ -568,7 +568,7 @@ export function InfoPanel({
                         <td>
                           <GoodName id={good} name={goodName(good)} />
                         </td>
-                        <td data-testid={`rate-input-${good}`}>{t("infoPanel.perMinute", { rate: perMin(rate) })}</td>
+                        <td data-testid={`rate-input-${good}`}>{tonsPerMin(rate)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -584,7 +584,7 @@ export function InfoPanel({
                       <td>
                         <GoodName id={good} name={goodName(good)} />
                       </td>
-                      <td data-testid={`rate-output-${good}`}>{t("infoPanel.perMinute", { rate: perMin(rate) })}</td>
+                      <td data-testid={`rate-output-${good}`}>{tonsPerMin(rate)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -648,7 +648,7 @@ export function InfoPanel({
                           {t("infoPanel.buffer")} <GoodName id={good} name={goodName(good)} />
                         </td>
                         <td>
-                          {units(stock)}/{units(b.buffer?.capacity ?? 0)}
+                          {tonsRatio(stock, b.buffer?.capacity ?? 0)}
                         </td>
                       </tr>
                     ))}
@@ -759,7 +759,7 @@ export function InfoPanel({
                   <DotRow
                     items={[
                       <span key="cargo">
-                        {t("infoPanel.cargo", { slots: ship.slots, size: units(ship.slot_size) })}
+                        {t("infoPanel.cargo", { slots: ship.slots, size: tons(ship.slot_size) })}
                       </span>,
                       <span key="speed">{t("infoPanel.speed", { factor: speedFactor(ship.speed_permille ?? 1000) })}</span>,
                       <span key="upkeep">{t("infoPanel.upkeepShip", { rate: perMin(ship.upkeep_per_min) })}</span>,
@@ -772,8 +772,8 @@ export function InfoPanel({
                         {t("infoPanel.goldAmount", { amount: units(ship.cost.gold) })}
                       </span>,
                       ...Object.entries(ship.cost.materials).map(([g, n]) => (
-                        <span key={g} className={`${styles.withIcon} ${stock(g) < n ? styles.warn : ""}`} title={t("infoPanel.inStock", { amount: units(stock(g)) })}>
-                          {units(n)}
+                        <span key={g} className={`${styles.withIcon} ${stock(g) < n ? styles.warn : ""}`} title={t("infoPanel.inStock", { amount: tons(stock(g)) })}>
+                          {tons(n)}
                           <Icon path={goodIcon(g)} />
                           {goodName(g)}
                         </span>
@@ -808,7 +808,7 @@ export function InfoPanel({
                   </tr>
                   <tr>
                     <td>{t("infoPanel.throughput")}</td>
-                    <td data-testid="warehouse-throughput">{t("infoPanel.perMinute", { rate: perMin(b.throughput_per_min ?? 0) })}</td>
+                    <td data-testid="warehouse-throughput">{tonsPerMin(b.throughput_per_min ?? 0)}</td>
                   </tr>
                   <tr>
                     <td>{t("infoPanel.load")}</td>

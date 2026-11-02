@@ -4,7 +4,7 @@
 import type { Content, DisplayState } from "../api/client";
 import type { components } from "../api/schema";
 import { percentSpace, t } from "../i18n";
-import { units } from "./format";
+import { tons, tonsRatio, units } from "./format";
 
 export type ContentQuest = components["schemas"]["ContentQuest"];
 export type ObjectiveDisplay = components["schemas"]["ObjectiveDisplay"];
@@ -31,8 +31,9 @@ const name = (list: { id: string; name: string }[], id: string | undefined) => l
 export function objectiveProgress(o: ObjectiveDisplay): string {
   switch (o.kind) {
     case "population":
-    case "stock":
       return `${units(Math.max(o.current, 0))}/${units(o.target)}`;
+    case "stock":
+      return tonsRatio(Math.max(o.current, 0), o.target);
     case "satisfaction":
       return `${o.current < 0 ? "–" : Math.round(o.current / 10)}/${Math.round(o.target / 10)}${percentSpace()}%`;
     default:
@@ -75,7 +76,7 @@ export function rewardText(q: ContentQuest, content: Content): string {
   const parts: string[] = [];
   if (q.rewards.gold > 0) parts.push(t("quest.reward.gold", { amount: units(q.rewards.gold) }));
   for (const [good, amount] of Object.entries(q.rewards.goods)) {
-    parts.push(`${units(amount)} ${name(content.goods, good)}`);
+    parts.push(`${tons(amount)} ${name(content.goods, good)}`);
   }
   return parts.join(", ");
 }

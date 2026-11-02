@@ -1,5 +1,6 @@
 import { t, tOr } from "../i18n";
 import styles from "./almanac.module.css";
+import { tonsText } from "../display/format";
 import { num, titleCase, type Index } from "./model";
 import { A, GoodLink } from "./parts";
 import { questViews } from "./questText";
@@ -38,7 +39,7 @@ export function Quests({ idx, id }: { idx: Index; id?: string }) {
                     {q.goods.map((g, k) => (
                       <span key={g.good}>
                         {k > 0 && ", "}
-                        {num(g.amount)} × <GoodLink idx={idx} id={g.good} />
+                        {tonsText(num(g.amount))} <GoodLink idx={idx} id={g.good} />
                       </span>
                     ))}
                     {q.gold === 0 && q.goods.length === 0 ? t("almanac.none") : ""}

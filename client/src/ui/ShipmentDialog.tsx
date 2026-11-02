@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { CargoDisplay, Content, DisplayState, ShipDisplay } from "../api/client";
-import { units } from "../display/format";
+import { tons } from "../display/format";
 import { cargoTotals, slotsFor } from "../display/ships";
 import { DialogPanel } from "./DialogPanel";
 import { t } from "../i18n";
@@ -70,7 +70,7 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
               return (
                 <tr key={g.id}>
                   <td>{g.name}</td>
-                  <td>{units(here?.inventory[g.id]?.stock ?? 0)}</td>
+                  <td>{tons(here?.inventory[g.id]?.stock ?? 0)}</td>
                   <td>
                     <input
                       type="number"
@@ -90,7 +90,7 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
           </tbody>
         </table>
         <div className={`${styles.small} ${slots > ship.slots ? styles.warn : ""}`} data-testid="shipment-slots">
-          {t("shipment.slots", { used: slots, total: ship.slots, size: units(ship.slot_size) })}
+          {t("shipment.slots", { used: slots, total: ship.slots, size: tons(ship.slot_size) })}
         </div>
         <div className={styles.buttons}>
           <button

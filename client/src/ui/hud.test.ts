@@ -310,7 +310,7 @@ describe("HUD components", () => {
     expect(html).toContain('data-testid="quest-claim-intro_first_road"');
     expect(html).toContain('data-testid="quest-active-intro_fish"');
     expect(text(html)).toContain("Fisher connected to the Trading Post or a Warehouse");
-    expect(text(html)).toContain("Reward: 45 Planks");
+    expect(text(html)).toContain("Reward: 45\u00a0t Planks");
     // Advisor prose also on quests that completed before they were shown
     // as active.
     expect(text(html)).toContain("Lay a road.");
@@ -323,7 +323,7 @@ describe("HUD components", () => {
     );
     expect(text(html)).toContain("1 Jan, 00:30 – 12:30 (12 h 0 min)");
     expect(html).toContain('data-testid="away-good-start-planks"');
-    expect(text(html)).toContain("Planks15800300/300Wood");
+    expect(text(html)).toContain("Planks158\u00a0t0\u00a0t0\u00a0t300/300\u00a0tWood");
     expect(text(html)).not.toContain("at capacity");
     expect(text(html)).toContain("OverviewGold: 258 → 26 (−232)Settlers: 32 → 8startGood");
     expect(text(html)).toContain("Ships arrived (1)Ship #1: 1 arrival (island2)");
@@ -445,10 +445,10 @@ describe("HUD components", () => {
         const m = html.match(new RegExp(`<tr data-testid="route-effect-${island}-${good}">(.*?)</tr>`));
         return m ? text(m[1]!) : "";
       };
-      expect(row("start", "wood")).toBe("StartWood−100−37.1");
-      expect(row("start", "planks")).toBe("StartPlanks+40+14.8");
-      expect(row("island2", "wood")).toBe("Island 2Wood+100+37.1");
-      expect(row("island2", "planks")).toBe("Island 2Planks−40−14.8");
+      expect(row("start", "wood")).toBe("StartWood−100\u00a0t−37.1\u00a0t/min");
+      expect(row("start", "planks")).toBe("StartPlanks+40\u00a0t+14.8\u00a0t/min");
+      expect(row("island2", "wood")).toBe("Island 2Wood+100\u00a0t+37.1\u00a0t/min");
+      expect(row("island2", "planks")).toBe("Island 2Planks−40\u00a0t−14.8\u00a0t/min");
       // Rows follow the server's order (first stop of the island, then good).
       expect(route.effects.map((e) => `${e.island_id}/${e.good}`)).toEqual(["start/planks", "start/wood", "island2/planks", "island2/wood"]);
       expect(html.indexOf("route-effect-start-planks")).toBeLessThan(html.indexOf("route-effect-island2-planks"));
@@ -536,12 +536,12 @@ describe("HUD components", () => {
     it("puts an icon next to every good of the shipyard costs, short goods red", () => {
       const html = panel({});
       const cost = html.match(/data-testid="shipyard-cost-sloop">(.*?)<\/div>/)![1]!;
-      expect(text(cost)).toBe("900 gold·40Planks·5Wood·1:00 min build");
+      expect(text(cost)).toBe("900 gold·40\u00a0tPlanks·5\u00a0tWood·1:00 min build");
       expect(cost).toContain(icon(goodIcon("planks")));
       expect(cost).toContain(icon(goodIcon("wood")));
       // Gold (100 available) and planks (10 in stock) are short, wood (9 in stock) is not.
       const warn = (title: string) => new RegExp(`<span class="[^"]*warn[^"]*" title="${title}"`).test(cost);
-      expect([warn("100 gold available"), warn("10 in stock"), warn("9 in stock")]).toEqual([true, true, false]);
+      expect([warn("100 gold available"), warn("10\u00a0t in stock"), warn("9\u00a0t in stock")]).toEqual([true, true, false]);
       expect(html).not.toContain("shipyard-missing");
       expect(html).not.toContain("shipyard-progress");
     });
@@ -577,7 +577,7 @@ describe("HUD components", () => {
       const html = panel({});
       expect(text(html)).not.toContain("Ships");
       expect(text(html)).toContain("SloopOrder");
-      expect(text(html)).toContain("2×50 cargo·1.0× speed·1.0 $/min upkeep");
+      expect(text(html)).toContain("2×50\u00a0t cargo·1.0× speed·1.0 $/min upkeep");
       expect(text(html)).toContain("Idle");
     });
 

@@ -244,7 +244,7 @@ describe("quest conditions", () => {
   it("says what the numbers mean", () => {
     expect(objectiveSentence({ kind: "building_count", type: "road_dirt", target: 10 }, idx)).toBe("Lay 10 tiles of Dirt road");
     expect(objectiveSentence({ kind: "population", tier: "settlers", target: 120000 }, idx)).toBe("Reach 120 Settlers");
-    expect(objectiveSentence({ kind: "stock", good: "planks", target: 30000 }, idx)).toBe("Have 30 Planks in stock");
+    expect(objectiveSentence({ kind: "stock", good: "planks", target: 30000 }, idx)).toBe("Have 30\u00a0t Planks in stock");
     expect(objectiveSentence({ kind: "satisfaction", tier: "settlers", target: 600 }, idx)).toBe("Keep Settlers satisfaction at 60 % or more");
     expect(objectiveSentence({ kind: "ship_count", type: "galleon", target: 1 }, idx)).toBe("Own 1 Galleon");
   });

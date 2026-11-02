@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
 import { t } from "../i18n";
 import { footprintText } from "../display/fields";
-import { perMin, units } from "../display/format";
+import { perMin, tonsRatio, units } from "../display/format";
 import { depositText, fertilityName, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
 import { categoryIcon, goodIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
@@ -140,7 +140,7 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                 {Object.entries(b.cost.materials).map(([good, need]) => (
                   <span key={good} className={`${styles.small} ${styles.withIcon}`}>
                     <Icon path={goodIcon(good)} />
-                    {goodName(good)}: {units(inventory[good]?.stock ?? 0)}/{units(need)}
+                    {goodName(good)}: {tonsRatio(inventory[good]?.stock ?? 0, need)}
                   </span>
                 ))}
                 {fertility && (

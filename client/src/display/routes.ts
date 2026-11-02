@@ -3,7 +3,7 @@
 // milli-units, and formatting of the server's loop time and effects. No
 // travel time, loop time or effect is computed here.
 import type { Content, DisplayState, RouteDisplay, RouteStop } from "../api/client";
-import { perMin, units } from "./format";
+import { signedTons, tonsPerMin } from "./format";
 import type { Draft } from "./view";
 
 /** The editor draft of a saved route (amounts in whole units). */
@@ -32,13 +32,6 @@ export function draftChanged(d: Draft, r: RouteDisplay): boolean {
   return JSON.stringify(stopsFromDraft(d)) !== JSON.stringify(stopsFromDraft(draftFromRoute(r))) || d.name !== r.name;
 }
 
-/** Whole units with an explicit sign ("+50", "−50", "0"). */
-export function signedUnits(milli: number): string {
-  const v = units(Math.abs(milli));
-  if (v === "0") return "0";
-  return milli < 0 ? `−${v}` : `+${v}`;
-}
-
 export interface EffectRow {
   island: string;
   islandName: string;
@@ -57,8 +50,8 @@ export function effectRows(r: RouteDisplay, model: DisplayState, content: Conten
     islandName: islandName(e.island_id),
     good: e.good,
     goodName: goodName(e.good),
-    perLoop: signedUnits(e.per_loop),
-    perMin: perMin(e.per_min, true),
+    perLoop: signedTons(e.per_loop),
+    perMin: tonsPerMin(e.per_min, true),
   }));
 }
 

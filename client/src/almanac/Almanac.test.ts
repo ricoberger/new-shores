@@ -50,8 +50,8 @@ describe("almanac rendering", () => {
 
   it("renders needs, ships, quests and islands from content", () => {
     const needs = html({ section: "needs" });
-    expect(needs).toContain("Per resident/min");
-    expect(needs).toContain("0.008");
+    expect(needs).toContain("Per resident");
+    expect(needs).toContain("0.008\u00a0t/min");
     expect(needs).toContain("60 %");
     expect(needs).toContain("rank 2 or higher");
     const ships = html({ section: "ships" });

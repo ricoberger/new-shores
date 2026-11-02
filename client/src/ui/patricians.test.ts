@@ -148,8 +148,8 @@ describe("tier 4 in the cards (D-056 C4)", () => {
     expect(t.indexOf("BrigOrder")).toBeLessThan(t.indexOf("GalleonOrder"));
     expect(html).toContain('data-testid="shipyard-order-galleon"');
     expect(text(html.match(/data-testid="shipyard-ship-galleon">(.*?)<\/button>/)![0])).toContain("Galleon");
-    expect(t).toContain("6×60 cargo·1.0× speed·8.0 $/min upkeep");
-    expect(text(html.match(/data-testid="shipyard-cost-galleon">(.*?)<\/div>/)![1]!)).toBe("6000 gold·120Planks·40Sails·30Tools·10:00 min build");
+    expect(t).toContain("6×60\u00a0t cargo·1.0× speed·8.0 $/min upkeep");
+    expect(text(html.match(/data-testid="shipyard-cost-galleon">(.*?)<\/div>/)![1]!)).toBe("6000 gold·120\u00a0tPlanks·40\u00a0tSails·30\u00a0tTools·10:00 min build");
   });
 
   it("shows a market at level 3, its last, with radius 20 and no upgrade", () => {

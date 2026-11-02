@@ -254,8 +254,8 @@ UI shows the same numbers the server uses.
 **Production building**
 
 - Name, status icon + sentence + suggested fix (MECHANICS §14).
-- Inputs: per good, this building's `consumption/min` (one row like Output; the island stock and net rate are in the Trading Post card).
-- Output: `production/min` (the final rate, all factors included).
+- Inputs: per good, this building's `consumption` in t/min (one row like Output; the island stock and net rate are in the Trading Post card).
+- Output: `production` in t/min (the final rate, all factors included).
 - A collapsed **Details** section (closed by default): one row per value, each on one line
   (cycle length in seconds, efficiency %, throughput factor, workers as the
   workforce factor in % (the shortage itself is the status sentence), upkeep like a ship's (`$/min`, 0 while paused), the assigned collector by name (click to
@@ -278,7 +278,7 @@ UI shows the same numbers the server uses.
 
 - A "Details" heading with rows (no bars): Level `n / max`, Capacity `per
   good` (with depots: "+ n in depots", the island total is the
-  inventory's), Throughput `/min`, Load `%`, Berths `free / total free`
+  inventory's), Throughput `t/min`, Load `%`, Berths `free / total free`
   (with trading piers: "(n at piers)").
 - "Pier" (only with ships): one row per ship at the pier ("at the pier") or
   waiting for a berth ("waiting"), by name and ID.
@@ -286,7 +286,7 @@ UI shows the same numbers the server uses.
   signed net rate (green above 0, red below, plain at 0); no header row, no filter yet.
 - A collapsed "Producers (n)" like the Warehouse's.
 - "Upgrade to level n" (not at the last level): one grey line with the next
-  level's numbers ("500 capacity per good · 2 berths · 55.0/min
+  level's numbers ("500 t capacity per good · 2 berths · 55.0 t/min
   throughput") and the cost line (gold, goods with icons, " · " between the
   items, red when short). The **Upgrade** button is pinned in the footer.
 
@@ -317,12 +317,12 @@ UI shows the same numbers the server uses.
 **Warehouse**
 
 - A "Details" heading above the rows (no bars): Level `n / max`,
-  Throughput `/min`, Load `%`. No capacity row — capacity is the Trading
+  Throughput `t/min`, Load `%`. No capacity row — capacity is the Trading
   Post's.
 - A collapsed "Producers (n)": one row per assigned producer, the name a link
   that selects it (no ID); "None yet" without any, "and n more" after eight.
 - "Upgrade to level n" (not at the last level): one grey line with the next
-  level's numbers ("55.0/min throughput") and one cost line (gold, goods with
+  level's numbers ("55.0 t/min throughput") and one cost line (gold, goods with
   icons, " · " between the items; what the balance or stock does not cover is
   red). The **Upgrade** button is pinned in the footer next to Move and
   Demolish (a warehouse cannot be paused). The Trading Post shares the
@@ -460,7 +460,13 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
 - Every number in the UI is a server number or a linear extrapolation of one;
   never a client-side rule result (D-027).
 - Every negative state has a cause and a suggested fix in one sentence.
-- Rates are always shown per minute; quantities as integers.
+- Rates are always shown per minute; quantities as integers. Goods are measured
+  in tonnes, abbreviated `t`, everywhere: rates `{rate} t/min`, stocks `{n} t`,
+  capacities and buffers `{n}/{cap} t`, ship cargo and slot sizes, costs,
+  rewards and trading offers (catalogue keys `unit.t`, `unit.tRatio`,
+  `unit.tPerMin`, helpers in `client/src/display/format.ts`; the German text
+  uses the same `t`, with the locale's decimal separator and a no-break space
+  before the unit). Gold and population carry no unit.
 - Confirmation only for irreversible actions with cost; everything else is
   one tap.
 - Colour-blind-safe palette for validity and status; icons always accompany
