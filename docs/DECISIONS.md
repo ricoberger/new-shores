@@ -1708,6 +1708,11 @@ Shadow tones by the measured rule, now written into `palette.json`.
 18.53 MiB folder unchanged). Known: `make shots HUD=0` also hides the
 grade overlay (noted in the shots tool); wheat and beach still read a
 touch loud on `played` mid/far — V6 part 2 candidates.
+Palette v3 (#64): `brick` `#9C4A38`, `tile-dark` `#6E3A33` added,
+terracotta → `#C4663A`; 90 models re-baked. The blue-grey back faces of
+chapel / Trading Post l2 are the fill-only shaded sides of large pale
+stone walls — reference-correct light; the fix is relief on those walls
+in the V7 tier sessions, not a `SIDE_TILT` or a warmer fill.
 
 ## D-065 Ranked public-service chains, a security group, four-level market and warehouse
 

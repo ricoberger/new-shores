@@ -77,14 +77,14 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   only.
 - **Previews** (ghosts, road drag, field paint) are pulled toward the
   camera with a polygon offset so they never z-fight with the ground.
-- **Palette v2** (D-064; single source `assets/palette.json`; the voxel build's
+- **Palette v3** (D-064, roles for V7 added in #64; single source `assets/palette.json`; the voxel build's
   vertex colours, terrain materials and CSS variables all read it):
 
 | Role | Colours |
 |---|---|
 | Terrain | sand `#E2D2A6` · grass `#6E9E52` / `#84B063` · dry patches `#A79B62` · forest floor `#4A7640` · tree crown `#55884A` · mountain `#86888A` · cliff `#9A938A` · dirt road `#96744F` · paved road `#9FA09B` |
 | Water | shallows `#4A9C9F` → deep `#22627D` · foam `#F4F6F0` · haze `#AEC1C4` |
-| Buildings | plaster `#E7D7B8` · ochre `#D9A85E` · timber `#6F4A2E` · thatch `#B98F4F` · terracotta roof `#B5563B` · slate `#5C6670` · stone `#B9B2A4` · brass `#C9A24A` · plus (art task 3) `canvas` (sails), `iron`, `window`, `dye-blue` — exact values in `assets/palette.json` |
+| Buildings | plaster `#E7D7B8` · ochre `#D9A85E` · timber `#6F4A2E` · thatch `#B98F4F` · terracotta roof `#C4663A` (tier 2) · tile-dark `#6E3A33` (tier 3 roofs, V7) · brick `#9C4A38` (industry, V7) · slate `#5C6670` · stone `#B9B2A4` · brass `#C9A24A` · plus (art task 3) `canvas` (sails), `iron`, `window`, `dye-blue` — exact values in `assets/palette.json` |
 | UI chrome | parchment `#F1E6CC` · dark wood `#4A3421` · brass `#C9A24A` · ink `#2B2117` |
 | Shadows (D-050, D-064) | one cooler, lower-value **shadow tone per role** (`shadows` group) used by the AO/two-tone bake: role × (0.58, 0.56, 0.66) per sRGB channel, the rock roles a little deeper; thatch keeps extra chroma in shadow |
 | Island (D-050, D-064) | cliff bands (muted sandstone over grey), sand rim, neutral grey plateau rock and moss cap, shelf water (`island` group) |
