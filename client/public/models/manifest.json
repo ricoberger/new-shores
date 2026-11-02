@@ -9298,14 +9298,14 @@
     "pastry_kitchen": {
       "anchors": {
         "cart": [
-          -1.0,
+          -0.8333,
           0.0,
           -2.0
         ],
         "chimney": [
-          -1.3125,
-          1.75,
-          0.8125
+          0.9167,
+          4.0,
+          1.5833
         ],
         "door": [
           0.0,
@@ -9313,43 +9313,43 @@
           -2.5
         ],
         "smoke": [
-          -1.3125,
-          1.875,
-          0.8125
+          0.9167,
+          4.0833,
+          1.5833
         ],
         "status": [
           0.0,
-          4.0,
+          4.1667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.125,
-          3.75,
-          2.125
+          2.0,
+          3.9167,
+          2.4167
         ],
         "min": [
           -2.0,
           0.0,
-          -2.125
+          -2.25
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.125,
-            3.75,
-            2.125
+            2.0,
+            3.9167,
+            2.4167
           ],
           "min": [
             -2.0,
             0.0,
-            -2.125
+            -2.25
           ]
         },
         "budget": 10000,
-        "bytes": 123824,
+        "bytes": 158512,
         "ground": [
           [
             "none",
@@ -9370,23 +9370,23 @@
             "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "dirt",
+            "dirt",
+            "dirt",
+            "dirt"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "dirt",
+            "dirt",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              4.0,
+              3.5,
               2.5
             ],
             "min": [
@@ -9396,21 +9396,21 @@
             ]
           },
           "budget": 800,
-          "bytes": 10676,
+          "bytes": 9212,
           "path": "pastry_kitchen.lite.glb",
-          "sha256": "816f3a87138268d2de20ed25c8252991b20d1082b1be1ca5e100b34d95d7cbbf",
-          "triangles": 276
+          "sha256": "085696ebd811b85ba826ca7957583a721733825285eef850dedf03c419d81ab3",
+          "triangles": 232
         },
         "path": "pastry_kitchen.glb",
-        "sha256": "9a8842c55957ea63d91d5a3e17630be4cbe6e5f8b549b82c800b991e3d69fc84",
-        "triangles": 3868
+        "sha256": "7b89bbd9180f1514b5a9a85b9501a8a98120be61979b8e70f7ac19c46db39327",
+        "triangles": 4838
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "pasture": {
       "anchors": {
