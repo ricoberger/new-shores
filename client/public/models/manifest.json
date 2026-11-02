@@ -10759,14 +10759,14 @@
     "salt_works": {
       "anchors": {
         "cart": [
+          1.1667,
           0.0,
-          0.0,
-          -2.5
+          -2.6667
         ],
         "chimney": [
-          1.3125,
-          3.625,
-          1.3125
+          1.25,
+          4.5833,
+          2.0833
         ],
         "door": [
           0.0,
@@ -10774,49 +10774,61 @@
           -3.0
         ],
         "smoke": [
-          1.3125,
-          3.75,
-          1.3125
+          1.25,
+          4.6667,
+          2.0833
         ],
         "status": [
           0.0,
-          4.0,
+          4.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.75,
-          3.125
+          4.5,
+          3.0
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -2.5
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
             2.0,
-            3.75,
-            3.125
+            4.5,
+            3.0
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -2.5
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 98456,
+        "bytes": 213464,
         "ground": [
           [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
             "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
             "dirt",
@@ -10825,36 +10837,24 @@
             "dirt"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
+            "none",
             "dirt",
             "dirt",
             "dirt"
           ],
           [
+            "none",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
-              3.5
+              4.5,
+              3.0
             ],
             "min": [
               -2.0,
@@ -10863,21 +10863,21 @@
             ]
           },
           "budget": 960,
-          "bytes": 11896,
+          "bytes": 11096,
           "path": "salt_works.lite.glb",
-          "sha256": "b59207f043cac1a7bcf938bfec12a8d5be0ac2d5ca8af36f42edd9dc532e1d14",
-          "triangles": 328
+          "sha256": "93874f9913bc7bc9df450873f5daef06ad5d5862082b46655dd14adb051c37dd",
+          "triangles": 294
         },
         "path": "salt_works.glb",
-        "sha256": "9b47687aeaa9653aadd6a8532feecd09693139cbe7dc83ae1617232c6c430328",
-        "triangles": 3138
+        "sha256": "e6d662c798c67627a326a82c51ee4923fa906ee542236c3fa6bca3450e52fd8e",
+        "triangles": 6600
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "sawmill": {
       "anchors": {
