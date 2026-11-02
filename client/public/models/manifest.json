@@ -6775,20 +6775,20 @@
         ],
         "status": [
           0.0,
-          5.875,
+          4.3333,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.5,
-          5.625,
-          1.5
+          1.3333,
+          4.0833,
+          1.3333
         ],
         "min": [
-          -1.375,
+          -1.3333,
           0.0,
-          -1.375
+          -1.4167
         ]
       },
       "footprint": {
@@ -6800,28 +6800,28 @@
         {
           "bounds": {
             "max": [
-              1.5,
-              4.75,
-              1.5
+              1.3333,
+              3.4167,
+              1.3333
             ],
             "min": [
-              -1.375,
+              -1.3333,
               0.0,
-              -1.125
+              -1.3333
             ]
           },
           "budget": 4860,
-          "bytes": 91892,
+          "bytes": 127276,
           "ground": [
             [
-              "none",
-              "none",
-              "none"
+              "paved",
+              "paved",
+              "paved"
             ],
             [
-              "none",
-              "none",
-              "none"
+              "paved",
+              "paved",
+              "paved"
             ],
             [
               "paved",
@@ -6833,117 +6833,7 @@
             "bounds": {
               "max": [
                 1.5,
-                4.5,
-                1.5
-              ],
-              "min": [
-                -1.5,
-                0.0,
-                -1.0
-              ]
-            },
-            "budget": 405,
-            "bytes": 10840,
-            "path": "house_patricians.v0.lite.glb",
-            "sha256": "ff89948e6b3d8fee291fb3477c6efa6b78a14b97dc9909a079ac1f3cba2dc950",
-            "triangles": 276
-          },
-          "path": "house_patricians.v0.glb",
-          "sha256": "a8f193a63870a98aaf9511f318fdd7c14c72d9148f9fd941a72e4cb791988891",
-          "triangles": 3050
-        },
-        {
-          "bounds": {
-            "max": [
-              1.375,
-              4.125,
-              1.375
-            ],
-            "min": [
-              -1.375,
-              0.0,
-              -1.125
-            ]
-          },
-          "budget": 4860,
-          "bytes": 65324,
-          "ground": [
-            [
-              "none",
-              "none",
-              "none"
-            ],
-            [
-              "none",
-              "none",
-              "none"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved"
-            ]
-          ],
-          "lite": {
-            "bounds": {
-              "max": [
-                1.5,
-                4.0,
-                1.5
-              ],
-              "min": [
-                -1.5,
-                0.0,
-                -1.0
-              ]
-            },
-            "budget": 405,
-            "bytes": 7908,
-            "path": "house_patricians.v1.lite.glb",
-            "sha256": "6fa0b389cd0ca0748116ec0ad0ee0c4cb19e6c0077fac3b6a92d39cd65e0b56f",
-            "triangles": 190
-          },
-          "path": "house_patricians.v1.glb",
-          "sha256": "8028136ff691b8a7befec35db88ac6d815a5ebd6882573f41e12d54567f99cf6",
-          "triangles": 2158
-        },
-        {
-          "bounds": {
-            "max": [
-              1.375,
-              5.625,
-              1.25
-            ],
-            "min": [
-              -1.375,
-              0.0,
-              -1.375
-            ]
-          },
-          "budget": 4860,
-          "bytes": 94280,
-          "ground": [
-            [
-              "none",
-              "none",
-              "none"
-            ],
-            [
-              "none",
-              "none",
-              "none"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved"
-            ]
-          ],
-          "lite": {
-            "bounds": {
-              "max": [
-                1.5,
-                5.0,
+                3.5,
                 1.5
               ],
               "min": [
@@ -6953,17 +6843,127 @@
               ]
             },
             "budget": 405,
-            "bytes": 9848,
+            "bytes": 7776,
+            "path": "house_patricians.v0.lite.glb",
+            "sha256": "f4b03fd318c23761e44bbf827262227ee0cf18b8d61aee605caa28f1d779fc52",
+            "triangles": 184
+          },
+          "path": "house_patricians.v0.glb",
+          "sha256": "62f4ca54659d067ddef9015fe90df2a9efc1bc00fae3128091fb14a6cf71d2d5",
+          "triangles": 4362
+        },
+        {
+          "bounds": {
+            "max": [
+              1.3333,
+              4.0833,
+              1.25
+            ],
+            "min": [
+              -1.3333,
+              0.0,
+              -1.4167
+            ]
+          },
+          "budget": 4860,
+          "bytes": 136244,
+          "ground": [
+            [
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved"
+            ]
+          ],
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                3.5,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 8760,
+            "path": "house_patricians.v1.lite.glb",
+            "sha256": "444c0dd2e0538b9cbf348f70f2d7537e56e7dd2cc78a6ab1ae4329934f01fd97",
+            "triangles": 212
+          },
+          "path": "house_patricians.v1.glb",
+          "sha256": "36e18a1f05c03f68ecad9bf786e78e64e9b94aadfad4530ea60bda8f082f20d6",
+          "triangles": 4726
+        },
+        {
+          "bounds": {
+            "max": [
+              1.3333,
+              4.0833,
+              1.3333
+            ],
+            "min": [
+              -1.3333,
+              0.0,
+              -1.3333
+            ]
+          },
+          "budget": 4860,
+          "bytes": 134416,
+          "ground": [
+            [
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved"
+            ]
+          ],
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                3.5,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 7192,
             "path": "house_patricians.v2.lite.glb",
-            "sha256": "9f5da6982f1e8b0ca01a63caf55c3088e8e24b6707b8f0053c0a7d80a008a086",
-            "triangles": 262
+            "sha256": "ff96fbc1b95419c01ff47aeab620f3ca792f57fa8a6f949a644377413491d993",
+            "triangles": 172
           },
           "path": "house_patricians.v2.glb",
-          "sha256": "e754db448b067e620582a8078cc9adee04d161fdf8ba3289b9bdbac5585ba69e",
-          "triangles": 3160
+          "sha256": "0f0180c2ef31030f6a3f3e70b3d4ff7b67379d9013eee0e18ec5773e62e474ec",
+          "triangles": 4624
         }
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "house_settlers": {
       "anchors": {
