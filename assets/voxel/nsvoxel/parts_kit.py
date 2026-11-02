@@ -233,3 +233,19 @@ def crates(v, spots, m=None):
 
 def set_cart(v, x, y, z=1):
     v.anchor("cart", x, y, z)
+
+
+def pig(v, x, y, z, along="x", tone=1.0):
+    """A pig: a pink body 5 long and 3 wide, a head with a darker snout, four stubs of legs."""
+    pink = mat("terracotta", 1.5 * tone)
+    snout = mat("terracotta", 1.1)
+    a, b = (5, 3) if along == "x" else (3, 5)
+    v.box(x, y, z + 1, x + a, y + b, z + 3, pink)
+    for dx, dy in ((0, 0), (a - 1, 0), (0, b - 1), (a - 1, b - 1)):
+        v.set(x + dx, y + dy, z, snout)
+    if along == "x":
+        v.box(x + a, y, z + 1, x + a + 2, y + b, z + 3, pink)
+        v.set(x + a + 1, y + 1, z + 2, snout)
+    else:
+        v.box(x, y + b, z + 1, x + a, y + b + 2, z + 3, pink)
+        v.set(x + 1, y + b + 1, z + 2, snout)
