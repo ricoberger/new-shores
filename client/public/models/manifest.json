@@ -6377,20 +6377,20 @@
         ],
         "status": [
           0.0,
-          3.75,
+          3.5833,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          3.5,
-          1.25
+          3.3333,
+          1.5
         ],
         "min": [
           -1.5,
           0.0,
-          -1.125
+          -1.5
         ]
       },
       "footprint": {
@@ -6402,33 +6402,33 @@
         {
           "bounds": {
             "max": [
-              1.375,
-              3.25,
-              1.125
+              1.5,
+              3.1667,
+              1.1667
             ],
             "min": [
-              -1.375,
+              -1.5,
               0.0,
-              -1.0
+              -1.5
             ]
           },
           "budget": 4860,
-          "bytes": 92576,
+          "bytes": 145272,
           "ground": [
             [
-              "none",
-              "none",
-              "none"
+              "dirt",
+              "dirt",
+              "dirt"
             ],
             [
-              "none",
-              "none",
-              "none"
+              "dirt",
+              "dirt",
+              "dirt"
             ],
             [
-              "paved",
-              "paved",
-              "paved"
+              "dirt",
+              "dirt",
+              "dirt"
             ]
           ],
           "lite": {
@@ -6436,54 +6436,54 @@
               "max": [
                 1.5,
                 3.0,
-                1.0
+                1.5
               ],
               "min": [
                 -1.5,
                 0.0,
-                -1.0
+                -1.5
               ]
             },
             "budget": 405,
-            "bytes": 7828,
+            "bytes": 7544,
             "path": "house_citizens.v0.lite.glb",
-            "sha256": "155b9b5e3f9c69b89407da909b8976c64322280d8a071c1e3dbfc0f20abd16fc",
-            "triangles": 188
+            "sha256": "3ba9ecb09ae983a2836f83c36979a5379f620c2a54acc0e6619471cf4075575e",
+            "triangles": 194
           },
           "path": "house_citizens.v0.glb",
-          "sha256": "3415491af9fca81e6b7ebc1e7c2d1f37ec24d55123afead5c5e6eb0da4d2737d",
-          "triangles": 2858
+          "sha256": "360857d417a842417bf1f82379d0814dbb14039d4a6318dc9973302fff64ff65",
+          "triangles": 4698
         },
         {
           "bounds": {
             "max": [
               1.5,
-              3.5,
-              1.25
+              3.3333,
+              1.5
             ],
             "min": [
-              -1.25,
+              -1.4167,
               0.0,
-              -1.125
+              -1.4167
             ]
           },
           "budget": 4860,
-          "bytes": 93084,
+          "bytes": 147496,
           "ground": [
             [
-              "none",
-              "none",
-              "none"
+              "dirt",
+              "dirt",
+              "dirt"
             ],
             [
-              "none",
-              "none",
-              "none"
+              "dirt",
+              "dirt",
+              "dirt"
             ],
             [
-              "paved",
-              "paved",
-              "paved"
+              "dirt",
+              "dirt",
+              "dirt"
             ]
           ],
           "lite": {
@@ -6496,49 +6496,49 @@
               "min": [
                 -1.5,
                 0.0,
-                -1.0
+                -1.5
               ]
             },
             "budget": 405,
-            "bytes": 9212,
+            "bytes": 7040,
             "path": "house_citizens.v1.lite.glb",
-            "sha256": "6704de631ee5fb160883e58d3bfdf0fee276816e615a24f236886ccf4b298b87",
-            "triangles": 232
+            "sha256": "6d4da5fa1051c9b08295b75780bfdfee083f6cd7a2557ac62f71a17dd463dc6c",
+            "triangles": 174
           },
           "path": "house_citizens.v1.glb",
-          "sha256": "7b8b57a9355dcdb07e638b0ceb3837c4417428b7c76646ce843306e013c73faa",
-          "triangles": 2900
+          "sha256": "02796304e7e6f724a3c1dd4d9eb8eb6fdd76e097995bc0a5690e5324c35bb82a",
+          "triangles": 4642
         },
         {
           "bounds": {
             "max": [
-              1.375,
-              3.375,
-              1.25
+              1.5,
+              3.0833,
+              1.4167
             ],
             "min": [
               -1.5,
               0.0,
-              -1.125
+              -1.4167
             ]
           },
           "budget": 4860,
-          "bytes": 89064,
+          "bytes": 146936,
           "ground": [
             [
-              "none",
-              "none",
-              "none"
+              "dirt",
+              "dirt",
+              "dirt"
             ],
             [
-              "none",
-              "none",
-              "none"
+              "dirt",
+              "dirt",
+              "dirt"
             ],
             [
-              "paved",
-              "paved",
-              "paved"
+              "dirt",
+              "dirt",
+              "dirt"
             ]
           ],
           "lite": {
@@ -6546,26 +6546,26 @@
               "max": [
                 1.5,
                 3.0,
-                1.0
+                1.5
               ],
               "min": [
                 -1.5,
                 0.0,
-                -1.0
+                -1.5
               ]
             },
             "budget": 405,
-            "bytes": 7112,
+            "bytes": 6656,
             "path": "house_citizens.v2.lite.glb",
-            "sha256": "410cdfc5f4eee7077bd90c64700a4eb66f9a0e82a1257d6f54ddc2f480546aaa",
-            "triangles": 178
+            "sha256": "eaec505851c46c2b902012bd5f1d828c6e39523b4b00aba800e4afb9980f01b7",
+            "triangles": 166
           },
           "path": "house_citizens.v2.glb",
-          "sha256": "e4dc457ef7c51708e55ff29f2f4b43e9a8b0c713644738fb6024506b0a54491e",
-          "triangles": 2750
+          "sha256": "2f208ecccc30552adce985b7e0e0f360aa8a73f5d344dfb48ce5c155d23e95d3",
+          "triangles": 4586
         }
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "house_merchants": {
       "anchors": {

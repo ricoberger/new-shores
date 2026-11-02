@@ -71,7 +71,7 @@ class GroundMapTest(unittest.TestCase):
         # The 1404 peasant and citizen houses sit on bare earth (merchants and patricians: cobbles).
         with open(os.path.join(config.MODELS_DIR, "manifest.json")) as f:
             models = json.load(f)["models"]
-        for cid in ("house_settlers",):
+        for cid in ("house_settlers", "house_citizens"):
             for info in models[cid]["variants"]:
                 self.assertEqual({k for row in info["ground"] for k in row}, {"dirt"}, cid)
 

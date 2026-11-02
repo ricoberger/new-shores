@@ -461,6 +461,17 @@ land buildings).
   `trough`, `well`, `tool_rack`, `ladder`, `sawhorse`, `haystack`,
   `sheaf`, `stone_blocks`, `lamp_post`, `flower_bed`. One signature prop
   per producer must read at mid zoom.
+- **V7 parts (model rework):** `nsvoxel/parts_v7.py` (imported as `W`)
+  adds parts at 12 voxels per tile without changing `P`:
+  `W.coursed_stone_2` (rubble in two-voxel courses, three shades),
+  `W.heavy_frame` (two-voxel posts in ~11-voxel bays, one rail, one
+  brace per closed bay; returns the plaster panels), `W.two_light` and
+  `W.panel_window` (two-light casements with mullion and shutters),
+  `W.framed_house` (flush plinth band, rubble ground floor with quoins,
+  jetty, heavy-frame upper storey, windows per bay, roof),
+  `W.roof_core` (hidden attic fill in the roof material so the lite
+  reads the roof), `W.plank_shed`, `W.stack` (chimney) and `W.stairs`
+  (outside stair).
 - **Tier 4 (Patricians, V5):** `nsvoxel/detail_v5.py` (imported as
   `Q`) adds parts on top of `P` without changing it: `Q.palazzo` (flush
   plinth band, ashlar ground floor, plastered upper storeys, string courses,
