@@ -4354,14 +4354,14 @@
     "copper_smelter": {
       "anchors": {
         "cart": [
-          -0.5,
+          0.8333,
           0.0,
-          -2.75
+          -2.6667
         ],
         "chimney": [
-          -0.625,
-          3.25,
-          1.75
+          -0.8333,
+          3.0833,
+          1.5
         ],
         "door": [
           0.0,
@@ -4369,79 +4369,79 @@
           -3.0
         ],
         "smoke": [
-          -0.625,
-          3.375,
-          1.75
+          -0.8333,
+          3.1667,
+          1.5
         ],
         "status": [
           0.0,
-          3.5,
+          3.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.25,
-          2.625
+          3.4167,
+          3.0
         ],
         "min": [
-          -1.75,
+          -2.0,
           0.0,
-          -2.5
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
             2.0,
-            3.25,
-            2.625
+            3.4167,
+            3.0
           ],
           "min": [
-            -1.75,
+            -2.0,
             0.0,
-            -2.5
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 78188,
+        "bytes": 89428,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "paved",
+            "paved",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "paved",
+            "paved",
+            "paved",
+            "paved"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "paved",
+            "paved",
+            "none"
           ]
         ],
         "lite": {
@@ -4449,30 +4449,30 @@
             "max": [
               2.0,
               3.5,
-              3.0
+              2.5
             ],
             "min": [
               -2.0,
               0.0,
-              -2.5
+              -1.5
             ]
           },
           "budget": 960,
-          "bytes": 9884,
+          "bytes": 8628,
           "path": "copper_smelter.lite.glb",
-          "sha256": "be918f9c813115d7add7573ed10321b741bc531744df7257e9629140a6415567",
-          "triangles": 240
+          "sha256": "9717573f6edd0b0fc8190787eaae8c56b879e89468982b2fa5289c60e72f53c0",
+          "triangles": 228
         },
         "path": "copper_smelter.glb",
-        "sha256": "54e0e0dda1ac7e22843a510088b8cc37fda0a9bffb60bec35e388afcc1a8f512",
-        "triangles": 2356
+        "sha256": "5a4311fa61d65a1833ca198495670bb1ec8fc49bfa3337509292446392babcfb",
+        "triangles": 2770
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "dairy_farm": {
       "anchors": {
