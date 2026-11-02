@@ -471,7 +471,16 @@ land buildings).
   jetty, heavy-frame upper storey, windows per bay, roof),
   `W.roof_core` (hidden attic fill in the roof material so the lite
   reads the roof), `W.plank_shed`, `W.stack` (chimney) and `W.stairs`
-  (outside stair).
+  (outside stair). For the merchant and patrician houses: `W.stepped_gable`
+  (a crow-stepped stone gable on any gable end, steps two voxels tall under a
+  light coping, optional ball finials and a volute-like foot), `W.dormer`
+  (a tiled dormer on an along-x or along-y roof), `W.arched_window` (a tall
+  two-light window, round head, light surround, dark glass), `W.round_window`
+  (an oculus for a gable field) and `W.round_arcade` (semicircular arches).
+  `P.roof`, `W.framed_house`, `Q.palazzo`, `Q.tower` and `dormer_on` take
+  `shades=(even, odd)` for the course shades of the roof and `verge` for the
+  verge shade; with a darker `ridge` they give the strong course lines of the
+  dark tile (tier 3) and slate (tier 4) roofs.
 - **Tier 4 (Patricians, V5):** `nsvoxel/detail_v5.py` (imported as
   `Q`) adds parts on top of `P` without changing it: `Q.palazzo` (flush
   plinth band, ashlar ground floor, plastered upper storeys, string courses,

@@ -6576,20 +6576,20 @@
         ],
         "status": [
           0.0,
-          4.5,
+          4.0833,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          4.25,
+          3.8333,
           1.5
         ],
         "min": [
           -1.5,
           0.0,
-          -1.375
+          -1.4167
         ]
       },
       "footprint": {
@@ -6601,83 +6601,28 @@
         {
           "bounds": {
             "max": [
-              1.375,
-              4.125,
-              1.375
-            ],
-            "min": [
-              -1.375,
-              0.0,
-              -1.125
-            ]
-          },
-          "budget": 4860,
-          "bytes": 122628,
-          "ground": [
-            [
-              "none",
-              "none",
-              "none"
-            ],
-            [
-              "none",
-              "none",
-              "none"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved"
-            ]
-          ],
-          "lite": {
-            "bounds": {
-              "max": [
-                1.5,
-                4.0,
-                1.5
-              ],
-              "min": [
-                -1.5,
-                0.0,
-                -1.0
-              ]
-            },
-            "budget": 405,
-            "bytes": 8688,
-            "path": "house_merchants.v0.lite.glb",
-            "sha256": "d3cf051b2ffe90ae51f1475fdc70dd1ae6f8e4836da0f4d66956a4da257c147d",
-            "triangles": 224
-          },
-          "path": "house_merchants.v0.glb",
-          "sha256": "fb08acb2695356b65cac9df925291ad35ee6cd5ae200261bcdbd09cec7c3e4e2",
-          "triangles": 3802
-        },
-        {
-          "bounds": {
-            "max": [
               1.5,
-              4.125,
-              1.5
+              3.8333,
+              1.3333
             ],
             "min": [
-              -1.375,
+              -1.4167,
               0.0,
-              -1.25
+              -1.4167
             ]
           },
           "budget": 4860,
-          "bytes": 124672,
+          "bytes": 157092,
           "ground": [
             [
-              "none",
-              "none",
-              "none"
+              "paved",
+              "paved",
+              "paved"
             ],
             [
-              "none",
-              "none",
-              "none"
+              "paved",
+              "paved",
+              "paved"
             ],
             [
               "paved",
@@ -6689,7 +6634,7 @@
             "bounds": {
               "max": [
                 1.5,
-                4.0,
+                3.5,
                 1.5
               ],
               "min": [
@@ -6699,40 +6644,95 @@
               ]
             },
             "budget": 405,
-            "bytes": 10336,
-            "path": "house_merchants.v1.lite.glb",
-            "sha256": "26fd5791869ef01e6f39157c0f65834a0e8d0126c73f309ad00d694f58ac56c1",
-            "triangles": 264
+            "bytes": 7812,
+            "path": "house_merchants.v0.lite.glb",
+            "sha256": "158d92937c71adc52d077a2cffcf377a835a48554a0ba6041d30951aab2e6a65",
+            "triangles": 206
           },
-          "path": "house_merchants.v1.glb",
-          "sha256": "b5d6511f57972a86af57fc9ff427b83a3d9b5d7e91b2bbfd499354912628ec23",
-          "triangles": 3884
+          "path": "house_merchants.v0.glb",
+          "sha256": "9457133b2e8b005c99158549a452f39919e9620ffff08e961a6f6f0dd5b0318c",
+          "triangles": 4830
         },
         {
           "bounds": {
             "max": [
-              1.375,
-              4.25,
-              1.375
+              1.4167,
+              3.6667,
+              1.5
+            ],
+            "min": [
+              -1.4167,
+              0.0,
+              -1.4167
+            ]
+          },
+          "budget": 4860,
+          "bytes": 154240,
+          "ground": [
+            [
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved"
+            ]
+          ],
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                3.5,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 9168,
+            "path": "house_merchants.v1.lite.glb",
+            "sha256": "8f3efe5f57dbcde64dc12ac811354a2f9353fc64e0adfef60ea5a9191834cd32",
+            "triangles": 240
+          },
+          "path": "house_merchants.v1.glb",
+          "sha256": "c6ae0651b762976332db6bb8858ad148a2aab3761aa77d4a02eff198cc18b2ed",
+          "triangles": 4856
+        },
+        {
+          "bounds": {
+            "max": [
+              1.3333,
+              3.5,
+              1.4167
             ],
             "min": [
               -1.5,
               0.0,
-              -1.375
+              -1.4167
             ]
           },
           "budget": 4860,
-          "bytes": 118776,
+          "bytes": 155076,
           "ground": [
             [
-              "none",
-              "none",
-              "none"
+              "paved",
+              "paved",
+              "paved"
             ],
             [
-              "none",
-              "none",
-              "none"
+              "paved",
+              "paved",
+              "paved"
             ],
             [
               "paved",
@@ -6744,7 +6744,7 @@
             "bounds": {
               "max": [
                 1.5,
-                4.0,
+                3.5,
                 1.5
               ],
               "min": [
@@ -6754,17 +6754,17 @@
               ]
             },
             "budget": 405,
-            "bytes": 11016,
+            "bytes": 9792,
             "path": "house_merchants.v2.lite.glb",
-            "sha256": "3bfa1dd718be89521435bfc274c72cf9db0d88b6965ae4556c98d97592cb452d",
-            "triangles": 292
+            "sha256": "c2a50a3803b52fc348e27e0fac952f65081623f77d2131cbae7362df26fdd2ea",
+            "triangles": 248
           },
           "path": "house_merchants.v2.glb",
-          "sha256": "7cd27a6c05b4b773c07993a7e997b908d687223a0ea0aa643fe66fdc8df9ccf1",
-          "triangles": 3752
+          "sha256": "50d56f55ca8650702e962e9a676c92603d222d00e059f2d18ec30b760db3a542",
+          "triangles": 4838
         }
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "house_patricians": {
       "anchors": {

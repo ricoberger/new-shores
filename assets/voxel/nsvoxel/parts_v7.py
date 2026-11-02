@@ -17,7 +17,7 @@ from . import parts as _p  # first: parts imports detail at its end
 from . import detail as _d
 from . import detail_v4 as _v
 from .grid import hash3, shade_of
-from .mats import PLASTER, STONE, STONE_DARK, STONE_LIGHT, TERRACOTTA, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from .mats import PLASTER, STONE, STONE_DARK, STONE_LIGHT, TERRACOTTA, TIMBER, TIMBER_DARK, TIMBER_LIGHT, WINDOW, BRASS
 
 #: The three stone shades of rubble: dark, mid, pale.
 RUBBLE = (0.66, 0.84, 1.0)
@@ -120,7 +120,7 @@ def panel_window(f, panel, z, h=6, **kw):
     two_light(f, (p0 + p1 - 5) // 2, z, h, **kw)
 
 
-def framed_house(v, x0, y0, x1, y1, along="x", ground=10, top=19, infill=PLASTER, frame=TIMBER_DARK, roof=None, kind="tiles", rise=1.5, hip=False, seed=0, bay=11, windows=None, shutters=None, plain=("y-", "x+"), free=None, rail=None, gable_jetty=True, z0=1, ov=1, stone=STONE, plinth=STONE_LIGHT, quoins=True):
+def framed_house(v, x0, y0, x1, y1, along="x", ground=10, top=19, infill=PLASTER, frame=TIMBER_DARK, roof=None, kind="tiles", rise=1.5, hip=False, seed=0, bay=11, windows=None, shutters=None, plain=("y-", "x+"), free=None, rail=None, gable_jetty=True, z0=1, ov=1, stone=STONE, plinth=STONE_LIGHT, quoins=True, ridge=None, shades=None, verge=0.9):
     """
     The block of `detail_v4.townhouse` on the V7 parts: a pale plinth band flush with the wall,
     a coursed-rubble ground floor to `ground` (dressed quoins), a jetty, a
@@ -154,7 +154,7 @@ def framed_house(v, x0, y0, x1, y1, along="x", ground=10, top=19, infill=PLASTER
                 v.set(x, uy0 - 1, top - 1, frame if x % 2 else TIMBER_LIGHT)
                 v.set(x, uy1, top - 1, frame if x % 2 else TIMBER_LIGHT)
             ry0, ry1 = uy0 - 1, uy1 + 1
-    r = _d.roof(v, rx0, rx1, ry0, ry1, top, kind, along=along, rise=rise, ov=ov, gable=infill, seed=seed, hip=hip, m=roof)
+    r = _d.roof(v, rx0, rx1, ry0, ry1, top, kind, along=along, rise=rise, ov=ov, gable=infill, seed=seed, hip=hip, m=roof, ridge=ridge, shades=shades, verge=verge)
     if gable_jetty and not hip:
         _v._gable_frame(v, r, along, frame, infill)
     roof_core(v, r, infill, roof or _d.ROOFS[kind][0])
@@ -225,3 +225,168 @@ def stairs(v, x, y0, z0, steps, side=1, width=3, m=TIMBER_LIGHT, stringer=TIMBER
         v.box(x, y, 1, x + width, y + 1, z0 + i, stringer)
 
 
+
+
+# ---------------------------------------------------------------- V7 parts for the merchant and patrician houses
+
+
+def stepped_gable(v, r, side, m=STONE, coping=None, balls=None, step=2, above=2, foot=0, ball=BRASS):
+    """
+    A crow-stepped stone gable on a gable end of Roof r — `side` x-/x+ for
+    an along-x roof, y-/y+ for an along-y roof: the outer gable layer becomes
+    coursed stone standing `above` voxels over the roof as a staircase whose
+    treads are `step` voxels tall and one wide (the roof's slope is steeper
+    than 1:1, so every column is a step), each capped with a light coping stone (`coping`);
+    the verge overhang there is removed. `balls`: a 2 × 2 × 2 cube of `ball` (brass by default)
+    on the apex and the two feet; `foot`: the lowest step
+    is that many voxels wider (a volute-like foot).
+    """
+    coping = coping or _d.DRESSED
+    along_x = side in ("x-", "x+")
+    if along_x != (r.along == "x"):
+        raise ValueError("stepped_gable: side %s does not close an along-%s roof" % (side, r.along))
+    pos = {"x-": r.x0, "x+": r.x1 - 1, "y-": r.y0, "y+": r.y1 - 1}[side]
+    out = pos - r.ov if side[1] == "-" else pos + r.ov
+    lo, hi = ((r.y0 - r.ov, r.y1 + r.ov - 1) if along_x else (r.x0 - r.ov, r.x1 + r.ov - 1))
+
+    def at(a, b, z, c):
+        if along_x:
+            v.set(a, b, z, c)
+        else:
+            v.set(b, a, z, c)
+
+    for b in range(lo, hi + 1):
+        for z in range(r.z - 1, r.top + 2):
+            if out != pos:
+                at(out, b, z, None)
+    cols = list(range(r.y0, r.y1) if along_x else range(r.x0, r.x1))
+    mid = (cols[0] + cols[-1]) / 2.0
+    tops = {}
+    for b in cols:
+        s = r.surface(pos, b) if along_x else r.surface(b, pos)
+        h = (s + above - r.z + step - 1) // step * step + r.z
+        tops[b] = h
+    # A volute-like foot: the lowest step runs `foot` voxels further out along the eave line.
+    for b in cols:
+        for z in range(r.z, tops[b]):
+            at(pos, b, z, m if ((z // 2) + b // 3) % 2 == 0 else shade_of(m, 0.93))
+        at(pos, b, tops[b], coping)
+    for i in range(foot):
+        for b in (cols[0] - 1 - i, cols[-1] + 1 + i):
+            for z in range(r.z, tops[cols[0]]):
+                at(pos, b, z, m)
+            at(pos, b, tops[cols[0]], coping)
+    if balls:
+        peak = max(cols, key=lambda b: (tops[b], -abs(b - mid)))
+        for b in (cols[0], cols[-1], int(round(mid))):
+            for db in (0, 1):
+                for dd in (0, 1):
+                    for dz in (1, 2):
+                        at(pos + (dd if side[1] == "-" else -dd), min(b + db, cols[-1] + 1), tops[b] + dz, ball)
+
+
+def dormer(v, r, a0, a1, side, wall=PLASTER, frame=TIMBER_LIGHT, course=3, h=6, m=None, ridge=None, shades=None, verge=0.9, kind="tiles"):
+    """
+    A dormer on the `side` slope of Roof r (y+/y- of an along-x roof — as
+    detail.dormer_on — or x+/x- of an along-y roof): a front wall `course`
+    courses up the slope, a framed window, cheeks back into the roof and its
+    own little gable roof; a0..a1 along the eaves.
+    """
+    if r.along == "x":
+        _d.dormer_on(v, r, a0, a1, side, wall=wall, kind=kind, frame=frame, course=course, h=h, m=m, ridge=ridge, shades=shades, verge=verge)
+        return
+    hi0 = r.x1 + r.ov - 1
+    lo0 = r.x0 - r.ov
+    xf = hi0 - course if side == "x+" else lo0 + course
+    zb = r.z + int(course * r.rise + 1e-9)
+    depth = h + 1
+    xs = (xf - depth + 1, xf + 1) if side == "x+" else (xf, xf + depth)
+    v.box(xs[0], a0, zb, xs[1], a1, zb + h, wall)
+    f = _p.Face(v, side, xs[1] - 1 if side == "x+" else xs[0])
+    _d.casement(f, a0 + 1, zb + 1, a1 - a0 - 2, h - 2, frame, sill=frame, bars=False)
+    _d.roof(v, xs[0], xs[1], a0, a1, zb + h, kind, along="x", ov=1, gable=wall, eaves=False, cap=False, m=m, ridge=ridge, shades=shades, verge=verge)
+
+
+def arched_window(f, a, z, w=4, h=8, frame=None, glass=WINDOW, mullion=True, shutters=None, key=True):
+    """
+    A tall two-light window with a round head: dark glass one voxel back, a
+    light surround in the wall plane, the upper corners closed (the arch), a
+    light mullion and transom, a sill one voxel proud and a keystone.
+    """
+    frame = frame or _d.DRESSED
+    for i in range(-1, w + 1):
+        for j in range(-1, h + 1):
+            inside = 0 <= i < w and 0 <= j < h
+            if inside and j == h - 1 and i in (0, w - 1):
+                inside = False  # the arch's springers
+            if inside:
+                f.put(a + i, z + j, None)
+                f.put(a + i, z + j, glass, out=-1)
+            else:
+                f.put(a + i, z + j, frame)
+    if mullion:
+        for j in range(h - 1):
+            f.put(a + w // 2, z + j, frame, out=-1)
+            if w % 2 == 0:
+                f.put(a + w // 2 - 1, z + j, frame, out=-1)
+        for i in range(w):
+            f.put(a + i, z + (h * 2) // 3, frame, out=-1)
+    for i in range(-1, w + 1):
+        f.put(a + i, z - 1, frame, out=1)
+    if key:
+        f.put(a + (w - 1) // 2, z + h, frame, out=1)
+        if w % 2 == 0:
+            f.put(a + w // 2, z + h, frame, out=1)
+    if shutters is not None:
+        for j in range(h - 1):
+            c = shade_of(shutters, 1.0 if j % 2 == 0 else 0.88)
+            f.put(a - 2, z + j, c, out=1)
+            f.put(a + w + 1, z + j, c, out=1)
+
+
+def round_window(f, a, z, r=2, frame=None, glass=WINDOW):
+    """A small round window (an oculus) in a gable field: a ring of `frame` around dark glass, 2r+1 voxels across, centred on (a, z)."""
+    frame = frame or _d.DRESSED
+    for i in range(-r - 1, r + 2):
+        for j in range(-r - 1, r + 2):
+            d = (i * i + j * j) ** 0.5
+            if d <= r + 0.5 - 0.3 * 0:
+                f.put(a + i, z + j, None)
+                f.put(a + i, z + j, glass, out=-1)
+            elif d <= r + 1.5:
+                f.put(a + i, z + j, frame)
+
+
+def round_arcade(f, a0, a1, z0, h, bay=6, pier=2, depth=3, back=None, pier_m=None):
+    """
+    Open round-headed arches along a facade from a0 to a1: openings `bay`
+    voxels wide between piers `pier` wide, `h` high with a semicircular head
+    (spring at h − bay/2), cut `depth` voxels deep with a shaded back wall;
+    piers optionally re-faced in `pier_m` with a light impost at the spring.
+    """
+    back = back or shade_of(PLASTER, 0.6)
+    rad = bay / 2.0
+    spring = h - bay // 2
+    a = a0 + pier
+    while a + bay <= a1 - pier + 1:
+        for i in range(bay):
+            dx = i + 0.5 - rad
+            top = spring + int((rad * rad - dx * dx) ** 0.5 + 0.5)
+            top = min(top, h)
+            for j in range(top):
+                for k in range(depth):
+                    f.put(a + i, z0 + j, None, out=-k)
+                f.put(a + i, z0 + j, back, out=-depth)
+        if pier_m is not None:
+            for j in range(h + 1):
+                for p in range(1, pier + 1):
+                    f.put(a - p, z0 + j, pier_m)
+            for p in range(1, pier + 1):
+                f.put(a - p, z0 + spring, _d.DRESSED, out=1)
+        a += bay + pier
+    if pier_m is not None:
+        for j in range(h + 1):
+            for p in range(1, pier + 1):
+                f.put(a - p, z0 + j, pier_m)
+        for p in range(1, pier + 1):
+            f.put(a - p, z0 + spring, _d.DRESSED, out=1)

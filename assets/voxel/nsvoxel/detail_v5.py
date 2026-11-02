@@ -116,7 +116,7 @@ class Palazzo:
         return P.span(side, x0, y0, x1, y1)
 
 
-def palazzo(v, x0, y0, x1, y1, storeys=(8, 6, 6), z0=1, upper=PLASTER, base=ASHLAR, roof=TERRACOTTA, kind="tiles", along="x", hip=False, rise=None, ov=1, seed=0, ridge=None, gable=None, quoins=False, plinth_out=0):
+def palazzo(v, x0, y0, x1, y1, storeys=(8, 6, 6), z0=1, upper=PLASTER, base=ASHLAR, roof=TERRACOTTA, kind="tiles", along="x", hip=False, rise=None, ov=1, seed=0, ridge=None, gable=None, quoins=False, plinth_out=0, shades=None, verge=0.9):
     """
     A Patrician block (D-057 §3, tier language "dressed stone, ornament,
     three storeys"): a plinth band at z0 (flush; plinth_out=1: proud), an ashlar ground floor
@@ -139,7 +139,7 @@ def palazzo(v, x0, y0, x1, y1, storeys=(8, 6, 6), z0=1, upper=PLASTER, base=ASHL
         z += h
     for fz in floors[1:]:
         string_course(v, x0, y0, x1, y1, fz)
-    r = P.roof(v, x0, x1, y0, y1, z, kind, along=along, rise=rise, ov=ov, gable=gable or upper, seed=seed, hip=hip, m=roof, ridge=ridge)
+    r = P.roof(v, x0, x1, y0, y1, z, kind, along=along, rise=rise, ov=ov, gable=gable or upper, seed=seed, hip=hip, m=roof, ridge=ridge, shades=shades, verge=verge)
     if ov <= 1:
         string_course(v, x0, y0, x1, y1, z - 1, DRESSED)
     return Palazzo(v, (x0, y0, x1, y1), floors, z, r)
@@ -281,7 +281,7 @@ def finial(v, x, y, z, m=BRASS, h=2):
         v.set(x, y, z + k, shade_of(m, 0.92))
 
 
-def tower(v, x0, y0, x1, y1, z0, z1, wall=ASHLAR, roof=TERRACOTTA, kind="tiles", rise=2.0, seed=0, finial_m=BRASS, cornice_m=DRESSED, plaster=False):
+def tower(v, x0, y0, x1, y1, z0, z1, wall=ASHLAR, roof=TERRACOTTA, kind="tiles", rise=2.0, seed=0, finial_m=BRASS, cornice_m=DRESSED, plaster=False, shades=None, verge=0.9, finial_h=2):
     """
     A square tower x0..x1 × y0..y1 from z0 to z1: ashlar (or flat
     plaster), a cornice under a steep pyramid roof (hip roof with
@@ -292,9 +292,9 @@ def tower(v, x0, y0, x1, y1, z0, z1, wall=ASHLAR, roof=TERRACOTTA, kind="tiles",
     else:
         ashlar(v, x0, y0, x1, y1, z0, z1, wall, shade_of(wall, 0.91))
     string_course(v, x0, y0, x1, y1, z1 - 1, cornice_m)
-    r = P.roof(v, x0, x1, y0, y1, z1, kind, hip=True, rise=rise, m=roof, seed=seed, eaves=False)
+    r = P.roof(v, x0, x1, y0, y1, z1, kind, hip=True, rise=rise, m=roof, seed=seed, eaves=False, shades=shades, verge=verge)
     if finial_m is not None:
-        finial(v, (x0 + x1) // 2, (y0 + y1) // 2, r.top, finial_m)
+        finial(v, (x0 + x1) // 2, (y0 + y1) // 2, r.top, finial_m, h=finial_h)
     return r
 
 
