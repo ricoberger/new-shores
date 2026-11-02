@@ -44,4 +44,5 @@ def build(ctx):
     P.lamp_post(v, 16, 40)
     v.anchor("cart", 8, 44, 1)
     P.scatter(v, 0, 0, 40, 34, 0.01, seed=seed, kinds=("pebble", "tuft"))
+    P.tie_floating(v)
     return P.colour_jitter(v, seed=seed)

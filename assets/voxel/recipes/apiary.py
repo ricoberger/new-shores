@@ -23,7 +23,7 @@ def skep(v, x, y, z):
 def build(ctx):
     v = ctx.vox()  # 40 × 40
     seed = 67
-    P.yard(v, 0, 0, 40, 40, "grass", seed=seed)
+    P.yard(v, 12, 32, 28, 40, "dirt", seed=seed)  # the cart yard at the gate
     b = P.building(v, 3, 3, 17, 13, "settler", along="x", seed=seed, spacing=5, braces=("x-", "x+"))
     f = b.face("y+")
     P.entrance(f, 8, 2, 3, 5)

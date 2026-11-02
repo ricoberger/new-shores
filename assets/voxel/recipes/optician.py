@@ -58,4 +58,5 @@ def build(ctx):
     P.lamp_post(v, 2, 28, h=7)
     P.handcart(v, 22, 28, 1, along="x", load=WINDOW)
     v.anchor("cart", 30, 30, 1)
+    P.tie_floating(v)
     return P.colour_jitter(v, seed=seed)

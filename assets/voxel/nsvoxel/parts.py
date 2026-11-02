@@ -70,14 +70,29 @@ def span(side, x0, y0, x1, y1):
 # ---------------------------------------------------------------- ground
 
 
-def yard(v, x0, y0, x1, y1, kind="grass", z=0, seed=0):
-    """The one-voxel ground plate of a yard (the footprint's plinth): grass, dirt, paved, sand or planks."""
+def yard(v, x0, y0, x1, y1, kind="grass", z=0, seed=0, blob=True):
+    """
+    The ground of a yard. "grass" lays nothing: the model stands on the terrain
+    (V7). Hard yards — "paved" (flagstones), "dirt" (an irregular blob, not the
+    whole rectangle; blob=False: the whole rectangle, for water models whose posts stand on it), "sand", "planks" or a material — are one-voxel plates at
+    z; "turf" is the old grass plate (fields, which keep theirs, and the water
+    models' land rows).
+    """
+    if kind == "grass":
+        return
+    big = blob and min(x1 - x0, y1 - y0) > 8
     for x in range(x0, x1):
         for y in range(y0, y1):
+            if kind == "dirt" and big:
+                # A blob: the edge falls away by 0–3 voxels in patches of 3 × 3 voxels.
+                edge = min(x - x0, x1 - 1 - x, y - y0, y1 - 1 - y)
+                reach = abs(2 * x - (x0 + x1 - 1)) <= 3 or abs(2 * y - (y0 + y1 - 1)) <= 3  # two tongues keep the full extent
+                if not reach and edge < int(hash3(x // 3, y // 3, z, seed + 7) * 4):
+                    continue
             # Patches of 4 × 4 voxels (one per half tile) between the two grasses; dirt and sand are one flat colour
             # (D-057 V3b: the per-voxel variety is the client shader's).
             h = hash3(x // 4, y // 4, z, seed)
-            if kind == "grass":
+            if kind == "turf":
                 m = GRASS_A if h < 0.6 else GRASS_B
                 if hash3(x, y, z, seed + 1) < 0.015:
                     m = FLOWER
@@ -484,6 +499,40 @@ def smoke(v, x, y, z0, z1, **kw):
     v.anchor("chimney", s[0], s[1], s[2] - 1)
     v.anchor("smoke", *s)
     return s
+
+
+def tie_floating(v, ground=1):
+    """
+    Ties every floating prop of a recipe grid to what it hangs from: for each component of voxels
+    (touching by a face, edge or corner) that never reaches z ≤ `ground` — the recipe's first
+    standing layer, 1 on land (the build lowers it to the terrain) and 0 on water rows — one
+    voxel of the component's own material is added between its nearest cell and the nearest cell
+    outside it (a bracket, an axle, a post). Gaps wider than one voxel are left for the checker
+    (model.check_grid reports them) to flag. Returns v.
+    """
+    from .model import floating_cells
+
+    for _ in range(8):
+        comps = floating_cells(v.cells, ground)
+        if not comps:
+            break
+        for comp in comps:
+            own = set(comp)
+            best = None
+            for (x, y, z) in comp:
+                for dx in range(-2, 3):
+                    for dy in range(-2, 3):
+                        for dz in range(-2, 3):
+                            n = (x + dx, y + dy, z + dz)
+                            if n in v.cells and n not in own:
+                                d = (max(abs(dx), abs(dy), abs(dz)), abs(dx) + abs(dy) + abs(dz), (x, y, z), n)
+                                if best is None or d < best:
+                                    best = d
+            if best and best[0] == 2:
+                a, n = best[2], best[3]
+                mid = tuple((a[i] + n[i]) // 2 for i in range(3))
+                v.set(*mid, v.cells[a])
+    return v
 
 
 from .detail import *  # noqa: E402,F401,F403  (the v2 helpers at D-057 §3 detail)

@@ -51,8 +51,8 @@ describe("voxel colour jitter", () => {
   });
 
   it("finds the classes in the shipped models", () => {
-    // A Settler house: stone, roof (thatch), plaster and timber; a window has none.
-    const house = new Set([...alphas("house_settlers.v0.glb")].map((a) => jitterClass(a / 255)));
+    // A Citizen house: stone, roof (tiles), plaster and timber; a window has none.
+    const house = new Set([...alphas("house_citizens.v0.glb")].map((a) => jitterClass(a / 255)));
     for (const c of [1, 2, 3, 4]) expect(house.has(c), `class ${c}`).toBe(true);
     // A tree's leaves sway (class 8), its trunk is wood.
     const tree = new Set([...alphas("decor_tree_a.glb")].map((a) => jitterClass(a / 255)));

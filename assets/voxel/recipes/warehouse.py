@@ -83,6 +83,7 @@ def build(ctx):
     P.handcart(v, 28, 40, 1, along="x", load=CANVAS)
     v.anchor("cart", 34, 44, 1)
     P.scatter(v, 0, 0, 48, 48, 0.015, seed=seed, kinds=("pebble", "tuft"))
+    P.tie_floating(v)
     return P.colour_jitter(v, seed=seed)
 
 

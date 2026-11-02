@@ -35,8 +35,8 @@ def build(ctx):
     v.anchor("boat", 8.4, 11.2, 0.4)
     # Shore and yard.
     P.yard(v, 0, land, W, land + 6, "sand", seed=seed)
-    P.yard(v, 0, land + 6, W, D, "dirt", seed=seed)
-    P.yard(v, 0, D - 8, W, D, "grass", seed=seed)
+    P.yard(v, 0, land + 6, W, D, "dirt", seed=seed, blob=False)
+    P.yard(v, 0, D - 8, W, D, "turf", seed=seed)
     P.path(v, [(x, y) for x in range(10, 14) for y in range(land, D)])
     # Hut: timber frame and thatch, door toward the road.
     b = P.building(v, 2, 31, 15, 43, "settler", along="y", wall=PLASTER_WARM, seed=seed, spacing=5, braces=("x-", "x+"))

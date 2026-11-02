@@ -59,4 +59,5 @@ def build(ctx):
     P.crop_rows(v, 19, 23, 29, 27, "cabbage", along="x", pitch=2, seed=52)
     v.anchor("cart", 24, 44, 1)
     P.scatter(v, 0, 20, 32, 48, 0.03, seed=52)
+    P.tie_floating(v)
     return P.colour_jitter(v, seed=52)

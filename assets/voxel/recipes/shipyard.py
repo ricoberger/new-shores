@@ -40,7 +40,7 @@ def build(ctx):
     for x in range(W):
         if not 10 <= x < 32:
             v.box(x, land, -2, x + 1, land + 2, 1, STONE_DARK if x % 4 else STONE)
-    P.yard(v, 0, land + 2, W, D, "dirt", seed=seed)
+    P.yard(v, 0, land + 2, W, D, "dirt", seed=seed, blob=False)
     # A hull's ribs on the stocks at the head of the slip.
     for y in range(land - 6, land + 14, 3):
         hw = 6 - abs(y - (land + 4)) // 4
@@ -60,6 +60,9 @@ def build(ctx):
                     v.set(x - 1 - k, y, 13 - k, TIMBER)
     v.box(8, land + 20, 14, 35, land + 22, 15, TIMBER_DARK)
     v.box(8, land + 34, 14, 35, land + 36, 15, TIMBER_DARK)
+    # Wall plates carry the eaves of the thin roof shell on the tie beams.
+    v.box(8, land + 18, 14, 35, land + 20, 15, TIMBER_DARK)
+    v.box(8, land + 36, 14, 35, land + 38, 15, TIMBER_DARK)
     P.roof(v, 8, 35, land + 19, land + 37, 15, "thatch", along="x", ov=1, seed=seed, solid=False, gable=None)
     # Workshop with chimney on the east.
     b = P.building(v, 40, land + 20, 60, land + 36, "stone", along="y", seed=seed)
@@ -93,4 +96,5 @@ def build(ctx):
     P.handcart(v, 24, land + 50, 1, along="x", load=PLANK)
     P.sawhorse(v, 14, land + 50, 1, along="x")
     P.scatter(v, 0, land + 2, W, D, 0.012, seed=seed, kinds=("pebble", "tuft"))
+    P.tie_floating(v, ground=0)
     return P.colour_jitter(v, seed=seed)

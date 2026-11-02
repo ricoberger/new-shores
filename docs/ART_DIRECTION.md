@@ -392,6 +392,17 @@ openings, the props that say what the building does, the anchors, then
 `P.scatter(...)` and `return P.colour_jitter(v, seed=…)` (a no-op since
 V3b — kept for the signature) — about 40–70 lines.
 
+**Ground (V7):** a building stands on the terrain; there is no grass plate.
+`P.yard(..., "grass")` lays nothing, hard yards are 1-voxel plates at z = 0
+(`"paved"`, `"sand"`, `"planks"`, a material; `"dirt"` is an irregular blob,
+`blob=False` for the whole rectangle where posts stand on it) and `"turf"` is
+the old grass plate for fields and the water models' land rows. A recipe still
+authors its first layer at z = 1; the build (`model.lower_to_terrain`) lowers
+everything from z = 1 up by one voxel on buildings without water rows, so walls,
+props and tufts start at z = 0 and overwrite the plate under them. The checker
+reports voxels not connected to the ground (`floating voxels`); fix a one-voxel
+gap with `P.tie_floating(v)` (water models: `ground=0`) or a real support.
+
 - **Building:** `b = P.building(v, x0, y0, x1, y1, style, along=…)`
   with style `settler` (pegged timber frame, plaster, thatch),
   `citizen` (coursed-stone ground floor with dressed quoins, jettied
@@ -491,7 +502,7 @@ V3b — kept for the signature) — about 40–70 lines.
   `hood` (`V.COPPER`); `drying_frame` (cloth sway), `hide_frame`,
   `louvres`, `brick_stack`, `stack`, `hanging`; `heap`, `mine_hill`
   (seam bands), `terraces` (a pit's banks — models never go below the
-  ground plate, so open them toward the camera, y+ and x−), `hop_pole`,
+  terrain, so open them toward the camera, y+ and x−), `hop_pole`,
   `leafy_rows`. The default view looks from the front-west: put
   signature parts on the y+ and x− sides.
 

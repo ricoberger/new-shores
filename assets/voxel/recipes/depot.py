@@ -234,7 +234,7 @@ def build(ctx):
     seed = 87
     W, D_ = ctx.W, ctx.D
     # The beach: the land rows' ground plate with the paved way from the ramp to the door.
-    P.yard(v, 0, LAND_Y, W, D_, "dirt", seed=seed)
+    P.yard(v, 0, LAND_Y, W, D_, "dirt", seed=seed, blob=False)
     P.path(v, [(x, y) for x in range(14, 19) for y in range(PY1, D_)], kind="paved")
     platform(v)
     walkways(v)

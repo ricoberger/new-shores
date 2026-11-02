@@ -50,8 +50,8 @@ def build(ctx):
     v.anchor("boat", 30.4, 6.4, 0.4)
     # Shore, yard and paths.
     P.yard(v, 0, land, W, land + 5, "sand", seed=seed)
-    P.yard(v, 0, land + 5, W, D, "dirt", seed=seed)
-    P.yard(v, 0, D - 10, 20, D, "grass", seed=seed)
+    P.yard(v, 0, land + 5, W, D, "dirt", seed=seed, blob=False)
+    P.yard(v, 0, D - 10, 20, D, "turf", seed=seed)
     P.path(v, [(x, y) for x in range(22, 26) for y in range(land, D)], kind="paved")
     # Sorting hut: ashlar, tiles, a chimney-less hipped roof.
     b = P.building(v, 3, 40, 19, 54, "stone", along="x", height=11, roof=ROOF, seed=seed)
@@ -100,4 +100,5 @@ def build(ctx):
     v.anchor("cart", 24, 92, 1)
     P.scatter(v, 0, land + 5, W, D, 0.015, seed=seed)
     _ = STONE_DARK
+    P.tie_floating(v, ground=0)
     return P.colour_jitter(v, seed=seed)

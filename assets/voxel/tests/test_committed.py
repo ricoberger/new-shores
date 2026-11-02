@@ -163,8 +163,9 @@ class CommittedTest(unittest.TestCase):
             self.assertGreaterEqual(mn[0], -w / 2 - slack, cid)
             self.assertLessEqual(mx[2], h / 2 + slack, cid)
             self.assertGreaterEqual(mn[2], -h / 2 - slack, cid)
-            self.assertGreaterEqual(mx[0] - mn[0], w - 0.3, cid)
-            self.assertGreaterEqual(mx[2] - mn[2], h - 0.3, cid)
+            # No grass plate to reach the plot's edges any more (V7: buildings stand on the terrain): up to a tile short.
+            self.assertGreaterEqual(mx[0] - mn[0], w - 1.0, cid)
+            self.assertGreaterEqual(mx[2] - mn[2], h - 1.0, cid)
             self.assertLessEqual(mn[1], 0.05, cid)
 
     def test_life_anchors(self):

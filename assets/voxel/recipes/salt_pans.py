@@ -68,7 +68,7 @@ def build(ctx):
     for x in range(W):
         v.box(x, land, -2, x + 1, land + 1, 1, STONE_DARK if x % 4 else STONE)
     P.yard(v, 0, land + 1, W, D, "sand", seed=seed)
-    P.yard(v, 0, land + 30, W, D, "dirt", seed=seed)
+    P.yard(v, 0, land + 30, W, D, "dirt", seed=seed, blob=False)
     V.heap(v, 11, 36, r=7.5, h=9, m=SALT, seed=seed, ragged=0.35)
     for x in range(4, 19, 4):
         v.box(x, 44, 1, x + 1, 45, 4, TIMBER_LIGHT)  # a rake leaning on the heap's foot

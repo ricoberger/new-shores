@@ -52,7 +52,7 @@ def build(ctx):
     # Quay edge of dressed stone, then the yard.
     for x in range(W):
         v.box(x, land, -2, x + 1, land + 2, 1, STONE_DARK if x % 4 else STONE)
-    P.yard(v, 0, land + 2, W, D, "dirt", seed=seed)
+    P.yard(v, 0, land + 2, W, D, "dirt", seed=seed, blob=False)
     P.path(v, [(x, y) for x in range(20, 28) for y in range(land + 2, D)], kind="paved")
     for k, x in enumerate((24 - 6, 24 + 6, 24 - 18, 24 + 18)):
         v.anchor(f"berth_{k + 1}", x, 1.2, 0.48)
@@ -88,7 +88,7 @@ def build(ctx):
                 else:
                     P.casement(b.face("y+"), a, zt - 5, 2, 2, frame=None, sill=TIMBER_LIGHT, shutters=TIMBER_LIGHT, bars=False)
         # Hoist beam in the gable.
-        v.box((x0 + x1) // 2, y0 - 3, top - 4, (x0 + x1) // 2 + 1, y0, top - 3, TIMBER)
+        v.box((x0 + x1) // 2, y0 - 3, top - 4, (x0 + x1) // 2 + 1, y0 + 3, top - 3, TIMBER)
         v.box((x0 + x1) // 2, y0 - 3, top - 8, (x0 + x1) // 2 + 1, y0 - 2, top - 4, IRON)
     if lv == 4:
         # Counting house with a flag tower on the east side.
@@ -123,4 +123,5 @@ def build(ctx):
     v.anchor("door", 24, 48, 0)
     v.anchors.pop("status", None)
     P.scatter(v, 0, land + 2, W, D, 0.015, seed=seed, kinds=("pebble", "tuft"))
+    P.tie_floating(v, ground=0)
     return P.colour_jitter(v, seed=seed)

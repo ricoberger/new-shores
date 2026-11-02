@@ -131,16 +131,64 @@ def check_grid(v, ctx, needed):
         floor = -2 * ctx.vpt if ctx.water else 0
         if z0 < floor:
             problems.append(f"below the ground: z {z0}")
+    if ctx.kind == "building":
+        for comp in floating_cells(v.cells):
+            lo, hi = min(comp), max(comp)
+            problems.append(f"floating voxels: {len(comp)} cells not connected to the ground, from {lo} to {hi}")
     missing = [a for a in needed if a not in v.anchors]
     if missing:
         problems.append(f"missing anchors {', '.join(missing)}")
     return problems
 
 
+def lower_to_terrain(v):
+    """
+    V7: a building stands on the terrain, not on a one-voxel grass plate. A recipe still
+    authors with its first layer at z = 1 (the layer above the yard plate at z = 0); the build
+    lowers everything from z = 1 up by one voxel, so walls, props and tufts start at z = 0 and
+    the hard-yard plates (paved, dirt, sand, planks; `parts.yard`) remain as one-voxel plates
+    under and beside them, overwritten where something stands on them. Anchors drop with the cells.
+    """
+    cells = {k: m for k, m in v.cells.items() if k[2] < 1}
+    for (x, y, z), m in v.cells.items():
+        if z >= 1:
+            cells[(x, y, z - 1)] = m
+    v.cells = cells
+    v.anchors = {n: (p[0], p[1], p[2] - 1 if p[2] >= 1 else p[2]) for n, p in v.anchors.items()}
+    return v
+
+
+def floating_cells(cells, ground=0):
+    """The voxels of every component (voxels touching by a face, an edge or a corner) that does not reach the ground (z ≤ `ground`), sorted."""
+    seen = set()
+    out = []
+    for start in sorted(cells):
+        if start in seen:
+            continue
+        comp, stack, grounded = [], [start], False
+        seen.add(start)
+        while stack:
+            c = stack.pop()
+            comp.append(c)
+            if c[2] <= ground:
+                grounded = True
+            x, y, z = c
+            for n in ((x + i, y + j, z + k) for i in (-1, 0, 1) for j in (-1, 0, 1) for k in (-1, 0, 1)):
+                if n in cells and n not in seen:
+                    seen.add(n)
+                    stack.append(n)
+        if not grounded:
+            out.append(sorted(comp))
+    return out
+
+
 def build_grid(recipe, kind, key, ctx):
-    """The grid of one output: the recipe's, or its cargo attachment's."""
+    """The grid of one output: the recipe's, or its cargo attachment's; buildings without water rows are lowered onto the terrain."""
     fn = recipe["cargo"] if key and key[0] == "attachment" else recipe["build"]
-    return fn(ctx)
+    v = fn(ctx)
+    if kind == "building" and not ctx.water and not (key and key[0] == "attachment"):
+        lower_to_terrain(v)
+    return v
 
 
 def sway_groups(cells):
