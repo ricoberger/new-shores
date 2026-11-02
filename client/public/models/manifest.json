@@ -12313,9 +12313,9 @@
     "thread_spinner": {
       "anchors": {
         "cart": [
-          -0.5,
+          -0.3333,
           0.0,
-          -1.875
+          -1.5
         ],
         "door": [
           0.0,
@@ -12324,18 +12324,18 @@
         ],
         "status": [
           0.0,
-          2.25,
+          4.0,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.375,
-          2.0,
-          1.75
+          1.4167,
+          3.75,
+          1.9167
         ],
         "min": [
-          -1.375,
+          -1.5,
           0.0,
           -1.75
         ]
@@ -12343,18 +12343,18 @@
       "file": {
         "bounds": {
           "max": [
-            1.375,
-            2.0,
-            1.75
+            1.4167,
+            3.75,
+            1.9167
           ],
           "min": [
-            -1.375,
+            -1.5,
             0.0,
             -1.75
           ]
         },
         "budget": 6000,
-        "bytes": 72548,
+        "bytes": 68616,
         "ground": [
           [
             "none",
@@ -12380,32 +12380,32 @@
         "lite": {
           "bounds": {
             "max": [
-              1.5,
-              2.0,
-              2.0
+              1.0,
+              3.5,
+              1.5
             ],
             "min": [
-              -1.5,
+              -1.0,
               0.0,
               -2.0
             ]
           },
           "budget": 480,
-          "bytes": 7920,
+          "bytes": 5424,
           "path": "thread_spinner.lite.glb",
-          "sha256": "b552e6f51a082dabd4f4776ad1d2247f8df6a70d1261dff96c908f7372848ecd",
-          "triangles": 198
+          "sha256": "f560d88d43130f32a49c418ebea158abf0321c553945180723eef50e4fb0a6d9",
+          "triangles": 118
         },
         "path": "thread_spinner.glb",
-        "sha256": "000eb1cc3d619caef5ee402fd52c5f43184fa7855298ed6336d7c318c688c647",
-        "triangles": 2160
+        "sha256": "5f86b4a9d153be9dec25d3350cbe0365e5d1da0b49070f8bc4842ff00e440699",
+        "triangles": 2096
       },
       "footprint": {
         "h": 4,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "toolmaker": {
       "anchors": {
