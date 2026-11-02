@@ -9040,14 +9040,14 @@
     "oyster_house": {
       "anchors": {
         "cart": [
+          -0.8333,
           0.0,
-          0.0,
-          -2.75
+          -2.6667
         ],
         "chimney": [
-          2.25,
-          3.75,
-          1.25
+          -2.0833,
+          4.1667,
+          2.0833
         ],
         "door": [
           0.0,
@@ -9055,78 +9055,78 @@
           -3.0
         ],
         "smoke": [
-          2.25,
-          3.875,
-          1.25
+          -2.0833,
+          4.25,
+          2.0833
         ],
         "status": [
           0.0,
-          4.125,
+          4.3333,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.875,
-          3.875,
-          2.5
+          3.0,
+          4.0833,
+          3.0
         ],
         "min": [
-          -2.875,
+          -3.0,
           0.0,
-          -2.75
+          -2.9167
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.875,
-            3.875,
-            2.5
+            3.0,
+            4.0833,
+            3.0
           ],
           "min": [
-            -2.875,
+            -3.0,
             0.0,
-            -2.75
+            -2.9167
           ]
         },
         "budget": 18000,
-        "bytes": 124888,
+        "bytes": 150248,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
+            "none",
             "paved",
+            "paved",
+            "paved",
+            "paved",
+            "none"
+          ],
+          [
+            "none",
             "paved",
             "paved",
             "paved",
@@ -9134,43 +9134,43 @@
             "paved"
           ],
           [
+            "none",
+            "none",
             "paved",
             "paved",
             "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              3.0,
-              3.5,
+              2.5,
+              4.0,
               2.5
             ],
             "min": [
-              -3.0,
+              -2.5,
               0.0,
-              -3.0
+              -2.5
             ]
           },
           "budget": 1440,
-          "bytes": 18504,
+          "bytes": 9336,
           "path": "oyster_house.lite.glb",
-          "sha256": "a9672ed9c0e146ffe14bb319cde0e69782919265359692eab1e9a66b099ad821",
-          "triangles": 514
+          "sha256": "f8c51dd5f4ad7db5658184f7d8eca884a7bf8dbd23e07c4f34bf8763aa113eb6",
+          "triangles": 232
         },
         "path": "oyster_house.glb",
-        "sha256": "e6fe243931a9811826a89e61ad78d60fdb83984a04e36c0e22d7db6e1ca01f02",
-        "triangles": 3790
+        "sha256": "a993adbc4011967a89a353f07cbad2032aa2aaa5dd0cb103eaef4f609d790a8d",
+        "triangles": 4576
       },
       "footprint": {
         "h": 6,
         "w": 6
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "paper_mill": {
       "anchors": {
