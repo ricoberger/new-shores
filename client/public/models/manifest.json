@@ -3261,12 +3261,12 @@
     "charcoal_burner": {
       "anchors": {
         "cart": [
-          1.75,
+          0.3333,
           0.0,
-          -2.625
+          -2.6667
         ],
         "chimney": [
-          -1.125,
+          -1.25,
           1.0,
           1.5
         ],
@@ -3276,50 +3276,57 @@
           -3.0
         ],
         "smoke": [
-          -1.125,
-          1.125,
+          -1.25,
+          1.0833,
           1.5
         ],
         "status": [
           0.0,
-          2.875,
+          2.9167,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.125,
-          2.625,
-          2.375
+          2.5,
+          2.6667,
+          3.0
         ],
         "min": [
-          -2.375,
+          -2.5,
           0.0,
-          -2.875
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.125,
-            2.625,
-            2.375
+            2.5,
+            2.6667,
+            3.0
           ],
           "min": [
-            -2.375,
+            -2.5,
             0.0,
-            -2.875
+            -3.0
           ]
         },
         "budget": 15000,
-        "bytes": 104432,
+        "bytes": 271280,
         "ground": [
           [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
             "dirt",
@@ -3336,25 +3343,18 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
+            "none",
+            "none",
             "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none"
           ]
         ],
         "lite": {
@@ -3371,21 +3371,21 @@
             ]
           },
           "budget": 1200,
-          "bytes": 10540,
+          "bytes": 9140,
           "path": "charcoal_burner.lite.glb",
-          "sha256": "9758c622dbabdba1ee5aa56d2ab5fc125de7e542c3baa708bd649636538fd168",
-          "triangles": 274
+          "sha256": "0549888b2ab792da2f15e8f349a6673ec51cede6e69433261c142d4071873b00",
+          "triangles": 246
         },
         "path": "charcoal_burner.glb",
-        "sha256": "23079f12253d5290a1edc15c867cc199517619fec4f08d76d9c9a091ebc847e9",
-        "triangles": 3156
+        "sha256": "c11c30c9df9a8917a02faab0ff060f6c6a79ffeedf62f1064af9f8718ec57263",
+        "triangles": 8282
       },
       "footprint": {
         "h": 6,
         "w": 5
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "cheese_dairy": {
       "anchors": {

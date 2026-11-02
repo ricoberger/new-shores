@@ -1,20 +1,25 @@
 """
-Charcoal burner (5 × 6; D-057 §3): three earth-covered kilns with a
-sooty base, moss and turf patches, one smoking through its vent (the
-smoke); billets stacked for the next kiln, a ladder against a kiln, a
-burner's hut with a timber frame and thatch, charcoal sacks and a cart.
+Charcoal burner (5 × 6; V7 rework after the Anno 1404 charcoal burner's
+hut, tier II): three big earth-covered kilns on stakes with a sooty base,
+moss and turf patches, one smoking through its vent (the smoke); billets
+stacked for the next kiln, a ladder against a kiln, a half-timbered burner's
+hut under terracotta, a heap of black charcoal and a cart. 12 voxels per tile.
 """
 
 import math
 
 from nsvoxel import parts as P
+from nsvoxel import parts_kit as K
 from nsvoxel.grid import hash3
-from nsvoxel.mats import MOSS, PLANK, TIMBER_LIGHT
+from nsvoxel.mats import MOSS, TIMBER_DARK
+
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
 
 EARTH = P.mat("rock-deep", 0.9)
 TURF = P.mat("grass-b", 0.75)
 SOOT = P.mat("iron", 0.8)
-CHARCOAL = P.mat("iron", 0.7)
+CHARCOAL = P.mat("iron", 0.62)
 
 
 def kiln(v, cx, cy, r, h, seed):
@@ -22,51 +27,34 @@ def kiln(v, cx, cy, r, h, seed):
         if z <= 1:
             return SOOT
         hh = hash3(x, y, z, seed)
-        if z >= h - 2 and hh < 0.35:
+        if z >= h - 3 and hh < 0.35:
             return MOSS
         return TURF if hh > 0.86 else EARTH
 
     v.ellipsoid(cx, cy, 0, r, r, h, m, keep=lambda x, y, z: z >= 1)
-    # Vent holes round the base.
-    for k in range(6):
-        a = k * 1.047 + seed
-        x, y = int(cx + math.cos(a) * (r - 0.4)), int(cy + math.sin(a) * (r - 0.4))
-        v.set(x, y, 1, CHARCOAL)
-
-GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+    for k in range(10):  # stakes round the base
+        a = k * 0.628 + seed
+        x, y = int(cx + math.cos(a) * (r + 0.6)), int(cy + math.sin(a) * (r + 0.6))
+        v.box(x, y, 1, x + 1, y + 1, 5, TIMBER_DARK)
 
 
 def build(ctx):
-    v = ctx.vox()  # 40 × 48
+    v = ctx.vox()  # 60 × 72
     seed = 54
-    P.yard(v, 0, 0, 40, 48, "dirt", seed=seed)
-    for x in range(40):
-        for y in range(48):
-            if hash3(x // 3, y // 3, 5, seed) < 0.18:
-                v.set(x, y, 0, P.mat("road-dirt", 0.8))
-    kiln(v, 11, 12, 7, 7, 1)
-    kiln(v, 28, 11, 6, 6, 2)
-    kiln(v, 26, 27, 5.5, 5, 3)
-    P.chimney_stack(v, 10, 11, 6, 8, m=SOOT, cap=EARTH, pots=0, anchor=True)
-    P.ladder(P.Face(v, "y+", 16), 27, 1, 6)
-    # Billets stacked for the next kiln, a pile of finished charcoal.
-    P.log_stack(v, 4, 24, 1, length=12, along="x", n=3)
-    P.woodpile(v, 4, 31, 1, length=10, along="x", rows=3)
-    for x in range(30, 36):
-        for y in range(36, 41):
-            h = 1 + (1 if hash3(x, y, 9, seed) < 0.5 else 0) + (1 if 31 < x < 35 and 36 < y < 40 else 0)
+    K.ground(v, 30, 36, 26, 30, seed)
+    kiln(v, 16, 18, 10, 11, 1)
+    kiln(v, 42, 16, 9, 10, 2)
+    kiln(v, 40, 42, 8, 8, 3)
+    P.chimney_stack(v, 14, 17, 9, 12, m=SOOT, cap=EARTH, pots=0, anchor=True)
+    P.ladder(P.Face(v, "y+", 27), 38, 1, 8)
+    P.log_stack(v, 6, 40, 1, length=16, along="x", n=3)
+    P.woodpile(v, 6, 48, 1, length=14, along="x", rows=3)
+    for x in range(44, 54):
+        for y in range(52, 60):
+            h = 1 + (1 if hash3(x, y, 9, seed) < 0.5 else 0) + (2 if 47 < x < 52 and 54 < y < 58 else 0)
             v.box(x, y, 1, x + 1, y + 1, 1 + h, CHARCOAL)
-    # Burner's hut.
-    b = P.building(v, 4, 37, 16, 45, "settler", along="x", seed=seed, spacing=5, braces=("x-", "x+"))
-    f = b.face("y+")
-    P.entrance(f, 8, 2, 3, 5)
-    P.casement(f, 13, 5, 2, 2, frame=None, sill=TIMBER_LIGHT, shutters=TIMBER_LIGHT, bars=False)
-    P.roof_chimney(v, b.roof, 6, 40, above=2)
-    P.sacks(v, 19, 38, 1, n=3, m=P.mat("canvas", 0.8))
-    P.sacks(v, 19, 41, 1, n=2, m=P.mat("canvas", 0.8))
-    P.handcart(v, 25, 40, 1, along="x", load=CHARCOAL)
-    P.cask(v, 1, 44, 1)
-    P.box_crate(v, 17, 45, 1, m=PLANK)
-    v.anchor("cart", 34, 45, 1)
-    P.scatter(v, 0, 0, 40, 48, 0.015, seed=seed, kinds=("pebble", "tuft"))
+    K.hall(v, 6, 56, 26, 70, 2, "x", seed, door=("y+", 12), wins=[], chimney=False)
+    P.handcart(v, 30, 62, 1, along="x", load=CHARCOAL)
+    v.anchor("cart", 34, 68, 1)
+    K.tufts(v, seed)
     return P.colour_jitter(v, seed=seed)
