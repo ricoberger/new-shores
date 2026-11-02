@@ -5155,43 +5155,43 @@
     "fire_station": {
       "anchors": {
         "door": [
+          0.1667,
           0.0,
-          0.0,
-          -1.5
+          -0.4167
         ],
         "status": [
           0.0,
-          4.75,
+          4.8333,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.0,
-          4.5,
-          1.75
+          1.9167,
+          4.5833,
+          2.4167
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -2.375
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.0,
-            4.5,
-            1.75
+            1.9167,
+            4.5833,
+            2.4167
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -2.375
+            -2.5
           ]
         },
         "budget": 10000,
-        "bytes": 125564,
+        "bytes": 185788,
         "ground": [
           [
             "none",
@@ -5213,15 +5213,15 @@
           ],
           [
             "none",
-            "paved",
-            "paved",
-            "paved"
+            "dirt",
+            "dirt",
+            "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "dirt",
+            "dirt",
+            "none"
           ]
         ],
         "lite": {
@@ -5229,30 +5229,30 @@
             "max": [
               2.0,
               4.5,
-              2.0
+              2.5
             ],
             "min": [
               -2.0,
               0.0,
-              -2.5
+              -0.5
             ]
           },
           "budget": 800,
-          "bytes": 10152,
+          "bytes": 9212,
           "path": "fire_station.lite.glb",
-          "sha256": "c86c657a68075b612ef1de919d4ef0ee4224bb5dd35f5150ee016c443b1fc7b8",
-          "triangles": 264
+          "sha256": "2001cb8b7677972831f4dfe32a7810a38d649210cabe181398b1775dc5af2847",
+          "triangles": 246
         },
         "path": "fire_station.glb",
-        "sha256": "37cd7e63c8f8fe05601f46eddd44a894a6af180cc67cc0d5da32e343db95f44d",
-        "triangles": 3900
+        "sha256": "ce1fc4a6f571ac884c68cf84183e6d9c91f80061b9cf4769b647e523c7289fb6",
+        "triangles": 5654
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "fisher": {
       "anchors": {
