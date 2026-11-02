@@ -7278,12 +7278,12 @@
         "cart": [
           -0.5,
           0.0,
-          -3.625
+          -3.8333
         ],
         "chimney": [
-          0.8125,
-          2.375,
-          -1.9375
+          0.75,
+          3.0833,
+          -1.75
         ],
         "door": [
           0.0,
@@ -7291,48 +7291,68 @@
           -4.0
         ],
         "smoke": [
-          0.8125,
-          2.5,
-          -1.9375
+          0.75,
+          3.1667,
+          -1.75
         ],
         "status": [
           0.0,
-          2.75,
+          3.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.5,
-          2.5,
+          1.5833,
+          3.0,
           4.0
         ],
         "min": [
           -1.5,
           0.0,
-          -4.0
+          -3.8333
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.5,
-            2.5,
+            1.5833,
+            3.0,
             4.0
           ],
           "min": [
             -1.5,
             0.0,
-            -4.0
+            -3.8333
           ]
         },
         "budget": 12000,
-        "bytes": 128608,
+        "bytes": 261008,
         "ground": [
           [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
             "dirt",
@@ -7345,60 +7365,40 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              3.0,
               4.0
             ],
             "min": [
               -1.5,
               0.0,
-              -4.0
+              -3.5
             ]
           },
           "budget": 960,
-          "bytes": 13132,
+          "bytes": 9332,
           "path": "iron_mine.lite.glb",
-          "sha256": "6bbc7480ed6d3f82fc1900b99f5f88aa2f3486ebb731d1c784c77929c9582c92",
-          "triangles": 332
+          "sha256": "8d9f15b6e912b7d44359cdd846de4050cdb31e4de553b0d530ff5236568ea242",
+          "triangles": 248
         },
         "path": "iron_mine.glb",
-        "sha256": "1167b69bacf8cf0995d935d2f1a14e8ea9f6a5cdcae014338f4ac07e4c4f02b6",
-        "triangles": 4110
+        "sha256": "8ebcdff41d99f440a797042da6dd981ae0dfb95a1cc131ad497cbac84333846a",
+        "triangles": 8740
       },
       "footprint": {
         "h": 8,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "lace_maker": {
       "anchors": {
