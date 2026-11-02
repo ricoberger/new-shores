@@ -3997,9 +3997,9 @@
     "coal_mine": {
       "anchors": {
         "cart": [
-          -0.375,
+          -0.5,
           0.0,
-          -3.75
+          -3.8333
         ],
         "door": [
           0.0,
@@ -4008,42 +4008,62 @@
         ],
         "status": [
           0.0,
-          3.25,
+          3.4167,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.5,
-          3.0,
+          1.5833,
+          3.1667,
           4.0
         ],
         "min": [
           -1.5,
           0.0,
-          -3.875
+          -3.8333
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.5,
-            3.0,
+            1.5833,
+            3.1667,
             4.0
           ],
           "min": [
             -1.5,
             0.0,
-            -3.875
+            -3.8333
           ]
         },
         "budget": 12000,
-        "bytes": 142508,
+        "bytes": 286976,
         "ground": [
           [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
             "dirt",
@@ -4056,36 +4076,16 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              3.0,
               4.0
             ],
             "min": [
@@ -4095,21 +4095,21 @@
             ]
           },
           "budget": 960,
-          "bytes": 15096,
+          "bytes": 12360,
           "path": "coal_mine.lite.glb",
-          "sha256": "25b8c59048508dbbcdf3943e1ee6ba6dc336e91a472c2fb42d2ded8f29cd031e",
-          "triangles": 400
+          "sha256": "e4e70ef0e3956cff9b5a3a36c997d41a0bdd29c7109f99da233adcd4d10a6cc5",
+          "triangles": 326
         },
         "path": "coal_mine.glb",
-        "sha256": "6fcb06c2102c74f8122d7a4d0d7acaf28ade9f729c13115ba7b4bdc3331320a3",
-        "triangles": 4712
+        "sha256": "5795846e346fc0fa17c05eb0a33c630d837ce8cd251916d1c7972b0c9c34e2df",
+        "triangles": 9556
       },
       "footprint": {
         "h": 8,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "cooperage": {
       "anchors": {
