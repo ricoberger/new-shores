@@ -7011,6 +7011,23 @@
           },
           "budget": 4860,
           "bytes": 127600,
+          "ground": [
+            [
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt"
+            ]
+          ],
           "lite": {
             "bounds": {
               "max": [
@@ -7051,17 +7068,17 @@
           "bytes": 126688,
           "ground": [
             [
-              "none",
-              "none",
-              "none"
+              "dirt",
+              "dirt",
+              "dirt"
             ],
             [
-              "none",
-              "none",
-              "none"
+              "dirt",
+              "dirt",
+              "dirt"
             ],
             [
-              "none",
+              "dirt",
               "dirt",
               "dirt"
             ]
@@ -7104,6 +7121,23 @@
           },
           "budget": 4860,
           "bytes": 127648,
+          "ground": [
+            [
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt"
+            ]
+          ],
           "lite": {
             "bounds": {
               "max": [

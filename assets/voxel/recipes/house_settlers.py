@@ -100,7 +100,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 36
     k = ctx.variant
     seed = 11 + k
-    P.yard(v, 0, 0, 36, 36, "grass", seed=seed)
+    P.yard(v, 0, 0, 36, 36, "dirt", seed=seed)  # houses of tiers 1–2 stand on bare earth over the whole plot
     if k == 0:
         # Long plank house with the darker weathered thatch, a slim gable chimney against the
         # west wall, a lean-to hut in front.
@@ -127,7 +127,6 @@ def build(ctx):
         v.box(x0 - 2, 13, 6, x0, 16, 11, STONE)
         stack(v, x0 - 2, 13, 11, r.ridge_z + 3, 2, 2)
         # Lean-to hut in front, thatch sloping to the front.
-        P.yard(v, 6, 21, 22, 25, "dirt", seed=seed)
         hx0, hy0, hx1, hy1 = 20, 24, 33, 34
         log_house(v, hx0, hy0, hx1, hy1, 10)
         P.lean_to(v, hx0, hx1, hy0, hy1, 10, "thatch", down="y+", ov=1, m=mat("thatch", 1.1), posts=False, seed=seed)
@@ -151,7 +150,6 @@ def build(ctx):
         stack(v, 8, 8, 3, r.ridge_z + 3, 3, 4)
         # Cart shed to the front: half walls on a dirt floor, posts at the open front, a gabled thatch roof along y.
         sx0, sy0, sx1, sy1 = 15, 17, 34, 34
-        P.yard(v, sx0, sy0 + 2, sx1, sy1, "dirt", seed=seed)
         for x in range(sx0, sx1):
             for y in range(sy0 + 2, sy1):
                 if x in (sx0, sx1 - 1) or y == sy0 + 2:
@@ -163,7 +161,6 @@ def build(ctx):
         thatch_finish(v, sr, seed + 2)
         # Cart and straw inside the shed.
         v.box(sx0 + 4, sy1 - 7, 1, sx1 - 4, sy1 - 3, 3, PLANK)
-        P.yard(v, 3, 19, 13, 24, "dirt", seed=seed)
         P.woodpile(v, 3, 27, 1, length=8, along="y", rows=3)
         P.chopping_block(v, 9, 22)
     else:

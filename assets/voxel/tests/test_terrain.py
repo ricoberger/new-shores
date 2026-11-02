@@ -67,6 +67,14 @@ class GroundMapTest(unittest.TestCase):
                 self.assertTrue(any(k != "none" for row in g for k in row), cid)
         self.assertGreater(seen, 40)
 
+    def test_reworked_houses_of_tiers_1_and_2_stand_on_dirt_over_the_whole_plot(self):
+        # The 1404 peasant and citizen houses sit on bare earth (merchants and patricians: cobbles).
+        with open(os.path.join(config.MODELS_DIR, "manifest.json")) as f:
+            models = json.load(f)["models"]
+        for cid in ("house_settlers",):
+            for info in models[cid]["variants"]:
+                self.assertEqual({k for row in info["ground"] for k in row}, {"dirt"}, cid)
+
     def test_the_water_models_are_the_content_ids_with_water_rows(self):
         water = {cid for cid, d in CONTENT["buildings"].items() if (d.get("water_rows") or {}).get("max", d.get("water_tiles", 0))}
         self.assertEqual(set(config.WATER_MODELS), water)
