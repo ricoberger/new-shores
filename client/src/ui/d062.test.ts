@@ -31,10 +31,10 @@ describe("D-062 / D-063 cards", () => {
     expect(html).not.toContain("depot-level");
     expect(html).not.toContain("depot-upgrade");
   });
-  it("shows surgery's single radius-20 service and Patrician footprint", () => {
+  it("shows surgery's single radius-20 service, without a size row", () => {
     const html = card("surgery");
     expect(strip(html)).toContain("20");
-    expect(strip(html)).toContain("4×6");
+    expect(html).not.toContain("info-size");
     expect(html).not.toContain("service-upgrade-button");
     expect(content.buildings.find((b) => b.id === "surgery")?.tier).toBe("patricians");
   });

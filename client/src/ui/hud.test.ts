@@ -676,15 +676,17 @@ describe("HUD components", () => {
       expect(html).not.toContain("build-size-trading_post");
     });
 
-    it("has a Size row in the Details of a farm, a producer and the Trading Post", () => {
+    it("has no Size row in the Details of a farm, a producer and the Trading Post", () => {
       const farm = card({ type: "wheat_farm", rates: { inputs: {}, outputs: { wheat: 1_000 } }, fields: { active: 12, required: 140, max: 140, ids: Array.from({ length: 12 }, (_, i) => 100 + i) } } as Partial<BuildingDisplay>);
-      expect(strip(farm)).toContain("Size3×4 + 140 fields");
+      expect(strip(farm)).not.toContain("Size");
       expect(strip(farm)).toContain("12 / 140 placed");
       expect(strip(farm)).toContain("Paint wheat field");
       const fisher = card({ type: "fisher", rates: { inputs: {}, outputs: { fish: 1_000 } } } as Partial<BuildingDisplay>);
-      expect(strip(fisher)).toContain("Size3×8 (3 rows on water)");
+      expect(strip(fisher)).not.toContain("Size");
       const tp = card({ type: "trading_post", level: 2, capacity: 200_000, throughput_per_min: 30_000, load_permille: 0 });
-      expect(strip(tp)).toContain("Size6×9 (3 rows on water)");
+      expect(strip(tp)).not.toContain("Size");
+      const house = card({ type: "house_settlers", residents: 8_000, residents_floor: 2_000, residents_max: 8_000 } as Partial<BuildingDisplay>);
+      expect(house).not.toContain("info-size");
     });
 
     it("follows the Trading Post's level on its berths line (the server's berths when it sends them)", () => {

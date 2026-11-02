@@ -432,7 +432,6 @@ function TradingPostSection({
                 {berths.total > levelBerths && levelBerths > 0 && <span className={styles.small}>{t("infoPanel.atPiers", { count: berths.total - levelBerths })}</span>}
               </td>
             </tr>
-            {def && <SizeRow def={def} content={content} />}
           </tbody>
         </table>
       </div>
@@ -594,7 +593,6 @@ export function InfoPanel({
               <summary className={styles.detailsSummary}>{t("infoPanel.details")}</summary>
               <table className={`${styles.table} ${styles.detailsTable}`}>
                 <tbody>
-                  {def && <SizeRow def={def} content={content} />}
                   {b.cycle_seconds !== undefined && (
                     <tr>
                       <td>{t("infoPanel.cycle")}</td>
@@ -675,7 +673,6 @@ export function InfoPanel({
                   <td>{t("infoPanel.radius")}</td>
                   <td data-testid="info-radius">{t("infoPanel.tiles", { count: def.service.levels[(b.level ?? 1) - 1]?.radius ?? def.service.radius })}</td>
                 </tr>
-                <SizeRow def={def} content={content} />
                 <tr>
                   <td>{t("infoPanel.upkeep")}</td>
                   <td data-testid="info-upkeep">{t("infoPanel.upkeepRate", { rate: perMin(b.paused ? 0 : def.upkeep_per_min) })}</td>
@@ -814,7 +811,6 @@ export function InfoPanel({
                     <td>{t("infoPanel.load")}</td>
                     <td data-testid="warehouse-load">{percent(b.load_permille ?? 0)}</td>
                   </tr>
-                  <SizeRow def={def} content={content} />
                 </tbody>
               </table>
             </div>
