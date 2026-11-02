@@ -10139,7 +10139,7 @@
         "cart": [
           -0.5,
           0.0,
-          -3.625
+          -3.8333
         ],
         "door": [
           0.0,
@@ -10148,42 +10148,62 @@
         ],
         "status": [
           0.0,
-          2.25,
+          3.4167,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.0,
+          3.1667,
           4.0
         ],
         "min": [
           -1.5,
           0.0,
-          -3.5
+          -3.8333
         ]
       },
       "file": {
         "bounds": {
           "max": [
             1.5,
-            2.0,
+            3.1667,
             4.0
           ],
           "min": [
             -1.5,
             0.0,
-            -3.5
+            -3.8333
           ]
         },
         "budget": 12000,
-        "bytes": 81728,
+        "bytes": 218104,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
           ],
           [
             "dirt",
@@ -10196,36 +10216,16 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.0,
+              3.0,
               4.0
             ],
             "min": [
@@ -10235,21 +10235,21 @@
             ]
           },
           "budget": 960,
-          "bytes": 11272,
+          "bytes": 10224,
           "path": "quartz_quarry.lite.glb",
-          "sha256": "a2c1b5cc552fbeab8256523410940184a91c981b0445c3e10375287395932bd1",
-          "triangles": 298
+          "sha256": "4ff5f38c072976d2fa776dc84130aac04fb6a7afbc00a20c8c9eee6ab79eb688",
+          "triangles": 262
         },
         "path": "quartz_quarry.glb",
-        "sha256": "963c0fe9a6518d1775fe4830e370049b458d91de60c95814efe861e3e13c34e4",
-        "triangles": 2586
+        "sha256": "0c046a402999e6f202e1ef83f96859ffb7077a62f2ffeda6862a88bfdfa35d53",
+        "triangles": 7468
       },
       "footprint": {
         "h": 8,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "rendering_house": {
       "anchors": {
