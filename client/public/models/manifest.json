@@ -2986,9 +2986,9 @@
     "cattle_farm": {
       "anchors": {
         "cart": [
-          1.25,
+          -1.6667,
           0.0,
-          -2.375
+          -2.3333
         ],
         "door": [
           0.0,
@@ -2997,37 +2997,37 @@
         ],
         "status": [
           0.0,
-          3.125,
+          3.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.0,
-          2.875,
-          2.375
+          1.9167,
+          3.5,
+          2.5
         ],
         "min": [
-          -1.875,
+          -1.9167,
           0.0,
-          -2.375
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.0,
-            2.875,
-            2.375
+            1.9167,
+            3.5,
+            2.5
           ],
           "min": [
-            -1.875,
+            -1.9167,
             0.0,
-            -2.375
+            -2.5
           ]
         },
         "budget": 10000,
-        "bytes": 106692,
+        "bytes": 99940,
         "ground": [
           [
             "none",
@@ -3042,19 +3042,19 @@
             "none"
           ],
           [
-            "dirt",
-            "dirt",
             "none",
-            "none"
-          ],
-          [
-            "dirt",
             "dirt",
             "dirt",
             "none"
           ],
           [
             "dirt",
+            "dirt",
+            "dirt",
+            "dirt"
+          ],
+          [
+            "none",
             "dirt",
             "dirt",
             "none"
@@ -3063,32 +3063,32 @@
         "lite": {
           "bounds": {
             "max": [
-              2.0,
-              3.0,
+              1.5,
+              3.5,
               2.5
             ],
             "min": [
-              -2.0,
+              -1.5,
               0.0,
-              -2.5
+              -2.0
             ]
           },
           "budget": 800,
-          "bytes": 11868,
+          "bytes": 6200,
           "path": "cattle_farm.lite.glb",
-          "sha256": "eb0b202ba1d43c9371ca8c05c8cecea8e5fb7fa1d799a2d1a9c1c76b03e173fb",
-          "triangles": 310
+          "sha256": "6aff2be31f9fa04cd17a5bb264bdb30f6807cdc3f4f10680a577482f70895c5a",
+          "triangles": 136
         },
         "path": "cattle_farm.glb",
-        "sha256": "517e5a763f43f44077b3d5c7d9e1656f61987ad47eba16d8cd4ede5514cd8c13",
-        "triangles": 3222
+        "sha256": "257075e805a85726f08fd859029d048a7e224cd0bd76aa312f4d6786c1cd19af",
+        "triangles": 3008
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "cattle_pasture": {
       "anchors": {
