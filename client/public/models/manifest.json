@@ -8472,14 +8472,14 @@
     "mill": {
       "anchors": {
         "cart": [
-          1.0,
+          -1.0,
           0.0,
-          -2.5
+          -2.6667
         ],
         "chimney": [
-          -1.4375,
-          2.625,
-          -1.4375
+          0.25,
+          3.3333,
+          -1.0833
         ],
         "door": [
           0.0,
@@ -8487,43 +8487,43 @@
           -3.0
         ],
         "smoke": [
-          -1.4375,
-          2.75,
-          -1.4375
+          0.25,
+          3.4167,
+          -1.0833
         ],
         "status": [
           0.0,
-          5.25,
+          3.5833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          5.0,
-          2.375
+          2.0,
+          3.3333,
+          3.0
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -2.375
+          -2.9167
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            5.0,
-            2.375
+            2.0,
+            3.3333,
+            3.0
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -2.375
+            -2.9167
           ]
         },
         "budget": 12000,
-        "bytes": 113068,
+        "bytes": 367472,
         "ground": [
           [
             "none",
@@ -8533,13 +8533,13 @@
           ],
           [
             "none",
-            "none",
+            "dirt",
             "none",
             "none"
           ],
           [
             "none",
-            "none",
+            "dirt",
             "none",
             "none"
           ],
@@ -8558,39 +8558,39 @@
           [
             "none",
             "none",
-            "dirt",
-            "dirt"
+            "none",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              5.0,
-              2.5
+              3.0,
+              2.0
             ],
             "min": [
-              -2.0,
+              -1.5,
               0.0,
               -2.5
             ]
           },
           "budget": 960,
-          "bytes": 13992,
+          "bytes": 10440,
           "path": "mill.lite.glb",
-          "sha256": "abad39edef01af5fc4f8beb70ef3cff00455010f2afad57da4b3eba7e6a1f145",
-          "triangles": 362
+          "sha256": "95cb6791012bfb15d8e601940392a5f06bcf0bb4393248299d4faadbc2d44255",
+          "triangles": 272
         },
         "path": "mill.glb",
-        "sha256": "0fa411032c19f60e89693ed7f4eb81b20ff67e9a8789531b9debdfd39a090df2",
-        "triangles": 3748
+        "sha256": "dea74ef6a5c653534861db7e6d2c5d7ddd11cb8965f805b1511675157635a659",
+        "triangles": 11224
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "optician": {
       "anchors": {

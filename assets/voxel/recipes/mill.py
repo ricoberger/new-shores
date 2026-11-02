@@ -1,65 +1,85 @@
 """
-Windmill (4 × 6; D-057 §3): a tapered tower of coursed stone in
-alternating bands with a thatched cap, a gallery and four lattice sails;
-a miller's cottage (pegged frame, thatch, chimney with smoke), flour
-sacks, a cart of grain and a fenced kitchen garden.
+Windmill (4 × 6; V7 rework after the Anno 1404 / Anno 117 mill, tier II):
+a tapered tower of dark boards on a rubble foot with a conical thatch cap
+and a gallery, four big pale lattice sails on a brass hub turned to the
+front, a miller's cottage (rubble ground floor, half-timber, tiles, slim
+chimney with smoke), flour sacks, a cart and a stack of grain bags.
+12 voxels per tile; dirt only round the tower foot and the cottage door.
 """
 
+import math
+
+from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
-from nsvoxel.mats import CANVAS, PLASTER, STONE, STONE_LIGHT, THATCH, THATCH_DARK, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel import parts_kit as K
+from nsvoxel.grid import mat, shade_of
+from nsvoxel.mats import BRASS, CANVAS, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-SAIL = P.mat("canvas", 1.0)
-
+VOXELS_PER_TILE = 12
 GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+BOARD = mat("timber", 0.7)
+SAIL = mat("canvas", 1.15)
+SPAR = mat("timber", 1.3)
+
+
+def sail(v, hx, hy, hz, ang, length=19):
+    """One lattice sail in the x–z plane at y = hy: a spar and a lattice of canvas on one side of it."""
+    dx, dz = math.cos(ang), math.sin(ang)
+    px, pz = -dz, dx
+    for t in range(2, length):
+        cx, cz = hx + dx * t, hz + dz * t
+        for w in (0, 1):
+            v.set(int(round(cx + px * w)), hy, int(round(cz + pz * w)), SPAR)
+        if t >= 7:
+            for s in range(2, 7):
+                if 2 < s < 6 and (t + s) % 3 == 0 and t % 2 == 0:
+                    continue
+                v.set(int(round(cx + px * s)), hy, int(round(cz + pz * s)), SAIL)
 
 
 def build(ctx):
-    v = ctx.vox()  # 32 × 48
-    P.yard(v, 16, 32, 32, 48, "dirt", seed=52)  # the cart yard by the sacks (D-068: painted ground)
-    P.path(v, [(x, y) for x in range(14, 18) for y in range(20, 48)])
-    # Tower: a stack of shrinking cylinders.
-    cx, cy = 16, 12
-    r = 7.0
-    z = 1
-    for k in range(6):
-        v.cyl(cx, cy, z, z + 4, r, STONE_LIGHT if k % 2 else STONE)
-        z += 4
-        r -= 0.6
-    # Cap.
-    for k in range(5):
-        v.cyl(cx, cy, z + k, z + k + 1, 5.5 - k, THATCH if k % 2 == 0 else THATCH_DARK)
-    hub_z = z + 1
-    P.entrance(P.Face(v, "y+", 18), 15, 2, 3, 5)
-    P.casement(P.Face(v, "y+", 17), 15, 11, 2, 2, frame=P.DRESSED, sill=P.DRESSED, bars=False)
-    # Gallery round the tower under the cap.
-    v.cyl(cx, cy, z - 1, z, r + 1.6, TIMBER_DARK)
-    v.cyl(cx, cy, z - 1, z, r + 0.4, None)
-    # Sails on the front: hub, four arms with lattice canvas.
-    hy = 19
-    v.box(15, hy - 1, hub_z - 1, 18, hy + 1, hub_z + 2, TIMBER_DARK)
-    for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-        for k in range(2, 15):
-            x = 16 + dx * k
-            zz = hub_z + dz * k
-            v.set(x, hy, zz, TIMBER)
-            for w in range(1, 4):
-                # Lattice: canvas on one side of each arm.
-                px, pz = (x, zz + w) if dx else (16 - w if dz > 0 else 16 + w, zz)
-                if k > 3:
-                    v.set(px, hy, pz, SAIL if (k + w) % 2 else CANVAS if k % 3 else TIMBER_LIGHT)
-    # Miller's cottage.
-    b = P.building(v, 2, 30, 14, 42, "settler", along="y", wall=PLASTER, seed=52, spacing=5)
-    P.entrance(b.face("y+"), 6, 2, 3, 5)
-    P.casement(b.face("x+"), 34, 5, 2, 2, frame=None, sill=TIMBER_LIGHT, shutters=TIMBER_LIGHT, bars=False)
-    P.casement(b.face("y+"), 10, 5, 2, 2, frame=None, sill=TIMBER_LIGHT, bars=False)
-    P.roof_chimney(v, b.roof, 4, 34, above=3, anchor=True)
-    P.sacks(v, 20, 30, 1, n=3, m=CANVAS)
-    P.sacks(v, 20, 32, 1, n=2, m=CANVAS)
-    P.sacks(v, 21, 30, 3, n=1, m=CANVAS)
-    P.handcart(v, 20, 38, 1, along="x", load=P.mat("wheat"))
-    P.fence_ring(v, 18, 22, 30, 28, kind="picket", gaps={(23, 27), (24, 27)}, seed=52)
-    P.crop_rows(v, 19, 23, 29, 27, "cabbage", along="x", pitch=2, seed=52)
-    v.anchor("cart", 24, 44, 1)
-    P.scatter(v, 0, 20, 32, 48, 0.03, seed=52)
-    P.tie_floating(v)
-    return P.colour_jitter(v, seed=52)
+    v = ctx.vox()  # 48 × 72
+    seed = 3
+    K.ground(v, 19, 24, 11, 11, seed)
+    K.ground(v, 33, 56, 11, 9, seed + 1)
+    cx, cy, zt = 19, 22, 30
+    for z in range(1, zt):
+        r = 8.2 - 2.6 * (z / zt)
+        for x in range(cx - 10, cx + 11):
+            for y in range(cy - 10, cy + 11):
+                d = math.hypot(x + 0.5 - cx, y + 0.5 - cy)
+                if r - 1.1 < d <= r:
+                    if z < 9:
+                        v.set(x, y, z, shade_of(STONE, 0.9 if (z // 2) % 2 else 1.0))
+                    else:
+                        v.set(x, y, z, BOARD if (z // 2) % 2 else shade_of(BOARD, 0.88))
+    for x in range(cx - 7, cx + 8):
+        for y in range(cy - 7, cy + 8):
+            if math.hypot(x + 0.5 - cx, y + 0.5 - cy) <= 6:
+                v.set(x, y, zt - 1, TIMBER_DARK)
+    # gallery
+    for x in range(cx - 10, cx + 11):
+        for y in range(cy - 10, cy + 11):
+            d = math.hypot(x + 0.5 - cx, y + 0.5 - cy)
+            if 7.2 < d <= 9.2:
+                v.set(x, y, 13, TIMBER_LIGHT)
+    V.cone_roof(v, cx, cy, 7.6, zt, K.THATCH, rise=1.0)
+    # door and window of the tower
+    v.box(cx - 2, cy + 6, 1, cx + 2, cy + 9, 9, TIMBER_DARK)
+    v.box(cx - 1, cy + 6, 18, cx + 1, cy + 8, 22, TIMBER_DARK)
+    # hub and four sails turned to the front
+    hy = cy + 10
+    hz = 23
+    v.box(cx - 1, cy + 4, hz - 1, cx + 1, hy + 1, hz + 1, BRASS)
+    for k in range(4):
+        sail(v, cx, hy, hz, math.radians(45 + 90 * k))
+    # the cottage
+    h = K.hall(v, 22, 44, 44, 62, 2, "x", seed, door=("y+", 30), smoke=True, chim=(26, 48), wins=[24, 38])
+    P.sacks(v, 10, 44, 1, n=4, m=CANVAS)
+    P.sacks(v, 10, 52, 1, n=3, m=CANVAS)
+    P.handcart(v, 8, 62, 1, along="x", load=CANVAS)
+    v.anchor("cart", 12, 68, 1)
+    P.fence_ring(v, 2, 38, 20, 60, kind="rail", gaps={(10, 59), (11, 59), (12, 59)}, seed=seed)
+    K.tufts(v, seed)
+    return P.colour_jitter(v, seed=seed)
