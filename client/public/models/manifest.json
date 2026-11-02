@@ -4237,9 +4237,9 @@
     "copper_mine": {
       "anchors": {
         "cart": [
-          -0.25,
+          -0.5,
           0.0,
-          -3.625
+          -3.8333
         ],
         "door": [
           0.0,
@@ -4248,42 +4248,62 @@
         ],
         "status": [
           0.0,
-          3.125,
+          3.4167,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.875,
+          3.1667,
           4.0
         ],
         "min": [
           -1.5,
           0.0,
-          -3.875
+          -3.8333
         ]
       },
       "file": {
         "bounds": {
           "max": [
             1.5,
-            2.875,
+            3.1667,
             4.0
           ],
           "min": [
             -1.5,
             0.0,
-            -3.875
+            -3.8333
           ]
         },
         "budget": 12000,
-        "bytes": 130584,
+        "bytes": 221436,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
           ],
           [
             "dirt",
@@ -4296,60 +4316,40 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              3.0,
               4.0
             ],
             "min": [
               -1.5,
               0.0,
-              -4.0
+              -3.5
             ]
           },
           "budget": 960,
-          "bytes": 13520,
+          "bytes": 9952,
           "path": "copper_mine.lite.glb",
-          "sha256": "117e1fa3999ecc5d0c191d3d525f8be91e49bf37063bd9e1270cee3cd06f5723",
-          "triangles": 350
+          "sha256": "d586d2951044cb22bc4578ab87ff53aa825aa61649031084833d7debbb112514",
+          "triangles": 252
         },
         "path": "copper_mine.glb",
-        "sha256": "6e4229b3948880b319c0cf0c2c57d8f36872f45342077ab1a431560c58b2dbc9",
-        "triangles": 4284
+        "sha256": "013207f9291e8fd7f61e45491eb2e3709ee1a82b367ee873e8c645c35d478c71",
+        "triangles": 7504
       },
       "footprint": {
         "h": 8,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "copper_smelter": {
       "anchors": {
