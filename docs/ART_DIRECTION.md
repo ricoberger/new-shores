@@ -134,6 +134,19 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   in three steps; sides keep their vertex colours. Only the faces looking
   straight up take the texture, so the triangle count stays that of the
   greedy mesh.
+- **Ground cover is texture (D-068).** Yards (paved, dirt, sand, plank
+  decks on land), field ground and roads are colours in the ground
+  texture, flush with the terrace; only what stands up is voxels (walls,
+  fences, kerbs that really rise, crops, posts, barrels). A building's
+  yard comes from its model's manifest `ground` (one kind per footprint
+  tile, rows = footprint y at rotation 0), turned and placed with the
+  model (`render/groundpaint.ts`) and painted on every layout change from
+  the roadless base, so a moved or demolished building leaves the
+  terrain colour behind. Paved is cobbles of `road-paved`, dirt
+  `road-dirt` with stones and a frayed rim, sand the `sand` role, planks
+  the recipes' plank shade of `timber` (the palette has no plank role).
+  Ground paint never changes height. Water structures keep their decks
+  (§7).
 - **Coast:** a pixel coastline (the smoothed coast sampled at the column
   centres) with a sand rim, a darker **wet-sand line** at the water,
   **beach pebbles** in the sand and two shelves stepping under the sea;
@@ -228,17 +241,24 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   labelled, focused or picked. Their shallows, like every island's
   coast water, lie at a round distance from the land (a 3-4 chamfer):
   the halo follows the outline, not the tile grid.
-- **Roads** are voxel paths painted into the terrain field per chunk
-  (`render/roadvoxels.ts`), one voxel below the grass: a two-column path
-  with arms to the neighbours and junctions, worn edges and jittered
-  stones; dirt for tier-1 roads, three-shade **cobbles with a kerb** for
-  the stone road. A road change repaints the field and rebuilds only the
-  touched chunks; carts and walkers walk on the sunk path. At far LOD
-  roads are only colour in the lite terrain's ground texture, and the
-  quays' decks are columns of the island's one lite terrain mesh (rebuilt
-  when the quays change) — no road or quay mesh of their own.
+- **Roads** are flush paint (D-068): paths painted into the terrain
+  field's top colours (`render/roadvoxels.ts`, colours shared with the
+  yards in `render/groundpaint.ts`), the terrain height untouched: a
+  two-column path with arms to the neighbours and junctions, worn edges
+  and jittered stones; dirt for tier-1 roads, three-shade **cobbles with
+  a kerb** colour for the stone road. Where a road meets a road one
+  terrace level lower, the terrace's road ramp climbs across the tile
+  (`IslandGround`); ramps and quay decks are the only height changes, and
+  only they rebuild terrain chunks — a plain road change updates the
+  ground texture alone. Carts and walkers walk on the ground. Near and
+  far roads are the same paint at two resolutions: at far LOD roads are
+  colour in the lite terrain's ground texture, and the quays' decks are
+  columns of the island's one lite terrain mesh (rebuilt when the quays
+  change) — no road or quay mesh of their own.
 - **Field ground** is painted into the ground texture too (furrows for
-  crops, pasture, orchard grass) under the field models. **At far LOD
+  crops, pasture, orchard grass; meadows and tree plots keep the
+  terrain's grass) over the whole footprint; the field models have no
+  plate (D-068), their fences and crops stand on the paint at z = 0. **At far LOD
   fields are ground patches, not models** (they have no lite file and
   cost 210–3 070 triangles each; the far budget): the lite terrain gets
   its own ground texture with every field footprint in one flat colour
@@ -387,21 +407,28 @@ hand-made `.vox` files.
 
 Tier 1–2 recipes are written on the v2 parts in `nsvoxel/detail.py`
 (re-exported by `parts.py`, called as `P.<name>`); the v1 helpers stay
-for the placeholders. A recipe is a yard, one or two `P.building`s, the
+for the placeholders. A recipe is a yard (declared ground), one or two `P.building`s, the
 openings, the props that say what the building does, the anchors, then
 `P.scatter(...)` and `return P.colour_jitter(v, seed=…)` (a no-op since
 V3b — kept for the signature) — about 40–70 lines.
 
-**Ground (V7):** a building stands on the terrain; there is no grass plate.
-`P.yard(..., "grass")` lays nothing, hard yards are 1-voxel plates at z = 0
-(`"paved"`, `"sand"`, `"planks"`, a material; `"dirt"` is an irregular blob,
-`blob=False` for the whole rectangle where posts stand on it) and `"turf"` is
-the old grass plate for fields and the water models' land rows. A recipe still
-authors its first layer at z = 1; the build (`model.lower_to_terrain`) lowers
-everything from z = 1 up by one voxel on buildings without water rows, so walls,
-props and tufts start at z = 0 and overwrite the plate under them. The checker
-reports voxels not connected to the ground (`floating voxels`); fix a one-voxel
-gap with `P.tie_floating(v)` (water models: `ground=0`) or a real support.
+**Ground (D-068): no plates; `yard()` declares the ground.** A model
+contains only what stands up; it starts at z = 0 on the terrain.
+`P.yard(v, x0, y0, x1, y1, kind)` and `P.path(...)` lay no voxels: they
+declare `"paved"`, `"dirt"`, `"sand"` or `"planks"` (`"grass"` clears) in the
+grid's ground map, and the exporter writes it per footprint tile (a tile takes
+the kind covering at least half of it) as `ground` into the manifest, which the
+client paints (§4). New recipes author their first layer at z = 0. Recipes
+written on the old one-voxel plate declare `GROUND_Z = 1`; the build
+(`model.settle_on_terrain`) drops their z = 0 layer (its paved, dirt and sand
+cells become ground kinds) and lowers the rest, anchors included, by one voxel.
+Fields have no plates either. The water structures (`config.WATER_MODELS`:
+fisher, shipyard, Trading Post, trading pier, depot, salt pans, oyster beds)
+keep real deck voxels over their water rows; only their land part follows the
+ground map. The checker rejects a ground plate (more than `PLATE_SHARE`, 35 %,
+of a land footprint flat at z = 0) and reports voxels not connected to the
+ground (`floating voxels`); fix a one-voxel gap with `P.tie_floating(v)`
+(water models: `ground=0`) or a real support.
 
 - **Building:** `b = P.building(v, x0, y0, x1, y1, style, along=…)`
   with style `settler` (pegged timber frame, plaster, thatch),
