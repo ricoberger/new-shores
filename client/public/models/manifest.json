@@ -12416,14 +12416,14 @@
     "toolmaker": {
       "anchors": {
         "cart": [
-          1.25,
+          0.5,
           0.0,
-          -1.625
+          -1.5
         ],
         "chimney": [
-          0.3125,
-          3.375,
-          0.9375
+          -1.5417,
+          2.0833,
+          1.125
         ],
         "door": [
           0.0,
@@ -12431,98 +12431,98 @@
           -2.0
         ],
         "smoke": [
-          0.3125,
-          3.5,
-          0.9375
+          -1.5417,
+          2.1667,
+          1.125
         ],
         "status": [
           0.0,
-          3.75,
+          3.4167,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          3.5,
-          1.75
+          2.0,
+          3.1667,
+          1.9167
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -1.5
+          -2.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            3.5,
-            1.75
+            2.0,
+            3.1667,
+            1.9167
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -1.5
+            -2.0
           ]
         },
         "budget": 8000,
-        "bytes": 87632,
+        "bytes": 151236,
         "ground": [
           [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
             "dirt",
             "dirt",
             "dirt",
-            "dirt"
+            "none"
           ],
           [
+            "none",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
+              3.0,
               2.0
             ],
             "min": [
               -2.0,
               0.0,
-              -1.5
+              -1.0
             ]
           },
           "budget": 640,
-          "bytes": 9824,
+          "bytes": 6476,
           "path": "toolmaker.lite.glb",
-          "sha256": "299ee63ba5793ca6db4f3e469f8f6066e24666db6d257a2102b23dea2878859d",
-          "triangles": 250
+          "sha256": "570a91384a0fbdb4cd033bb7c2c3bfbf99eeee858c47ccac41936ae8fdaacdef",
+          "triangles": 164
         },
         "path": "toolmaker.glb",
-        "sha256": "580cf9675fffe0baf1c0c13a822a0574ffa6febc5cb7e99fb7008527485fa4bc",
-        "triangles": 2702
+        "sha256": "ac4875b952f107fa412aa6268c89462a4b4c282590a6b990f84e3b5685a38716",
+        "triangles": 4616
       },
       "footprint": {
         "h": 4,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "trading_pier": {
       "anchors": {
