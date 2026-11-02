@@ -485,6 +485,18 @@ land buildings).
   `shades=(even, odd)` for the course shades of the roof and `verge` for the
   verge shade; with a darker `ridge` they give the strong course lines of the
   dark tile (tier 3) and slate (tier 4) roofs.
+- **Tier kit (model rework, all tiers):** `nsvoxel/parts_kit.py` (imported
+  as `K`). `K.hall` builds the main block in the vocabulary of a tier (I dark
+  boards on a flush stone band under weathered thatch; II rubble ground
+  floor, half-timber, terracotta; III the same under dark burgundy tile;
+  IV ashlar, cream plaster, slate) with door, windows, a slim chimney and the
+  smoke anchors (`smoke`, `chimney`, `stone`, `plinth`, `upper` options).
+  `K.ground`/`K.tufts` paint the worked-ground blob and the grass tufts;
+  `K.pile`, `K.crates`, `K.rack`, `K.low_wall`, `K.lean` and `K.kiln` are
+  large production props; `K.silo`, `K.furnace`, `K.still`, `K.hive`,
+  `K.cow` and `K.pig` are signature props; `K.mine` builds a mine strip
+  (banded hill, adit, rails, tubs, optional headframe or horse whim) shared
+  by the mines and quarries.
 - **Tier 4 (Patricians, V5):** `nsvoxel/detail_v5.py` (imported as
   `Q`) adds parts on top of `P` without changing it: `Q.palazzo` (flush
   plinth band, ashlar ground floor, plastered upper storeys, string courses,
