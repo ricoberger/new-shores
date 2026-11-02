@@ -6332,9 +6332,9 @@
     "hop_farm": {
       "anchors": {
         "cart": [
-          0.375,
+          0.8333,
           0.0,
-          -1.625
+          -1.8333
         ],
         "door": [
           0.0,
@@ -6343,37 +6343,37 @@
         ],
         "status": [
           0.0,
-          4.125,
+          3.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          3.875,
-          1.75
+          3.4167,
+          1.9167
         ],
         "min": [
-          -1.375,
+          -1.5,
           0.0,
-          -1.875
+          -2.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
             1.5,
-            3.875,
-            1.75
+            3.4167,
+            1.9167
           ],
           "min": [
-            -1.375,
+            -1.5,
             0.0,
-            -1.875
+            -2.0
           ]
         },
         "budget": 6000,
-        "bytes": 90628,
+        "bytes": 169568,
         "ground": [
           [
             "none",
@@ -6386,45 +6386,45 @@
             "none"
           ],
           [
-            "dirt",
+            "none",
             "dirt",
             "dirt"
           ],
           [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              4.0,
+              3.5,
               2.0
             ],
             "min": [
               -1.5,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 480,
-          "bytes": 10104,
+          "bytes": 6860,
           "path": "hop_farm.lite.glb",
-          "sha256": "9c972f0644f3049b8d882da4390c9b318c23d7d794e7c00480596fb0825717c7",
-          "triangles": 260
+          "sha256": "702859689a247f9917beae0133fd0c9b31fa6d1adcae0e166e15d5ef993ad177",
+          "triangles": 162
         },
         "path": "hop_farm.glb",
-        "sha256": "756a633b525a5ff8785fcaf034d9e28e9f823830d41d1bd8b4f87e7d281aad6c",
-        "triangles": 2898
+        "sha256": "95c0f8ec107844eb8aa9e0ab625b4f2bbf1f829cd0e38e36baff720eb5978d4c",
+        "triangles": 5200
       },
       "footprint": {
         "h": 4,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "hop_field": {
       "anchors": {
