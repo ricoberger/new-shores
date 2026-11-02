@@ -9926,7 +9926,7 @@
     "printing_press": {
       "anchors": {
         "cart": [
-          -1.0,
+          -0.8333,
           0.0,
           -2.0
         ],
@@ -9937,37 +9937,37 @@
         ],
         "status": [
           0.0,
-          4.5,
+          5.0833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.125,
-          4.25,
-          1.75
+          1.9167,
+          4.8333,
+          2.4167
         ],
         "min": [
-          -2.125,
+          -2.0,
           0.0,
-          -1.75
+          -2.1667
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.125,
-            4.25,
-            1.75
+            1.9167,
+            4.8333,
+            2.4167
           ],
           "min": [
-            -2.125,
+            -2.0,
             0.0,
-            -1.75
+            -2.1667
           ]
         },
         "budget": 10000,
-        "bytes": 136280,
+        "bytes": 179304,
         "ground": [
           [
             "none",
@@ -9988,24 +9988,24 @@
             "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "dirt",
+            "dirt",
+            "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "dirt",
+            "dirt",
+            "dirt",
+            "dirt"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              4.0,
-              2.0
+              5.0,
+              2.5
             ],
             "min": [
               -2.0,
@@ -10014,21 +10014,21 @@
             ]
           },
           "budget": 800,
-          "bytes": 10984,
+          "bytes": 10808,
           "path": "printing_press.lite.glb",
-          "sha256": "c0f61b5291517d2dd1d32d1f1388204d27379be62032e999a6740ea04fcbe6d4",
-          "triangles": 290
+          "sha256": "c515f94f80dde4a637e9bf8aeffa92cadd756c68a554767d73f9b90e73d6a8cd",
+          "triangles": 300
         },
         "path": "printing_press.glb",
-        "sha256": "c8fc2358289064faab9f4790a465fe40457d7ecda2b41cd5e4f7dd1ced5f5527",
-        "triangles": 4280
+        "sha256": "07d04edcfb1a9ca575e0b5d6009ad639120993f4b9e073664286b6a24f7392c3",
+        "triangles": 5490
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "quarry": {
       "anchors": {
