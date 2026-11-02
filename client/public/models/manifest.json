@@ -1880,14 +1880,14 @@
     "apiary": {
       "anchors": {
         "cart": [
-          1.25,
+          -1.3333,
           0.0,
-          -2.125
+          -2.0
         ],
         "chimney": [
-          -0.6875,
-          2.875,
-          1.5625
+          1.4167,
+          3.5,
+          1.5833
         ],
         "door": [
           0.0,
@@ -1895,43 +1895,43 @@
           -2.5
         ],
         "smoke": [
-          -0.6875,
-          3.0,
-          1.5625
+          1.4167,
+          3.5833,
+          1.5833
         ],
         "status": [
           0.0,
-          3.25,
+          3.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.375,
-          3.0,
-          2.25
+          2.5,
+          3.4167,
+          2.5
         ],
         "min": [
-          -2.375,
+          -2.5,
           0.0,
-          -2.25
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.375,
-            3.0,
-            2.25
+            2.5,
+            3.4167,
+            2.5
           ],
           "min": [
-            -2.375,
+            -2.5,
             0.0,
-            -2.25
+            -2.5
           ]
         },
         "budget": 12500,
-        "bytes": 131040,
+        "bytes": 190720,
         "ground": [
           [
             "none",
@@ -1950,16 +1950,16 @@
           [
             "none",
             "none",
-            "none",
             "dirt",
+            "none",
             "none"
           ],
           [
-            "none",
-            "none",
-            "none",
-            "none",
-            "none"
+            "dirt",
+            "dirt",
+            "dirt",
+            "dirt",
+            "dirt"
           ],
           [
             "none",
@@ -1979,25 +1979,25 @@
             "min": [
               -2.5,
               0.0,
-              -2.5
+              -2.0
             ]
           },
           "budget": 1000,
-          "bytes": 13880,
+          "bytes": 7948,
           "path": "apiary.lite.glb",
-          "sha256": "3eb88449e723dea1f84897a3efd4cc60606481228f6b5283141d95531ff2d23e",
-          "triangles": 364
+          "sha256": "e3633be738eaa5895a2fcdd8bb1b47347e73b88111cd1818efbacdf7ac2543ae",
+          "triangles": 200
         },
         "path": "apiary.glb",
-        "sha256": "a0d30f9f6bbcb9482f0ff8ce3fe6ff11d014a4a670af23a3832fbdf9e14d6fd9",
-        "triangles": 4020
+        "sha256": "f9a1f907f6b1801d0f6cd81b26d3791ba02779e1d44e2f8759a569792e600e14",
+        "triangles": 5790
       },
       "footprint": {
         "h": 5,
         "w": 5
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "bakery": {
       "anchors": {
