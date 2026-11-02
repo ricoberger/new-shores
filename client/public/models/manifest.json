@@ -4737,14 +4737,14 @@
     "distillery": {
       "anchors": {
         "cart": [
-          -1.5,
+          -1.3333,
           0.0,
           -2.5
         ],
         "chimney": [
-          -2.0625,
-          3.25,
-          1.5625
+          1.4167,
+          4.3333,
+          2.0833
         ],
         "door": [
           0.0,
@@ -4752,50 +4752,71 @@
           -3.0
         ],
         "smoke": [
-          -2.0625,
-          3.375,
-          1.5625
+          1.4167,
+          4.4167,
+          2.0833
         ],
         "status": [
           0.0,
-          3.625,
+          4.5,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.5,
-          3.375,
-          2.75
+          2.4167,
+          4.25,
+          3.0
         ],
         "min": [
-          -2.375,
+          -2.5,
           0.0,
-          -2.125
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.5,
-            3.375,
-            2.75
+            2.4167,
+            4.25,
+            3.0
           ],
           "min": [
-            -2.375,
+            -2.5,
             0.0,
-            -2.125
+            -3.0
           ]
         },
         "budget": 15000,
-        "bytes": 193768,
+        "bytes": 204204,
         "ground": [
           [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
             "dirt",
@@ -4805,39 +4826,18 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.5,
-              3.5,
+              4.0,
               3.0
             ],
             "min": [
@@ -4847,21 +4847,21 @@
             ]
           },
           "budget": 1200,
-          "bytes": 13620,
+          "bytes": 9816,
           "path": "distillery.lite.glb",
-          "sha256": "2958feb3cf7c2e017bc96995d3611ecce5d4d781636538dac2f8f13cfae5b97f",
-          "triangles": 378
+          "sha256": "6a4c658aaebc18cebe5fdf700e17a6666c920cb3d1b7f94a7f60f4918b58fe75",
+          "triangles": 262
         },
         "path": "distillery.glb",
-        "sha256": "3a5fba3b3a7b5c5c4c428f3b4d7d01a2108cdcedf822bc2e870dd7da6dc97f77",
-        "triangles": 5932
+        "sha256": "8804f6674fc7e7b315764c38816dbc0cd164fafdbf335b2f7d77405b5529a33c",
+        "triangles": 6246
       },
       "footprint": {
         "h": 6,
         "w": 5
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "dyer": {
       "anchors": {
