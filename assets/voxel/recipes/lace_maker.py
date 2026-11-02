@@ -1,55 +1,32 @@
 """
-Lace maker (3 × 5; D-057 §3, V5): a long low workshop — an ashlar
-ground floor with a row of tall windows for the light, plastered gables
-and a tiled roof with a long dormer — lace pillows on stands at the
-door, a frame with a finished piece of lace hung to air (cloth that
-sways, LIFE_LAYER §7), boxes of fine cloth, a bench and a cart.
+Lace maker (3 × 5; V7 rework, tier IV): a narrow cream plaster house on an
+ashlar floor under slate (no chimney), tall frames hung with white lace, a
+pale pillow and bobbins on a table, a flower bed. 12 voxels per tile.
 """
 
-from nsvoxel import detail_v5 as Q
+from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
-from nsvoxel.grid import mat
-from nsvoxel.mats import CANVAS, PLASTER, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel import parts_kit as K
+from nsvoxel import parts_v7 as W
+from nsvoxel.grid import mat, shade_of
+from nsvoxel.mats import CANVAS, IRON, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-ROOF = mat("terracotta", 0.9)
-LACE = P.cloth(mat("canvas", 1.12))
-LACE_HOLE = P.cloth(mat("canvas", 0.96))
-PILLOW = mat("dye-blue", 1.1)
-
+VOXELS_PER_TILE = 12
 GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
 
+GOODS = mat("canvas", 1.35)
 
 def build(ctx):
-    v = ctx.vox()  # 24 × 40
-    seed = 107
-    P.yard(v, 0, 0, 24, 40, "grass", seed=seed)
-    P.yard(v, 1, 30, 23, 40, "paved", seed=seed)
-    b = Q.palazzo(v, 9, 3, 21, 28, (8, 5), upper=PLASTER, roof=ROOF, along="y", seed=seed)
-    f = b.face("y+")
-    P.entrance(f, 13, 2, 3, 6, leaf=TIMBER_DARK, frame=Q.DRESSED, lintel=Q.DRESSED)
-    for side in ("x-", "x+"):
-        for a in (5, 10, 15, 20, 24):
-            Q.window(b.face(side), a, 3, 2, 5, hood="cornice", surround=True)
-        for a in (8, 18):
-            Q.window(b.face(side), a, 10, 2, 3, hood=None)
-    P.roof_chimney(v, b.roof, 17, 5, above=2, brick=True)
-    # Lace pillows on stands by the door.
-    for x in (3, 6):
-        v.box(x, 31, 1, x + 1, 32, 3, TIMBER)
-        v.box(x - 1, 30, 3, x + 2, 33, 4, PILLOW)
-        v.set(x, 31, 4, mat("canvas", 1.12))
-    # A frame with a hung piece of lace (sways).
-    for y in (6, 22):
-        v.box(4, y, 1, 5, y + 1, 11, TIMBER)
-    v.box(4, 6, 11, 5, 23, 12, TIMBER_LIGHT)
-    for y in range(8, 21):
-        for z in range(4, 11):
-            v.set(4, y, z, LACE_HOLE if (y + z) % 3 == 0 else LACE)
-    # Boxes of fine cloth, a bench, a cart.
-    P.box_crate(v, 2, 25, 1, contents=mat("canvas", 1.1))
-    P.box_crate(v, 5, 25, 1, contents=PILLOW)
-    P.bench(v, 16, 31, 1, 5)
-    P.handcart(v, 9, 34, 1, along="x", load=CANVAS)
-    v.anchor("cart", 18, 39, 1)
-    P.scatter(v, 0, 0, 24, 30, 0.03, seed=seed)
+    v = ctx.vox()  # 36 × 60
+    seed = 159
+    K.ground(v, 18, 49, 15, 12, seed, "paved")
+    h = K.hall(v, 6, 6, 36 - 6, 33, 4, "y", seed, door=("y+", 16), wins=[])
+    K.rack(v, 6, 30, 34, GOODS, h=13, drop=10)
+    K.rack(v, 6, 30, 42, [GOODS, shade_of(GOODS, 0.9)], h=11, drop=8)
+    v.box(8, 48, 1, 20, 52, 3, TIMBER_LIGHT)
+    K.pile(v, 10, 48, 3, 8, 4, 2, GOODS, seed)
+    P.flower_bed(v, 24, 46, 32, 52, 1, seed=seed)
+    P.handcart(v, 8, 48, 1, along="x", load=GOODS)
+    v.anchor("cart", 14, 54, 1)
+    K.tufts(v, seed, 0.02)
     return P.colour_jitter(v, seed=seed)

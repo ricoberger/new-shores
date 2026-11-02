@@ -7400,9 +7400,9 @@
     "lace_maker": {
       "anchors": {
         "cart": [
-          0.75,
+          -0.3333,
           0.0,
-          -2.375
+          -2.0
         ],
         "door": [
           0.0,
@@ -7411,37 +7411,37 @@
         ],
         "status": [
           0.0,
-          3.25,
+          4.0,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.25,
-          3.0,
-          2.25
+          1.5,
+          3.75,
+          2.5
         ],
         "min": [
-          -1.25,
+          -1.5,
           0.0,
-          -2.25
+          -2.4167
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.25,
-            3.0,
-            2.25
+            1.5,
+            3.75,
+            2.5
           ],
           "min": [
-            -1.25,
+            -1.5,
             0.0,
-            -2.25
+            -2.4167
           ]
         },
         "budget": 7500,
-        "bytes": 79008,
+        "bytes": 80452,
         "ground": [
           [
             "none",
@@ -7460,7 +7460,7 @@
           ],
           [
             "none",
-            "none",
+            "paved",
             "none"
           ],
           [
@@ -7472,35 +7472,32 @@
         "lite": {
           "bounds": {
             "max": [
-              1.5,
-              3.0,
-              2.5
+              1.0,
+              3.5,
+              2.0
             ],
             "min": [
-              -1.5,
+              -1.0,
               0.0,
-              -2.5
+              -2.0
             ]
           },
           "budget": 600,
-          "bytes": 8904,
+          "bytes": 5252,
           "path": "lace_maker.lite.glb",
-          "sha256": "160ff4354ed715e3424588226ea6fecc0354590d3826a34966c2fa0ef2e3c871",
-          "triangles": 230
+          "sha256": "e7a82651ab4d3fdfc1d39453ecb8822f46483ae1aff4b295795c58282a8d362f",
+          "triangles": 112
         },
         "path": "lace_maker.glb",
-        "sha256": "c7fa5a3250cff34effa969dea886623a37693dc2d4a1bfc6478c45d75003196f",
-        "triangles": 2574
+        "sha256": "6438ee709fb116f431b315346e992e23399f11ba42f147e8d5cabd8316053bd4",
+        "triangles": 2470
       },
       "footprint": {
         "h": 5,
         "w": 3
       },
       "kind": "building",
-      "sway": [
-        "cloth"
-      ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "leather_works": {
       "anchors": {
