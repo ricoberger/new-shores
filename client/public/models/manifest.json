@@ -14040,14 +14040,14 @@
     "weaver_linen": {
       "anchors": {
         "cart": [
-          1.25,
+          0.8333,
           0.0,
-          -2.125
+          -0.5
         ],
         "chimney": [
-          -1.1875,
+          -0.0833,
           3.5,
-          1.3125
+          1.6667
         ],
         "door": [
           0.0,
@@ -14055,43 +14055,43 @@
           -2.5
         ],
         "smoke": [
-          -1.1875,
-          3.625,
-          1.3125
+          -0.0833,
+          3.5833,
+          1.6667
         ],
         "status": [
           0.0,
-          3.875,
+          3.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          3.625,
-          2.25
+          2.0,
+          3.4167,
+          2.5
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -2.0
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            3.625,
-            2.25
+            2.0,
+            3.4167,
+            2.5
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -2.0
+            -2.5
           ]
         },
         "budget": 10000,
-        "bytes": 92260,
+        "bytes": 163524,
         "ground": [
           [
             "none",
@@ -14101,19 +14101,19 @@
           ],
           [
             "none",
-            "none",
-            "none",
+            "dirt",
+            "dirt",
             "none"
           ],
           [
             "dirt",
             "dirt",
             "dirt",
-            "dirt"
+            "none"
           ],
           [
             "none",
-            "none",
+            "dirt",
             "none",
             "none"
           ],
@@ -14127,7 +14127,7 @@
         "lite": {
           "bounds": {
             "max": [
-              2.0,
+              1.5,
               3.5,
               2.5
             ],
@@ -14138,14 +14138,14 @@
             ]
           },
           "budget": 800,
-          "bytes": 11244,
+          "bytes": 9644,
           "path": "weaver_linen.lite.glb",
-          "sha256": "0517caac3a06a7ed41c7a9c07c6b15e88aad1731d76ef0acb4576d886c69b79f",
-          "triangles": 288
+          "sha256": "18903d9111b35a0e505155ab6b533474ce334d53b946576f1cc5fb9c3f8311f7",
+          "triangles": 262
         },
         "path": "weaver_linen.glb",
-        "sha256": "c21cba2270796a045f5203198f25ec4fd5df35198f22a700fbbb6861391077ad",
-        "triangles": 2862
+        "sha256": "fd662599bc161380243ef294281e72e3576cd979e15e88daafe54c9373b6eb58",
+        "triangles": 4954
       },
       "footprint": {
         "h": 5,
@@ -14155,7 +14155,7 @@
       "sway": [
         "cloth"
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "weaver_wool": {
       "anchors": {

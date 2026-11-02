@@ -1,59 +1,50 @@
 """
-Linen weaver (4 × 5; D-057 §3): a workshop with a coursed-stone ground
-floor, a jettied plaster upper storey and tiles (chimney with smoke), a
-loom with a white web under a tiled lean-to, linen bleaching on the
-grass hung in long white sheets on lines (cloth: they sway), a winding
-frame, bales of flax and a cart.
+Linen weaver (4 × 5; V7 rework after the Anno 1404 weaver's hut, tier II): a
+half-timbered workshop (rubble ground floor, terracotta, slim chimney with
+smoke) with a tiled lean-to over a loom with a white web, linen bleaching in
+long white sheets on lines (cloth: they sway), flax bales, a winding frame
+and a cart. 12 voxels per tile.
 """
 
+from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
-from nsvoxel.mats import CANVAS, PLASTER, TIMBER, TIMBER_LIGHT
+from nsvoxel import parts_kit as K
+from nsvoxel.grid import mat
+from nsvoxel.mats import CANVAS, TIMBER_DARK, TIMBER_LIGHT
 
-LINEN = P.mat("plaster", 1.08)
-FLAX = P.mat("thatch", 1.15)
-SHEET = P.cloth(LINEN)
-SHEET_SHADE = P.cloth(P.shade_of(LINEN, 0.96))
-
+VOXELS_PER_TILE = 12
 GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+LINEN = mat("canvas", 1.25)
+SHEET = (P.cloth(LINEN), P.cloth(mat("canvas", 1.18)))
+FLAX = mat("hemp", 1.05)
 
 
 def build(ctx):
-    v = ctx.vox()  # 32 × 40
-    seed = 62
-    P.yard(v, 0, 0, 32, 40, "grass", seed=seed)
-    P.yard(v, 2, 18, 30, 24, "dirt", seed=seed)
-    b = P.building(v, 3, 4, 21, 16, "citizen", along="x", upper=PLASTER, seed=seed, spacing=4)
-    f, F = b.face("y+"), b.face("y+", upper=True)
-    P.entrance(f, 9, 2, 3, 5, frame=P.DRESSED, lintel=P.DRESSED)
-    P.casement(f, 4, 3, 3, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
-    P.casement(f, 15, 3, 3, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
-    for a in (4, 10, 16):
-        P.casement(F, a, 11, 2, 3, frame=None, sill=TIMBER_LIGHT, shutters=P.mat("dye-blue", 1.1))
-    P.trade_sign(f, 13, 7, LINEN)
-    P.roof_chimney(v, b.roof, 6, 8, above=3, brick=True, anchor=True)
-    # Loom under a lean-to on the east.
-    P.lean_to(v, 22, 30, 5, 15, 8, "tiles", down="x+", ov=1)
-    v.box(23, 7, 1, 24, 13, 6, TIMBER)
-    v.box(27, 7, 1, 28, 13, 6, TIMBER)
-    v.box(23, 7, 6, 28, 13, 7, TIMBER_LIGHT)
-    v.box(24, 8, 2, 27, 12, 3, TIMBER_LIGHT)
-    v.box(24, 8, 3, 27, 12, 4, LINEN)
-    # Bleaching green: long white sheets hung on lines between posts (swaying cloth).
-    for y in (27, 31, 35):
-        for x in range(4, 24):
-            c = SHEET if (x // 6) % 2 == 0 else SHEET_SHADE
-            for z in range(3, 6):
-                v.set(x, y, z, c)
-            v.set(x, y, 6, TIMBER_LIGHT)
-        for x in (3, 24):
-            v.box(x, y, 1, x + 1, y + 1, 7, TIMBER)
-    # Winding frame, flax bales, cart.
-    v.box(4, 19, 1, 5, 21, 4, TIMBER)
-    v.box(8, 19, 1, 9, 21, 4, TIMBER)
-    v.box(5, 19, 2, 8, 21, 4, CANVAS)
-    P.bale(v, 12, 19, 1, 3, 2, 2, m=FLAX)
-    P.bale(v, 16, 19, 1, 3, 2, 2, m=FLAX)
-    P.handcart(v, 22, 19, 1, along="x", load=LINEN)
-    v.anchor("cart", 26, 37, 1)
-    P.scatter(v, 0, 0, 32, 40, 0.025, seed=seed)
+    v = ctx.vox()  # 48 × 60
+    seed = 59
+    K.ground(v, 20, 28, 17, 14, seed)
+    h = K.hall(v, 4, 5, 30, 24, 2, "x", seed, door=("y+", 14), smoke=True, chim=(22, 9), wins=[7, 22])
+    K.lean(v, 30, 40, 7, 22, 10, "x+", tier=2)
+    v.box(31, 9, 1, 32, 20, 9, TIMBER_DARK)
+    v.box(38, 9, 1, 39, 20, 9, TIMBER_DARK)
+    for x in (33, 36):
+        for y in (10, 18):
+            v.box(x, y, 1, x + 1, y + 1, 9, TIMBER_DARK)
+    for y in range(10, 19):
+        for x in (34, 35):
+            for z in range(3, 8):
+                v.set(x, y, z, CANVAS)
+        for z in range(3, 5):
+            v.set(34, y, z, LINEN)
+            v.set(35, y, z, LINEN)
+    # Bleaching lines across the front, hung with long white sheets.
+    V.drying_frame(v, 4, 40, 50, 1, 11, SHEET, post=TIMBER_DARK, every=6, drop=7)
+    V.drying_frame(v, 4, 40, 42, 1, 10, SHEET, post=TIMBER_DARK, every=6, drop=7)
+    P.bale(v, 6, 30, 1, 5, 3, 3, m=FLAX)
+    P.bale(v, 12, 30, 1, 5, 3, 3, m=FLAX)
+    P.bale(v, 9, 30, 4, 5, 3, 2, m=FLAX)
+    P.handcart(v, 30, 30, 1, along="x", load=FLAX)
+    v.anchor("cart", 34, 36, 1)
+    K.tufts(v, seed)
     return P.colour_jitter(v, seed=seed)
