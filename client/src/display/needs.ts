@@ -104,6 +104,16 @@ export function needAlternatives(content: (NeedContent & Partial<Pick<Content, "
   return listOr(names);
 }
 
+/**
+ * The goods that fulfil a goods need, as the player-facing alternatives ("Bread or Cheese"); undefined for a need
+ * without goods (a building or chain need) and for unknown IDs. Needs the content's `goods` for their names.
+ */
+export function needGoods(content: (NeedContent & Partial<Pick<Content, "goods">>) | null | undefined, id: string): string | undefined {
+  const goods = content?.needs?.find((x) => x.id === id)?.goods ?? [];
+  if (goods.length === 0) return undefined;
+  return listOr(goods.map((g) => content?.goods?.find((x) => x.id === g.good)?.name || g.good));
+}
+
 /** The display group of a need category (need_categories[].group: "goods" or "public"); undefined without one. */
 export function needGroup(content: NeedContent, category: string | undefined): string | undefined {
   if (!category) return undefined;
@@ -178,4 +188,40 @@ export function upgradeReasonText(content: NeedContent, reason: string): string 
     default:
       return reason;
   }
+}
+
+/** The need entries of one category, in card order; `category` is undefined for entries without one. */
+export interface NeedCategoryRun<T> {
+  category?: string;
+  needs: T[];
+}
+
+/** The position of the tier a need's requirement comes from (a carried category: the lower tier it was carried from); Infinity when unknown. */
+function needTierIndex(content: NeedContent, id: string): number {
+  const n = content?.needs?.find((x) => x.id === id);
+  const index = content?.tiers?.find((t) => t.id === (n?.from_tier || n?.tier))?.index;
+  return index ?? Number.POSITIVE_INFINITY;
+}
+
+/**
+ * Pulls the needs of one category together at the position of the category's first need, and orders the
+ * needs within it by the tier of their requirement, the lowest tier first (a house carries one need per
+ * tier for the same category: Food of its own tier and of the lower tiers). The card shows the category
+ * once with those needs below it.
+ */
+export function groupByCategory<T extends NeedRef>(content: NeedContent, needs: readonly T[]): NeedCategoryRun<T>[] {
+  const runs: NeedCategoryRun<T>[] = [];
+  const byCategory = new Map<string, NeedCategoryRun<T>>();
+  for (const n of needs) {
+    const run = n.category ? byCategory.get(n.category) : undefined;
+    if (run) {
+      run.needs.push(n);
+      continue;
+    }
+    const r: NeedCategoryRun<T> = { ...(n.category ? { category: n.category } : {}), needs: [n] };
+    if (n.category) byCategory.set(n.category, r);
+    runs.push(r);
+  }
+  for (const r of runs) r.needs.sort((a, b) => needTierIndex(content, a.id) - needTierIndex(content, b.id));
+  return runs;
 }

@@ -470,7 +470,6 @@ export const de: Record<keyof typeof en, string> = {
   "infoPanel.tiles": "{count} Felder",
   "infoPanel.residents": "Bewohner",
   "infoPanel.satisfaction": "Zufriedenheit",
-  "infoPanel.needs": "Bedürfnisse",
   "needs.group.goods": "Waren",
   "needs.group.public": "Öffentliche Gebäude",
   "infoPanel.order": "Bestellen",

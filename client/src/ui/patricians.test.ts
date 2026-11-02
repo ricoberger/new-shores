@@ -176,20 +176,20 @@ describe("tier 4 in the cards (D-056 C4)", () => {
     expect(t).toContain("Residents→ 40 / 40");
     const rows = [...html.matchAll(/data-testid="house-need-(?!group-)([a-z_]+)"/g)].map((m) => m[1]);
     expect(rows).toEqual([
+      "patricians_settlers_food",
+      "patricians_citizens_food",
+      "patricians_merchants_food",
       "patricians_food",
+      "patricians_citizens_drink",
+      "patricians_merchants_drink",
       "patricians_drink",
+      "patricians_settlers_clothing",
+      "patricians_citizens_clothing",
+      "patricians_merchants_clothing",
       "patricians_clothing",
+      "patricians_merchants_comfort",
       "patricians_comfort",
       "patricians_luxury",
-      "patricians_settlers_food",
-      "patricians_settlers_clothing",
-      "patricians_citizens_food",
-      "patricians_citizens_drink",
-      "patricians_citizens_clothing",
-      "patricians_merchants_food",
-      "patricians_merchants_drink",
-      "patricians_merchants_clothing",
-      "patricians_merchants_comfort",
       "patricians_market",
       "patricians_faith",
       "patricians_education",
@@ -198,17 +198,21 @@ describe("tier 4 in the cards (D-056 C4)", () => {
       "patricians_fire_protection",
       "patricians_health",
     ]);
-    // Two headings, each right before its first row; each carried row names its tier; no tier headings.
-    for (const label of ["Food (Settlers)", "Clothing (Settlers)", "Drink (Citizens)", "Comfort (Merchants)"]) expect(t).toContain(label);
-    expect(html.match(/<tr[^>]*data-testid="house-need-(?!group-)/g)).toHaveLength(21);
+    // Two section headings (no "Needs"); each goods category once (also with a single need), its needs below it by tier, lowest first, named by their goods; no tier names.
+    expect(html.match(/<tr[^>]*data-testid="house-need-(?!group-|category-)/g)).toHaveLength(21);
+    expect(html.match(/data-testid="house-need-category-[a-z_]+"/g)).toEqual(["food", "drink", "clothing", "comfort", "luxury"].map((c) => `data-testid="house-need-category-${c}"`));
     expect(html.match(/data-testid="house-need-group-[a-z_]+"/g)).toEqual(['data-testid="house-need-group-goods"', 'data-testid="house-need-group-public"']);
-    expect(html).toMatch(/data-testid="house-need-group-goods"[^>]*><th[^>]*>Goods<\/th><\/tr><tr[^>]*data-testid="house-need-patricians_food"/);
-    expect(html).toMatch(/data-testid="house-need-group-public"[^>]*><th[^>]*>Public buildings<\/th><\/tr><tr[^>]*data-testid="house-need-patricians_market"/);
-    expect(html).not.toMatch(/Security|<th[^>]*>(Settlers|Citizens|Merchants)<\/th>/);
+    expect(html).toMatch(/data-testid="house-need-group-goods">Goods<\/div><table[^>]*><tbody><tr[^>]*data-testid="house-need-category-food"/);
+    expect(html).toMatch(/data-testid="house-need-group-public">Public buildings<\/div><table[^>]*><tbody><tr[^>]*data-testid="house-need-patricians_market"/);
+    expect(t).not.toMatch(/Needs|Security|\((Settlers|Citizens|Merchants)\)/);
+    expect(text(html.match(/data-testid="house-need-patricians_food"[^>]*>(.*?)<\/tr>/)![1]!)).toBe("Roast beef or Oysters100 %");
+    expect(text(html.match(/data-testid="house-need-patricians_settlers_food"[^>]*>(.*?)<\/tr>/)![1]!)).toBe("Fish100 %");
     // Luxury: its own icon and the server's fulfilment.
     const luxury = html.match(/data-testid="house-need-patricians_luxury"[^>]*>(.*?)<\/tr>/)![1]!;
-    expect(text(luxury)).toBe("Luxury60 %");
-    expect(luxury).toContain(`<path d="${ICON_PATHS["need:luxury"]}"`);
+    expect(text(luxury)).toBe("Jewellery or Instruments60 %");
+    const luxuryHeading = html.match(/data-testid="house-need-category-luxury"[^>]*>(.*?)<\/tr>/)![1]!;
+    expect(text(luxuryHeading)).toBe("Luxury");
+    expect(luxuryHeading).toContain(`<path d="${ICON_PATHS["need:luxury"]}"`);
   });
 
   it("names luxury with its icon as the Patricians' worst need in the population details", () => {

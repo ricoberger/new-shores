@@ -468,7 +468,6 @@ export const en = {
   "infoPanel.tiles": "{count} tiles",
   "infoPanel.residents": "Residents",
   "infoPanel.satisfaction": "Satisfaction",
-  "infoPanel.needs": "Needs",
   "needs.group.goods": "Goods",
   "needs.group.public": "Public buildings",
   "infoPanel.order": "Order",

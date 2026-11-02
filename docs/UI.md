@@ -270,9 +270,16 @@ UI shows the same numbers the server uses.
 **House**
 
 - A "Residents" heading, then two rows like the producer Details: "Residents  ↑ current / max" (the arrow is the growth direction) and "Satisfaction  %"; no bars.
-- Needs: one row per need (icon and name on the left, fulfilment % on the
-  right, no bar), the reason if not met as a tooltip ("short supply",
-  "no supply on the island", "out of range").
+- No "Needs" heading: **Goods** and **Public buildings** are section headings
+  like Residents. In Goods each category appears once as a heading row (icon
+  and name), also with a single need. Its needs, one per tier the house
+  carries (Food of its own tier and of the lower tiers), are below it, aligned
+  with the name, the lowest tier first, each named by its goods ("Fish",
+  "Roast beef or Oysters") with the server's fulfilment %. No tier names
+  and no aggregate per category (the client computes no rule). Public
+  buildings: one row per category (icon and name, fulfilment %). The reason if
+  not met is the tooltip ("short supply", "no supply on the island", "out of
+  range"); a building or chain need lists its buildings there.
 - Upgrade button; when it is disabled, the server's reason is one short line below all footer buttons (they keep their size) and the button's tooltip; none on a house of the highest tier, like the levelled buildings at their last level.
 
 **Trading Post**

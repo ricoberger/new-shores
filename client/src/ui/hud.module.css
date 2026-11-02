@@ -580,18 +580,15 @@
   text-align: left;
 }
 
-/* A need display group (D-065: Security) in a house card: a small heading row, its members indented. */
-.table th.needGroup {
+/* A goods category with several needs (one per tier) in a house card: its name as a row, the needs below it aligned with the name. */
+.table th.needCategory {
   padding-top: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ns-ui-ink-soft);
+  font-weight: 400;
 }
 
+/* Starts under the category's name: cell padding, icon and the icon's gap. */
 .table td.needInGroup {
-  padding-left: 12px;
+  padding-left: calc(4px + 1.15em + 4px);
 }
 
 .buttons {
