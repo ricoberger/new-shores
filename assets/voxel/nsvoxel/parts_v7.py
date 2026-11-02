@@ -18,8 +18,8 @@ from types import SimpleNamespace
 from . import parts as _p  # first: parts imports detail at its end
 from . import detail as _d
 from . import detail_v4 as _v
-from .grid import hash3, shade_of
-from .mats import CANVAS, IRON, THATCH_DARK, PLASTER, STONE, STONE_DARK, STONE_LIGHT, TERRACOTTA, TIMBER, TIMBER_DARK, TIMBER_LIGHT, WINDOW, BRASS
+from .grid import hash3, mat, shade_of
+from .mats import CANVAS, IRON, PLANK, THATCH_DARK, PLASTER, STONE, STONE_DARK, STONE_LIGHT, TERRACOTTA, TIMBER, TIMBER_DARK, TIMBER_LIGHT, WINDOW, BRASS
 
 #: The three stone shades of rubble: dark, mid, pale.
 RUBBLE = (0.66, 0.84, 1.0)
@@ -457,3 +457,42 @@ def gate(f, a, w, h, frame=None, arch=False):
             f.put(a + w // 2, 2 + j, TIMBER_DARK, out=-1)
     else:
         _p.barn_gate(f, a, 2, w, h)
+
+
+# ---------------------------------------------------------------- logs with pale cut ends (lumberjack, sawmill)
+
+BARK = mat("timber", 0.78)
+CUT = shade_of(PLANK, 1.08)  # the pale cut end
+
+
+def log(v, x, y, z, length, along="x"):
+    """A 2 × 2 log in bark with a pale cut disc at both ends."""
+    for k in range(length):
+        c = CUT if k in (0, length - 1) else shade_of(BARK, 1.0 if k % 4 < 2 else 0.88)
+        if along == "x":
+            v.box(x + k, y, z, x + k + 1, y + 2, z + 2, c)
+        else:
+            v.box(x, y + k, z, x + 2, y + k + 1, z + 2, c)
+
+
+def log_pile(v, x, y, z, length, along="y", n=3):
+    """Logs in a pyramid: n at the bottom, one fewer on each course above, ends pale."""
+    for row in range(n):
+        for i in range(n - row):
+            lat = i * 2 + row
+            zz = z + row * 2
+            if along == "y":
+                log(v, x + lat, y, zz, length, "y")
+            else:
+                log(v, x, y + lat, zz, length, "x")
+
+
+def stump(v, x, y, z=1, h=3, seed=0):
+    """A 3 × 3 stump: bark sides, a pale cut top with a bark rim, a root."""
+    v.box(x, y, z, x + 3, y + 3, z + h, BARK)
+    for dx in range(3):
+        for dy in range(3):
+            if (dx, dy) not in ((0, 0), (2, 2), (0, 2), (2, 0)):
+                v.set(x + dx, y + dy, z + h - 1, CUT)
+    if hash3(x, y, 71, seed) < 0.6:
+        v.box(x + 3, y + 1, z, x + 4, y + 2, z + 1, BARK)

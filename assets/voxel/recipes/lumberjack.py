@@ -12,6 +12,7 @@ the log stack (D-068); the rest of the plot is grass with tufts and flowers.
 
 from nsvoxel import parts as P
 from nsvoxel import parts_v7 as W
+from nsvoxel.parts_v7 import BARK, CUT, log, log_pile, stump  # noqa: F401
 from nsvoxel.grid import hash3, mat, shade_of
 from nsvoxel.mats import FLOWER, GRASS_A, GRASS_B, PLANK, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
@@ -21,42 +22,7 @@ GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it
 FLOOR = 3  # the cabin floor stands on piles
 GABLE = mat("timber", 1.12)
 LOGS = mat("timber", 0.8)  # the settlers' log walls
-BARK = mat("timber", 0.78)
-CUT = shade_of(PLANK, 1.08)  # the pale cut end
 BLADE = mat("iron", 2.1)  # a bright steel edge
-
-
-def log(v, x, y, z, length, along="x"):
-    """A 2 × 2 log in bark with a pale cut disc at both ends."""
-    for k in range(length):
-        c = CUT if k in (0, length - 1) else shade_of(BARK, 1.0 if k % 4 < 2 else 0.88)
-        if along == "x":
-            v.box(x + k, y, z, x + k + 1, y + 2, z + 2, c)
-        else:
-            v.box(x, y + k, z, x + 2, y + k + 1, z + 2, c)
-
-
-def log_pile(v, x, y, z, length, along="y", n=3):
-    """Logs in a pyramid: n at the bottom, one fewer on each course above, ends pale."""
-    for row in range(n):
-        for i in range(n - row):
-            lat = i * 2 + row
-            zz = z + row * 2
-            if along == "y":
-                log(v, x + lat, y, zz, length, "y")
-            else:
-                log(v, x, y + lat, zz, length, "x")
-
-
-def stump(v, x, y, z=1, h=3, seed=0):
-    """A 3 × 3 stump: bark sides, a pale cut top with a bark rim, a root."""
-    v.box(x, y, z, x + 3, y + 3, z + h, BARK)
-    for dx in range(3):
-        for dy in range(3):
-            if (dx, dy) not in ((0, 0), (2, 2), (0, 2), (2, 0)):
-                v.set(x + dx, y + dy, z + h - 1, CUT)
-    if hash3(x, y, 71, seed) < 0.6:
-        v.box(x + 3, y + 1, z, x + 4, y + 2, z + 1, BARK)
 
 
 def chopping_block(v, x, y, z=1):

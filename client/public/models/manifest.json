@@ -10773,14 +10773,14 @@
     "sawmill": {
       "anchors": {
         "cart": [
-          1.25,
+          1.1667,
           0.0,
-          -2.5
+          -2.6667
         ],
         "chimney": [
-          0.3125,
-          2.875,
-          1.9375
+          0.2083,
+          2.25,
+          1.875
         ],
         "door": [
           0.0,
@@ -10788,49 +10788,61 @@
           -3.0
         ],
         "smoke": [
-          0.3125,
-          3.0,
-          1.9375
+          0.2083,
+          2.3333,
+          1.875
         ],
         "status": [
           0.0,
-          3.25,
+          2.5833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.25,
-          3.0,
-          2.625
+          2.0,
+          2.3333,
+          3.0
         ],
         "min": [
-          -1.625,
+          -2.0,
           0.0,
-          -2.625
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.25,
-            3.0,
-            2.625
+            2.0,
+            2.3333,
+            3.0
           ],
           "min": [
-            -1.625,
+            -2.0,
             0.0,
-            -2.625
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 74120,
+        "bytes": 232860,
         "ground": [
           [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
             "dirt",
@@ -10839,59 +10851,47 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
+              2.0,
               2.5,
-              3.0,
-              2.5
+              3.0
             ],
             "min": [
               -1.5,
               0.0,
-              -2.5
+              -2.0
             ]
           },
           "budget": 960,
-          "bytes": 11692,
+          "bytes": 10568,
           "path": "sawmill.lite.glb",
-          "sha256": "5d074168fdff2e7fc33f5803c6e71f617bacff4b8b1c36a157e771339fdc1012",
-          "triangles": 314
+          "sha256": "614d098b6a217a06199306531a698c8d1398f9147123b885a7cf3947057d158c",
+          "triangles": 268
         },
         "path": "sawmill.glb",
-        "sha256": "edd0c0b8628bdb0db6485c242ceac4c9c06109b53e466e10151107dd0004bdc3",
-        "triangles": 2264
+        "sha256": "30e53a035c993c23f889a773be47ed8667eef1336681eca85eb5017a44c9c61f",
+        "triangles": 7348
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "school": {
       "anchors": {
