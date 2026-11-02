@@ -5808,14 +5808,14 @@
     "gold_smelter": {
       "anchors": {
         "cart": [
-          -0.5,
+          0.8333,
           0.0,
-          -2.75
+          -2.6667
         ],
         "chimney": [
-          -0.75,
-          3.25,
-          1.75
+          -0.8333,
+          3.0833,
+          1.5
         ],
         "door": [
           0.0,
@@ -5823,79 +5823,79 @@
           -3.0
         ],
         "smoke": [
-          -0.75,
-          3.375,
-          1.75
+          -0.8333,
+          3.1667,
+          1.5
         ],
         "status": [
           0.0,
-          3.5,
+          3.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.125,
-          3.25,
-          2.75
+          2.0,
+          3.4167,
+          3.0
         ],
         "min": [
-          -1.75,
+          -2.0,
           0.0,
-          -2.0
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.125,
-            3.25,
-            2.75
+            2.0,
+            3.4167,
+            3.0
           ],
           "min": [
-            -1.75,
+            -2.0,
             0.0,
-            -2.0
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 86768,
+        "bytes": 95332,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
+            "none",
+            "paved",
             "paved",
             "paved"
           ],
           [
-            "dirt",
-            "dirt",
+            "paved",
+            "paved",
             "paved",
             "paved"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "paved",
+            "paved",
+            "none"
           ]
         ],
         "lite": {
@@ -5903,30 +5903,30 @@
             "max": [
               2.0,
               3.5,
-              3.0
+              2.5
             ],
             "min": [
               -2.0,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 960,
-          "bytes": 12472,
+          "bytes": 8624,
           "path": "gold_smelter.lite.glb",
-          "sha256": "62e15da5ab598e59d82e8e9967300ccf16a67995848d0d643a5751c0a52d6188",
-          "triangles": 330
+          "sha256": "0260d7b0111f6aafb57afbe41c5bb1dc599e661ab4b14dca49b28ffafee1f79b",
+          "triangles": 228
         },
         "path": "gold_smelter.glb",
-        "sha256": "5d46e98a89c064518fa7f9439dd1fa2f0536ff65e65474bcb66aaab1408ab12b",
-        "triangles": 2680
+        "sha256": "3f091e7d6273621d91f589b25fa055d0e6c39436056eefb8e3c3ecc0a5391c8c",
+        "triangles": 2944
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "goldsmith": {
       "anchors": {
