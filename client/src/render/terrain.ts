@@ -33,6 +33,7 @@ import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
 import type { RoadTile } from "./roads";
 import { fieldPatchTops } from "./farfields";
+import { paintYards, type YardTile } from "./groundpaint";
 import { type FieldBase, fieldBase, type FieldTile, isQuayTile, paintFields, paintRoads, QUAY_H, touchedChunks } from "./roadvoxels";
 import { LEVEL_STEPS } from "./terraces";
 import { COAST_REACH, downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, roundDistanceTo, SIDE_ROCK, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
@@ -142,8 +143,8 @@ export interface TerrainMeshes {
   readonly far: Builder | null;
   /** Changes whenever `far` does (the mask layer's cache key). */
   readonly farVersion: number;
-  /** Paints the island's roads into the terrain; returns the chunks whose meshes were rebuilt. */
-  setRoads(tiles: readonly RoadTile[], fields?: readonly FieldTile[]): string[];
+  /** Paints the island's roads, field ground and yards into the terrain; returns the chunks whose meshes were rebuilt. */
+  setRoads(tiles: readonly RoadTile[], fields?: readonly FieldTile[], yards?: readonly YardTile[]): string[];
   /** The coarse lite terrain (far LOD when the lite one does not fit the budget, farmesh.ts homeTerrain; built on first use) instead of the lite one. */
   setCoarse(on: boolean): void;
   /** Triangles of the lite mesh (2 columns per tile), whichever is drawn. */
@@ -257,17 +258,20 @@ export class TerrainBuild {
   }
 
   /**
-   * Paints the roads and the ground under the fields into the near field
-   * (render/roadvoxels.ts) and the ground texture; rebuilds the meshes of the built chunks whose columns
-   * changed height (or whose neighbours did) and returns their keys.
+   * Paints the roads, the ground under the fields and the buildings' yards
+   * (D-068) into the near field (render/roadvoxels.ts, render/groundpaint.ts)
+   * and the ground texture, from the base: a removed road, field or yard
+   * returns to the terrain colour. Rebuilds the meshes of the built chunks
+   * whose columns changed height (or whose neighbours did) and returns their keys.
    */
-  setRoads(tiles: readonly RoadTile[], fields: readonly FieldTile[] = []): string[] {
-    const key = `${tiles.map((t) => `${t.x},${t.y},${t.type ?? ""}`).join(";")}|${fields.map((t) => `${t.x},${t.y},${t.type},${t.w ?? 1}x${t.h ?? 1},${t.patch ?? ""}`).join(";")}`;
+  setRoads(tiles: readonly RoadTile[], fields: readonly FieldTile[] = [], yards: readonly YardTile[] = []): string[] {
+    const key = `${tiles.map((t) => `${t.x},${t.y},${t.type ?? ""}`).join(";")}|${fields.map((t) => `${t.x},${t.y},${t.type},${t.w ?? 1}x${t.h ?? 1},${t.patch ?? ""}`).join(";")}|${yards.map((t) => `${t.x},${t.y},${t.kind}`).join(";")}`;
     if (key === this.roadKey) return [];
     this.roadKey = key;
     const f = this.fields.full;
     const changed = paintRoads(f, this.base, tiles, this.seed);
     paintFields(f, this.base, fields, this.seed);
+    paintYards(f, this.base, yards, this.seed);
     this.texture.update(groundTexels(f));
     this.updatePatches(fields);
     // The quays stand on the water, which the lite field (built roadless) has below the sea: their decks join the lite mesh.
@@ -433,7 +437,7 @@ export class TerrainBuild {
       get farVersion() {
         return farVersion();
       },
-      setRoads: (tiles, fields) => this.setRoads(tiles, fields),
+      setRoads: (tiles, fields, yards) => this.setRoads(tiles, fields, yards),
       dispose: () => {
         this.liteMesh?.dispose();
         this.liteMesh = null;

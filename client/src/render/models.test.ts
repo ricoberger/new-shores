@@ -77,6 +77,25 @@ describe("committed models are consistent with the manifest", () => {
   );
   const all = entries.flatMap(([id, e]) => entryFiles(e).map((f) => [id, f] as const));
 
+  it("carries a ground map of the footprint's size on buildings' main files only (D-068)", () => {
+    let maps = 0;
+    for (const [id, e] of entries) {
+      for (const f of [e.file, ...(e.variants ?? []), ...Object.values(e.levels ?? {})]) {
+        if (!f?.ground) continue;
+        maps++;
+        expect(e.kind, id).toBe("building");
+        expect(f.ground.length, id).toBe(e.footprint?.h);
+        for (const row of f.ground) {
+          expect(row.length, id).toBe(e.footprint?.w);
+          for (const k of row) expect(["none", "paved", "dirt", "sand", "planks"], id).toContain(k);
+        }
+      }
+      for (const f of [e.file, ...(e.variants ?? []), ...Object.values(e.levels ?? {})]) expect(f?.lite?.ground, id).toBeUndefined();
+      for (const f of Object.values(e.attachments ?? {})) expect(f.ground, id).toBeUndefined();
+    }
+    expect(maps).toBeGreaterThan(40);
+  });
+
   it("every manifest file exists with its sha256, size and triangle count, within its budget", () => {
     expect(all.length).toBeGreaterThan(200);
     for (const [, f] of all) {

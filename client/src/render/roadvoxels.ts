@@ -228,30 +228,33 @@ export interface FieldTile {
   x: number;
   y: number;
   type: string;
-  /** Rotated footprint (tiles; 1 × 1 without): the far view's patch covers it (render/farfields.ts); paintFields paints the anchor tile. */
+  /** Rotated footprint (tiles; 1 × 1 without): paintFields and the far view's patch (render/farfields.ts) cover it. */
   w?: number;
   h?: number;
   /** The far view's patch colour (packed RGB, render/farfields.ts farFieldColor; the fallback without). */
   patch?: number;
 }
 
-/** The ground of a field type: ploughed furrows, pasture grass or orchard grass. */
-export function fieldGround(type: string): "furrows" | "pasture" | "orchard" {
-  return type.includes("pasture") ? "pasture" : type.includes("orchard") ? "orchard" : "furrows";
+/** The ground of a field type: ploughed furrows, pasture grass, orchard grass, or the plain terrain (meadows and tree plots, whose grass is the island's). */
+export function fieldGround(type: string): "furrows" | "pasture" | "orchard" | "grass" {
+  return type.includes("pasture") ? "pasture" : type.includes("orchard") ? "orchard" : type === "meadow" || type === "tree_plot" ? "grass" : "furrows";
 }
 
 /**
- * Paints the ground under the field tiles (colour only, after the roads):
- * crop fields are ploughed soil in furrows along the tile's x, pastures a
- * lusher grass, orchards grass mown in rows. Road and lowered columns
+ * Paints the ground under the field tiles (colour only, after the roads;
+ * the field models stand on it, D-068): crop fields are ploughed soil in
+ * furrows along the tile's x, pastures a lusher grass, orchards grass mown
+ * in rows, meadows and tree plots the terrain's grass. The whole footprint
+ * (`w` × `h` from the anchor, 1 × 1 without). Road and lowered columns
  * keep their colour.
  */
 export function paintFields(f: Field, base: FieldBase, fields: readonly FieldTile[], seed: number): void {
   const vpt = TERRAIN_VPT;
   for (const t of fields) {
     const g = fieldGround(t.type);
-    for (let b = 0; b < vpt; b++) {
-      for (let a = 0; a < vpt; a++) {
+    if (g === "grass") continue;
+    for (let b = 0; b < vpt * (t.h ?? 1); b++) {
+      for (let a = 0; a < vpt * (t.w ?? 1); a++) {
         const i = t.x * vpt + a;
         const j = t.y * vpt + b;
         if (i < 0 || j < 0 || i >= f.nx || j >= f.ny) continue;
@@ -263,7 +266,7 @@ export function paintFields(f: Field, base: FieldBase, fields: readonly FieldTil
         const grass = new Color3(((p >> 16) & 255) / 255, ((p >> 8) & 255) / 255, (p & 255) / 255);
         if (g === "furrows") f.top[k] = pack(DIRT.scale((b % 2 === 0 ? 0.74 : 0.9) + 0.05 * r));
         else if (g === "pasture") f.top[k] = pack(Color3.Lerp(grass, LUSH, 0.45).scale(0.96 + 0.08 * r));
-        else f.top[k] = pack(grass.scale(a % 4 === 1 ? 0.9 : 1.02 + 0.03 * r));
+        else f.top[k] = pack(grass.scale(a % vpt === 1 ? 0.9 : 1.02 + 0.03 * r));
       }
     }
   }

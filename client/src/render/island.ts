@@ -34,7 +34,7 @@ import { FieldDecor, fieldDecorMaterial, FieldTiles } from "./fields";
 import { ConstructionLayer } from "./harbour";
 import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
-import { buildingAnchor, type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, statusHeight } from "./models";
+import { buildingAnchor, type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, modelFileFor, placement, statusHeight } from "./models";
 import { OutcropLayer } from "./outcrops";
 import { rotatedFootprint } from "../display/geometry";
 import { footprintRects, footprintTiles, IslandGround, reliefOf, RockLayer } from "./terraces";
@@ -44,6 +44,7 @@ import { jitterShade, setJitterLod } from "./jitter";
 import { type Builder, buildTerrain, CoastWater, NO_TERRAIN, TerrainBuild, type TerrainMeshes } from "./terrain";
 import { type DetailPlaced, scatterDetail } from "./decorscatter";
 import { farFieldColor } from "./farfields";
+import { groundTiles, type YardTile } from "./groundpaint";
 import type { FieldTile } from "./roadvoxels";
 import { pack } from "./voxelterrain";
 import { type DecorMaterials, decorMaterials, Decoration, FarTrees, TREE_MODELS } from "./trees";
@@ -398,7 +399,7 @@ export class IslandDetail {
     yield;
     b.keys = layerKeys(display);
     // The roads are voxel paths in the terrain: painted before its chunks are meshed.
-    b.terrain?.setRoads(display.roads, fieldTiles(display, defs, this.registry));
+    b.terrain?.setRoads(display.roads, fieldTiles(display, defs, this.registry), yardTiles(display, defs, this.registry));
     b.fields = this.fieldsByChunk(display);
     b.scatter = { width: statics.width, height: statics.height, terrain: statics.terrain, levels: statics.levels, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
   }
@@ -463,7 +464,7 @@ export class IslandDetail {
       this.ground.setRoads(display.roads);
       this.rock.setBridges(this.ground.bridges(), this.id);
       // Colour-only for the fields: only height changes (roads) rebuild chunks.
-      this.chunkRebuilds.roads = this.terrain.setRoads(display.roads, fieldTiles(display, defs, this.registry));
+      this.chunkRebuilds.roads = this.terrain.setRoads(display.roads, fieldTiles(display, defs, this.registry), yardTiles(display, defs, this.registry));
       this.applyTerrainDetail();
     }
     if (old?.layout !== keys.layout) {
@@ -601,7 +602,7 @@ export class IslandDetail {
     if (!built) return;
     this.buildings.refresh();
     // The far view's field patches take the colours of the field models that loaded (a texture update, no remesh).
-    this.terrain.setRoads(built.display.roads, fieldTiles(built.display, built.defs, this.registry));
+    this.terrain.setRoads(built.display.roads, fieldTiles(built.display, built.defs, this.registry), yardTiles(built.display, built.defs, this.registry));
     this.fields.update(this.fieldsByChunk(built.display));
     this.fieldDecor.update(this.fieldsByChunk(built.display));
     this.icons.update(built.display.buildings, built.defs, this.statusY);
@@ -758,6 +759,25 @@ export class IslandDetail {
 }
 
 /** The field tiles of a payload with their rotated footprints (their ground is painted into the terrain; the far view's patches cover the footprint). */
+/**
+ * The yards of the island's buildings (D-068): each building's drawn model
+ * file's ground map (its variant or level), placed and turned with the model
+ * (render/groundpaint.ts groundTiles). Fields and buildings whose model has
+ * no ground map (or no manifest yet) paint nothing.
+ */
+export function yardTiles(display: Pick<IslandDisplay, "buildings">, defs: ReadonlyMap<string, ContentBuilding>, registry: ModelRegistry | null): YardTile[] {
+  const out: YardTile[] = [];
+  for (const b of display.buildings) {
+    const def = defs.get(b.type);
+    if (!def || def.field) continue;
+    const entry = registry?.entry(b.type);
+    if (entry?.kind !== "building") continue;
+    const ground = modelFileFor(entry, b)?.ground;
+    if (ground) out.push(...groundTiles(entry, def, b, ground));
+  }
+  return out;
+}
+
 function fieldTiles(display: Pick<IslandDisplay, "buildings">, defs: ReadonlyMap<string, ContentBuilding>, registry: ModelRegistry | null): FieldTile[] {
   const out: FieldTile[] = [];
   const patches = new Map<string, number>();
