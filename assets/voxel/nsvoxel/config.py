@@ -86,6 +86,12 @@ SHADOW_GROUP = "shadows"
 #: densities were measured on 1 × 1 to 8 × 12 footprints).
 BUDGET_PER_TILE = {"building": 500, "house": 540, "field": 410}
 LITE_BUDGET_PER_TILE = {"building": 40, "house": 45}
+#: Per-model exceptions (full file, flat triangles; replaces the class's per-tile number): the tree
+#: plot's forest-scale trees (the unchanged decor_tree_c conifer is 440 triangles).
+BUDGET_OVERRIDE = {"tree_plot": 450}
+#: Per-model footprint slack in voxels at 8 per tile (default model.FOOTPRINT_SLACK): the tree plot's
+#: crown may overhang the tile by up to half a tile, so neighbouring crowns overlap into a canopy.
+SLACK_OVERRIDE = {"tree_plot": 4}
 #: Ships (no footprint): prototype sloop 1 882, brig 3 948, galleon 5 096
 #: triangles, cargo attachments 192, each with ~50 % headroom.
 BUDGET_SHIPS = {"sloop": 2800, "brig": 6000, "galleon": 7600}

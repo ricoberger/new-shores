@@ -119,7 +119,7 @@ class CommittedTest(unittest.TestCase):
             w, h = content.footprint(CONTENT, cid)
             cls = model.model_class(CONTENT, cid)
             for info in main_files(entry):
-                self.assertEqual(info["budget"], config.BUDGET_PER_TILE[cls] * w * h, cid)
+                self.assertEqual(info["budget"], config.BUDGET_OVERRIDE.get(cid, config.BUDGET_PER_TILE[cls] * w * h), cid)
                 self.assertLessEqual(info["triangles"], info["budget"], info["path"])
                 if cls == "field":
                     self.assertNotIn("lite", info, cid)
@@ -153,8 +153,8 @@ class CommittedTest(unittest.TestCase):
             self.assertEqual(entry.get("sway", []), sorted(set(entry.get("sway", []))))
 
     def test_models_fill_their_footprint_and_stand_on_the_ground(self):
-        slack = model.FOOTPRINT_SLACK / config.VOXELS_PER_TILE
         for cid, entry in self.placed():
+            slack = config.SLACK_OVERRIDE.get(cid, model.FOOTPRINT_SLACK) / config.VOXELS_PER_TILE
             w, h = content.footprint(CONTENT, cid)
             self.assertEqual(entry["footprint"], {"w": w, "h": h}, cid)
             mn, mx = entry["bounds"]["min"], entry["bounds"]["max"]

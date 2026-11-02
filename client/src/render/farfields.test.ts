@@ -32,7 +32,7 @@ async function patchColors(): Promise<Map<string, Color3>> {
   const scene = new Scene(engine);
   const out = new Map<string, Color3>();
   for (const [id, e] of fieldEntries) {
-    const d = await parseGlb(new Uint8Array(readFileSync(join(MODELS, e.file!.path))), scene);
+    const d = await parseGlb(new Uint8Array(readFileSync(join(MODELS, (e.file ?? e.variants![0]!).path))), scene);
     out.set(id, fieldPatchColor(d, (e.footprint?.w ?? 1) * (e.footprint?.h ?? 1)));
   }
   scene.dispose();

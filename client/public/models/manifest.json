@@ -12992,46 +12992,143 @@
         ],
         "status": [
           0.0,
-          1.0,
+          2.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          0.5,
           0.75,
-          0.375
+          2.0,
+          0.5
         ],
         "min": [
-          -0.375,
+          -0.75,
           0.0,
-          -0.5
+          -0.625
         ]
-      },
-      "file": {
-        "bounds": {
-          "max": [
-            0.5,
-            0.75,
-            0.375
-          ],
-          "min": [
-            -0.375,
-            0.0,
-            -0.5
-          ]
-        },
-        "budget": 410,
-        "bytes": 8520,
-        "path": "tree_plot.glb",
-        "sha256": "5ddc57ff1db4e8dacc686c2f6402279f1eac09f8e7f07eeb029d6d2c6c608a28",
-        "triangles": 232
       },
       "footprint": {
         "h": 1,
         "w": 1
       },
       "kind": "field",
+      "variants": [
+        {
+          "bounds": {
+            "max": [
+              0.375,
+              2.0,
+              0.5
+            ],
+            "min": [
+              -0.375,
+              0.0,
+              -0.375
+            ]
+          },
+          "budget": 450,
+          "bytes": 15516,
+          "path": "tree_plot.v0.glb",
+          "sha256": "f9c0f2357b081bc2ba4fc02b5fa4a982ffc9d80504924a26a6b0386123702565",
+          "triangles": 440
+        },
+        {
+          "bounds": {
+            "max": [
+              0.75,
+              1.125,
+              0.5
+            ],
+            "min": [
+              -0.25,
+              0.0,
+              -0.375
+            ]
+          },
+          "budget": 450,
+          "bytes": 12900,
+          "path": "tree_plot.v1.glb",
+          "sha256": "79693a0ac82b8320d7f50481e3e4c17449fa05be7c04e919479ef9640e0d739a",
+          "triangles": 348
+        },
+        {
+          "bounds": {
+            "max": [
+              0.25,
+              1.5,
+              0.25
+            ],
+            "min": [
+              -0.625,
+              0.0,
+              -0.375
+            ]
+          },
+          "budget": 450,
+          "bytes": 9836,
+          "path": "tree_plot.v2.glb",
+          "sha256": "fc41ceeb51a1ec18583e2996e58b734c686d0fcee794a62e7a28314eb40439a3",
+          "triangles": 264
+        },
+        {
+          "bounds": {
+            "max": [
+              0.25,
+              1.125,
+              0.25
+            ],
+            "min": [
+              -0.75,
+              0.0,
+              -0.625
+            ]
+          },
+          "budget": 450,
+          "bytes": 11324,
+          "path": "tree_plot.v3.glb",
+          "sha256": "5722862304c351080b088067dd19c19d1a6f4ebb6eb2be5a15df02cad72970d6",
+          "triangles": 304
+        },
+        {
+          "bounds": {
+            "max": [
+              0.75,
+              1.5,
+              0.125
+            ],
+            "min": [
+              -0.125,
+              0.0,
+              -0.625
+            ]
+          },
+          "budget": 450,
+          "bytes": 11396,
+          "path": "tree_plot.v4.glb",
+          "sha256": "8903058f469bf45bb3b53392d075bf7a7904e95bb7d05c551df85578720f6534",
+          "triangles": 308
+        },
+        {
+          "bounds": {
+            "max": [
+              0.125,
+              1.25,
+              0.25
+            ],
+            "min": [
+              -0.375,
+              0.0,
+              -0.25
+            ]
+          },
+          "budget": 450,
+          "bytes": 6204,
+          "path": "tree_plot.v5.glb",
+          "sha256": "671689a2c9ae0a08fa3e3635ea5ae0147a007db9d6987a533d759c4635f72b82",
+          "triangles": 142
+        }
+      ],
       "voxels_per_tile": 8
     },
     "university": {

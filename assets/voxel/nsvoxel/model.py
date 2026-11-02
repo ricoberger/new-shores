@@ -128,7 +128,7 @@ def check_grid(v, ctx, needed):
     if ctx.kind in ("building", "field"):
         if ctx.vpt not in config.ALLOWED_VOXELS_PER_TILE:
             problems.append(f"{ctx.vpt} voxels per tile (allowed: {', '.join(map(str, config.ALLOWED_VOXELS_PER_TILE))})")
-        s = FOOTPRINT_SLACK * ctx.vpt // VPT
+        s = config.SLACK_OVERRIDE.get(ctx.cid, FOOTPRINT_SLACK) * ctx.vpt // VPT
         if x0 < -s or y0 < -s or x1 > ctx.W + s or y1 > ctx.D + s:
             problems.append(f"outside the footprint {ctx.W}×{ctx.D} voxels: x {x0}..{x1}, y {y0}..{y1}")
         floor = -2 * ctx.vpt if ctx.water else 0
@@ -399,6 +399,8 @@ def budget_of(cid, kind, content, key=None):
             n = cid.rsplit("_", 1)[-1]
             return int(config.BUDGET_LIFE_STAGE * max(1.0, int(n) / 4)) if n.isdigit() else config.BUDGET_LIFE_STAGE
         return config.BUDGET_LIFE
+    if cid in config.BUDGET_OVERRIDE:
+        return config.BUDGET_OVERRIDE[cid]
     w, h = content_mod.footprint(content, cid)
     return config.BUDGET_PER_TILE[model_class(content, cid)] * w * h
 
