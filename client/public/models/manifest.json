@@ -7839,20 +7839,20 @@
         ],
         "status": [
           0.0,
-          4.25,
+          2.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.5,
-          4.0,
-          2.75
+          2.4167,
+          2.0,
+          2.9167
         ],
         "min": [
-          -2.5,
+          -2.4167,
           0.0,
-          -3.0
+          -2.9167
         ]
       },
       "footprint": {
@@ -7864,18 +7864,182 @@
         "1": {
           "bounds": {
             "max": [
-              2.5,
-              1.125,
-              2.375
+              2.4167,
+              1.0833,
+              2.9167
             ],
             "min": [
-              -2.5,
+              -2.4167,
               0.0,
-              -3.0
+              -2.9167
             ]
           },
           "budget": 15000,
-          "bytes": 147576,
+          "bytes": 336404,
+          "ground": [
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ]
+          ],
+          "lite": {
+            "bounds": {
+              "max": [
+                2.5,
+                1.0,
+                3.0
+              ],
+              "min": [
+                -2.5,
+                0.0,
+                -3.0
+              ]
+            },
+            "budget": 1200,
+            "bytes": 11484,
+            "path": "market.l1.lite.glb",
+            "sha256": "10cd9374f8c02110db2328c37a905c8a50e84d9484379053f4099e9915955320",
+            "triangles": 274
+          },
+          "path": "market.l1.glb",
+          "sha256": "8e7e48369564bbfcad1df5bc71b7d0079206f0cd8deec488e1f3d66162415a6c",
+          "triangles": 9720
+        },
+        "2": {
+          "bounds": {
+            "max": [
+              2.4167,
+              1.0833,
+              2.9167
+            ],
+            "min": [
+              -2.4167,
+              0.0,
+              -2.9167
+            ]
+          },
+          "budget": 15000,
+          "bytes": 337292,
+          "ground": [
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ],
+            [
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt",
+              "dirt"
+            ]
+          ],
+          "lite": {
+            "bounds": {
+              "max": [
+                2.5,
+                1.0,
+                3.0
+              ],
+              "min": [
+                -2.5,
+                0.0,
+                -3.0
+              ]
+            },
+            "budget": 1200,
+            "bytes": 11756,
+            "path": "market.l2.lite.glb",
+            "sha256": "43b587e24a1637bf057254984e51ae23ffe8713a9d6c8278ab09dc1f79c3cea5",
+            "triangles": 282
+          },
+          "path": "market.l2.glb",
+          "sha256": "39446feebd8f20e78d08bf471bfa22e3cf527c727f9796dff3e84752baaa624f",
+          "triangles": 9708
+        },
+        "3": {
+          "bounds": {
+            "max": [
+              2.4167,
+              1.3333,
+              2.9167
+            ],
+            "min": [
+              -2.4167,
+              0.0,
+              -2.9167
+            ]
+          },
+          "budget": 15000,
+          "bytes": 362876,
           "ground": [
             [
               "paved",
@@ -7925,88 +8089,6 @@
               "max": [
                 2.5,
                 1.0,
-                2.5
-              ],
-              "min": [
-                -2.5,
-                0.0,
-                -3.0
-              ]
-            },
-            "budget": 1200,
-            "bytes": 12608,
-            "path": "market.l1.lite.glb",
-            "sha256": "1e11c5a1b253f0b3261fb48322ed3eb8b6fdde267a854f4f0a115dd7563533d2",
-            "triangles": 312
-          },
-          "path": "market.l1.glb",
-          "sha256": "6d92775ea173250b58e187ddf084e33d19140fe41bd31ccd9166eafae31d75c4",
-          "triangles": 4360
-        },
-        "2": {
-          "bounds": {
-            "max": [
-              2.5,
-              2.875,
-              2.75
-            ],
-            "min": [
-              -2.5,
-              0.0,
-              -3.0
-            ]
-          },
-          "budget": 15000,
-          "bytes": 197268,
-          "ground": [
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ]
-          ],
-          "lite": {
-            "bounds": {
-              "max": [
-                2.5,
-                3.0,
                 3.0
               ],
               "min": [
@@ -8016,99 +8098,99 @@
               ]
             },
             "budget": 1200,
-            "bytes": 13932,
-            "path": "market.l2.lite.glb",
-            "sha256": "4b0eaf275e6b8dc1579b396377d6c84cf4677db45db9997d629114e48e9f92e9",
-            "triangles": 354
-          },
-          "path": "market.l2.glb",
-          "sha256": "715deff577c1095532d544bd089e736acdffb799653107b397ac7bd85eb702fb",
-          "triangles": 5932
-        },
-        "3": {
-          "bounds": {
-            "max": [
-              2.5,
-              4.0,
-              2.75
-            ],
-            "min": [
-              -2.5,
-              0.0,
-              -3.0
-            ]
-          },
-          "budget": 15000,
-          "bytes": 213056,
-          "ground": [
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ],
-            [
-              "paved",
-              "paved",
-              "paved",
-              "paved",
-              "paved"
-            ]
-          ],
-          "lite": {
-            "bounds": {
-              "max": [
-                2.5,
-                4.0,
-                3.0
-              ],
-              "min": [
-                -2.5,
-                0.0,
-                -3.0
-              ]
-            },
-            "budget": 1200,
-            "bytes": 15576,
+            "bytes": 12420,
             "path": "market.l3.lite.glb",
-            "sha256": "7eb5713b5cfb7470e6b96cb9094519cd5c09e8455ee388d2126fffa7590b5708",
-            "triangles": 404
+            "sha256": "074b4466ab544c4a9390aa30138499a20cf6555c3657f217d77761522ea6b7a4",
+            "triangles": 302
           },
           "path": "market.l3.glb",
-          "sha256": "90da64293b34560874f7fdde76b24e6b7130442f6924f1e674633fed682131d8",
-          "triangles": 6438
+          "sha256": "132f950cd3cc0c169bf03637202e7e2a1ce0c01531fc11336e76feaf094afce1",
+          "triangles": 10348
+        },
+        "4": {
+          "bounds": {
+            "max": [
+              2.4167,
+              2.0,
+              2.9167
+            ],
+            "min": [
+              -2.4167,
+              0.0,
+              -2.9167
+            ]
+          },
+          "budget": 15000,
+          "bytes": 353408,
+          "ground": [
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ]
+          ],
+          "lite": {
+            "bounds": {
+              "max": [
+                2.5,
+                1.0,
+                3.0
+              ],
+              "min": [
+                -2.5,
+                0.0,
+                -3.0
+              ]
+            },
+            "budget": 1200,
+            "bytes": 12556,
+            "path": "market.l4.lite.glb",
+            "sha256": "b6baf460939e5f94cfb1bda46819d763055fadc2865ccd1e80fe7c11d1452d9d",
+            "triangles": 306
+          },
+          "path": "market.l4.glb",
+          "sha256": "2af478dcd88fcbdd6620d758a94cf771b90061c214ae2abb87a3c954a16c2fd5",
+          "triangles": 10234
         }
       },
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "meadery": {
       "anchors": {
