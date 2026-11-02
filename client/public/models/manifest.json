@@ -7701,9 +7701,9 @@
     "luthier": {
       "anchors": {
         "cart": [
+          -1.3333,
           0.0,
-          0.0,
-          -2.25
+          -2.0
         ],
         "door": [
           0.0,
@@ -7718,38 +7718,52 @@
       },
       "bounds": {
         "max": [
-          2.375,
+          2.5,
           3.5,
-          2.25
+          2.5
         ],
         "min": [
-          -2.25,
+          -2.5,
           0.0,
-          -2.125
+          -2.4167
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.375,
+            2.5,
             3.5,
-            2.25
+            2.5
           ],
           "min": [
-            -2.25,
+            -2.5,
             0.0,
-            -2.125
+            -2.4167
           ]
         },
         "budget": 12500,
-        "bytes": 126184,
+        "bytes": 84792,
         "ground": [
           [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
             "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "none"
           ],
           [
             "paved",
@@ -7759,56 +7773,42 @@
             "paved"
           ],
           [
+            "none",
             "paved",
             "paved",
             "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              2.5,
+              2.0,
               3.5,
-              2.5
+              2.0
             ],
             "min": [
-              -2.5,
+              -2.0,
               0.0,
               -2.0
             ]
           },
           "budget": 1000,
-          "bytes": 12804,
+          "bytes": 6236,
           "path": "luthier.lite.glb",
-          "sha256": "72531c886d4dc003c59647e00015d7fb782924121523773f35ab178502c4c89e",
-          "triangles": 350
+          "sha256": "d486b767ee37aa888f45a2777f2dd0fa0a1391fa21074beceae322531b1e266b",
+          "triangles": 138
         },
         "path": "luthier.glb",
-        "sha256": "5c10fa859616420df3eeee1cee6f2b47e75e4a262b4d5718dc40cfa992072a06",
-        "triangles": 3920
+        "sha256": "82d8a9e529b28cdca90999ede7c8e340bc83af61eee31827b0591b15f5c3c842",
+        "triangles": 2530
       },
       "footprint": {
         "h": 5,
         "w": 5
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "malt_house": {
       "anchors": {
