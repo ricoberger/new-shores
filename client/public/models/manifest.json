@@ -3884,9 +3884,9 @@
     "clay_pit": {
       "anchors": {
         "cart": [
-          0.125,
+          -0.8333,
           0.0,
-          -2.75
+          -2.5
         ],
         "door": [
           0.0,
@@ -3895,104 +3895,104 @@
         ],
         "status": [
           0.0,
-          2.5,
+          3.8333,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          2.25,
+          3.5833,
           3.0
         ],
         "min": [
           -2.0,
           0.0,
-          -2.875
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
             2.0,
-            2.25,
+            3.5833,
             3.0
           ],
           "min": [
             -2.0,
             0.0,
-            -2.875
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 70144,
+        "bytes": 207176,
         "ground": [
           [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none"
           ],
           [
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              2.0,
+              3.5,
               3.0
             ],
             "min": [
               -2.0,
               0.0,
-              -3.0
+              -2.5
             ]
           },
           "budget": 960,
-          "bytes": 10788,
+          "bytes": 7444,
           "path": "clay_pit.lite.glb",
-          "sha256": "7d9808d7aa0db23a29d586d3705108a2c045834ca5a0a38e7fb984c4e458d1ca",
-          "triangles": 294
+          "sha256": "dcaed4bda8e0979e71231511d91ee296866f53e852246291fa829ec7081df333",
+          "triangles": 198
         },
         "path": "clay_pit.glb",
-        "sha256": "d55c1f17dc3fa2cbe6bfe6b39d474565a55667728f493262779a327611c6f960",
-        "triangles": 2196
+        "sha256": "c25ba814016d5e46a4acf29401b1e173fc32c93e6601d65925a2ad80faffa696",
+        "triangles": 6582
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "coal_mine": {
       "anchors": {
