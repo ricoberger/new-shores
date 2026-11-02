@@ -2002,14 +2002,14 @@
     "bakery": {
       "anchors": {
         "cart": [
-          1.25,
+          0.1667,
           0.0,
           -2.0
         ],
         "chimney": [
-          1.1875,
-          3.125,
-          0.9375
+          1.0833,
+          3.5833,
+          1.5833
         ],
         "door": [
           0.0,
@@ -2017,73 +2017,73 @@
           -2.5
         ],
         "smoke": [
-          1.1875,
-          3.25,
-          0.9375
+          1.0833,
+          3.6667,
+          1.5833
         ],
         "status": [
           0.0,
-          3.5,
+          3.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          3.25,
-          2.125
+          2.0,
+          3.5,
+          2.5
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -2.0
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            3.25,
-            2.125
+            2.0,
+            3.5,
+            2.5
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -2.0
+            -2.5
           ]
         },
         "budget": 10000,
-        "bytes": 110620,
+        "bytes": 164256,
         "ground": [
           [
-            "dirt",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt",
             "dirt"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
+            "none",
             "dirt",
             "dirt",
             "dirt"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "dirt",
+            "dirt",
+            "none"
           ]
         ],
         "lite": {
@@ -2096,25 +2096,25 @@
             "min": [
               -2.0,
               0.0,
-              -2.0
+              -1.0
             ]
           },
           "budget": 800,
-          "bytes": 10296,
+          "bytes": 7336,
           "path": "bakery.lite.glb",
-          "sha256": "de8d85a8809780f0c9147fea1ab836781b05fb46c8312fb31f7f0da93e76f627",
-          "triangles": 258
+          "sha256": "80ce2b9c1d027b7050157be0e5d53a0d6e686398802c42c421a1c8085c612506",
+          "triangles": 202
         },
         "path": "bakery.glb",
-        "sha256": "ccb2c8597b7e3d05668f2f1b17f1241d6d6cf26f3d68394b0e2bf694ec6c4743",
-        "triangles": 3358
+        "sha256": "bef41734b009fe159df13f089cde5a2b828268ddcc0e27a8cab01b354fdaa4fe",
+        "triangles": 5046
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "brewery": {
       "anchors": {
