@@ -2119,14 +2119,14 @@
     "brewery": {
       "anchors": {
         "cart": [
-          0.25,
+          1.1667,
           0.0,
           -2.5
         ],
         "chimney": [
-          0.375,
-          3.75,
-          0.75
+          1.4167,
+          4.5833,
+          2.0833
         ],
         "door": [
           0.0,
@@ -2134,116 +2134,116 @@
           -3.0
         ],
         "smoke": [
-          0.375,
-          3.875,
-          0.75
+          1.4167,
+          4.6667,
+          2.0833
         ],
         "status": [
           0.0,
-          4.0,
+          4.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.125,
-          3.75,
+          2.5,
+          4.5,
           3.0
         ],
         "min": [
           -2.5,
           0.0,
-          -2.5
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.125,
-            3.75,
+            2.5,
+            4.5,
             3.0
           ],
           "min": [
             -2.5,
             0.0,
-            -2.5
+            -3.0
           ]
         },
         "budget": 15000,
-        "bytes": 179972,
+        "bytes": 311288,
         "ground": [
           [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
             "dirt",
+            "dirt",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt",
             "dirt",
             "dirt"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
+            "none",
             "dirt",
             "dirt",
             "dirt",
             "dirt"
           ],
           [
+            "none",
+            "none",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              2.0,
-              4.0,
+              2.5,
+              4.5,
               3.0
             ],
             "min": [
               -2.5,
               0.0,
-              -2.5
+              -3.0
             ]
           },
           "budget": 1200,
           "bytes": 12916,
           "path": "brewery.lite.glb",
-          "sha256": "08a0b116d97b690a3e0e4f5871f1f8f3a765de8261511760045185cd97646f9f",
-          "triangles": 366
+          "sha256": "729bf48aa5a914683f67f4b5a8b931ce7a060e8f8d1115ff6ef1646b49fdbfb1",
+          "triangles": 358
         },
         "path": "brewery.glb",
-        "sha256": "ccc61804ba0b7ba360145a0ba9c045cd981a90bc00a0495d8147063e59ffe9a8",
-        "triangles": 5508
+        "sha256": "2ba3b6d091c70b2b9e1a84b83a69e8669c72c922366e5f6cf20fb216c4ae09a5",
+        "triangles": 9438
       },
       "footprint": {
         "h": 6,
         "w": 5
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "brickworks": {
       "anchors": {

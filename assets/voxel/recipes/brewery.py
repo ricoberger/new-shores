@@ -1,77 +1,49 @@
 """
-Brewery (5 × 6; D-057 §3): a tall coursed-stone kettle house with red
-tiles and a big copper vent hood on its ridge (smoke), its arched door
-open on the copper brewing kettle; a framed malt store with a loft hoist;
-a cask yard under a long tiled lean-to with casks stacked in tiers; a
-dray of barrels, malt sacks, a tankard sign and a cart.
+Brewery (5 × 6; V7 rework after the Anno 1404 brewery, tier III): a long
+stone-and-timber brewhouse under dark burgundy tiles with a slim chimney
+(smoke), a round copper-capped kettle tower at its west corner, a big
+stack of pale new barrels and rows of barrels on the cobbled-over yard,
+a loading hatch with a hoist and a cart. 12 voxels per tile.
 """
 
 from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
+from nsvoxel import parts_kit as K
+from nsvoxel import parts_v7 as W
 from nsvoxel.grid import mat
-from nsvoxel.mats import CANVAS, IRON, OCHRE, STONE_DARK, TIMBER, TIMBER_DARK, TIMBER_LIGHT, WHEAT
+from nsvoxel.mats import STONE
 
-BEER = mat("ochre", 1.15)
-
+VOXELS_PER_TILE = 12
 GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+ALE = mat("timber", 1.45)  # pale barrels
+CAP = mat("hemp", 0.85)  # verdigris
 
 
 def build(ctx):
-    v = ctx.vox()  # 40 × 48
-    seed = 151
-    P.yard(v, 0, 0, 40, 48, "dirt", seed=seed)
-    P.yard(v, 0, 36, 40, 48, "paved", seed=seed)
-    # Kettle house: tall stone hall along y, tiles, the copper hood on the ridge.
-    x0, x1, y0, y1 = 16, 30, 6, 32
-    P.plinth(v, x0, y0, x1, y1, out=0)
-    P.coursed_stone(v, x0, y0, x1, y1, 1, 15, seed=seed)
-    P.dressed_quoins(v, x0, y0, x1, y1, 1, 15)
-    r = P.roof(v, x0, x1, y0, y1, 15, "tiles", along="y", rise=1.3, seed=seed, m=mat("terracotta", 0.8))
-    top = V.hood(v, 19, 14, 27, 22, r.ridge_z, vent=3)
-    v.anchor("chimney", 23, 18, top)
-    v.anchor("smoke", 23, 18, top + 1)
-    f = P.Face(v, "y+", y1 - 1)
-    # Arched door open on the kettle inside.
-    for a in range(20, 26):
-        for z in range(1, 10):
-            f.put(a, z, None)
-    v.box(20, y1 - 6, 0, 26, y1, 1, STONE_DARK)
-    V.kettle(v, 23, y1 - 3.5, 1, r=2.6, h=4, hearth_h=2)
-    v.box(22, y1 - 4, 9, 24, y1 - 3, 15, V.COPPER)  # the kettle's own flue
-    for a in range(19, 27):
-        f.put(a, 10, P.DRESSED)
-    for z in range(1, 10):
-        f.put(19, z, P.DRESSED)
-        f.put(26, z, P.DRESSED)
-    for z in (4, 9):
-        P.casement(P.Face(v, "x-", x0), 10, z, 2, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
-        P.casement(P.Face(v, "x-", x0), 22, z, 2, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
-    P.casement(f, 22, 12, 2, 3, frame=P.DRESSED, sill=P.DRESSED)
-    V.signboard(f, 27, 8, w=2, h=2, colour=BEER, out=2)
-    # Malt store at the back west: framed ochre loft, tiles, hoist.
-    b = P.building(v, 2, 2, 15, 12, "citizen", along="x", upper=OCHRE, seed=seed, spacing=4, height=14)
-    F = b.face("y+", upper=True)
-    P.entrance(F, 7, 9, 2, 4, step=None, hinges=False)
-    V.hoist(F, 8, 13, length=2, rope=3, load=CANVAS)
-    P.entrance(b.face("y+"), 4, 2, 3, 5)
-    P.casement(b.face("x-"), 6, 3, 2, 2, frame=P.DRESSED, sill=P.DRESSED)
-    # Cask yard: a long lean-to on the kettle house's west wall, casks in tiers.
-    P.lean_to(v, 2, 16, 14, 34, 10, "tiles", down="x-", posts=True)
-    for y in range(16, 33, 4):
-        for k, (x, z) in enumerate(((3, 1), (6, 1), (9, 1), (12, 1), (4, 4), (7, 4), (10, 4))):
-            P.cask(v, x, y, z, h=3, m=TIMBER if (k + y) % 2 else TIMBER_LIGHT, lid=TIMBER_DARK)
-    # Dray of barrels, malt sacks, cart.
-    v.box(4, 38, 2, 14, 43, 3, TIMBER)
-    for x in (4, 13):
-        for y in (37, 43):
-            v.box(x, y, 1, x + 1, y + 1, 3, IRON)
-    for x in (5, 8, 11):
-        P.cask(v, x, 39, 3, h=3)
-    v.box(14, 40, 2, 18, 41, 3, TIMBER_DARK)  # shafts
-    P.sacks(v, 31, 36, 1, n=3, m=CANVAS)
-    P.bale(v, 33, 39, 1, w=3, d=2, h=2, m=WHEAT)
-    P.lamp_post(v, 29, 41)
-    v.anchor("cart", 22, 44, 1)
-    P.scatter(v, 0, 0, 40, 36, 0.01, seed=seed, kinds=("pebble",))
-    P.tie_floating(v)
+    v = ctx.vox()  # 60 × 72
+    seed = 67
+    K.ground(v, 34, 48, 24, 20, seed)
+    h = K.hall(v, 22, 6, 54, 34, 3, "x", seed, door=("y+", 40), smoke=True, chim=(46, 10), wins=[26])
+    W.loft_door(v, 33, 28, 14, w=5, h=6, frame=P.DRESSED, side="y+", length=6, rope=6)
+    # Round kettle tower at the west corner with a copper cone.
+    V.round_tower(v, 12, 22, 8, 1, 22, m=STONE, seed=seed)
+    V.cone_roof(v, 12, 22, 8.6, 22, CAP, rise=1.2, tip=CAP)
+    v.box(10, 29, 1, 14, 31, 8, mat("timber", 0.5))  # the door
+    # Barrels: a big pale pyramid, rows on the yard, a cart.
+    for i in range(5):
+        P.barrel(v, 30 + i * 4, 44, 1, h=4, m=ALE)
+    for i in range(4):
+        P.barrel(v, 32 + i * 4, 44, 5, h=4, m=ALE)
+    for i in range(3):
+        P.barrel(v, 34 + i * 4, 44, 9, h=4, m=ALE)
+    for i in range(6):
+        P.barrel(v, 6 + i * 4, 52, 1, h=4, m=ALE)
+    for i in range(5):
+        P.barrel(v, 8 + i * 4, 52, 5, h=4, m=ALE)
+    P.handcart(v, 40, 58, 1, along="x", load=ALE)
+    v.anchor("cart", 44, 66, 1)
+    K.low_wall(v, 4, 68, 24, 70, 3, seed)
+    K.low_wall(v, 36, 68, 56, 70, 3, seed + 1)
+    K.tufts(v, seed)
     return P.colour_jitter(v, seed=seed)
