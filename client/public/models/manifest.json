@@ -14422,14 +14422,14 @@
     "winepress": {
       "anchors": {
         "cart": [
+          -1.8333,
           0.0,
-          0.0,
-          -4.25
+          -4.0
         ],
         "chimney": [
-          -2.0625,
-          2.875,
-          3.0625
+          1.9167,
+          5.1667,
+          3.5833
         ],
         "door": [
           0.0,
@@ -14437,99 +14437,91 @@
           -4.5
         ],
         "smoke": [
-          -2.0625,
-          3.0,
-          3.0625
+          1.9167,
+          5.25,
+          3.5833
         ],
         "status": [
           0.0,
-          4.625,
+          5.3333,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.625,
-          4.375,
-          3.875
+          3.0,
+          5.0833,
+          4.5
         ],
         "min": [
-          -2.625,
+          -3.0,
           0.0,
-          -4.0
+          -4.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.625,
-            4.375,
-            3.875
+            3.0,
+            5.0833,
+            4.5
           ],
           "min": [
-            -2.625,
+            -3.0,
             0.0,
-            -4.0
+            -4.5
           ]
         },
         "budget": 27000,
-        "bytes": 159360,
+        "bytes": 168304,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "paved",
+            "paved",
+            "paved",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "none"
           ],
           [
             "paved",
@@ -14540,43 +14532,51 @@
             "paved"
           ],
           [
-            "paved",
+            "none",
             "paved",
             "paved",
             "paved",
             "paved",
             "paved"
+          ],
+          [
+            "none",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              3.0,
-              4.5,
+              2.5,
+              5.0,
               4.0
             ],
             "min": [
-              -3.0,
+              -2.5,
               0.0,
               -4.0
             ]
           },
           "budget": 2160,
-          "bytes": 20600,
+          "bytes": 10788,
           "path": "winepress.lite.glb",
-          "sha256": "5a2e3c0121154d43222bf81c96035adcd5fb6387e9037974d413650aef544912",
-          "triangles": 600
+          "sha256": "a26f9c1b5457904fc0cb84c8f1128e7750f3e5b76e72fbaf63f39459435ef4de",
+          "triangles": 264
         },
         "path": "winepress.glb",
-        "sha256": "48b4929d55a6c7666d7cf9b179691b885feb211ea89269764ef6f9d0c650baed",
-        "triangles": 5038
+        "sha256": "70dff1fa94b90e8b0aaf5289d3efcb4081e6e87d719ae32ba56f56a9585ec597",
+        "triangles": 5122
       },
       "footprint": {
         "h": 9,
         "w": 6
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "woad_farm": {
       "anchors": {
