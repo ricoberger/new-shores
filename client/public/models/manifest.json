@@ -12099,14 +12099,14 @@
     "tannery": {
       "anchors": {
         "cart": [
-          1.0,
+          -0.5,
           0.0,
-          -1.75
+          -1.8333
         ],
         "chimney": [
-          0.1875,
-          2.75,
-          1.0625
+          0.75,
+          3.5,
+          1.25
         ],
         "door": [
           0.0,
@@ -12114,46 +12114,51 @@
           -2.0
         ],
         "smoke": [
-          0.1875,
-          2.875,
-          1.0625
+          0.75,
+          3.5833,
+          1.25
         ],
         "status": [
           0.0,
-          3.125,
+          3.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.375,
-          2.875,
-          1.75
+          1.5833,
+          3.4167,
+          2.0
         ],
         "min": [
-          -1.375,
+          -1.5,
           0.0,
-          -1.875
+          -1.8333
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.375,
-            2.875,
-            1.75
+            1.5833,
+            3.4167,
+            2.0
           ],
           "min": [
-            -1.375,
+            -1.5,
             0.0,
-            -1.875
+            -1.8333
           ]
         },
         "budget": 6000,
-        "bytes": 54720,
+        "bytes": 156472,
         "ground": [
           [
-            "dirt",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt"
           ],
@@ -12163,45 +12168,40 @@
             "dirt"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              3.5,
               2.0
             ],
             "min": [
-              -1.5,
+              -1.0,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 480,
-          "bytes": 6732,
+          "bytes": 7384,
           "path": "tannery.lite.glb",
-          "sha256": "270ee8fc65b125d84b6b7b8d7e5ab4cf4ee696e40a5960c11da383e406710c83",
-          "triangles": 162
+          "sha256": "9765ab7ce5eb067b4ba3c4af7c1d464c9bb231ffed441ab34edf73d6732e1697",
+          "triangles": 180
         },
         "path": "tannery.glb",
-        "sha256": "bafa08c348578eebdc1eead85559a2ba8e1688d8624189c5593d702d288e5b3c",
-        "triangles": 1668
+        "sha256": "c34e86242819393133a1b534221b89caab5a652f3e724c14c58835d745f29348",
+        "triangles": 4860
       },
       "footprint": {
         "h": 4,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "tavern": {
       "anchors": {
