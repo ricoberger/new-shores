@@ -13536,9 +13536,9 @@
     "vineyard": {
       "anchors": {
         "cart": [
+          -0.8333,
           0.0,
-          0.0,
-          -2.25
+          -2.0
         ],
         "door": [
           0.0,
@@ -13547,49 +13547,43 @@
         ],
         "status": [
           0.0,
-          3.0,
+          3.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          2.75,
-          2.25
+          1.9167,
+          3.5,
+          2.5
         ],
         "min": [
           -2.0,
           0.0,
-          -2.5
+          -2.3333
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            2.75,
-            2.25
+            1.9167,
+            3.5,
+            2.5
           ],
           "min": [
             -2.0,
             0.0,
-            -2.5
+            -2.3333
           ]
         },
         "budget": 10000,
-        "bytes": 128044,
+        "bytes": 80656,
         "ground": [
           [
             "none",
-            "dirt",
-            "dirt",
+            "none",
+            "none",
             "none"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
           ],
           [
             "none",
@@ -13598,47 +13592,53 @@
             "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "paved",
+            "paved",
+            "paved",
+            "paved"
+          ],
+          [
+            "none",
+            "paved",
+            "paved",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              2.0,
-              2.5,
-              2.5
+              1.5,
+              3.5,
+              2.0
             ],
             "min": [
-              -2.0,
+              -1.5,
               0.0,
-              -2.5
+              -2.0
             ]
           },
           "budget": 800,
-          "bytes": 11712,
+          "bytes": 5776,
           "path": "vineyard.lite.glb",
-          "sha256": "71621891dc9cc62e819cd3019b6f04960855328dd038b44025a863d8a04e937f",
-          "triangles": 314
+          "sha256": "de9e6997dae50e371300529fdc83ee0697b467d20a609c0ae05c294408643ade",
+          "triangles": 128
         },
         "path": "vineyard.glb",
-        "sha256": "901cb67fcecca81f5e20e162a38109bde15108b240ffb037b2fbfb00e20d5f4a",
-        "triangles": 3928
+        "sha256": "be7e460fde54a5f771aaeaaf9a5801fcf681beea98f10d4d19f3448112bcfac8",
+        "triangles": 2374
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "warehouse": {
       "anchors": {
