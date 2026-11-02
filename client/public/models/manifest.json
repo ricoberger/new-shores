@@ -11878,43 +11878,43 @@
     "surgery": {
       "anchors": {
         "door": [
-          0.625,
+          1.0,
           0.0,
-          -1.75
+          -0.3333
         ],
         "status": [
           0.0,
-          4.125,
+          4.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.875,
-          2.125
+          4.0,
+          3.0
         ],
         "min": [
           -2.0,
           0.0,
-          -2.75
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
             2.0,
-            3.875,
-            2.125
+            4.0,
+            3.0
           ],
           "min": [
             -2.0,
             0.0,
-            -2.75
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 154148,
+        "bytes": 104900,
         "ground": [
           [
             "none",
@@ -11923,19 +11923,19 @@
             "none"
           ],
           [
-            "dirt",
             "none",
-            "none",
-            "none"
-          ],
-          [
-            "dirt",
             "none",
             "none",
             "none"
           ],
           [
-            "dirt",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "none",
             "none",
             "none"
@@ -11950,7 +11950,7 @@
             "none",
             "paved",
             "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
@@ -11958,23 +11958,23 @@
             "max": [
               2.0,
               4.0,
-              2.0
+              2.5
             ],
             "min": [
               -2.0,
               0.0,
-              -2.5
+              -2.0
             ]
           },
           "budget": 960,
-          "bytes": 11568,
+          "bytes": 6720,
           "path": "surgery.lite.glb",
-          "sha256": "2209dd101be55cb092248f7989e91988444149b9a3ca3117ff9cad76048a4d8e",
-          "triangles": 296
+          "sha256": "a4eed8b28a09e2f5c6fe2591f3512377cee926a51fd4c51e7e0205f1c7b769f1",
+          "triangles": 160
         },
         "path": "surgery.glb",
-        "sha256": "c3c7b937391ffcbbd1ed6e637e9b80fc28893d0a35f2f4aa87dd3fbb617005f6",
-        "triangles": 5074
+        "sha256": "2d009cfa93f2c4499dcb34c83fc1eb3b1ae04b305942bae1d74244f1c494661f",
+        "triangles": 3164
       },
       "footprint": {
         "h": 6,
@@ -11984,7 +11984,7 @@
       "sway": [
         "cloth"
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "tailor": {
       "anchors": {
