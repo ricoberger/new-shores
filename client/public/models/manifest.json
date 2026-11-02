@@ -8589,14 +8589,14 @@
     "optician": {
       "anchors": {
         "cart": [
-          1.75,
+          -0.8333,
           0.0,
-          -1.75
+          -1.5
         ],
         "chimney": [
-          1.0625,
-          3.375,
-          0.9375
+          0.9167,
+          4.9167,
+          1.0833
         ],
         "door": [
           0.0,
@@ -8604,61 +8604,61 @@
           -2.0
         ],
         "smoke": [
-          1.0625,
-          3.5,
-          0.9375
+          0.9167,
+          5.0,
+          1.0833
         ],
         "status": [
           0.0,
-          3.75,
+          5.0833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.75,
-          3.5,
-          1.75
+          1.9167,
+          4.8333,
+          2.0
         ],
         "min": [
-          -1.75,
+          -1.9167,
           0.0,
-          -2.0
+          -1.8333
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.75,
-            3.5,
-            1.75
+            1.9167,
+            4.8333,
+            2.0
           ],
           "min": [
-            -1.75,
+            -1.9167,
             0.0,
-            -2.0
+            -1.8333
           ]
         },
         "budget": 8000,
-        "bytes": 65252,
+        "bytes": 88056,
         "ground": [
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
             "paved",
@@ -8670,32 +8670,32 @@
         "lite": {
           "bounds": {
             "max": [
-              2.0,
-              3.5,
-              2.0
+              1.5,
+              4.5,
+              1.5
             ],
             "min": [
-              -2.0,
+              -1.5,
               0.0,
               -2.0
             ]
           },
           "budget": 640,
-          "bytes": 11248,
+          "bytes": 8076,
           "path": "optician.lite.glb",
-          "sha256": "1954cf4e8a8122c13b56858f161bfed4fc955333a55baeef2d1a702d9cb107e1",
-          "triangles": 298
+          "sha256": "5dd711143df7d6f68feff2e5e45b522133193b944783fea8a5fada68f1521300",
+          "triangles": 210
         },
         "path": "optician.glb",
-        "sha256": "4e737efc6f49f4daa3aedd445a21ce094d6e721d6c9fc87851ee9ca9369914d9",
-        "triangles": 2138
+        "sha256": "d1245804dbbb4e0c58ae1c5b0e2385776b4f4de587e1314182130b05fd1001c0",
+        "triangles": 2826
       },
       "footprint": {
         "h": 4,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "orchard": {
       "anchors": {
