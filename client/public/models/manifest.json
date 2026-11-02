@@ -11989,9 +11989,9 @@
     "tailor": {
       "anchors": {
         "cart": [
-          -1.25,
+          -0.8333,
           0.0,
-          -2.0
+          -1.6667
         ],
         "door": [
           0.0,
@@ -12000,37 +12000,37 @@
         ],
         "status": [
           0.0,
-          4.625,
+          4.1667,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          4.375,
-          2.125
+          3.9167,
+          2.5
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -1.875
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
             2.0,
-            4.375,
-            2.125
+            3.9167,
+            2.5
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -1.875
+            -2.5
           ]
         },
         "budget": 10000,
-        "bytes": 131300,
+        "bytes": 162824,
         "ground": [
           [
             "none",
@@ -12046,45 +12046,45 @@
           ],
           [
             "none",
-            "none",
-            "none",
+            "dirt",
+            "dirt",
             "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "dirt",
+            "dirt",
+            "dirt",
+            "dirt"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "dirt",
+            "dirt",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              2.0,
-              4.5,
-              2.0
+              1.5,
+              4.0,
+              2.5
             ],
             "min": [
               -2.0,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 800,
-          "bytes": 11580,
+          "bytes": 8400,
           "path": "tailor.lite.glb",
-          "sha256": "f2c8d2a0870bfa8e7885697b1f43dece7635c9d73b6c368fded80700ace4ba99",
-          "triangles": 306
+          "sha256": "caa5307d5ac3270d4d8d301e95ecebe6c699aa6603a75a95a72cbabb6f4f6936",
+          "triangles": 214
         },
         "path": "tailor.glb",
-        "sha256": "290f57dc84e6da9f8e8cbe86a8ff897ae249841fd0e0d972053325e9d207552a",
-        "triangles": 4114
+        "sha256": "991eca1a58612ec33953d1c9356e88eca9570098c98f45c29261b9b452991b7f",
+        "triangles": 4834
       },
       "footprint": {
         "h": 5,
@@ -12094,7 +12094,7 @@
       "sway": [
         "cloth"
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "tannery": {
       "anchors": {
