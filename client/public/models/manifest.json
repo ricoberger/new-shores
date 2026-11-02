@@ -4114,14 +4114,14 @@
     "cooperage": {
       "anchors": {
         "cart": [
-          -0.25,
+          0.6667,
           0.0,
-          -2.75
+          -2.6667
         ],
         "chimney": [
-          -1.1875,
-          3.0,
-          2.0625
+          0.75,
+          4.4167,
+          2.0833
         ],
         "door": [
           0.0,
@@ -4129,110 +4129,110 @@
           -3.0
         ],
         "smoke": [
-          -1.1875,
-          3.125,
-          2.0625
+          0.75,
+          4.5,
+          2.0833
         ],
         "status": [
           0.0,
-          3.625,
+          4.5833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          3.375,
-          2.75
+          2.0,
+          4.3333,
+          3.0
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -2.25
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            3.375,
-            2.75
+            2.0,
+            4.3333,
+            3.0
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -2.25
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 85424,
+        "bytes": 148064,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "paved",
+            "paved",
+            "paved"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "paved",
+            "paved",
+            "paved"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "paved",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              2.0,
-              3.5,
-              3.0
+              1.5,
+              4.0,
+              2.5
             ],
             "min": [
-              -2.0,
+              -1.5,
               0.0,
               -2.5
             ]
           },
           "budget": 960,
-          "bytes": 10740,
+          "bytes": 7436,
           "path": "cooperage.lite.glb",
-          "sha256": "c520d2ea18fb19f26e5e66473d4417fa64b84f26e3b60bdc859f52f9ad9d74ac",
-          "triangles": 296
+          "sha256": "4b357818bd7ea3545fcfa99aee6bfd0850be18375fb179a0491681f020b033df",
+          "triangles": 180
         },
         "path": "cooperage.glb",
-        "sha256": "47ead09a4696d521b7914c5fa459936082d44fabf9e5371629ceb7b7e05552f4",
-        "triangles": 2646
+        "sha256": "48980c7d2dd8e184a707e797fee9c7922ae69f77712665b42712b5476492dcd2",
+        "triangles": 4434
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "copper_mine": {
       "anchors": {

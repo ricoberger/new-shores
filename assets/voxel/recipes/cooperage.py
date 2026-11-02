@@ -1,77 +1,44 @@
 """
-Cooperage (4 × 6; D-057 §3, V5): a barrel hall of ashlar under a thatched
-roof with its front open on posts — barrels on the floor inside, a
-firing basket and a chimney (smoke) — and in the yard barrels stacked
-two high, hoops leaning against the wall and stacked flat, stacks of
-staves, a shaving horse and a cart.
+Cooperage (4 × 6; V7 rework after the Anno 1404 barrel cooperage, tier IV):
+a half-timbered workshop of dark ashlar and cream plaster under slate with
+a slim chimney (smoke) and an open arched work bay on the front, a big
+pale pyramid of finished barrels, rows of barrels and half-built staves in
+hoops on the forecourt, a hoop pile and a cart. 12 voxels per tile; paved
+forecourt.
 """
 
-from nsvoxel import detail_v5 as Q
 from nsvoxel import parts as P
+from nsvoxel import parts_kit as K
+from nsvoxel import parts_v7 as W
 from nsvoxel.grid import mat
-from nsvoxel.mats import IRON, PLANK, TIMBER, TIMBER_DARK, TIMBER_LIGHT  # noqa: F401
+from nsvoxel.mats import IRON, TIMBER_DARK
 
-ROOF = mat("thatch")
-GLOW = mat("flower", 1.0)
-
-
-def hoop(v, x, y, z, along="x"):
-    """An iron hoop standing on edge (a 4 × 4 ring)."""
-    for i in range(4):
-        for j in range(4):
-            if i in (0, 3) or j in (0, 3):
-                if (i, j) in ((0, 0), (0, 3), (3, 0), (3, 3)):
-                    continue
-                if along == "x":
-                    v.set(x + i, y, z + j, IRON)
-                else:
-                    v.set(x, y + i, z + j, IRON)
-
+VOXELS_PER_TILE = 12
 GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+NEW = mat("timber", 1.5)  # pale new barrels
 
 
 def build(ctx):
-    v = ctx.vox()  # 32 × 48
-    seed = 97
-    P.yard(v, 0, 0, 32, 48, "dirt", seed=seed)
-    # Barrel hall: three closed walls, the front open on posts.
-    x0, y0, x1, y1 = 2, 3, 30, 22
-    P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=0)
-    Q.ashlar(v, x0, y0, x1, y1, 1, 11, core=False)
-    v.box(x0 + 1, y1 - 1, 1, x1 - 1, y1, 9, None)
-    for x in (x0, 9, 16, 23, x1 - 1):
-        v.box(x, y1 - 1, 1, x + 1, y1, 11, TIMBER)
-    v.box(x0, y1 - 1, 9, x1, y1, 11, TIMBER_DARK)
-    v.box(x0 + 1, y0 + 1, 0, x1 - 1, y1 - 1, 1, mat("road-dirt", 0.9))
-    r = P.roof(v, x0, x1, y0, y1, 11, "thatch", along="x", m=ROOF, gable=Q.ASHLAR, seed=seed)
-    P.roof_chimney(v, r, 6, 6, above=3, brick=True, anchor=True)
-    # Inside: barrels on the floor, a firing basket under a half-made barrel.
-    for x in (5, 9, 13):
-        P.cask(v, x, 14, 1, h=4)
-    v.box(19, 13, 1, 22, 16, 2, IRON)
-    v.box(20, 14, 1, 21, 15, 2, GLOW)
+    v = ctx.vox()  # 48 × 72
+    seed = 73
+    K.ground(v, 26, 50, 19, 18, seed, "paved")
+    h = K.hall(v, 6, 6, 40, 34, 4, "x", seed, door=("y+", 30), smoke=True, chim=(32, 10), wins=[])
+    W.arched_window(h.face("y+"), 10, 3, 6, 6)
+    # Barrel pyramid.
+    for row, n in enumerate((6, 5, 4, 3)):
+        for i in range(n):
+            P.barrel(v, 6 + i * 4 + row * 2, 40, 1 + row * 4, h=4, m=NEW)
+    for i in range(7):
+        P.barrel(v, 4 + i * 4, 50, 1, h=4, m=NEW)
+    for i in range(6):
+        P.barrel(v, 6 + i * 4, 50, 5, h=4, m=NEW)
+    # Half-built staves in iron hoops and a hoop pile.
     for i in range(3):
-        v.set(19 + i, 13, 2, TIMBER_LIGHT)
-        v.set(19 + i, 15, 2, TIMBER_LIGHT)
-    v.box(19, 13, 3, 22, 16, 5, TIMBER_LIGHT)
-    v.box(20, 14, 3, 21, 15, 5, None)
-    # Yard: barrels two high, hoops, staves, a shaving horse.
-    for x in range(3, 18, 3):
-        P.cask(v, x, 26, 1, h=4)
-        P.cask(v, x, 26, 5, h=4)
-    for x in range(3, 15, 3):
-        P.cask(v, x, 30, 1, h=4)
-    for x in (19, 23, 27):
-        hoop(v, x, 23, 1)
-    for k in range(3):  # a stack of hoops lying flat
-        for i in range(4):
-            for j in range(4):
-                if (i in (0, 3) or j in (0, 3)) and (i, j) not in ((0, 0), (0, 3), (3, 0), (3, 3)):
-                    v.set(26 + i, 26 + j, 1 + k, IRON)
-    P.planks(v, 20, 30, 1, w=8, d=3, h=3)
-    P.sawhorse(v, 22, 36, 1, log=False)
-    v.box(21, 37, 3, 27, 38, 4, PLANK)
-    P.handcart(v, 4, 38, 1, along="x", load=TIMBER_LIGHT)
-    v.anchor("cart", 14, 46, 1)
-    P.scatter(v, 0, 40, 32, 48, 0.02, seed=seed, kinds=("pebble", "tuft"))
+        v.box(34 + i * 4, 40, 1, 36 + i * 4, 42, 7, TIMBER_DARK)
+        v.box(34 + i * 4, 40, 3, 36 + i * 4, 42, 4, IRON)
+    K.pile(v, 36, 54, 1, 4, 4, 3, IRON, seed)
+    P.handcart(v, 26, 60, 1, along="x", load=NEW)
+    v.anchor("cart", 32, 68, 1)
+    K.tufts(v, seed)
     return P.colour_jitter(v, seed=seed)
