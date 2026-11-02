@@ -10497,9 +10497,9 @@
     "salt_mine": {
       "anchors": {
         "cart": [
-          -0.375,
+          -0.5,
           0.0,
-          -3.75
+          -3.8333
         ],
         "door": [
           0.0,
@@ -10508,42 +10508,62 @@
         ],
         "status": [
           0.0,
-          2.5,
+          3.4167,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.5,
-          2.25,
+          1.5833,
+          3.1667,
           4.0
         ],
         "min": [
           -1.5,
           0.0,
-          -4.0
+          -3.8333
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.5,
-            2.25,
+            1.5833,
+            3.1667,
             4.0
           ],
           "min": [
             -1.5,
             0.0,
-            -4.0
+            -3.8333
           ]
         },
         "budget": 12000,
-        "bytes": 126704,
+        "bytes": 273164,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
           ],
           [
             "dirt",
@@ -10556,36 +10576,16 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.0,
+              3.0,
               4.0
             ],
             "min": [
@@ -10595,21 +10595,21 @@
             ]
           },
           "budget": 960,
-          "bytes": 12096,
+          "bytes": 11768,
           "path": "salt_mine.lite.glb",
-          "sha256": "02d6938a67cbedd8e737e70eb6eed1d6c7d44daccdfa737628e7047a54ce029a",
-          "triangles": 322
+          "sha256": "15b901f9beabd5326301fc558583d1e2553aacfdf7bea2d15eb0d7ecc2a0af04",
+          "triangles": 310
         },
         "path": "salt_mine.glb",
-        "sha256": "4cc5f3cd6606b20b4474c68f2d54467d21d0cde8d2628351fc7237b0176bf75e",
-        "triangles": 4166
+        "sha256": "b447f2cd3d87eba1a063df626f7579c4f6e4e9e786950ad074feb3fdb0c033dc",
+        "triangles": 9126
       },
       "footprint": {
         "h": 8,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "salt_pans": {
       "anchors": {
