@@ -3390,14 +3390,14 @@
     "cheese_dairy": {
       "anchors": {
         "cart": [
-          1.25,
+          -0.8333,
           0.0,
-          -2.125
+          -2.0
         ],
         "chimney": [
-          0.1875,
-          3.5,
-          1.3125
+          0.9167,
+          4.5,
+          1.5833
         ],
         "door": [
           0.0,
@@ -3405,43 +3405,43 @@
           -2.5
         ],
         "smoke": [
-          0.1875,
-          3.625,
-          1.3125
+          0.9167,
+          4.5833,
+          1.5833
         ],
         "status": [
           0.0,
-          3.875,
+          4.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          3.625,
-          2.25
+          2.0,
+          4.4167,
+          2.5
         ],
         "min": [
-          -1.75,
+          -2.0,
           0.0,
-          -1.75
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            3.625,
-            2.25
+            2.0,
+            4.4167,
+            2.5
           ],
           "min": [
-            -1.75,
+            -2.0,
             0.0,
-            -1.75
+            -2.5
           ]
         },
         "budget": 10000,
-        "bytes": 92924,
+        "bytes": 163472,
         "ground": [
           [
             "none",
@@ -3457,28 +3457,28 @@
           ],
           [
             "none",
-            "paved",
-            "paved",
-            "none"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "none",
             "none",
             "none",
             "none"
+          ],
+          [
+            "none",
+            "dirt",
+            "dirt",
+            "none"
+          ],
+          [
+            "none",
+            "dirt",
+            "dirt",
+            "dirt"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
+              4.0,
               2.5
             ],
             "min": [
@@ -3488,21 +3488,21 @@
             ]
           },
           "budget": 800,
-          "bytes": 9508,
+          "bytes": 9904,
           "path": "cheese_dairy.lite.glb",
-          "sha256": "fd34076274eff6355aa4b072b0da00b9666ece7242542209cba6228b8060adad",
-          "triangles": 242
+          "sha256": "71731c27c15499cc4de896b3dbc6665b2750cd89d97cfc0ecc8cab972d844631",
+          "triangles": 276
         },
         "path": "cheese_dairy.glb",
-        "sha256": "f15d9c7e5e10065c85eb7892e9bcb793f13c37cbd6355840623ee5e792b51f78",
-        "triangles": 2890
+        "sha256": "813ef8858f8f94773761977e1697c726c0c1803ceccc1bb2bf090b786fec24ab",
+        "triangles": 5004
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "church": {
       "anchors": {
