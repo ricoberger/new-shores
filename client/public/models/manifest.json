@@ -4866,14 +4866,14 @@
     "dyer": {
       "anchors": {
         "cart": [
-          -0.5,
+          -0.8333,
           0.0,
-          -2.125
+          -2.0
         ],
         "chimney": [
-          0.3125,
-          3.375,
-          1.5625
+          0.9167,
+          4.0,
+          1.5833
         ],
         "door": [
           0.0,
@@ -4881,49 +4881,61 @@
           -2.5
         ],
         "smoke": [
-          0.3125,
-          3.5,
-          1.5625
+          0.9167,
+          4.0833,
+          1.5833
         ],
         "status": [
           0.0,
-          3.75,
+          4.1667,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.5,
+          3.9167,
           2.5
         ],
         "min": [
-          -2.0,
+          -1.9167,
           0.0,
-          -2.125
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
             2.0,
-            3.5,
+            3.9167,
             2.5
           ],
           "min": [
-            -2.0,
+            -1.9167,
             0.0,
-            -2.125
+            -2.5
           ]
         },
         "budget": 10000,
-        "bytes": 98264,
+        "bytes": 174976,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
             "dirt",
@@ -4932,22 +4944,10 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
@@ -4964,14 +4964,14 @@
             ]
           },
           "budget": 800,
-          "bytes": 11744,
+          "bytes": 8900,
           "path": "dyer.lite.glb",
-          "sha256": "04daeca698c69ac709e8769d92c1c1f86e44e770d8c84ace8d6874334cbf2609",
-          "triangles": 318
+          "sha256": "1bf5f0e73916ae3d1e104ccfeff80f7b1b00d5399fa99ddc68e8fedc3e701164",
+          "triangles": 234
         },
         "path": "dyer.glb",
-        "sha256": "b88b6c49cd1e610124c8d8e82cf54827780ef63bb0b1d2923f379f6fe6c3c715",
-        "triangles": 3004
+        "sha256": "7af3b8ccc0f1246442b284ced13b36f38c698cba52127d209796fe4fbcb73cb3",
+        "triangles": 5252
       },
       "footprint": {
         "h": 5,
@@ -4981,7 +4981,7 @@
       "sway": [
         "cloth"
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "dyer_works": {
       "anchors": {
