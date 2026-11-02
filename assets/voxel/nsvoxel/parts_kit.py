@@ -72,7 +72,7 @@ def _n_panels(a0, a1):
     return len(W.bays(a0, a1)) - 1
 
 
-def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, smoke=False, chim=None, rise=None, windows=True, wins=None, ov=None, hip=False):
+def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, smoke=False, chim=None, rise=None, windows=True, wins=None, ov=None, hip=False, stone=None, chimney=False, plinth=None):
     """
     The main block in the vocabulary of `tier` (1–4) over x0..x1 × y0..y1. `door` = (side, a) with `a` the first
     voxel of a four-wide door along the side (default: the middle of the y+ face); `storeys` = (ground, top) of
@@ -93,8 +93,8 @@ def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, sm
         ridge = r.ridge_z
         top = wall_h
         _openings(v, face, (x0, y0, x1, y1), tier, side, a, windows, wins, 2, wall_h)
-        if smoke:
-            P.roof_chimney(v, r, cx, cy, above=3, anchor=True)
+        if smoke or chimney:
+            P.roof_chimney(v, r, cx, cy, above=3, anchor=smoke)
         out = SimpleNamespace(roof=r, ridge=ridge, face=face, top=top, rect=(x0, y0, x1, y1), tier=tier)
         return out
     g, t = storeys or ((10, 19) if tier == 2 else (11, 22) if tier == 3 else (9, 24))
@@ -116,15 +116,16 @@ def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, sm
             win = {"y+": tuple(range(nx)), "y-": tuple(range(nx)), "x-": tuple(range(ny))}
             if side == "y+" and a is not None:
                 pass
-        b = W.framed_house(v, x0, y0, x1, y1, along, ground=g, top=t, infill=PLASTER if tier == 2 else shade_of(PLASTER, 0.97), frame=FRAME, rise=rise or (1.5 if tier == 2 else 1.8), seed=seed, windows=win, shutters=DYE_BLUE if tier == 2 else GREEN, hip=hip, ov=ov or 1, **kw)
+        b = W.framed_house(v, x0, y0, x1, y1, along, ground=g, top=t, infill=PLASTER if tier == 2 else shade_of(PLASTER, 0.97), frame=FRAME, rise=rise or (1.5 if tier == 2 else 1.8), seed=seed, windows=win, shutters=DYE_BLUE if tier == 2 else GREEN, hip=hip, ov=ov or 1, **({"stone": stone} if stone else {}), **({"plinth": plinth} if plinth else {}), **kw)
         face = b.face
         r = b.roof
         _openings(v, face, (x0, y0, x1, y1), tier, side, a, windows, wins, 2, g)
-    if smoke:
+    if smoke or chimney:
         sx, sy = cx, cy
         W.stack(v, sx, sy, 1, r.ridge_z + 4, 2, 2)
-        v.anchor("chimney", sx + 1.0, sy + 1.0, r.ridge_z + 7)
-        v.anchor("smoke", sx + 1.0, sy + 1.0, r.ridge_z + 8)
+        if smoke:
+            v.anchor("chimney", sx + 1.0, sy + 1.0, r.ridge_z + 7)
+            v.anchor("smoke", sx + 1.0, sy + 1.0, r.ridge_z + 8)
     return SimpleNamespace(roof=r, ridge=r.ridge_z, face=face, top=t, rect=(x0, y0, x1, y1), tier=tier, b=b)
 
 
