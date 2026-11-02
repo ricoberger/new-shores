@@ -8700,14 +8700,14 @@
     "orchard": {
       "anchors": {
         "cart": [
-          0.5,
+          -0.8333,
           0.0,
-          -1.625
+          -1.5
         ],
         "chimney": [
-          0.5625,
-          3.5,
-          0.8125
+          0.9167,
+          4.5,
+          1.0833
         ],
         "door": [
           0.0,
@@ -8715,48 +8715,74 @@
           -2.0
         ],
         "smoke": [
-          0.5625,
-          3.625,
-          0.8125
+          0.9167,
+          4.5833,
+          1.0833
         ],
         "status": [
           0.0,
-          3.875,
+          4.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.75,
-          3.625,
-          1.875
+          2.0,
+          4.4167,
+          2.0
         ],
         "min": [
-          -1.75,
+          -2.0,
           0.0,
-          -1.875
+          -2.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.75,
-            3.625,
-            1.875
+            2.0,
+            4.4167,
+            2.0
           ],
           "min": [
-            -1.75,
+            -2.0,
             0.0,
-            -1.875
+            -2.0
           ]
         },
         "budget": 8000,
-        "bytes": 96768,
+        "bytes": 197396,
+        "ground": [
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "dirt",
+            "dirt",
+            "dirt",
+            "dirt"
+          ]
+        ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
+              4.0,
               2.0
             ],
             "min": [
@@ -8766,21 +8792,21 @@
             ]
           },
           "budget": 640,
-          "bytes": 9524,
+          "bytes": 11056,
           "path": "orchard.lite.glb",
-          "sha256": "6f5ef0c086a34fdb551b1024134fb371e994f13b1865db0a1f48e1662501e8ab",
-          "triangles": 238
+          "sha256": "69111b9100ef114445c3d5c9098ec2bd591092be3f013a391da688d10cd5391e",
+          "triangles": 296
         },
         "path": "orchard.glb",
-        "sha256": "a85bbd2397ae4e33953daae1a810bd1aadc7e47764082d97354e7c0e83938a9e",
-        "triangles": 2940
+        "sha256": "5df10921fe143a281fa3c0ec1358cd97056780ad2636fb26c6db239590fabd25",
+        "triangles": 6086
       },
       "footprint": {
         "h": 4,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "orchard_plot": {
       "anchors": {
