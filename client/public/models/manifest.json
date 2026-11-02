@@ -11648,14 +11648,14 @@
     "smelter": {
       "anchors": {
         "cart": [
-          1.25,
+          0.8333,
           0.0,
-          -2.5
+          -2.6667
         ],
         "chimney": [
-          -0.375,
-          3.25,
-          1.625
+          -0.8333,
+          3.0833,
+          1.5
         ],
         "door": [
           0.0,
@@ -11663,9 +11663,9 @@
           -3.0
         ],
         "smoke": [
-          -0.375,
-          3.375,
-          1.625
+          -0.8333,
+          3.1667,
+          1.5
         ],
         "status": [
           0.0,
@@ -11677,12 +11677,12 @@
         "max": [
           2.0,
           3.25,
-          2.5
+          3.0
         ],
         "min": [
-          -1.75,
+          -2.0,
           0.0,
-          -1.625
+          -3.0
         ]
       },
       "file": {
@@ -11690,19 +11690,37 @@
           "max": [
             2.0,
             3.25,
-            2.5
+            3.0
           ],
           "min": [
-            -1.75,
+            -2.0,
             0.0,
-            -1.625
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 87372,
+        "bytes": 182800,
         "ground": [
           [
-            "dirt",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt",
             "dirt"
@@ -11714,59 +11732,41 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
+              3.0,
               2.5
             ],
             "min": [
               -2.0,
               0.0,
-              -1.5
+              -2.0
             ]
           },
           "budget": 960,
-          "bytes": 10384,
+          "bytes": 9204,
           "path": "smelter.lite.glb",
-          "sha256": "50016f4fcf6ad808c6fc8393a56ca4ad6bc66716f3684d40d8548cf5c1398d35",
-          "triangles": 256
+          "sha256": "74544ef669d64430ebdf431630bc9b33d6948ef66da7608129e6bc575c4d0f0a",
+          "triangles": 254
         },
         "path": "smelter.glb",
-        "sha256": "e1f9fb6eae25622d0912186103691846ac9f8065c2f43b6668531dac94781558",
-        "triangles": 2630
+        "sha256": "3d7ea93418d40ccea6e96ddc7618079872b180e8ce94e9fd0672acfc95128db2",
+        "triangles": 5576
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "soap_maker": {
       "anchors": {
