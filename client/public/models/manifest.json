@@ -2248,14 +2248,14 @@
     "brickworks": {
       "anchors": {
         "cart": [
-          -0.25,
+          0.8333,
           0.0,
-          -2.25
+          -1.8333
         ],
         "chimney": [
-          0.0625,
-          3.5,
-          1.8125
+          -0.9167,
+          2.9167,
+          1.25
         ],
         "door": [
           0.0,
@@ -2263,49 +2263,55 @@
           -2.5
         ],
         "smoke": [
-          0.0625,
-          3.625,
-          1.8125
+          -0.9167,
+          3.0,
+          1.25
         ],
         "status": [
           0.0,
-          3.875,
+          3.3333,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.625,
-          2.375
+          3.0833,
+          2.5
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -2.25
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
             2.0,
-            3.625,
-            2.375
+            3.0833,
+            2.5
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -2.25
+            -2.5
           ]
         },
         "budget": 10000,
-        "bytes": 99920,
+        "bytes": 78716,
         "ground": [
           [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ],
           [
             "dirt",
@@ -2314,53 +2320,47 @@
             "dirt"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
+            "none",
             "dirt",
             "dirt",
             "dirt"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
-              2.5
+              3.0,
+              2.0
             ],
             "min": [
               -2.0,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 800,
-          "bytes": 9492,
+          "bytes": 5428,
           "path": "brickworks.lite.glb",
-          "sha256": "2d0295a8acb061184dd4bc7b052a6870f783be0aed335686bc8c96568b21ec36",
-          "triangles": 256
+          "sha256": "d9f6aac330fb4a19f241b3659d04bba93173b9f2ad5634976f673c8126e3a3ba",
+          "triangles": 120
         },
         "path": "brickworks.glb",
-        "sha256": "efb036f3792fd379f50fa673945a1ca0fc1da657f9cb1a561ef55472e50121ec",
-        "triangles": 3014
+        "sha256": "b6d6407404b976816353ccbfe138a289b14f37c99e7fe7270685571ea1768763",
+        "triangles": 2306
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "brig": {
       "anchors": {
