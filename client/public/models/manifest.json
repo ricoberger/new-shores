@@ -3166,47 +3166,74 @@
         "door": [
           0.0,
           0.0,
-          -2.5
+          -2.0
         ],
         "status": [
           0.0,
-          4.375,
+          3.1667,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          4.125,
-          2.25
+          2.9167,
+          2.5
         ],
         "min": [
-          -1.375,
+          -1.5,
           0.0,
-          -2.375
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
             1.5,
-            4.125,
-            2.25
+            2.9167,
+            2.5
           ],
           "min": [
-            -1.375,
+            -1.5,
             0.0,
-            -2.375
+            -2.5
           ]
         },
         "budget": 7500,
-        "bytes": 116988,
+        "bytes": 158784,
+        "ground": [
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "dirt",
+            "none"
+          ]
+        ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
               3.0,
-              2.5
+              2.0
             ],
             "min": [
               -1.5,
@@ -3215,21 +3242,21 @@
             ]
           },
           "budget": 600,
-          "bytes": 8984,
+          "bytes": 8952,
           "path": "chapel.lite.glb",
-          "sha256": "cc889ca54e13be65de88ea66cffa638d36652a1c89ad9b3580be6d67ba921989",
-          "triangles": 234
+          "sha256": "3c95e1f79e4726b75cfb32a7b693d3bf2910295430fb579c5fe128e3313bc908",
+          "triangles": 226
         },
         "path": "chapel.glb",
-        "sha256": "3e5c45daed4512ef73c407dd743701062def97cb770b2909e119c6f3b982668a",
-        "triangles": 3726
+        "sha256": "2c8704fcd94a26e6698143d7dba40e7258100a9d973df07d04d01074aa0d46a4",
+        "triangles": 4982
       },
       "footprint": {
         "h": 5,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "charcoal_burner": {
       "anchors": {
