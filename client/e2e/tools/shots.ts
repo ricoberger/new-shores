@@ -1433,6 +1433,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
 
     },
   },
+  // The population popup with all four tiers (worst unmet need under each), pinned open (desktop).
+  "top-bar-population-tiers": {
+    fixture: "patricians",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("hud-population-chip").click();
+      await page.getByTestId("hud-tier-settlers").waitFor({ state: "visible" });
+    },
+  },
   // A sloop on a leg (desktop), camera centred on ship 2.
   sloop: {
     fixture: "played",

@@ -150,7 +150,7 @@
   flex-direction: column;
   gap: 4px;
   min-width: 190px;
-  max-width: min(320px, calc(100vw - 16px));
+  max-width: min(440px, calc(100vw - 16px));
 }
 
 .hudPopover .stat {
@@ -163,8 +163,29 @@
   white-space: nowrap;
 }
 
+/* A tier: name, count and satisfaction on one line (the popup grows to fit them, up to the viewport), the
+   short-of-workers and worst-need lines beneath, close to their tier. */
 .hudPopover .tierStat {
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr) auto auto;
+  column-gap: 12px;
+  row-gap: 2px;
+}
+
+.hudPopover .tierStat > .shortOfWorkers,
+.hudPopover .tierStat > .worstNeed {
+  grid-column: 1 / -1;
+}
+
+/* Tiers are set apart from each other. */
+.hudPopover .tierStat + .tierStat {
+  margin-top: 8px;
+}
+
+.hudPopover .tierStat .label,
+.hudPopover .tierStat .value,
+.hudPopover .tierStat .satisfaction {
+  white-space: nowrap;
 }
 
 /* The focused island: name and resource icons as one button (the island card). */
