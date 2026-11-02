@@ -120,7 +120,7 @@ def panel_window(f, panel, z, h=6, **kw):
     two_light(f, (p0 + p1 - 5) // 2, z, h, **kw)
 
 
-def framed_house(v, x0, y0, x1, y1, along="x", ground=10, top=19, infill=PLASTER, frame=TIMBER_DARK, roof=None, kind="tiles", rise=1.5, hip=False, seed=0, bay=11, windows=None, shutters=None, plain=("y-", "x+"), free=None, rail=None, gable_jetty=True, z0=1, ov=1, stone=STONE, plinth=STONE_LIGHT, quoins=True, ridge=None, shades=None, verge=0.9):
+def framed_house(v, x0, y0, x1, y1, along="x", ground=10, top=19, infill=PLASTER, frame=TIMBER_DARK, roof=None, kind="tiles", rise=1.5, hip=False, seed=0, bay=11, windows=None, shutters=None, plain=("y-", "x+"), free=None, rail=None, gable_jetty=True, z0=1, ov=1, stone=STONE, plinth=STONE_LIGHT, quoins=True, ridge=None, shades=None, verge=0.9, wall_shades=RUBBLE):
     """
     The block of `detail_v4.townhouse` on the V7 parts: a pale plinth band flush with the wall,
     a coursed-rubble ground floor to `ground` (dressed quoins), a jetty, a
@@ -133,7 +133,7 @@ def framed_house(v, x0, y0, x1, y1, along="x", ground=10, top=19, infill=PLASTER
     """
     _d.plinth(v, x0, y0, x1, y1, z0, plinth, out=0)  # a band flush with the wall: it meets the painted ground
     _d.fill(v, x0, y0, x1, y1, z0, z0 + 1, plinth)
-    coursed_stone_2(v, x0, y0, x1, y1, z0 + 1, ground, stone, seed)
+    coursed_stone_2(v, x0, y0, x1, y1, z0 + 1, ground, stone, seed, shades=wall_shades)
     if quoins:
         _d.dressed_quoins(v, x0, y0, x1, y1, z0 + 1, ground)
     _d.jetty_course(v, x0, y0, x1, y1, ground)
@@ -238,7 +238,7 @@ def stepped_gable(v, r, side, m=STONE, coping=None, balls=None, step=2, above=2,
     treads are `step` voxels tall and one wide (the roof's slope is steeper
     than 1:1, so every column is a step), each capped with a light coping stone (`coping`);
     the verge overhang there is removed. `balls`: a 2 × 2 × 2 cube of `ball` (brass by default)
-    on the apex and the two feet; `foot`: the lowest step
+    on the apex and the two feet (`balls="apex"`: the apex only); `foot`: the lowest step
     is that many voxels wider (a volute-like foot).
     """
     coping = coping or _d.DRESSED
@@ -278,7 +278,7 @@ def stepped_gable(v, r, side, m=STONE, coping=None, balls=None, step=2, above=2,
             at(pos, b, tops[cols[0]], coping)
     if balls:
         peak = max(cols, key=lambda b: (tops[b], -abs(b - mid)))
-        for b in (cols[0], cols[-1], int(round(mid))):
+        for b in ((int(round(mid)),) if balls == "apex" else (cols[0], cols[-1], int(round(mid)))):
             for db in (0, 1):
                 for dd in (0, 1):
                     for dz in (1, 2):
@@ -357,12 +357,13 @@ def round_window(f, a, z, r=2, frame=None, glass=WINDOW):
                 f.put(a + i, z + j, frame)
 
 
-def round_arcade(f, a0, a1, z0, h, bay=6, pier=2, depth=3, back=None, pier_m=None):
+def round_arcade(f, a0, a1, z0, h, bay=6, pier=2, depth=3, back=None, pier_m=None, arch_m=None):
     """
     Open round-headed arches along a facade from a0 to a1: openings `bay`
     voxels wide between piers `pier` wide, `h` high with a semicircular head
     (spring at h − bay/2), cut `depth` voxels deep with a shaded back wall;
-    piers optionally re-faced in `pier_m` with a light impost at the spring.
+    piers optionally re-faced in `pier_m` with a light impost at the spring;
+    `arch_m` re-faces the ring of the arch head (one voxel over each opening).
     """
     back = back or shade_of(PLASTER, 0.6)
     rad = bay / 2.0
@@ -373,6 +374,8 @@ def round_arcade(f, a0, a1, z0, h, bay=6, pier=2, depth=3, back=None, pier_m=Non
             dx = i + 0.5 - rad
             top = spring + int((rad * rad - dx * dx) ** 0.5 + 0.5)
             top = min(top, h)
+            if arch_m is not None:
+                f.put(a + i, z0 + top, arch_m)
             for j in range(top):
                 for k in range(depth):
                     f.put(a + i, z0 + j, None, out=-k)

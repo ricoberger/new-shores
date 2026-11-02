@@ -13438,9 +13438,9 @@
     "warehouse": {
       "anchors": {
         "cart": [
-          1.25,
+          -0.1667,
           0.0,
-          -2.5
+          -2.6667
         ],
         "door": [
           0.0,
@@ -13449,20 +13449,20 @@
         ],
         "status": [
           0.0,
-          4.25,
+          4.5833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.375,
-          4.0,
-          2.375
+          2.8333,
+          4.3333,
+          2.5833
         ],
         "min": [
-          -2.75,
+          -3.0,
           0.0,
-          -2.75
+          -3.0833
         ]
       },
       "footprint": {
@@ -13474,18 +13474,18 @@
         "1": {
           "bounds": {
             "max": [
-              2.375,
-              3.375,
-              2.375
+              1.8333,
+              4.0,
+              2.5
             ],
             "min": [
-              -2.375,
+              -2.4167,
               0.0,
-              -2.5
+              -2.1667
             ]
           },
           "budget": 18000,
-          "bytes": 71164,
+          "bytes": 180448,
           "ground": [
             [
               "dirt",
@@ -13539,8 +13539,8 @@
           "lite": {
             "bounds": {
               "max": [
-                2.5,
-                3.5,
+                2.0,
+                4.0,
                 2.5
               ],
               "min": [
@@ -13550,118 +13550,30 @@
               ]
             },
             "budget": 1440,
-            "bytes": 6904,
+            "bytes": 12064,
             "path": "warehouse.l1.lite.glb",
-            "sha256": "11b17b7be291f929a52d537797a9c6df41edb9a39201f9c092e6bb028a700a60",
-            "triangles": 158
+            "sha256": "b9e8da493dc0dbe31543100aa1c50e9531e173283fb41098ad4c15da2f981913",
+            "triangles": 314
           },
           "path": "warehouse.l1.glb",
-          "sha256": "9c8e30b29d7996041e03663d7c2ab1f5c15dcf4c1251b2f7a106c909e430e109",
-          "triangles": 2256
+          "sha256": "dbeff470e92aee99b9896022dda986e41d04839c8f44679f9e7551bf28643c3e",
+          "triangles": 5890
         },
         "2": {
           "bounds": {
             "max": [
-              2.375,
-              3.0,
-              2.375
-            ],
-            "min": [
-              -2.375,
-              0.0,
-              -2.5
-            ]
-          },
-          "budget": 18000,
-          "bytes": 84252,
-          "ground": [
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ],
-            [
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt",
-              "dirt"
-            ]
-          ],
-          "lite": {
-            "bounds": {
-              "max": [
-                2.5,
-                3.0,
-                2.5
-              ],
-              "min": [
-                -2.5,
-                0.0,
-                -2.5
-              ]
-            },
-            "budget": 1440,
-            "bytes": 8424,
-            "path": "warehouse.l2.lite.glb",
-            "sha256": "6ae7e4e861dfc47dcfea5dc4232145ea11d7eb1d04c2b2de4b36eef6a1071cee",
-            "triangles": 198
-          },
-          "path": "warehouse.l2.glb",
-          "sha256": "054def223ab0b67891c78131eac87f02c5fa51e1c112cca28f6bf9c231f282e9",
-          "triangles": 2560
-        },
-        "3": {
-          "bounds": {
-            "max": [
-              2.375,
-              4.0,
-              2.375
+              2.6667,
+              4.3333,
+              2.5833
             ],
             "min": [
               -2.75,
               0.0,
-              -2.75
+              -2.8333
             ]
           },
           "budget": 18000,
-          "bytes": 144980,
+          "bytes": 273744,
           "ground": [
             [
               "dirt",
@@ -13715,8 +13627,8 @@
           "lite": {
             "bounds": {
               "max": [
-                2.5,
-                4.0,
+                3.0,
+                4.5,
                 2.5
               ],
               "min": [
@@ -13726,21 +13638,193 @@
               ]
             },
             "budget": 1440,
-            "bytes": 14056,
+            "bytes": 13764,
+            "path": "warehouse.l2.lite.glb",
+            "sha256": "e678ee0f50542791e640b2d7b2fbb5c138312652415592b0d4bde557142dbdbe",
+            "triangles": 394
+          },
+          "path": "warehouse.l2.glb",
+          "sha256": "ae62eeb37e6dbfe6ccb3f341a0caebed4cfbcbf171ecec4244de9ad6edc44fa3",
+          "triangles": 8380
+        },
+        "3": {
+          "bounds": {
+            "max": [
+              2.8333,
+              4.3333,
+              2.5833
+            ],
+            "min": [
+              -3.0,
+              0.0,
+              -2.4167
+            ]
+          },
+          "budget": 18000,
+          "bytes": 336904,
+          "ground": [
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ]
+          ],
+          "lite": {
+            "bounds": {
+              "max": [
+                3.0,
+                4.0,
+                2.5
+              ],
+              "min": [
+                -3.0,
+                0.0,
+                -2.5
+              ]
+            },
+            "budget": 1440,
+            "bytes": 15072,
             "path": "warehouse.l3.lite.glb",
-            "sha256": "df66071a47f36accbf1592bb4fa757a411d1fd316fcf158dab4f6cdbe79259f9",
-            "triangles": 376
+            "sha256": "830e7336c5a1a18b45f863c30fa5e174516419ce7567375aaccac4b862ed656e",
+            "triangles": 436
           },
           "path": "warehouse.l3.glb",
-          "sha256": "bb56e831ff39fe4a4a911d2f3d8b7af9623d1bca6003cfb07a0e27be4be6790b",
-          "triangles": 4468
+          "sha256": "e1b82e497d9f7201e1bd73185e2d207bb8a0ae0d039d6a304c5d7a4797a6e7ff",
+          "triangles": 10408
+        },
+        "4": {
+          "bounds": {
+            "max": [
+              1.9167,
+              4.1667,
+              2.4167
+            ],
+            "min": [
+              -2.6667,
+              0.0,
+              -3.0833
+            ]
+          },
+          "budget": 18000,
+          "bytes": 224008,
+          "ground": [
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ],
+            [
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved",
+              "paved"
+            ]
+          ],
+          "lite": {
+            "bounds": {
+              "max": [
+                2.0,
+                4.0,
+                2.5
+              ],
+              "min": [
+                -2.0,
+                0.0,
+                -3.0
+              ]
+            },
+            "budget": 1440,
+            "bytes": 8152,
+            "path": "warehouse.l4.lite.glb",
+            "sha256": "3a7487c922b3804f0769506b3c675cb88dc5f19953a479d835edb0c5ba181a97",
+            "triangles": 206
+          },
+          "path": "warehouse.l4.glb",
+          "sha256": "c1ea2f52704deb73084ffccf479f71c4030af3bd200f6905445e7aff87384cc0",
+          "triangles": 7760
         }
       },
-      "sway": [
-        "cloth",
-        "flag"
-      ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "weaver_linen": {
       "anchors": {
@@ -14438,7 +14522,7 @@
       "voxels_per_tile": 8
     }
   },
-  "palette_sha256": "a0c9b8f81b19bc676522572a1afd29065157ce438efdc05340bc8413cfc7787e",
+  "palette_sha256": "b52fdd01503542f25b359993b29ca4dfc6cede889cf4ca1358dc8ea05caf1f9a",
   "placeholders": [],
   "version": 1,
   "voxels_per_tile": 8

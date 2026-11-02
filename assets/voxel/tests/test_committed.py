@@ -199,11 +199,10 @@ class CommittedTest(unittest.TestCase):
             n = content.levels(CONTENT, cid)
             n = min(n, recipes[cid]["levels"] or n)
             self.assertEqual(sorted(models[cid]["levels"]), [str(i) for i in range(1, n + 1)], cid)
-        # Level 4 of the warehouse (D-065) has no model yet; the client draws level 3. The market models all four.
-        self.assertEqual(content.levels(CONTENT, "warehouse"), 4)
-        self.assertNotIn("4", models["warehouse"]["levels"])
-        self.assertEqual(content.levels(CONTENT, "market"), 4)
-        self.assertIn("4", models["market"]["levels"])
+        # The market and the warehouse model all four levels (D-065).
+        for cid in ("warehouse", "market"):
+            self.assertEqual(content.levels(CONTENT, cid), 4, cid)
+            self.assertIn("4", models[cid]["levels"], cid)
         for cid in config.MODEL_SHIPS:
             ship = models[cid]["ship"]
             self.assertAlmostEqual(ship["length_tiles"], CONTENT["ships"][cid]["length_tiles"], places=6, msg=cid)

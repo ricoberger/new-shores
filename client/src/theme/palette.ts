@@ -56,7 +56,7 @@ export const BUILDINGS = {
   iron: "#4E4F55",
   window: "#3B4A57",
   dye_blue: "#3F6F9C",
-  brick: "#9C4A38",
+  brick: "#7E4A3C",
   tile_dark: "#6E3A33",
 } as const;
 
@@ -86,7 +86,7 @@ export const SHADOWS = {
   iron: "#2D2C38",
   window: "#222939",
   dye_blue: "#253E67",
-  brick: "#5A2925",
+  brick: "#492928",
   tile_dark: "#402022",
   sand: "#84766E",
   grass_a: "#405836",

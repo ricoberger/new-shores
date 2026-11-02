@@ -84,7 +84,7 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 |---|---|
 | Terrain | sand `#E2D2A6` · grass `#6E9E52` / `#84B063` · dry patches `#A79B62` · forest floor `#4A7640` · tree crown `#55884A` · mountain `#86888A` · cliff `#9A938A` · dirt road `#96744F` · paved road `#9FA09B` |
 | Water | shallows `#4A9C9F` → deep `#22627D` · foam `#F4F6F0` · haze `#AEC1C4` |
-| Buildings | plaster `#E7D7B8` · ochre `#D9A85E` · timber `#6F4A2E` · thatch `#B98F4F` · terracotta roof `#C4663A` (tier 2) · tile-dark `#6E3A33` (tier 3 roofs, V7) · brick `#9C4A38` (industry, V7) · slate `#5C6670` · stone `#B9B2A4` · brass `#C9A24A` · plus (art task 3) `canvas` (sails), `iron`, `window`, `dye-blue` — exact values in `assets/palette.json` |
+| Buildings | plaster `#E7D7B8` · ochre `#D9A85E` · timber `#6F4A2E` · thatch `#B98F4F` · terracotta roof `#C4663A` (tier 2) · tile-dark `#6E3A33` (tier 3 roofs, V7) · brick `#7E4A3C` (weathered Hanse brick: warehouses, industry, V7; first `#9C4A38`, darkened after the warehouse sheets) · slate `#5C6670` · stone `#B9B2A4` · brass `#C9A24A` · plus (art task 3) `canvas` (sails), `iron`, `window`, `dye-blue` — exact values in `assets/palette.json` |
 | UI chrome | parchment `#F1E6CC` · dark wood `#4A3421` · brass `#C9A24A` · ink `#2B2117` |
 | Shadows (D-050, D-064) | one cooler, lower-value **shadow tone per role** (`shadows` group) used by the AO/two-tone bake: role × (0.58, 0.56, 0.66) per sRGB channel, the rock roles a little deeper; thatch keeps extra chroma in shadow |
 | Island (D-050, D-064) | cliff bands (muted sandstone over grey), sand rim, neutral grey plateau rock and moss cap, shelf water (`island` group) |
@@ -574,12 +574,14 @@ land buildings).
 - **Roles for the model rework (V7 roles, applied by the tier
   sessions):** roofs per tier (T1 thatch, T2 orange terracotta, T3
   `tile-dark`, T4 slate) and the `brick` / `tile-dark` roles follow
-  D-064 §3. Palette v3 names them: `brick` `#9C4A38` (industry,
+  D-064 §3. Palette v3 names them: `brick` `#7E4A3C` (industry,
   warehouses, the depot; jitter class stone) and `tile-dark` `#6E3A33`
   (the tier-3 burgundy tile; class roof), each with its shadow tone by
   the documented rule; `terracotta` moved to `#C4663A` (the tier-2
-  orange, re-baked into every model that uses it). No recipe uses
-  `brick` or `tile-dark` yet.
+  orange, re-baked into every model that uses it). The warehouse
+  uses `brick` (an accent: level 3 piers and arch rings, level 4 ground
+  floor and gable fields; the role was darkened from `#9C4A38` to
+  `#7E4A3C`, shadow `#492928`).
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual
   only, D-042); one material (vertex colours). Every building reads by

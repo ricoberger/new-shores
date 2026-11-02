@@ -143,7 +143,7 @@ describe("committed models are consistent with the manifest", () => {
     expect(manifest.placeholders.length).toBeLessThan(ids.length);
     expect(manifest.models.house_settlers?.variants).toHaveLength(3);
     expect(manifest.models.house_citizens?.variants).toHaveLength(3);
-    expect(Object.keys(manifest.models.warehouse?.levels ?? {})).toEqual(["1", "2", "3"]);
+    expect(Object.keys(manifest.models.warehouse?.levels ?? {})).toEqual(["1", "2", "3", "4"]);
     expect(Object.keys(manifest.models.trading_post?.levels ?? {})).toEqual(["1", "2", "3", "4"]);
     for (const s of CONTENT_SHIPS) expect(manifest.models[s.id]?.attachments?.cargo, s.id).toBeDefined();
   });
