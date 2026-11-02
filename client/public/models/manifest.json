@@ -10929,37 +10929,37 @@
         ],
         "status": [
           0.0,
-          4.25,
+          5.5833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.75,
-          4.0,
-          3.375
+          3.0,
+          5.3333,
+          4.0
         ],
         "min": [
-          -2.75,
+          -3.0,
           0.0,
-          -3.5
+          -4.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.75,
-            4.0,
-            3.375
+            3.0,
+            5.3333,
+            4.0
           ],
           "min": [
-            -2.75,
+            -3.0,
             0.0,
-            -3.5
+            -4.0
           ]
         },
         "budget": 24000,
-        "bytes": 190036,
+        "bytes": 373612,
         "ground": [
           [
             "none",
@@ -10995,33 +10995,33 @@
           ],
           [
             "none",
-            "paved",
-            "paved",
-            "paved",
-            "paved",
+            "none",
+            "none",
+            "none",
+            "none",
             "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "dirt",
+            "dirt",
+            "dirt",
+            "dirt",
+            "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "dirt",
+            "dirt",
+            "dirt",
+            "dirt",
+            "none"
           ],
           [
             "none",
             "none",
-            "paved",
-            "paved",
+            "dirt",
+            "dirt",
             "none",
             "none"
           ]
@@ -11029,32 +11029,32 @@
         "lite": {
           "bounds": {
             "max": [
-              3.0,
-              4.0,
-              3.5
+              2.5,
+              5.0,
+              4.0
             ],
             "min": [
-              -3.0,
+              -2.5,
               0.0,
-              -3.5
+              -3.0
             ]
           },
           "budget": 1920,
-          "bytes": 19224,
+          "bytes": 12884,
           "path": "school.lite.glb",
-          "sha256": "b832bb58c8c7a362c3123b538c1d46854dbc9a16e79bee1c44aacee4994e9af6",
-          "triangles": 524
+          "sha256": "feb38910ee31a9095f88c9885f3782d32b5f413adb170aade13d0576bf3be822",
+          "triangles": 366
         },
         "path": "school.glb",
-        "sha256": "4dcf857cfb6b2463511102702f72f7afb6267473a9db601de9ecc884ea521300",
-        "triangles": 5922
+        "sha256": "9ab90748c5b68ba6775c1b6b93010edd5aa477bdf27905391bfd048e79dc3f61",
+        "triangles": 11596
       },
       "footprint": {
         "h": 8,
         "w": 6
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "sheep_farm": {
       "anchors": {
