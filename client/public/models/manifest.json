@@ -10013,14 +10013,14 @@
     "quarry": {
       "anchors": {
         "cart": [
-          1.0,
+          0.8333,
           0.0,
-          -3.5
+          -1.8333
         ],
         "chimney": [
-          0.1875,
-          2.75,
-          -1.9375
+          0.0833,
+          3.25,
+          -1.9167
         ],
         "door": [
           0.0,
@@ -10028,114 +10028,114 @@
           -4.0
         ],
         "smoke": [
-          0.1875,
-          2.875,
-          -1.9375
+          0.0833,
+          3.3333,
+          -1.9167
         ],
         "status": [
           0.0,
-          3.125,
+          3.4167,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.875,
+          3.1667,
           4.0
         ],
         "min": [
           -1.5,
           0.0,
-          -3.25
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
             1.5,
-            2.875,
+            3.1667,
             4.0
           ],
           "min": [
             -1.5,
             0.0,
-            -3.25
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 103268,
+        "bytes": 181436,
         "ground": [
           [
-            "dirt",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
             "dirt",
             "dirt"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
+            "none",
             "dirt",
             "dirt"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
+            "none",
             "dirt",
             "dirt"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              3.0,
               4.0
             ],
             "min": [
               -1.5,
               0.0,
-              -3.5
+              -3.0
             ]
           },
           "budget": 960,
-          "bytes": 10756,
+          "bytes": 8952,
           "path": "quarry.lite.glb",
-          "sha256": "c128191afba5de5f8c9e19d846806443712c073b74109e9f0633d8e7ae7c5bd0",
-          "triangles": 284
+          "sha256": "51cf0219d05ce4ded2a0576a1d3314939b3429929257e2a676157fc3c05cdf77",
+          "triangles": 234
         },
         "path": "quarry.glb",
-        "sha256": "51cb8db71c74b56fe03f99921fa700a4f063e04e6ec95b98faf7447c351a4d5d",
-        "triangles": 3224
+        "sha256": "f27d6f74783314dfecc2d24c243767851f9d53037104af1e45339f49906ef212",
+        "triangles": 5680
       },
       "footprint": {
         "h": 8,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "quartz_quarry": {
       "anchors": {
