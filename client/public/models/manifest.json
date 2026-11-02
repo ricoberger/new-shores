@@ -4477,14 +4477,14 @@
     "dairy_farm": {
       "anchors": {
         "cart": [
-          0.25,
+          -0.8333,
           0.0,
-          -2.125
+          -2.0
         ],
         "chimney": [
-          1.3125,
-          2.5,
-          -0.3125
+          0.9167,
+          4.0,
+          1.5833
         ],
         "door": [
           0.0,
@@ -4492,43 +4492,43 @@
           -2.5
         ],
         "smoke": [
-          1.3125,
-          2.625,
-          -0.3125
+          0.9167,
+          4.0833,
+          1.5833
         ],
         "status": [
           0.0,
-          2.875,
+          4.1667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          2.625,
-          2.25
+          1.9167,
+          3.9167,
+          2.4167
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -1.875
+          -2.3333
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            2.625,
-            2.25
+            1.9167,
+            3.9167,
+            2.4167
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -1.875
+            -2.3333
           ]
         },
         "budget": 10000,
-        "bytes": 69508,
+        "bytes": 180932,
         "ground": [
           [
             "none",
@@ -4544,52 +4544,52 @@
           ],
           [
             "none",
-            "dirt",
-            "dirt",
+            "none",
+            "none",
             "none"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
           ],
           [
             "none",
             "dirt",
             "dirt",
             "none"
+          ],
+          [
+            "none",
+            "dirt",
+            "dirt",
+            "dirt"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              2.5,
+              3.5,
               2.5
             ],
             "min": [
               -2.0,
               0.0,
-              -2.0
+              -2.5
             ]
           },
           "budget": 800,
-          "bytes": 11032,
+          "bytes": 8472,
           "path": "dairy_farm.lite.glb",
-          "sha256": "e03e8d07b3242031c7ab2368755d5b958bcf873fc679918aa001364f2f58e603",
-          "triangles": 278
+          "sha256": "e4e1206fb6da1fc9a42cd6306a222b008d1e638257e20f828c1a3485fadb987e",
+          "triangles": 222
         },
         "path": "dairy_farm.glb",
-        "sha256": "0958edfdbe4e1af76a86ebeaed67ab05d3184ea2dbc81d8f18830d11ded5422b",
-        "triangles": 2124
+        "sha256": "6c3d6c2c84f93b4888335fc3800ef978b6845b82d32095b83722b9d0b24e5a16",
+        "triangles": 5456
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "depot": {
       "anchors": {
