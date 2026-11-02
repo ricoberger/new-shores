@@ -3706,43 +3706,43 @@
     "city_guard": {
       "anchors": {
         "door": [
-          -0.625,
           0.0,
-          -0.75
+          0.0,
+          -0.5833
         ],
         "status": [
           0.0,
-          2.75,
+          3.5833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.75,
-          2.5,
-          1.625
+          2.0,
+          3.3333,
+          2.0
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -1.5
+          -2.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.75,
-            2.5,
-            1.625
+            2.0,
+            3.3333,
+            2.0
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -1.5
+            -2.0
           ]
         },
         "budget": 8000,
-        "bytes": 92160,
+        "bytes": 177008,
         "ground": [
           [
             "none",
@@ -3758,46 +3758,46 @@
           ],
           [
             "none",
-            "paved",
-            "paved",
+            "dirt",
+            "dirt",
             "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "dirt",
+            "dirt",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              2.5,
-              1.5
+              3.5,
+              2.0
             ],
             "min": [
               -2.0,
               0.0,
-              -1.5
+              -2.0
             ]
           },
           "budget": 640,
-          "bytes": 9848,
+          "bytes": 10016,
           "path": "city_guard.lite.glb",
-          "sha256": "9bd3c48d2af284ace85848dde5d69fe617aa77023611bc12377c730f5a7f8750",
-          "triangles": 262
+          "sha256": "5bd04bb27a92b08cf6e1d2462d03001cef13efed2be0d7259145c2dbd057f772",
+          "triangles": 274
         },
         "path": "city_guard.glb",
-        "sha256": "2c80a7d13a3c1de4ac36d1d1712c16963e4b5adef6dcd0f93e4ce65979d027dc",
-        "triangles": 2950
+        "sha256": "ce0f99f5b4eba68157c559e0ed481c2568f0e53c7ae67dfcfa4ae502494a37d9",
+        "triangles": 5522
       },
       "footprint": {
         "h": 4,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "clay_pit": {
       "anchors": {
