@@ -7819,14 +7819,14 @@
     "malt_house": {
       "anchors": {
         "cart": [
+          0.6667,
           0.0,
-          0.0,
-          -2.75
+          -2.6667
         ],
         "chimney": [
-          0.875,
-          4.0,
-          1.25
+          0.0833,
+          4.3333,
+          2.0833
         ],
         "door": [
           0.0,
@@ -7834,9 +7834,9 @@
           -3.0
         ],
         "smoke": [
-          0.875,
-          4.375,
-          1.25
+          0.0833,
+          4.4167,
+          2.0833
         ],
         "status": [
           0.0,
@@ -7846,98 +7846,98 @@
       },
       "bounds": {
         "max": [
-          1.75,
+          2.0,
           4.25,
-          2.625
+          3.0
         ],
         "min": [
-          -1.75,
+          -2.0,
           0.0,
-          -2.75
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.75,
+            2.0,
             4.25,
-            2.625
+            3.0
           ],
           "min": [
-            -1.75,
+            -2.0,
             0.0,
-            -2.75
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 95804,
+        "bytes": 177448,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "paved",
+            "paved",
+            "paved"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "paved",
+            "paved",
+            "paved"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "paved",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              4.5,
+              4.0,
               2.5
             ],
             "min": [
               -2.0,
               0.0,
-              -3.0
+              -2.0
             ]
           },
           "budget": 960,
-          "bytes": 12168,
+          "bytes": 9048,
           "path": "malt_house.lite.glb",
-          "sha256": "f29065409ed609abc2f90e18b8ebf1afefd397e9e58b5eff74a8af814367fbdc",
-          "triangles": 344
+          "sha256": "b6f9e7cc7ab32d99872d1aa0108630775ed3ae88df8af738b26aea7e895d0275",
+          "triangles": 238
         },
         "path": "malt_house.glb",
-        "sha256": "7e9571eac6c3a3d10127a79854db07f4a808c4d4ba132f4ffcf5706f8494c03a",
-        "triangles": 2992
+        "sha256": "1306e8e55c67be05a04f9bd3174584da40ec92ac0993a5729d838cf778d70bf2",
+        "triangles": 5278
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "market": {
       "anchors": {
