@@ -3513,18 +3513,18 @@
         ],
         "status": [
           0.0,
-          8.375,
+          6.0,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.875,
-          8.125,
-          4.875
+          3.0,
+          5.75,
+          5.0
         ],
         "min": [
-          -2.875,
+          -3.0,
           0.0,
           -5.0
         ]
@@ -3532,47 +3532,129 @@
       "file": {
         "bounds": {
           "max": [
-            2.875,
-            8.125,
-            4.875
+            3.0,
+            5.75,
+            5.0
           ],
           "min": [
-            -2.875,
+            -3.0,
             0.0,
             -5.0
           ]
         },
         "budget": 30000,
-        "bytes": 291812,
+        "bytes": 401716,
+        "ground": [
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "paved",
+            "paved",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "none"
+          ]
+        ],
         "lite": {
           "bounds": {
             "max": [
-              3.0,
-              7.5,
-              5.0
+              2.5,
+              5.0,
+              4.0
             ],
             "min": [
-              -3.0,
+              -2.5,
               0.0,
               -5.0
             ]
           },
           "budget": 2400,
-          "bytes": 29008,
+          "bytes": 12424,
           "path": "church.lite.glb",
-          "sha256": "467d064e3b231ffc22271f8e228a343fd9850e4da66a26c09d9ecf329ad0cacb",
-          "triangles": 900
+          "sha256": "cf326302fdda108c873ec4877c0123a14332c3418438829bda844ecba2776f03",
+          "triangles": 356
         },
         "path": "church.glb",
-        "sha256": "f45c2e9ee3721039f7224fe79050307827f5e836a7a8639f7b9c3ef1e2ea88b7",
-        "triangles": 9460
+        "sha256": "bf24ddb32f135937f972ed0bc0728a6d57874e0584778e635bb663047af33dc4",
+        "triangles": 11992
       },
       "footprint": {
         "h": 10,
         "w": 6
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "cidery": {
       "anchors": {
