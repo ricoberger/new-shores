@@ -11032,14 +11032,14 @@
     "sheep_farm": {
       "anchors": {
         "cart": [
-          0.875,
+          0.8333,
           0.0,
-          -1.125
+          -1.25
         ],
         "chimney": [
-          -0.0625,
-          2.875,
-          0.5625
+          0.625,
+          2.0833,
+          0.7083
         ],
         "door": [
           0.0,
@@ -11047,89 +11047,89 @@
           -1.5
         ],
         "smoke": [
-          -0.0625,
-          3.0,
-          0.5625
+          0.625,
+          2.1667,
+          0.7083
         ],
         "status": [
           0.0,
-          3.25,
+          2.4167,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.375,
-          3.0,
-          1.25
+          1.5,
+          2.1667,
+          1.5
         ],
         "min": [
-          -1.375,
+          -1.5,
           0.0,
-          -1.375
+          -1.25
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.375,
-            3.0,
-            1.25
+            1.5,
+            2.1667,
+            1.5
           ],
           "min": [
-            -1.375,
+            -1.5,
             0.0,
-            -1.375
+            -1.25
           ]
         },
         "budget": 4500,
-        "bytes": 55356,
+        "bytes": 105520,
         "ground": [
           [
             "none",
-            "none",
-            "none"
-          ],
-          [
-            "none",
-            "none",
+            "dirt",
             "none"
           ],
           [
             "dirt",
             "dirt",
-            "none"
+            "dirt"
+          ],
+          [
+            "none",
+            "dirt",
+            "dirt"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              3.0,
+              2.0,
               1.5
             ],
             "min": [
               -1.5,
               0.0,
-              -1.5
+              -1.0
             ]
           },
           "budget": 360,
-          "bytes": 6992,
+          "bytes": 6016,
           "path": "sheep_farm.lite.glb",
-          "sha256": "64df419cc8e72568d41a8b5a8ed2920351485207b604dfd3cf1431cea9cc6a93",
-          "triangles": 170
+          "sha256": "47c35606aef6764b15a0d2018a587a75d9b5ee20a1d7a22d51e2133c930f3b47",
+          "triangles": 138
         },
         "path": "sheep_farm.glb",
-        "sha256": "9f94c960d8277d1ba3997172e831759b58bfce69373f1d851a771cfa4045e585",
-        "triangles": 1720
+        "sha256": "3e61aad5b953f2a934b484b727ab9d6455a9d9f9f1458a53db4563273b9f637b",
+        "triangles": 3386
       },
       "footprint": {
         "h": 3,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "shipyard": {
       "anchors": {
