@@ -12,6 +12,8 @@ from nsvoxel.mats import IRON, ROCK, ROCK_DEEP, ROCK_LIGHT, STONE, STONE_LIGHT, 
 
 FRESH = P.mat("stone", 1.12)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 64

@@ -12,6 +12,8 @@ from nsvoxel.mats import CANVAS, STONE, STONE_DARK, STONE_LIGHT, TIMBER, TIMBER_
 LEAF = mat("hemp", 0.82)
 BALL = mat("shallows", 0.5)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 32

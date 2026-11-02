@@ -32,6 +32,8 @@ def stall(v, x, y, k, face="y+"):
     P.box_crate(v, x + 1, y, 1, contents=GOODS[(k + 2) % len(GOODS)])
     P.cask(v, x + 4, y, 1, h=2)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()

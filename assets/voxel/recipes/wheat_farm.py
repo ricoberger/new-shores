@@ -8,6 +8,8 @@ stooks of sheaves, sacks of grain on a threshing floor and a hand cart.
 from nsvoxel import parts as P
 from nsvoxel.mats import CANVAS, PAVED, STONE_DARK, TIMBER_LIGHT, WHEAT
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 32

@@ -11,6 +11,8 @@ from nsvoxel.mats import CANVAS, DYE_BLUE, TIMBER, TIMBER_LIGHT
 CLOTH = (P.mat("dye-blue", 1.0, "cloth"), P.mat("terracotta", 1.05, "cloth"), P.mat("ochre", 1.0, "cloth"), P.mat("canvas", 1.0, "cloth"))
 WOOL = P.mat("canvas", 1.08)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 32

@@ -55,6 +55,8 @@ def halberds(f, a, z, n=2, gap=2):
     for i in range(a - 1, a + (n - 1) * gap + 2):
         f.put(i, z + 3, TIMBER_DARK, out=2)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 32

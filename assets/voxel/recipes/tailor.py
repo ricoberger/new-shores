@@ -16,6 +16,8 @@ RED = mat("terracotta", 1.15)
 GREEN = mat("grass-b", 0.8)
 FRAME = mat("terracotta", 0.6)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 40

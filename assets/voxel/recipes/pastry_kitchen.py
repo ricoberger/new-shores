@@ -16,6 +16,8 @@ ICING = mat("plaster", 1.12)
 BERRY = mat("terracotta", 1.15)
 GLOW = mat("flower", 1.0)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 40

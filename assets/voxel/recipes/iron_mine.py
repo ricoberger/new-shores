@@ -8,6 +8,8 @@ quoins, tiles and a chimney (smoke), ore heaps, pit props and a cart.
 from nsvoxel import parts as P
 from nsvoxel.mats import IRON, IRON_ORE, MOSS, PLANK, ROCK, ROCK_DEEP, ROCK_LIGHT, TIMBER, TIMBER_DARK
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 64

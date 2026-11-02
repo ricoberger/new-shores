@@ -21,6 +21,8 @@ WALL = mat("terracotta", 0.88)
 ROOF = mat("timber", 0.7)
 WATER = mat("shallows")
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 96 × 96

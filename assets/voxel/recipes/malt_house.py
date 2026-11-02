@@ -15,6 +15,8 @@ from nsvoxel.mats import CANVAS, TIMBER, TIMBER_DARK, TIMBER_LIGHT, WHEAT
 ROOF = mat("terracotta", 1.0)
 KILN_ROOF = mat("terracotta", 0.8)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 48

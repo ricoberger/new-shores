@@ -31,6 +31,8 @@ def front_door(f, a, leaf, steps=3):
     P.entrance(f, a, 2, 3, 6, leaf=leaf, frame=Q.DRESSED, lintel=Q.DRESSED, steps=steps)
     f.put(a + 1, 7, P.mat("window"), out=-1)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 24

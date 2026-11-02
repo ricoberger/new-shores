@@ -29,6 +29,8 @@ def spectacles(v, x, y, z):
                 v.set(x + ox + i, y, z + j, BRASS if edge else LENS)
     v.set(x + 4, y, z + 2, BRASS)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 32

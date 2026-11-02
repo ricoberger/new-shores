@@ -56,6 +56,8 @@ def sign_post(v, x, y, z=1, arm=6):
         v.set(a, y, z + 9, IRON)
     plaque(P.Face(v, "y+", y), a0, z + 3)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 48

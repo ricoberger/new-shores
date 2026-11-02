@@ -18,6 +18,8 @@ ROOF = mat("terracotta", 0.92)
 DRESSES = (DYE_BLUE, mat("terracotta", 1.1), mat("hemp-mark", 1.3), mat("canvas", 1.0))
 CLOTH = (DYE_BLUE, mat("terracotta", 1.2), mat("ochre", 0.9), mat("canvas", 0.95), mat("hemp", 1.1))
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 40 × 56

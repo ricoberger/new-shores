@@ -42,6 +42,8 @@ def crane(v, x, y, top=16, jib=6):
         v.set(x, y - jib, z, mat("iron"))
     P.box_crate(v, x, y - jib - 1, top - 9)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()
@@ -52,7 +54,7 @@ def build(ctx):
     # Quay edge of dressed stone, then the yard.
     for x in range(W):
         v.box(x, land, -2, x + 1, land + 2, 1, STONE_DARK if x % 4 else STONE)
-    P.yard(v, 0, land + 2, W, D, "dirt", seed=seed, blob=False)
+    P.yard(v, 0, land + 2, W, D, "dirt", seed=seed)
     P.path(v, [(x, y) for x in range(20, 28) for y in range(land + 2, D)], kind="paved")
     for k, x in enumerate((24 - 6, 24 + 6, 24 - 18, 24 + 18)):
         v.anchor(f"berth_{k + 1}", x, 1.2, 0.48)

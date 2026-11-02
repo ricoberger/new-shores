@@ -15,6 +15,8 @@ MEAT = mat("terracotta", 1.18)
 FAT = mat("plaster", 1.05)
 HAM = mat("terracotta", 0.85)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 40

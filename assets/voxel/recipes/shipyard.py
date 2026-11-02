@@ -10,6 +10,8 @@ pitch kettle and rope coils.
 from nsvoxel import parts as P
 from nsvoxel.mats import IRON, PLANK, STONE, STONE_DARK, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 64 × 96, land from y 32
@@ -40,7 +42,7 @@ def build(ctx):
     for x in range(W):
         if not 10 <= x < 32:
             v.box(x, land, -2, x + 1, land + 2, 1, STONE_DARK if x % 4 else STONE)
-    P.yard(v, 0, land + 2, W, D, "dirt", seed=seed, blob=False)
+    P.yard(v, 0, land + 2, W, D, "dirt", seed=seed)
     # A hull's ribs on the stocks at the head of the slip.
     for y in range(land - 6, land + 14, 3):
         hw = 6 - abs(y - (land + 4)) // 4

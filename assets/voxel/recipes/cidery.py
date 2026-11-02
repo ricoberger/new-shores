@@ -8,6 +8,8 @@ crates, casks of cider in racks, a hand cart of apples.
 from nsvoxel import parts as P
 from nsvoxel.mats import APPLE, OCHRE, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 40 × 48

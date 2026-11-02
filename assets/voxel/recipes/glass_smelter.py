@@ -28,6 +28,8 @@ def pane_rack(v, x, y, n=4):
     v.box(x, y, 2, x + 1, y + n * 2 + 1, 8, TIMBER_DARK)
     v.box(x + 6, y, 2, x + 7, y + n * 2 + 1, 8, TIMBER_DARK)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 48

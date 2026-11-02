@@ -16,6 +16,8 @@ LACE = P.cloth(mat("canvas", 1.12))
 LACE_HOLE = P.cloth(mat("canvas", 0.96))
 PILLOW = mat("dye-blue", 1.1)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 40

@@ -67,6 +67,8 @@ def pump_cart(v, x, y, z=1):
     v.box(x + 1, y + 1, z + 6, x + 5, y + 2, z + 7, TIMBER_DARK)  # the pumping lever
     v.set(x + 5, y + 1, z + 5, BRASS)  # nozzle
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 40

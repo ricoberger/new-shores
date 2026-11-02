@@ -13,6 +13,8 @@ from nsvoxel.mats import STONE, STONE_DARK, THATCH, TIMBER, TIMBER_DARK, TIMBER_
 
 ROOF = mat("terracotta", 0.86)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 40

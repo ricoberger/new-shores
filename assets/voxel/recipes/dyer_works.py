@@ -17,6 +17,8 @@ INDIGO = mat("dye-blue", 0.7)
 BLUE_LIGHT = mat("dye-blue", 1.3)
 YELLOW = mat("flower", 0.95)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 40 × 40

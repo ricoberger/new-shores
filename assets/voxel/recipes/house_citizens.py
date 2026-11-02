@@ -35,6 +35,8 @@ def upper_windows(f, spots, z, shutters, box=True):
     for a in spots:
         P.casement(f, a, z, 2, 3, frame=None, sill=TIMBER_LIGHT, shutters=shutters, box=FLOWER if box else None)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()

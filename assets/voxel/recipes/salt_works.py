@@ -19,6 +19,8 @@ GLOW = mat("flower", 1.0)
 #: Dark warm tile (no cold slate field, ART_DIRECTION).
 ROOF = mat("terracotta", 0.66)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 48

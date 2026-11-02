@@ -163,9 +163,16 @@ class CommittedTest(unittest.TestCase):
             self.assertGreaterEqual(mn[0], -w / 2 - slack, cid)
             self.assertLessEqual(mx[2], h / 2 + slack, cid)
             self.assertGreaterEqual(mn[2], -h / 2 - slack, cid)
-            # No grass plate to reach the plot's edges any more (V7: buildings stand on the terrain): up to a tile short.
-            self.assertGreaterEqual(mx[0] - mn[0], w - 1.0, cid)
-            self.assertGreaterEqual(mx[2] - mn[2], h - 1.0, cid)
+            # The plot reads as the model and its painted yard (D-068: the ground map): together within a tile of every edge.
+            lo, hi = [mn[0], mn[2]], [mx[0], mx[2]]
+            for info in main_files(entry):
+                for gy, row in enumerate(info.get("ground", [])):
+                    for gx, k in enumerate(row):
+                        if k != "none":
+                            lo = [min(lo[0], gx - w / 2), min(lo[1], h / 2 - gy - 1)]
+                            hi = [max(hi[0], gx + 1 - w / 2), max(hi[1], h / 2 - gy)]
+            self.assertGreaterEqual(hi[0] - lo[0], w - 1.0, cid)
+            self.assertGreaterEqual(hi[1] - lo[1], h - 1.0, cid)
             self.assertLessEqual(mn[1], 0.05, cid)
 
     def test_life_anchors(self):

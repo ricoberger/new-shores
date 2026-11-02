@@ -14,6 +14,8 @@ from nsvoxel.mats import CANVAS, IRON, STONE_DARK, TIMBER, TIMBER_DARK, TIMBER_L
 PAPER = mat("plaster", 1.12)
 RAG = mat("canvas", 0.95)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 48

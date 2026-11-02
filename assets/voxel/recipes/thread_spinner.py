@@ -35,6 +35,8 @@ def spool_rack(v, x, y, z, n=4, along="y"):
             else:
                 v.set(x + 1 + i * 2, y, zz + 1, c)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 32

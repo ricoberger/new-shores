@@ -26,11 +26,13 @@ def crown(v, tx, ty, z):
     v.box(tx, ty, z + 2, tx + 1, ty + 1, z + 3, shade_of(CROWN, 1.16))
     return z + 3
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 8 × 8
     seed = 31
-    P.yard(v, 0, 0, 8, 8, "turf", seed=seed)
+    P.yard(v, 0, 0, 8, 8, "grass", seed=seed)
     for tx, ty in SPOTS:
         # A disc of bare earth (3 × 3) under the tree, a 1 × 1 trunk, a round crown.
         v.box(tx - 1, ty - 1, 0, tx + 2, ty + 2, 1, DIRT)

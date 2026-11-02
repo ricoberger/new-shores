@@ -37,8 +37,8 @@ def block_checkerboard(ctx):
     f = config.LITE_DOWNSAMPLE
     for x in range(ctx.W):
         for y in range(ctx.D):
-            for z in range(1, 4 * f + 1):  # from z = 1: the build lowers it onto the terrain, 4-aligned
-                if (x // f + y // f + (z - 1) // f) % 2 == 0:
+            for z in range(4 * f):
+                if (x // f + y // f + z // f) % 2 == 0:
                     v.set(x, y, z, m)
     return v
 
@@ -139,12 +139,12 @@ class WaterAnchorsTest(unittest.TestCase):
 
 
 def solid_tile_high(ctx):
-    """The whole footprint one tile high above the terrain, at the recipe's density (ctx.vpt voxels per tile)."""
+    """The whole footprint one tile high, at the recipe's density (ctx.vpt voxels per tile)."""
     v = ctx.vox()
     m = grid.mat("plaster")
     for x in range(ctx.W):
         for y in range(ctx.D):
-            for z in range(ctx.vpt + 1):  # z = 0 is the yard layer; the build lowers z ≥ 1 onto the terrain
+            for z in range(ctx.vpt):
                 v.set(x, y, z, m)
     v.anchors["door"] = (ctx.W / 2, ctx.D, 0)
     return v

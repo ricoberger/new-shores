@@ -18,6 +18,8 @@ AWNING_A = P.cloth(CANVAS, "cloth")
 AWNING_B = P.cloth(P.mat("dye-blue", 1.1), "cloth")
 FLAG = P.mat("dye-blue", 1.0, "flag")
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 48 × 48

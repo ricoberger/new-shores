@@ -25,6 +25,8 @@ def ring(v, x, y, z, r=3):
                 v.set(x + i, y, z + j, Q.GOLD)
     v.set(x, y, z + r + 1, DYE_BLUE)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 32

@@ -55,6 +55,21 @@ LITE_VOXELS_PER_TILE = 2
 #: Downsampling of a default-density (8 per tile) model's lite level: 8 → 2.
 LITE_DOWNSAMPLE = VOXELS_PER_TILE // LITE_VOXELS_PER_TILE
 
+#: Ground kinds of a model's footprint tiles (D-068: the manifest's `ground`, painted
+#: into the island's ground texture by the client; "none" is the terrain).
+GROUND_KINDS = ("none", "paved", "dirt", "sand", "planks")
+#: A footprint tile takes a ground kind when the kind covers at least this share of its columns.
+GROUND_TILE_SHARE = 0.5
+#: Material roles of the old ground plate (recipes with GROUND_Z = 1): their cells at z = 0
+#: become ground kinds (the rest of the plate layer is dropped).
+GROUND_ROLES = {"road-paved": "paved", "road-dirt": "dirt", "sand": "sand"}
+#: The water structures of D-068 §5: they stand on deck voxels over their water rows (the
+#: content's water_rows); only the land part of the footprint follows the ground map.
+WATER_MODELS = ("depot", "fisher", "oyster_beds", "salt_pans", "shipyard", "trading_pier", "trading_post")
+#: Plate check (D-068 §6): a land model's flat ground-layer cells (z = 0, nothing above) may
+#: cover at most this share of its footprint.
+PLATE_SHARE = 0.35
+
 #: Palette groups whose colour names are valid roles (material colours;
 #: UI, status, route and light colours are not).
 ROLE_GROUPS = ("buildings", "terrain", "fields", "water", "island")

@@ -15,6 +15,8 @@ CONE = mat("pasture-mark", 1.0)
 POCKET = mat("canvas", 0.92)
 COWL = mat("plaster", 1.04)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 32

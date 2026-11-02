@@ -12,6 +12,8 @@ HIDE = P.mat("canvas", 0.8)
 LIQUOR = P.mat("timber", 0.7)
 BARK = P.mat("timber", 0.95)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 32

@@ -45,6 +45,8 @@ class Vox:
         self.name = name
         self.cells = {}
         self.anchors = {}
+        #: The declared ground (D-068): (x, y) → ground kind (parts.yard / parts.path); the manifest's per-tile `ground`.
+        self.ground = {}
         #: Voxel-space point that maps to the model origin's offset from the footprint centre (e.g. (0.5, 0.5, 0.5): a wheel centred on a cell).
         self.offset = (0.0, 0.0, 0.0)
 

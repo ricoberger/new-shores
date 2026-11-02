@@ -21,6 +21,8 @@ ROOF = mat("slate", 0.8)  # slate and lead over pale stone: Gothic/Hanse (D-063)
 GLASS = mat("dye-blue", 0.85)
 WALL = Q.ASHLAR
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 96 × 128

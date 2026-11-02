@@ -36,6 +36,8 @@ def lancet(f, a, z, h=7, w=2):
     if w > 1:
         f.put(a + w // 2, z + h + 1, DRESSED)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 48 × 80

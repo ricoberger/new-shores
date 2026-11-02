@@ -152,6 +152,8 @@ def ticket_booth(v, x, y):
     v.box(x, y + 7, 3, x + 9, y + 8, 4, TIMBER_LIGHT)  # the counter
     P.entrance(P.Face(v, "x-", x), y + 2, 2, 3, 5)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 88 × 112

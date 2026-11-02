@@ -19,6 +19,8 @@ def skep(v, x, y, z):
         v.box(x + a, y + a, z + 1 + k, x + b, y + b, z + 2 + k, c)
     v.set(x + 1, y + 2, z + 1, P.mat("iron", 0.6))  # entrance hole
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 40 × 40

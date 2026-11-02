@@ -27,6 +27,8 @@ def hoop(v, x, y, z, along="x"):
                 else:
                     v.set(x, y + i, z + j, IRON)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 48

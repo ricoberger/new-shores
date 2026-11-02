@@ -12,6 +12,8 @@ from nsvoxel.mats import IRON, IRON_ORE, STONE, STONE_DARK, TIMBER_DARK
 GLOW = P.mat("flower", 1.0)
 SOOT = P.mat("iron", 0.9)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 48

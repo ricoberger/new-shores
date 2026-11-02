@@ -11,6 +11,8 @@ from nsvoxel.mats import BRASS, OCHRE, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 HONEY = P.mat("brass", 1.05)
 COPPER = P.mat("terracotta", 1.2)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 40

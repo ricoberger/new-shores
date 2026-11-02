@@ -6,7 +6,7 @@ voxel model on day 1 and no island mixes styles (D-057 §2).
 """
 
 from . import parts as P
-from .grid import hash3, shade_of
+from .grid import shade_of
 from .mats import (
     DIRT,
     PLANK,
@@ -128,16 +128,16 @@ FIELD = {
 
 
 def field(ctx):
-    """A field tile: soil with crop rows of the field's colour (height in voxels per crop)."""
+    """A field tile (D-068: the soil is the painted field ground): crop rows of the field's colour, at least two voxels high, from z = 0."""
     v = ctx.vox()
     crop, mark, h = FIELD.get(ctx.cid, (GRASS_A, DIRT, 0))
+    h = max(2, h)
     for x in range(ctx.W):
+        if x % 4 == 3:
+            continue
         for y in range(ctx.D):
-            row = h > 0 and x % 4 != 3
-            v.set(x, y, 0, shade_of(DIRT, 0.95) if h and not row else shade_of(crop, 0.85 if h else (1.0 if hash3(x // 4, y // 4, 0, 2) < 0.6 else 1.08)))
-            if row:
-                for z in range(1, h + 1):
-                    v.set(x, y, z, mark if (z == h and (y // 3 + x // 4) % 3 == 0) else crop)
+            for z in range(h):
+                v.set(x, y, z, mark if (z == h - 1 and (y // 3 + x // 4) % 3 == 0) else crop)
     place_anchors(v, ctx)
     return v
 

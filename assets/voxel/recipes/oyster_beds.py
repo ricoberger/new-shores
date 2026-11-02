@@ -29,6 +29,8 @@ def rack(v, x0, x1, y):
     for x in range(x0 + 1, x1 - 1, 3):
         v.box(x, y + 1, 2, x + 2, y + 3, 3, BAG)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 48 × 96, land from y 32
@@ -50,8 +52,8 @@ def build(ctx):
     v.anchor("boat", 30.4, 6.4, 0.4)
     # Shore, yard and paths.
     P.yard(v, 0, land, W, land + 5, "sand", seed=seed)
-    P.yard(v, 0, land + 5, W, D, "dirt", seed=seed, blob=False)
-    P.yard(v, 0, D - 10, 20, D, "turf", seed=seed)
+    P.yard(v, 0, land + 5, W, D, "dirt", seed=seed)
+    P.yard(v, 0, D - 10, 20, D, "grass", seed=seed)
     P.path(v, [(x, y) for x in range(22, 26) for y in range(land, D)], kind="paved")
     # Sorting hut: ashlar, tiles, a chimney-less hipped roof.
     b = P.building(v, 3, 40, 19, 54, "stone", along="x", height=11, roof=ROOF, seed=seed)

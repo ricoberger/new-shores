@@ -23,6 +23,8 @@ def side_of_beef(v, x, y, z):
         v.set(x, y, z - k, MEAT)
         v.set(x + 1, y, z - k, FAT if k in (1, 2) else MEAT)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 32

@@ -13,6 +13,8 @@ from nsvoxel.mats import CANVAS, IRON, OCHRE, STONE_DARK, TIMBER, TIMBER_DARK, T
 
 BEER = mat("ochre", 1.15)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 40 × 48

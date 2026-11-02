@@ -57,6 +57,8 @@ def stack(v, x, y, s=2, rows=2):
         for i in range(rows - r):
             P.box_crate(v, x + i * s + r, y + r, 1 + r * s, s=s)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 48 × 72
@@ -68,7 +70,7 @@ def build(ctx):
         v.box(x, land, -2, x + 1, land + 2, 1, STONE_DARK if x % 4 else STONE)
     for x in (2, W - 5):
         D.mooring_ring(v, x, land - 1, -2)
-    P.yard(v, 0, land + 2, W, D_, "dirt", seed=seed, blob=False)
+    P.yard(v, 0, land + 2, W, D_, "dirt", seed=seed)
     P.path(v, [(x, y) for x in range(20, 28) for y in range(land + 2, D_)], kind="paved")
     # The deck's centre line: a paved strip of lighter boards from the quay to the head.
     for y in range(1, land):

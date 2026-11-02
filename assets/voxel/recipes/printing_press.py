@@ -17,6 +17,8 @@ BOOK_A = mat("terracotta", 0.9)
 BOOK_B = mat("dye-blue", 0.9)
 BOOK_C = mat("ochre", 0.8)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 40

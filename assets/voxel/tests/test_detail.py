@@ -25,8 +25,6 @@ CONTENT = content.load()
 TIERS = ("settlers", "citizens")
 #: Roles with no authored shade steps (courses, stripes, rows): adjacent voxels of one role share one colour.
 FLAT_ROLES = ("plaster", "brass")
-#: Ground-plate roles (z = 0) that are one flat colour (grass keeps its two-grass patches as separate roles).
-FLAT_GROUND_ROLES = ("road-dirt", "sand")
 #: Model files with a sway group among tiers 1–2 (LIFE_LAYER §7): hung cloth, sails on frames, awnings and flags.
 SWAY_ALLOWED = {"weaver_wool.glb", "weaver_linen.glb", "sailmaker.glb", "warehouse.l3.glb", "trading_post.l4.glb"}
 
@@ -88,7 +86,8 @@ class TierDetailTest(unittest.TestCase):
 
     def test_export_is_flat_for_plain_materials(self):
         """D-057 V3b: no baked speckle; the variety of a material is the client shader's."""
-        pairs = {"walls": [0, 0], "ground": [0, 0]}  # adjacent same-role voxels, of which differing
+        # The ground is no voxels since D-068 (the yard map, painted by the client): the walls only.
+        pairs = {"walls": [0, 0]}  # adjacent same-role voxels, of which differing
         for cid in tier_ids():
             files, _, _ = self.built(cid)
             for f in files:
@@ -96,7 +95,7 @@ class TierDetailTest(unittest.TestCase):
                 if v is None:
                     continue
                 for (x, y, z), m in v.cells.items():
-                    kind = "walls" if m[0] in FLAT_ROLES else ("ground" if m[0] in FLAT_GROUND_ROLES and z == 0 else None)
+                    kind = "walls" if m[0] in FLAT_ROLES else None
                     if kind is None:
                         continue
                     for d in ((1, 0, 0), (0, 1, 0), (0, 0, 1)):

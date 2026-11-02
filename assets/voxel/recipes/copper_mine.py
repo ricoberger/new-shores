@@ -19,6 +19,8 @@ def ore(x, y, z):
     """Green-brown ore in courses: verdigris and ore-brown bands."""
     return Q.VERDIGRIS if z % 2 else ORE
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 64

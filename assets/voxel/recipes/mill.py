@@ -10,10 +10,12 @@ from nsvoxel.mats import CANVAS, PLASTER, STONE, STONE_LIGHT, THATCH, THATCH_DAR
 
 SAIL = P.mat("canvas", 1.0)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 48
-    P.yard(v, 0, 0, 32, 48, "grass", seed=52)
+    P.yard(v, 16, 32, 32, 48, "dirt", seed=52)  # the cart yard by the sacks (D-068: painted ground)
     P.path(v, [(x, y) for x in range(14, 18) for y in range(20, 48)])
     # Tower: a stack of shrinking cylinders.
     cx, cy = 16, 12

@@ -93,6 +93,8 @@ def span(x0, x1, y0, y1, z, ov, along):
     """The bounds of a roof that P.roof did not return (lean-tos, the cart shed), for thatch_finish."""
     return SimpleNamespace(x0=x0, x1=x1, y0=y0, y1=y1, z=z, ov=ov, along=along)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 36 × 36

@@ -6,6 +6,7 @@ addressed by its side ("y+" front, "y-" back, "x+" east, "x-" west) and the
 plane of its outer wall layer.
 """
 
+from . import config
 from .grid import hash3, mat, shade_of
 from .mats import (
     BRASS,
@@ -70,50 +71,29 @@ def span(side, x0, y0, x1, y1):
 # ---------------------------------------------------------------- ground
 
 
-def yard(v, x0, y0, x1, y1, kind="grass", z=0, seed=0, blob=True):
+def yard(v, x0, y0, x1, y1, kind="grass", seed=0):
     """
-    The ground of a yard. "grass" lays nothing: the model stands on the terrain
-    (V7). Hard yards — "paved" (flagstones), "dirt" (an irregular blob, not the
-    whole rectangle; blob=False: the whole rectangle, for water models whose posts stand on it), "sand", "planks" or a material — are one-voxel plates at
-    z; "turf" is the old grass plate (fields, which keep theirs, and the water
-    models' land rows).
+    Declares the ground of a yard (D-068): x0 ≤ x < x1, y0 ≤ y < y1 takes
+    `kind` — "paved", "dirt", "sand" or "planks"; "grass" clears it to the
+    terrain — in the grid's ground map. Nothing is laid: ground cover is the
+    island's ground texture, and the exporter writes the map per footprint
+    tile into the manifest (`ground`), which the client paints. Later calls
+    overwrite earlier ones. `seed` is kept for the signature.
     """
-    if kind == "grass":
-        return
-    big = blob and min(x1 - x0, y1 - y0) > 8
+    if kind not in config.GROUND_KINDS and kind != "grass":
+        raise ValueError(f"yard kind {kind!r} (ground kinds: grass, {', '.join(config.GROUND_KINDS[1:])})")
     for x in range(x0, x1):
         for y in range(y0, y1):
-            if kind == "dirt" and big:
-                # A blob: the edge falls away by 0–3 voxels in patches of 3 × 3 voxels.
-                edge = min(x - x0, x1 - 1 - x, y - y0, y1 - 1 - y)
-                reach = abs(2 * x - (x0 + x1 - 1)) <= 3 or abs(2 * y - (y0 + y1 - 1)) <= 3  # two tongues keep the full extent
-                if not reach and edge < int(hash3(x // 3, y // 3, z, seed + 7) * 4):
-                    continue
-            # Patches of 4 × 4 voxels (one per half tile) between the two grasses; dirt and sand are one flat colour
-            # (D-057 V3b: the per-voxel variety is the client shader's).
-            h = hash3(x // 4, y // 4, z, seed)
-            if kind == "turf":
-                m = GRASS_A if h < 0.6 else GRASS_B
-                if hash3(x, y, z, seed + 1) < 0.015:
-                    m = FLOWER
-            elif kind == "dirt":
-                m = DIRT
-            elif kind == "paved":
-                # Flagstones of 4 × 2 voxels in staggered rows.
-                m = shade_of(PAVED, (1.0, 0.95, 1.04)[int(hash3((x + (y // 2) % 2 * 2) // 4, y // 2, 3, seed) * 3)])
-            elif kind == "sand":
-                m = SAND
-            elif kind == "planks":
-                m = shade_of(PLANK, 1.0 if (y // 2) % 2 == 0 else 0.9)
+            if kind == "grass":
+                v.ground.pop((x, y), None)
             else:
-                m = kind
-            v.set(x, y, z, m)
+                v.ground[(x, y)] = kind
 
 
-def path(v, cells, kind="dirt", z=0, seed=0):
-    """Overwrites ground cells (x, y) with a path material."""
+def path(v, cells, kind="dirt", seed=0):
+    """Declares a path over ground cells (x, y): dirt or paved in the ground map (D-068), like yard()."""
     for x, y in cells:
-        v.set(x, y, z, DIRT if kind == "dirt" else PAVED)
+        v.ground[(x, y)] = "dirt" if kind == "dirt" else "paved"
 
 
 # ---------------------------------------------------------------- walls

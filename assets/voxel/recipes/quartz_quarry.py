@@ -25,6 +25,8 @@ def crystal(v, x, y, z, h):
             v.set(x + 1, y + 1, z + k, Q.QUARTZ)
     v.set(x + 1, y, z + h, Q.QUARTZ)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 24 × 64
