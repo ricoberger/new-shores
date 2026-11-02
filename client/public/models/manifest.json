@@ -8298,14 +8298,14 @@
     "meadery": {
       "anchors": {
         "cart": [
-          1.25,
+          -0.8333,
           0.0,
-          -2.125
+          -2.0
         ],
         "chimney": [
-          -1.0625,
-          3.5,
-          1.3125
+          0.9167,
+          4.5,
+          1.5833
         ],
         "door": [
           0.0,
@@ -8313,104 +8313,104 @@
           -2.5
         ],
         "smoke": [
-          -1.0625,
-          3.625,
-          1.3125
+          0.9167,
+          4.5833,
+          1.5833
         ],
         "status": [
           0.0,
-          3.875,
+          4.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.875,
-          3.625,
-          2.25
+          2.0,
+          4.4167,
+          2.4167
         ],
         "min": [
-          -1.75,
+          -2.0,
           0.0,
-          -1.5
+          -2.5
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.875,
-            3.625,
-            2.25
+            2.0,
+            4.4167,
+            2.4167
           ],
           "min": [
-            -1.75,
+            -2.0,
             0.0,
-            -1.5
+            -2.5
           ]
         },
         "budget": 10000,
-        "bytes": 100352,
+        "bytes": 179216,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
-          ],
-          [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
             "none",
             "none",
             "none",
             "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none"
+          ],
+          [
+            "none",
+            "dirt",
+            "dirt",
+            "none"
+          ],
+          [
+            "dirt",
+            "dirt",
+            "dirt",
+            "dirt"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
+              4.0,
               2.5
             ],
             "min": [
               -2.0,
               0.0,
-              -1.5
+              -2.0
             ]
           },
           "budget": 800,
-          "bytes": 9872,
+          "bytes": 10088,
           "path": "meadery.lite.glb",
-          "sha256": "6a93078d246bb1f618805bf387fbcebcbc3cf545d8d4d499c9dfe19987fdb845",
-          "triangles": 256
+          "sha256": "1338246fbc7ca9d58055c10a5f9897d8fcd670689b3424895254e003caae4841",
+          "triangles": 276
         },
         "path": "meadery.glb",
-        "sha256": "2a03b270e66277602dc58f23a9d90cf73d1acfbb1cd30dfc1fd7056789d01fc8",
-        "triangles": 3084
+        "sha256": "ba75a2e761fa4f5295a063e26ef2fb266e771645f6a002113596b2335898f3af",
+        "triangles": 5472
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "meadow": {
       "anchors": {
