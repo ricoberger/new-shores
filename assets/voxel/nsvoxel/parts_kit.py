@@ -249,3 +249,70 @@ def pig(v, x, y, z, along="x", tone=1.0):
     else:
         v.box(x, y + b, z + 1, x + a, y + b + 2, z + 3, pink)
         v.set(x + 1, y + b + 1, z + 2, snout)
+
+
+def mine(v, seed, seam, ore, peak=21, share=0.45, frame=False, whim=None, spoil=None, ax=12, tubs=2):
+    """
+    A mine strip 36 × 96 (12 voxels per tile): a banded rock hill at the back with a timbered adit, rails on
+    sleepers to the front with `tubs` loaded with `ore`, a heap of `ore` and a cart; `frame` adds a timber
+    headframe with a sheave wheel at the east of the pit, `whim` (a brine material) a horse whim there, `spoil`
+    a spoil tip on the hill. The winding house is the recipe's own `hall`.
+    """
+    from . import detail_v4 as V
+    from .mats import IRON, ROCK_DEEP
+
+    V.mine_hill(v, 0, 36, 0, 42, peak=peak, seam=seam, share=share, seed=seed)
+    v.box(ax, 24, 1, ax + 12, 42, 11, None)
+    v.box(ax, 24, 1, ax + 12, 30, 11, seam if seam is not None else IRON)
+    for x in (ax - 1, ax + 12):
+        v.box(x, 39, 1, x + 1, 42, 12, TIMBER)
+    v.box(ax - 1, 39, 12, ax + 13, 42, 13, TIMBER_DARK)
+    for x in range(ax - 1, ax + 13, 3):
+        v.set(x, 41, 13, PLANK)
+    v.box(ax, 39, 11, ax + 12, 40, 12, TIMBER)
+    for y in range(30, 76):
+        for x in (ax + 2, ax + 9):
+            v.set(x, y, 1, IRON)
+        if y % 2 == 0:
+            v.box(ax + 1, y, 0, ax + 11, y + 1, 1, TIMBER)
+    for k in range(tubs):
+        ty = 48 + k * 11
+        v.box(ax + 2, ty, 2, ax + 10, ty + 7, 5, TIMBER_DARK)
+        v.box(ax + 2, ty, 4, ax + 10, ty + 7, 5, IRON)
+        v.box(ax + 2, ty, 5, ax + 10, ty + 7, 6, ore)
+        v.box(ax + 4, ty + 2, 6, ax + 8, ty + 5, 7, ore)
+    if frame:
+        sx, sy = 26, 46
+        for dx in (0, 7):
+            for dy in (0, 7):
+                v.box(sx + dx, sy + dy, 1, sx + dx + 1, sy + dy + 1, 22, TIMBER)
+        for z in (7, 14, 21):
+            v.walls(sx, sy, sx + 8, sy + 8, z, z + 1, TIMBER_DARK)
+        for a in range(-4, 5):
+            for b in range(-4, 5):
+                if 9 <= a * a + b * b <= 15:
+                    v.set(sx + 4 + a, sy + 3, 25 + b, IRON)
+        v.box(sx + 4, sy + 3, 22, sx + 5, sy + 5, 25, TIMBER_DARK)
+        for z in range(5, 22):
+            v.set(sx + 4, sy + 4, z, mat("canvas", 0.8))
+    if whim is not None:
+        cx, cy = 28, 52
+        for x in range(cx - 6, cx + 7):
+            for y in range(cy - 6, cy + 7):
+                if (x + 0.5 - cx) ** 2 + (y + 0.5 - cy) ** 2 <= 36:
+                    v.set(x, y, 0, shade_of(mat("dirt"), 0.9))
+        v.box(cx, cy, 1, cx + 2, cy + 2, 14, TIMBER_DARK)
+        v.box(cx - 3, cy - 3, 9, cx + 5, cy + 5, 11, TIMBER_LIGHT)
+        v.box(cx - 6, cy, 5, cx + 8, cy + 1, 6, TIMBER)
+        P.cask(v, 22, 62, 1, lid=whim)
+        P.cask(v, 26, 62, 1, lid=whim)
+    if spoil is not None:
+        _v.heap(v, 28, 8, r=4.5, h=4, m=spoil, seed=seed + 1, z=17)
+    _v.heap(v, 8, 78, r=6, h=7, m=ore, seed=seed)
+    P.log_stack(v, 2, 88, 1, length=12, along="x", n=2)
+    P.handcart(v, 16, 90, 1, along="x", load=ore)
+    v.anchor("cart", 12, 94, 1)
+    P.scatter(v, 0, 42, 36, 96, 0.012, seed=seed, kinds=("pebble",))
+
+
+from .mats import PLANK  # noqa: E402
