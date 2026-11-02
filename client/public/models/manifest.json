@@ -2579,14 +2579,14 @@
     "candle_foundry": {
       "anchors": {
         "cart": [
-          -1.0,
+          -1.1667,
           0.0,
-          -1.75
+          -1.8333
         ],
         "chimney": [
-          -1.1875,
-          3.25,
-          0.9375
+          0.9167,
+          3.9167,
+          1.25
         ],
         "door": [
           0.0,
@@ -2594,98 +2594,98 @@
           -2.0
         ],
         "smoke": [
-          -1.1875,
-          3.375,
-          0.9375
+          0.9167,
+          4.0,
+          1.25
         ],
         "status": [
           0.0,
-          3.625,
+          4.0833,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.375,
-          1.75
+          3.8333,
+          2.0
         ],
         "min": [
-          -1.875,
+          -2.0,
           0.0,
-          -1.875
+          -1.9167
         ]
       },
       "file": {
         "bounds": {
           "max": [
             2.0,
-            3.375,
-            1.75
+            3.8333,
+            2.0
           ],
           "min": [
-            -1.875,
+            -2.0,
             0.0,
-            -1.875
+            -1.9167
           ]
         },
         "budget": 8000,
-        "bytes": 86556,
+        "bytes": 87080,
         "ground": [
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
+            "none",
             "paved",
             "paved",
-            "paved",
-            "paved"
+            "none"
           ],
           [
+            "none",
             "paved",
             "paved",
-            "paved",
-            "paved"
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
-              2.0,
-              3.0,
+              1.5,
+              3.5,
               2.0
             ],
             "min": [
               -2.0,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 640,
-          "bytes": 10320,
+          "bytes": 7328,
           "path": "candle_foundry.lite.glb",
-          "sha256": "4f57feee85278f1e2822ad885ea17c2da672a8c90a2797623f55fc261c075e05",
-          "triangles": 270
+          "sha256": "3dd0993bb69783d96d06cd2ff644db0967e28f8bb10a6d25282606116e30d365",
+          "triangles": 174
         },
         "path": "candle_foundry.glb",
-        "sha256": "2f273626af8e168d606beefed1a5a003215be9103fb18902582e4d48fe6c3032",
-        "triangles": 2612
+        "sha256": "363099263f8f3c1dfb80dc188391f0ea3df2841e8520e18f4419d0ebe8a33e9a",
+        "triangles": 2656
       },
       "footprint": {
         "h": 4,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "cathedral": {
       "anchors": {
