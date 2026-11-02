@@ -5568,14 +5568,14 @@
     "glass_smelter": {
       "anchors": {
         "cart": [
-          1.25,
+          0.8333,
           0.0,
-          -2.75
+          -2.6667
         ],
         "chimney": [
-          -0.75,
-          4.0,
-          2.625
+          -0.8333,
+          3.0833,
+          1.5
         ],
         "door": [
           0.0,
@@ -5583,110 +5583,110 @@
           -3.0
         ],
         "smoke": [
-          -0.75,
-          4.125,
-          2.625
+          -0.8333,
+          3.1667,
+          1.5
         ],
         "status": [
           0.0,
-          4.25,
+          3.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.0,
-          4.0,
+          1.9167,
+          3.4167,
           3.0
         ],
         "min": [
-          -1.875,
+          -1.9167,
           0.0,
-          -2.375
+          -3.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.0,
-            4.0,
+            1.9167,
+            3.4167,
             3.0
           ],
           "min": [
-            -1.875,
+            -1.9167,
             0.0,
-            -2.375
+            -3.0
           ]
         },
         "budget": 12000,
-        "bytes": 103756,
+        "bytes": 81876,
         "ground": [
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
-            "dirt",
-            "dirt",
-            "dirt",
-            "dirt"
+            "none",
+            "none",
+            "none",
+            "none"
           ],
           [
+            "none",
             "paved",
             "paved",
-            "paved",
-            "paved"
-          ],
-          [
-            "paved",
-            "paved",
-            "paved",
-            "paved"
+            "none"
           ],
           [
             "paved",
             "paved",
             "paved",
             "paved"
+          ],
+          [
+            "none",
+            "paved",
+            "paved",
+            "none"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              4.0,
-              3.0
+              3.5,
+              2.5
             ],
             "min": [
               -2.0,
               0.0,
-              -2.5
+              -1.5
             ]
           },
           "budget": 960,
-          "bytes": 13104,
+          "bytes": 8628,
           "path": "glass_smelter.lite.glb",
-          "sha256": "955611fac2074e1618622257b35d0b33972567601d14e07ea4d964c1bf41aa46",
-          "triangles": 358
+          "sha256": "368716cb62f2621d9fc95074b12130072d2f00ed80b2674388a15014697669af",
+          "triangles": 228
         },
         "path": "glass_smelter.glb",
-        "sha256": "227df1fabdeea198c02f7d101fa5099ef10dd70fad1c8ff9b58cb20e49b7df14",
-        "triangles": 3436
+        "sha256": "fcafb5387f6b7b16fba5053b69c3c845fd426c462f346a29fb54a01659e6932e",
+        "triangles": 2562
       },
       "footprint": {
         "h": 6,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "gold_mine": {
       "anchors": {
