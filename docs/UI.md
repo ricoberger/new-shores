@@ -319,7 +319,7 @@ UI shows the same numbers the server uses.
   Throughput `t/min`, Load `%`. No capacity row — capacity is the Trading
   Post's.
 - A collapsed "Producers (n)": one row per assigned producer, the name a link
-  that selects it (no ID); "None yet" without any, "and n more" after eight.
+  that selects it (no ID); "None yet" without any. All producers are listed (the card body scrolls).
 - "Upgrade to level n" (not at the last level): one grey line with the next
   level's numbers ("55.0 t/min throughput") and one cost line (gold, goods with
   icons, " · " between the items; what the balance or stock does not cover is

@@ -434,7 +434,6 @@ export const en = {
   "infoPanel.inStock": "{amount} in stock",
   "infoPanel.producers": "Producers ({count})",
   "infoPanel.noneYet": "None yet",
-  "infoPanel.andMore": "and {count} more",
   "infoPanel.details": "Details",
   "infoPanel.berths": "Berths",
   "infoPanel.islandBerths": "Island berths",

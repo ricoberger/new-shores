@@ -436,7 +436,6 @@ export const de: Record<keyof typeof en, string> = {
   "infoPanel.inStock": "{amount} auf Lager",
   "infoPanel.producers": "Hersteller ({count})",
   "infoPanel.noneYet": "Noch keine",
-  "infoPanel.andMore": "und {count} weitere",
   "infoPanel.details": "Details",
   "infoPanel.berths": "Liegeplätze",
   "infoPanel.islandBerths": "Liegeplätze der Insel",

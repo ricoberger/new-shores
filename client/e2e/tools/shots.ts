@@ -1019,6 +1019,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await selectBuilding(page, "warehouse", { x: 1, y: 1 }, HALF.near, { level: 1 });
     },
   },
+  // The warehouse card with its Producers section expanded (every assigned producer listed).
+  "warehouse-producers": {
+    fixture: "played",
+    device: "desktop",
+    run: async (page) => {
+      await selectBuilding(page, "warehouse", { x: 1, y: 1 }, HALF.near, { level: 1 });
+      await page.getByTestId("collector-producers").locator("summary").click();
+    },
+  },
   "service-card": {
     fixture: "played",
     device: "desktop",

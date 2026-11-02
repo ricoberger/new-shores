@@ -279,14 +279,13 @@ function AssignedProducers({
     <details className={styles.section} data-testid="collector-producers">
       <summary className={styles.detailsSummary}>{t("infoPanel.producers", { count: producers.length })}</summary>
       {producers.length === 0 && <div className={styles.small}>{t("infoPanel.noneYet")}</div>}
-      {producers.slice(0, 8).map((p) => (
+      {producers.map((p) => (
         <div key={p.id}>
           <button type="button" className={styles.link} onClick={() => onSelectBuilding(p.id)} data-testid={`collector-producer-${p.id}`}>
             {name(p.type)}
           </button>
         </div>
       ))}
-      {producers.length > 8 && <div className={styles.small}>{t("infoPanel.andMore", { count: producers.length - 8 })}</div>}
     </details>
   );
 }

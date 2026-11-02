@@ -243,6 +243,12 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(html).toMatch(/<details[^>]*data-testid="collector-producers"(?![^>]*\bopen\b)/);
     expect(t).not.toContain("#8100");
     expect(html).toContain('data-testid="collector-producer-8101"');
+    // Every producer gets a row, however many there are (no "and n more").
+    const many = Array.from({ length: 20 }, (_, n) => ({ ...base, id: 8_200 + n, type: "lumberjack", assigned_warehouse_id: 8_001, rates: { inputs: {}, outputs: {} } }) as unknown as BuildingDisplay);
+    const manyHtml = panel(wh, { ...island, buildings: [...island.buildings, wh, ...many] }, model);
+    expect(text(manyHtml)).toContain("Producers (20)");
+    expect(manyHtml.match(/data-testid="collector-producer-\d+"/g)).toHaveLength(20);
+    expect(text(manyHtml)).not.toContain("more");
     expect(t).toContain("Upgrade to level 2");
     expect(t).toContain("55.0\u00a0t/min throughput");
     expect(t).not.toContain("adds no capacity");
