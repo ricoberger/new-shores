@@ -7496,14 +7496,14 @@
     "lumberjack": {
       "anchors": {
         "cart": [
-          1.0,
+          -0.0833,
           0.0,
-          -1.25
+          -1.3333
         ],
         "chimney": [
-          -0.8125,
+          0.2083,
           2.5,
-          0.0625
+          0.5417
         ],
         "door": [
           0.0,
@@ -7511,48 +7511,48 @@
           -1.5
         ],
         "smoke": [
-          -0.8125,
-          2.625,
-          0.0625
+          0.2083,
+          2.5833,
+          0.5417
         ],
         "status": [
           0.0,
-          2.875,
+          2.8333,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.625,
-          2.625,
-          1.75
+          1.3333,
+          2.5833,
+          1.5
         ],
         "min": [
           -1.5,
           0.0,
-          -1.5
+          -1.5833
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.625,
-            2.625,
-            1.75
+            1.3333,
+            2.5833,
+            1.5
           ],
           "min": [
             -1.5,
             0.0,
-            -1.5
+            -1.5833
           ]
         },
         "budget": 4500,
-        "bytes": 62260,
+        "bytes": 139196,
         "ground": [
           [
             "none",
             "dirt",
-            "dirt"
+            "none"
           ],
           [
             "dirt",
@@ -7560,9 +7560,9 @@
             "dirt"
           ],
           [
+            "none",
             "dirt",
-            "dirt",
-            "dirt"
+            "none"
           ]
         ],
         "lite": {
@@ -7570,30 +7570,30 @@
             "max": [
               1.5,
               2.5,
-              2.0
+              1.0
             ],
             "min": [
-              -1.0,
+              -1.5,
               0.0,
-              -1.5
+              -1.0
             ]
           },
           "budget": 360,
-          "bytes": 5944,
+          "bytes": 6556,
           "path": "lumberjack.lite.glb",
-          "sha256": "a32fe8010d0dd766fb0c1bf8ffb83809029e48a8b6e4453e21fd027f5d2fdfbf",
-          "triangles": 142
+          "sha256": "44b7aa395b99da2ea1fcb07ba418ca64c73892e8a0d717cafded25876a4e217c",
+          "triangles": 148
         },
         "path": "lumberjack.glb",
-        "sha256": "bbe13f47be9dac28a909a5241ce64511627c9da6c41d774a8de87e19206dd516",
-        "triangles": 1932
+        "sha256": "d63b6360510b6c9b229c4bdd635019974298271e7ebecf1c577398810eecf0fc",
+        "triangles": 4428
       },
       "footprint": {
         "h": 3,
         "w": 3
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "luthier": {
       "anchors": {
