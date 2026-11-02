@@ -1914,3 +1914,62 @@ levers used: warehouse location hints, stone-route steps around the
 cattle farms, land-use heuristics. Under the current rules the
 generated games were faster than the hand-patched ones (47/33/79/115 ·
 32/64 · 216/243/273 · 793/826/917) before D-065 was applied.
+
+## D-068 Ground cover is texture; models contain only what stands up
+
+- **Status:** accepted (2026-11-02)
+- **Context:** every voxel recipe lays a one-voxel ground plate (grass,
+  dirt, paved, sand or planks) over its footprint, fields have plates
+  too, and roads are sunk one voxel into the terrain (D-057 V2). The
+  terrain level is therefore the only surface at "zero": footprints
+  stand on raised slabs, roads lie in trenches, and the town reads as a
+  patchwork of lifted tiles around sunken paths. Removing only the
+  grass plate (V7 pipeline) made the contrast more visible. The island
+  already has a per-island ground texture (one texel per terrain
+  column, `render/groundshader.ts`) into which field ground and the far
+  roads are painted.
+- **Decision:**
+  1. **Ground cover is painted, not modelled.** Paved yards, dirt
+     yards, sand, plank decks on land, field ground and roads are
+     colours in the island's ground texture, flush with the terrace.
+     Only structures and props are voxels: walls, fences, kerbs that
+     really stand up, crops, posts, barrels.
+  2. **Recipes declare their yard, the manifest carries it.** `yard()`
+     calls become a per-tile ground map in the model's manifest entry
+     (`ground: kind per footprint tile`, rotated with the building);
+     the exporter derives it from the recipe, so authoring does not
+     change. The client paints the footprint's columns when a building
+     is placed and restores the terrain colour when it is demolished or
+     moved, exactly like fields today. Ground paint never changes
+     height.
+  3. **Roads are flush.** The near-LOD road is a painted path (dirt
+     with worn edges and stones; cobbles in three shades with a kerb
+     colour), the terrain height untouched; carts and walkers walk on
+     the ground; ramps at terrace edges are the terrace's. Near and far
+     roads become the same paint at two resolutions.
+  4. **Fields lose their plates**; fences and crops stand on the
+     painted field ground (`farfields.ts` colours are the source).
+  5. **Water structures keep their decks.** Fisher, shipyard, Trading
+     Post pier, trading pier, depot, quays, salt pans, oyster beds
+     stand on real deck voxels over water rows; the land part of their
+     footprint follows §1–2.
+  6. **Ground checker:** a model's voxels start at z = 0 on the
+     terrain; the floating-voxel check (V7 pipeline) stays; a new check
+     rejects full-footprint plates in land recipes.
+- **Why:** one consistent ground plane (the Anno reference has no lifted
+  plots); the footprint always reads as the plot (the "up to a tile
+  short of the plot edge" gap of 22 models disappears); fewer
+  triangles and no per-road-change terrain rebuild near; near and far
+  roads from one source.
+- **Consequences:** exporter + manifest field + schema test; client
+  ground painting on place / demolish / move (display state already
+  carries footprints), `roadvoxels.ts` → flat paint, field recipes
+  without plates, life layer walking height; all models rebuilt;
+  ART_DIRECTION §4 (ground, roads, fields) and §7 (authoring: no
+  plates); far budget rule unchanged and re-measured. Part of the V7
+  branch before the per-model rework continues.
+- **Rejected:** keeping plates and sinking the whole model by one voxel
+  (z-fights with the terrain top and keeps the slab edge colour);
+  cutting terrain holes under footprints (rebuilds the terrain mesh on
+  every placement and still leaves the plate seam); leaving roads sunk
+  (the trench is the other half of the problem).
