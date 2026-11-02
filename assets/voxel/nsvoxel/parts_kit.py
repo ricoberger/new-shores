@@ -72,7 +72,7 @@ def _n_panels(a0, a1):
     return len(W.bays(a0, a1)) - 1
 
 
-def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, smoke=False, chim=None, rise=None, windows=True, wins=None, ov=None, hip=False, stone=None, chimney=False, plinth=None):
+def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, smoke=False, chim=None, rise=None, windows=True, wins=None, ov=None, hip=False, stone=None, chimney=False, plinth=None, upper=None):
     """
     The main block in the vocabulary of `tier` (1–4) over x0..x1 × y0..y1. `door` = (side, a) with `a` the first
     voxel of a four-wide door along the side (default: the middle of the y+ face); `storeys` = (ground, top) of
@@ -100,7 +100,7 @@ def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, sm
     g, t = storeys or ((10, 19) if tier == 2 else (11, 22) if tier == 3 else (9, 24))
     if tier == 4:
         parts = (g - 1, (t - g + 1) // 2, (t - g + 1) - (t - g + 1) // 2)
-        b = Q.palazzo(v, x0, y0, x1, y1, parts, upper=CREAM, base=ASHLAR, roof=SLATE, kind="slate", along=along, rise=rise or 1.5, ov=ov or 1, seed=seed, ridge=SLATE_RIDGE, shades=(1.18, 0.8), verge=0.66, hip=hip)
+        b = Q.palazzo(v, x0, y0, x1, y1, parts, upper=upper or CREAM, base=ASHLAR, roof=SLATE, kind="slate", along=along, rise=rise or 1.5, ov=ov or 1, seed=seed, ridge=SLATE_RIDGE, shades=(1.18, 0.8), verge=0.66, hip=hip)
         face = b.face
         r = b.roof
         _openings(v, face, (x0, y0, x1, y1), tier, side, a, windows, wins, 2, g)
@@ -316,3 +316,75 @@ def mine(v, seed, seam, ore, peak=21, share=0.45, frame=False, whim=None, spoil=
 
 
 from .mats import PLANK  # noqa: E402
+
+
+def rack(v, x0, x1, y, goods, h=9, drop=6, post=None, every=4):
+    """A drying rack along x at y: posts, a top rail and hanging strips of `goods` (a material or a list), no sway."""
+    post = post or TIMBER_DARK
+    goods = goods if isinstance(goods, list) else [goods]
+    for x in range(x0, x1 + 1, every):
+        v.box(x, y, 1, x + 1, y + 1, h + 1, post)
+    v.box(x0, y, h, x1 + 1, y + 1, h + 1, shade_of(post, 1.2))
+    k = 0
+    for x in range(x0 + 1, x1, every):
+        v.box(x, y, h - drop, x + every - 1, y + 1, h, goods[k % len(goods)])
+        k += 1
+
+
+def cow(v, x, y, z=1, along="x", m=None, patch=None):
+    """A cow 7 long and 4 wide: body, head with horns, legs, a patch."""
+    m = m or mat("canvas", 1.1)
+    patch = patch or mat("timber", 0.55)
+    a, b = (7, 4) if along == "x" else (4, 7)
+    v.box(x, y, z + 2, x + a, y + b, z + 5, m)
+    for dx, dy in ((0, 0), (a - 1, 0), (0, b - 1), (a - 1, b - 1)):
+        v.box(x + dx, y + dy, z, x + dx + 1, y + dy + 1, z + 2, patch)
+    if along == "x":
+        v.box(x + a, y + 1, z + 3, x + a + 2, y + 3, z + 6, m)
+        v.set(x + a, y, z + 6, TIMBER_LIGHT)
+        v.set(x + a, y + 3, z + 6, TIMBER_LIGHT)
+        v.box(x + 2, y, z + 3, x + 4, y + b, z + 5, patch)
+    else:
+        v.box(x + 1, y + b, z + 3, x + 3, y + b + 2, z + 6, m)
+        v.set(x, y + b, z + 6, TIMBER_LIGHT)
+        v.set(x + 3, y + b, z + 6, TIMBER_LIGHT)
+        v.box(x, y + 2, z + 3, x + a, y + 4, z + 5, patch)
+
+
+def hive(v, x, y, z=1, m=None):
+    """A straw skep: a 4 × 4 dome of three layers on a plank."""
+    m = m or mat("thatch", 1.25)
+    v.box(x, y, z, x + 4, y + 4, z + 1, TIMBER_LIGHT)
+    v.box(x, y, z + 1, x + 4, y + 4, z + 3, m)
+    v.box(x + 1, y + 1, z + 3, x + 3, y + 3, z + 4, m)
+    v.set(x + 1, y, z + 1, TIMBER_DARK)
+
+
+def still(v, cx, cy, z=1, m=None, r=4):
+    """A copper still: a round pot on a stone hearth, a head and a pipe."""
+    m = m or mat("terracotta", 1.25)
+    v.ellipsoid(cx, cy, z, r + 1.5, r + 1.5, 2.5, lambda x, y, zz: STONE_DARK, keep=lambda x, y, zz: zz >= z and zz < z + 2)
+    v.ellipsoid(cx, cy, z + 2, r, r, r, lambda x, y, zz: m, keep=lambda x, y, zz: zz >= z + 2)
+    v.ellipsoid(cx, cy, z + 2 + r, 2, 2, 3, lambda x, y, zz: m)
+    v.box(cx, cy - 1, z + 2 + r + 2, cx + 6, cy + 1, z + 2 + r + 3, m)
+
+
+def furnace(v, cx, cy, hgt=29, r=8, glow=None, ember=None, wall=None, anchors=True):
+    """A battered furnace tower of ashlar (r → r − 3), an arched glowing mouth on the y+ side and a slim stack with the chimney and smoke anchors."""
+    glow = glow or mat("ochre", 1.7)
+    ember = ember or mat("terracotta", 1.5)
+    a, b = wall or mat("stone", 0.8), mat("stone", 0.7)
+    for z in range(1, hgt + 1):
+        rr = r - 3 * z / hgt
+        x0, x1, y0, y1 = int(cx - rr), int(cx + rr), int(cy - rr), int(cy + rr)
+        for x in range(x0, x1):
+            for y in range(y0, y1):
+                if z == hgt or x in (x0, x1 - 1) or y in (y0, y1 - 1):
+                    v.set(x, y, z, a if (z // 3) % 2 else b)
+    W.stack(v, cx - 1, cy - 1, hgt, hgt + 9, 2, 2)
+    if anchors:
+        v.anchor("chimney", cx, cy, hgt + 9)
+        v.anchor("smoke", cx, cy, hgt + 10)
+    v.box(cx - 3, cy + r - 3, 1, cx + 3, cy + r + 1, 8, None)
+    v.box(cx - 2, cy + r - 2, 1, cx + 2, cy + r, 6, ember)
+    v.box(cx - 1, cy + r - 2, 1, cx + 1, cy + r, 4, glow)
