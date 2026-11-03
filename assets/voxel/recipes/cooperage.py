@@ -23,7 +23,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 72
     seed = 73
     K.ground(v, 26, 50, 19, 18, seed, "paved")
-    h = K.hall(v, 6, 6, 40, 34, 4, "x", seed, door=("y+", 30), smoke=True, chim=(32, 10), wins=[])
+    h = K.workshop(v, 6, 6, 40, 34, 4, "e", seed, door=("y+", 30), smoke=True, chim=(32, 10), wins=[], out="kiln")
     W.arched_window(h.face("y+"), 10, 3, 6, 6)
     # Barrel pyramid.
     for row, n in enumerate((6, 5, 4, 3)):

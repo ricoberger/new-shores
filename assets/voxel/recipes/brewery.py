@@ -24,7 +24,7 @@ def build(ctx):
     v = ctx.vox()  # 60 × 72
     seed = 67
     K.ground(v, 34, 48, 24, 20, seed)
-    h = K.hall(v, 22, 6, 54, 34, 3, "x", seed, door=("y+", 40), smoke=True, chim=(46, 10), wins=[26])
+    h = K.workshop(v, 22, 6, 54, 34, 3, "b", seed, door=("y+", 40), smoke=True, chim=(46, 10), wins=[26])
     W.loft_door(v, 33, 28, 14, w=5, h=6, frame=P.DRESSED, side="y+", length=6, rope=6)
     # Round kettle tower at the west corner with a copper cone.
     V.round_tower(v, 12, 22, 8, 1, 22, m=STONE, seed=seed)

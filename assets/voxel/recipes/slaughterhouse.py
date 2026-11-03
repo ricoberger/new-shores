@@ -1,8 +1,8 @@
 """
-Slaughterhouse (4 × 4; V7 rework, tier IV): a stone-and-plaster block on an
-ashlar floor under slate with a slim chimney (smoke), a rail with sides of
-red meat hanging in the yard, scalding tubs, a chopping block, barrels of
-salt and a cart. 12 voxels per tile.
+Slaughterhouse (4 × 4; V7 variety pass, tier IV): an L-plan two-storey
+plaster-and-ashlar block under slate with a slim chimney (smoke); in front a
+tall rail with big sides of red meat, a scalding tub and salt barrels. 12
+voxels per tile; massing and signature prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,16 +21,15 @@ HAM = mat("terracotta", 0.9)
 def build(ctx):
     v = ctx.vox()  # 48 × 48
     seed = 167
-    K.ground(v, 24, 40, 21, 10, seed, "paved")
-    h = K.hall(v, 6, 6, 48 - 6, 26, 4, "y", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
-    for x in (10, 38):
-        v.box(x, 30, 1, x + 1, 31, 13, TIMBER_DARK)
-    v.box(10, 30, 12, 39, 31, 13, TIMBER)
-    V.hanging(v, 12, 38, 30, 12, ((GOODS, 6), (HAM, 5)), every=3)
-    P.cask(v, 12, 36, 1, h=4, lid=mat("shallows", 1.2))
-    P.cask(v, 18, 36, 1, h=4, lid=mat("shallows", 1.2))
-    P.chopping_block(v, 28, 36, 1)
-    P.cask(v, 36, 38, 1, lid=CANVAS)
+    K.ground(v, 24, 41, 21, 9, seed, "paved")
+    h = K.workshop(v, 6, 6, 48 - 6, 28, 4, "c", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
+    for x in (6, 40):
+        v.box(x, 34, 1, x + 1, 35, 18, TIMBER_DARK)
+    v.box(6, 34, 17, 41, 35, 18, TIMBER)
+    V.hanging(v, 8, 40, 34, 17, ((GOODS, 10), (HAM, 8)), every=4)
+    V.vat(v, 12, 42, 1, r=5, h=5, m=mat("timber", 0.8), liquid=mat("shallows", 1.2))
+    P.cask(v, 30, 40, 1, h=5, lid=CANVAS)
+    P.cask(v, 36, 40, 1, h=5, lid=CANVAS)
     P.handcart(v, 8, 36, 1, along="x", load=GOODS)
     v.anchor("cart", 14, 42, 1)
     K.tufts(v, seed, 0.02)

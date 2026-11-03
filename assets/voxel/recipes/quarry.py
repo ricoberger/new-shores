@@ -43,7 +43,7 @@ def build(ctx):
     P.stone_blocks(v, 4, 48, 1, n=6, seed=seed)
     P.stone_blocks(v, 22, 50, 1, n=5, seed=seed + 1)
     K.ground(v, 20, 66, 14, 22, seed)
-    K.hall(v, 4, 66, 22, 82, 2, "x", seed, door=("y+", 8), smoke=True, chim=(18, 70), wins=[])
+    K.workshop(v, 4, 66, 22, 82, 2, "a", seed, door=("y+", 8), smoke=True, chim=(18, 70), wins=[])
     P.handcart(v, 24, 62, 1, along="x", load=FRESH)
     P.tool_rack(K.P.Face(v, "x-", 4), 70, 1, n=2)
     v.anchor("cart", 28, 70, 1)

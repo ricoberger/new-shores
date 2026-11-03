@@ -497,6 +497,11 @@ land buildings).
   `K.cow` and `K.pig` are signature props; `K.mine` builds a mine strip
   (banded hill, adit, rails, tubs, optional headframe or horse whim) shared
   by the mines and quarries.
+  `K.workshop(..., mass=)` wraps `K.hall` in five massings chosen per recipe
+  (a long range, b ridge along y with a west lean-to, c L-plan with a lower
+  wing, d house with an open work bay 14 deep in front, e house with a
+  separate outbuilding: kiln, silo, drying tower or stable); tier IV
+  workshops are two storeys (`tall=True` only for civic buildings).
 - **Tier 4 (Patricians, V5):** `nsvoxel/detail_v5.py` (imported as
   `Q`) adds parts on top of `P` without changing it: `Q.palazzo` (flush
   plinth band, ashlar ground floor, plastered upper storeys, string courses,

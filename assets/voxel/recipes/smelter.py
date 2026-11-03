@@ -45,7 +45,7 @@ def build(ctx):
     v.box(cx - 2, cy + 6, 1, cx + 2, cy + 8, 6, EMBER)
     v.box(cx - 1, cy + 6, 1, cx + 1, cy + 8, 4, GLOW)
     # Casting house at the east.
-    K.hall(v, 26, 8, 44, 34, 2, "y", seed, door=("x-", 22), wins=[], chimney=False)
+    K.workshop(v, 26, 8, 44, 34, 2, "a", seed, door=("x-", 22), wins=[], chimney=False)
     # Slag bed, ore and charcoal heaps, ingots.
     for i in range(4):
         v.box(4 + i * 3, 36, 1, 6 + i * 3, 42, 2 + (i % 2), EMBER if i == 0 else SOOT)

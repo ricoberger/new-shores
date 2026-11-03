@@ -1,8 +1,9 @@
 """
-Cidery (5 × 6; V7 rework, tier II): a half-timbered cider house on a rubble
-floor under terracotta with a slim chimney (smoke), a big heap of red
-apples, a stone press with a screw, rows of cider barrels and two apple
-trees. 12 voxels per tile.
+Cidery (5 × 6; V7 variety pass, tier II): a half-timbered cider house with a
+plank drying tower for apples at its west end and a slim chimney (smoke); in
+front a giant stone cider press with a timber screw, a heap of red apples
+and a pyramid of cider barrels. 12 voxels per tile; massing and signature
+prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -20,18 +21,20 @@ GOODS = mat("terracotta", 1.35)
 def build(ctx):
     v = ctx.vox()  # 60 × 72
     seed = 187
-    K.ground(v, 30, 54, 27, 20, seed)
-    h = K.hall(v, 6, 6, 60 - 6, 30, 2, "x", seed, door=("y+", 28), smoke=True, chim=(46, 10), wins=[])
-    V.heap(v, 12, 48, r=6, h=6, m=GOODS, seed=seed)
-    v.box(26, 44, 1, 36, 54, 4, mat("stone", 1.0))
-    v.box(29, 47, 4, 33, 51, 12, TIMBER_DARK)
-    v.box(27, 48, 12, 35, 50, 14, TIMBER)
-    for i in range(5):
-        P.barrel(v, 40 + i * 4, 62, 1, h=4, m=mat("timber", 1.25))
-    for i in range(4):
-        P.barrel(v, 42 + i * 4, 62, 5, h=4, m=mat("timber", 1.25))
-    P.fruit_tree(v, 8, 62, 1, seed=seed)
-    P.fruit_tree(v, 50, 46, 1, seed=seed + 1)
+    K.ground(v, 30, 57, 27, 17, seed)
+    h = K.workshop(v, 6, 6, 60 - 6, 36, 2, "e", seed, door=("y+", 28), smoke=True, chim=(46, 10), wins=[], out="tower")
+    v.box(24, 44, 1, 38, 58, 5, mat("stone", 1.0))
+    for dx in (0, 11):
+        v.box(26 + dx, 46, 5, 28 + dx, 48, 24, TIMBER_DARK)
+        v.box(26 + dx, 54, 5, 28 + dx, 56, 24, TIMBER_DARK)
+    v.box(26, 46, 22, 39, 56, 24, TIMBER)
+    v.box(31, 49, 24, 34, 52, 30, TIMBER_LIGHT)
+    v.box(28, 50, 30, 37, 51, 32, TIMBER_DARK)
+    v.box(28, 48, 5, 37, 54, 8, GOODS)
+    V.heap(v, 12, 52, r=7, h=8, m=GOODS, seed=seed)
+    for row, n in enumerate((5, 4, 3)):
+        for i in range(n):
+            P.barrel(v, 44 + i * 4 + row * 2, 60, 1 + row * 4, h=4, m=mat("timber", 1.25))
     P.handcart(v, 8, 60, 1, along="x", load=GOODS)
     v.anchor("cart", 14, 66, 1)
     K.tufts(v, seed, 0.02)

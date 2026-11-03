@@ -41,20 +41,20 @@ def kiln(v, cx, cy, r, h, seed):
 def build(ctx):
     v = ctx.vox()  # 60 × 72
     seed = 54
-    K.ground(v, 30, 36, 26, 30, seed)
-    kiln(v, 16, 18, 10, 11, 1)
-    kiln(v, 42, 16, 9, 10, 2)
-    kiln(v, 40, 42, 8, 8, 3)
-    P.chimney_stack(v, 14, 17, 9, 12, m=SOOT, cap=EARTH, pots=0, anchor=True)
-    P.ladder(P.Face(v, "y+", 27), 38, 1, 8)
-    P.log_stack(v, 6, 40, 1, length=16, along="x", n=3)
-    P.woodpile(v, 6, 48, 1, length=14, along="x", rows=3)
+    K.ground(v, 30, 40, 26, 30, seed)
+    kiln(v, 16, 38, 10, 11, 1)
+    kiln(v, 42, 34, 9, 10, 2)
+    kiln(v, 38, 58, 8, 8, 3)
+    P.chimney_stack(v, 14, 37, 9, 12, m=SOOT, cap=EARTH, pots=0, anchor=True)
+    P.ladder(P.Face(v, "y+", 45), 38, 1, 8)
+    P.log_stack(v, 6, 24, 1, length=16, along="x", n=3)
+    P.woodpile(v, 6, 30, 1, length=14, along="x", rows=3)
     for x in range(44, 54):
         for y in range(52, 60):
             h = 1 + (1 if hash3(x, y, 9, seed) < 0.5 else 0) + (2 if 47 < x < 52 and 54 < y < 58 else 0)
             v.box(x, y, 1, x + 1, y + 1, 1 + h, CHARCOAL)
-    K.hall(v, 6, 56, 26, 70, 2, "x", seed, door=("y+", 12), wins=[], chimney=False)
-    P.handcart(v, 30, 62, 1, along="x", load=CHARCOAL)
-    v.anchor("cart", 34, 68, 1)
+    K.workshop(v, 6, 4, 26, 18, 2, "a", seed, door=("y+", 12), wins=[], chimney=False)
+    P.handcart(v, 8, 62, 1, along="x", load=CHARCOAL)
+    v.anchor("cart", 14, 68, 1)
     K.tufts(v, seed)
     return P.colour_jitter(v, seed=seed)

@@ -22,7 +22,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 29
     K.ground(v, 26, 46, 18, 12, seed)
-    h = K.hall(v, 12, 6, 44, 34, 3, "x", seed, door=("y+", 36), windows=True, wins=[16])
+    h = K.workshop(v, 12, 6, 44, 34, 3, "a", seed, door=("y+", 36), windows=True, wins=[16])
     for a in (17, 27):  # two engine doors
         W.gate(h.face("y+"), a, 7, 9, frame=P.DRESSED, arch=True)
     # The bell frame on the ridge.

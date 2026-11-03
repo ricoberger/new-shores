@@ -21,7 +21,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 79
     K.ground(v, 18, 36, 15, 11, seed)
-    h = K.hall(v, 6, 5, 30, 22, 3, "x", seed, door=("y+", 14), wins=[7, 22])
+    h = K.workshop(v, 6, 5, 30, 22, 3, "a", seed, door=("y+", 14), wins=[7, 22])
     for x in range(5, 32, 6):
         for y in (28, 34):
             V.hop_pole(v, x, y, 13, seed)

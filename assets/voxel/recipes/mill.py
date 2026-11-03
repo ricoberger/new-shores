@@ -23,7 +23,7 @@ SAIL = mat("canvas", 1.15)
 SPAR = mat("timber", 1.3)
 
 
-def sail(v, hx, hy, hz, ang, length=19):
+def sail(v, hx, hy, hz, ang, length=14):
     """One lattice sail in the x–z plane at y = hy: a spar and a lattice of canvas on one side of it."""
     dx, dz = math.cos(ang), math.sin(ang)
     px, pz = -dz, dx
@@ -43,14 +43,14 @@ def build(ctx):
     seed = 3
     K.ground(v, 19, 24, 11, 11, seed)
     K.ground(v, 33, 56, 11, 9, seed + 1)
-    cx, cy, zt = 19, 22, 30
+    cx, cy, zt = 19, 22, 40
     for z in range(1, zt):
         r = 8.2 - 2.6 * (z / zt)
         for x in range(cx - 10, cx + 11):
             for y in range(cy - 10, cy + 11):
                 d = math.hypot(x + 0.5 - cx, y + 0.5 - cy)
                 if r - 1.1 < d <= r:
-                    if z < 9:
+                    if z < 10:
                         v.set(x, y, z, shade_of(STONE, 0.9 if (z // 2) % 2 else 1.0))
                     else:
                         v.set(x, y, z, BOARD if (z // 2) % 2 else shade_of(BOARD, 0.88))
@@ -67,15 +67,15 @@ def build(ctx):
     V.cone_roof(v, cx, cy, 7.6, zt, K.THATCH, rise=1.0)
     # door and window of the tower
     v.box(cx - 2, cy + 6, 1, cx + 2, cy + 9, 9, TIMBER_DARK)
-    v.box(cx - 1, cy + 6, 18, cx + 1, cy + 8, 22, TIMBER_DARK)
+    v.box(cx - 1, cy + 5, 20, cx + 1, cy + 7, 24, TIMBER_DARK)
     # hub and four sails turned to the front
-    hy = cy + 10
-    hz = 23
+    hy = cy + 9
+    hz = 33
     v.box(cx - 1, cy + 4, hz - 1, cx + 1, hy + 1, hz + 1, BRASS)
     for k in range(4):
         sail(v, cx, hy, hz, math.radians(45 + 90 * k))
     # the cottage
-    h = K.hall(v, 22, 44, 44, 62, 2, "x", seed, door=("y+", 30), smoke=True, chim=(26, 48), wins=[24, 38])
+    h = K.workshop(v, 22, 44, 44, 62, 2, "b", seed, door=("y+", 30), smoke=True, chim=(26, 48), wins=[24, 38])
     P.sacks(v, 10, 44, 1, n=4, m=CANVAS)
     P.sacks(v, 10, 52, 1, n=3, m=CANVAS)
     P.handcart(v, 8, 62, 1, along="x", load=CANVAS)

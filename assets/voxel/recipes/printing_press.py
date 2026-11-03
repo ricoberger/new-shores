@@ -1,8 +1,8 @@
 """
-Printing press (4 × 5; V7 rework, tier III): a stone-and-timber print shop
-gabled to the street under dark burgundy tiles (no chimney), a giant timber
-screw press with its bar, tall stacks of pale paper and ink barrels. 12
-voxels per tile.
+Printing press (4 × 5; V7 variety pass, tier III): a stone-and-timber print
+shop with an open work bay (no chimney); under it a giant timber screw press
+with its bar, tall stacks of pale paper and ink barrels. 12 voxels per tile;
+massing and signature prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -20,18 +20,18 @@ GOODS = mat("canvas", 1.35)
 def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 213
-    K.ground(v, 24, 49, 21, 12, seed)
-    h = K.hall(v, 6, 6, 48 - 6, 33, 3, "y", seed, door=("y+", 22), wins=[])
-    for dx in (0, 8):
-        v.box(8 + dx, 40, 1, 10 + dx, 42, 16, TIMBER_DARK)
-    v.box(8, 40, 14, 18, 42, 16, TIMBER)
-    v.box(12, 40, 16, 14, 42, 22, TIMBER_LIGHT)
-    v.box(8, 41, 20, 18, 42, 22, TIMBER_DARK)
-    v.box(8, 38, 1, 18, 44, 5, TIMBER_LIGHT)
-    K.pile(v, 26, 38, 1, 8, 6, 8, GOODS, seed)
-    K.pile(v, 36, 38, 1, 8, 6, 5, GOODS, seed + 1)
-    P.cask(v, 8, 48, 1, h=4, lid=mat("iron", 0.6))
-    P.cask(v, 12, 48, 1, h=4, lid=mat("iron", 0.6))
+    K.ground(v, 24, 48, 21, 14, seed)
+    h = K.workshop(v, 6, 6, 48 - 6, 30, 3, "d", seed, door=("y+", 22), wins=[])
+    for dx in (0, 12):
+        v.box(8 + dx, 48, 1, 11 + dx, 51, 24, TIMBER_DARK)
+    v.box(8, 48, 20, 23, 51, 23, TIMBER)
+    v.box(14, 48, 23, 17, 51, 31, TIMBER_LIGHT)
+    v.box(10, 49, 29, 21, 50, 31, TIMBER_DARK)
+    v.box(8, 46, 1, 23, 54, 6, TIMBER_LIGHT)
+    K.pile(v, 28, 36, 1, 10, 6, 8, GOODS, seed)
+    K.pile(v, 38, 36, 1, 8, 6, 5, GOODS, seed + 1)
+    P.cask(v, 8, 52, 1, h=5, lid=mat("iron", 0.6))
+    P.cask(v, 12, 52, 1, h=5, lid=mat("iron", 0.6))
     P.handcart(v, 8, 48, 1, along="x", load=GOODS)
     v.anchor("cart", 14, 54, 1)
     K.tufts(v, seed, 0.02)

@@ -25,7 +25,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 61
     K.ground(v, 24, 40, 20, 17, seed)
-    h = K.hall(v, 6, 5, 30, 28, 3, "y", seed, door=("y+", 16), wins=[])
+    h = K.workshop(v, 6, 5, 30, 28, 3, "c", seed, door=("y+", 16), wins=[])
     P.trade_sign(h.face("y+"), 24, 10, mat("dye-blue", 1.0))
     # Hide frames with pelts along the east and across the yard, a drying rack with furs.
     V.hide_frame(v, 34, 8, 1, 6, 6, FUR, frame=TIMBER_DARK, along="y")

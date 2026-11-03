@@ -27,7 +27,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 103
     K.ground(v, 18, 26, 15, 16, seed)
-    K.hall(v, 12, 4, 34, 24, 2, "x", seed, door=("y+", 26), smoke=True, chim=(26, 8), wins=[])
+    K.workshop(v, 12, 4, 34, 24, 2, "d", seed, door=("y+", 26), smoke=True, chim=(26, 8), wins=[])
     # The wheel: a ring of spokes and paddles in the y–z plane at x = 6.
     cy, cz, r = 14, 9, 8
     for a in range(0, 360, 6):
@@ -44,12 +44,12 @@ def build(ctx):
     for y in (cy - 8, cy + 8):
         v.box(4, y, 1, 10, y + 1, 3, TIMBER_DARK)
     # Hides in frames and on the racks, vats and bark.
-    V.hide_frame(v, 6, 30, 1, 5, 7, HIDE, frame=TIMBER_DARK)
-    V.hide_frame(v, 14, 30, 1, 5, 7, HIDE_DARK, frame=TIMBER_DARK)
-    for x in (22, 28):
-        v.box(x, 30, 1, x + 5, 34, 4, TIMBER)
-        v.box(x + 1, 31, 4, x + 4, 33, 5, LIQUOR)
-    K.pile(v, 26, 38, 1, 6, 4, 4, BARK, seed)
+    V.hide_frame(v, 6, 36, 1, 7, 9, HIDE, frame=TIMBER_DARK)
+    V.hide_frame(v, 15, 36, 1, 7, 9, HIDE_DARK, frame=TIMBER_DARK)
+    for x in (23, 29):
+        v.box(x, 36, 1, x + 5, 41, 4, TIMBER)
+        v.box(x + 1, 37, 4, x + 4, 40, 5, LIQUOR)
+    K.pile(v, 26, 28, 1, 6, 4, 4, BARK, seed)
     P.handcart(v, 6, 40, 1, along="x", load=HIDE)
     v.anchor("cart", 12, 46, 1)
     K.tufts(v, seed)

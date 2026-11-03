@@ -20,7 +20,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 127
     K.ground(v, 24, 38, 20, 18, seed)
-    h = K.hall(v, 6, 4, 42, 24, 4, "x", seed, door=("y+", 28), wins=[])
+    h = K.workshop(v, 6, 4, 42, 24, 4, "a", seed, door=("y+", 28), wins=[])
     W.gate(h.face("y+"), 12, 8, 9, frame=P.DRESSED, arch=True)
     P.fence_ring(v, 6, 30, 42, 56, kind="rail", gaps={(40, 30), (41, 30)}, seed=seed)
     K.cow(v, 10, 38, 1)

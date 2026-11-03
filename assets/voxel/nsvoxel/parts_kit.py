@@ -72,7 +72,7 @@ def _n_panels(a0, a1):
     return len(W.bays(a0, a1)) - 1
 
 
-def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, smoke=False, chim=None, rise=None, windows=True, wins=None, ov=None, hip=False, stone=None, chimney=False, plinth=None, upper=None):
+def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, smoke=False, chim=None, rise=None, windows=True, wins=None, ov=None, hip=False, stone=None, chimney=False, plinth=None, upper=None, tall=False, dressed=None):
     """
     The main block in the vocabulary of `tier` (1–4) over x0..x1 × y0..y1. `door` = (side, a) with `a` the first
     voxel of a four-wide door along the side (default: the middle of the y+ face); `storeys` = (ground, top) of
@@ -97,13 +97,13 @@ def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, sm
             P.roof_chimney(v, r, cx, cy, above=3, anchor=smoke)
         out = SimpleNamespace(roof=r, ridge=ridge, face=face, top=top, rect=(x0, y0, x1, y1), tier=tier)
         return out
-    g, t = storeys or ((10, 19) if tier == 2 else (11, 22) if tier == 3 else (9, 24))
+    g, t = storeys or ((10, 19) if tier == 2 else (11, 22) if tier == 3 else ((9, 24) if tall else (10, 20)))
     if tier == 4:
-        parts = (g - 1, (t - g + 1) // 2, (t - g + 1) - (t - g + 1) // 2)
+        parts = (g - 1, (t - g + 1) // 2, (t - g + 1) - (t - g + 1) // 2) if tall else (g - 1, t - g + 1)
         b = Q.palazzo(v, x0, y0, x1, y1, parts, upper=upper or CREAM, base=ASHLAR, roof=SLATE, kind="slate", along=along, rise=rise or 1.5, ov=ov or 1, seed=seed, ridge=SLATE_RIDGE, shades=(1.18, 0.8), verge=0.66, hip=hip)
         face = b.face
         r = b.roof
-        _openings(v, face, (x0, y0, x1, y1), tier, side, a, windows, wins, 2, g)
+        _openings(v, face, (x0, y0, x1, y1), tier, side, a, windows, wins, 2, g, dressed)
     else:
         kw = {}
         if tier == 3:
@@ -119,7 +119,7 @@ def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, sm
         b = W.framed_house(v, x0, y0, x1, y1, along, ground=g, top=t, infill=PLASTER if tier == 2 else shade_of(PLASTER, 0.97), frame=FRAME, rise=rise or (1.5 if tier == 2 else 1.8), seed=seed, windows=win, shutters=DYE_BLUE if tier == 2 else GREEN, hip=hip, ov=ov or 1, **({"stone": stone} if stone else {}), **({"plinth": plinth} if plinth else {}), **kw)
         face = b.face
         r = b.roof
-        _openings(v, face, (x0, y0, x1, y1), tier, side, a, windows, wins, 2, g)
+        _openings(v, face, (x0, y0, x1, y1), tier, side, a, windows, wins, 2, g, dressed)
     if smoke or chimney:
         sx, sy = cx, cy
         W.stack(v, sx, sy, 1, r.ridge_z + 4, 2, 2)
@@ -129,8 +129,9 @@ def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, sm
     return SimpleNamespace(roof=r, ridge=r.ridge_z, face=face, top=t, rect=(x0, y0, x1, y1), tier=tier, b=b)
 
 
-def _openings(v, face, rect, tier, side, a, windows, wins, z0, g):
+def _openings(v, face, rect, tier, side, a, windows, wins, z0, g, dressed=None):
     """The front door and the ground windows either side of it (tier styles)."""
+    dr = dressed or DRESSED
     x0, y0, x1, y1 = rect
     lo, hi = (x0, x1) if side in ("y+", "y-") else (y0, y1)
     if a is not None:
@@ -138,9 +139,9 @@ def _openings(v, face, rect, tier, side, a, windows, wins, z0, g):
         if tier == 1:
             P.entrance(f, a, 2, 4, 7, leaf=TIMBER_LIGHT, frame=TIMBER, step=PLINTH, steps=1)
         elif tier == 4:
-            P.entrance(f, a, 2, 4, 8, leaf=TIMBER, frame=DRESSED, lintel=DRESSED, steps=2)
+            P.entrance(f, a, 2, 4, 8, leaf=TIMBER, frame=dr, lintel=dr, steps=2)
         else:
-            P.entrance(f, a, 2, 4, 7 if tier == 2 else 8, leaf=TIMBER_LIGHT if tier == 2 else TIMBER, frame=DRESSED, lintel=DRESSED, steps=1)
+            P.entrance(f, a, 2, 4, 7 if tier == 2 else 8, leaf=TIMBER_LIGHT if tier == 2 else TIMBER, frame=dr, lintel=dr, steps=1)
     if not windows:
         return
     spots = wins if wins is not None else [p for p in range(lo + 3, hi - 6, 9) if a is None or abs(p - a) > 5]
@@ -151,7 +152,7 @@ def _openings(v, face, rect, tier, side, a, windows, wins, z0, g):
         elif tier == 4:
             W.arched_window(f, p, 4, 3, 5)
         else:
-            P.casement(f, p, 4, 3, 4, frame=DRESSED, sill=DRESSED, lintel=DRESSED, bars=False)
+            P.casement(f, p, 4, 3, 4, frame=dr, sill=dr, lintel=dr, bars=False)
     # a window in the west gable end for every tier
     gx = lambda s: face(s)  # noqa: E731
     mid = (y0 + y1) // 2 - 1
@@ -388,3 +389,94 @@ def furnace(v, cx, cy, hgt=29, r=8, glow=None, ember=None, wall=None, anchors=Tr
     v.box(cx - 3, cy + r - 3, 1, cx + 3, cy + r + 1, 8, None)
     v.box(cx - 2, cy + r - 2, 1, cx + 2, cy + r, 6, ember)
     v.box(cx - 1, cy + r - 2, 1, cx + 1, cy + r, 4, glow)
+
+
+# ------------------------------------------------------------- massings
+
+_EAVE = {1: 12, 2: 10, 3: 11, 4: 10}
+
+
+def _clamp(a, lo, hi):
+    return max(lo, min(hi, a))
+
+
+def workshop(v, x0, y0, x1, y1, tier, mass="a", seed=0, door=None, smoke=False, chim=None, out="kiln", wins=None, tall=False, **kw):
+    """
+    The main block of a production building in one of five massings inside the rectangle x0..x1 × y0..y1 (the
+    plot's props stand in front of it): "a" a long range, the ridge along the longer side; "b" the ridge along y
+    with a lean-to shed on the west flank; "c" an L-plan, a long range with a lower wing at the front-left; "d" a
+    house with an open work bay 14 deep in front of it, beyond y1 (posts, a lean-to roof, 10 clear); "e" the house and a
+    separate outbuilding (`out`: "kiln", "silo", "tower" or "stable") at the west. Tier IV is two storeys unless
+    `tall`. Returns what `hall` returns for the main block.
+    """
+    w, d = x1 - x0, y1 - y0
+    side, a = door if door else ("y+", None)
+    cx, cy = chim if chim else (None, None)
+    g = _EAVE[tier]
+    if tier == 4 and wins == []:
+        wins = None  # arched ground windows: relief on the plain two-storey wall
+    if side != "y+":
+        return hall(v, x0, y0, x1, y1, tier, "x" if w >= d else "y", seed, door=door, smoke=smoke, chim=chim, wins=wins, tall=tall, **kw)
+
+    wl = _clamp(int(w * 0.4), 10, max(10, w - 14))
+
+    def place(rx0, ry0, rx1, ry1, along, dx, **more):
+        da = _clamp(dx if dx is not None else (rx0 + rx1) // 2 - 2, rx0 + 3, rx1 - 7)
+        c = None
+        if smoke or chim:
+            c = (_clamp(cx if cx is not None else rx1 - 8, rx0 + 2, rx1 - 5), _clamp(cy if cy is not None else ry0 + (ry1 - ry0) // 3, ry0 + 2, ry1 - 5))
+        ww = None if wins is None else [p for p in wins if rx0 + 3 <= p < rx1 - 6 and (mass != "c" or p > x0 + wl + 2)]
+        return hall(v, rx0, ry0, rx1, ry1, tier, along, seed, door=(side, da), smoke=smoke, chim=c, wins=ww, tall=tall, **more, **kw)
+
+    if mass == "a":
+        return place(x0, y0, x1, y1, "x" if w >= d else "y", a)
+    if mass == "b":
+        lw = _clamp(w // 3, 6, 10)
+        main = place(x0 + lw, y0, x1, y1, "y", a)
+        lean(v, x0, x0 + lw + 1, y0 + 3, y1 - 3, g - 1, "x-", tier=tier, posts=True, seed=seed)
+        return main
+    if mass == "c":
+        ym = y0 + _clamp(int(d * 0.58), 12, d - 10)
+        main = place(x0, y0, x1, ym, "x", a if a is not None and a >= x0 + wl + 3 else x1 - 10)
+        wg = (g - 2, g + 4) if tier != 4 else (g - 1, g + 5)
+        hall(v, x0, ym, x0 + wl, y1, tier, "y", seed + 1, door=("y+", None), windows=True, wins=None, storeys=wg, tall=False, **{k: x for k, x in kw.items() if k not in ("windows", "chimney")})
+        return main
+    if mass == "d":
+        ld = 10
+        main = place(x0, y0, x1, y1, "x" if w >= d else "y", a)
+        z = g + 1
+        lean(v, x0 + 1, x1 - 1, y1, y1 + ld, z, "y+", tier=tier, posts=True, seed=seed)
+        for px in range(x0 + 12, x1 - 6, 12):
+            v.box(px, y1 + ld - 1, 1, px + 1, y1 + ld, z + 1, TIMBER)
+        return main
+    if mass == "e":
+        ow = 12
+        hx0 = x0 + ow + 3
+        main = place(hx0, y0, x1, y1, "x" if x1 - hx0 >= d else "y", a)
+        oy = y0 + 2
+        if out == "kiln":
+            kiln(v, x0, oy, 1, w=ow, d=ow, h=12, seed=seed)
+        elif out == "silo":
+            silo(v, x0 + ow // 2, oy + ow // 2, ow // 2 - 1, 20)
+        elif out == "tower":
+            _tower(v, x0 + 1, oy, 10, 10, 24)
+        else:
+            hall(v, x0, oy, x0 + ow + 2, oy + 16, 1, "y", seed + 2, door=("y+", None), windows=False)
+        return main
+    raise ValueError(f"mass {mass!r}")
+
+
+def _tower(v, x, y, w, d, h):
+    """A plank drying tower: dark boards with louvre slots, a small tiled hip roof."""
+    P.boarded(v, x, y, x + w, y + d, 1, h, m=BOARDS, batten=TIMBER_DARK, every=3)
+    for z in range(5, h - 3, 4):
+        for i in range(2, w - 2, 2):
+            v.set(x + i, y + d - 1, z, TIMBER_DARK)
+            v.set(x + i, y + d - 1, z + 1, TIMBER_DARK)
+        for j in range(2, d - 2, 2):
+            v.set(x, y + j, z, TIMBER_DARK)
+    P.roof(v, x, x + w, y, y + d, h, "tiles", along="x", rise=1.2, ov=1, gable=BOARDS, seed=seed_of(x, y), m=TERRACOTTA, hip=True)
+
+
+def seed_of(x, y):
+    return x * 7 + y

@@ -19,5 +19,5 @@ def build(ctx):
     seed = 55
     K.mine(v, seed, IRON_ORE, IRON_ORE)
     K.ground(v, 18, 70, 15, 24, seed)
-    K.hall(v, 22, 64, 35, 88, 2, "y", seed, door=("x-", 70), smoke=True, chim=(26, 68), wins=[])
+    K.workshop(v, 22, 64, 35, 88, 2, "a", seed, door=("x-", 70), smoke=True, chim=(26, 68), wins=[])
     return P.colour_jitter(v, seed=seed)

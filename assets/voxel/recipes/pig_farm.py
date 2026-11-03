@@ -23,7 +23,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 31
     K.ground(v, 20, 28, 15, 18, seed)
-    h = K.hall(v, 12, 5, 34, 27, 2, "x", seed, door=("y+", 28), smoke=True, chim=(26, 9), wins=[])
+    h = K.workshop(v, 12, 5, 34, 27, 2, "b", seed, door=("y+", 28), smoke=True, chim=(26, 9), wins=[])
     W.gate(h.face("y+"), 14, 8, 9, frame=P.DRESSED)  # the wide barn doors
     P.casement(h.face("y+"), 24, 4, 3, 4, frame=P.DRESSED, sill=P.DRESSED, bars=False)
     # A lean-to feed store with crates at the west gable.

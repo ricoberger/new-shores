@@ -24,7 +24,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 72
     seed = 71
     K.ground(v, 28, 52, 18, 16, seed, "paved")
-    h = K.hall(v, 18, 6, 44, 40, 4, "y", seed, door=("y+", 28), smoke=True, chim=(24, 10), wins=[22])
+    h = K.workshop(v, 18, 6, 44, 40, 4, "c", seed, door=("y+", 28), smoke=True, chim=(24, 10), wins=[22])
     # The oast: a brick-accent round tower with a slate cone.
     V.round_tower(v, 9, 16, 7, 1, 20, m=K.BRICK, seed=seed)
     V.cone_roof(v, 9, 16, 7.6, 20, SLATE, rise=1.6, tip=K.BRICK)

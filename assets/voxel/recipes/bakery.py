@@ -24,12 +24,8 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 9
     K.ground(v, 26, 38, 20, 18, seed)
-    h = K.hall(v, 14, 6, 44, 28, 2, "x", seed, door=("y+", 32), smoke=True, chim=(36, 10), wins=[])
-    f = h.face("y+")
-    P.casement(f, 18, 4, 8, 5, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED, bars=False)
-    V.face_awning(f, 17, 27, 10, depth=4)
-    V.signboard(f, 28, 14, w=4, h=3, colour=CRUST)
-    K.kiln(v, 3, 8, 1, w=8, d=8, h=8)
+    h = K.workshop(v, 14, 6, 44, 28, 2, "d", seed, door=("y+", 32), smoke=True, chim=(36, 10), wins=[])
+    K.kiln(v, 2, 6, 1, w=11, d=11, h=12)
     # Bread stall: a table with a row of big loaves.
     v.box(14, 34, 3, 32, 38, 4, TIMBER_LIGHT)
     for x in (15, 30):

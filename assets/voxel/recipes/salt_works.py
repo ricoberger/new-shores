@@ -24,7 +24,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 72
     seed = 117
     K.ground(v, 24, 48, 20, 20, seed)
-    K.hall(v, 18, 6, 44, 34, 3, "x", seed, door=("y+", 24), smoke=True, chim=(38, 10), wins=[])
+    K.workshop(v, 18, 6, 44, 34, 3, "b", seed, door=("y+", 24), smoke=True, chim=(38, 10), wins=[])
     # Round copper pan on a stone hearth.
     v.ellipsoid(10, 20, 0, 8, 8, 5, lambda x, y, z: mat("stone", 0.85), keep=lambda x, y, z: z >= 1 and z <= 4)
     v.ellipsoid(10, 20, 3, 6.5, 6.5, 2.5, lambda x, y, z: COPPER, keep=lambda x, y, z: z >= 4)

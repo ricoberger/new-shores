@@ -25,7 +25,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 72
     seed = 17
     K.ground(v, 28, 46, 19, 24, seed)
-    h = K.hall(v, 5, 6, 29, 52, 2, "y", seed, door=("y+", 15), chimney=True, chim=(8, 10), windows=True, wins=[])
+    h = K.workshop(v, 5, 6, 29, 52, 2, "b", seed, door=("y+", 15), chimney=True, chim=(8, 10), windows=True, wins=[])
     W.round_arcade(h.face("x-"), 10, 44, 2, 8, bay=6, pier=2, depth=3, pier_m=P.DRESSED)
     # Barrel cart and stacked barrels east of the inn.
     P.handcart(v, 31, 62, 1, along="x", load=ALE)

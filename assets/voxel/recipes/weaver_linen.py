@@ -24,7 +24,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 59
     K.ground(v, 20, 28, 17, 14, seed)
-    h = K.hall(v, 4, 5, 30, 24, 2, "x", seed, door=("y+", 14), smoke=True, chim=(22, 9), wins=[7, 22])
+    h = K.workshop(v, 4, 5, 30, 24, 2, "b", seed, door=("y+", 14), smoke=True, chim=(22, 9), wins=[7, 22])
     K.lean(v, 30, 40, 7, 22, 10, "x+", tier=2)
     v.box(31, 9, 1, 32, 20, 9, TIMBER_DARK)
     v.box(38, 9, 1, 39, 20, 9, TIMBER_DARK)

@@ -23,7 +23,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 37
     K.ground(v, 20, 24, 15, 16, seed)
-    h = K.hall(v, 10, 5, 32, 25, 2, "x", seed, door=("y+", 20), smoke=True, chim=(24, 9), wins=[14])
+    h = K.workshop(v, 10, 5, 32, 25, 2, "c", seed, door=("y+", 20), smoke=True, chim=(24, 9), wins=[14])
     # Outside stair on the west gable to a loft platform with hemp bundles.
     W.stairs(v, 6, 8, 1, 5, side=1, width=3)
     v.box(4, 14, 10, 10, 24, 11, TIMBER_LIGHT)

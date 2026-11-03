@@ -1,8 +1,8 @@
 """
-Soap maker (3 × 4; V7 rework, tier III): a small stone-and-timber house
-gabled to the street under dark burgundy tiles with a slim chimney (smoke),
-a copper cauldron, tall stacks of pale soap bars and lye barrels. 12 voxels
-per tile.
+Soap maker (3 × 4; V7 variety pass, tier III): a stone-and-timber house
+gabled to the street with a lean-to shed and a slim chimney (smoke); in
+front a big copper cauldron, a tall stack of pale soap bars and lye barrels.
+12 voxels per tile; massing and signature prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,11 +21,10 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 219
     K.ground(v, 18, 40, 15, 10, seed)
-    h = K.hall(v, 6, 6, 36 - 6, 26, 3, "y", seed, door=("y+", 16), smoke=True, chim=(22, 10), wins=[])
-    V.vat(v, 10, 36, 1, r=4, h=6, m=mat("terracotta", 1.2), liquid=GOODS)
-    K.pile(v, 20, 32, 1, 8, 6, 6, GOODS, seed)
-    P.cask(v, 22, 42, 1, h=4, lid=CANVAS)
-    P.handcart(v, 8, 36, 1, along="x", load=GOODS)
+    h = K.workshop(v, 6, 6, 36 - 6, 26, 3, "b", seed, door=("y+", 16), smoke=True, chim=(22, 10), wins=[])
+    V.vat(v, 12, 38, 1, r=6, h=8, m=mat("terracotta", 1.2), liquid=GOODS)
+    K.pile(v, 22, 32, 1, 10, 8, 10, GOODS, seed)
+    P.cask(v, 6, 46, 1, h=5, lid=CANVAS)
     v.anchor("cart", 14, 42, 1)
     K.tufts(v, seed, 0.02)
     return P.colour_jitter(v, seed=seed)

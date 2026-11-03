@@ -24,9 +24,10 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 19
     K.ground(v, 24, 38, 21, 18, seed)
-    h = K.hall(v, 22, 6, 46, 28, 3, "x", seed, door=("y+", 36), smoke=True, chim=(40, 10), wins=[])
-    P.casement(h.face("y+"), 26, 4, 8, 5, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED, bars=False)
+    h = K.workshop(v, 22, 6, 46, 28, 3, "d", seed, door=("y+", 36), smoke=True, chim=(40, 10), wins=[])
     v.box(26, 29, 3, 34, 31, 4, TIMBER_LIGHT)  # the counter
+    for x in (26, 33):
+        v.box(x, 29, 1, x + 1, 31, 3, TIMBER_DARK)
     # The smoking shed on posts at the west.
     for x in (2, 18):
         for y in (8, 12, 20, 26):

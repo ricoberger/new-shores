@@ -1,7 +1,8 @@
 """
-Lace maker (3 × 5; V7 rework, tier IV): a narrow cream plaster house on an
-ashlar floor under slate (no chimney), tall frames hung with white lace, a
-pale pillow and bobbins on a table, a flower bed. 12 voxels per tile.
+Lace maker (3 × 5; V7 variety pass, tier IV): an L-plan two-storey cream
+plaster house under slate (no chimney); in front two tall frames hung with
+white lace, a pillow table and a flower bed. 12 voxels per tile; massing and
+signature prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -19,13 +20,13 @@ GOODS = mat("canvas", 1.35)
 def build(ctx):
     v = ctx.vox()  # 36 × 60
     seed = 159
-    K.ground(v, 18, 49, 15, 12, seed, "paved")
-    h = K.hall(v, 6, 6, 36 - 6, 33, 4, "y", seed, door=("y+", 16), wins=[])
-    K.rack(v, 6, 30, 34, GOODS, h=13, drop=10)
-    K.rack(v, 6, 30, 42, [GOODS, shade_of(GOODS, 0.9)], h=11, drop=8)
-    v.box(8, 48, 1, 20, 52, 3, TIMBER_LIGHT)
-    K.pile(v, 10, 48, 3, 8, 4, 2, GOODS, seed)
-    P.flower_bed(v, 24, 46, 32, 52, 1, seed=seed)
+    K.ground(v, 18, 49, 15, 13, seed, "paved")
+    h = K.workshop(v, 6, 6, 36 - 6, 32, 4, "c", seed, door=("y+", 16), wins=[])
+    K.rack(v, 4, 32, 38, GOODS, h=18, drop=14)
+    K.rack(v, 4, 32, 46, [GOODS, shade_of(GOODS, 0.9)], h=15, drop=11)
+    v.box(6, 52, 1, 22, 56, 3, TIMBER_LIGHT)
+    K.pile(v, 8, 52, 3, 10, 4, 2, GOODS, seed)
+    P.flower_bed(v, 24, 50, 32, 56, 1, seed=seed)
     P.handcart(v, 8, 48, 1, along="x", load=GOODS)
     v.anchor("cart", 14, 54, 1)
     K.tufts(v, seed, 0.02)

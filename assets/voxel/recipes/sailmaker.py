@@ -1,8 +1,8 @@
 """
-Sailmaker (4 × 8; V7 rework after the Anno 1404 ropeyard, tier II): a long
-half-timbered sail loft on a rubble floor under terracotta with a slim
-chimney (smoke), a tall frame hung with big swaying canvas sails, coils of
-rope and a cart. 12 voxels per tile.
+Sailmaker (4 × 8; V7 variety pass, tier II): a long half-timbered sail loft
+with a slim chimney (smoke); in front two tall frames hung with big swaying
+canvas sails, rope coils and a cart. 12 voxels per tile; massing and
+signature prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -22,13 +22,12 @@ def build(ctx):
     v = ctx.vox()  # 48 × 96
     seed = 197
     K.ground(v, 24, 82, 21, 16, seed)
-    h = K.hall(v, 6, 6, 48 - 6, 62, 2, "y", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
-    V.drying_frame(v, 6, 42, 66, 1, 16, SAIL, post=TIMBER_DARK, every=7, drop=13)
-    V.drying_frame(v, 6, 42, 76, 1, 14, SAIL, post=TIMBER_DARK, every=7, drop=11)
-    K.pile(v, 8, 82, 1, 8, 6, 4, shade_of(TIMBER_LIGHT, 1.1), seed)
+    h = K.workshop(v, 6, 6, 48 - 6, 62, 2, "a", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
+    V.drying_frame(v, 6, 42, 70, 1, 22, SAIL, post=TIMBER_DARK, every=9, drop=19)
+    V.drying_frame(v, 6, 42, 82, 1, 18, SAIL, post=TIMBER_DARK, every=9, drop=15)
+    K.pile(v, 8, 88, 1, 8, 6, 4, shade_of(TIMBER_LIGHT, 1.1), seed)
     for x in (22, 30):
-        v.box(x, 82, 1, x + 5, 87, 3, shade_of(TIMBER, 1.1))
-        v.box(x + 1, 83, 3, x + 4, 86, 4, shade_of(TIMBER, 1.2))
+        v.box(x, 88, 1, x + 5, 93, 3, shade_of(TIMBER, 1.1))
     P.handcart(v, 8, 84, 1, along="x", load=GOODS)
     v.anchor("cart", 14, 90, 1)
     K.tufts(v, seed, 0.02)

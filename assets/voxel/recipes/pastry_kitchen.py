@@ -1,8 +1,8 @@
 """
-Pastry kitchen (4 × 5; V7 rework, tier III): a stone-and-timber bakehouse
-under dark burgundy tiles with a slim chimney (smoke), a striped awning over
-a display table piled with golden pastries, a brick-accent oven and flour
-sacks. 12 voxels per tile.
+Pastry kitchen (4 × 5; V7 variety pass, tier III): an L-plan stone-and-
+timber bakehouse with a slim chimney (smoke); in front a big striped awning
+over a long display of golden pastries and a brick-accent oven with a round
+dome. 12 voxels per tile; massing and signature prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,14 +21,14 @@ PINK = mat("terracotta", 1.5)
 def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 211
-    K.ground(v, 24, 45, 21, 16, seed)
-    h = K.hall(v, 6, 6, 48 - 6, 25, 3, "x", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
-    V.face_awning(h.face("y+"), 10, 26, 10, depth=4)
-    v.box(8, 36, 1, 28, 40, 4, TIMBER_LIGHT)
-    for i, x in enumerate(range(9, 27, 4)):
-        v.box(x, 37, 4, x + 3, 39, 6, GOODS if i % 2 else PINK)
-    K.kiln(v, 34, 36, 1, w=8, d=8, h=8)
-    P.sacks(v, 8, 46, 1, n=3, m=CANVAS)
+    K.ground(v, 24, 48, 21, 14, seed)
+    h = K.workshop(v, 6, 6, 48 - 6, 30, 3, "c", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
+    V.face_awning(h.face("y+"), 28, 44, 10, depth=5)
+    v.box(8, 40, 1, 40, 46, 5, TIMBER_LIGHT)
+    for i, x in enumerate(range(9, 39, 5)):
+        v.box(x, 41, 5, x + 4, 45, 8, GOODS if i % 2 else PINK)
+    K.kiln(v, 30, 50, 1, w=14, d=8, h=11)
+    P.sacks(v, 8, 52, 1, n=4, m=CANVAS)
     P.handcart(v, 8, 48, 1, along="x", load=GOODS)
     v.anchor("cart", 14, 54, 1)
     K.tufts(v, seed, 0.02)

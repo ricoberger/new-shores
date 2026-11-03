@@ -1,8 +1,8 @@
 """
-Goldsmith (4 × 4; V7 rework after the Anno 1404 redsmith, tier IV): a cream
-plaster workshop on an ashlar floor under slate with a slim chimney (smoke),
-a glowing forge hearth by the door, an anvil, a gold sign and a stack of
-bright gold ingots on a pallet, a cart. 12 voxels per tile.
+Goldsmith (4 × 4; V7 variety pass, tier IV): an L-plan two-storey cream
+plaster workshop under slate with a slim chimney (smoke); in front a big
+glowing forge hearth, an anvil and a tall stack of bright gold ingots. 12
+voxels per tile; massing and signature prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,15 +21,14 @@ GLOW = mat("ochre", 1.9)
 def build(ctx):
     v = ctx.vox()  # 48 × 48
     seed = 153
-    K.ground(v, 24, 40, 21, 10, seed, "paved")
-    h = K.hall(v, 6, 6, 48 - 6, 26, 4, "y", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
-    v.box(8, 30, 1, 14, 36, 5, mat("stone", 0.8))
-    v.box(9, 31, 5, 13, 35, 6, GLOW)
-    v.box(20, 30, 1, 23, 33, 4, TIMBER_DARK)
-    v.box(19, 30, 4, 25, 33, 6, IRON)
-    v.box(30, 30, 1, 40, 36, 3, TIMBER_LIGHT)
-    v.box(31, 31, 3, 39, 35, 5, GOODS)
-    v.box(33, 32, 5, 37, 34, 7, GOODS)
+    K.ground(v, 24, 41, 21, 9, seed, "paved")
+    h = K.workshop(v, 6, 6, 48 - 6, 28, 4, "c", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
+    v.box(6, 34, 1, 18, 44, 7, mat("stone", 0.8))
+    v.box(8, 36, 7, 16, 42, 9, GLOW)
+    W.stack(v, 8, 38, 9, 20, 2, 2)
+    v.box(24, 36, 1, 28, 40, 5, TIMBER_DARK)
+    v.box(22, 36, 5, 30, 40, 8, IRON)
+    K.pile(v, 32, 36, 1, 10, 8, 9, GOODS, seed)
     P.handcart(v, 8, 36, 1, along="x", load=GOODS)
     v.anchor("cart", 14, 42, 1)
     K.tufts(v, seed, 0.02)

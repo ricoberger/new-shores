@@ -25,12 +25,12 @@ def build(ctx):
     v = ctx.vox()  # 48 × 48
     seed = 23
     K.ground(v, 24, 36, 18, 11, seed)
-    h = K.hall(v, 8, 6, 40, 30, 2, "x", seed, door=("y+", 22), windows=True, wins=[11, 30], stone=SAND, plinth=SAND)
+    h = K.workshop(v, 8, 6, 40, 30, 2, "a", seed, door=("y+", 22), windows=True, wins=[11, 30], stone=SAND, plinth=SAND, dressed=SAND)
     # Two square corner turrets with pointed caps.
     for tx in (4, 38):
         W.coursed_stone_2(v, tx, 26, tx + 6, 32, 2, 21, SAND, seed + tx)
         V.cone_roof(v, tx + 3, 29, 4.5, 21, TERRACOTTA, rise=1.2, tip=IRON)
-        P.casement(P.Face(v, "y+", 31), tx + 2, 9, 2, 4, frame=P.DRESSED, sill=P.DRESSED, bars=False)
+        P.casement(P.Face(v, "y+", 31), tx + 2, 9, 2, 4, frame=SAND, sill=SAND, bars=False)
     # The forecourt wall with a gate.
     K.low_wall(v, 4, 44, 20, 46, 3, seed, SAND)
     K.low_wall(v, 28, 44, 44, 46, 3, seed + 1, SAND)

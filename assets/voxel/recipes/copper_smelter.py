@@ -20,7 +20,7 @@ def build(ctx):
     seed = 141
     K.ground(v, 24, 50, 20, 18, seed, "paved")
     K.furnace(v, 14, 18, glow=GLOW)
-    K.hall(v, 26, 8, 44, 34, 4, "y", seed, door=("x-", 22), wins=[])
+    K.workshop(v, 26, 8, 44, 34, 4, "a", seed, door=("x-", 22), wins=[])
     for i in range(3):
         v.box(30, 40 + i * 4, 1, 40, 43 + i * 4, 3, GOODS)
     v.box(30, 40, 3, 38, 43, 5, GOODS)

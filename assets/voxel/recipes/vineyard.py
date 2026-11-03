@@ -1,8 +1,9 @@
 """
-Vineyard (4 × 5; V7 rework, tier IV): a cream plaster winegrower's house on
-an ashlar floor under slate (no chimney) with three rows of staked vines
-hung with green leaf and dark grapes in front, grape baskets and a cart. 12
-voxels per tile.
+Vineyard (4 × 5; V7 variety pass, tier IV): a two-storey cream plaster
+winegrower's house with a plank drying tower at its west end under slate (no
+chimney); in front three rows of tall staked vines hung with green leaf and
+dark grapes, and a big grape vat. 12 voxels per tile; massing and signature
+prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,18 +22,16 @@ LEAF = mat("grass-b", 0.85)
 def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 171
-    K.ground(v, 24, 45, 21, 16, seed, "paved")
-    h = K.hall(v, 6, 6, 48 - 6, 25, 4, "x", seed, door=("y+", 22), wins=[])
-    for y in (34, 42, 50):
-        for x in range(8, 41, 4):
-            v.box(x, y, 1, x + 1, y + 1, 7, TIMBER_DARK)
-        v.box(8, y, 6, 41, y + 1, 7, TIMBER)
-        v.box(8, y, 2, 41, y + 1, 6, LEAF)
-        for x in range(9, 40, 3):
-            v.box(x, y, 3, x + 1, y + 1, 5, GOODS)
-    P.cask(v, 42, 56, 1, lid=GOODS)
-    P.cask(v, 40, 56, 1, lid=GOODS)
-    P.handcart(v, 8, 48, 1, along="x", load=GOODS)
+    K.ground(v, 24, 47, 21, 15, seed, "paved")
+    h = K.workshop(v, 6, 6, 48 - 6, 28, 4, "e", seed, door=("y+", 22), wins=[], out="tower")
+    for y in (36, 44, 52):
+        for x in range(6, 44, 4):
+            v.box(x, y, 1, x + 1, y + 1, 10, TIMBER_DARK)
+        v.box(6, y, 9, 45, y + 1, 10, TIMBER)
+        v.box(6, y, 2, 45, y + 1, 9, LEAF)
+        for x in range(7, 44, 3):
+            v.box(x, y, 3, x + 1, y + 1, 6, GOODS)
+    V.vat(v, 40, 57, 1, r=4, h=6, m=mat("timber", 1.1), liquid=GOODS)
     v.anchor("cart", 14, 54, 1)
     K.tufts(v, seed, 0.02)
     return P.colour_jitter(v, seed=seed)

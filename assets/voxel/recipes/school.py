@@ -24,18 +24,19 @@ def build(ctx):
     v = ctx.vox()  # 72 × 96
     seed = 11
     K.ground(v, 36, 74, 28, 18, seed)
-    h = K.hall(v, 8, 6, 64, 54, 2, "x", seed, door=("y+", 32), chimney=True, chim=(14, 12), wins=[12, 22, 42, 52])
-    for a in (6, 24, 42):  # dormers
+    h = K.workshop(v, 8, 6, 64, 54, 2, "c", seed, door=("y+", 44), chimney=True, chim=(36, 10), wins=[36, 52])
+    for a in (34, 50):  # dormers
         W.dormer(v, h.roof, a, a + 6, "y+", wall=mat("plaster"), frame=TIMBER_LIGHT, course=3, h=6)
     # Bell cote on the front ridge.
     bz = h.ridge
     for dx in (0, 4):
-        v.box(34 + dx, 28, bz, 35 + dx, 29, bz + 8, TIMBER_DARK)
-    v.box(34, 28, bz + 7, 39, 29, bz + 8, TIMBER)
-    v.box(35, 28, bz + 3, 38, 29, bz + 6, BRASS)
+        by = (h.rect[1] + h.rect[3]) // 2 - 1
+        v.box(34 + dx, by, bz, 35 + dx, by + 1, bz + 8, TIMBER_DARK)
+    v.box(34, by, bz + 7, 39, by + 1, bz + 8, TIMBER)
+    v.box(35, by, bz + 3, 38, by + 1, bz + 6, BRASS)
     # The porch.
-    P.fill(v, 28, 54, 44, 60, 1, 2, STONE)
-    W.plank_shed(v, 28, 54, 44, 60, wall=7, along="y", door="y+", m=TIMBER_LIGHT, kind="tiles", seed=seed)
+    P.fill(v, 40, 33, 52, 39, 1, 2, STONE)
+    W.plank_shed(v, 40, 33, 52, 39, wall=7, along="y", door="y+", m=TIMBER_LIGHT, kind="tiles", seed=seed)
     # Schoolyard: fence, well, benches, a board, a tree.
     P.fence_ring(v, 6, 60, 66, 92, kind="rail", gaps={(35, 91), (36, 91), (37, 91), (38, 91)}, seed=seed)
     P.well(v, 14, 72, 1)

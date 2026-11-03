@@ -24,7 +24,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 107
     K.ground(v, 18, 28, 15, 15, seed)
-    K.hall(v, 4, 4, 28, 22, 3, "x", seed, door=("y+", 12), wins=[])
+    K.workshop(v, 4, 4, 28, 22, 3, "c", seed, door=("y+", 12), wins=[])
     V.hide_frame(v, 30, 8, 1, 4, 7, HIDE, frame=TIMBER_DARK, along="y")
     V.hide_frame(v, 30, 18, 1, 4, 7, HIDE_DARK, frame=TIMBER_DARK, along="y")
     V.drying_frame(v, 4, 28, 40, 1, 9, (HIDE, HIDE_DARK, LEATHER), post=TIMBER_DARK, every=6, sway=False, drop=7)

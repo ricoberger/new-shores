@@ -1,8 +1,9 @@
 """
-Grain distillery (5 × 6; V7 rework, tier IV): a cream plaster distillery on
-an ashlar floor under slate with a slim chimney (smoke), a big copper still
-on a stone hearth beside it with its head and pipe, piles of golden grain,
-barrels of spirit and a cart. 12 voxels per tile.
+Grain distillery (5 × 6; V7 variety pass, tier IV): a two-storey cream
+plaster distillery under slate with a slim chimney (smoke) and a round
+granary silo at its west end; in front a giant copper still with head and
+pipe, a golden grain heap and a pyramid of spirit barrels. 12 voxels per
+tile; massing and signature prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,14 +22,13 @@ COPPER = mat("terracotta", 1.3)
 def build(ctx):
     v = ctx.vox()  # 60 × 72
     seed = 157
-    K.ground(v, 30, 54, 27, 20, seed, "paved")
-    h = K.hall(v, 6, 6, 60 - 6, 30, 4, "x", seed, door=("y+", 28), smoke=True, chim=(46, 10), wins=[])
-    K.still(v, 14, 46, m=COPPER, r=5)
-    K.pile(v, 30, 42, 1, 10, 7, 5, GOODS, seed)
-    for i in range(4):
-        P.barrel(v, 8 + i * 4, 60, 1, h=4, m=mat("timber", 1.3))
-    for i in range(3):
-        P.barrel(v, 10 + i * 4, 60, 5, h=4, m=mat("timber", 1.3))
+    K.ground(v, 30, 57, 27, 17, seed, "paved")
+    h = K.workshop(v, 6, 6, 60 - 6, 36, 4, "e", seed, door=("y+", 28), smoke=True, chim=(46, 10), wins=[], out="silo")
+    K.still(v, 16, 50, m=COPPER, r=7)
+    K.pile(v, 34, 44, 1, 12, 8, 7, GOODS, seed)
+    for row, n in enumerate((5, 4, 3)):
+        for i in range(n):
+            P.barrel(v, 8 + i * 4 + row * 2, 64, 1 + row * 4, h=4, m=mat("timber", 1.3))
     P.handcart(v, 8, 60, 1, along="x", load=GOODS)
     v.anchor("cart", 14, 66, 1)
     K.tufts(v, seed, 0.02)

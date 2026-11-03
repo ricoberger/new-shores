@@ -21,7 +21,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 72
     seed = 121
     K.ground(v, 28, 56, 19, 14, seed, "paved")
-    h = K.hall(v, 4, 8, 44, 36, 4, "x", seed, door=("y+", 34), wins=[], upper=mat("terracotta", 0.95))
+    h = K.workshop(v, 4, 8, 44, 36, 4, "a", seed, door=("y+", 34), wins=[], upper=mat("terracotta", 0.95), tall=True)
     V.face_awning(h.face("y+"), 26, 42, 9, depth=4, stripes=(P.cloth(CANVAS), P.cloth(mat("grass-b", 0.9))))
     v.anchor("door", 36, 40, 1)
     P.bench(v, 8, 40, length=8)

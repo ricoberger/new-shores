@@ -24,7 +24,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 72
     seed = 223
     K.ground(v, 28, 44, 20, 22, seed)
-    K.hall(v, 12, 6, 44, 30, 3, "x", seed, door=("y+", 26), smoke=True, chim=(38, 10), wins=[])
+    K.workshop(v, 12, 6, 44, 30, 3, "c", seed, door=("y+", 26), smoke=True, chim=(38, 10), wins=[])
     # The wheel: a ring of spokes and paddles in the y–z plane at x = 6.
     cy, cz, r = 18, 9, 8
     for a in range(0, 360, 6):

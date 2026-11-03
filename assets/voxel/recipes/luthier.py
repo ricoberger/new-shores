@@ -1,8 +1,8 @@
 """
-Luthier (5 × 5; V7 rework, tier IV): a cream plaster workshop on an ashlar
-floor under slate (no chimney), a rack of big violins and lutes with pale
-necks and strings in the forecourt, a stack of pale tonewood planks drying
-and a workbench. 12 voxels per tile.
+Luthier (5 × 5; V7 variety pass, tier IV): a long two-storey cream plaster
+workshop under slate (no chimney); in front a rack of big violins and lutes
+with pale necks and a stack of pale tonewood planks. 12 voxels per tile;
+massing and signature prop in NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,18 +21,18 @@ NECK = mat("plaster", 1.1)
 def build(ctx):
     v = ctx.vox()  # 60 × 60
     seed = 161
-    K.ground(v, 30, 45, 27, 16, seed, "paved")
-    h = K.hall(v, 6, 6, 60 - 6, 25, 4, "x", seed, door=("y+", 28), wins=[])
-    for k, x in enumerate(range(10, 44, 8)):
-        v.box(x, 34, 1, x + 1, 35, 11, TIMBER_DARK)
-        v.box(x + 6, 34, 1, x + 7, 35, 11, TIMBER_DARK)
-        v.box(x, 34, 10, x + 7, 35, 11, TIMBER_DARK)
-        v.box(x + 2, 34, 3, x + 5, 35, 7, GOODS)
-        v.box(x + 3, 34, 7, x + 4, 35, 10, NECK)
-        v.box(x + 3, 34, 2, x + 4, 35, 3, TIMBER_DARK)
-    K.pile(v, 40, 44, 1, 12, 5, 6, K.FRESH, seed)
-    v.box(8, 46, 1, 28, 50, 3, TIMBER_LIGHT)
-    v.box(10, 47, 3, 20, 49, 5, GOODS)
+    K.ground(v, 30, 49, 27, 13, seed, "paved")
+    h = K.workshop(v, 6, 6, 60 - 6, 32, 4, "a", seed, door=("y+", 28), wins=[])
+    for k, x in enumerate(range(6, 46, 13)):
+        v.box(x, 38, 1, x + 1, 39, 16, TIMBER_DARK)
+        v.box(x + 10, 38, 1, x + 11, 39, 16, TIMBER_DARK)
+        v.box(x, 38, 15, x + 11, 39, 16, TIMBER_DARK)
+        v.box(x + 2, 38, 3, x + 9, 39, 10, GOODS)
+        v.box(x + 4, 38, 10, x + 7, 39, 14, GOODS)
+        v.box(x + 5, 38, 14, x + 6, 39, 15, NECK)
+        v.box(x + 4, 38, 2, x + 7, 39, 3, TIMBER_DARK)
+    K.pile(v, 38, 46, 1, 14, 6, 8, mat("timber", 1.3), seed)
+    v.box(8, 48, 1, 28, 53, 3, TIMBER_LIGHT)
     P.handcart(v, 8, 48, 1, along="x", load=GOODS)
     v.anchor("cart", 14, 54, 1)
     K.tufts(v, seed, 0.02)

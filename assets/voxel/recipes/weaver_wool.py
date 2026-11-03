@@ -25,31 +25,29 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 53
     K.ground(v, 18, 31, 16, 14, seed)
-    h = K.hall(v, 3, 5, 25, 19, 1, "x", seed, door=("y+", 8), smoke=True, chim=(19, 9), wins=[3, 16])
+    h = K.workshop(v, 3, 5, 25, 19, 1, "d", seed, door=("y+", 8), smoke=True, chim=(19, 9), wins=[3, 16])
     P.trade_sign(h.face("y+"), 13, 8, DYE_BLUE)
-    # A thatched lean-to at the east gable over the loom: frame, warp threads, a half-woven blue cloth.
-    K.lean(v, 25, 33, 6, 18, 9, "x+", seed=seed)
-    v.box(26, 8, 1, 27, 16, 8, TIMBER_DARK)
-    v.box(31, 8, 1, 32, 16, 8, TIMBER_DARK)
-    v.box(26, 8, 8, 32, 16, 9, TIMBER_LIGHT)
-    for y in range(9, 15):
-        for x in (28, 29):
-            for z in range(3, 8):
+    # The loom in the open bay: two posts, a top beam, the warp and a half-woven blue cloth.
+    v.box(7, 21, 1, 8, 28, 11, TIMBER_DARK)
+    v.box(22, 21, 1, 23, 28, 11, TIMBER_DARK)
+    v.box(7, 21, 10, 23, 28, 11, TIMBER_LIGHT)
+    for x in range(9, 22):
+        for y in (23, 24):
+            for z in range(3, 10):
                 v.set(x, y, z, CANVAS)  # the warp
-        for z in range(3, 5):
-            v.set(28, y, z, BLUE)
-            v.set(29, y, z, BLUE)  # the woven part
-    v.box(27, 8, 2, 31, 16, 3, TIMBER_LIGHT)
+            for z in range(3, 6):
+                v.set(x, y, z, BLUE)  # the woven part
+    v.box(8, 21, 2, 22, 28, 3, TIMBER_LIGHT)
     # Drying frame with swaying cloth across the front of the yard.
-    V.drying_frame(v, 4, 31, 45, 1, 9, CLOTH, post=TIMBER_DARK, every=7, drop=7)
+    V.drying_frame(v, 4, 31, 45, 1, 12, CLOTH, post=TIMBER_DARK, every=7, drop=10)
     # Dye vats, wool bales and the hand cart.
-    P.cask(v, 5, 27, 1, h=4, lid=mat("dye-blue", 1.0))
-    P.cask(v, 9, 27, 1, h=4, lid=mat("terracotta", 1.1))
-    P.cask(v, 13, 27, 1, h=4, lid=mat("ochre", 1.1))
-    P.bale(v, 18, 26, 1, 5, 3, 3, m=WOOL)
-    P.bale(v, 18, 31, 1, 5, 3, 3, m=WOOL)
-    P.bale(v, 19, 28, 4, 4, 3, 2, m=WOOL)
-    P.handcart(v, 25, 30, 1, along="x", load=WOOL)
+    P.cask(v, 5, 33, 1, h=4, lid=mat("dye-blue", 1.0))
+    P.cask(v, 9, 33, 1, h=4, lid=mat("terracotta", 1.1))
+    P.cask(v, 13, 33, 1, h=4, lid=mat("ochre", 1.1))
+    P.bale(v, 20, 32, 1, 5, 3, 3, m=WOOL)
+    P.bale(v, 20, 37, 1, 5, 3, 3, m=WOOL)
+    P.bale(v, 21, 34, 4, 4, 3, 2, m=WOOL)
+    P.handcart(v, 26, 38, 1, along="x", load=WOOL)
     v.anchor("cart", 27, 40, 1)
     K.tufts(v, seed)
     return P.colour_jitter(v, seed=seed)
