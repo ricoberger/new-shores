@@ -965,6 +965,41 @@ function roadDrag(fixture: Fixture, roadType: string, crossing: string): { fixtu
   };
 }
 
+/**
+ * The quarry tool's deposit highlight (UI.md §3): the stone deposit tiles
+ * tinted around the start island's stone (mid), or the far view's island
+ * labels with the stone icon and tile count (far).
+ */
+function depositHighlight(view: "mid" | "far"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const at = await page.evaluate(() => {
+        const d = window.__newShores!.getServer()!.display;
+        const is = d.islands.find((i) => i.settled && i.deposits.some((x) => x.kind === "stone")) ?? d.islands.find((i) => i.deposits.some((x) => x.kind === "stone"))!;
+        const s = is.deposits.find((x) => x.kind === "stone")!;
+        return { x: is.position.x + s.x, y: is.position.y + s.y, cx: is.position.x + is.width / 2, cy: is.position.y + is.height / 2 };
+      });
+      if (view === "mid") await setCamera(page, { x: at.x, y: at.y, half: HALF.near, rotation: 0 });
+      else await setCamera(page, { x: at.cx, y: at.cy, half: 100_000, rotation: 0 });
+      if (view === "far") await waitLod(page, "far");
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await openBuildTab(page, "quarry");
+      await page.getByTestId("build-quarry").click();
+      await settle(page);
+      if (view === "mid") {
+        // Before the highlight existed nothing is tinted: the shot is taken anyway.
+        await page.waitForFunction(() => (window.__newShores!.depositCount?.() ?? 0) > 0, undefined, { timeout: 3_000 }).catch(() => console.log("deposits: no highlight"));
+        console.log(`deposits: ${await page.evaluate(() => window.__newShores!.depositCount?.() ?? 0)} tiles highlighted`);
+      } else {
+        await page.mouse.move(5, 5);
+      }
+    },
+  };
+}
+
 /** The real seafaring founding sequence at the default fixture's content-sized site. */
 function foundingShot(docked: boolean): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
@@ -1038,6 +1073,8 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   // The road tool mid-drag across a road (UI.md §3): a dirt road on the settled fixture, a paved road across a dirt road on the played one.
   "road-drag": roadDrag("settled", "road_dirt", "road_dirt"),
   "road-drag-paved": roadDrag("played", "road_paved", "road_dirt"),
+  "deposits": depositHighlight("mid"),
+  "deposits-far": depositHighlight("far"),
   "founding-ghost": foundingShot(false),
   "founding-docked": foundingShot(true),
   "playhouse-menu": {

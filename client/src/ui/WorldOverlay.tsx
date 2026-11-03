@@ -3,6 +3,10 @@ import type { DisplayState } from "../api/client";
 import { islandSummary } from "../display/archipelago";
 import { units } from "../display/format";
 import { declutterLabels, type LabelBox } from "../display/labels";
+import { depositCount } from "../display/deposits";
+import { depositName } from "../display/tiers";
+import { resourceIcon } from "../theme/iconSet";
+import { Icon } from "./Icon";
 import type { GameRenderer } from "../render/engine";
 import { shipWhere } from "./ShipsPanel";
 import { percentSpace, t } from "../i18n";
@@ -18,7 +22,11 @@ interface Props {
   onIsland: (id: string) => void;
   /** Phones: at the zoom cap the smaller island's label of an overlapping pair is hidden (display/labels.ts). */
   declutter?: boolean;
+  /** The deposit kind the mine or quarry tool highlights (labels of islands with it show its icon and tile count), or null. */
+  deposit?: string | null;
 }
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** Labels closer than this (CSS px) to the canvas edge are hidden (never half off-screen). */
 const LABEL_EDGE_PX = 24;
@@ -28,13 +36,15 @@ const LABEL_EDGE_PX = 24;
  * from the camera projection at every LOD: island name labels (far LOD only,
  * hidden when their island centre is off screen; on phones at the zoom
  * cap also the smaller island's of two overlapping ones), the hover tooltip (mid/far LOD) and
- * the selected ship's ETA badge. The overlay is passive to the pointer, so
+ * the selected ship's ETA badge. With a mine or quarry as the build tool,
+ * the labels of islands with its deposit carry the deposit's icon and
+ * tile count (UI.md §3). The overlay is passive to the pointer, so
  * it never takes a pan, zoom or ship from the canvas; the labels are
  * buttons for the keyboard, and the renderer resolves pointer taps on them
  * through a hit test (ships first, then labels, then island land) — a tap
  * on a label opens the island card.
  */
-export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland, declutter = false }: Props) {
+export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland, declutter = false, deposit = null }: Props) {
   const root = useRef<HTMLDivElement>(null);
   const labels = useRef(new Map<string, HTMLButtonElement>());
   const badge = useRef<HTMLDivElement>(null);
@@ -133,6 +143,17 @@ export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland, d
             data-testid={`island-label-${is.id}`}
           >
             {is.name || is.id}
+            {depositCount(is, deposit) > 0 && deposit && (
+              <span
+                className={styles.labelDeposit}
+                title={t("resource.deposit", { name: cap(depositName(deposit)), count: depositCount(is, deposit) })}
+                data-testid={`island-label-deposit-${is.id}`}
+              >
+                <Icon path={resourceIcon("deposit", deposit)} />
+                <span className={styles.srOnly}>{t("resource.deposit", { name: cap(depositName(deposit)), count: depositCount(is, deposit) })}</span>
+                <span aria-hidden="true">{depositCount(is, deposit)}</span>
+              </span>
+            )}
           </button>
         ))}
       <div ref={badge} className={styles.etaBadge} style={{ visibility: "hidden" }} data-testid="ship-eta-badge">

@@ -33,6 +33,8 @@ import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
 import { type ArchPoint, dockPoints, type ModelAnchor, seaPoint, shipLengthRatio } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
+import { depositTiles, highlightedDeposit } from "../display/deposits";
+import { DepositHighlight, type DepositMark } from "./deposithighlight";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
 import { flankDocks, isFlankAnchor, withIdleAtPier } from "./moorings";
@@ -224,6 +226,8 @@ export class GameRenderer {
   private readonly paintPreview: PaintPreview;
   /** Cache key of the painted rectangle's preview, and its marks' state for the release. */
   private paintKey = "";
+  private readonly depositHighlight: DepositHighlight;
+  private depositKey = "";
   private lastPaintStatus: string | null = null;
   private selected: number | null = null;
   private placedInitially = false;
@@ -309,6 +313,7 @@ export class GameRenderer {
     this.marks = new FootprintMarks(this.scene);
     this.grid = new GridOverlay(this.scene);
     this.paintPreview = new PaintPreview(this.scene);
+    this.depositHighlight = new DepositHighlight(this.scene);
 
     this.ghost = new PlacementGhost(this.scene, this.models);
 
@@ -376,6 +381,7 @@ export class GameRenderer {
     this.updatePaint();
     // A pinned clock (shots) holds the flash of rejected tiles.
     this.paintPreview.tick(tl, this.frozenAt !== null);
+    this.updateDeposits();
     this.updateGrid();
     this.updateMarks();
     this.engine._drawCalls.fetchNewFrame();
@@ -1845,6 +1851,33 @@ export class GameRenderer {
     const l = this.lookup(island);
     if (!l) return;
     for (const [farm, g] of fieldsUnder(tiles, l.display.buildings, this.defs, farmId)) this.events.removeFields(island, farm, g.tiles, clipped);
+  }
+
+  /**
+   * The deposit highlight (UI.md §3): with a mine or quarry as the build
+   * tool, the tiles of its deposit kind on every island drawn in detail
+   * (the far view's labels carry the icon instead). Recomputed only when
+   * the kind, the LOD, the server state or the detailed islands change.
+   */
+  private updateDeposits(): void {
+    const kind = highlightedDeposit(this.tool(), this.defs);
+    const ready = kind && this.lod !== "far" ? [...this.details].filter(([, d]) => d.hasTiles() && d.lifeOrigin() !== null) : [];
+    const key = kind ? `${kind}|${this.lod}|${this.sync.getSnapshot().server?.version ?? 0}|${ready.map(([id]) => id).join(",")}` : "";
+    if (key === this.depositKey) return;
+    this.depositKey = key;
+    const marks: DepositMark[] = [];
+    for (const [id, d] of ready) {
+      const is = this.displayIsland(id);
+      const pl = this.arch.placement(id);
+      if (!is || !pl || !kind) continue;
+      for (const t of depositTiles(is, kind, this.defs)) marks.push({ cx: pl.position.x + t.x + 0.5, cz: -(pl.position.y + t.y + 0.5), base: d.reliefAt(t.x, t.y) });
+    }
+    this.depositHighlight.set(marks);
+  }
+
+  /** How many deposit tiles the mine or quarry tool highlights (tests and shots). */
+  depositCount(): number {
+    return this.depositHighlight.shown();
   }
 
   /** Marks of the painted rectangle by kind and the anchors flashing (tests and shots). */

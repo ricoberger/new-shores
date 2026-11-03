@@ -289,6 +289,14 @@ UI shows the same numbers the server uses.
   server-side hard failures the client can know from content and island
   data without rules: missing fertility tag, no deposit under the
   footprint, locked tier, upgrade-only house.
+- **Deposit highlight:** while a mine or quarry (a building with
+  `requires_deposit`) is the build tool, the tiles of its deposit kind are
+  tinted in the selection yellow on every island drawn in detail (near
+  and mid zoom; drawn over the rock and outcrops so they are never
+  hidden; tiles under a building are left out), and at far zoom the
+  label of every island with that deposit carries the deposit's icon and
+  tile count. Both go away when the tool closes. Display only (D-027):
+  the deposits come from the payload (`display/deposits.ts`).
 
 ## 4. Info panel content
 

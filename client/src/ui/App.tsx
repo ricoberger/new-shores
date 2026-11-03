@@ -60,6 +60,7 @@ import { claimableCount } from "../display/quests";
 import { unlockToasts } from "../display/tiers";
 import { isQuayType, offShallows, SHALLOWS_REACH } from "../display/quay";
 import { WorldOverlay } from "./WorldOverlay";
+import { highlightedDeposit } from "../display/deposits";
 import { StatsBadge } from "./StatsBadge";
 import { statsRequested } from "../dev/stats";
 
@@ -106,6 +107,8 @@ export interface TestHook {
   ghostValidity(): "ok" | "no_road" | "invalid" | null;
   /** Marks of a painted field rectangle by kind and the rejected anchors flashing (D-054). */
   paintCounts(): Record<"ok" | "bad" | "max" | "remove" | "flash", number>;
+  /** Deposit tiles the mine or quarry tool highlights (UI.md §3). */
+  depositCount(): number;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
@@ -663,6 +666,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         jumpToIsland: (id) => rendererRef.current?.jumpToIsland(id),
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
         paintCounts: () => rendererRef.current?.paintCounts() ?? { ok: 0, bad: 0, max: 0, remove: 0, flash: 0 },
+        depositCount: () => rendererRef.current?.depositCount() ?? 0,
         quality: () => rendererRef.current?.quality() ?? "low",
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         assets: () =>
@@ -987,7 +991,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   return (
     <div className={`${styles.root} ${phone ? styles.phone : ""}`} data-layout={layout.mode} data-touch={isTouchLayout(layout.mode) ? "true" : undefined}>
       {model && (
-        <WorldOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} onIsland={(id) => tapIsland(id)} declutter={phone} />
+        <WorldOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} onIsland={(id) => tapIsland(id)} declutter={phone} deposit={highlightedDeposit(tool, defs)} />
       )}
       <div className={styles.overlay}>
         <div className={styles.top}>

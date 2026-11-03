@@ -751,6 +751,9 @@ export class IslandDetail {
   /** The walking surface at an island-local point (tiles): the life layer's ground. */
   readonly groundAt = (x: number, y: number): number => this.ground.surface(x, y);
 
+  /** The top of a tile's ground and rock at its centre (tiles): where the deposit highlight lies (outcrops stand there). */
+  readonly reliefAt = (x: number, y: number): number => this.rock.heightAt(x, y);
+
   /** Island origin (archipelago tiles) while shown, for the life layer; null when hidden. */
   lifeOrigin(): { x: number; y: number } | null {
     return this.shown ? { x: this.root.position.x, y: -this.root.position.z } : null;
