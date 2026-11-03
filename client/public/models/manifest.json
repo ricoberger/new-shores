@@ -4405,7 +4405,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 90008,
+        "bytes": 128972,
         "ground": [
           [
             "none",
@@ -4454,18 +4454,18 @@
             "min": [
               -2.0,
               0.0,
-              -1.5
+              -2.5
             ]
           },
           "budget": 960,
-          "bytes": 8640,
+          "bytes": 9580,
           "path": "copper_smelter.lite.glb",
-          "sha256": "79e61f6fcaa96510da469107d00dc99a9aeeaed1f6e8b3e8fbac59aaf84c42ac",
-          "triangles": 230
+          "sha256": "6399edf255b488538a2b603089845068f230e0ff9a43a59e80add207be20bad4",
+          "triangles": 256
         },
         "path": "copper_smelter.glb",
-        "sha256": "cbdbd0d9be263afdd5350854c500ed28fa5296f62021d36eeee5e00160b138de",
-        "triangles": 2776
+        "sha256": "b2b110da6beadc588ebe0b2f2a52388145e78cf54f63026e748190e882eee7bf",
+        "triangles": 4080
       },
       "footprint": {
         "h": 6,
@@ -5619,7 +5619,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 82764,
+        "bytes": 145676,
         "ground": [
           [
             "none",
@@ -5666,20 +5666,20 @@
               2.5
             ],
             "min": [
-              -2.0,
+              -1.5,
               0.0,
-              -1.5
+              -2.5
             ]
           },
           "budget": 960,
-          "bytes": 8640,
+          "bytes": 11228,
           "path": "glass_smelter.lite.glb",
-          "sha256": "02fd8cb8ff35d9facffd463775e7268d8cc929c19652606c8c2c724f0820514b",
-          "triangles": 230
+          "sha256": "9264be8587cfdd1dbefbea27b2401b49ee3e6b1a4fe14dd4203b6700559681bb",
+          "triangles": 296
         },
         "path": "glass_smelter.glb",
-        "sha256": "1257e33cb07424f7bb7a3e07dbe93eab829438e4f4f50a9029c27716466d39d0",
-        "triangles": 2582
+        "sha256": "2373c628c1ab5747b66019bbd55dfeac0a347250334039589f37ffbbed036088",
+        "triangles": 4640
       },
       "footprint": {
         "h": 6,
@@ -5859,7 +5859,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 96220,
+        "bytes": 121448,
         "ground": [
           [
             "none",
@@ -5908,18 +5908,18 @@
             "min": [
               -2.0,
               0.0,
-              -1.5
+              -2.5
             ]
           },
           "budget": 960,
-          "bytes": 8636,
+          "bytes": 10292,
           "path": "gold_smelter.lite.glb",
-          "sha256": "249ab2276b373d6b688db4adb1aeedcc5f90ed1e24211710a67ea8dec5cf6982",
-          "triangles": 230
+          "sha256": "e0d05978dcca15efdc7efc08c4d4050e054ca65a6dfcabf1824f317ec96cb1ea",
+          "triangles": 282
         },
         "path": "gold_smelter.glb",
-        "sha256": "fa08fdd07372f67520572743674461f0678d78c17aa6d21a79a2fc798e514e3f",
-        "triangles": 2964
+        "sha256": "bc06741993c64fb05b5bb9283b371e36e5b73c23e2feca18b1db3d4b89135d52",
+        "triangles": 3824
       },
       "footprint": {
         "h": 6,
