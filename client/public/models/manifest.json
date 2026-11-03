@@ -7441,7 +7441,7 @@
           ]
         },
         "budget": 7500,
-        "bytes": 91460,
+        "bytes": 102768,
         "ground": [
           [
             "none",
@@ -7472,7 +7472,7 @@
         "lite": {
           "bounds": {
             "max": [
-              1.0,
+              1.5,
               3.0,
               2.0
             ],
@@ -7483,14 +7483,14 @@
             ]
           },
           "budget": 600,
-          "bytes": 6920,
+          "bytes": 7008,
           "path": "lace_maker.lite.glb",
-          "sha256": "303ab8c0f6bd0906f8ac585cf49c217cdda450392f672b8f128417d442bb4354",
-          "triangles": 174
+          "sha256": "fdbc3ecbb9bc8384ddaecfbd44a0565ec7d4989ecb0e7740aea8a027673b308b",
+          "triangles": 170
         },
         "path": "lace_maker.glb",
-        "sha256": "5bb2284ed3cf45fe824389aa5a722bb557b36f27d81580356dc1859f78d0fa29",
-        "triangles": 2830
+        "sha256": "ef976609990d39c46cc45ae1e1535389508a6dc8210afdb9183dfb0951d185b5",
+        "triangles": 3162
       },
       "footprint": {
         "h": 5,
@@ -8640,7 +8640,7 @@
           ]
         },
         "budget": 8000,
-        "bytes": 95708,
+        "bytes": 95284,
         "ground": [
           [
             "none",
@@ -8670,25 +8670,25 @@
         "lite": {
           "bounds": {
             "max": [
-              2.0,
+              1.5,
               3.5,
               1.5
             ],
             "min": [
               -1.5,
               0.0,
-              -2.0
+              -1.5
             ]
           },
           "budget": 640,
-          "bytes": 8172,
+          "bytes": 7564,
           "path": "optician.lite.glb",
-          "sha256": "bd0129960816cfbbd43c84882ff0ea187b460467ee15f8e008e8e418a3d7fb0d",
-          "triangles": 210
+          "sha256": "2efe8e88ff13b1f9f4692cdf263aaffba7801391966a06b4a78801cf4744d5f9",
+          "triangles": 194
         },
         "path": "optician.glb",
-        "sha256": "6af7f9e34d144c5ca090cf36cef42e8e72c4e652043490ff9fe508604ae83932",
-        "triangles": 3064
+        "sha256": "7bc9e25c8f8d155cc30bdab3060239510473c2231da6ff7c8a0f101c41c7ff32",
+        "triangles": 3060
       },
       "footprint": {
         "h": 4,
