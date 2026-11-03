@@ -72,7 +72,8 @@
         "hemp": "#6F9E4C",
         "hemp-mark": "#4F7E34",
         "orchard": "#86A95E",
-        "orchard-mark": "#B5452F"
+        "orchard-mark": "#B5452F",
+        "woad": "#4A9C9F"
       }
     },
     "shadows": {
@@ -114,6 +115,7 @@
         "hemp-mark": "#2E4722",
         "orchard": "#4E5F3E",
         "orchard-mark": "#69271F",
+        "woad": "#2B5769",
         "shallows": "#2B5769",
         "deep": "#143753",
         "foam": "#8E8A9E",

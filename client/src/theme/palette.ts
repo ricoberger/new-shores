@@ -70,6 +70,7 @@ export const FIELDS = {
   hemp_mark: "#4F7E34",
   orchard: "#86A95E",
   orchard_mark: "#B5452F",
+  woad: "#4A9C9F",
 } as const;
 
 /** Two-tone shadow tone per material role (same names as the buildings, terrain, fields, water and island roles): baked ambient occlusion in the models blends a role's colour toward its shadow tone. Rule (D-064): shadow = role multiplied per sRGB channel by (0.58, 0.56, 0.66), rounded — darker and bluer; the rock roles (rock-light, rock, rock-deep) keep their deeper ratios (≈ 0.53, 0.52, 0.59–0.64). */
@@ -110,6 +111,7 @@ export const SHADOWS = {
   hemp_mark: "#2E4722",
   orchard: "#4E5F3E",
   orchard_mark: "#69271F",
+  woad: "#2B5769",
   shallows: "#2B5769",
   deep: "#143753",
   foam: "#8E8A9E",

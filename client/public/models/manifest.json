@@ -14742,7 +14742,7 @@
         "budget": 410,
         "bytes": 10948,
         "path": "woad_field.glb",
-        "sha256": "8cc095b86a6d76014df13766022a1e377673a571636c0ca0d0565bfe6fbfdcb2",
+        "sha256": "85341e828f07c8aae295119b9d674943471676899e1d61633402e61f7d84c18c",
         "triangles": 276
       },
       "footprint": {
@@ -14753,7 +14753,7 @@
       "voxels_per_tile": 8
     }
   },
-  "palette_sha256": "b52fdd01503542f25b359993b29ca4dfc6cede889cf4ca1358dc8ea05caf1f9a",
+  "palette_sha256": "b852582473aeaf790dca45c6dfdccb4f2728d29bd69f556540c5857f432710f8",
   "placeholders": [],
   "version": 1,
   "voxels_per_tile": 8

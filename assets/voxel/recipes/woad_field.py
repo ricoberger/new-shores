@@ -13,7 +13,7 @@ GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it
 
 #: Woad's leaves: a dull grey-green and a teal, bushes cell by cell.
 GREEN = mat("hemp", 0.92)
-BLUE = mat("shallows", 0.9)
+BLUE = mat("woad", 0.9)
 
 
 def build(ctx):
