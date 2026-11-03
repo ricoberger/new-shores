@@ -1,20 +1,20 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after #65 (polish 4: tonnes unit, "gold" wording, build menu
-with tier tabs, ghost link tint); the V7 model rework (D-068 ground
-paint + per-model rework after the Anno 1404 references) runs on its
-branch and is reviewed next.
+docs sync; details live in the linked documents. Last update: after #66 (V7 model rework: D-068 ground cover as
+texture, every building reworked after the Anno 1404 references, tier
+kit, workshop massings); next the owner's playtest and the next polish
+pass.
 
 ## What exists
 
 | Area | State | Where |
 |---|---|---|
 | Simulation (pure Go, lazy, deterministic) | tiers 1–4 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename, batch field placement, terrain table, ship names, weighted need shares with cumulative tiers and a services category, building levels (`upgrade_building`), recipe input alternatives, upgrade gate ≥ 0.6, founding cargo exempt from slots, berths spaced by ship length, tier 3–4 deposits (one gold slot per archipelago), shared fields (`farm` list), `ship_count.type` quests, D-058 skeleton islands with terrace levels, rivers, islets, cliffs and skerries, sea routing on a 4-tile grid (`path` per leg, routed founding voyage); schema 13 | `server/internal/sim`, MECHANICS.md |
-| Content | `old_coast` 0.17.0: D-054 footprints/costs/fields, D-056 need model (shares 1.0 lone / 0.6, cumulative lower-tier rates), D-065 ranked service chains (faith chapel/church/cathedral, education school/university, culture tavern/playhouse; minimum rank per tier) with `goods` / `public` display groups, tiers 1–4 complete with two alternatives per category from tier 2 (Citizens bread/cheese, cider/mead, linen/leather_jerkins; Merchants sausages/pies, beer/brandy, coats/dyed_garments, books/soap; Patricians roast_beef/oysters, wine/grain_spirit, fine_garments/lace, candles/spectacles, jewellery/instruments), salt / bricks / coal / glass, 100 buildings, market and warehouse with four tier-gated levels (level 4 draws the level-3 model until V7), civic needs safety/fire protection (Merchants) and health (Patricians) with one radius each, lumberjack with tree plots, quay / trading pier 6×9 / depot, playhouse (theatre retired), Anno-sized footprints with per-column `water_rows` (D-062/D-063), islands 192/112/64/16 + `scenic` skerries (spacing 50/120, straits ≥ 24, void ≤ 150) with iron/clay/salt/coal/quartz/copper/gold deposits, `smoke`/`boat` flags, sloop 1.2 (2 slots) / brig 1.0 / galleon 0.85, 12 intro + 5 + 6 + 6 tier quests; reference games generated from plans (D-067, `server/testdata/plans`, `replay-plan`): 48/24/82/118 · 32/64 · 224/256/369 · 826/866/1073 | `content/old_coast`, CONTENT.md |
+| Content | `old_coast` 0.17.0: D-054 footprints/costs/fields, D-056 need model (shares 1.0 lone / 0.6, cumulative lower-tier rates), D-065 ranked service chains (faith chapel/church/cathedral, education school/university, culture tavern/playhouse; minimum rank per tier) with `goods` / `public` display groups, tiers 1–4 complete with two alternatives per category from tier 2 (Citizens bread/cheese, cider/mead, linen/leather_jerkins; Merchants sausages/pies, beer/brandy, coats/dyed_garments, books/soap; Patricians roast_beef/oysters, wine/grain_spirit, fine_garments/lace, candles/spectacles, jewellery/instruments), salt / bricks / coal / glass, 100 buildings, market and warehouse with four tier-gated levels (own models per level since #66), civic needs safety/fire protection (Merchants) and health (Patricians) with one radius each, lumberjack with tree plots, quay / trading pier 6×9 / depot, playhouse (theatre retired), Anno-sized footprints with per-column `water_rows` (D-062/D-063), islands 192/112/64/16 + `scenic` skerries (spacing 50/120, straits ≥ 24, void ≤ 150) with iron/clay/salt/coal/quartz/copper/gold deposits, `smoke`/`boat` flags, sloop 1.2 (2 slots) / brig 1.0 / galleon 0.85, 12 intro + 5 + 6 + 6 tier quests; reference games generated from plans (D-067, `server/testdata/plans`, `replay-plan`): 48/24/82/118 · 32/64 · 224/256/369 · 826/866/1073 | `content/old_coast`, CONTENT.md |
 | Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store, `--fixture` / `--snapshot` start state, `GET/POST /api/v1/dev/snapshot` and `POST /api/v1/dev/reset` (tooling routes, D-066) | `server/internal/*`, ARCHITECTURE.md |
 | Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA; `make shots` / `make model-sheet` for looking at the result (no e2e/visual/perf suites, D-052); **Almanac** — public reference at `/almanac` (tiers, buildings, goods with chain trees, needs, ships, quests, islands) generated from the served content, UI.md §9; terraced voxel terrain with rivers, bridges, cliffs, crags and skerries, route ribbons and ship legs along the routed paths (D-058); goods shown in tonnes (`t`, `t/min`), currency as the word gold; build menu with tier tabs (locked tiers show their unlock conditions) and cards grouped General / Production (chain order) / Public / Harbour with icon costs (unaffordable parts red) and in → out lines; placement ghosts tint the buildings they would link with (display hint, server `served_by` / `assigned_warehouse_id` once built); producers ↔ collector selection tint (#65) | `client/`, UI.md |
-| Art | **Procedural voxels (D-057; V1–V5 merged):** Python voxel recipes at 8 voxels/tile on the parts library v2 (`assets/voxel`, standard library only), greedy quads + baked AO/sun, lite = 2 voxels/tile, shader colour jitter; lively world — blended ground, stepped pixel coast with foam, rock bands, voxel roads, dense swaying decor, voxel smoke, sized construction stages, wakes, fixed warm daylight (D-064 palette v2: mid-green grass, neutral grey rock, teal sea, grey-blue shadows), voxel minimap; **all 93 buildings, fields and modules of tiers 1–4 and the three ships at target detail** (3 house variants per tier, flat colours + shader jitter, cloth sway groups, no placeholders); quantised GLBs (KHR_mesh_quantization); far at the cap 154 k tris (D-048 holds), dense mid 1.41 M, no pan frame > 50 ms; palette v3 (`brick`, `tile-dark`, orange terracotta), per-model voxels per tile (8 / 12 / 16), lite ships, `wake_width`; models folder 18.3 MiB of 24 MiB | `assets/`, ART_DIRECTION.md |
+| Art | **Procedural voxels (D-057; V1–V5 merged):** Python voxel recipes at 8 voxels/tile on the parts library v2 (`assets/voxel`, standard library only), greedy quads + baked AO/sun, lite = 2 voxels/tile, shader colour jitter; lively world — blended ground, stepped pixel coast with foam, rock bands, voxel roads, dense swaying decor, voxel smoke, sized construction stages, wakes, fixed warm daylight (D-064 palette v2: mid-green grass, neutral grey rock, teal sea, grey-blue shadows), voxel minimap; **all 93 buildings, fields and modules of tiers 1–4 and the three ships at target detail** (3 house variants per tier, flat colours + shader jitter, cloth sway groups, no placeholders); quantised GLBs (KHR_mesh_quantization); far at the cap 154 k tris (D-048 holds), dense mid 1.41 M, no pan frame > 50 ms; palette v3 (`brick` `#7E4A3C` as an accent, `tile-dark`, orange terracotta), per-model voxels per tile (8 / 12 / 16), lite ships, `wake_width`; **V7 rework (#66, D-068):** ground cover is texture — yards declared by the recipe (`ground` map in the manifest) and painted into the ground texture with fields, roads flush, no plates or proud plinths; every building rebuilt at 12 voxels/tile after the Anno 1404 renders in the tier vocabulary (T1 dark boards + weathered thatch, T2 rubble + half-timber + terracotta, T3 tile-dark, T4 ashlar + slate), market and warehouse with four real levels, Trading Post four levels with timber → stone pier, tree plots are forest trees, shared tier kit (`parts_v7`, `parts_kit`: `K.workshop` with five massings a–e, mine strip, signature props a tile in size); still 8 voxels/tile: playhouse, university, cathedral, shipyard, depot, trading pier, oyster beds, fields; models folder 23.35 MiB of 24 MiB; far played 14 / 224 k | `assets/`, ART_DIRECTION.md |
 | CI | label-gated (`ci`): server (fmt/vet/lint/test, 30 m timeout, full suite), client (lint/typecheck/Vitest/build/assets-check), integration (Postgres + Redis); locally `make check` runs the server tests with `-short` (the tier-4 replays are skipped), `make server-test-full` the CI suite | `.github/workflows/ci.yaml` |
 
 ## Binding rules in one breath
@@ -95,18 +95,25 @@ in the sync after a task unless the task says otherwise; nobody adds the
      largest-island far-budget fixture (seed 16, 23 691 land tiles),
      `InitialCamera` removed, one-line top bar ≥ 1200 px, unlock toasts,
      quest chains, almanac presets, dashed draft route, German
-     proofreading) merged; **next: the owner's tier 2–4 playtest**
-     (`make dev FIXTURE=played`, snapshots) → one **UI/flow session**
-     (Sonnet) from its findings and the **V7 tier sessions** (Opus:
-     houses and civic per tier from the owner's references, roof rule
-     T1 thatch / T2 orange terracotta / T3 tile-dark / T4 slate, brick
-     industry, market / warehouse level 4, university re-fit, relief on
-     large pale back walls — chapel, cathedral, smelters, warehouse l2 —
-     instead of a global light change). Open small items: wheat / beach a touch loud, dash only the
-     unrouted draft legs, toast click → build menu, terracotta roof
-     share check in tier 3–4 quarters (D-063 §3), `?stats=1` shows
-     per-model voxel density; build-menu nits (dangling `· →` on
-     cards without inputs, Market's own icon on its second line).
+     proofreading) merged; ~~polish 4~~ (#65: tonnes, "gold", tier-tab
+     build menu, ghost link tint) merged; ~~V7 model rework~~ (#66:
+     D-068 ground paint, flush roads, 83 models after the Anno 1404
+     references, tier kit, workshop massings, wheat field toned down)
+     merged. **Next: the owner's playtest** (`make dev FIXTURE=played`,
+     snapshots) → the next polish pass from its findings. Open small
+     items — art: copper / gold / glass smelters look alike (west door
+     on a narrow plot forces massing a), cattle farm a plain box, lace
+     maker / optician frames flat, hemp / hop / woad fields and vine
+     rows flat blobs, playhouse / university / cathedral / shipyard /
+     depot / trading pier still at 8 voxels/tile (folder room: 0.65
+     MiB), mill sails pass in front of the tower, beach a touch loud,
+     terracotta share check in tier 3–4 quarters (D-063 §3), lumberjack
+     grove jitter ±1 if it reads loose, the rebuilt conifer could
+     replace `decor_tree_c`; UI: dash only the unrouted draft legs,
+     toast click → build menu, `?stats=1` per-model voxel density,
+     build-menu nits (dangling `· →` on cards without inputs, Market's
+     own icon on its second line), `$` fallback glyph for
+     `paused_unpaid` in `display/status.ts`.
      ~~Long house cards, size row, population popup wrap, berth queue,
      producer list cap, top-tier upgrade button~~ fixed in #65.
    - ~~Quantised GLB export~~ done (V3b/c, #42): 12.9 MB, ≈ 32

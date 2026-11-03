@@ -1713,6 +1713,21 @@ terracotta → `#C4663A`; 90 models re-baked. The blue-grey back faces of
 chapel / Trading Post l2 are the fill-only shaded sides of large pale
 stone walls — reference-correct light; the fix is relief on those walls
 in the V7 tier sessions, not a `SIDE_TILT` or a warmer fill.
+V7 model rework (#66, 2026-11-03): §3 applied to every building —
+T1 dark boarded / log walls with a flush pale stone band under
+weathered thatch (settlers' 0.8 shade), T2 rubble ground floor +
+half-timber + terracotta, T3 tile-dark, T4 ashlar / cream plaster +
+slate; `brick` darkened to `#7E4A3C` (weathered Hanse brick, shadow
+`#492928`, version unchanged, manifest `palette_sha256` re-baked) and
+used as an **accent only** (warehouse l3 piers and arch rings, l4
+ground floor and gable field, kiln and smelter stacks), never as a
+whole wall; terracotta a minority in tier 3–4 as decided. Yards per
+tier: Settlers / Citizens houses on dirt, Merchants / Patricians on
+cobbles (D-068 ground maps). Relief instead of light on the large
+walls: church, cathedral (kept), university (kept), smelters, mills,
+school, warehouse l2–l4 hoist bays. Still at 8 voxels per tile
+(folder 23.35 of 24 MiB): playhouse, university, cathedral, shipyard,
+depot, trading pier, oyster beds, fields and pens.
 
 ## D-065 Ranked public-service chains, a security group, four-level market and warehouse
 
@@ -1973,3 +1988,36 @@ generated games were faster than the hand-patched ones (47/33/79/115 ·
   cutting terrain holes under footprints (rebuilds the terrain mesh on
   every placement and still leaves the plate seam); leaving roads sunk
   (the trench is the other half of the problem).
+
+**As built** (#66, 2026-11-03): as decided, with these shapes. `yard()`
+/ `path()` record a ground kind per cell (paved / dirt / sand / planks;
+a tile takes the kind covering ≥ half of it) and lay no voxels on land;
+the exporter writes `ground` (rows = footprint y at rotation 0) into
+the manifest entry. Recipes were not rewritten to z = 0: they carry
+`GROUND_Z = 1` and the build (`settle_on_terrain`) drops their z = 0
+layer — its paved / dirt / sand cells become ground kinds — and lowers
+the rest, anchors included; new recipes start at z = 0 and omit it.
+The seven water models (`config.WATER_MODELS`, tested against content)
+keep their decks over water rows; only their land part settles. Build
+checks: *floating voxels* (a 26-connected group never reaching the
+ground, `P.tie_floating` closes one-voxel gaps) and *ground plate*
+(> 35 % of a land footprint flat at z = 0). Client `render/groundpaint.ts`
+paints each tile of the ground map with the model's transform on every
+layout change from the bare terrain, so a moved or demolished building
+leaves plain terrain; paved = `road-paved` cobbles, dirt = `road-dirt`
+with stones and a frayed edge, sand = `sand`, planks = `timber` × 1.62
+(no plank role). Fields paint their whole footprint; meadow and tree
+plot keep the terrain grass. Roads change no height; path, worn edges,
+stones, cobbles and kerb are ground colours shared with the yards and
+sampled by the far view; `paintRoads` records its columns so yard and
+field paint skip them; terrace ramps and quay decks still rebuild
+chunks, a plain road change only repaints the texture; carts and
+walkers at ground height. No proud plinths on land (flush one-voxel
+stone band), grass tufts and flowers stand on the terrain. Tree plots
+are the forest's `decor_tree_a–d` meshes at forest scale, six variants
+picked per tile by hash (4 broadleaf, 1 birch, 1 conifer), crowns
+overhanging up to half a tile; this needed the first per-model
+overrides in `config.py` — `BUDGET_OVERRIDE = {"tree_plot": 450}` and
+`SLACK_OVERRIDE = {"tree_plot": 4}`. Folder 18.51 → 16.21 MiB after
+the plates (23.35 MiB after the rework); far played 14 draws / 224 k
+tris on desktop and desktop-xl.

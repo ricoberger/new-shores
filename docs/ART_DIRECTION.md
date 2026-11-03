@@ -677,9 +677,12 @@ land buildings).
   brig 6 000, galleon 7 600, cargo 300; decor 580; life props 760,
   construction stages 2 100. Each is the prototype's densest model of its
   class with ≈ 50 % headroom; a model over its budget fails the build.
-  The committed GLBs are ≈ 12.9 MB (tiers 1–2 at full detail, tiers 3–4
-  as placeholders) of a **24 MiB folder limit**; what remains per
-  triangle is indices and AO/normal-split vertices.
+  Per-model exceptions live in `config.py` (`BUDGET_OVERRIDE`,
+  `SLACK_OVERRIDE`) and must be justified in the recipe docstring — so
+  far only `tree_plot` (450, slack 4: the forest trees at forest scale,
+  D-068 as built). The committed GLBs are 23.35 MiB after the V7 rework
+  (#66) of a **24 MiB folder limit**; what remains per triangle is
+  indices and AO/normal-split vertices.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at
   near/mid, lite chunks at far, both built once and toggled. Building
