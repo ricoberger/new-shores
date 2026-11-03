@@ -174,6 +174,19 @@ def pile(v, x, y, z, w, d, h, m, seed=0, cap=None):
                 v.set(x + i, y + j, z + k, (cap or shade_of(m, 1.1)) if k == h - 1 else c)
 
 
+def ore_bin(v, x0, y0, x1, y1, z, h, ore, seed=0, front=2):
+    """An open plank bin x0..x1 × y0..y1: back and sides `h` high, the y+ front only `front` high, heaped with `ore` above the rim."""
+    v.walls(x0, y0, x1, y1, z, z + h, BOARDS)
+    v.box(x0, y1 - 1, z + front, x1, y1, z + h, None)
+    for x in range(x0, x1, 3):
+        v.box(x, y0, z, x + 1, y0 + 1, z + h + 1, TIMBER_DARK)  # battens
+    v.box(x0 + 1, y0 + 1, z, x1 - 1, y1 - 1, z + h, ore)
+    for i in range(x0 + 2, x1 - 2):  # a ridge of heaped ore, one shade lighter
+        for j in range(y0 + 2, y1 - 2):
+            if (i + 2 * j + seed) % 5:
+                v.set(i, j, z + h, shade_of(ore, 1.12))
+
+
 def kiln(v, x, y, z, w=6, d=6, h=8, seed=0, chim=True):
     """A brick-accent kiln: a block with an arched mouth on the y+ side, a banded top and a slim brick chimney."""
     for i in range(w):

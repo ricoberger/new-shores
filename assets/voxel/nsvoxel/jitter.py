@@ -56,6 +56,7 @@ ROLE_CLASS = {
     "hemp-mark": GROUND,
     "orchard": GROUND,
     "orchard-mark": GROUND,
+    "woad": GROUND,
     "unsettled": GROUND,
     # Leaves and flowers: medium.
     "tree-crown": FOLIAGE,

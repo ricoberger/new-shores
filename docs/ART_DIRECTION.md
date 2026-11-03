@@ -88,7 +88,7 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 | UI chrome | parchment `#F1E6CC` · dark wood `#4A3421` · brass `#C9A24A` · ink `#2B2117` |
 | Shadows (D-050, D-064) | one cooler, lower-value **shadow tone per role** (`shadows` group) used by the AO/two-tone bake: role × (0.58, 0.56, 0.66) per sRGB channel, the rock roles a little deeper; thatch keeps extra chroma in shadow |
 | Island (D-050, D-064) | cliff bands (muted sandstone over grey), sand rim, neutral grey plateau rock and moss cap, shelf water (`island` group) |
-| Fields (D-064) | pasture `#8CB665` / mark `#A4CA7E` (fresher than the grass, not lime) · wheat `#CFB04A` / mark `#B08E30` (golden, a step less saturated) — exact values in `assets/palette.json` |
+| Fields (D-064) | pasture `#8CB665` / mark `#A4CA7E` (fresher than the grass, not lime) · wheat `#CFB04A` / mark `#B08E30` (golden, a step less saturated) · woad `#4A9C9F` (the blue-green of the woad field's leaves; its own role, shadow by the rule) — exact values in `assets/palette.json` |
 | Status | keep the current colour-blind-safe set; icons always paired with colour |
 
 ## 3. One continuous world (D-048)
@@ -493,7 +493,8 @@ land buildings).
   smoke anchors (`smoke`, `chimney`, `stone`, `plinth`, `upper` options).
   `K.ground`/`K.tufts` paint the worked-ground blob and the grass tufts;
   `K.pile`, `K.crates`, `K.rack`, `K.low_wall`, `K.lean` and `K.kiln` are
-  large production props; `K.silo`, `K.furnace`, `K.still`, `K.hive`,
+  large production props, `K.ore_bin` an open plank bin heaped with ore
+  (the copper smelter's); `K.silo`, `K.furnace`, `K.still`, `K.hive`,
   `K.cow` and `K.pig` are signature props; `K.mine` builds a mine strip
   (banded hill, adit, rails, tubs, optional headframe or horse whim) shared
   by the mines and quarries.

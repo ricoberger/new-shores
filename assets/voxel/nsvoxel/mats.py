@@ -48,5 +48,6 @@ HEMP = mat("hemp")
 HEMP_MARK = mat("hemp-mark")
 ORCHARD = mat("orchard")
 APPLE = mat("orchard-mark")
+WOAD = mat("woad")
 # Water details
 FOAM = mat("foam")

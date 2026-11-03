@@ -6,7 +6,7 @@ a piece of the forest. Six variants chosen per tile by the client's hash,
 mixed like the forest: oak and beech (two each) dominate, a birch and a
 conifer one in six each. The conifer is first: the far view's patch colour
 is taken from variant 0, a dark forest green. The tree stands on the tile
-centre with a seeded jitter of up to ±2 voxels; its crown may overhang the
+centre with a seeded jitter of up to ±1 voxel (±2 left gaps in the grove); its crown may overhang the
 tile by up to half a tile (config.SLACK_OVERRIDE, 4 voxels; the budget
 config.BUDGET_OVERRIDE), so neighbours overlap into a canopy. No ground
 (grass through) and no dirt disc; a fern at the foot on every third variant.
@@ -68,8 +68,8 @@ def build(ctx):
     (bx0, by0, _), (bx1, by1, _) = tree.bounds()
     # The trunk cell (0, 0) goes to the tile centre (4, 4) plus a seeded jitter, clamped so the crown's
     # extent stays within the tile and the slack.
-    ox = 4 + int(hash3(ctx.variant, 1, 3, seed) * 5) - 2
-    oy = 4 + int(hash3(ctx.variant, 2, 3, seed) * 5) - 2
+    ox = 4 + int(hash3(ctx.variant, 1, 3, seed) * 3) - 1
+    oy = 4 + int(hash3(ctx.variant, 2, 3, seed) * 3) - 1
     ox = max(-SLACK - bx0, min(TILE + SLACK - bx1, ox))
     oy = max(-SLACK - by0, min(TILE + SLACK - by1, oy))
     v = ctx.vox()  # 8 × 8
