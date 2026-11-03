@@ -3,10 +3,11 @@
 // field's top colours — a path two columns wide (half a tile) along the
 // tile's centre with an arm to every road neighbour, so corners,
 // T-junctions and crossings are unions of the same columns, flush with
-// the ground; a column of worn edge on both sides, on the flat ground of
-// the tile's terrace level (render/terraces.ts). Dirt roads are packed
-// earth with jittered stones; the paved road is cobbles in three shades
-// with a kerb colour (render/groundpaint.ts, shared with the yards; the
+// the ground; a rim column on both sides, on the flat ground of the
+// tile's terrace level (render/terraces.ts). Plain surfaces, no worn
+// patches: dirt roads are packed earth with jittered stones to their
+// rims; the paved road is cobbles in three shades between kerb columns
+// (render/groundpaint.ts, shared with the yards; the
 // far view downsamples the same colours). The road changes no height but
 // where the terrace's road ramp climbs (render/terraces.ts IslandGround:
 // a road tile with a road neighbour one level lower rises across the
@@ -20,7 +21,7 @@
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { hash2 } from "../display/noise";
 import { ISLAND, TERRAIN } from "../theme/palette";
-import { cobbleTop, DIRT, dirtTop, KERB, mixTop, STONE, STONE_DARK } from "./groundpaint";
+import { cobbleTop, DIRT, dirtTop, KERB, STONE, STONE_DARK } from "./groundpaint";
 import { c3 } from "./palette";
 import type { RoadTile } from "./roads";
 import { LEVEL_STEPS } from "./terraces";
@@ -184,7 +185,8 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
       }
     }
   }
-  // Worn edges: the ground columns next to a road column.
+  // Rims: the ground columns next to a road column — packed earth with its stones beside a dirt road, the kerb beside
+  // a paved one; a plain surface without grass or mixed patches, so the road reads continuous at mid zoom.
   for (const [k, kind] of road) {
     if (!painted.has(k)) continue;
     const i = k % nx;
@@ -201,8 +203,7 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
       const q = b * nx + a;
       if (road.has(q) || (base.h[q] as number) !== flat(q) || f.top[q] !== base.top[q]) continue;
       const w = hash2(a, b, seed + 63);
-      if (kind === 2) f.top[q] = w < 0.75 ? pack(KERB.scale(0.95 + 0.08 * w)) : mixTop(base.top[q] as number, KERB, 0.5);
-      else if (w < 0.85) f.top[q] = mixTop(base.top[q] as number, DIRT, 0.5 + 0.4 * w);
+      f.top[q] = kind === 2 ? pack(KERB.scale(0.95 + 0.08 * w)) : dirtTop(w, hash2(a, b, seed + 62));
     }
   }
   const changed: number[] = [];

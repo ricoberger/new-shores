@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { chunkAt } from "../display/chunks";
-import { cobbleTop } from "./groundpaint";
+import { cobbleTop, DIRT, KERB, STONE, STONE_DARK } from "./groundpaint";
 import { BOLLARD_H, fieldBase, fieldGround, paintFields, paintRoads, QUAY_H, touchedChunks } from "./roadvoxels";
 import { type Field, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
 
@@ -69,7 +69,7 @@ describe("voxel roads", () => {
     expect(f.top[(3 * TERRAIN_VPT + 1) * f.nx + 3 * TERRAIN_VPT + 1]).toBe(base.top[(3 * TERRAIN_VPT + 1) * f.nx + 3 * TERRAIN_VPT + 1]);
   });
 
-  it("wears the edges and repaints from the base when a road goes away", () => {
+  it("paints the rims and repaints from the base when a road goes away", () => {
     const f = flat(3, 3);
     const base = fieldBase(f);
     expect(paintRoads(f, base, [{ x: 1, y: 1, type: "road_paved" }], 3)).toEqual([]);
@@ -80,6 +80,34 @@ describe("voxel roads", () => {
     expect(paintRoads(f, base, [], 3)).toEqual([]);
     expect(Array.from(f.h)).toEqual(Array.from(base.h));
     expect(Array.from(f.top)).toEqual(Array.from(base.top));
+  });
+
+  it("paints plain rims: packed earth beside a dirt road, the kerb beside a paved one — no ground left in, no mixes", () => {
+    // Whether a packed colour is a shade of `c` (the channel ratios kept, within 8-bit rounding).
+    const shadeOf = (p: number, c: { r: number; g: number; b: number }) => {
+      const r = (p >> 16) & 255;
+      const g = (p >> 8) & 255;
+      const b = p & 255;
+      const k = g / (c.g * 255);
+      return Math.abs(r - c.r * 255 * k) <= 3 && Math.abs(b - c.b * 255 * k) <= 3;
+    };
+    for (const type of ["road_dirt", "road_paved"] as const) {
+      const f = flat(3, 3);
+      const base = fieldBase(f);
+      paintRoads(f, base, [{ x: 1, y: 1, type }], 11);
+      const col = (a: number, b: number) => (TERRAIN_VPT + b) * f.nx + TERRAIN_VPT + a;
+      // The rim of a lone tile: the columns beside the two-by-two path.
+      const rim = [
+        [0, 1], [0, 2], [3, 1], [3, 2], [1, 0], [2, 0], [1, 3], [2, 3],
+      ].map(([a, b]) => f.top[col(a!, b!)] as number);
+      for (const p of rim) {
+        expect(p).not.toBe(base.top[0]);
+        if (type === "road_paved") expect(shadeOf(p, KERB)).toBe(true);
+        else expect(shadeOf(p, DIRT) || shadeOf(p, STONE) || shadeOf(p, STONE_DARK)).toBe(true);
+      }
+      // The tile's corners stay ground (a rounded end, not a square slab).
+      expect(f.top[col(0, 0)]).toBe(base.top[0]);
+    }
   });
 
   it("never paints the beach or the shelves", () => {

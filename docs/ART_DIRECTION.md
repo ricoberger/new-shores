@@ -244,9 +244,11 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - **Roads** are flush paint (D-068): paths painted into the terrain
   field's top colours (`render/roadvoxels.ts`, colours shared with the
   yards in `render/groundpaint.ts`), the terrain height untouched: a
-  two-column path with arms to the neighbours and junctions, worn edges
-  and jittered stones; dirt for tier-1 roads, three-shade **cobbles with
-  a kerb** colour for the stone road. Where a road meets a road one
+  two-column path with arms to the neighbours and junctions and a rim
+  column on both sides, **plain surfaces** without worn grass or grey
+  patches: the dirt road (tier 1) is packed earth with its jittered
+  stones out to the rims, the stone road three-shade **cobbles between
+  kerb** columns; both read as one continuous road at mid zoom. Where a road meets a road one
   terrace level lower, the terrace's road ramp climbs across the tile
   (`IslandGround`); ramps and quay decks are the only height changes, and
   only they rebuild terrain chunks — a plain road change updates the
