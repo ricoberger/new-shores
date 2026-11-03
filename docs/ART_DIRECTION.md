@@ -493,7 +493,8 @@ land buildings).
   smoke anchors (`smoke`, `chimney`, `stone`, `plinth`, `upper` options).
   `K.ground`/`K.tufts` paint the worked-ground blob and the grass tufts;
   `K.pile`, `K.crates`, `K.rack`, `K.low_wall`, `K.lean` and `K.kiln` are
-  large production props; `K.silo`, `K.furnace`, `K.still`, `K.hive`,
+  large production props, `K.ore_bin` an open plank bin heaped with ore
+  (the copper smelter's); `K.silo`, `K.furnace`, `K.still`, `K.hive`,
   `K.cow` and `K.pig` are signature props; `K.mine` builds a mine strip
   (banded hill, adit, rails, tubs, optional headframe or horse whim) shared
   by the mines and quarries.
