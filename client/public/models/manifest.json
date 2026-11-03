@@ -4405,7 +4405,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 128972,
+        "bytes": 134076,
         "ground": [
           [
             "none",
@@ -4458,14 +4458,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 9580,
+          "bytes": 9884,
           "path": "copper_smelter.lite.glb",
-          "sha256": "6399edf255b488538a2b603089845068f230e0ff9a43a59e80add207be20bad4",
-          "triangles": 256
+          "sha256": "d2b2da76faef5250a375c9a1ca75e22862ba8ef3a714bb358f541b962c4a8a52",
+          "triangles": 264
         },
         "path": "copper_smelter.glb",
-        "sha256": "b2b110da6beadc588ebe0b2f2a52388145e78cf54f63026e748190e882eee7bf",
-        "triangles": 4080
+        "sha256": "0e274e0ede391e623e194255031a765cd6a39d4c293f23a0ce1e1cbc398ada2d",
+        "triangles": 4248
       },
       "footprint": {
         "h": 6,
