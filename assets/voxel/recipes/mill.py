@@ -2,7 +2,7 @@
 Windmill (4 × 6; V7 rework after the Anno 1404 / Anno 117 mill, tier II):
 a tapered tower of dark boards on a rubble foot with a conical thatch cap
 and a gallery, four big pale lattice sails on a brass hub turned to the
-front, a miller's cottage (rubble ground floor, half-timber, tiles, slim
+camera (the sail plane faces the camera's left, hub raised and carried clear of the tower), a miller's cottage (rubble ground floor, half-timber, tiles, slim
 chimney with smoke), flour sacks, a cart and a stack of grain bags.
 12 voxels per tile; dirt only round the tower foot and the cottage door.
 """
@@ -23,19 +23,31 @@ SAIL = mat("canvas", 1.15)
 SPAR = mat("timber", 1.3)
 
 
+R2 = math.sqrt(0.5)
+
+
 def sail(v, hx, hy, hz, ang, length=14):
-    """One lattice sail in the x–z plane at y = hy: a spar and a lattice of canvas on one side of it."""
+    """
+    One lattice sail in the vertical plane through (hx, hy) along (1, 1) — the plane faces the camera's left, along
+    (−1, 1), so the sails read face on at rotation 0 and from behind at 2: a spar and a lattice of canvas on one side
+    of it. A step of the plane is a step in x and in y, two voxels thick so the staircase holds together.
+    """
     dx, dz = math.cos(ang), math.sin(ang)
     px, pz = -dz, dx
+
+    def put(s, z, m):
+        x, y = int(round(hx + s * R2)), int(round(hy + s * R2))
+        v.set(x, y, int(round(z)), m)
+        v.set(x + 1, y, int(round(z)), m)
+
     for t in range(2, length):
-        cx, cz = hx + dx * t, hz + dz * t
         for w in (0, 1):
-            v.set(int(round(cx + px * w)), hy, int(round(cz + pz * w)), SPAR)
+            put(dx * t + px * w, hz + dz * t + pz * w, SPAR)
         if t >= 7:
-            for s in range(2, 7):
-                if 2 < s < 6 and (t + s) % 3 == 0 and t % 2 == 0:
+            for k in range(2, 7):
+                if 2 < k < 6 and (t + k) % 3 == 0 and t % 2 == 0:
                     continue
-                v.set(int(round(cx + px * s)), hy, int(round(cz + pz * s)), SAIL)
+                put(dx * t + px * k, hz + dz * t + pz * k, SAIL)
 
 
 def build(ctx):
@@ -68,12 +80,14 @@ def build(ctx):
     # door and window of the tower
     v.box(cx - 2, cy + 6, 1, cx + 2, cy + 9, 9, TIMBER_DARK)
     v.box(cx - 1, cy + 5, 20, cx + 1, cy + 7, 24, TIMBER_DARK)
-    # hub and four sails turned to the front
-    hy = cy + 9
-    hz = 33
-    v.box(cx - 1, cy + 4, hz - 1, cx + 1, hy + 1, hz + 1, BRASS)
+    # hub and four sails on the camera side of the cap (−x / +y), the hub carried clear of the tower on a shaft
+    hz = 40
+    hx, hy = cx - 8, cy + 9
+    for k in range(9):
+        v.box(cx - 1 - k * 1, cy - 1 + k, hz - 1, cx + 1 - k, cy + 1 + k, hz + 1, BRASS)
+    v.box(hx - 2, hy - 1, hz - 2, hx + 2, hy + 3, hz + 2, BRASS)
     for k in range(4):
-        sail(v, cx, hy, hz, math.radians(45 + 90 * k))
+        sail(v, hx, hy, hz, math.radians(45 + 90 * k))
     # the cottage
     h = K.workshop(v, 22, 44, 44, 62, 2, "b", seed, door=("y+", 30), smoke=True, chim=(26, 48), wins=[24, 38])
     P.sacks(v, 10, 44, 1, n=4, m=CANVAS)

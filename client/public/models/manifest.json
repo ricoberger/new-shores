@@ -8487,14 +8487,14 @@
         ],
         "status": [
           0.0,
-          4.0833,
+          4.6667,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.8333,
+          4.4167,
           3.0
         ],
         "min": [
@@ -8507,7 +8507,7 @@
         "bounds": {
           "max": [
             2.0,
-            3.8333,
+            4.4167,
             3.0
           ],
           "min": [
@@ -8517,7 +8517,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 363356,
+        "bytes": 380024,
         "ground": [
           [
             "none",
@@ -8560,7 +8560,7 @@
           "bounds": {
             "max": [
               2.0,
-              4.0,
+              4.5,
               2.0
             ],
             "min": [
@@ -8570,14 +8570,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 11660,
+          "bytes": 14184,
           "path": "mill.lite.glb",
-          "sha256": "d3807a92e51b9033a71da54f273ad0e584cc2bc641eaedd986521c0d616dc0f5",
-          "triangles": 296
+          "sha256": "d4f9eb6694f1a5e0ee22d53ea6844a6e9895af77e0710d44de64643769075788",
+          "triangles": 370
         },
         "path": "mill.glb",
-        "sha256": "1d54c72bb789be4e9aa964792050ede17092a35ffb3983d5a2d9f246a0b8470f",
-        "triangles": 11082
+        "sha256": "340cb82cd13e9f49caabd25ad4faece0ded6e6ee27f690e16095cf8430f95cb6",
+        "triangles": 11788
       },
       "footprint": {
         "h": 6,
