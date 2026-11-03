@@ -920,6 +920,147 @@ function ghostWater(offset: -1 | 0 | 1, type = "fisher"): { fixture: Fixture; de
   };
 }
 
+/**
+ * A road drag held mid-way (desktop near): the tool of `roadType` dragged across a vertical run of a
+ * `crossing` road on the settled island with the most roads, eleven tiles from left to right (UI.md §3).
+ */
+function roadDrag(fixture: Fixture, roadType: string, crossing: string): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture,
+    device: "desktop",
+    run: async (page) => {
+      const at = await page.evaluate(async ([type, api]) => {
+        const content = (await (await fetch(`${api}/api/v1/content`, { credentials: "include" })).json()) as { buildings: { id: string; width: number; height: number }[] };
+        const d = window.__newShores!.getServer()!.display;
+        const is = d.islands.reduce((a, b) => (b.roads.length > a.roads.length ? b : a));
+        const has = new Set(is.roads.map((r) => `${r.x},${r.y}`));
+        const built = new Set<string>();
+        for (const b of is.buildings) {
+          const def = content.buildings.find((x) => x.id === b.type);
+          if (!def) continue;
+          const [w, h] = b.rotation === 90 || b.rotation === 270 ? [def.height, def.width] : [def.width, def.height];
+          for (let y = b.y; y < b.y + h; y++) for (let x = b.x; x < b.x + w; x++) built.add(`${x},${y}`);
+        }
+        // A vertical run of the crossed road whose row is free of buildings for the most tiles either side.
+        const free = (r: { x: number; y: number }) => {
+          let n = 0;
+          for (let dx = -5; dx <= 5; dx++) if (dx !== 0 && !built.has(`${r.x + dx},${r.y}`) && !has.has(`${r.x + dx},${r.y}`)) n++;
+          return n;
+        };
+        const vertical = is.roads.filter((r) => r.type === type && !has.has(`${r.x - 1},${r.y}`) && !has.has(`${r.x + 1},${r.y}`) && has.has(`${r.x},${r.y - 1}`) && has.has(`${r.x},${r.y + 1}`));
+        const r = vertical.reduce<(typeof vertical)[number] | undefined>((a, b) => (!a || free(b) > free(a) ? b : a), undefined);
+        if (!r) throw new Error(`no vertical ${type} run`);
+        return { island: is.id, x: r.x, y: r.y, ox: is.position.x, oy: is.position.y };
+      }, [crossing, `http://localhost:${API_PORT}`] as const);
+      await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half: HALF.near / 2, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await openBuildTab(page, roadType);
+      await page.getByTestId(`build-${roadType}`).click();
+      await dragTiles(page, at.island, { x: at.x - 5, y: at.y }, { x: at.x + 5, y: at.y }, false);
+      // Before the road ghost existed nothing is marked: the shot is taken anyway.
+      await page.waitForFunction(() => { const c = window.__newShores!.paintCounts(); return c.ok + c.bad > 0; }, undefined, { timeout: 3_000 }).catch(() => console.log("road drag: no marks"));
+      console.log(`road drag ${roadType} across ${crossing}: ${at.island} (${at.x - 5}..${at.x + 5}, ${at.y})`);
+    },
+  };
+}
+
+/**
+ * The quarry tool's deposit highlight (UI.md §3): the stone deposit tiles
+ * tinted around the start island's stone (mid), or the far view's island
+ * labels with the stone icon and tile count (far).
+ */
+function depositHighlight(view: "mid" | "far"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const at = await page.evaluate(() => {
+        const d = window.__newShores!.getServer()!.display;
+        const is = d.islands.find((i) => i.settled && i.deposits.some((x) => x.kind === "stone")) ?? d.islands.find((i) => i.deposits.some((x) => x.kind === "stone"))!;
+        const s = is.deposits.find((x) => x.kind === "stone")!;
+        return { x: is.position.x + s.x, y: is.position.y + s.y, cx: is.position.x + is.width / 2, cy: is.position.y + is.height / 2 };
+      });
+      if (view === "mid") await setCamera(page, { x: at.x, y: at.y, half: HALF.near, rotation: 0 });
+      else await setCamera(page, { x: at.cx, y: at.cy, half: 100_000, rotation: 0 });
+      if (view === "far") await waitLod(page, "far");
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await openBuildTab(page, "quarry");
+      await page.getByTestId("build-quarry").click();
+      await settle(page);
+      if (view === "mid") {
+        // Before the highlight existed nothing is tinted: the shot is taken anyway.
+        await page.waitForFunction(() => (window.__newShores!.depositCount?.() ?? 0) > 0, undefined, { timeout: 3_000 }).catch(() => console.log("deposits: no highlight"));
+        console.log(`deposits: ${await page.evaluate(() => window.__newShores!.depositCount?.() ?? 0)} tiles highlighted`);
+      } else {
+        await page.mouse.move(5, 5);
+      }
+    },
+  };
+}
+
+/** Close on the first field of a type in the played world, its animals in view (LIFE_LAYER §3, pasture animals). */
+function fieldAnimals(field: string): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "played",
+    device: "desktop",
+    run: async (page) => {
+      const at = await page.evaluate((type) => {
+        const d = window.__newShores!.getServer()!.display;
+        for (const is of d.islands) {
+          const b = is.buildings.find((x) => x.type === type);
+          if (b) return { x: is.position.x + b.x + 2, y: is.position.y + b.y + 2 };
+        }
+        throw new Error(`no ${type} in the played world`);
+      }, field);
+      await setCamera(page, { x: at.x, y: at.y, half: 7, rotation: 0 });
+      await settle(page);
+      console.log(`${field}: (${at.x}, ${at.y})`);
+    },
+  };
+}
+
+/** Close on the built buildings standing across terrace edges in the played world (`rank`: 0 the one with the most filled tiles, 1 the next), their terrace fills in view. */
+function terraceFill(rank: number): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "played",
+    device: "desktop",
+    run: async (page) => {
+      const at = await page.evaluate(
+        async ([api, rank]) => {
+          const server = window.__newShores!.getServer()!;
+          const content = (await (await fetch(`${api}/api/v1/content`, { credentials: "include" })).json()) as { buildings: { id: string; width: number; height: number; field?: unknown; category: string }[] };
+          const found: { x: number; y: number; n: number; type: string }[] = [];
+          for (const is of server.display.islands.filter((i) => i.buildings.length > 0)) {
+            const tiles = (await (await fetch(`${api}/api/v1/world/islands/${is.id}/tiles`, { credentials: "include" })).json()) as { width: number; levels?: string };
+            if (!tiles.levels) continue;
+            const level = (x: number, y: number) => (tiles.levels as string).charCodeAt(y * tiles.width + x) - 48;
+            for (const b of is.buildings) {
+              const d = content.buildings.find((c) => c.id === b.type);
+              if (!d || d.field || d.category === "roads") continue;
+              const [w, h] = b.rotation === 90 || b.rotation === 270 ? [d.height, d.width] : [d.width, d.height];
+              let max = 0;
+              for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) max = Math.max(max, level(b.x + x, b.y + y));
+              let n = 0;
+              for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) n += max - level(b.x + x, b.y + y);
+              if (n > 0) found.push({ x: is.position.x + b.x + w / 2, y: is.position.y + b.y + h / 2, n, type: b.type });
+            }
+          }
+          found.sort((a, b) => b.n - a.n);
+          const f = found[Math.min(rank as number, found.length - 1)];
+          if (!f) throw new Error("no building across a terrace edge in the played world");
+          return f;
+        },
+        [`http://localhost:${API_PORT}`, rank] as const,
+      );
+      await setCamera(page, { x: at.x, y: at.y, half: 6, rotation: 0 });
+      await settle(page);
+      console.log(`terrace fill ${rank}: ${at.type} at (${at.x}, ${at.y}), ${at.n} filled tile levels`);
+    },
+  };
+}
+
 /** The real seafaring founding sequence at the default fixture's content-sized site. */
 function foundingShot(docked: boolean): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
@@ -990,6 +1131,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.locator("#building-bakery").waitFor({ state: "visible" });
     },
   },
+  // The road tool mid-drag across a road (UI.md §3): a dirt road on the settled fixture, a paved road across a dirt road on the played one.
+  "road-drag": roadDrag("settled", "road_dirt", "road_dirt"),
+  "road-drag-paved": roadDrag("played", "road_paved", "road_dirt"),
+  "deposits": depositHighlight("mid"),
+  "deposits-far": depositHighlight("far"),
+  "pasture-cows": fieldAnimals("cattle_pasture"),
+  "pasture-pigs": fieldAnimals("pig_pen"),
+  "terrace-fill": terraceFill(0),
+  "terrace-fill-2": terraceFill(1),
   "founding-ghost": foundingShot(false),
   "founding-docked": foundingShot(true),
   "playhouse-menu": {

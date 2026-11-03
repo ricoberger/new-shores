@@ -124,7 +124,7 @@ UI shows the same numbers the server uses.
 │ └───────────────┘             3D canvas                     └───────┘   │
 │ 🔨 / ⚠2 / 📜 / ⛵2 / 🗺  (side dock, vertically centred)                   │
 ├──────────────────────────────────────────────────────────────────────────┤
-│ [Houses] [Production] [Public] [Harbour] [Roads]      build cards w/ thumbs │
+│ [Houses] [Production] [Public] [Harbor] [Roads]       build cards w/ thumbs │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -172,14 +172,15 @@ UI shows the same numbers the server uses.
   are dimmed and disabled with the lock reason. Inside a tab the cards stay
   one sideways-scrolling row, in groups with a small label at each group's
   start (empty groups are hidden): **General** (the tier's house where it
-  can be placed, roads, then the Market and the Warehouse), **Production**
+  can be placed, roads, then the Warehouse), **Production**
   (ordered along the chains: no inputs first, then by the depth of the
   recipe's inputs, content order within a step; fields are not listed),
-  **Public** and **Harbour** (shipyard, pier, depot, then the quay, a road
-  on the shallows that the server files under harbour). The groups follow
-  the server's `category`, except houses, roads, the Warehouse and the
-  Market, which are General; the Trading Post is never listed and houses of
-  later tiers are upgrade-only.
+  **Public** (the Market first — it serves a `public`-group need, D-065 —
+  then the service buildings in content order) and **Harbor** (shipyard,
+  pier, depot, then the quay, a road on the shallows that the server files
+  under harbour). The groups follow the server's `category`, except
+  houses, roads and the Warehouse, which are General; the Trading Post is
+  never listed and houses of later tiers are upgrade-only.
   A card shows the name and the 128 px model **thumbnail** in its upper
   right corner, and two lines, each on one line; below them is a note row
   that every card has (so all cards are equally high in every tab): the
@@ -233,7 +234,15 @@ UI shows the same numbers the server uses.
   rivers never as sea. The model keeps its normal tint for a water-edge
   mismatch so one bad tile does not turn the entire building red. This is
   a display hint only: the server validates every placement.
-- Roads: drag to draw; auto-connect; cost preview. The quay (D-060) is
+- Roads: drag to draw; auto-connect; cost preview. While dragging, the
+  L-path of the drag shows as a ghost on the ground, one mark per tile in
+  the field paint's tints: green where the client expects a road, red
+  where a rule rejects it (terrain, a building, off the shallows for a
+  quay); a land road of a lower type (dirt under a paved drag) is marked
+  green too and sent — the new road replaces it (MECHANICS §3) — while
+  tiles with a road of the same or a higher type are left unmarked and
+  are not sent (`display/roaddrag.ts`, a display hint; bridge shapes are
+  the server's). The quay (D-060) is
   drawn the same way over shallow water; a drag that leaves the shallows
   is not sent (toast; display mirror of the rule, `display/quay.ts`).
   Quays render as a stone wharf with a timber fender and a bollard every
@@ -261,7 +270,7 @@ UI shows the same numbers the server uses.
   "Paint Tree plot" (1 gold each), painted on open land like crops.
 - The civic buildings (city guard, fire station, surgery; D-060) are
   public buildings in the Public tab; the trading pier and depot are in
-  the Harbour tab, water-edge like the Trading Post (quays count as
+  the Harbor tab, water-edge like the Trading Post (quays count as
   coast; their ghost shows the free shallows tint with the quay tool).
 - Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the radius ring is not implemented. The ghost tints the houses it would serve (client hint from the content radius; the server's `served_by` is the truth once built): `wouldServe` in `display/served.ts` takes the houses on the ghost's island whose nearest footprint tile is within the level-1 radius (a moved building: its own level) of the ghost's nearest footprint tile; it does not check the road connection or paused state, because the display has no connectivity, so a tinted house may still be unserved. The tint follows the ghost and clears when it leaves the island or the tool closes. The same hint for other ghosts (`ghostRelated`): a house tints the service buildings on its island whose own radius (their current level) reaches it; a Warehouse tints every producer (a building with a recipe) on the island, a producer every Warehouse and the Trading Post of the island. Who delivers to whom is the nearest collector by road, which the display cannot compute, so the latter two mark candidates, not the assignment (`assigned_warehouse_id` is the truth once built).
 - Producers and collectors: selecting a producer tints the Warehouse or Trading Post it delivers to (`assigned_warehouse_id`) green, selecting a Warehouse or Trading Post tints every producer delivering to it, not their fields (`client/src/display/served.ts`, the same selection tint).
@@ -280,6 +289,14 @@ UI shows the same numbers the server uses.
   server-side hard failures the client can know from content and island
   data without rules: missing fertility tag, no deposit under the
   footprint, locked tier, upgrade-only house.
+- **Deposit highlight:** while a mine or quarry (a building with
+  `requires_deposit`) is the build tool, the tiles of its deposit kind are
+  tinted in the selection yellow on every island drawn in detail (near
+  and mid zoom; drawn over the rock and outcrops so they are never
+  hidden; tiles under a building are left out), and at far zoom the
+  label of every island with that deposit carries the deposit's icon and
+  tile count. Both go away when the tool closes. Display only (D-027):
+  the deposits come from the payload (`display/deposits.ts`).
 
 ## 4. Info panel content
 
@@ -311,6 +328,10 @@ UI shows the same numbers the server uses.
   buildings: one row per category (icon and name, fulfilment %). The reason if
   not met is the tooltip ("short supply", "no supply on the island", "out of
   range"); a building or chain need lists its buildings there.
+- "Upgrade" (not on a house of the highest tier): the cost line of the
+  upgrade — the next tier's house — like the build menu's: "150 gold ·
+  [planks] 5 t · [stone] 3 t", goods by icon (name and stock in the
+  tooltip), what the balance or stock does not cover red.
 - Upgrade button; when it is disabled, the server's reason is one short line below all footer buttons (they keep their size) and the button's tooltip; none on a house of the highest tier, like the levelled buildings at their last level.
 
 **Trading Post**
@@ -325,8 +346,9 @@ UI shows the same numbers the server uses.
 - A collapsed "Producers (n)" like the Warehouse's.
 - "Upgrade to level n" (not at the last level): one grey line with the next
   level's numbers ("500 t capacity per good · 2 berths · 55.0 t/min
-  throughput") and the cost line (gold, goods with icons, " · " between the
-  items, red when short). The **Upgrade** button is pinned in the footer.
+  throughput") and the cost line like the build menu's (gold, then each
+  good as icon and amount — the name and stock are the tooltip — " · "
+  between the items, red when short). The **Upgrade** button is pinned in the footer.
 
 **Trading pier** (D-060)
 
@@ -343,7 +365,7 @@ UI shows the same numbers the server uses.
 **Shipyard**
 
 - Status "Idle" or "Building a Sloop · ready in 1:42 min" (no bar); a pending
-  order adds the second status line "Cancelling the order returns 50 % of
+  order adds the second status line "Canceling the order returns 50 % of
   the materials." and **Cancel order** sits in the pinned footer.
 - Always (also while an order runs, then the Order buttons are disabled), with
   no heading, a divider above and between the entries and one entry per
@@ -360,9 +382,9 @@ UI shows the same numbers the server uses.
 - A collapsed "Producers (n)": one row per assigned producer, the name a link
   that selects it (no ID); "None yet" without any. All producers are listed (the card body scrolls).
 - "Upgrade to level n" (not at the last level): one grey line with the next
-  level's numbers ("55.0 t/min throughput") and one cost line (gold, goods with
-  icons, " · " between the items; what the balance or stock does not cover is
-  red). The **Upgrade** button is pinned in the footer next to Move and
+  level's numbers ("55.0 t/min throughput") and one cost line like the
+  build menu's (gold, then each good as icon and amount, " · " between the
+  items; what the balance or stock does not cover is red). The **Upgrade** button is pinned in the footer next to Move and
   Demolish (a warehouse cannot be paused). The Trading Post shares the
   producers list, the upgrade preview and the footer button.
 
@@ -383,7 +405,7 @@ UI shows the same numbers the server uses.
 - Buttons: "Assign to route…" (an inline picker of the saved routes; routes
   are created only in the Routes list, the picker links there when there
   are none), unassign, "Send…" (manual shipment dialog), found settlement,
-  scrap; later: send on expedition (Harbourmaster).
+  scrap; later: send on expedition (Harbormaster).
 
 **Routes list** (panel): per route its name, then "Island 1 → Island 2
 (15:00 min)" (the loop time), then "Ships: n". Clicking a route opens it in
@@ -601,6 +623,12 @@ translation. Two sources, one switch:
   unless the player picked one on this page, which then goes to the
   account (`api/auth.ts syncAccountLanguage`). Tests run in English
   (`i18n/test-setup.ts`).
+- **US English:** the English texts — the catalogue's and the content's
+  (names, quest titles and texts, descriptions) — use American spelling:
+  harbor, center, color, jewelry, canceling, -ize. Keys and content IDs
+  may keep a British word (`build.group.harbour`, `jewellery`; IDs are
+  never renamed) and island names stay as they are.
+  `i18n/spelling.test.ts` fails on the British spellings it knows.
 - **Adding text:** add the key to `en.ts` and `de.ts` in the same change
   (the German one is required to compile) and use `t()`. The ESLint rule
   `i18n/no-hardcoded-strings` fails on JSX text, prose string literals

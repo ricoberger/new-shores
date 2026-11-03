@@ -4,9 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding, IslandDisplay } from "../api/client";
 import type { LifeSink } from "./life";
 import {
-  CART_CAPACITY,
   CART_INSTANCES,
-  cartsFor,
   CLS,
   deliveryRoutes,
   delivers,
@@ -17,10 +15,12 @@ import {
   INACTIVE_TINT,
   IslandLife,
   MARKET_PAUSE_MS,
-  MAX_CARTS,
+  DRIVER_AHEAD,
   pastureActive,
   RESIDENTS_PER_STROLLER,
   SHEEP_PER_PASTURE,
+  COWS_PER_PASTURE,
+  PIGS_PER_PEN,
   SHEEP_STEP_MS,
   strollers,
   SMOKE_LIFE_MS,
@@ -79,19 +79,10 @@ function record(): LifeSink & { by: Map<string, { x: number; y: number; yaw: num
 const NEAR = { moving: true, smoke: true, props: true };
 const BIG = { instances: 400, particles: 160 };
 
-describe("carts per rate", () => {
-  it("runs ceil(rate / cart capacity) carts, at most 3, none without output", () => {
-    expect(cartsFor(0)).toBe(0);
-    expect(cartsFor(-5)).toBe(0);
-    expect(cartsFor(1)).toBe(1);
-    expect(cartsFor(CART_CAPACITY)).toBe(1);
-    expect(cartsFor(CART_CAPACITY + 1)).toBe(2);
-    expect(cartsFor(2500)).toBe(3);
-    expect(cartsFor(99_000)).toBe(MAX_CARTS);
-  });
-});
+const villagers = (s: ReturnType<typeof record>) => [...s.by.entries()].filter(([k]) => k.startsWith("villager_")).flatMap(([, v]) => v);
+const carts = (s: ReturnType<typeof record>) => [...(s.by.get(CLS.cart) ?? []), ...(s.by.get(CLS.cartLoaded) ?? [])];
 
-describe("no state → no motion (carts and walkers)", () => {
+describe("no state → no motion (carts and their drivers)", () => {
   it.each([
     ["ok", {}, true],
     ["throttled", { status: "throttled" }, true],
@@ -108,8 +99,8 @@ describe("no state → no motion (carts and walkers)", () => {
     life.update(island([producer(1, 2, extra as Partial<BuildingDisplay>)]), defs, null);
     const s = record();
     life.frame(1000, s, NEAR, BIG);
-    expect(s.by.has(CLS.cart) || s.by.has(CLS.cartLoaded)).toBe(want);
-    expect(s.by.has(CLS.villager("settlers", 0)) || s.by.has(CLS.villager("settlers", 1)) || s.by.has(CLS.villager("settlers", 2))).toBe(want);
+    expect(carts(s).length).toBe(want ? 1 : 0);
+    expect(villagers(s).length).toBe(want ? 1 : 0);
   });
 
   it("draws nothing without a road path (an unconnected producer away from the road)", () => {
@@ -119,7 +110,7 @@ describe("no state → no motion (carts and walkers)", () => {
 });
 
 describe("IslandLife", () => {
-  it("spawns carts, walkers and smoke only in the chunks in view", () => {
+  it("spawns carts and smoke only in the chunks in view", () => {
     const life = new IslandLife();
     const anchor: SmokeAnchor = (b) => ({ x: b.x + 0.5, y: b.y + 0.5, h: 1 });
     life.update(island([producer(1, 2)]), defs, null, anchor);
@@ -138,24 +129,41 @@ describe("IslandLife", () => {
     expect(none.smoke).toBe(0);
   });
 
-  it("runs the carts of a producer evenly spread in phase on its road path, loaded out and empty back", () => {
+  it("runs one cart per producer, whatever its rate, on its road path with its driver pulling it, loaded out and empty back", () => {
+    for (const rate of [500, 2000, 99_000]) {
+      const life = new IslandLife();
+      life.update(island([producer(1, 2, { rates: { inputs: {}, outputs: { wood: rate } } } as Partial<BuildingDisplay>)]), defs, null);
+      const [route] = life.deliveryRoutes();
+      expect(route?.path[0]).toEqual({ x: 2, y: 1 });
+      expect(route?.path.at(-1)).toEqual({ x: 10, y: 1 });
+      const s = record();
+      const stats = life.frame(123_456, s, NEAR, BIG);
+      expect(carts(s)).toHaveLength(1);
+      expect(s.by.get(CLS.axle)).toHaveLength(2);
+      expect(villagers(s)).toHaveLength(1);
+      expect(stats).toEqual({ instances: CART_INSTANCES, particles: 0 });
+      // The driver walks DRIVER_AHEAD tiles ahead of the cart, on the road line, facing the same way.
+      const [c] = carts(s);
+      const [d] = villagers(s);
+      expect(Math.abs((d?.x ?? 0) - (c?.x ?? 0))).toBeCloseTo(DRIVER_AHEAD);
+      expect(d?.y).toBeCloseTo(c?.y ?? 0);
+      expect(d?.yaw).toBeCloseTo(c?.yaw ?? 0);
+      // Ahead means in the travel direction: outbound (loaded) toward the warehouse at +x, back toward −x.
+      const loaded = s.by.has(CLS.cartLoaded);
+      expect(Math.sign((d?.x ?? 0) - (c?.x ?? 0))).toBe(loaded ? 1 : -1);
+    }
+  });
+
+  it("loads the cart on the way out and empties it on the way back", () => {
     const life = new IslandLife();
     life.update(island([producer(1, 2)]), defs, null);
-    const [route] = life.deliveryRoutes();
-    expect(route?.path[0]).toEqual({ x: 2, y: 1 });
-    expect(route?.path.at(-1)).toEqual({ x: 10, y: 1 });
-    expect(route?.carts).toBe(2);
-    const s = record();
-    const stats = life.frame(123_456, s, NEAR, BIG);
-    const carts = [...(s.by.get(CLS.cart) ?? []), ...(s.by.get(CLS.cartLoaded) ?? [])];
-    // Two carts half a round trip apart: one on each leg, mirrored on the path.
-    expect(carts).toHaveLength(2);
-    expect(s.by.get(CLS.cart)).toHaveLength(1);
-    expect(s.by.get(CLS.cartLoaded)).toHaveLength(1);
-    const [a, b] = carts as { x: number }[];
-    expect((a?.x ?? 0) + (b?.x ?? 0)).toBeCloseTo(2.5 + 10.5);
-    expect(s.by.get(CLS.axle)).toHaveLength(4);
-    expect(stats).toEqual({ instances: 2 * CART_INSTANCES + 1, particles: 0 });
+    const seen = new Set<string>();
+    for (let t = 0; t < 8000; t += 500) {
+      const s = record();
+      life.frame(t, s, NEAR, BIG);
+      for (const k of s.by.keys()) if (k === CLS.cart || k === CLS.cartLoaded) seen.add(k);
+    }
+    expect([...seen].sort()).toEqual([CLS.cart, CLS.cartLoaded].sort());
   });
 
   it("moves with the clock, deterministically", () => {
@@ -188,16 +196,15 @@ describe("IslandLife", () => {
     expect(r1).not.toBe(r2);
   });
 
-  it("keeps each producer's first cart and its walker when the budget is short", () => {
+  it("draws whole carts with their drivers when the budget is short", () => {
     const life = new IslandLife();
     life.update(island([producer(1, 0), producer(2, 2), producer(3, 4)]), defs, null);
     const s = record();
-    const stats = life.frame(1000, s, NEAR, { instances: 3 * CART_INSTANCES + 2, particles: 64 });
-    expect(stats.instances).toBeLessThanOrEqual(3 * CART_INSTANCES + 2);
-    const carts = [...(s.by.get(CLS.cart) ?? []), ...(s.by.get(CLS.cartLoaded) ?? [])];
-    expect(carts).toHaveLength(3);
-    // The first carts of the three producers (different routes: different x ranges are not guaranteed, so count axles).
-    expect(s.by.get(CLS.axle)).toHaveLength(6);
+    const stats = life.frame(1000, s, NEAR, { instances: 2 * CART_INSTANCES + 2, particles: 64 });
+    expect(stats.instances).toBeLessThanOrEqual(2 * CART_INSTANCES + 2);
+    expect(carts(s)).toHaveLength(2);
+    expect(s.by.get(CLS.axle)).toHaveLength(4);
+    expect(villagers(s)).toHaveLength(2);
   });
 
   it("draws nothing that moves at mid or far", () => {
@@ -208,7 +215,7 @@ describe("IslandLife", () => {
     expect(s.by.size).toBe(0);
   });
 
-  it("dresses walkers in their producer's tier", () => {
+  it("dresses the driver in the producer's tier", () => {
     const life = new IslandLife();
     life.update(island([producer(1, 2, { type: "toolmaker" } as Partial<BuildingDisplay>)]), defs, null);
     const s = record();
@@ -438,6 +445,49 @@ describe("inhabitants and animals", () => {
     // Mid LOD: standing (props), far: none.
     expect(sheepAt(herd, 10_000, { moving: false, smoke: true, props: true })).toEqual(sheepAt(herd, 99_000, { moving: false, smoke: true, props: true }));
     expect(sheepAt(herd, 10_000, { moving: false, smoke: false, props: false })).toHaveLength(0);
+  });
+
+  it("puts cows in cattle pastures (dairy and cattle farms) and pigs in pig pens, seeded per field, inside the field", () => {
+    const farmDefs = new Map<string, ContentBuilding>([
+      ...townDefs,
+      ["dairy_farm", { id: "dairy_farm", width: 4, height: 5, tier: "citizens", category: "production", fields: {} } as unknown as ContentBuilding],
+      ["cattle_pasture", { id: "cattle_pasture", width: 4, height: 7, tier: "citizens", category: "production", field: { type: "cattle_pasture", farm: ["dairy_farm", "cattle_farm"] } } as unknown as ContentBuilding],
+      ["pig_farm", { id: "pig_farm", width: 3, height: 4, tier: "citizens", category: "production", fields: {} } as unknown as ContentBuilding],
+      ["pig_pen", { id: "pig_pen", width: 3, height: 4, tier: "citizens", category: "production", field: { type: "pig_pen", farm: "pig_farm" } } as unknown as ContentBuilding],
+    ]);
+    const dairy = { id: 70, type: "dairy_farm", x: 20, y: 2, rotation: 0, status: "ok" } as unknown as BuildingDisplay;
+    const cows = { id: 71, type: "cattle_pasture", x: 24, y: 2, rotation: 0, status: "ok", active: true, farm_id: 70 } as unknown as BuildingDisplay;
+    const pigFarm = { id: 80, type: "pig_farm", x: 30, y: 2, rotation: 0, status: "ok" } as unknown as BuildingDisplay;
+    const pen = { id: 81, type: "pig_pen", x: 33, y: 2, rotation: 90, status: "ok", active: true, farm_id: 80 } as unknown as BuildingDisplay;
+    const at = (t: number) => {
+      const life = new IslandLife();
+      life.update(island([dairy, cows, pigFarm, pen]), farmDefs, null);
+      const s = record();
+      life.frame(t, s, NEAR, BIG);
+      return s;
+    };
+    const s = at(10_000);
+    expect(s.by.get(CLS.cow)).toHaveLength(COWS_PER_PASTURE);
+    expect(s.by.get(CLS.pig)).toHaveLength(PIGS_PER_PEN);
+    expect(s.by.has(CLS.sheep)).toBe(false);
+    for (let t = 0; t < 4 * SHEEP_STEP_MS; t += 1100) {
+      const f = at(t);
+      for (const p of f.by.get(CLS.cow) ?? []) {
+        expect(p.x).toBeGreaterThan(24);
+        expect(p.x).toBeLessThan(28);
+        expect(p.y).toBeGreaterThan(2);
+        expect(p.y).toBeLessThan(9);
+      }
+      // The pen turned 90°: 4 wide, 3 deep.
+      for (const p of f.by.get(CLS.pig) ?? []) {
+        expect(p.x).toBeGreaterThan(33);
+        expect(p.x).toBeLessThan(37);
+        expect(p.y).toBeGreaterThan(2);
+        expect(p.y).toBeLessThan(5);
+      }
+    }
+    // Deterministic: the same time, the same herd.
+    expect(at(12_345).by.get(CLS.pig)).toEqual(at(12_345).by.get(CLS.pig));
   });
 });
 

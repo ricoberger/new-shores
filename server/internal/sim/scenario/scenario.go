@@ -103,6 +103,9 @@ type Seed struct {
 	// workforce pool (sim.GrantWorkforce). It is a seed-only grant, like the
 	// free Trading Post: no step can grant workforce.
 	Workforce map[string]int64 `json:"workforce,omitempty"`
+	// UnlockedTiers unlocks tiers without their conditions (seed-only, for
+	// rule tests that need later content on a small world).
+	UnlockedTiers []string `json:"unlocked_tiers,omitempty"`
 }
 
 // SeaShip is a ship at a sea position (archipelago tiles); Type defaults
@@ -135,12 +138,14 @@ type Grid struct {
 
 // Road is a Manhattan L-path from From to To: horizontal first, then
 // vertical, both ends inclusive. Tiles that already carry a road are
-// skipped.
+// skipped unless AllTiles is set: then every tile is sent and the
+// simulation decides (a road of a lower type is replaced, MECHANICS §3).
 type Road struct {
-	Island string `json:"island,omitempty"`
-	Type   string `json:"type"`
-	From   [2]int `json:"from"`
-	To     [2]int `json:"to"`
+	Island   string `json:"island,omitempty"`
+	Type     string `json:"type"`
+	From     [2]int `json:"from"`
+	To       [2]int `json:"to"`
+	AllTiles bool   `json:"all_tiles,omitempty"`
 }
 
 // At addresses the building covering a tile.
@@ -511,6 +516,14 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 			return nil, fmt.Errorf("seed workforce: %w", err)
 		}
 	}
+	for _, tier := range s.Seed.UnlockedTiers {
+		if c.TierByID[tier] == nil {
+			return nil, fmt.Errorf("seed unlocked_tiers: %w: unknown tier %q", sim.ErrInvalidCommand, tier)
+		}
+		if !sim.TierUnlocked(w, c, tier) {
+			w.UnlockedTiers = append(w.UnlockedTiers, tier)
+		}
+	}
 	return w, nil
 }
 
@@ -850,7 +863,7 @@ func (r *runner) step(i int, st Step) error {
 		}
 		var tiles []sim.Pos
 		for _, p := range lPath(st.Road) {
-			if is.RoadAt(p.X, p.Y) == "" {
+			if st.Road.AllTiles || is.RoadAt(p.X, p.Y) == "" {
 				tiles = append(tiles, p)
 			}
 		}

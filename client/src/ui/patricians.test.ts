@@ -209,7 +209,7 @@ describe("tier 4 in the cards (D-056 C4)", () => {
     expect(text(html.match(/data-testid="house-need-patricians_settlers_food"[^>]*>(.*?)<\/tr>/)![1]!)).toBe("Fish100 %");
     // Luxury: its own icon and the server's fulfilment.
     const luxury = html.match(/data-testid="house-need-patricians_luxury"[^>]*>(.*?)<\/tr>/)![1]!;
-    expect(text(luxury)).toBe("Jewellery or Instruments60 %");
+    expect(text(luxury)).toBe("Jewelry or Instruments60 %");
     const luxuryHeading = html.match(/data-testid="house-need-category-luxury"[^>]*>(.*?)<\/tr>/)![1]!;
     expect(text(luxuryHeading)).toBe("Luxury");
     expect(luxuryHeading).toContain(`<path d="${ICON_PATHS["need:luxury"]}"`);

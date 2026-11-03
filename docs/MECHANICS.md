@@ -211,6 +211,16 @@ handlers only.
   stub that does not reach a warehouse is *not* connected. Roads are tiles;
   dirt roads (tier 1), paved roads (tier 2, +speed) and quays (tier 2,
   D-060) are the types.
+- **Replacing a road:** `place_road` on a tile that carries a land road
+  of a **lower** type (an earlier tier: dirt under paved) replaces it in
+  the same command: the old road's demolition refund (50 % of its
+  materials, as for `demolish_road`) is added, the new road's cost is
+  charged for every tile of the command, and the tile is a road at every
+  instant (one transaction, no gap in connectivity or assignment). The
+  cost check runs before the refund. A road of the same type or of a
+  higher type on a tile, and any quay tile, stay `occupied`; the command
+  fails as a whole. The road tool sends the tiles it can replace and
+  skips the others (display hint, the server decides).
 - **Quays** (D-060) are roads on the island's **shallows**: water tiles
   of its grid, not river, within 3 tiles (Chebyshev) of its own land
   (any tile but water, river and islet; derived from the tiles, no

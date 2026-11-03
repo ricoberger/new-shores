@@ -30,12 +30,13 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, Terrain } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
 import { fbm, hash2 } from "../display/noise";
-import { BUILDINGS, ISLAND } from "../theme/palette";
+import { ISLAND } from "../theme/palette";
 import { addGround } from "./groundshader";
 import { skyFill } from "./lighting";
 import { decorModel, type ModelRegistry } from "./models";
 import { c3 } from "./palette";
-import { Builder } from "./terrain";
+import { EDGE_STONE, FILL_KINDS, fillSide, fillTop, type YardTile } from "./groundpaint";
+import { Builder, groundColor } from "./terrain";
 import { ModelMerger } from "./trees";
 import { distanceTo, EMPTY, type Field, meshField, TERRAIN_VPT } from "./voxelterrain";
 
@@ -79,7 +80,6 @@ const OCHRE = c3(ISLAND.cliff_ledge);
 const FOOT = Color3.Lerp(ROCK_DEEP, c3(ISLAND.cliff_foot), 0.55);
 /** Strata of the rock walls by layer (steps): warm grey with sandstone and ochre bands. */
 const STRATA = [ROCK, ROCK, SANDSTONE, ROCK_LIGHT, ROCK, OCHRE, ROCK, ROCK_LIGHT, Color3.Lerp(SANDSTONE, ROCK, 0.5)];
-const PLINTH = c3(BUILDINGS.stone);
 
 const CRAGS = ["decor_crag_a", "decor_crag_b", "decor_crag_c"] as const;
 const PEAKS = ["decor_peak_a", "decor_peak_b"] as const;
@@ -447,9 +447,14 @@ export function rockStrata(z: number): Color3 {
   return STRATA[((z % STRATA.length) + STRATA.length) % STRATA.length] as Color3;
 }
 
-/** Side kinds of the rock field: plinth, and rock from ROCK_KIND on (ROCK_KIND + the column's ground, steps: its foot darkens). */
-const PLINTH_KIND = 1;
+/**
+ * Side kinds of the rock field: rock from ROCK_KIND on (ROCK_KIND + the
+ * column's ground, steps: its foot darkens), terrace fills from FILL_KIND
+ * on (FILL_KIND + FILL_KINDS index × 16 + the fill's top, steps: the
+ * stone edge course is its top layer).
+ */
 const ROCK_KIND = 2;
+export const FILL_KIND = 128;
 
 /** Rock wall layer z of a column standing on `ground` (steps): dark at the foot, strata above. */
 function rockSide(z: number, ground: number): Color3 {
@@ -457,16 +462,33 @@ function rockSide(z: number, ground: number): Color3 {
   return rel <= 0 ? FOOT : rel === 1 ? ROCK_DEEP : rockStrata(z);
 }
 
-/** Plinth walls: dressed stone, a darker course every other step. */
-function plinthSide(z: number): Color3 {
-  return z % 2 === 0 ? PLINTH.scale(0.86) : PLINTH;
+/** Terrace fill walls (side kind ≥ FILL_KIND): the ground's colour, the top layer a stone edge course. */
+function fillWall(z: number, kd: number): Color3 {
+  const top = (kd - FILL_KIND) % 16;
+  return z >= top - 1 ? EDGE_STONE : fillSide(FILL_KINDS[Math.floor((kd - FILL_KIND) / 16)] ?? "grass", z);
+}
+
+/** The fill kind index (FILL_KINDS) of every plinth column: the yard kind of its tile, else grass (0). */
+export function plinthFill(cols: ReliefColumns, plinth: Int8Array, width: number, yards: readonly YardTile[]): Uint8Array {
+  const out = new Uint8Array(cols.nx * cols.ny);
+  if (yards.length === 0) return out;
+  const vpt = cols.nx / width;
+  const kinds = new Map<number, number>();
+  for (const t of yards) kinds.set(t.y * width + t.x, FILL_KINDS.indexOf(t.kind));
+  for (let k = 0; k < out.length; k++) {
+    if ((plinth[k] as number) <= 0) continue;
+    const tx = Math.floor((k % cols.nx) / vpt);
+    const ty = Math.floor(Math.floor(k / cols.nx) / vpt);
+    out[k] = Math.max(0, kinds.get(ty * width + tx) ?? 0);
+  }
+  return out;
 }
 
 /**
- * The plinths of building footprints (D-058): every column of a footprint
- * below its base (the highest level under it; ramps and rims included)
- * rises to it, as dressed stone. Returns the target height per column
- * (steps; 0: none).
+ * The plinths (terrace fills) of building footprints (D-058): every column
+ * of a footprint below its base (the highest level under it; ramps and
+ * rims included) rises to it. Returns the target height per column
+ * (steps; 0: none); rockField colours them (plinthFill).
  */
 export function plinthColumns(cols: ReliefColumns, r: Relief, rects: readonly { x: number; y: number; w: number; h: number }[]): Int8Array {
   const out = new Int8Array(cols.nx * cols.ny);
@@ -490,7 +512,7 @@ export function plinthColumns(cols: ReliefColumns, r: Relief, rects: readonly { 
  * stand at ground + rock (EMPTY elsewhere; their walls go down to the
  * column's own ground, `floor`).
  */
-export function rockField(cols: ReliefColumns, seed: number, plinth?: Int8Array): Field {
+export function rockField(cols: ReliefColumns, seed: number, plinth?: Int8Array, fill?: Uint8Array): Field {
   const { nx, ny, ground, rock } = cols;
   const kind = new Uint8Array(nx * ny);
   const h = new Int8Array(nx * ny).fill(EMPTY);
@@ -502,9 +524,13 @@ export function rockField(cols: ReliefColumns, seed: number, plinth?: Int8Array)
     floor[k] = ground[k] as number;
     const p = plinth ? (plinth[k] as number) : 0;
     if (p > 0) {
+      // The terrace fill: the footprint's ground on top (its yard's paint, else the island's grass), its walls the ground under a stone edge course.
+      const i = k % nx;
+      const j = Math.floor(k / nx);
+      const f = fill ? (fill[k] as number) : 0;
       h[k] = p;
-      top[k] = packed(PLINTH.scale(0.95 + 0.08 * hash2(k % nx, Math.floor(k / nx), seed + 41)));
-      kind[k] = PLINTH_KIND;
+      top[k] = fillTop(FILL_KINDS[f] ?? "grass", i, j, seed, groundColor("grass", (i + 0.5) / TERRAIN_VPT - 0.5, (j + 0.5) / TERRAIN_VPT - 0.5, seed));
+      kind[k] = FILL_KIND + f * 16 + Math.min(15, p);
       continue;
     }
     if (r <= 0) continue;
@@ -512,7 +538,7 @@ export function rockField(cols: ReliefColumns, seed: number, plinth?: Int8Array)
     kind[k] = ROCK_KIND + Math.max(0, ground[k] as number);
     top[k] = packed(rockTop(r, cols.rim[k] as number, k % nx, Math.floor(k / nx), seed));
   }
-  return { nx, ny, x0: 0, y0: 0, s: 1 / TERRAIN_VPT, h, top, kind, floor, bottom: 0, side: (z, kd) => (kd === PLINTH_KIND ? plinthSide(z) : rockSide(z, kd - ROCK_KIND)) };
+  return { nx, ny, x0: 0, y0: 0, s: 1 / TERRAIN_VPT, h, top, kind, floor, bottom: 0, side: (z, kd) => (kd >= FILL_KIND ? fillWall(z, kd) : rockSide(z, kd - ROCK_KIND)) };
 }
 
 /**
@@ -543,24 +569,25 @@ export class RockLayer {
     this.material.backFaceCulling = false;
   }
 
-  /** Rebuilds the rock of an island with the building footprints cut out and no crags on deposit tiles. */
-  update(island: Island, seed: number, blocked: ReadonlySet<string>, plinths: readonly FootprintRect[] = []): void {
-    const steps = this.steps(island, seed, blocked, plinths);
+  /** Rebuilds the rock of an island with the building footprints cut out and no crags on deposit tiles; the plinths take the yards' ground. */
+  update(island: Island, seed: number, blocked: ReadonlySet<string>, plinths: readonly FootprintRect[] = [], yards: readonly YardTile[] = []): void {
+    const steps = this.steps(island, seed, blocked, plinths, yards);
     while (!steps.next().done);
   }
 
   /** update() in steps (the incremental island build): the columns, then the crags in bands of rows; meshed at the end. */
-  *steps(island: Island, seed: number, blocked: ReadonlySet<string>, plinths: readonly FootprintRect[] = []): Generator<void, void, void> {
+  *steps(island: Island, seed: number, blocked: ReadonlySet<string>, plinths: readonly FootprintRect[] = [], yards: readonly YardTile[] = []): Generator<void, void, void> {
     const relief = reliefOf(island);
     this.relief = relief;
     const models = [...CRAGS, ...PEAKS].every((id) => decorModel(this.registry, id) !== null);
-    const key = `${island.id}|${island.revision}|${models}|${[...blocked].sort().join(";")}|${plinths.map((p) => `${p.x},${p.y},${p.w},${p.h}`).join(";")}`;
+    const key = `${island.id}|${island.revision}|${models}|${[...blocked].sort().join(";")}|${plinths.map((p) => `${p.x},${p.y},${p.w},${p.h}`).join(";")}|${yards.map((t) => `${t.x},${t.y},${t.kind}`).join(";")}`;
     if (key === this.key) return;
     const cols = reliefColumns(relief, TERRAIN_VPT, seed, blocked);
     this.cols = cols;
     yield;
     const b = new Builder();
-    const f = rockField(cols, seed, plinthColumns(cols, relief, plinths));
+    const plinth = plinthColumns(cols, relief, plinths);
+    const f = rockField(cols, seed, plinth, plinthFill(cols, plinth, relief.width, yards));
     meshField(b, f, 0, 0, f.nx, f.ny);
     const rocks = new ModelMerger();
     if (models) {

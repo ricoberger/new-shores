@@ -62,6 +62,6 @@
   { "id": "lace", "name": "Lace", "type": "clothing" },
   { "id": "candles", "name": "Candles", "type": "comfort" },
   { "id": "spectacles", "name": "Spectacles", "type": "comfort" },
-  { "id": "jewellery", "name": "Jewellery", "type": "luxury" },
+  { "id": "jewellery", "name": "Jewelry", "type": "luxury" },
   { "id": "instruments", "name": "Instruments", "type": "luxury" }
 ]

@@ -722,6 +722,13 @@ export interface components {
              */
             rotation: 0 | 90 | 180 | 270;
         };
+        /**
+         * @description The tiles are free tiles, or tiles with a land road of a lower type
+         *     (an earlier tier), which the new road replaces: their old road's
+         *     demolition refund is added and the new road's cost is charged for
+         *     every tile (MECHANICS §3). A tile with a road of the same or a
+         *     higher type, or a quay tile, fails the command with `occupied`.
+         */
         PlaceRoadCommand: {
             /**
              * @description discriminator enum property added by openapi-typescript

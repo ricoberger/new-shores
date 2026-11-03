@@ -393,7 +393,7 @@ export class IslandDetail {
     this.updateBlobs(display, defs);
     yield;
     const blocked = footprintTiles(display.buildings, defs);
-    yield* this.rock.steps(statics, this.seed, blocked, footprintRects(display.buildings, defs));
+    yield* this.rock.steps(statics, this.seed, blocked, footprintRects(display.buildings, defs), yardTiles(display, defs, this.registry));
     this.rock.setBridges(this.ground.bridges(), this.id);
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.rock.heightAt(x, y));
     yield;
@@ -564,7 +564,7 @@ export class IslandDetail {
     if (!st) return;
     const blocked = this.footprintTiles();
     const built = this.builtFrom;
-    this.rock.update(st, this.seed, blocked, built ? footprintRects(built.display.buildings, built.defs) : []);
+    this.rock.update(st, this.seed, blocked, built ? footprintRects(built.display.buildings, built.defs) : [], built ? yardTiles(built.display, built.defs, this.registry) : []);
     this.rock.setBridges(this.ground.bridges(), this.id);
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.rock.heightAt(x, y));
   }
@@ -750,6 +750,9 @@ export class IslandDetail {
 
   /** The walking surface at an island-local point (tiles): the life layer's ground. */
   readonly groundAt = (x: number, y: number): number => this.ground.surface(x, y);
+
+  /** The top of a tile's ground and rock at its centre (tiles): where the deposit highlight lies (outcrops stand there). */
+  readonly reliefAt = (x: number, y: number): number => this.rock.heightAt(x, y);
 
   /** Island origin (archipelago tiles) while shown, for the life layer; null when hidden. */
   lifeOrigin(): { x: number; y: number } | null {

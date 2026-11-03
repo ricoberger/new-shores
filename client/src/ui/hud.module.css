@@ -1283,6 +1283,14 @@
   will-change: transform;
 }
 
+/* The deposit the mine or quarry tool highlights (UI.md §3): icon and tile count. */
+.labelDeposit {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+  font-weight: 700;
+}
+
 .islandLabel:focus-visible {
   outline: 3px solid var(--ns-ui-focus);
 }

@@ -1,5 +1,6 @@
-"""Life models (LIFE_LAYER): villagers, carts and their wheel axle, sheep, rowing boat, crate at 16 voxels per tile, construction stages and scaffolding at 8. Forward is +y (recipe space)."""
+"""Life models (LIFE_LAYER): villagers, carts and their wheel axle, sheep, rowing boat, crate at 16 voxels per tile, the kit's pig and cow at 12 (the farms' scale), construction stages and scaffolding at 8. Forward is +y (recipe space)."""
 
+from nsvoxel import parts_kit as K
 from nsvoxel.grid import mat, shade_of
 from nsvoxel.mats import (
     BRASS,
@@ -104,6 +105,20 @@ def sheep(ctx):
     v.box(-1, -2, 1, 2, 2, 3, wool)
     v.set(0, -2, 3, wool)
     v.box(0, 2, 2, 1, 3, 4, TIMBER_DARK)
+    return v
+
+
+def pig(ctx):
+    """The kit pig (pig farm) facing +y, centred on the origin: the pig pens' life instances."""
+    v = ctx.vox(0, 0)
+    K.pig(v, -1, -4, 0, along="y")
+    return v
+
+
+def cow(ctx):
+    """The kit cow (dairy and cattle farms) facing +y, centred on the origin: the cattle pastures' life instances."""
+    v = ctx.vox(0, 0)
+    K.cow(v, -2, -5, 0, along="y")
     return v
 
 
@@ -252,6 +267,8 @@ RECIPES = {
     "life_cart_merchant": {"build": cart(True), "scale": 16},
     "life_cart_axle": {"build": axle, "scale": 16},
     "life_sheep": {"build": sheep, "scale": 16},
+    "life_pig": {"build": pig, "scale": 12},
+    "life_cow": {"build": cow, "scale": 12},
     "life_boat": {"build": boat, "scale": 16},
     "life_crate": {"build": crate, "scale": 16},
     "life_wake": {"build": wake, "scale": 16},

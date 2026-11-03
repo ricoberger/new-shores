@@ -60,11 +60,12 @@ describe("build menu tabs", () => {
 describe("build menu groups", () => {
   const groups = (tier: string) => buildMenuGroups(content, tier).map((r) => [r.group, r.items.map((b) => b.id)] as const);
 
-  it("lists General (house, road, market, warehouse), Production, Public in a tab, empty groups left out", () => {
+  it("lists General (house, road, warehouse), Production, Public (market first) in a tab, empty groups left out", () => {
     const [general, production, pub, ...rest] = groups("settlers");
-    expect(general).toEqual(["general", ["house_settlers", "road_dirt", "market", "warehouse"]]);
+    expect(general).toEqual(["general", ["house_settlers", "road_dirt", "warehouse"]]);
     expect(production?.[0]).toBe("production");
-    expect(pub).toEqual(["public", ["chapel"]]);
+    // The market serves a public-group need (D-065): it stands with the service buildings.
+    expect(pub).toEqual(["public", ["market", "chapel"]]);
     expect(rest).toEqual([]);
     // The Trading Post is never listed; later houses are upgrade-only.
     expect(JSON.stringify(groups("settlers"))).not.toContain("trading_post");
@@ -92,7 +93,7 @@ describe("build menu groups", () => {
 
   it("renders the groups in the strip, each with its label", () => {
     const html = render();
-    expect(ids(html).slice(0, 4)).toEqual(["house_settlers", "road_dirt", "market", "warehouse"]);
+    expect(ids(html).slice(0, 3)).toEqual(["house_settlers", "road_dirt", "warehouse"]);
     expect([...html.matchAll(/data-testid="build-group-([a-z]+)"/g)].map((m) => m[1])).toEqual(["general", "production", "public"]);
     expect(text(html.match(/data-testid="build-group-general"[^>]*><div[^>]*>(.*?)<\/div>/)![1]!)).toBe("General");
   });

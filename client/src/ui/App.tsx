@@ -18,6 +18,7 @@ import { serverTimeMs } from "../display/extrapolate";
 import { tons, units } from "../display/format";
 import { countdown, shipName } from "../display/ships";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
+import { planRoadDrag, roadDragSend } from "../display/roaddrag";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
 import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
@@ -59,6 +60,7 @@ import { claimableCount } from "../display/quests";
 import { unlockToasts } from "../display/tiers";
 import { isQuayType, offShallows, SHALLOWS_REACH } from "../display/quay";
 import { WorldOverlay } from "./WorldOverlay";
+import { highlightedDeposit } from "../display/deposits";
 import { StatsBadge } from "./StatsBadge";
 import { statsRequested } from "../dev/stats";
 
@@ -105,6 +107,8 @@ export interface TestHook {
   ghostValidity(): "ok" | "no_road" | "invalid" | null;
   /** Marks of a painted field rectangle by kind and the rejected anchors flashing (D-054). */
   paintCounts(): Record<"ok" | "bad" | "max" | "remove" | "flash", number>;
+  /** Deposit tiles the mine or quarry tool highlights (UI.md §3). */
+  depositCount(): number;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
@@ -487,11 +491,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     road: (islandId: string, from: TilePos, to: TilePos) => {
       const is = model?.islands.find((x) => x.id === islandId);
       if (tool.kind !== "road" || !is) return;
-      const existing = new Set(is.roads.map((r) => `${r.x},${r.y}`));
-      const tiles = lPath(from, to).filter((tl) => !existing.has(`${tl.x},${tl.y}`));
+      // Tiles that already carry the road are not sent (display hint, the server validates the rest).
+      const st = renderer?.islandStatics().get(islandId);
+      const tiles = st
+        ? roadDragSend(planRoadDrag(from, to, tool.roadType, { island: st, buildings: is.buildings, roads: is.roads, defs, tiers: content?.tiers }))
+        : lPath(from, to).filter((tl) => !is.roads.some((r) => r.x === tl.x && r.y === tl.y));
       if (tiles.length === 0) return;
       // A quay off the shallows would be rejected (display mirror of the rule, D-060).
-      const st = renderer?.islandStatics().get(islandId);
       if (isQuayType(defs, tool.roadType) && st && offShallows(st, tiles).length > 0) {
         toast(t("app.quayShallows", { count: SHALLOWS_REACH }));
         return;
@@ -660,6 +666,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         jumpToIsland: (id) => rendererRef.current?.jumpToIsland(id),
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
         paintCounts: () => rendererRef.current?.paintCounts() ?? { ok: 0, bad: 0, max: 0, remove: 0, flash: 0 },
+        depositCount: () => rendererRef.current?.depositCount() ?? 0,
         quality: () => rendererRef.current?.quality() ?? "low",
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         assets: () =>
@@ -984,7 +991,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   return (
     <div className={`${styles.root} ${phone ? styles.phone : ""}`} data-layout={layout.mode} data-touch={isTouchLayout(layout.mode) ? "true" : undefined}>
       {model && (
-        <WorldOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} onIsland={(id) => tapIsland(id)} declutter={phone} />
+        <WorldOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} onIsland={(id) => tapIsland(id)} declutter={phone} deposit={highlightedDeposit(tool, defs)} />
       )}
       <div className={styles.overlay}>
         <div className={styles.top}>

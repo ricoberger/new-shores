@@ -3,25 +3,15 @@
 // from the renderer's (server) clock. Pure (no Babylon): the render layer
 // (render/life.ts) passes a sink that turns the instances into thin
 // instances. Budgets are applied in the priority order of ART_DIRECTION §5
-// (carts, walkers, then the rest) so a dense island on a phone keeps its
-// most telling motion; within a class every producer gets its first
-// element before any gets a second.
+// (carts with their drivers, then the rest) so a dense island on a phone
+// keeps its most telling motion.
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay } from "../api/client";
 import type { TilePos } from "./geometry";
-import { allocateShares, hash01, lifeHash, type LifeAtLod, type LifeBudget, type LifePlan, type LifeSink, type LifeStats, loopPhase, spreadPhase } from "./life";
+import { allocateShares, hash01, lifeHash, type LifeAtLod, type LifeBudget, type LifePlan, type LifeSink, type LifeStats, loopPhase } from "./life";
 import { chunkAt } from "./chunks";
 import { alongPath, footprintRoads, roadPath } from "./roadpath";
 import { rotatedFootprint, tileKey } from "./geometry";
 import { BERTH_ANCHORS, type ModelAnchor, pierHeading, pierPoint } from "./ships";
-
-/**
- * Visual cart capacity (output milli-units per minute one cart carries):
- * a producer with output rate r runs ceil(r / CART_CAPACITY) carts, at most
- * MAX_CARTS (LIFE_LAYER §3). No server field: the payload has no cart
- * capacity, so this is a display constant (logged as an open question).
- */
-export const CART_CAPACITY = 1000;
-export const MAX_CARTS = 3;
 
 /** Road surface height above the ground: the road is painted, flush with it (D-068; ramps and bridges are IslandGround's). */
 const ROAD_H = 0;
@@ -30,9 +20,12 @@ export const WHEEL_AHEAD = 0.15;
 export const WHEEL_HEIGHT = 0.0969;
 /** Wheel radius (tiles): the spin per tile travelled. */
 const WHEEL_RADIUS = 0.09;
-/** Walkers keep to the right of the road centre (tiles), carts drive in the middle. */
-const WALKER_SIDE = 0.15;
-/** Stride (tiles per step) and bob height (tiles) of a walker. */
+/**
+ * The driver walks ahead of the cart between its shafts (tiles from the
+ * cart's centre; the shafts reach 0.69 tiles ahead), pulling it.
+ */
+export const DRIVER_AHEAD = 0.74;
+/** Stride (tiles per step) and bob height (tiles) of a walking villager (drivers). */
 const STRIDE = 0.22;
 const BOB = 0.018;
 /**
@@ -43,7 +36,7 @@ export const VILLAGER_SCALE = 1.7;
 /** Villager variants per tier (assets/voxel/recipes/_life.py villager tiers). */
 export const VILLAGER_VARIANTS = 3;
 
-/** Statuses with no deliveries: no cart and no walker (LIFE_LAYER §1, "no walkers = not connected or starved"). */
+/** Statuses with no deliveries: no cart (LIFE_LAYER §1, "no carts = not connected or starved"). */
 const NO_DELIVERY = new Set(["paused", "not_connected", "input_starved", "warehouse_full"]);
 
 /** The element classes of the life layer (render/life.ts LIFE_CLASSES). */
@@ -58,6 +51,8 @@ export const CLS = {
   gullUp: "gull_up",
   gullDown: "gull_down",
   sheep: "sheep",
+  pig: "pig",
+  cow: "cow",
 } as const;
 
 /**
@@ -77,12 +72,22 @@ const HOME_PAUSE_MS = 4000;
 const STROLLER_SIDE = 0.14;
 
 /**
- * Sheep (LIFE_LAYER §5): SHEEP_PER_PASTURE wander inside each pasture: in
- * every SHEEP_STEP_MS a sheep walks for SHEEP_WALK of the step to a new
- * hashed spot, then grazes. An inactive pasture's sheep stand still and
- * greyed (the unpaid-ship multiplier).
+ * Pasture animals (LIFE_LAYER §5): sheep in pastures, cows in cattle
+ * pastures (dairy and cattle farms), pigs in pig pens — a few per field
+ * wander inside it, seeded per field: in every SHEEP_STEP_MS an animal
+ * walks for SHEEP_WALK of the step to a new hashed spot, then grazes. An
+ * inactive field's animals stand still and greyed (the unpaid-ship
+ * multiplier).
  */
 export const SHEEP_PER_PASTURE = 2;
+export const COWS_PER_PASTURE = 2;
+export const PIGS_PER_PEN = 3;
+/** The animals of a field type (content `field.type`) and how many per field. */
+export const PASTURE_ANIMALS: Readonly<Record<string, { cls: string; count: number }>> = {
+  pasture: { cls: "sheep", count: SHEEP_PER_PASTURE },
+  cattle_pasture: { cls: "cow", count: COWS_PER_PASTURE },
+  pig_pen: { cls: "pig", count: PIGS_PER_PEN },
+};
 export const SHEEP_STEP_MS = 9000;
 const SHEEP_WALK = 0.35;
 const SHEEP_MARGIN = 0.32;
@@ -102,6 +107,8 @@ interface Stroller {
 }
 
 interface Sheep {
+  /** The animal's class (sheep, cow, pig). */
+  cls: string;
   /** Field interior (island tiles). */
   x0: number;
   y0: number;
@@ -164,17 +171,18 @@ export function strollers(display: IslandDisplay, defs: ReadonlyMap<string, Cont
   return out;
 }
 
-/** The sheep of the island's pastures (SHEEP_PER_PASTURE each). */
-export function pastureSheep(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): Sheep[] {
+/** The animals of the island's pastures and pens (PASTURE_ANIMALS by field type). */
+export function pastureAnimals(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): Sheep[] {
   const byId = new Map(display.buildings.map((b) => [b.id, b]));
   const out: Sheep[] = [];
   for (const b of display.buildings) {
     const def = defs.get(b.type);
-    if (!def?.field || def.id !== "pasture") continue;
+    const kind = def?.field ? PASTURE_ANIMALS[def.field.type ?? def.id] : undefined;
+    if (!def || !kind) continue;
     const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
     const active = pastureActive(b, byId.get(b.farm_id as number));
-    for (let i = 0; i < SHEEP_PER_PASTURE; i++) {
-      out.push({ x0: b.x + SHEEP_MARGIN, y0: b.y + SHEEP_MARGIN, w: w - 2 * SHEEP_MARGIN, h: h - 2 * SHEEP_MARGIN, key: `${b.id}:${i}`, active });
+    for (let i = 0; i < kind.count; i++) {
+      out.push({ cls: kind.cls, x0: b.x + SHEEP_MARGIN, y0: b.y + SHEEP_MARGIN, w: w - 2 * SHEEP_MARGIN, h: h - 2 * SHEEP_MARGIN, key: `${b.id}:${i}`, active });
     }
   }
   return out;
@@ -191,11 +199,11 @@ export const SEA_H = -0.6;
  */
 export const BOAT_LOOP_MS = 48_000;
 /**
- * Budget shares of carts (instances), walkers, boats, crates, sheep,
- * gulls and strollers; what a class leaves unused goes to the others in
- * that priority order.
+ * Budget shares of carts (instances, drivers included), boats, crates,
+ * animals, gulls and strollers; what a class leaves unused goes to the
+ * others in that priority order.
  */
-const SHARES = [0.45, 0.1, 0.02, 0.04, 0.1, 0.04, 0.25];
+const SHARES = [0.55, 0.02, 0.04, 0.1, 0.04, 0.25];
 /** Most strollers an island plans (above any instance budget). */
 const MAX_STROLLERS = 400;
 const BOAT_ALONG = 1.6;
@@ -274,18 +282,16 @@ interface Smoker {
   anchor: { x: number; y: number; h: number } | null;
 }
 
-/** Instances one cart draws (body and two axles). */
-export const CART_INSTANCES = 3;
+/** Instances one cart draws (body, two axles and its driver). */
+export const CART_INSTANCES = 4;
 
-/** One delivery route of a producer: the road path to its collector and the round trip. */
+/** One delivery route of a producer: the road path to its collector and the round trip of its one cart. */
 export interface Route {
   producerId: number;
   path: TilePos[];
   /** One leg (ms): the server's transfer delay to the collector; the round trip is two legs. */
   legMs: number;
-  /** Carts on the route (ceil(rate / CART_CAPACITY), ≤ MAX_CARTS). */
-  carts: number;
-  /** The tier of the producer (villager colours). */
+  /** The tier of the producer (the driver's colours). */
   tier: string;
 }
 
@@ -296,13 +302,7 @@ function outputRate(b: BuildingDisplay): number {
   return r;
 }
 
-/** Carts of a producer with output rate r (milli-units per minute). */
-export function cartsFor(rate: number): number {
-  if (!(rate > 0)) return 0;
-  return Math.min(MAX_CARTS, Math.ceil(rate / CART_CAPACITY));
-}
-
-/** Whether a producer delivers (and so has carts and a walker): running with output, a collector and a transfer delay. */
+/** Whether a producer delivers (and so has its cart): running with output, a collector and a transfer delay. */
 export function delivers(b: BuildingDisplay): boolean {
   return !NO_DELIVERY.has(b.status) && !b.paused && outputRate(b) > 0 && b.assigned_warehouse_id != null && (b.transfer_delay_ms ?? 0) > 0;
 }
@@ -320,7 +320,7 @@ export function deliveryRoutes(display: IslandDisplay, defs: ReadonlyMap<string,
     if (!wh || !def || !whDef) continue;
     const path = roadPath(roads, footprintRoads(roads, b, def), footprintRoads(roads, wh, whDef));
     if (!path || path.length < 2) continue;
-    out.push({ producerId: b.id, path, legMs: b.transfer_delay_ms as number, carts: cartsFor(outputRate(b)), tier: def.tier });
+    out.push({ producerId: b.id, path, legMs: b.transfer_delay_ms as number, tier: def.tier });
   }
   return out;
 }
@@ -346,9 +346,8 @@ function onRoute(r: Route, p: number): { loaded: boolean; dist: number } {
 }
 
 export class IslandLife implements LifePlan {
+  /** The delivery routes, one cart with its driver each. */
   private routes: Route[] = [];
-  /** Carts in draw order: every route's first cart, then every second cart, … (fair budget cuts). */
-  private carts: { route: Route; index: number }[] = [];
   private smokers: Smoker[] = [];
   private smokeAnchor: SmokeAnchor | null = null;
   private boats: Boat[] = [];
@@ -366,8 +365,6 @@ export class IslandLife implements LifePlan {
     void _statics;
     this.version++;
     this.routes = deliveryRoutes(display, defs);
-    this.carts = [];
-    for (let i = 0; i < MAX_CARTS; i++) for (const route of this.routes) if (i < route.carts) this.carts.push({ route, index: i });
     this.smokeAnchor = smokeAnchor;
     this.smokers = [];
     for (const b of display.buildings) {
@@ -377,7 +374,7 @@ export class IslandLife implements LifePlan {
     }
     this.updateHarbour(display, defs);
     this.strollers = strollers(display, defs, MAX_STROLLERS);
-    this.sheep = pastureSheep(display, defs);
+    this.sheep = pastureAnimals(display, defs);
   }
 
   private updateHarbour(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
@@ -443,21 +440,18 @@ export class IslandLife implements LifePlan {
    */
   private inView(chunks: ReadonlySet<string> | null): {
     routes: Route[];
-    carts: { route: Route; index: number }[];
     smokers: Smoker[];
     crates: { x: number; y: number; h: number; yaw: number }[];
     strollers: Stroller[];
     sheep: Sheep[];
   } {
-    const all = { routes: this.routes, carts: this.carts, smokers: this.smokers, crates: this.crates, strollers: this.strollers, sheep: this.sheep };
+    const all = { routes: this.routes, smokers: this.smokers, crates: this.crates, strollers: this.strollers, sheep: this.sheep };
     if (chunks === null) return all;
     if (this.viewCache?.chunks === chunks && this.viewCache.version === this.version) return this.viewCache.lists;
     const at = (x: number, y: number) => chunks.has(chunkAt(x, y));
     const touches = (path: readonly TilePos[]) => path.some((p) => at(p.x, p.y));
-    const routes = new Set(this.routes.filter((r) => touches(r.path)));
     const lists = {
-      routes: [...routes],
-      carts: this.carts.filter((c) => routes.has(c.route)),
+      routes: this.routes.filter((r) => touches(r.path)),
       smokers: this.smokers.filter((s) => at(s.b.x, s.b.y)),
       crates: this.crates.filter((c) => at(c.x, c.y)),
       strollers: this.strollers.filter((s) => touches(s.path)),
@@ -472,10 +466,9 @@ export class IslandLife implements LifePlan {
     const v = this.inView(chunks);
     const particles = lod.smoke ? this.drawSmoke(nowMs, sink, budget.particles, v.smokers) : 0;
     const moving = lod.moving;
-    const [cartInst = 0, walkers = 0, boats = 0, crates = 0, sheep = 0, gulls = 0, strollers = 0] = allocateShares(
+    const [cartInst = 0, boats = 0, crates = 0, sheep = 0, gulls = 0, strollers = 0] = allocateShares(
       [
-        moving ? v.carts.length * CART_INSTANCES : 0,
-        moving ? v.routes.length : 0,
+        moving ? v.routes.length * CART_INSTANCES : 0,
         moving ? this.boats.length : 0,
         lod.props ? v.crates.length : 0,
         lod.props ? v.sheep.length : 0,
@@ -486,8 +479,7 @@ export class IslandLife implements LifePlan {
       budget.instances,
     );
     const nCarts = Math.floor(cartInst / CART_INSTANCES);
-    for (let i = 0; i < nCarts; i++) this.drawCart(v.carts[i] as { route: Route; index: number }, nowMs, sink);
-    for (let i = 0; i < walkers; i++) this.drawWalker(v.routes[i] as Route, nowMs, sink);
+    for (let i = 0; i < nCarts; i++) this.drawCart(v.routes[i] as Route, nowMs, sink);
     for (let i = 0; i < boats; i++) this.drawBoat(this.boats[i] as Boat, nowMs, sink);
     for (let i = 0; i < crates; i++) {
       const c = v.crates[i] as { x: number; y: number; h: number; yaw: number };
@@ -496,7 +488,7 @@ export class IslandLife implements LifePlan {
     for (let i = 0; i < sheep; i++) this.drawSheep(v.sheep[i] as Sheep, moving ? nowMs : null, sink);
     for (let i = 0; i < gulls; i++) this.drawGull(this.gulls[i] as Gull, nowMs, sink);
     for (let i = 0; i < strollers; i++) this.drawStroller(v.strollers[i] as Stroller, nowMs, sink);
-    return { instances: nCarts * CART_INSTANCES + walkers + boats + crates + sheep + gulls + strollers, particles };
+    return { instances: nCarts * CART_INSTANCES + boats + crates + sheep + gulls + strollers, particles };
   }
 
   private drawStroller(s: Stroller, nowMs: number, sink: LifeSink): void {
@@ -525,12 +517,12 @@ export class IslandLife implements LifePlan {
     sink.add(CLS.villager(s.tier, s.variant), x, ROAD_H + bob, y, facing(at.heading), VILLAGER_SCALE);
   }
 
-  /** A sheep at time nowMs (null: standing at its first spot, the mid LOD), walking then grazing in each step. */
+  /** A pasture animal at time nowMs (null: standing at its first spot, the mid LOD), walking then grazing in each step. */
   private drawSheep(s: Sheep, nowMs: number | null, sink: LifeSink): void {
     const spot = (k: number) => ({ x: s.x0 + hash01(s.key, k, "x") * s.w, y: s.y0 + hash01(s.key, k, "y") * s.h });
     if (!s.active || nowMs === null) {
       const p = spot(0);
-      sink.add(CLS.sheep, p.x, FIELD_H, p.y, hash01(s.key, "yaw") * Math.PI * 2, 1, s.active ? undefined : INACTIVE_TINT);
+      sink.add(s.cls, p.x, FIELD_H, p.y, hash01(s.key, "yaw") * Math.PI * 2, 1, s.active ? undefined : INACTIVE_TINT);
       return;
     }
     const u = (nowMs + hash01(s.key, "phase") * SHEEP_STEP_MS) / SHEEP_STEP_MS;
@@ -541,7 +533,7 @@ export class IslandLife implements LifePlan {
     const e = f * f * (3 - 2 * f);
     const heading = Math.atan2(b.y - a.y, b.x - a.x);
     // Head down while grazing: a slight forward pitch.
-    sink.add(CLS.sheep, a.x + (b.x - a.x) * e, FIELD_H, a.y + (b.y - a.y) * e, facing(heading), 1, undefined, f >= 1 ? 0.12 : 0);
+    sink.add(s.cls, a.x + (b.x - a.x) * e, FIELD_H, a.y + (b.y - a.y) * e, facing(heading), 1, undefined, f >= 1 ? 0.12 : 0);
   }
 
   private drawBoat(b: Boat, nowMs: number, sink: LifeSink): void {
@@ -606,33 +598,24 @@ export class IslandLife implements LifePlan {
     return drawn;
   }
 
-  private drawCart(c: { route: Route; index: number }, nowMs: number, sink: LifeSink): void {
-    const r = c.route;
+  /** A producer's cart on its round trip, loaded out and empty back, pulled by its driver walking between the shafts. */
+  private drawCart(r: Route, nowMs: number, sink: LifeSink): void {
     const period = r.legMs * 2;
     const start = -hash01(r.producerId, "cart") * period;
-    const p = (loopPhase(nowMs, start, period) + spreadPhase(c.index, r.carts)) % 1;
-    const { loaded, dist } = onRoute(r, p);
+    const { loaded, dist } = onRoute(r, loopPhase(nowMs, start, period));
     const yaw = facing(at.heading);
+    const dx = Math.cos(at.heading);
+    const dy = Math.sin(at.heading);
     sink.add(loaded ? CLS.cartLoaded : CLS.cart, at.x, ROAD_H, at.y, yaw, 1);
     // Axles at the wheel pivots, spinning with the distance travelled.
     const spin = dist / WHEEL_RADIUS;
-    const fx = Math.cos(at.heading) * WHEEL_AHEAD;
-    const fy = Math.sin(at.heading) * WHEEL_AHEAD;
+    const fx = dx * WHEEL_AHEAD;
+    const fy = dy * WHEEL_AHEAD;
     sink.add(CLS.axle, at.x + fx, ROAD_H + WHEEL_HEIGHT, at.y + fy, yaw, 1, undefined, spin);
     sink.add(CLS.axle, at.x - fx, ROAD_H + WHEEL_HEIGHT, at.y - fy, yaw, 1, undefined, spin);
-  }
-
-  private drawWalker(r: Route, nowMs: number, sink: LifeSink): void {
-    const period = r.legMs * 2;
-    // Half a round trip apart from the first cart, so the walker and the cart meet on the road.
-    const start = -(hash01(r.producerId, "walker") * 0.5 + 0.25) * period;
-    const { dist } = onRoute(r, loopPhase(nowMs, start, period));
-    const side = WALKER_SIDE;
-    const x = at.x - Math.sin(at.heading) * side;
-    const y = at.y + Math.cos(at.heading) * side;
-    const step = dist / STRIDE;
-    const bob = Math.abs(Math.sin(step * Math.PI)) * BOB;
-    const variant = lifeHash(r.producerId, "walker") % VILLAGER_VARIANTS;
-    sink.add(CLS.villager(r.tier, variant), x, ROAD_H + bob, y, facing(at.heading), VILLAGER_SCALE);
+    // The driver in the producer's tier colours, stepping with the distance.
+    const bob = Math.abs(Math.sin((dist / STRIDE) * Math.PI)) * BOB;
+    const variant = lifeHash(r.producerId, "driver") % VILLAGER_VARIANTS;
+    sink.add(CLS.villager(r.tier, variant), at.x + dx * DRIVER_AHEAD, ROAD_H + bob, at.y + dy * DRIVER_AHEAD, yaw, VILLAGER_SCALE);
   }
 }

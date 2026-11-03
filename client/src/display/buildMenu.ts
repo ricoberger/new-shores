@@ -35,11 +35,11 @@ export function defaultBuildTier(tabs: readonly BuildTierTab[]): string | undefi
 }
 
 /**
- * The group of a building: houses, roads (not the quay), the Warehouse and the Market (the one service with
- * levels) are General; the rest follows the server's category (the quay is a harbour building there).
+ * The group of a building: houses, roads (not the quay) and the Warehouse are General; the rest follows the
+ * server's category (the Market is a public building, D-065; the quay is a harbour building there).
  */
 export function buildGroupOf(b: ContentBuilding): BuildGroup {
-  if (b.warehouse || (b.service?.levels.length ?? 0) > 1) return "general";
+  if (b.warehouse) return "general";
   switch (b.category) {
     case "production":
       return "production";
@@ -60,13 +60,17 @@ function harbourRank(b: ContentBuilding): number {
   return 3;
 }
 
-/** Order inside General: the house, the roads, the Market, the Warehouse, anything else. */
+/** Order inside General: the house, the roads, the Warehouse, anything else. */
 function generalRank(b: ContentBuilding): number {
   if (b.house) return 0;
   if (b.road) return 1;
-  if (b.service) return 2;
-  if (b.warehouse) return 3;
-  return 4;
+  if (b.warehouse) return 2;
+  return 3;
+}
+
+/** Order inside Public: the Market (the one service with levels) first, then the rest in content order. */
+function publicRank(b: ContentBuilding): number {
+  return (b.service?.levels.length ?? 0) > 1 ? 0 : 1;
 }
 
 /**
@@ -116,7 +120,7 @@ export function buildMenuGroups(content: Content, tierId: string): BuildGroupRun
   for (const group of BUILD_GROUPS) {
     const own = listed.filter(({ b }) => buildGroupOf(b) === group);
     if (own.length === 0) continue;
-    const rank = (b: ContentBuilding) => (group === "general" ? generalRank(b) : group === "production" ? (depths.get(b.id) ?? 0) : group === "harbour" ? harbourRank(b) : 0);
+    const rank = (b: ContentBuilding) => (group === "general" ? generalRank(b) : group === "production" ? (depths.get(b.id) ?? 0) : group === "harbour" ? harbourRank(b) : publicRank(b));
     own.sort((x, y) => rank(x.b) - rank(y.b) || x.order - y.order);
     runs.push({ group, items: own.map(({ b }) => b) });
   }

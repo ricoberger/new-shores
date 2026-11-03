@@ -27,12 +27,14 @@ import { allocateFarTerrain, type MaskIsland, MaskLayer, reliefOrder } from "./f
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { freeShallows, isQuayType, withQuays } from "../display/quay";
-import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
+import { buildingAt, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
 import { type ArchPoint, dockPoints, type ModelAnchor, seaPoint, shipLengthRatio } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
+import { depositTiles, highlightedDeposit } from "../display/deposits";
+import { DepositHighlight, type DepositMark } from "./deposithighlight";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
 import { flankDocks, isFlankAnchor, withIdleAtPier } from "./moorings";
@@ -51,8 +53,8 @@ import { JumpLatch } from "./latch";
 import { LIFE_CLASSES, LifeLayer } from "./life";
 import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
-import { RoadPreview } from "./roads";
 import { PaintPreview, type PaintMark } from "./paint";
+import { planRoadDrag } from "../display/roaddrag";
 import { t } from "../i18n";
 
 /**
@@ -188,7 +190,6 @@ export class GameRenderer {
   /** Life layer (carts, walkers, smoke, …; docs/LIFE_LAYER.md): one mesh per element class for the scene. */
   private readonly life: LifeLayer;
   private readonly marks: FootprintMarks;
-  private readonly roadPreview: RoadPreview;
   private readonly grid: GridOverlay;
   /** Ground point of the last touch tap or drag position (archipelago tiles): the grid's centre on touch. */
   private lastTouch: ArchPoint | null = null;
@@ -215,13 +216,18 @@ export class GameRenderer {
   private lastIslands: ReadonlyMap<string, Island> | null = null;
   private lastContent: unknown = null;
   private defs = new Map<string, ContentBuilding>();
+  private tiers: readonly { id: string; index: number }[] = [];
   private hover: Point | null = null;
   private roadStart: IslandTile | null = null;
+  /** The tile under the pointer of the road drag (its ghost runs from roadStart to here). */
+  private roadEnd: TilePos | null = null;
   /** The rectangle being dragged with the field tool (place or remove) or the Demolish tool (remove fields). */
   private paint: (PaintDrag & { island: string; mode: "place" | "remove" }) | null = null;
   private readonly paintPreview: PaintPreview;
   /** Cache key of the painted rectangle's preview, and its marks' state for the release. */
   private paintKey = "";
+  private readonly depositHighlight: DepositHighlight;
+  private depositKey = "";
   private lastPaintStatus: string | null = null;
   private selected: number | null = null;
   private placedInitially = false;
@@ -305,9 +311,9 @@ export class GameRenderer {
     this.life = new LifeLayer(this.scene, LIFE_CLASSES, quality, life, this.models);
     this.arch.setQuality(quality);
     this.marks = new FootprintMarks(this.scene);
-    this.roadPreview = new RoadPreview(this.scene);
     this.grid = new GridOverlay(this.scene);
     this.paintPreview = new PaintPreview(this.scene);
+    this.depositHighlight = new DepositHighlight(this.scene);
 
     this.ghost = new PlacementGhost(this.scene, this.models);
 
@@ -375,6 +381,7 @@ export class GameRenderer {
     this.updatePaint();
     // A pinned clock (shots) holds the flash of rejected tiles.
     this.paintPreview.tick(tl, this.frozenAt !== null);
+    this.updateDeposits();
     this.updateGrid();
     this.updateMarks();
     this.engine._drawCalls.fetchNewFrame();
@@ -1014,6 +1021,7 @@ export class GameRenderer {
     if (snap.content !== this.lastContent && snap.content) {
       this.lastContent = snap.content;
       this.defs = new Map(snap.content.buildings.map((b) => [b.id, b]));
+      this.tiers = snap.content.tiers;
       this.shipLengths = new Map(snap.content.ships.map((s) => [s.id, shipLengthRatio(s)]));
       this.arch.setShipLengths(this.shipLengths);
       // The zoom-out cap of the region (an older server sends none: no cap).
@@ -1437,7 +1445,10 @@ export class GameRenderer {
     const tool = this.tool();
     if (button !== 0) return;
     if (tool.kind === "none") return;
-    if (tool.kind === "road") this.roadStart = this.tileAt(p);
+    if (tool.kind === "road") {
+      this.roadStart = this.tileAt(p);
+      this.roadEnd = this.roadStart ? { x: this.roadStart.x, y: this.roadStart.y } : null;
+    }
     // Field tool: paint (or remove) a rectangle; the Demolish tool removes the fields under one.
     if (tool.kind === "field" || tool.kind === "demolish") {
       const tl = this.tileAt(p);
@@ -1455,8 +1466,7 @@ export class GameRenderer {
     }
     if (this.roadStart && button === 0) {
       const tl = this.tileOn(this.roadStart.island, cur);
-      const pl = this.arch.placement(this.roadStart.island);
-      if (tl && pl) this.roadPreview.set(lPath(this.roadStart, tl).map((q) => ({ x: q.x + pl.position.x, y: q.y + pl.position.y })));
+      if (tl) this.roadEnd = { x: tl.x, y: tl.y };
       return;
     }
     // Right-drag turns the camera about its target: dragging right turns the map counter-clockwise on screen.
@@ -1471,7 +1481,7 @@ export class GameRenderer {
   private onPointerCancel(): void {
     this.rig.snap();
     this.roadStart = null;
-    this.roadPreview.set([]);
+    this.roadEnd = null;
     this.paint = null;
   }
 
@@ -1504,7 +1514,7 @@ export class GameRenderer {
       const start = this.roadStart;
       const tl = this.tileOn(start.island, p);
       this.roadStart = null;
-      this.roadPreview.set([]);
+      this.roadEnd = null;
       if (tl && this.tool().kind === "road") this.events.road(start.island, start, tl);
     }
   }
@@ -1691,13 +1701,24 @@ export class GameRenderer {
     const toolKey = tool.kind === "field" ? `${tool.farmId}|${tool.buildingType}|${tool.rotation}|${tool.remove ? 1 : 0}` : tool.kind;
     // The quay tool tints the free shallows of the island under the pointer (D-060).
     const quayIsland = !drag && tool.kind === "road" && isQuayType(this.defs, tool.roadType) && this.hover ? this.tileAt(this.hover)?.island : undefined;
-    const key = drag
-      ? `${drag.mode}|${drag.island}|${drag.start.x},${drag.start.y}|${drag.end.x},${drag.end.y}|${toolKey}|${server?.version ?? 0}|${this.paint ? 1 : 0}`
-      : quayIsland
-        ? `quay|${quayIsland}|${server?.version ?? 0}`
-        : "";
+    const road = tool.kind === "road" && this.roadStart && this.roadEnd ? { start: this.roadStart, end: this.roadEnd, type: tool.roadType } : null;
+    const key = road
+      ? `road|${road.type}|${road.start.island}|${road.start.x},${road.start.y}|${road.end.x},${road.end.y}|${server?.version ?? 0}`
+      : drag
+        ? `${drag.mode}|${drag.island}|${drag.start.x},${drag.start.y}|${drag.end.x},${drag.end.y}|${toolKey}|${server?.version ?? 0}|${this.paint ? 1 : 0}`
+        : quayIsland
+          ? `quay|${quayIsland}|${server?.version ?? 0}`
+          : "";
     if (key === this.paintKey) return;
     this.paintKey = key;
+    if (road) {
+      // The road drag's ghost (UI.md §3): one mark per tile laid, green where the client expects a road, red where a
+      // rule rejects it; a road of a lower type is replaced (green), one of the same or a higher type is left unmarked
+      // (not sent).
+      this.paintPreview.set(this.roadDragMarks(road.start.island, road.start, road.end, road.type));
+      this.setPaintStatus(null);
+      return;
+    }
     const ql = quayIsland ? this.lookup(quayIsland) : undefined;
     const qpl = quayIsland ? this.arch.placement(quayIsland) : undefined;
     if (ql?.statics && qpl) {
@@ -1759,6 +1780,26 @@ export class GameRenderer {
     this.setPaintStatus(t("paint.remove", { count: n, name, Name: tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? t("field.generic")) : t("field.generic"), clipped: clipped ? t("paint.removeClipped") : "" }));
   }
 
+  /** The marks of a road drag on an island (island tiles from `start` to `end`), by the client hint per tile. */
+  private roadDragMarks(island: string, start: TilePos, end: TilePos, roadType: string): PaintMark[] {
+    const l = this.lookup(island);
+    const pl = this.arch.placement(island);
+    if (!l?.statics || !pl) return [];
+    const detail = this.details.get(island);
+    const tiles = planRoadDrag(start, end, roadType, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs, tiers: this.tiers });
+    // A road the new one replaces (MECHANICS §3) is marked like a new tile.
+    return tiles
+      .filter((tl) => tl.hint !== "skip")
+      .map((tl) => ({
+        cx: pl.position.x + tl.x + 0.5,
+        cz: -(pl.position.y + tl.y + 0.5),
+        w: 1,
+        h: 1,
+        kind: tl.hint === "bad" ? "bad" : "ok",
+        base: detail?.baseOf({ x: tl.x, y: tl.y, type: "", rotation: 0 }, { width: 1, height: 1 }) ?? 0,
+      }));
+  }
+
   /** The anchors of a painted rectangle and their hint for the field tool (null: no field tool or its farm is gone). */
   private paintPlanOf(drag: PaintDrag & { island: string }): { plan: ReturnType<typeof planPaint>; wrongIsland: boolean } | null {
     const tool = this.tool();
@@ -1810,6 +1851,33 @@ export class GameRenderer {
     const l = this.lookup(island);
     if (!l) return;
     for (const [farm, g] of fieldsUnder(tiles, l.display.buildings, this.defs, farmId)) this.events.removeFields(island, farm, g.tiles, clipped);
+  }
+
+  /**
+   * The deposit highlight (UI.md §3): with a mine or quarry as the build
+   * tool, the tiles of its deposit kind on every island drawn in detail
+   * (the far view's labels carry the icon instead). Recomputed only when
+   * the kind, the LOD, the server state or the detailed islands change.
+   */
+  private updateDeposits(): void {
+    const kind = highlightedDeposit(this.tool(), this.defs);
+    const ready = kind && this.lod !== "far" ? [...this.details].filter(([, d]) => d.hasTiles() && d.lifeOrigin() !== null) : [];
+    const key = kind ? `${kind}|${this.lod}|${this.sync.getSnapshot().server?.version ?? 0}|${ready.map(([id]) => id).join(",")}` : "";
+    if (key === this.depositKey) return;
+    this.depositKey = key;
+    const marks: DepositMark[] = [];
+    for (const [id, d] of ready) {
+      const is = this.displayIsland(id);
+      const pl = this.arch.placement(id);
+      if (!is || !pl || !kind) continue;
+      for (const t of depositTiles(is, kind, this.defs)) marks.push({ cx: pl.position.x + t.x + 0.5, cz: -(pl.position.y + t.y + 0.5), base: d.reliefAt(t.x, t.y) });
+    }
+    this.depositHighlight.set(marks);
+  }
+
+  /** How many deposit tiles the mine or quarry tool highlights (tests and shots). */
+  depositCount(): number {
+    return this.depositHighlight.shown();
   }
 
   /** Marks of the painted rectangle by kind and the anchors flashing (tests and shots). */
