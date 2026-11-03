@@ -9,7 +9,7 @@ residents) and extrapolated between fetches (D-027).
 ## 1. Principles
 
 - **State → motion.** No decoration animates unless it says something: no
-  smoke = not running; no walkers = not connected or starved; no boats =
+  smoke = not running; no cart = not connected or starved; no boats =
   no fisher; desaturated = paused; a ship at a berth = loading.
 - **Deterministic.** Positions and phases come from timers and IDs (seeded
   hashes), never from `Math.random()` at render time, so two clients show
@@ -26,8 +26,8 @@ residents) and extrapolated between fetches (D-027).
 
 | Element | State source (display payload) | Motion | Model |
 |---|---|---|---|
-| **Carts** (exist) | producer transfer segments: `assigned_warehouse_id`, `transfer_delay_ms`, rate | along the road path producer → collector, phase from the segment timer; wheels spin (KayKit `cart` has wheel nodes) | KayKit `cart` (empty back) / `cart_merchant` (loaded back) by whether cargo is on the leg |
-| **Walkers** | same transfer segments, one walker per producer with rate > 0, plus one per house tier bucket | walk producer → collector and back; idle bob at the door when starved/unconnected = **no walker** | procedural chunky villager (body + head + hat; tier colours), 3 variants |
+| **Carts** (exist) | producer transfer segments: `assigned_warehouse_id`, `transfer_delay_ms`, rate > 0 — **one cart per delivering producer** (Polish 5) | along the road path producer → collector and back, phase from the segment timer; wheels spin; its **driver** walks ahead between the shafts, pulling it | KayKit `cart` (empty back) / `cart_merchant` (loaded back) by whether cargo is on the leg; the driver is a villager in the producer's tier colours |
+| **Walkers** | house residents only (the strollers below); producers have no separate walker — the cart's driver is theirs (Polish 5) | — | procedural chunky villager (body + head + hat; tier colours), 3 variants |
 | **Chimney smoke** | building `status === "ok"` and producer rate > 0; `anchor: chimney` from the manifest | pooled particles rising, drifting with a fixed wind; density ∝ throughput factor | particle quads, palette smoke grey; none when paused/unpaid/starved |
 | **Sails and flags** | always for ships on legs; flags on Trading Post, shipyard, market | vertex sway (sine over time + fixed wind), sail bulge when sailing | recipe parts (`canvas` role), `flag_*` |
 | **Fishing boats** | fisher `status === "ok"` | small loop out from the jetty and back on a fixed ellipse; bob | KayKit `boat` |
@@ -42,14 +42,16 @@ Not in scope: weather, day/night (D-048), combat units, horses as traffic.
 
 ## 3. Derivation details
 
-- **Paths:** walkers and carts need a road path producer → collector. The
+- **Paths:** carts need a road path producer → collector. The
   client already computes a visual road path for carts (PR #4
   interpretation); reuse it. No pathfinding over non-road tiles; if a
-  producer is unconnected there is no path and therefore no walker — the
+  producer is unconnected there is no path and therefore no cart — the
   rule and the visual agree.
 - **Phase:** `phase = ((now − segment.start) / segment.duration) mod 1`
-  per transfer segment; a producer with rate `r` spawns `ceil(r /
-  cart_capacity)` carts spread evenly in phase (cap 3 per producer).
+  per transfer segment; every delivering producer runs exactly one cart
+  whatever its rate (the cart count is not a rate display), its driver
+  `DRIVER_AHEAD` (0.74) tiles ahead of the cart's centre in the travel
+  direction, stepping with the distance.
 - **Smoke density:** particles per second = base × `throughput_factor` ×
   `efficiency`, 0 when `status ≠ ok`.
 - **Stroller count:** `floor(residents / 8)` per house, placed on the
@@ -100,10 +102,12 @@ that name". All motion is procedural.
   budgets 150 / 64 (phones, tablets) and 400 / 160 (desktop) per island,
   split by fixed proportions before priority so dense towns keep a mix;
   the whole island counts, not only the visible part (open).
-- Carts: `cart` on the empty leg, `cart_merchant` loaded; count from a
-  client density constant (1 unit/min per cart, cap 3) — a visual knob,
-  not a rule. No cart/walker for paused, unconnected, starved or
-  warehouse-full producers.
+- Carts: `cart` on the empty leg, `cart_merchant` loaded; one per
+  delivering producer with its driver (Polish 5; it replaced up to three
+  carts by rate plus a separate producer walker). A cart draws four
+  instances (body, two axles, driver) and is drawn whole or not at all
+  under the budget; carts take the walkers' former budget share. No cart
+  for paused, unconnected, starved or warehouse-full producers.
 - Smoke: solid low-poly puffs instead of particle quads (fits D-050);
   only for `status == ok`; all producers' puffs of all four sizes are one
   instanced draw (the sizes share one mesh, the instance names its size;
