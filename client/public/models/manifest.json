@@ -2997,14 +2997,14 @@
         ],
         "status": [
           0.0,
-          3.4167,
+          3.8333,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.9167,
-          3.1667,
+          3.5833,
           2.5
         ],
         "min": [
@@ -3017,7 +3017,7 @@
         "bounds": {
           "max": [
             1.9167,
-            3.1667,
+            3.5833,
             2.5
           ],
           "min": [
@@ -3027,7 +3027,7 @@
           ]
         },
         "budget": 10000,
-        "bytes": 101500,
+        "bytes": 113108,
         "ground": [
           [
             "none",
@@ -3043,12 +3043,12 @@
           ],
           [
             "none",
-            "dirt",
-            "dirt",
+            "none",
+            "none",
             "none"
           ],
           [
-            "dirt",
+            "none",
             "dirt",
             "dirt",
             "dirt"
@@ -3057,31 +3057,31 @@
             "none",
             "dirt",
             "dirt",
-            "none"
+            "dirt"
           ]
         ],
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              3.0,
+              3.5,
               2.5
             ],
             "min": [
               -1.5,
               0.0,
-              -2.0
+              -2.5
             ]
           },
           "budget": 800,
-          "bytes": 5664,
+          "bytes": 7696,
           "path": "cattle_farm.lite.glb",
-          "sha256": "9c5a8a702d11deaf80997c9913ffa7d301d4b0e8be9980ab67f5e35918f4fb04",
-          "triangles": 122
+          "sha256": "85811c3fa7b5cbe1eda62ede0f0c751e07af353902c8218c0c4c2582875be4a8",
+          "triangles": 180
         },
         "path": "cattle_farm.glb",
-        "sha256": "aabb33ec661ebd1e0055c8fb1127ca8eaf977bfb3bfbb3d4fdd4c82f1b55f5d0",
-        "triangles": 3052
+        "sha256": "33a3bdfb1494bf93991ee16e08d32ee599fb72c901d12791f9dd1468a91877ce",
+        "triangles": 3416
       },
       "footprint": {
         "h": 5,
