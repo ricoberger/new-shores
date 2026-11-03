@@ -1,53 +1,56 @@
 """
-Tannery (3 × 4; D-057 §3): a coursed-stone workshop with thatch and a
-chimney (smoke), a row of tanning pits edged in stone with brown liquor,
-hides stretched on frames and hung on a rail, a bark heap, a scraping
-beam, casks and a cart.
+Tannery (3 × 4; V7 rework after the Anno 1404 tannery, tier II): a
+rubble-and-half-timber tannery under terracotta (slim chimney, smoke) with
+a big undershot water wheel of timber spokes on its west flank, hides
+stretched in frames and hung on drying racks, pale tanning vats, a bark
+pile and a cart of hides. 12 voxels per tile.
 """
 
-from nsvoxel import parts as P
-from nsvoxel.mats import STONE, TIMBER, TIMBER_LIGHT
+import math
 
-HIDE = P.mat("canvas", 0.8)
-LIQUOR = P.mat("timber", 0.7)
-BARK = P.mat("timber", 0.95)
+from nsvoxel import detail_v4 as V
+from nsvoxel import parts as P
+from nsvoxel import parts_kit as K
+from nsvoxel.grid import mat
+from nsvoxel.mats import TIMBER, TIMBER_DARK, TIMBER_LIGHT
+
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+HIDE = mat("ochre", 1.05)
+HIDE_DARK = mat("timber", 1.0)
+BARK = mat("timber", 0.9)
+LIQUOR = mat("timber", 0.55)
 
 
 def build(ctx):
-    v = ctx.vox()  # 24 × 32
-    seed = 71
-    P.yard(v, 0, 0, 24, 32, "dirt", seed=seed)
-    P.yard(v, 0, 0, 24, 2, "grass", seed=seed)
-    b = P.building(v, 2, 3, 16, 12, "stonethatch", along="x", seed=seed)
-    f = b.face("y+")
-    P.entrance(f, 7, 2, 3, 5)
-    P.casement(f, 3, 4, 2, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED, shutters=TIMBER_LIGHT)
-    P.casement(f, 12, 4, 2, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED, shutters=TIMBER_LIGHT)
-    P.roof_chimney(v, b.roof, 13, 6, above=3, anchor=True)
-    # Tanning pits.
-    for k, x in enumerate((2, 8, 14)):
-        v.box(x, 15, 0, x + 5, 20, 1, STONE)
-        v.box(x + 1, 16, 0, x + 4, 19, 1, LIQUOR if k != 1 else P.shade_of(LIQUOR, 1.2))
-        v.box(x, 15, 1, x + 5, 16, 2, STONE)
-    # Hide frames and a drying rail.
-    for x in (17, 21):
-        v.box(x, 4, 1, x + 1, 5, 7, TIMBER)
-        v.box(x, 10, 1, x + 1, 11, 7, TIMBER)
-    v.box(17, 4, 7, 22, 11, 8, TIMBER_LIGHT)
-    for y in (5, 8):
-        v.box(18, y, 3, 21, y + 2, 7, HIDE)
-    for x in (3, 13):
-        v.box(x, 23, 1, x + 1, 24, 6, TIMBER)
-    v.box(3, 23, 6, 14, 24, 7, TIMBER_LIGHT)
-    for x in range(5, 12, 3):
-        v.box(x, 23, 3, x + 2, 24, 6, HIDE)
-    # Bark heap, scraping beam, casks, cart.
-    v.ellipsoid(19, 24, 0, 2.5, 2.5, 2, BARK, keep=lambda x, y, z: z >= 1)
-    v.line((3, 27, 1), (8, 27, 3), TIMBER)
-    v.set(6, 27, 3, HIDE)
-    P.cask(v, 11, 27, 1)
-    P.cask(v, 14, 27, 1)
-    P.handcart(v, 17, 27, 1, along="x", load=HIDE)
-    v.anchor("cart", 20, 30, 1)
-    P.scatter(v, 0, 0, 24, 32, 0.015, seed=seed, kinds=("pebble", "tuft"))
+    v = ctx.vox()  # 36 × 48
+    seed = 103
+    K.ground(v, 18, 26, 15, 16, seed)
+    K.workshop(v, 12, 4, 34, 24, 2, "d", seed, door=("y+", 26), smoke=True, chim=(26, 8), wins=[])
+    # The wheel: a ring of spokes and paddles in the y–z plane at x = 6.
+    cy, cz, r = 14, 9, 8
+    for a in range(0, 360, 6):
+        y = cy + r * math.cos(math.radians(a))
+        z = cz + r * math.sin(math.radians(a))
+        v.box(5, int(round(y)), max(1, int(round(z))), 8, int(round(y)) + 1, max(1, int(round(z))) + 1, TIMBER_DARK)
+    for a in range(0, 180, 30):
+        for t in range(-r, r + 1):
+            y = cy + t * math.cos(math.radians(a))
+            z = cz + t * math.sin(math.radians(a))
+            if z >= 1:
+                v.set(6, int(round(y)), int(round(z)), TIMBER)
+    v.box(5, cy - 1, cz - 1, 9, cy + 1, cz + 1, TIMBER_LIGHT)
+    for y in (cy - 8, cy + 8):
+        v.box(4, y, 1, 10, y + 1, 3, TIMBER_DARK)
+    # Hides in frames and on the racks, vats and bark.
+    V.hide_frame(v, 6, 36, 1, 7, 9, HIDE, frame=TIMBER_DARK)
+    V.hide_frame(v, 15, 36, 1, 7, 9, HIDE_DARK, frame=TIMBER_DARK)
+    for x in (23, 29):
+        v.box(x, 36, 1, x + 5, 41, 4, TIMBER)
+        v.box(x + 1, 37, 4, x + 4, 40, 5, LIQUOR)
+    K.pile(v, 26, 28, 1, 6, 4, 4, BARK, seed)
+    P.handcart(v, 6, 40, 1, along="x", load=HIDE)
+    v.anchor("cart", 12, 46, 1)
+    K.tufts(v, seed)
     return P.colour_jitter(v, seed=seed)

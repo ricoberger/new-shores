@@ -1,140 +1,138 @@
 """
-Patrician house (3 × 3; D-057 §3, V5): a clear step above the Merchant
-house — three storeys: a dressed ashlar ground floor on a proud plinth,
-two plastered upper storeys with dressed quoins, string courses at the
-floor lines and a cornice; tall glazed windows in dressed frames with
-keystones or pediments, a panelled door under a hood, dormers, brick
-chimneys with pots and a tiled roof. Three variants: an ochre townhouse
-with a corner tower and a pyramid roof (warm red tiles), a pale beige
-block with a top-floor loggia under a hipped roof (dark red-brown), and
-a cream gable-fronted house with a ground-floor arcade and a belvedere
-turret (light orange tiles).
+Patrician house (3 × 3, 12 voxels per tile; V7 rework after the Anno 1404
+nobleman houses): three storeys with a dark dressed-ashlar ground floor
+under cream plaster upper floors, a round-arched arcade, tall two-light
+arched windows with light surrounds and dark glass, crow-stepped gables
+with ball finials, a volute-like foot and a round window in the gable field,
+an oriel, a turret with a steep slate cone, brick-red chimneys and steep
+dark slate roofs with light course lines and a dark ridge, on cobbles over
+the whole plot. Three massings: a long stepped-gable range with an arcade
+and a taller range behind it (Nobleman_house_2/3); two gables with a turret
+between them and an oriel (Nobleman_house_5); an L with an arcaded wing, a
+corner turret and dormers (Nobleman_house_4).
 """
 
+from nsvoxel import detail_v4 as V
 from nsvoxel import detail_v5 as Q
 from nsvoxel import parts as P
+from nsvoxel import parts_v7 as W
 from nsvoxel.grid import mat
-from nsvoxel.mats import BRASS, DYE_BLUE, FLOWER, PLASTER
+from nsvoxel.mats import PLASTER, SLATE
 
 VARIANTS = 3
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
 
-DOOR_RED = mat("terracotta", 0.72)
-DOOR_GREEN = mat("grass-b", 0.7)
-#: Roof colours per variant (warm palette: red tiles, the house set's dark red-brown, light orange).
-ROOFS = (mat("terracotta", 1.0), mat("terracotta", 0.66), mat("terracotta", 1.14))
-#: Upper-storey plaster per variant (flat colours).
-WALLS = (mat("ochre", 1.0), mat("plaster", 0.93), PLASTER)
+ROOF = SLATE
+RIDGE = mat("slate", 0.6)  # a dark ridge and verge, light course lines
+SHADES = (1.18, 0.8)
+VERGE = 0.66
+ASHLAR = mat("stone", 0.8)  # the dark dressed ground floor
+PIER = mat("stone", 0.9)
+CREAM = mat("plaster", 0.95)
+SAND = mat("plaster", 0.84)
+STOREYS = (9, 7, 7)
 
 
-def front_door(f, a, leaf, steps=3):
-    """A tall panelled door under a dressed hood with a fanlight."""
-    P.entrance(f, a, 2, 3, 6, leaf=leaf, frame=Q.DRESSED, lintel=Q.DRESSED, steps=steps)
-    f.put(a + 1, 7, P.mat("window"), out=-1)
+def windows(f, spots, z, h=5, w=5, **kw):
+    """A row of tall two-light arched windows with light surrounds and dark glass."""
+    for a in spots:
+        W.arched_window(f, a, z, w, h, **kw)
+
+
+def both(b, side, spots):
+    """A window row on the first and a shorter one on the second upper floor of `side`."""
+    windows(b.face(side), spots, 12, h=5)
+    windows(b.face(side), spots, 19, h=4)
+
+
+def ground(b, side, spots):
+    """Small arched windows in the ashlar ground floor."""
+    for a in spots:
+        W.arched_window(b.face(side), a, 4, 3, 5, mullion=False)
+
+
+def arcade(b, side, a0, a1, bay=5):
+    W.round_arcade(b.face(side), a0, a1, 2, 8, bay=bay, pier=2, depth=3, pier_m=PIER)
+
+
+def gable(v, b, side, balls=True, oculus=True):
+    """A crow-stepped gable in ashlar with ball finials, a volute-like foot and a round window."""
+    W.stepped_gable(v, b.roof, side, m=Q.ASHLAR, balls=balls, foot=1)
+    if oculus:
+        r = b.roof
+        if side in ("x-", "x+"):
+            f = P.Face(v, side, r.x0 if side == "x-" else r.x1 - 1)
+            W.round_window(f, (r.y0 + r.y1) // 2, r.z + 4, r=2)
+        else:
+            f = P.Face(v, side, r.y0 if side == "y-" else r.y1 - 1)
+            W.round_window(f, (r.x0 + r.x1) // 2, r.z + 4, r=2)
+
+
+def dormer(v, r, a0, a1, side="y+"):
+    W.dormer(v, r, a0, a1, side, wall=CREAM, frame=Q.DRESSED, course=3, h=6, m=ROOF, ridge=RIDGE, shades=SHADES, verge=VERGE, kind="slate")
+
+
+def turret(v, x0, y0, x1, y1, z0, z1, seed):
+    """A turret of cream plaster on an ashlar foot under a steep slate cone with a finial."""
+    Q.ashlar(v, x0, y0, x1, y1, 2, z0, ASHLAR, mat("stone", 0.73))
+    Q.tower(v, x0, y0, x1, y1, z0, z1, wall=CREAM, plaster=True, roof=ROOF, kind="slate", rise=3.2, seed=seed, shades=SHADES, verge=VERGE, finial_h=4)
 
 
 def build(ctx):
-    v = ctx.vox()  # 24 × 24
+    v = ctx.vox()  # 36 × 36
     k = ctx.variant
-    seed = 41 + k
-    roof_m, wall = ROOFS[k], WALLS[k]
-    P.yard(v, 0, 0, 24, 24, "grass", seed=seed)
-    P.yard(v, 1, 18, 23, 24, "paved", seed=seed)
+    seed = 51 + k
+    P.yard(v, 0, 0, 36, 36, "paved", seed=seed)  # merchants and patricians stand on cobbles over the whole plot
+    kw = dict(roof=ROOF, ridge=RIDGE, shades=SHADES, verge=VERGE, base=ASHLAR, seed=seed)
     if k == 0:
-        # Townhouse along the street with a corner tower; even three-bay rhythm.
-        b = Q.palazzo(v, 3, 5, 21, 16, (7, 6, 6), upper=wall, roof=roof_m, along="x", seed=seed)
-        f = b.face("y+")
-        front_door(f, 8, DOOR_RED)
-        Q.window(f, 4, 4, 2, 3, hood="cornice", surround=True)
-        Q.window(f, 12, 4, 2, 3, hood="cornice", surround=True)
-        for a in (5, 11):
-            Q.window(f, a, 10, 2, 4, hood="pediment", box=FLOWER)
-            Q.window(f, a, 16, 2, 3, hood="cornice")
-        for z in (10, 16):
-            Q.window(b.face("x-"), 9, z, 2, 3, hood="key")
-        Q.window(b.face("y-"), 7, 10, 2, 4, hood="key")
-        Q.window(b.face("y-"), 13, 10, 2, 4, hood="key")
-        # Corner tower, one voxel proud of the front, a storey above the eaves.
-        Q.ashlar(v, 15, 11, 21, 17, 2, 9)
-        tr = Q.tower(v, 15, 11, 21, 17, 9, 28, wall=wall, plaster=True, roof=mat("terracotta", 0.84), rise=2.0, seed=seed)
-        T = P.Face(v, "y+", 16)
-        Q.window(T, 17, 4, 2, 3, hood="cornice", surround=True)
-        Q.window(T, 17, 10, 2, 4, hood="key")
-        Q.window(T, 17, 16, 2, 3, hood="key")
-        Q.window(T, 17, 22, 2, 3, hood=None)
-        Q.window(P.Face(v, "x+", 20), 13, 22, 2, 3, hood=None)
-        Q.window(P.Face(v, "x+", 20), 13, 10, 2, 4, hood="key")
-        P.dormer_on(v, b.roof, 9, 13, "y+", wall=wall)
-        P.roof_chimney(v, b.roof, 4, 8, above=3, brick=True, pots=2)
-        P.roof_chimney(v, b.roof, 12, 7, above=3, brick=True, pots=2)
-        P.lamp_post(v, 3, 19, h=7)
-        P.flower_bed(v, 11, 18, 14, 21, seed=seed)
-        P.shrub(v, 2, 2, 1, 2, seed=seed)
-        P.fruit_tree(v, 21, 2, 1, seed=seed, trunk=4, r=2.8)
+        # A long range along x with a round-arched arcade, crow-stepped gables and a dormer; a taller range behind it.
+        a = Q.palazzo(v, 3, 18, 29, 33, STOREYS, upper=CREAM, along="x", rise=1.4, **kw)
+        gable(v, a, "x-")
+        gable(v, a, "x+")
+        arcade(a, "y+", 4, 28)
+        both(a, "y+", (6, 15, 23))
+        dormer(v, a.roof, 12, 18)
+        b = Q.palazzo(v, 18, 3, 33, 18, STOREYS, upper=SAND, along="y", rise=1.4, **{**kw, "seed": seed + 1})
+        both(b, "x+", (6,))
+        ground(b, "x+", (7,))
+        ground(a, "x+", (24,))
+        P.roof_chimney(v, b.roof, 22, 8, above=3, brick=True, pots=2)
+        P.roof_chimney(v, a.roof, 6, 22, above=3, brick=True, pots=2)
     elif k == 1:
-        # Hipped block with a top-floor loggia across the front; asymmetric rhythm, door at the side.
-        b = Q.palazzo(v, 3, 6, 21, 17, (7, 6, 7), upper=wall, roof=roof_m, along="x", hip=True, seed=seed)
-        f = b.face("y+")
-        front_door(f, 15, DOOR_GREEN)
-        Q.window(f, 5, 4, 3, 3, hood="cornice", surround=True)
-        Q.window(f, 10, 4, 2, 3, hood="cornice", surround=True)
-        for a in (6, 14):
-            Q.window(f, a, 10, 2, 4, hood="key", shutters=DOOR_GREEN)
-        # Loggia: three arches on the top storey, a balustrade between the piers.
-        Q.arcade(f, 3, 21, 16, 5, bay=4, pier=2, depth=3)
-        Q.balustrade(v, [(x, 16) for x in range(4, 20)], 16)
-        for side in ("x-", "x+"):
-            Q.window(b.face(side), 10, 10, 2, 4, hood="key")
-            Q.window(b.face(side), 10, 17, 2, 3, hood=None)
-        Q.window(b.face("y-"), 8, 10, 2, 4, hood="key")
-        Q.window(b.face("y-"), 14, 17, 2, 3, hood=None)
-        P.roof_chimney(v, b.roof, 6, 10, above=3, brick=True, pots=2)
-        P.roof_chimney(v, b.roof, 16, 10, above=3, brick=True, pots=2)
-        Q.finial(v, 11, 11, b.roof.top, BRASS)
-        # Garden: a clipped hedge, a bench, an urn.
-        Q.leafy_bank(v, 1, 1, 23, 3, seed=seed)
-        P.bench(v, 5, 20, 1, 4)
-        v.box(19, 19, 1, 21, 21, 3, Q.DRESSED)
-        v.set(19, 19, 3, FLOWER)
-        P.lamp_post(v, 13, 20, h=7)
+        # A plastered gable on the west, a taller stepped-gable house on the east, a turret in front of the angle between them; an oriel over the arcade.
+        a = Q.palazzo(v, 3, 4, 17, 32, STOREYS, upper=SAND, along="y", rise=1.4, **kw)
+        arcade(a, "y+", 3, 17, bay=4)
+        V.oriel(a.face("y+"), 6, 13, 5, 6, depth=2, wall=SAND, frame=Q.DRESSED, roof=ROOF, fascia=RIDGE)
+        windows(a.face("y+"), (6,), 20, h=4)
+        both(a, "x-", (9, 20))
+        P.roof_chimney(v, a.roof, 7, 10, above=3, brick=True, pots=2)
+        b = Q.palazzo(v, 18, 12, 33, 32, STOREYS, upper=CREAM, along="y", rise=1.4, **{**kw, "seed": seed + 1})
+        gable(v, b, "y+")
+        arcade(b, "y+", 19, 33, bay=4)
+        both(b, "y+", (20,))
+        both(b, "x+", (17, 25))
+        ground(b, "x+", (16, 24))
+        P.roof_chimney(v, b.roof, 26, 18, above=3, brick=True, pots=2)
+        turret(v, 13, 28, 19, 34, 14, 33, seed)
+        windows(P.Face(v, "y+", 33), (15,), 16, h=5, w=2, mullion=False)
     else:
-        # Gable to the street, a ground-floor arcade, a belvedere turret on the ridge.
-        b = Q.palazzo(v, 4, 3, 20, 17, (8, 6, 6), upper=wall, roof=roof_m, along="y", rise=1.25, seed=seed)
-        f = b.face("y+")
-        Q.arcade(f, 4, 20, 2, 6, bay=4, pier=2, depth=3, pier_m=Q.ASHLAR)
-        door = P.Face(v, "y+", 13)
-        P.entrance(door, 11, 2, 2, 5, leaf=DYE_BLUE, frame=Q.DRESSED, step=None)
-        for a in (6, 16):
-            Q.window(f, a, 11, 2, 4, hood="pediment", box=FLOWER)
-        Q.window(f, 11, 11, 2, 4, hood="key")
-        Q.window(f, 8, 17, 2, 3, hood="key")
-        Q.window(f, 14, 17, 2, 3, hood="key")
-        Q.window(f, 11, 23, 2, 3, hood=None)
-        for side in ("x-", "x+"):
-            for a in (6, 12):
-                Q.window(b.face(side), a, 4, 2, 3, hood="cornice", surround=True)
-                Q.window(b.face(side), a, 11, 2, 4, hood="key")
-        # Belvedere on the ridge: an open turret with a pyramid roof.
-        rz = b.roof.ridge_z
-        v.box(10, 8, rz - 3, 14, 12, rz + 5, wall)
-        P.dressed_quoins(v, 10, 8, 14, 12, rz - 3, rz + 5)
-        for side, plane in (("y+", 11), ("x-", 10), ("x+", 13)):
-            ff = P.Face(v, side, plane)
-            for a in ((11,) if side == "y+" else (9,)):
-                ff.put(a, rz + 2, None)
-                ff.put(a + 1, rz + 2, None)
-                ff.put(a, rz + 3, None)
-                ff.put(a + 1, rz + 3, None)
-        Q.string_course(v, 10, 8, 14, 12, rz + 4)
-        tr = P.roof(v, 10, 14, 8, 12, rz + 5, "tiles", hip=True, rise=2.0, m=mat("terracotta", 0.86), eaves=False, seed=seed)
-        Q.finial(v, 12, 10, tr.top, BRASS)
-        P.roof_chimney(v, b.roof, 5, 13, above=3, brick=True, pots=2)
-        P.roof_chimney(v, b.roof, 17, 5, above=3, brick=True, pots=2)
-        P.flower_bed(v, 1, 19, 4, 23, seed=seed)
-        P.flower_bed(v, 20, 19, 23, 23, seed=seed + 1)
-        P.lamp_post(v, 5, 21, h=7)
-        P.lamp_post(v, 18, 21, h=7)
-        P.shrub(v, 21, 6, 1, 2, seed=seed)
-    P.scatter(v, 0, 0, 24, 18, 0.03, seed=seed)
-    v.anchor("door", 12, 24, 0)
+        # An L: a range along x at the back and a wing to the front on the west with an arcade, a corner turret and dormers.
+        a = Q.palazzo(v, 3, 3, 33, 17, STOREYS, upper=CREAM, along="x", rise=1.4, **kw)
+        gable(v, a, "x+")
+        both(a, "y-", (6, 15, 24))
+        for x0 in (24, 29):
+            dormer(v, a.roof, x0, x0 + 4)
+        both(a, "y+", (22,))
+        ground(a, "y+", (24,))
+        b = Q.palazzo(v, 3, 18, 17, 33, STOREYS, upper=SAND, along="y", rise=1.4, **{**kw, "seed": seed + 1})
+        gable(v, b, "y+")
+        arcade(b, "y+", 3, 17, bay=4)
+        both(b, "y+", (6,))
+        both(b, "x-", (23,))
+        turret(v, 17, 18, 23, 24, 14, 33, seed)
+        windows(P.Face(v, "y+", 23), (19,), 16, h=5, w=2, mullion=False)
+        P.roof_chimney(v, a.roof, 28, 6, above=3, brick=True, pots=2)
+    P.scatter(v, 0, 0, 36, 36, 0.004, seed=seed)
+    v.anchor("door", 18, 36, 0)
     return P.colour_jitter(v, seed=seed)
-

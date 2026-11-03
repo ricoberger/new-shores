@@ -1,63 +1,51 @@
 """
-Quarry (3 × 8, on a stone deposit; D-057 §3): stepped pit faces of
-layered rock at the back with pale freshly cut treads and loose rubble, a
-timber hoist with rope and a hanging block, cut blocks in piles, a
-mason's hut in coursed stone with thatch and a chimney (smoke), a hand
-cart of blocks and a tool rack.
+Quarry (3 × 8, on a stone deposit; V7 rework after the Anno 1404 stone
+mason's hut, tier II): stepped pit faces of layered rock at the back with
+pale freshly cut treads, a big timber hoist (A-frame, beam, rope and a
+pale block on the hook), cut blocks in tall piles, a rubble-and-half-timber
+mason's hut under terracotta with a slim chimney (smoke), a hand cart of
+blocks. 12 voxels per tile.
 """
 
 from nsvoxel import parts as P
-from nsvoxel.grid import hash3
+from nsvoxel import parts_kit as K
+from nsvoxel.grid import hash3, shade_of
 from nsvoxel.mats import IRON, ROCK, ROCK_DEEP, ROCK_LIGHT, STONE, STONE_LIGHT, TIMBER, TIMBER_LIGHT
 
-FRESH = P.mat("stone", 1.12)
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+FRESH = shade_of(STONE_LIGHT, 1.2)
 
 
 def build(ctx):
-    v = ctx.vox()  # 24 × 64
-    seed = 9
-    P.yard(v, 0, 0, 24, 64, "dirt", seed=seed)
-    # Quarry face: layered rock terraces stepping up toward the back.
-    for y in range(0, 26):
-        h = 2 + (26 - y) // 3
-        for x in range(0, 24):
+    v = ctx.vox()  # 36 × 96
+    seed = 47
+    for y in range(0, 40):
+        h = 3 + (40 - y) // 3
+        for x in range(0, 36):
             hh = h - (1 if hash3(x, y, 1, seed) < 0.12 else 0)
             for z in range(0, hh):
-                band = ROCK_LIGHT if z == hh - 1 else (ROCK if (z // 2 + (x // 5)) % 2 else ROCK_DEEP)
-                v.set(x, y, z, band)
-    # Cut terraces: pale fresh stone on the treads, cut lines, rubble.
-    for y in (8, 14, 20):
-        for x in range(2, 22):
-            z = 2 + (26 - y) // 3
+                v.set(x, y, z, ROCK_LIGHT if z == hh - 1 else (ROCK if (z // 3 + (x // 7)) % 2 else ROCK_DEEP))
+    for y in (10, 20, 30):
+        z = 3 + (40 - y) // 3
+        for x in range(3, 33):
             v.set(x, y, z - 1, FRESH)
             v.set(x, y + 1, z - 1, FRESH if x % 4 else STONE)
-        for x in range(3, 21, 5):
-            if hash3(x, y, 2, seed) < 0.6:
-                v.set(x, y + 1, 2 + (26 - y) // 3, STONE_LIGHT)
-    for x, y in ((4, 27), (5, 27), (18, 27), (11, 28)):
-        v.set(x, y, 1, ROCK_LIGHT)
-    # Hoist: A-frame, a beam, rope and a block on the hook.
-    for x in (6, 12):
-        v.line((x, 28, 1), (9, 24, 14), TIMBER)
-    v.box(9, 21, 14, 10, 27, 15, TIMBER_LIGHT)
-    for z in range(9, 14):
-        v.set(9, 21, z, IRON)
-    v.box(8, 20, 7, 11, 22, 9, FRESH)
-    # Cut blocks in piles.
-    P.stone_blocks(v, 2, 30, 1, n=5, seed=seed)
-    P.stone_blocks(v, 14, 31, 1, n=4, seed=seed + 1)
-    P.stone_blocks(v, 17, 36, 1, n=2, m=STONE, seed=seed + 2)
-    # Mason's hut with chimney.
-    b = P.building(v, 4, 43, 17, 53, "stonethatch", along="x", seed=seed)
-    f = b.face("y+")
-    P.entrance(f, 9, 2, 3, 5)
-    for a in (5, 14):
-        P.casement(f, a, 4, 2, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED, shutters=TIMBER_LIGHT)
-    P.roof_chimney(v, b.roof, 13, 46, above=3, anchor=True)
-    P.tool_rack(b.face("x+"), 45, 1, n=3)
-    P.handcart(v, 19, 44, 1, along="y", load=FRESH)
-    P.cask(v, 2, 55, 1)
-    P.box_crate(v, 5, 56, 1)
-    v.anchor("cart", 20, 60, 1)
-    P.scatter(v, 0, 27, 24, 64, 0.02, seed=seed, kinds=("pebble", "pebble", "tuft"))
+            v.set(x, y + 2, z - 1, FRESH)
+    # Hoist.
+    for x in (8, 18):
+        v.line((x, 44, 1), (13, 38, 20), TIMBER)
+    v.box(13, 32, 20, 14, 42, 21, TIMBER_LIGHT)
+    for z in range(11, 20):
+        v.set(13, 32, z, IRON)
+    v.box(11, 30, 8, 16, 34, 12, FRESH)
+    P.stone_blocks(v, 4, 48, 1, n=6, seed=seed)
+    P.stone_blocks(v, 22, 50, 1, n=5, seed=seed + 1)
+    K.ground(v, 20, 66, 14, 22, seed)
+    K.workshop(v, 4, 66, 22, 82, 2, "a", seed, door=("y+", 8), smoke=True, chim=(18, 70), wins=[])
+    P.handcart(v, 24, 62, 1, along="x", load=FRESH)
+    P.tool_rack(K.P.Face(v, "x-", 4), 70, 1, n=2)
+    v.anchor("cart", 28, 70, 1)
+    P.scatter(v, 0, 42, 36, 96, 0.012, seed=seed, kinds=("pebble",))
     return P.colour_jitter(v, seed=seed)

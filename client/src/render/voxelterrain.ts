@@ -132,6 +132,8 @@ export interface Field {
   floor?: Int8Array;
   /** The flat ground of each column's tile (steps; its terrace level): roads and field ground paint where the column stands at it (default 0). */
   flat?: Int8Array;
+  /** The road columns of the last road paint (render/roadvoxels.ts; 0 none, 1 dirt, 2 paved, 3 quay): field ground and yards paint around them. */
+  road?: Uint8Array;
   /** The relief columns the field was built from (rock, rivers; withRock bakes the rock in). */
   relief?: ReliefColumns;
 }

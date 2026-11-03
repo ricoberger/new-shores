@@ -1,60 +1,43 @@
 """
-Oyster house (6 × 6; D-057 §3, V5): an open sorting hall on posts under
-a long brown-tiled roof — tables with oysters, tubs of brine — and at its end
-a closed ashlar kitchen with a tall kettle chimney (smoke); shell heaps
-in the yard, packed crates and barrels, a well, a fenced herb bed and a
-cart.
+Oyster house (6 × 6; V7 rework after the Anno 1404 fisherman's hut, tier IV):
+a cream plaster kitchen on an ashlar floor under slate with a slim chimney
+(smoke) and, against its flank, an open sorting shed on posts under tiles
+with tables of oysters and tubs of brine; in the paved yard big pale heaps
+of shells, packed crates and barrels, a well and a cart. 12 voxels per tile.
 """
 
-from nsvoxel import detail_v5 as Q
+from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
+from nsvoxel import parts_kit as K
 from nsvoxel.grid import mat
-from nsvoxel.mats import CANVAS, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel.mats import CANVAS, TIMBER_DARK, TIMBER_LIGHT
 
-ROOF = mat("timber", 1.3)  # brown tile
-RIDGE = mat("timber", 1.1)
-OYSTER = mat("stone", 0.9)
-BRINE = mat("shallows")
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+SHELL = mat("canvas", 1.3)
+BRINE = mat("shallows", 1.2)
 
 
 def build(ctx):
-    v = ctx.vox()  # 48 × 48
-    seed = 95
-    P.yard(v, 0, 0, 48, 48, "dirt", seed=seed)
-    P.yard(v, 2, 30, 46, 48, "paved", seed=seed)
-    # Sorting hall: posts, a long roof, tables and tubs.
-    for x in range(4, 33, 7):
-        for y in (6, 23):
-            v.box(x, y, 1, x + 2, y + 1, 11, TIMBER)
-    v.box(3, 6, 10, 34, 7, 11, TIMBER_DARK)
-    v.box(3, 23, 10, 34, 24, 11, TIMBER_DARK)
-    P.roof(v, 3, 34, 6, 24, 11, "tiles", along="x", m=ROOF, ridge=RIDGE, gable=TIMBER_LIGHT, solid=False, seed=seed)
-    for y in (10, 17):
-        v.box(6, y, 1, 30, y + 3, 3, TIMBER_LIGHT)
-        for x in range(7, 29, 3):
-            v.set(x, y + 1, 3, OYSTER)
-            v.set(x + 1, y + 2, 3, OYSTER)
-    for x in (8, 20):
-        P.cask(v, x, 14, 1, h=2, lid=BRINE)
-    # Kitchen with the kettle chimney.
-    b = P.building(v, 34, 5, 46, 25, "stone", along="x", height=11, roof=mat("terracotta", 0.66), seed=seed)
-    P.entrance(b.face("y+"), 38, 2, 3, 5)
-    Q.window(b.face("x+"), 10, 5, 2, 3, hood="key", surround=True)
-    Q.window(b.face("x+"), 18, 5, 2, 3, hood="key", surround=True)
-    P.roof_chimney(v, b.roof, 41, 13, above=7, brick=True, pots=2, anchor=True)
-    # Yard: shell heaps, crates, barrels, a well, herbs.
-    Q.shell_heap(v, 8, 36, 4.0, 3)
-    Q.shell_heap(v, 15, 41, 3.0, 2)
-    for x in (24, 27, 30):
-        P.box_crate(v, x, 33, 1, contents=OYSTER)
-    P.box_crate(v, 27, 33, 3)
-    P.cask(v, 34, 32, 1, lid=BRINE)
-    P.cask(v, 37, 33, 1)
-    P.well(v, 42, 38)
-    P.fence_ring(v, 1, 26, 12, 30, kind="picket", seed=seed)
-    P.flower_bed(v, 2, 27, 11, 29, seed=seed)
-    P.sacks(v, 24, 40, 1, n=3, m=CANVAS)
-    P.handcart(v, 32, 42, 1, along="x", load=OYSTER)
-    v.anchor("cart", 24, 46, 1)
-    _ = (STONE, TIMBER_DARK)
+    v = ctx.vox()  # 72 × 72
+    seed = 227
+    K.ground(v, 36, 52, 30, 16, seed, "paved")
+    K.workshop(v, 6, 6, 30, 34, 4, "d", seed, door=("y+", 14), smoke=True, chim=(10, 10), wins=[])
+    # Under the open work bay: tables of oysters and tubs of brine.
+    for x in (10, 20):
+        v.box(x, 36, 1, x + 8, 40, 4, TIMBER_LIGHT)
+        for k in range(3):
+            v.box(x + 1 + k * 2, 37, 4, x + 2 + k * 2, 39, 5, SHELL)
+    V.vat(v, 6, 42, 1, r=3, h=4, m=mat("timber", 0.9), liquid=BRINE)
+    K.pile(v, 40, 12, 1, 14, 10, 8, SHELL, 3)
+    V.heap(v, 14, 56, r=8, h=9, m=SHELL, seed=seed)
+    V.heap(v, 28, 54, r=4, h=4, m=SHELL, seed=seed + 1)
+    K.crates(v, ((40, 44, 1), (44, 44, 1), (42, 48, 1), (42, 44, 3), (48, 44, 1)))
+    P.cask(v, 54, 46, 1, h=4, lid=BRINE)
+    P.cask(v, 58, 46, 1, h=4, lid=BRINE)
+    P.well(v, 62, 54, 1)
+    P.handcart(v, 20, 62, 1, along="x", load=SHELL)
+    v.anchor("cart", 26, 68, 1)
+    K.tufts(v, seed, 0.02)
     return P.colour_jitter(v, seed=seed)

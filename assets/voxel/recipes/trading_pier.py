@@ -57,6 +57,8 @@ def stack(v, x, y, s=2, rows=2):
         for i in range(rows - r):
             P.box_crate(v, x + i * s + r, y + r, 1 + r * s, s=s)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 48 × 72

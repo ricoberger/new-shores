@@ -25,10 +25,8 @@ CONTENT = content.load()
 TIERS = ("settlers", "citizens")
 #: Roles with no authored shade steps (courses, stripes, rows): adjacent voxels of one role share one colour.
 FLAT_ROLES = ("plaster", "brass")
-#: Ground-plate roles (z = 0) that are one flat colour (grass keeps its two-grass patches as separate roles).
-FLAT_GROUND_ROLES = ("road-dirt", "sand")
 #: Model files with a sway group among tiers 1–2 (LIFE_LAYER §7): hung cloth, sails on frames, awnings and flags.
-SWAY_ALLOWED = {"weaver_wool.glb", "weaver_linen.glb", "sailmaker.glb", "warehouse.l3.glb", "trading_post.l4.glb"}
+SWAY_ALLOWED = {"weaver_wool.glb", "weaver_linen.glb", "sailmaker.glb", "trading_post.l1.glb", "trading_post.l2.glb", "trading_post.l3.glb", "trading_post.l4.glb"}
 
 
 def tier_ids():
@@ -65,15 +63,16 @@ class TierDetailTest(unittest.TestCase):
                 self.assertEqual("smoke" in entry["anchors"], smoke)
                 w, h = content.footprint(CONTENT, cid)
                 cls = model.model_class(CONTENT, cid)
+                vpt = self.recipes[cid].get("scale", config.VOXELS_PER_TILE)
                 for f in files:
                     v = f[3]
                     if v is None:  # the lite file
                         continue
-                    self.assertEqual((v.w, v.d), (w * config.VOXELS_PER_TILE, h * config.VOXELS_PER_TILE), f[0])
+                    self.assertEqual((v.w, v.d), (w * vpt, h * vpt), f[0])
                 for info in [entry.get("file")] + entry.get("variants", []) + list(entry.get("levels", {}).values()):
                     if not info:
                         continue
-                    self.assertLessEqual(info["triangles"], config.BUDGET_PER_TILE[cls] * w * h, info["path"])
+                    self.assertLessEqual(info["triangles"], config.BUDGET_OVERRIDE.get(cid, config.BUDGET_PER_TILE[cls] * w * h), info["path"])
                     if "lite" in info:
                         self.assertLessEqual(info["lite"]["triangles"], config.LITE_BUDGET_PER_TILE[cls] * w * h, info["path"])
                         # The automatic lite level still reads: more than a box.
@@ -87,7 +86,8 @@ class TierDetailTest(unittest.TestCase):
 
     def test_export_is_flat_for_plain_materials(self):
         """D-057 V3b: no baked speckle; the variety of a material is the client shader's."""
-        pairs = {"walls": [0, 0], "ground": [0, 0]}  # adjacent same-role voxels, of which differing
+        # The ground is no voxels since D-068 (the yard map, painted by the client): the walls only.
+        pairs = {"walls": [0, 0]}  # adjacent same-role voxels, of which differing
         for cid in tier_ids():
             files, _, _ = self.built(cid)
             for f in files:
@@ -95,7 +95,7 @@ class TierDetailTest(unittest.TestCase):
                 if v is None:
                     continue
                 for (x, y, z), m in v.cells.items():
-                    kind = "walls" if m[0] in FLAT_ROLES else ("ground" if m[0] in FLAT_GROUND_ROLES and z == 0 else None)
+                    kind = "walls" if m[0] in FLAT_ROLES else None
                     if kind is None:
                         continue
                     for d in ((1, 0, 0), (0, 1, 0), (0, 0, 1)):
@@ -131,13 +131,15 @@ class TierDetailTest(unittest.TestCase):
             self.assertEqual(len(entry["variants"]), 3, cid)
             full = [f[3] for f in files if f[3] is not None]
             self.assertEqual(len({frozenset(v.cells.items()) for v in full}), 3, cid)
+            # Densities differ per recipe (V7: 8 / 12 / 16 voxels per tile): compare per tile volume and tile face.
+            d = model.recipe_modules()[cid].get("scale", 8) / 8
             stats[cid] = [
-                (len(v.cells), sum(1 for m in v.cells.values() if m[0] == "window"), {m[0] for m in v.cells.values()})
+                (len(v.cells) / d**3, sum(1 for m in v.cells.values() if m[0] == "window") / d**2, {m[0] for m in v.cells.values()})
                 for v in full
             ]
         settlers, citizens = stats["house_settlers"], stats["house_citizens"]
-        # Every citizen house has more voxels and glazing than any settler house, and a tiled roof.
-        self.assertGreater(min(s[0] for s in citizens), max(s[0] for s in settlers))
+        # Every citizen house has more glazing than any settler house, and a tiled roof (V7: the voxel count
+        # is no longer a tier measure — the reworked settler houses fill their whole footprint).
         self.assertGreater(min(s[1] for s in citizens), max(s[1] for s in settlers))
         for _, _, roles in citizens:
             self.assertIn("terracotta", roles)
@@ -169,6 +171,34 @@ class DetailHelperTest(unittest.TestCase):
         for (x, y, z), m in v.cells.items():
             tops[(x, y)] = max(tops.get((x, y), 0), z)
         self.assertGreater(len(set(tops.values())), 1)
+
+
+class FlushPlinthTest(unittest.TestCase):
+    """No proud plinth on a land building: the plinth is a stone band flush with the wall above it (colour, not geometry)."""
+
+    def footprint(self, v, z):
+        return {(x, y) for (x, y, zz) in v.cells if zz == z}
+
+    def test_the_block_parts_lay_a_flush_band(self):
+        from nsvoxel import detail_d060, detail_v4, detail_v5
+
+        blocks = {
+            "building": lambda v: P.building(v, 6, 6, 22, 18, style="citizen", seed=1),
+            "townhouse": lambda v: detail_v4.townhouse(v, 6, 6, 22, 18, seed=1),
+            "palazzo": lambda v: detail_v5.palazzo(v, 6, 6, 22, 18, seed=1),
+            "warm_hall": lambda v: detail_d060.warm_hall(v, 6, 6, 22, 18, 9, seed=1),
+        }
+        for name, make in blocks.items():
+            v = Vox(32, 32, 48)
+            make(v)
+            band = self.footprint(v, 1)
+            self.assertEqual(band, {(x, y) for x in range(6, 22) for y in range(6, 18)}, name)
+            self.assertLessEqual(band, self.footprint(v, 2), name)
+
+    def test_the_old_proud_plinth_is_opt_in(self):
+        v = Vox(32, 32, 48)
+        P.building(v, 6, 6, 22, 18, style="settler", plinth_out=1)
+        self.assertIn((5, 5), self.footprint(v, 1))
 
 
 if __name__ == "__main__":

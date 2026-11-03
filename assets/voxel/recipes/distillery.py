@@ -1,47 +1,35 @@
 """
-Distillery (5 × 6; D-057 §3): a round coursed-stone still tower with a
-ribbed copper dome and finial, a brick stack (smoke) beside it, joined to
-a long barrel hall (stone ground floor, framed plaster upper storey, red
-tiles, a loading door); a cask rack in the yard, a copper worm tub, a
-signboard and a cart.
+Distillery (5 × 6; V7 variety pass, tier III): a stone-and-timber still
+house with an open work bay in front and a slim chimney (smoke); under the
+bay a giant copper still with its head and pipe, grain heaps and a pyramid
+of spirit barrels. 12 voxels per tile; massing and signature prop in
+NOTES.md.
 """
 
 from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
-from nsvoxel.grid import mat
-from nsvoxel.mats import CANVAS, PLASTER, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel import parts_kit as K
+from nsvoxel import parts_v7 as W
+from nsvoxel.grid import mat, shade_of
+from nsvoxel.mats import CANVAS, IRON, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-SPIRIT = mat("ochre", 1.2)
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
 
+GOODS = mat("wheat", 1.1)
+COPPER = mat("terracotta", 1.3)
 
 def build(ctx):
-    v = ctx.vox()  # 40 × 48
-    seed = 157
-    P.yard(v, 0, 0, 40, 48, "dirt", seed=seed)
-    P.yard(v, 0, 34, 40, 48, "paved", seed=seed)
-    # Still tower on the west, its stack behind.
-    V.still_tower(v, 9, 20, 7.5, 18, seed=seed)
-    P.chimney_stack(v, 3, 10, 1, 24, brick=True, anchor=True)
-    # Barrel hall along y on the east.
-    b = P.building(v, 18, 4, 38, 30, "citizen", along="y", upper=PLASTER, seed=seed, spacing=4, height=15, roof=mat("terracotta"))
-    f, F = b.face("y+"), b.face("y+", upper=True)
-    P.barn_gate(f, 24, 2, 6, 6)
-    P.entrance(F, 26, 10, 2, 4, step=None, hinges=False)
-    V.hoist(F, 27, 14, length=2, rope=3, load=TIMBER_LIGHT)
-    V.signboard(f, 32, 5, w=3, h=2, colour=SPIRIT)
-    for a in (8, 14, 20):
-        P.casement(b.face("x-", upper=True), a, 10, 2, 3, frame=None, sill=TIMBER_LIGHT, shutters=mat("grass-b", 0.75))
-    P.casement(b.face("x-"), 24, 3, 2, 3, frame=P.DRESSED, sill=P.DRESSED)
-    v.box(16, 18, 9, 18, 20, 10, V.COPPER)  # the lyne arm from the still into the hall
-    # Worm tub, cask rack, sacks, cart.
-    V.vat(v, 5, 32, 1, r=2.6, h=4, liquid=mat("shallows", 0.9))
-    v.line((5, 29, 9), (6, 27, 14), V.COPPER)
-    for y in (36, 40):
-        v.box(20, y, 1, 38, y + 1, 2, TIMBER_DARK)
-        for x in range(20, 38, 3):
-            P.cask(v, x, y - 1, 2, h=3, m=TIMBER, lid=TIMBER_DARK)
-    P.sacks(v, 12, 36, 1, n=2, m=CANVAS)
-    P.lamp_post(v, 16, 40)
-    v.anchor("cart", 8, 44, 1)
-    P.scatter(v, 0, 0, 40, 34, 0.01, seed=seed, kinds=("pebble", "tuft"))
+    v = ctx.vox()  # 60 × 72
+    seed = 201
+    K.ground(v, 30, 56, 27, 18, seed)
+    h = K.workshop(v, 6, 6, 60 - 6, 34, 3, "d", seed, door=("y+", 28), smoke=True, chim=(46, 10), wins=[])
+    K.still(v, 16, 54, m=COPPER, r=7)
+    K.pile(v, 34, 38, 1, 12, 8, 6, GOODS, seed)
+    for row, n in enumerate((5, 4, 3)):
+        for i in range(n):
+            P.barrel(v, 8 + i * 4 + row * 2, 66, 1 + row * 4, h=4, m=mat("timber", 1.3))
+    P.handcart(v, 8, 60, 1, along="x", load=GOODS)
+    v.anchor("cart", 14, 66, 1)
+    K.tufts(v, seed, 0.02)
     return P.colour_jitter(v, seed=seed)

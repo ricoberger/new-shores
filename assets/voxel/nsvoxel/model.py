@@ -74,6 +74,9 @@ def recipe_modules(recipes_dir=RECIPES_DIR):
                 "cargo": getattr(mod, "cargo", None),
                 "ship": getattr(mod, "SHIP", None),
                 "lite": getattr(mod, "lite", None),
+                # GROUND_Z (D-068): the layer the recipe's first standing voxels are authored at; 0 from now on,
+                # 1 for the recipes written on the old one-voxel ground plate (settle_on_terrain lowers them).
+                "ground_z": getattr(mod, "GROUND_Z", 0),
                 "file": fname,
             }
     return out
@@ -125,22 +128,131 @@ def check_grid(v, ctx, needed):
     if ctx.kind in ("building", "field"):
         if ctx.vpt not in config.ALLOWED_VOXELS_PER_TILE:
             problems.append(f"{ctx.vpt} voxels per tile (allowed: {', '.join(map(str, config.ALLOWED_VOXELS_PER_TILE))})")
-        s = FOOTPRINT_SLACK * ctx.vpt // VPT
+        s = config.SLACK_OVERRIDE.get(ctx.cid, FOOTPRINT_SLACK) * ctx.vpt // VPT
         if x0 < -s or y0 < -s or x1 > ctx.W + s or y1 > ctx.D + s:
             problems.append(f"outside the footprint {ctx.W}×{ctx.D} voxels: x {x0}..{x1}, y {y0}..{y1}")
         floor = -2 * ctx.vpt if ctx.water else 0
         if z0 < floor:
             problems.append(f"below the ground: z {z0}")
+    if ctx.kind in ("building", "field") and ctx.cid not in config.WATER_MODELS:
+        share = plate_share(v, ctx)
+        if share > config.PLATE_SHARE:
+            problems.append(f"ground plate: {share:.0%} of the footprint is a flat layer at z = 0 (at most {config.PLATE_SHARE:.0%}; ground cover is the yard map, D-068)")
+    if ctx.kind == "building":
+        for comp in floating_cells(v.cells):
+            lo, hi = min(comp), max(comp)
+            problems.append(f"floating voxels: {len(comp)} cells not connected to the ground, from {lo} to {hi}")
     missing = [a for a in needed if a not in v.anchors]
     if missing:
         problems.append(f"missing anchors {', '.join(missing)}")
     return problems
 
 
+def settle_on_terrain(v, ctx, ground_z):
+    """
+    D-068: a building or field stands on the terrain; its ground cover is the
+    ground map (`v.ground`, from parts.yard / parts.path), not voxels. A recipe
+    authored on the old one-voxel plate (GROUND_Z = 1) is settled here: the plate
+    layer (z ≤ 0) is dropped — its paved / dirt / sand cells become ground kinds
+    unless the map already declares the cell — and everything above is lowered
+    by one voxel, anchors included. The water structures of D-068 §5
+    (config.WATER_MODELS) keep their deck voxels over their water rows: only the
+    land rows' columns that stood on the plate (or on nothing) settle. Returns v.
+    """
+    if ground_z == 0:
+        return v
+    water = ctx.cid in config.WATER_MODELS and ctx.kind == "building"
+    land = ctx.land if water else 0
+
+    def plate(x, y, m):
+        # A cell of the old ground plate: z = 0 on land (fields and land buildings: the whole layer).
+        return not water or (y >= land and m[0] in config.GROUND_ROLES)
+
+    sinks = set()
+    cells = {}
+    for (x, y, z), m in v.cells.items():
+        if z == 0 and plate(x, y, m):
+            if ctx.kind == "building" and m[0] in config.GROUND_ROLES:
+                v.ground.setdefault((x, y), config.GROUND_ROLES[m[0]])
+            continue
+        if z < 0 and not water:
+            continue
+        cells[(x, y, z)] = m
+    if water:
+        # Land columns whose z = 0 cell is gone (or was never there) settle; decks and quays stay.
+        sinks = {(x, y) for (x, y, z) in cells if y >= land and z >= 1 and (x, y, 0) not in cells}
+    settles = lambda x, y, z: z >= 1 and (not water or (x, y) in sinks)  # noqa: E731
+    # Cells left in place first, then the settled ones over them (a post settling into a deck's edge wins).
+    out = {k: m for k, m in cells.items() if not settles(*k)}
+    for (x, y, z), m in cells.items():
+        if settles(x, y, z):
+            out[(x, y, z - 1)] = m
+    v.cells = out
+    v.anchors = {n: (p[0], p[1], p[2] - 1 if p[2] >= 1 and (not water or p[1] >= land) else p[2]) for n, p in v.anchors.items()}
+    return v
+
+
+def ground_map(v, ctx):
+    """
+    The manifest's `ground` (D-068): the footprint's tiles as rows (footprint y, at
+    rotation 0) of ground kinds (config.GROUND_KINDS) — per tile the declared kind
+    covering the most of its columns when it covers at least config.GROUND_TILE_SHARE,
+    else "none". None when every tile is "none".
+    """
+    rows = []
+    n = ctx.vpt * ctx.vpt
+    for ty in range(ctx.h):
+        row = []
+        for tx in range(ctx.w):
+            count = {}
+            for y in range(ty * ctx.vpt, (ty + 1) * ctx.vpt):
+                for x in range(tx * ctx.vpt, (tx + 1) * ctx.vpt):
+                    k = v.ground.get((x, y))
+                    if k:
+                        count[k] = count.get(k, 0) + 1
+            best = max(sorted(count), key=lambda k: count[k]) if count else None
+            row.append(best if best and count[best] >= config.GROUND_TILE_SHARE * n else "none")
+        rows.append(row)
+    return rows if any(k != "none" for r in rows for k in r) else None
+
+
+def plate_share(v, ctx):
+    """Share of the footprint's columns that are a flat plate: a cell at z = 0 with nothing on it (D-068 §6)."""
+    flat = sum(1 for (x, y, z) in v.cells if z == 0 and (x, y, 1) not in v.cells and 0 <= x < ctx.W and 0 <= y < ctx.D)
+    return flat / max(1, ctx.W * ctx.D)
+
+
+def floating_cells(cells, ground=0):
+    """The voxels of every component (voxels touching by a face, an edge or a corner) that does not reach the ground (z ≤ `ground`), sorted."""
+    seen = set()
+    out = []
+    for start in sorted(cells):
+        if start in seen:
+            continue
+        comp, stack, grounded = [], [start], False
+        seen.add(start)
+        while stack:
+            c = stack.pop()
+            comp.append(c)
+            if c[2] <= ground:
+                grounded = True
+            x, y, z = c
+            for n in ((x + i, y + j, z + k) for i in (-1, 0, 1) for j in (-1, 0, 1) for k in (-1, 0, 1)):
+                if n in cells and n not in seen:
+                    seen.add(n)
+                    stack.append(n)
+        if not grounded:
+            out.append(sorted(comp))
+    return out
+
+
 def build_grid(recipe, kind, key, ctx):
-    """The grid of one output: the recipe's, or its cargo attachment's."""
+    """The grid of one output: the recipe's, or its cargo attachment's; buildings and fields settled on the terrain (D-068)."""
     fn = recipe["cargo"] if key and key[0] == "attachment" else recipe["build"]
-    return fn(ctx)
+    v = fn(ctx)
+    if kind in ("building", "field") and not (key and key[0] == "attachment"):
+        settle_on_terrain(v, ctx, recipe.get("ground_z", 0))
+    return v
 
 
 def sway_groups(cells):
@@ -174,6 +286,11 @@ def build_id(cid, kind, recipe, content):
         if n > budget:
             problems.append(f"{fname}: {n} triangles over the budget {budget}")
         info = export.file_info(fname, data, n, bounds, budget)
+        if kind == "building" and (key is None or key[0] in ("variant", "level")):
+            ground = ground_map(v, ctx)
+            if ground:
+                # The yard per footprint tile (D-068), painted into the island's ground texture.
+                info["ground"] = ground
         files.append((fname, data, n, v, ctx))
         if kind == "building" and (key is None or key[0] in ("variant", "level")):
             f = lite_factor(ctx.vpt)
@@ -282,6 +399,8 @@ def budget_of(cid, kind, content, key=None):
             n = cid.rsplit("_", 1)[-1]
             return int(config.BUDGET_LIFE_STAGE * max(1.0, int(n) / 4)) if n.isdigit() else config.BUDGET_LIFE_STAGE
         return config.BUDGET_LIFE
+    if cid in config.BUDGET_OVERRIDE:
+        return config.BUDGET_OVERRIDE[cid]
     w, h = content_mod.footprint(content, cid)
     return config.BUDGET_PER_TILE[model_class(content, cid)] * w * h
 

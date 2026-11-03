@@ -1,67 +1,35 @@
 """
-Thread spinner (3 × 4; D-057 §3, V5): a low workshop of ashlar with a
-tiled roof whose whole east side opens under a lean-to on posts — two
-spinning wheels and racks of spools of fine thread inside — skeins
-hanging on a pole (rigid), baskets of flax, a bench and a cart.
+Thread spinner (3 × 4; V7 variety pass, tier IV): a two-storey cream plaster
+house with an open work bay under slate (no chimney); under it a giant
+spinning wheel on a stand, a tall rack of coloured skeins and wool bales. 12
+voxels per tile; massing and signature prop in NOTES.md.
 """
 
+from nsvoxel import detail_v4 as V
 from nsvoxel import detail_v5 as Q
 from nsvoxel import parts as P
-from nsvoxel.grid import mat
-from nsvoxel.mats import CANVAS, HEMP, TIMBER, TIMBER_LIGHT
+from nsvoxel import parts_kit as K
+from nsvoxel import parts_v7 as W
+from nsvoxel.grid import mat, shade_of
+from nsvoxel.mats import CANVAS, IRON, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-ROOF = mat("terracotta", 1.1)
-THREADS = (mat("canvas", 1.05), mat("ochre", 1.15), mat("dye-blue", 1.2), mat("terracotta", 1.25))
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
 
-
-def spool_rack(v, x, y, z, n=4, along="y"):
-    """A rack of spools: two posts, three shelves, spools in thread colours on them."""
-    for k in (0, n * 2):
-        if along == "y":
-            v.box(x, y + k, z, x + 1, y + k + 1, z + 7, TIMBER)
-        else:
-            v.box(x + k, y, z, x + k + 1, y + 1, z + 7, TIMBER)
-    for s in range(3):
-        zz = z + 1 + s * 2
-        for i in range(n * 2 + 1):
-            if along == "y":
-                v.set(x, y + i, zz, TIMBER_LIGHT)
-            else:
-                v.set(x + i, y, zz, TIMBER_LIGHT)
-        for i in range(n):
-            c = THREADS[(i + s) % len(THREADS)]
-            if along == "y":
-                v.set(x, y + 1 + i * 2, zz + 1, c)
-            else:
-                v.set(x + 1 + i * 2, y, zz + 1, c)
-
+GOODS = mat("canvas", 1.3)
+SKEIN = mat("dye-blue", 1.2)
+SKEIN2 = mat("terracotta", 1.2)
 
 def build(ctx):
-    v = ctx.vox()  # 24 × 32
-    seed = 105
-    P.yard(v, 0, 0, 24, 32, "grass", seed=seed)
-    P.yard(v, 1, 22, 23, 32, "paved", seed=seed)
-    b = P.building(v, 2, 3, 13, 20, "stone", along="y", height=9, roof=ROOF, seed=seed)
-    P.entrance(b.face("y+"), 5, 2, 3, 5)
-    for a in (6, 13):
-        Q.window(b.face("x-"), a, 4, 2, 3, hood="key", surround=True)
-    # The open side: a lean-to on posts with wheels and spool racks.
-    P.lean_to(v, 13, 22, 3, 20, 9, "tiles", down="x+", m=ROOF, seed=seed)
-    Q.spinning_wheel(v, 15, 6, 1, along="y")
-    Q.spinning_wheel(v, 15, 13, 1, along="y")
-    spool_rack(v, 20, 5, 1, n=4, along="y")
-    spool_rack(v, 20, 14, 1, n=2, along="y")
-    # Skeins on a pole (rigid), flax baskets, a bench, a cart.
-    v.box(14, 23, 1, 15, 24, 7, TIMBER)
-    v.box(21, 23, 1, 22, 24, 7, TIMBER)
-    v.box(14, 23, 7, 22, 24, 8, TIMBER_LIGHT)
-    for i, x in enumerate(range(15, 21, 2)):
-        v.box(x, 23, 4, x + 1, 24, 7, THREADS[i % len(THREADS)])
-    for x in (3, 6):
-        P.cask(v, x, 23, 1, h=2, lid=HEMP)
-    P.bench(v, 3, 27, 1, 5)
-    P.sacks(v, 9, 23, 1, n=1, m=CANVAS)
-    P.handcart(v, 14, 26, 1, along="x", load=mat("canvas", 1.05))
-    v.anchor("cart", 8, 31, 1)
-    P.scatter(v, 0, 0, 24, 3, 0.04, seed=seed)
+    v = ctx.vox()  # 36 × 48
+    seed = 169
+    K.ground(v, 18, 42, 15, 8, seed, "paved")
+    h = K.workshop(v, 6, 6, 36 - 6, 30, 4, "d", seed, door=("y+", 16), wins=[])
+    Q.wheel(v, 12, 42, 11, 9, plane="xz")
+    v.box(10, 42, 1, 15, 43, 3, TIMBER_DARK)
+    v.box(12, 42, 1, 13, 43, 12, TIMBER_DARK)
+    K.rack(v, 22, 32, 38, [SKEIN, SKEIN2, GOODS], h=9, drop=6)
+    K.pile(v, 6, 36, 1, 8, 5, 5, GOODS, seed)
+    v.anchor("cart", 14, 42, 1)
+    K.tufts(v, seed, 0.02)
     return P.colour_jitter(v, seed=seed)

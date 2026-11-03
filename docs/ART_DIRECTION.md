@@ -84,7 +84,7 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 |---|---|
 | Terrain | sand `#E2D2A6` · grass `#6E9E52` / `#84B063` · dry patches `#A79B62` · forest floor `#4A7640` · tree crown `#55884A` · mountain `#86888A` · cliff `#9A938A` · dirt road `#96744F` · paved road `#9FA09B` |
 | Water | shallows `#4A9C9F` → deep `#22627D` · foam `#F4F6F0` · haze `#AEC1C4` |
-| Buildings | plaster `#E7D7B8` · ochre `#D9A85E` · timber `#6F4A2E` · thatch `#B98F4F` · terracotta roof `#C4663A` (tier 2) · tile-dark `#6E3A33` (tier 3 roofs, V7) · brick `#9C4A38` (industry, V7) · slate `#5C6670` · stone `#B9B2A4` · brass `#C9A24A` · plus (art task 3) `canvas` (sails), `iron`, `window`, `dye-blue` — exact values in `assets/palette.json` |
+| Buildings | plaster `#E7D7B8` · ochre `#D9A85E` · timber `#6F4A2E` · thatch `#B98F4F` · terracotta roof `#C4663A` (tier 2) · tile-dark `#6E3A33` (tier 3 roofs, V7) · brick `#7E4A3C` (weathered Hanse brick: warehouses, industry, V7; first `#9C4A38`, darkened after the warehouse sheets) · slate `#5C6670` · stone `#B9B2A4` · brass `#C9A24A` · plus (art task 3) `canvas` (sails), `iron`, `window`, `dye-blue` — exact values in `assets/palette.json` |
 | UI chrome | parchment `#F1E6CC` · dark wood `#4A3421` · brass `#C9A24A` · ink `#2B2117` |
 | Shadows (D-050, D-064) | one cooler, lower-value **shadow tone per role** (`shadows` group) used by the AO/two-tone bake: role × (0.58, 0.56, 0.66) per sRGB channel, the rock roles a little deeper; thatch keeps extra chroma in shadow |
 | Island (D-050, D-064) | cliff bands (muted sandstone over grey), sand rim, neutral grey plateau rock and moss cap, shelf water (`island` group) |
@@ -134,6 +134,19 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   in three steps; sides keep their vertex colours. Only the faces looking
   straight up take the texture, so the triangle count stays that of the
   greedy mesh.
+- **Ground cover is texture (D-068).** Yards (paved, dirt, sand, plank
+  decks on land), field ground and roads are colours in the ground
+  texture, flush with the terrace; only what stands up is voxels (walls,
+  fences, kerbs that really rise, crops, posts, barrels). A building's
+  yard comes from its model's manifest `ground` (one kind per footprint
+  tile, rows = footprint y at rotation 0), turned and placed with the
+  model (`render/groundpaint.ts`) and painted on every layout change from
+  the roadless base, so a moved or demolished building leaves the
+  terrain colour behind. Paved is cobbles of `road-paved`, dirt
+  `road-dirt` with stones and a frayed rim, sand the `sand` role, planks
+  the recipes' plank shade of `timber` (the palette has no plank role).
+  Ground paint never changes height. Water structures keep their decks
+  (§7).
 - **Coast:** a pixel coastline (the smoothed coast sampled at the column
   centres) with a sand rim, a darker **wet-sand line** at the water,
   **beach pebbles** in the sand and two shelves stepping under the sea;
@@ -228,17 +241,24 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   labelled, focused or picked. Their shallows, like every island's
   coast water, lie at a round distance from the land (a 3-4 chamfer):
   the halo follows the outline, not the tile grid.
-- **Roads** are voxel paths painted into the terrain field per chunk
-  (`render/roadvoxels.ts`), one voxel below the grass: a two-column path
-  with arms to the neighbours and junctions, worn edges and jittered
-  stones; dirt for tier-1 roads, three-shade **cobbles with a kerb** for
-  the stone road. A road change repaints the field and rebuilds only the
-  touched chunks; carts and walkers walk on the sunk path. At far LOD
-  roads are only colour in the lite terrain's ground texture, and the
-  quays' decks are columns of the island's one lite terrain mesh (rebuilt
-  when the quays change) — no road or quay mesh of their own.
+- **Roads** are flush paint (D-068): paths painted into the terrain
+  field's top colours (`render/roadvoxels.ts`, colours shared with the
+  yards in `render/groundpaint.ts`), the terrain height untouched: a
+  two-column path with arms to the neighbours and junctions, worn edges
+  and jittered stones; dirt for tier-1 roads, three-shade **cobbles with
+  a kerb** colour for the stone road. Where a road meets a road one
+  terrace level lower, the terrace's road ramp climbs across the tile
+  (`IslandGround`); ramps and quay decks are the only height changes, and
+  only they rebuild terrain chunks — a plain road change updates the
+  ground texture alone. Carts and walkers walk on the ground. Near and
+  far roads are the same paint at two resolutions: at far LOD roads are
+  colour in the lite terrain's ground texture, and the quays' decks are
+  columns of the island's one lite terrain mesh (rebuilt when the quays
+  change) — no road or quay mesh of their own.
 - **Field ground** is painted into the ground texture too (furrows for
-  crops, pasture, orchard grass) under the field models. **At far LOD
+  crops, pasture, orchard grass; meadows and tree plots keep the
+  terrain's grass) over the whole footprint; the field models have no
+  plate (D-068), their fences and crops stand on the paint at z = 0. **At far LOD
   fields are ground patches, not models** (they have no lite file and
   cost 210–3 070 triangles each; the far budget): the lite terrain gets
   its own ground texture with every field footprint in one flat colour
@@ -387,16 +407,41 @@ hand-made `.vox` files.
 
 Tier 1–2 recipes are written on the v2 parts in `nsvoxel/detail.py`
 (re-exported by `parts.py`, called as `P.<name>`); the v1 helpers stay
-for the placeholders. A recipe is a yard, one or two `P.building`s, the
+for the placeholders. A recipe is a yard (declared ground), one or two `P.building`s, the
 openings, the props that say what the building does, the anchors, then
 `P.scatter(...)` and `return P.colour_jitter(v, seed=…)` (a no-op since
 V3b — kept for the signature) — about 40–70 lines.
+
+**Ground (D-068): no plates; `yard()` declares the ground.** A model
+contains only what stands up; it starts at z = 0 on the terrain.
+`P.yard(v, x0, y0, x1, y1, kind)` and `P.path(...)` lay no voxels: they
+declare `"paved"`, `"dirt"`, `"sand"` or `"planks"` (`"grass"` clears) in the
+grid's ground map, and the exporter writes it per footprint tile (a tile takes
+the kind covering at least half of it) as `ground` into the manifest, which the
+client paints (§4). New recipes author their first layer at z = 0. Recipes
+written on the old one-voxel plate declare `GROUND_Z = 1`; the build
+(`model.settle_on_terrain`) drops their z = 0 layer (its paved, dirt and sand
+cells become ground kinds) and lowers the rest, anchors included, by one voxel.
+Fields have no plates either. The water structures (`config.WATER_MODELS`:
+fisher, shipyard, Trading Post, trading pier, depot, salt pans, oyster beds)
+keep real deck voxels over their water rows; only their land part follows the
+ground map. The checker rejects a ground plate (more than `PLATE_SHARE`, 35 %,
+of a land footprint flat at z = 0) and reports voxels not connected to the
+ground (`floating voxels`); fix a one-voxel gap with `P.tie_floating(v)`
+(water models: `ground=0`) or a real support.
+
+No land building has a proud plinth: the wall meets the painted ground
+directly. Where a building wants a foundation it is a one-voxel stone band
+flush with the wall (colour, not geometry): `P.plinth(…, out=0)`, and the
+block parts (`P.building`, `townhouse`, `Q.palazzo`, `warm_hall`) lay it by
+default (`plinth_out=0`; `plinth_out=1` is the old proud plinth, not for
+land buildings).
 
 - **Building:** `b = P.building(v, x0, y0, x1, y1, style, along=…)`
   with style `settler` (pegged timber frame, plaster, thatch),
   `citizen` (coursed-stone ground floor with dressed quoins, jettied
   framed upper storey, tiles), `stone` or `stonethatch`. It lays the
-  proud plinth, fills hidden volumes solid (only the shell is meshed)
+  flush plinth band, fills hidden volumes solid (only the shell is meshed)
   and returns `b.face(side, upper=False)` for openings and `b.roof`
   (`ridge_z`, `surface(x, y)`) for chimneys and dormers. Lower-level
   parts (`coursed_stone`, `dressed_quoins`, `half_timber`, `boarded`,
@@ -416,9 +461,50 @@ V3b — kept for the signature) — about 40–70 lines.
   `trough`, `well`, `tool_rack`, `ladder`, `sawhorse`, `haystack`,
   `sheaf`, `stone_blocks`, `lamp_post`, `flower_bed`. One signature prop
   per producer must read at mid zoom.
+- **V7 parts (model rework):** `nsvoxel/parts_v7.py` (imported as `W`)
+  adds parts at 12 voxels per tile without changing `P`:
+  `W.coursed_stone_2` (rubble in two-voxel courses, three shades),
+  `W.heavy_frame` (two-voxel posts in ~11-voxel bays, one rail, one
+  brace per closed bay; returns the plaster panels), `W.two_light` and
+  `W.panel_window` (two-light casements with mullion and shutters),
+  `W.framed_house` (flush plinth band, rubble ground floor with quoins,
+  jetty, heavy-frame upper storey, windows per bay, roof),
+  `W.roof_core` (hidden attic fill in the roof material so the lite
+  reads the roof), `W.plank_shed`, `W.stack` (chimney) and `W.stairs`
+  (outside stair). For the merchant and patrician houses: `W.stepped_gable`
+  (a crow-stepped stone gable on any gable end, steps two voxels tall under a
+  light coping, optional ball finials and a volute-like foot), `W.dormer`
+  (a tiled dormer on an along-x or along-y roof), `W.arched_window` (a tall
+  two-light window, round head, light surround, dark glass), `W.round_window`
+  (an oculus for a gable field) and `W.round_arcade` (semicircular arches) (semicircular arches, optional `arch_m` ring).
+  For the warehouse and the trading post: `W.loft_door` (a loading door with a
+  hoist beam, pulley, rope and load), `W.gate`, `W.store_goods` (a few large
+  crates, casks and sacks) and `W.thatch_finish` (baked thatch patches and a
+  ragged eave).
+  `P.roof`, `W.framed_house`, `Q.palazzo`, `Q.tower` and `dormer_on` take
+  `shades=(even, odd)` for the course shades of the roof and `verge` for the
+  verge shade; with a darker `ridge` they give the strong course lines of the
+  dark tile (tier 3) and slate (tier 4) roofs.
+- **Tier kit (model rework, all tiers):** `nsvoxel/parts_kit.py` (imported
+  as `K`). `K.hall` builds the main block in the vocabulary of a tier (I dark
+  boards on a flush stone band under weathered thatch; II rubble ground
+  floor, half-timber, terracotta; III the same under dark burgundy tile;
+  IV ashlar, cream plaster, slate) with door, windows, a slim chimney and the
+  smoke anchors (`smoke`, `chimney`, `stone`, `plinth`, `upper` options).
+  `K.ground`/`K.tufts` paint the worked-ground blob and the grass tufts;
+  `K.pile`, `K.crates`, `K.rack`, `K.low_wall`, `K.lean` and `K.kiln` are
+  large production props; `K.silo`, `K.furnace`, `K.still`, `K.hive`,
+  `K.cow` and `K.pig` are signature props; `K.mine` builds a mine strip
+  (banded hill, adit, rails, tubs, optional headframe or horse whim) shared
+  by the mines and quarries.
+  `K.workshop(..., mass=)` wraps `K.hall` in five massings chosen per recipe
+  (a long range, b ridge along y with a west lean-to, c L-plan with a lower
+  wing, d house with an open work bay 14 deep in front, e house with a
+  separate outbuilding: kiln, silo, drying tower or stable); tier IV
+  workshops are two storeys (`tall=True` only for civic buildings).
 - **Tier 4 (Patricians, V5):** `nsvoxel/detail_v5.py` (imported as
-  `Q`) adds parts on top of `P` without changing it: `Q.palazzo` (proud
-  plinth, ashlar ground floor, plastered upper storeys, string courses,
+  `Q`) adds parts on top of `P` without changing it: `Q.palazzo` (flush
+  plinth band, ashlar ground floor, plastered upper storeys, string courses,
   cornice, roof; `.face`, `.roof`, `.top`), `Q.ashlar`,
   `Q.string_course`, `Q.cornice`, `Q.pilasters`; openings `Q.window`
   (hood `key`, `pediment`, `cornice`), `Q.lancet`, `Q.rose_window`,
@@ -491,7 +577,7 @@ V3b — kept for the signature) — about 40–70 lines.
   `hood` (`V.COPPER`); `drying_frame` (cloth sway), `hide_frame`,
   `louvres`, `brick_stack`, `stack`, `hanging`; `heap`, `mine_hill`
   (seam bands), `terraces` (a pit's banks — models never go below the
-  ground plate, so open them toward the camera, y+ and x−), `hop_pole`,
+  terrain, so open them toward the camera, y+ and x−), `hop_pole`,
   `leafy_rows`. The default view looks from the front-west: put
   signature parts on the y+ and x− sides.
 
@@ -509,17 +595,26 @@ V3b — kept for the signature) — about 40–70 lines.
 - **Roles for the model rework (V7 roles, applied by the tier
   sessions):** roofs per tier (T1 thatch, T2 orange terracotta, T3
   `tile-dark`, T4 slate) and the `brick` / `tile-dark` roles follow
-  D-064 §3. Palette v3 names them: `brick` `#9C4A38` (industry,
+  D-064 §3. Palette v3 names them: `brick` `#7E4A3C` (industry,
   warehouses, the depot; jitter class stone) and `tile-dark` `#6E3A33`
   (the tier-3 burgundy tile; class roof), each with its shadow tone by
   the documented rule; `terracotta` moved to `#C4663A` (the tier-2
-  orange, re-baked into every model that uses it). No recipe uses
-  `brick` or `tile-dark` yet.
+  orange, re-baked into every model that uses it). The warehouse
+  uses `brick` (an accent: level 3 piers and arch rings, level 4 ground
+  floor and gable fields; the role was darkened from `#9C4A38` to
+  `#7E4A3C`, shadow `#492928`).
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual
   only, D-042); one material (vertex colours). Every building reads by
   its good at mid zoom (one readable signature prop per production
   building); farms show a fenced yard and their field type.
+- **Yards per tier:** Settlers/Citizens dirt, Merchants/Patricians
+  paved (cobbles); production buildings dirt unless the recipe says
+  otherwise. A house declares one yard over its whole footprint
+  (`P.yard`, D-068).
+- **No outset plinth on land buildings;** foundations are a flush
+  one-voxel stone band (`P.plinth(…, out=0)`; the block parts default
+  to `plinth_out=0`).
 - **Tier language:** Settlers = timber frame + thatch, single storey;
   Citizens = plaster + terracotta, 1½–2 storeys with dormers; Merchants =
   stone ground floor, gables, slate, two storeys + attic; Patricians =

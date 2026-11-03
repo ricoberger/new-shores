@@ -6,6 +6,7 @@ addressed by its side ("y+" front, "y-" back, "x+" east, "x-" west) and the
 plane of its outer wall layer.
 """
 
+from . import config
 from .grid import hash3, mat, shade_of
 from .mats import (
     BRASS,
@@ -70,35 +71,29 @@ def span(side, x0, y0, x1, y1):
 # ---------------------------------------------------------------- ground
 
 
-def yard(v, x0, y0, x1, y1, kind="grass", z=0, seed=0):
-    """The one-voxel ground plate of a yard (the footprint's plinth): grass, dirt, paved, sand or planks."""
+def yard(v, x0, y0, x1, y1, kind="grass", seed=0):
+    """
+    Declares the ground of a yard (D-068): x0 ≤ x < x1, y0 ≤ y < y1 takes
+    `kind` — "paved", "dirt", "sand" or "planks"; "grass" clears it to the
+    terrain — in the grid's ground map. Nothing is laid: ground cover is the
+    island's ground texture, and the exporter writes the map per footprint
+    tile into the manifest (`ground`), which the client paints. Later calls
+    overwrite earlier ones. `seed` is kept for the signature.
+    """
+    if kind not in config.GROUND_KINDS and kind != "grass":
+        raise ValueError(f"yard kind {kind!r} (ground kinds: grass, {', '.join(config.GROUND_KINDS[1:])})")
     for x in range(x0, x1):
         for y in range(y0, y1):
-            # Patches of 4 × 4 voxels (one per half tile) between the two grasses; dirt and sand are one flat colour
-            # (D-057 V3b: the per-voxel variety is the client shader's).
-            h = hash3(x // 4, y // 4, z, seed)
             if kind == "grass":
-                m = GRASS_A if h < 0.6 else GRASS_B
-                if hash3(x, y, z, seed + 1) < 0.015:
-                    m = FLOWER
-            elif kind == "dirt":
-                m = DIRT
-            elif kind == "paved":
-                # Flagstones of 4 × 2 voxels in staggered rows.
-                m = shade_of(PAVED, (1.0, 0.95, 1.04)[int(hash3((x + (y // 2) % 2 * 2) // 4, y // 2, 3, seed) * 3)])
-            elif kind == "sand":
-                m = SAND
-            elif kind == "planks":
-                m = shade_of(PLANK, 1.0 if (y // 2) % 2 == 0 else 0.9)
+                v.ground.pop((x, y), None)
             else:
-                m = kind
-            v.set(x, y, z, m)
+                v.ground[(x, y)] = kind
 
 
-def path(v, cells, kind="dirt", z=0, seed=0):
-    """Overwrites ground cells (x, y) with a path material."""
+def path(v, cells, kind="dirt", seed=0):
+    """Declares a path over ground cells (x, y): dirt or paved in the ground map (D-068), like yard()."""
     for x, y in cells:
-        v.set(x, y, z, DIRT if kind == "dirt" else PAVED)
+        v.ground[(x, y)] = "dirt" if kind == "dirt" else "paved"
 
 
 # ---------------------------------------------------------------- walls
@@ -484,6 +479,40 @@ def smoke(v, x, y, z0, z1, **kw):
     v.anchor("chimney", s[0], s[1], s[2] - 1)
     v.anchor("smoke", *s)
     return s
+
+
+def tie_floating(v, ground=1):
+    """
+    Ties every floating prop of a recipe grid to what it hangs from: for each component of voxels
+    (touching by a face, edge or corner) that never reaches z ≤ `ground` — the recipe's first
+    standing layer, 1 on land (the build lowers it to the terrain) and 0 on water rows — one
+    voxel of the component's own material is added between its nearest cell and the nearest cell
+    outside it (a bracket, an axle, a post). Gaps wider than one voxel are left for the checker
+    (model.check_grid reports them) to flag. Returns v.
+    """
+    from .model import floating_cells
+
+    for _ in range(8):
+        comps = floating_cells(v.cells, ground)
+        if not comps:
+            break
+        for comp in comps:
+            own = set(comp)
+            best = None
+            for (x, y, z) in comp:
+                for dx in range(-2, 3):
+                    for dy in range(-2, 3):
+                        for dz in range(-2, 3):
+                            n = (x + dx, y + dy, z + dz)
+                            if n in v.cells and n not in own:
+                                d = (max(abs(dx), abs(dy), abs(dz)), abs(dx) + abs(dy) + abs(dz), (x, y, z), n)
+                                if best is None or d < best:
+                                    best = d
+            if best and best[0] == 2:
+                a, n = best[2], best[3]
+                mid = tuple((a[i] + n[i]) // 2 for i in range(3))
+                v.set(*mid, v.cells[a])
+    return v
 
 
 from .detail import *  # noqa: E402,F401,F403  (the v2 helpers at D-057 §3 detail)

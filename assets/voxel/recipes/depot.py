@@ -228,6 +228,8 @@ def lights(v):
         H.lantern(v, 10, y, z, h=9)
         H.lantern(v, 21, y, z, h=9)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 32 × 88

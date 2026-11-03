@@ -1,46 +1,41 @@
 """
-Bakery (4 × 5; D-057 §3): a bakehouse with a coursed-stone ground floor
-and a jettied ochre upper storey, tiles, a shop window under a striped
-awning and a hanging bread sign; a domed brick bread oven against the
-east wall with its chimney (smoke); flour sacks, a bread stall with
-loaves and baskets, firewood and a hand cart.
+Bakery (4 × 5; V7 rework after the Anno 1404 / Anno 117 bakery, tier II):
+a half-timbered bakehouse (rubble ground floor, terracotta tiles, slim
+chimney with smoke) with a striped awning over the shop window and a
+hanging bread sign; a brick-accent bread oven with a slim brick chimney
+against its west flank; in the yard a bread stall with a row of big
+golden loaves, flour sacks, firewood and a hand cart. 12 voxels per tile.
 """
 
+from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
-from nsvoxel.mats import BRASS, CANVAS, OCHRE, STONE, STONE_DARK, TERRACOTTA, TIMBER, WHEAT
+from nsvoxel import parts_kit as K
+from nsvoxel.grid import mat
+from nsvoxel.mats import BRASS, CANVAS, TIMBER, TIMBER_DARK, TIMBER_LIGHT, WHEAT
+
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+BREAD = mat("wheat", 1.25)
+CRUST = mat("ochre", 1.15)
 
 
 def build(ctx):
-    v = ctx.vox()  # 32 × 40
-    P.yard(v, 0, 0, 32, 40, "dirt", seed=51)
-    P.yard(v, 2, 26, 30, 38, "paved", seed=51)
-    b = P.building(v, 3, 5, 22, 20, "citizen", along="x", upper=OCHRE, seed=51, spacing=5)
-    f, F = b.face("y+"), b.face("y+", upper=True)
-    P.entrance(f, 9, 2, 3, 5, frame=P.DRESSED, lintel=P.DRESSED)
-    P.casement(f, 14, 3, 4, 3, frame=TIMBER, sill=TIMBER)
-    for a in (5, 13, 18):
-        P.casement(F, a, 11, 2, 3, frame=None, sill=P.mat("timber", 1.38), shutters=P.mat("terracotta", 0.85), box=P.mat("flower"))
-    P.awning(v, 13, 20, 19, 8, depth=3)
-    P.trade_sign(f, 20, 7, WHEAT)
-    # Domed oven against the east wall, chimney rising from it.
-    v.ellipsoid(26.5, 12.5, 1, 4.5, 5, 6, lambda x, y, z: STONE if z < 3 else (P.BRICK if (x + z) % 2 else P.shade_of(P.BRICK, 0.9)), keep=lambda x, y, z: z >= 1)
-    v.box(24, 7, 1, 29, 18, 2, STONE_DARK)
-    v.box(25, 17, 1, 28, 18, 4, None)
-    v.box(25, 17, 1, 28, 18, 3, P.mat("iron", 0.8))
-    v.set(26, 17, 1, P.mat("terracotta", 1.25))
-    P.chimney_stack(v, 25, 11, 4, b.roof.ridge_z - 2, brick=True, anchor=True)
-    # Flour sacks, a bread stall, firewood.
-    P.sacks(v, 3, 22, 1, n=3, m=CANVAS)
-    P.sacks(v, 4, 24, 1, n=1, m=CANVAS)
-    v.box(14, 27, 1, 20, 29, 3, TIMBER)
-    for x in range(14, 20):
-        v.set(x, 27 + x % 2, 3, WHEAT if x % 2 else P.mat("thatch", 1.2))
-        v.set(x, 28 - x % 2, 3, P.mat("timber", 1.38))
-    P.cask(v, 21, 27, 1, h=2, lid=P.mat("thatch", 1.15))
-    P.woodpile(v, 23, 22, 1, length=6, along="x", rows=3)
-    P.handcart(v, 3, 32, 1, along="x", load=CANVAS)
-    P.lamp_post(v, 12, 26)
-    v.set(19, 21, 9, BRASS)
-    v.anchor("cart", 26, 36, 1)
-    P.scatter(v, 0, 0, 32, 26, 0.02, seed=51, kinds=("pebble", "tuft"))
-    return P.colour_jitter(v, seed=51)
+    v = ctx.vox()  # 48 × 60
+    seed = 9
+    K.ground(v, 26, 38, 20, 18, seed)
+    h = K.workshop(v, 14, 6, 44, 28, 2, "d", seed, door=("y+", 32), smoke=True, chim=(36, 10), wins=[])
+    K.kiln(v, 2, 6, 1, w=11, d=11, h=12)
+    # Bread stall: a table with a row of big loaves.
+    v.box(14, 34, 3, 32, 38, 4, TIMBER_LIGHT)
+    for x in (15, 30):
+        v.box(x, 35, 1, x + 1, 37, 3, TIMBER_DARK)
+    for i, x in enumerate(range(15, 31, 4)):
+        v.box(x, 35, 4, x + 3, 37, 6, BREAD if i % 2 else CRUST)
+        v.box(x, 35, 6, x + 3, 37, 7, BREAD)
+    P.sacks(v, 34, 36, 1, n=3, m=CANVAS)
+    P.woodpile(v, 4, 24, 1, length=8, along="y", rows=3)
+    P.handcart(v, 20, 46, 1, along="x", load=BREAD)
+    v.anchor("cart", 26, 54, 1)
+    K.tufts(v, seed)
+    return P.colour_jitter(v, seed=seed)

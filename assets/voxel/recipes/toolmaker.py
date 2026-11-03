@@ -1,49 +1,52 @@
 """
-Toolmaker (4 × 4; D-057 §3): a workshop with a coursed-stone ground
-floor, a jettied ochre upper storey and tiles (brick chimney with smoke),
-a hanging sign; an open forge under a tiled lean-to with a glowing hearth
-and its hood, an anvil on a block, a quench tub, a grindstone, a rack of
-tools and a cart.
+Toolmaker (4 × 4; V7 rework after the Anno 1404 toolmaker's workshop, tier
+II): a rubble-and-half-timber smithy under terracotta with an open forge on
+its west flank — a stone hearth with a glowing fire and a slim stone chimney
+(smoke) — an anvil on a block, a quenching tub, a rack of finished tools,
+crates and a cart of tools; paved round the forge. 12 voxels per tile.
 """
 
 from nsvoxel import parts as P
-from nsvoxel.mats import IRON, OCHRE, STONE, STONE_DARK, STONE_LIGHT, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel import parts_kit as K
+from nsvoxel import parts_v7 as W
+from nsvoxel.grid import mat
+from nsvoxel.mats import IRON, STONE, STONE_DARK, TIMBER_DARK
 
-GLOW = P.mat("flower", 1.0)
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+GLOW = mat("ochre", 1.7)
+EMBER = mat("terracotta", 1.5)
+STEEL = mat("iron", 1.9)
 
 
 def build(ctx):
-    v = ctx.vox()  # 32 × 32
-    P.yard(v, 0, 0, 32, 32, "dirt", seed=58)
-    P.yard(v, 2, 22, 30, 30, "paved", seed=58)
-    b = P.building(v, 3, 4, 22, 16, "citizen", along="x", upper=OCHRE, seed=58, spacing=5)
-    f, F = b.face("y+"), b.face("y+", upper=True)
-    P.entrance(f, 6, 2, 3, 5, frame=P.DRESSED, lintel=P.DRESSED)
-    P.casement(f, 14, 3, 4, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
-    for a in (5, 11, 17):
-        P.casement(F, a, 11, 2, 3, frame=None, sill=TIMBER_LIGHT, shutters=P.mat("dye-blue", 0.9))
-    P.trade_sign(f, 11, 7, IRON)
-    P.roof_chimney(v, b.roof, 18, 7, above=3, brick=True, anchor=True)
-    # Open forge lean-to on the side: hearth, anvil.
-    P.lean_to(v, 22, 30, 5, 16, 8, "tiles", down="x+", ov=1)
-    v.box(23, 6, 1, 27, 10, 3, STONE)
-    v.box(24, 7, 3, 26, 9, 4, GLOW)
-    v.box(23, 6, 6, 27, 10, 7, STONE_DARK)  # hood
-    v.box(24, 7, 7, 26, 9, 9, STONE_DARK)
-    v.box(23, 12, 1, 25, 14, 3, TIMBER_DARK)  # anvil block
-    v.box(22, 12, 3, 26, 14, 4, IRON)
-    v.set(26, 13, 3, IRON)
-    P.cask(v, 27, 12, 1, h=2, lid=P.mat("shallows"))
-    # Grindstone and a tool rack.
-    v.box(8, 22, 1, 9, 26, 4, TIMBER)
-    v.box(9, 23, 1, 10, 26, 5, STONE)
-    v.box(9, 24, 2, 10, 25, 4, STONE_LIGHT)
-    for x in range(14, 22, 2):
-        v.box(x, 19, 1, x + 1, 20, 5, TIMBER_LIGHT)
-        v.set(x, 19, 5, IRON)
-    v.box(13, 19, 4, 22, 20, 5, TIMBER_DARK)
-    P.box_crate(v, 3, 23, 1, contents=IRON)
-    P.handcart(v, 22, 24, 1, along="x", load=IRON)
-    v.anchor("cart", 26, 29, 1)
-    P.scatter(v, 0, 0, 32, 22, 0.02, seed=58, kinds=("pebble", "tuft"))
-    return P.colour_jitter(v, seed=58)
+    v = ctx.vox()  # 48 × 48
+    seed = 101
+    K.ground(v, 20, 30, 18, 16, seed)
+    K.workshop(v, 16, 4, 44, 26, 2, "d", seed, door=("y+", 26), wins=[20], chimney=False)
+    # The open forge at the west: hearth, glowing fire, a tall slim stone stack.
+    W.coursed_stone_2(v, 3, 8, 13, 18, 1, 7, STONE, seed)
+    v.box(4, 9, 7, 12, 17, 8, STONE_DARK)
+    v.box(5, 12, 7, 11, 16, 9, EMBER)
+    v.box(6, 13, 7, 10, 15, 10, GLOW)
+    W.stack(v, 4, 9, 8, 26, 2, 2)
+    v.anchor("chimney", 5.5, 10.5, 26)
+    v.anchor("smoke", 5.5, 10.5, 27)
+    # Anvil on a block, quenching tub, tool rack, crates.
+    v.box(8, 22, 1, 11, 25, 5, TIMBER_DARK)
+    v.box(7, 22, 5, 13, 25, 7, IRON)
+    v.box(13, 22, 5, 15, 24, 6, IRON)
+    P.cask(v, 4, 24, 1, h=5, lid=mat("shallows", 1.0))
+    K.crates(v, ((6, 34, 1), (10, 34, 1), (6, 38, 1), (8, 36, 3)))
+    W.coursed_stone_2(v, 20, 28, 28, 33, 1, 7, STONE, seed)
+    v.box(21, 29, 7, 27, 32, 8, EMBER)
+    v.box(24, 28, 1, 27, 30, 12, STONE_DARK)
+    v.box(33, 29, 1, 36, 32, 5, TIMBER_DARK)
+    v.box(32, 29, 5, 38, 32, 7, IRON)
+    for x in range(4, 14, 3):
+        v.box(x, 30, 1, x + 1, 31, 7, STEEL)
+    P.handcart(v, 24, 40, 1, along="x", load=STEEL)
+    v.anchor("cart", 30, 42, 1)
+    K.tufts(v, seed)
+    return P.colour_jitter(v, seed=seed)

@@ -55,6 +55,21 @@ LITE_VOXELS_PER_TILE = 2
 #: Downsampling of a default-density (8 per tile) model's lite level: 8 → 2.
 LITE_DOWNSAMPLE = VOXELS_PER_TILE // LITE_VOXELS_PER_TILE
 
+#: Ground kinds of a model's footprint tiles (D-068: the manifest's `ground`, painted
+#: into the island's ground texture by the client; "none" is the terrain).
+GROUND_KINDS = ("none", "paved", "dirt", "sand", "planks")
+#: A footprint tile takes a ground kind when the kind covers at least this share of its columns.
+GROUND_TILE_SHARE = 0.5
+#: Material roles of the old ground plate (recipes with GROUND_Z = 1): their cells at z = 0
+#: become ground kinds (the rest of the plate layer is dropped).
+GROUND_ROLES = {"road-paved": "paved", "road-dirt": "dirt", "sand": "sand"}
+#: The water structures of D-068 §5: they stand on deck voxels over their water rows (the
+#: content's water_rows); only the land part of the footprint follows the ground map.
+WATER_MODELS = ("depot", "fisher", "oyster_beds", "salt_pans", "shipyard", "trading_pier", "trading_post")
+#: Plate check (D-068 §6): a land model's flat ground-layer cells (z = 0, nothing above) may
+#: cover at most this share of its footprint.
+PLATE_SHARE = 0.35
+
 #: Palette groups whose colour names are valid roles (material colours;
 #: UI, status, route and light colours are not).
 ROLE_GROUPS = ("buildings", "terrain", "fields", "water", "island")
@@ -71,6 +86,12 @@ SHADOW_GROUP = "shadows"
 #: densities were measured on 1 × 1 to 8 × 12 footprints).
 BUDGET_PER_TILE = {"building": 500, "house": 540, "field": 410}
 LITE_BUDGET_PER_TILE = {"building": 40, "house": 45}
+#: Per-model exceptions (full file, flat triangles; replaces the class's per-tile number): the tree
+#: plot's forest-scale trees (the unchanged decor_tree_c conifer is 440 triangles).
+BUDGET_OVERRIDE = {"tree_plot": 450}
+#: Per-model footprint slack in voxels at 8 per tile (default model.FOOTPRINT_SLACK): the tree plot's
+#: crown may overhang the tile by up to half a tile, so neighbouring crowns overlap into a canopy.
+SLACK_OVERRIDE = {"tree_plot": 4}
 #: Ships (no footprint): prototype sloop 1 882, brig 3 948, galleon 5 096
 #: triangles, cargo attachments 192, each with ~50 % headroom.
 BUDGET_SHIPS = {"sloop": 2800, "brig": 6000, "galleon": 7600}

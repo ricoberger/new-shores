@@ -393,19 +393,22 @@ class Roof:
         return min(self.ridge_z, self.z + int((k + 1) * self.rise + 1e-9) - 1)
 
 
-def roof(v, x0, x1, y0, y1, z, kind="thatch", along="x", rise=None, ov=1, gable=None, seed=0, hip=False, m=None, ridge=None, eaves=True, solid=True, cap=True):
+def roof(v, x0, x1, y0, y1, z, kind="thatch", along="x", rise=None, ov=1, gable=None, seed=0, hip=False, m=None, ridge=None, eaves=True, solid=True, cap=True, shades=None, verge=0.9):
     """
     A roof of courses over x0..x1 × y0..y1 from height z (D-057 §3):
     alternating course shades, eaves with a dark fascia (tiles, slate) or a
     ragged thatch fringe, verges a shade darker, and a raised ridge of
     ridge tiles in alternate shades (tiles, slate) or a thatch roll with
     liggers (cap=False: none). Gable ends (`gable` material, three voxels thick so the lite
-    keeps them) close the attic, which is filled solid. Returns a Roof.
+    keeps them) close the attic, which is filled solid. `shades` = (even, odd) course
+    factors of `m` (default 1.0 and 0.92 — 0.95 for thatch), `verge` the verge factor.
+    Returns a Roof.
     """
     base, r0, rm = ROOFS[kind]
     m = m or base
     rise = rise or r0
     ridge = ridge or rm
+    verge_f = verge
     swap = along == "y" and not hip
     a0, a1, b0, b1 = (y0, y1, x0, x1) if swap else (x0, x1, y0, y1)
 
@@ -429,14 +432,14 @@ def roof(v, x0, x1, y0, y1, z, kind="thatch", along="x", rise=None, ov=1, gable=
         zl = z + int(k * rise + 1e-9)
         zh = max(zl, z + int((k + 1) * rise + 1e-9) - 1)
         last = hi - lo <= 1 or (hip and ahi - alo <= 1)
-        shade = 1.0 if k % 2 == 0 else (0.95 if kind == "thatch" else 0.92)
+        shade = shades[k % 2] if shades else (1.0 if k % 2 == 0 else (0.95 if kind == "thatch" else 0.92))
         for zz in range(zl, zh + 1):
             for a in range(alo, ahi + 1):
                 verge = not hip and (a < a0 or a >= a1)
                 for b in range(lo, hi + 1):
                     edge = b in (lo, hi) or (hip and a in (alo, ahi))
                     if last or edge:
-                        c = ridge if last else shade_of(m, shade * (0.9 if verge or (hip and a in (alo, ahi) and b not in (lo, hi)) else 1.0))
+                        c = ridge if last else shade_of(m, shade * (verge_f if verge or (hip and a in (alo, ahi) and b not in (lo, hi)) else 1.0))
                         put(a, b, zz, c)
                     elif not verge and solid:
                         end = not hip and (a < a0 + 3 or a >= a1 - 3)
@@ -563,7 +566,7 @@ def roof_chimney(v, r, x, y, above=3, z0=1, anchor=False, **kw):
     return chimney_stack(v, x, y, z0, s + above, anchor=anchor, **kw)
 
 
-def dormer_on(v, r, x0, x1, side="y+", wall=PLASTER, kind="tiles", frame=TIMBER_LIGHT, course=2, h=4):
+def dormer_on(v, r, x0, x1, side="y+", wall=PLASTER, kind="tiles", frame=TIMBER_LIGHT, course=2, h=4, m=None, ridge=None, shades=None, verge=0.9):
     """
     A dormer on the front (y+) or back (y−) slope of an along-x Roof r: a
     front wall `course` courses up the slope with a framed window, cheeks
@@ -578,7 +581,7 @@ def dormer_on(v, r, x0, x1, side="y+", wall=PLASTER, kind="tiles", frame=TIMBER_
     v.box(x0, ys[0], zb, x1, ys[1], zb + h, wall)
     f = Face(v, side, ys[1] - 1 if side == "y+" else ys[0])
     casement(f, x0 + 1, zb + 1, x1 - x0 - 2, h - 2, frame, sill=frame, bars=False)
-    roof(v, x0, x1, ys[0], ys[1], zb + h, kind, along="y", ov=1, gable=wall, eaves=False, cap=False)
+    roof(v, x0, x1, ys[0], ys[1], zb + h, kind, along="y", ov=1, gable=wall, eaves=False, cap=False, m=m, ridge=ridge, shades=shades, verge=verge)
 
 
 # ---------------------------------------------------------------- fences
@@ -1028,10 +1031,12 @@ STYLES_V2 = {
 }
 
 
-def building(v, x0, y0, x1, y1, style="settler", along="x", wall=None, upper=None, z0=1, height=None, roof=None, kind=None, rise=None, hip=False, seed=0, jetty=True, ov=1, spacing=4, braces=True):
+def building(v, x0, y0, x1, y1, style="settler", along="x", wall=None, upper=None, z0=1, height=None, roof=None, kind=None, rise=None, hip=False, seed=0, jetty=True, ov=1, spacing=4, braces=True, plinth_out=0):
     """
     A whole building block in a tier style (D-057 §3), the core of P.house:
-    a proud stone plinth at z0, then
+    a stone plinth band at z0 — flush with the walls (plinth_out=0, the
+    default since V7: the wall meets the painted ground; 1: the old proud
+    plinth) — then
       settler      pegged timber frame with plaster infill, thatch;
       citizen      coursed-stone ground floor with dressed quoins, a jettied
                    (one voxel wider) timber-framed upper storey from z0 + 7,
@@ -1046,7 +1051,7 @@ def building(v, x0, y0, x1, y1, style="settler", along="x", wall=None, upper=Non
     infill = wall or st["infill"]
     k = kind or (roof_kind(roof) if roof is not None else st["roof"])
     rm = roof if roof is not None else None
-    plinth(v, x0, y0, x1, y1, z0, STONE_DARK, out=1)
+    plinth(v, x0, y0, x1, y1, z0, STONE_DARK, out=plinth_out)
     fill(v, x0, y0, x1, y1, z0, z0 + 1, STONE_DARK)
     ground = (x0, y0, x1, y1)
     up = ground

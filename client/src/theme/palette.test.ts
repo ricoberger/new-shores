@@ -100,7 +100,7 @@ describe("palette values (ART_DIRECTION §2)", () => {
       window: "#3B4A57",
       dye_blue: "#3F6F9C",
       // V7 roles (D-064 §3), applied by the tier sessions: brick (industry, warehouses, depot) and the tier-3 dark tile.
-      brick: "#9C4A38",
+      brick: "#7E4A3C",
       tile_dark: "#6E3A33",
     });
     expect(UI).toMatchObject({ parchment: "#F1E6CC", dark_wood: "#4A3421", brass: "#C9A24A", ink: "#2B2117" });

@@ -10,6 +10,8 @@ pitch kettle and rope coils.
 from nsvoxel import parts as P
 from nsvoxel.mats import IRON, PLANK, STONE, STONE_DARK, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 64 × 96, land from y 32
@@ -60,6 +62,9 @@ def build(ctx):
                     v.set(x - 1 - k, y, 13 - k, TIMBER)
     v.box(8, land + 20, 14, 35, land + 22, 15, TIMBER_DARK)
     v.box(8, land + 34, 14, 35, land + 36, 15, TIMBER_DARK)
+    # Wall plates carry the eaves of the thin roof shell on the tie beams.
+    v.box(8, land + 18, 14, 35, land + 20, 15, TIMBER_DARK)
+    v.box(8, land + 36, 14, 35, land + 38, 15, TIMBER_DARK)
     P.roof(v, 8, 35, land + 19, land + 37, 15, "thatch", along="x", ov=1, seed=seed, solid=False, gable=None)
     # Workshop with chimney on the east.
     b = P.building(v, 40, land + 20, 60, land + 36, "stone", along="y", seed=seed)
@@ -93,4 +98,5 @@ def build(ctx):
     P.handcart(v, 24, land + 50, 1, along="x", load=PLANK)
     P.sawhorse(v, 14, land + 50, 1, along="x")
     P.scatter(v, 0, land + 2, W, D, 0.012, seed=seed, kinds=("pebble", "tuft"))
+    P.tie_floating(v, ground=0)
     return P.colour_jitter(v, seed=seed)

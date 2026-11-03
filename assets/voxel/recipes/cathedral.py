@@ -21,6 +21,8 @@ ROOF = mat("slate", 0.8)  # slate and lead over pale stone: Gothic/Hanse (D-063)
 GLASS = mat("dye-blue", 0.85)
 WALL = Q.ASHLAR
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 96 × 128
@@ -29,7 +31,7 @@ def build(ctx):
     P.yard(v, 4, 104, 92, 128, "paved", seed=seed)
     # Nave (x 34..62) with aisles (x 24..34, 62..72) from y 22 to 98.
     nx0, nx1, ny0, ny1 = 34, 62, 22, 98
-    P.plinth(v, 24, ny0, 72, ny1, 1, mat("stone", 0.84), out=1)
+    P.plinth(v, 24, ny0, 72, ny1, 1, mat("stone", 0.84), out=0)
     Q.ashlar(v, nx0, ny0, nx1, ny1, 1, 34)
     Q.cornice(v, nx0, ny0, nx1, ny1, 34)
     nave = P.roof(v, nx0, nx1, ny0, ny1, 35, "tiles", along="y", rise=1.2, m=ROOF, gable=WALL, seed=seed, eaves=False)
@@ -47,7 +49,7 @@ def build(ctx):
         Q.buttress(v, nx0, a - 3, 18, 33, "x-", w=2, depth=2)
     # Transept (x 10..86, y 42..58) with a rose window in each end.
     tx0, tx1, ty0, ty1 = 10, 86, 42, 58
-    P.plinth(v, tx0, ty0, tx1, ty1, 1, mat("stone", 0.84), out=1)
+    P.plinth(v, tx0, ty0, tx1, ty1, 1, mat("stone", 0.84), out=0)
     Q.ashlar(v, tx0, ty0, tx1, ty1, 1, 34)
     Q.cornice(v, tx0, ty0, tx1, ty1, 34)
     tr = P.roof(v, tx0, tx1, ty0, ty1, 35, "tiles", along="x", rise=1.2, m=ROOF, gable=WALL, seed=seed, eaves=False)
@@ -69,7 +71,7 @@ def build(ctx):
     fr = P.roof(v, cx - 2, cx + 2, cy - 2, cy + 2, cz + 10, "tiles", hip=True, rise=4.0, m=ROOF, seed=seed, eaves=False)
     Q.finial(v, cx, cy, fr.top, BRASS, h=3)
     # Choir: lower, narrower, tall lancets.
-    P.plinth(v, 36, 6, 60, 22, 1, mat("stone", 0.84), out=1)
+    P.plinth(v, 36, 6, 60, 22, 1, mat("stone", 0.84), out=0)
     Q.ashlar(v, 36, 6, 60, 22, 1, 28)
     Q.cornice(v, 36, 6, 60, 22, 28)
     P.roof(v, 36, 60, 6, 22, 29, "tiles", along="y", rise=1.2, m=ROOF, gable=WALL, seed=seed, eaves=False, hip=True)
@@ -80,7 +82,7 @@ def build(ctx):
     for x0 in (18, 64):
         x1 = x0 + 14
         y0, y1 = 90, 104
-        P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=1)
+        P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=0)
         Q.ashlar(v, x0, y0, x1, y1, 1, 62)
         for z in (18, 34, 48):
             Q.string_course(v, x0, y0, x1, y1, z)

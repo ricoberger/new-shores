@@ -1,57 +1,51 @@
 """
-School (6 × 8; D-057 §3): a schoolhouse of coursed stone with dressed
-quoins on a plinth, tall framed windows with lintels, a tiled roof with
-dormers and ridge tiles, a bell cote with a brass bell over the gable,
-a porch with steps, a fenced schoolyard with a well, benches, a slate
-board on an easel, a tree and flower beds.
+School (6 × 8; V7 rework, tier II; no 1404 render): a long schoolhouse
+with a rubble ground floor and quoins, a half-timbered storey with tall
+casements and shutters under terracotta tiles with dormers and a slim
+chimney, buttress-like piers and string-course relief on the flanks, a
+bell cote with a brass bell over the front gable, a porch with steps; a
+fenced schoolyard with a well, benches, a slate board on an easel and a
+tree. 12 voxels per tile; dirt in the yard, the rest grass.
 """
 
 from nsvoxel import parts as P
-from nsvoxel.mats import BRASS, DYE_BLUE, STONE, TIMBER, TIMBER_LIGHT
+from nsvoxel import parts_kit as K
+from nsvoxel import parts_v7 as W
+from nsvoxel.grid import mat
+from nsvoxel.mats import BRASS, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-SLATE_BOARD = P.mat("slate", 0.8)
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+BOARD = mat("slate", 0.8)
 
 
 def build(ctx):
-    v = ctx.vox()  # 48 × 64
-    seed = 72
-    P.yard(v, 0, 0, 48, 64, "grass", seed=seed)
-    P.yard(v, 4, 34, 44, 58, "paved", seed=seed)
-    P.path(v, [(x, y) for x in range(21, 27) for y in range(58, 64)], kind="paved")
-    b = P.building(v, 6, 6, 42, 26, "stone", along="x", height=14, seed=seed)
-    f = b.face("y+")
-    for a in range(9, 40, 6):
-        if not 20 <= a <= 27:
-            P.casement(f, a, 4, 3, 6, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
-    for side in ("x-", "x+"):
-        for a in (10, 16, 21):
-            P.casement(b.face(side), a, 4, 2, 6, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
-    P.entrance(f, 22, 2, 4, 7, leaf=DYE_BLUE, frame=P.DRESSED, steps=2)
-    # Porch with a little gable roof on posts.
-    for x in (20, 27):
-        v.box(x, 26, 1, x + 1, 29, 10, TIMBER)
-    P.roof(v, 19, 29, 26, 30, 10, "tiles", along="y", ov=1, seed=seed, solid=False)
-    P.dormer_on(v, b.roof, 11, 16, "y+", wall=P.mat("plaster"))
-    P.dormer_on(v, b.roof, 32, 37, "y+", wall=P.mat("plaster"))
-    P.roof_chimney(v, b.roof, 36, 12, above=3)
-    # Bell cote on the west gable.
-    top = b.roof.ridge_z
-    v.box(6, 14, top - 2, 10, 18, top + 5, STONE)
-    v.box(7, 14, top, 9, 18, top + 3, None)
-    v.box(7, 15, top + 1, 9, 17, top + 3, BRASS)
-    P.roof(v, 6, 10, 14, 18, top + 5, "tiles", along="y", ov=1, eaves=False, seed=seed)
-    # Schoolyard: a fence, a well, benches, an easel with a slate, a tree.
-    P.fence_ring(v, 2, 30, 46, 60, kind="picket", gaps={(x, 59) for x in range(21, 27)}, seed=seed)
-    P.well(v, 36, 46)
-    P.bench(v, 8, 38, 1, 6)
-    P.bench(v, 8, 42, 1, 6)
-    P.bench(v, 8, 46, 1, 6)
-    v.box(17, 39, 1, 18, 40, 6, TIMBER)
-    v.box(17, 43, 1, 18, 44, 6, TIMBER)
-    v.box(17, 40, 3, 18, 43, 7, SLATE_BOARD)
-    v.box(17, 40, 2, 18, 43, 3, TIMBER_LIGHT)
-    P.fruit_tree(v, 40, 54, 1, seed=seed, trunk=6, r=4)
-    P.flower_bed(v, 4, 28, 18, 30, seed=seed)
-    P.flower_bed(v, 30, 28, 44, 30, seed=seed + 1)
-    P.scatter(v, 0, 0, 48, 64, 0.025, seed=seed)
+    v = ctx.vox()  # 72 × 96
+    seed = 11
+    K.ground(v, 36, 74, 28, 18, seed)
+    h = K.workshop(v, 8, 6, 64, 54, 2, "c", seed, door=("y+", 44), chimney=True, chim=(36, 10), wins=[36, 52])
+    for a in (34, 50):  # dormers
+        W.dormer(v, h.roof, a, a + 6, "y+", wall=mat("plaster"), frame=TIMBER_LIGHT, course=3, h=6)
+    # Bell cote on the front ridge.
+    bz = h.ridge
+    for dx in (0, 4):
+        by = (h.rect[1] + h.rect[3]) // 2 - 1
+        v.box(34 + dx, by, bz, 35 + dx, by + 1, bz + 8, TIMBER_DARK)
+    v.box(34, by, bz + 7, 39, by + 1, bz + 8, TIMBER)
+    v.box(35, by, bz + 3, 38, by + 1, bz + 6, BRASS)
+    # The porch.
+    P.fill(v, 40, 33, 52, 39, 1, 2, STONE)
+    W.plank_shed(v, 40, 33, 52, 39, wall=7, along="y", door="y+", m=TIMBER_LIGHT, kind="tiles", seed=seed)
+    # Schoolyard: fence, well, benches, a board, a tree.
+    P.fence_ring(v, 6, 60, 66, 92, kind="rail", gaps={(35, 91), (36, 91), (37, 91), (38, 91)}, seed=seed)
+    P.well(v, 14, 72, 1)
+    for x in (30, 46):
+        P.bench(v, x, 78, length=8)
+        P.bench(v, x, 84, length=8)
+    v.box(52, 70, 1, 53, 71, 8, TIMBER)
+    v.box(58, 70, 1, 59, 71, 8, TIMBER)
+    v.box(52, 70, 4, 59, 71, 9, BOARD)
+    P.fruit_tree(v, 60, 82, 1, seed=seed)
+    K.tufts(v, seed)
     return P.colour_jitter(v, seed=seed)

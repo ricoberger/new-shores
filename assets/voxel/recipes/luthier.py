@@ -1,85 +1,39 @@
 """
-Luthier (5 × 5; D-057 §3, V5): a two-storey workshop — ashlar ground
-floor, half-timbered plaster upper storey, tiles, a gable dormer — whose
-signboard is its instruments: a fiddle and a lute in warm timber hung
-on a beam over the door; outside under a lean-to a workbench with a
-half-made lute body, clamps and tools, tonewood planks stacked to
-season, a bench, flower beds and a cart.
+Luthier (5 × 5; V7 variety pass, tier IV): a long two-storey cream plaster
+workshop under slate (no chimney); in front a rack of big violins and lutes
+with pale necks and a stack of pale tonewood planks. 12 voxels per tile;
+massing and signature prop in NOTES.md.
 """
 
-from nsvoxel import detail_v5 as Q
+from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
-from nsvoxel.grid import mat
-from nsvoxel.mats import BRASS, IRON, PLANK, PLASTER, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel import parts_kit as K
+from nsvoxel import parts_v7 as W
+from nsvoxel.grid import mat, shade_of
+from nsvoxel.mats import CANVAS, IRON, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-ROOF = mat("terracotta", 0.92)
-SPRUCE = mat("ochre", 1.15)
-MAPLE = mat("terracotta", 1.3)
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
 
-
-def fiddle(v, x, y, z):
-    """A fiddle in the x–z plane: waisted body (5 × 7), a dark neck and scroll (z up)."""
-    rows = ((1, 4), (0, 5), (0, 5), (1, 4), (0, 5), (0, 5), (1, 4))
-    for j, (a, b) in enumerate(rows):
-        for i in range(a, b):
-            v.set(x + i, y, z + j, MAPLE)
-    v.set(x + 2, y, z + 3, TIMBER_DARK)
-    for j in range(7, 11):
-        v.set(x + 2, y, z + j, TIMBER_DARK)
-    v.set(x + 3, y, z + 10, TIMBER_DARK)
-
-
-def lute(v, x, y, z):
-    """A lute in the x–z plane: a round body (7 wide), a rose, a long neck and a bent head."""
-    for i in range(7):
-        for j in range(7):
-            if ((i - 3) ** 2 + (j - 3) ** 2) <= 10:
-                v.set(x + i, y, z + j, SPRUCE)
-    v.set(x + 3, y, z + 3, TIMBER_DARK)
-    for j in range(7, 11):
-        v.set(x + 3, y, z + j, TIMBER_DARK)
-    v.set(x + 4, y, z + 11, TIMBER_DARK)
-    v.set(x + 5, y, z + 11, TIMBER_DARK)
-
+GOODS = mat("timber", 1.0)
+NECK = mat("plaster", 1.1)
 
 def build(ctx):
-    v = ctx.vox()  # 40 × 40
-    seed = 121
-    P.yard(v, 0, 0, 40, 40, "paved", seed=seed)
-    P.yard(v, 0, 0, 40, 4, "grass", seed=seed)
-    b = P.building(v, 4, 4, 26, 24, "citizen", along="x", upper=PLASTER, seed=seed, spacing=4, roof=ROOF)
-    f, F = b.face("y+"), b.face("y+", upper=True)
-    P.entrance(f, 9, 2, 3, 6, frame=Q.DRESSED, lintel=Q.DRESSED, knob=BRASS)
-    Q.window(f, 15, 3, 4, 4, hood="cornice", surround=True)
-    for a in (7, 13, 19):
-        P.casement(F, a, 11, 2, 3, frame=None, sill=TIMBER_LIGHT)
-    for a in (9, 17):
-        Q.window(b.face("x-"), a, 3, 2, 4, hood="key", surround=True)
-        P.casement(b.face("x-", upper=True), a, 11, 2, 3, frame=None, sill=TIMBER_LIGHT)
-    P.roof_chimney(v, b.roof, 22, 8, above=2, brick=True)
-    # The signboard: a beam out from the wall, a fiddle and a lute hung from it.
-    v.box(8, 24, 18, 22, 27, 19, TIMBER_DARK)
-    for x in (10, 19):
-        v.set(x, 26, 17, IRON)
-    fiddle(v, 8, 26, 6)
-    lute(v, 16, 26, 5)
-    # Lean-to workshop on the east side with the bench.
-    P.lean_to(v, 26, 38, 5, 23, 10, "tiles", down="x+", m=ROOF, seed=seed)
-    v.box(28, 8, 1, 36, 11, 4, TIMBER_LIGHT)
-    v.box(29, 9, 4, 33, 11, 5, SPRUCE)  # a half-made lute body
-    v.set(34, 9, 4, IRON)
-    v.set(35, 10, 4, IRON)
-    v.box(28, 14, 1, 36, 20, 2, PLANK)
-    for k in range(4):
-        v.box(28, 14 + k, 2 + k, 36, 15 + k, 3 + k, PLANK if k % 2 else SPRUCE)
-    v.box(37, 6, 2, 38, 20, 3, TIMBER_DARK)
-    for y in range(7, 20, 3):
-        v.box(37, y, 3, 38, y + 1, 6, IRON if y % 2 else TIMBER)
-    # Yard: seasoning planks, a bench, flowers, cart.
-    P.planks(v, 4, 30, 1, w=10, d=3, h=4)
-    P.bench(v, 18, 30, 1, 6)
-    P.flower_bed(v, 26, 27, 36, 30, seed=seed)
-    P.handcart(v, 26, 33, 1, along="x", load=SPRUCE)
-    v.anchor("cart", 20, 38, 1)
-    P.scatter(v, 0, 0, 40, 4, 0.04, seed=seed)
+    v = ctx.vox()  # 60 × 60
+    seed = 161
+    K.ground(v, 30, 49, 27, 13, seed, "paved")
+    h = K.workshop(v, 6, 6, 60 - 6, 32, 4, "a", seed, door=("y+", 28), wins=[])
+    for k, x in enumerate(range(6, 46, 13)):
+        v.box(x, 38, 1, x + 1, 39, 16, TIMBER_DARK)
+        v.box(x + 10, 38, 1, x + 11, 39, 16, TIMBER_DARK)
+        v.box(x, 38, 15, x + 11, 39, 16, TIMBER_DARK)
+        v.box(x + 2, 38, 3, x + 9, 39, 10, GOODS)
+        v.box(x + 4, 38, 10, x + 7, 39, 14, GOODS)
+        v.box(x + 5, 38, 14, x + 6, 39, 15, NECK)
+        v.box(x + 4, 38, 2, x + 7, 39, 3, TIMBER_DARK)
+    K.pile(v, 38, 46, 1, 14, 6, 8, mat("timber", 1.3), seed)
+    v.box(8, 48, 1, 28, 53, 3, TIMBER_LIGHT)
+    P.handcart(v, 8, 48, 1, along="x", load=GOODS)
+    v.anchor("cart", 14, 54, 1)
+    K.tufts(v, seed, 0.02)
     return P.colour_jitter(v, seed=seed)

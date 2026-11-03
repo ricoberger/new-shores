@@ -1,65 +1,53 @@
 """
-Clay pit (4 × 6, on a clay deposit; D-057 §3): an open pit with terraced
-banks of cut clay (three steps, a ramp to the yard), a puddle and clay
-lumps on its floor, a timber gantry hoist over it with a winch, rope and
-bucket; in the yard a drying shed with stacked clay blocks, a tiled
-workers' hut, barrows, spades and a cart.
+Clay pit (4 × 6; V7 rework, tier III; no 1404 render): a raised bank round
+a pit with layered orange clay faces and wet clay in the floor, wooden
+walkways and a ladder, heaps of clay and a barrow, a stack of tile blanks
+drying on a rack under a tiled shed, a stone-and-timber hut under dark
+burgundy tiles. No chimney. 12 voxels per tile.
 """
 
 from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
-from nsvoxel.grid import mat
-from nsvoxel.mats import GRASS_B, IRON, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel import parts_kit as K
+from nsvoxel.grid import hash3, mat
+from nsvoxel.mats import MOSS, PLANK, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-CLAY = mat("terracotta", 1.22)
-CLAY_WET = mat("terracotta", 1.02)
-CLAY_CUT = mat("ochre", 0.9)
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+CLAY = mat("terracotta", 1.1)
+CLAY_DARK = mat("terracotta", 0.8)
+WET = mat("terracotta", 0.65)
+TURF = mat("grass-b", 0.8)
 
 
 def build(ctx):
-    v = ctx.vox()  # 32 × 48
-    seed = 73
-    P.yard(v, 0, 0, 32, 48, "dirt", seed=seed)
-    # Pit floor and terraced banks rising to the back and the east (open toward the yard and the west).
-    x0, y0, x1, y1 = 0, 6, 24, 30
-    for x in range(x0, x1):
-        for y in range(y0, y1):
-            v.set(x, y, 0, CLAY_WET)
-    V.terraces(v, x0, y0, x1, y1, 3, CLAY, edge=CLAY_CUT, seed=seed, open_sides=("y+", "x-"))
-    for x in range(0, 32):
-        for y in range(0, 30):
-            if v.get(x, y, 6) is not None:
-                v.set(x, y, 6, GRASS_B)  # sod on the rim
-    for x in range(5, 10):
-        for y in range(18, 22):
-            v.set(x, y, 0, mat("shallows", 0.85))
-    for x, y in ((14, 11), (19, 16), (4, 12), (11, 25)):
-        v.box(x, y, 1, x + 2, y + 2, 2, CLAY)
-    # Gantry hoist over the pit: two A-frames, a beam, a winch, a rope and a bucket.
-    for x in (6, 20):
-        v.line((x, 10, 1), (x, 14, 15), TIMBER)
-        v.line((x, 20, 1), (x, 15, 15), TIMBER)
-    v.box(6, 14, 15, 21, 16, 16, TIMBER_DARK)
-    v.box(21, 13, 9, 23, 17, 11, TIMBER_LIGHT)  # winch drum
-    v.box(21, 12, 1, 22, 13, 11, TIMBER)
-    v.box(21, 17, 1, 22, 18, 11, TIMBER)
-    for z in range(5, 15):
-        v.set(13, 15, z, mat("canvas", 0.85))
-    P.cask(v, 12, 14, 2, h=3, m=TIMBER, lid=CLAY)
-    v.set(13, 15, 5, IRON)
-    # Drying shed with stacked clay blocks.
-    P.lean_to(v, 2, 14, 34, 46, 8, "tiles", down="y+", posts=True)
-    for x in range(3, 13, 3):
-        for y in range(35, 45, 3):
-            v.box(x, y, 1, x + 2, y + 2, 3 + (x + y) % 2, CLAY if (x + y) % 2 else CLAY_CUT)
-    # Workers' hut: timber frame on stone, tiles, a chimney.
-    b = P.building(v, 19, 34, 31, 44, "settler", along="x", seed=seed, spacing=4, kind="tiles", height=9)
-    P.entrance(b.face("y+"), 23, 2, 3, 5)
-    P.casement(b.face("y+"), 27, 4, 2, 2, frame=None, sill=TIMBER_LIGHT, shutters=TIMBER_LIGHT, bars=False)
-    P.casement(b.face("x-"), 38, 4, 2, 2, frame=None, sill=TIMBER_LIGHT, bars=False)
-    P.roof_chimney(v, b.roof, 27, 36, above=2)
-    P.tool_rack(b.face("x-"), 35, 1, n=2)
-    P.handcart(v, 15, 33, 1, along="x", load=CLAY)
-    v.anchor("cart", 17, 46, 1)
-    P.scatter(v, 0, 0, 32, 48, 0.015, seed=seed, kinds=("pebble", "tuft"))
+    v = ctx.vox()  # 48 × 72
+    seed = 97
+    # The bank (on the camera side): a rim ring two to three voxels high round a clay floor.
+    for x in range(0, 48):
+        for y in range(38, 72):
+            edge = min(x, 47 - x, y - 38, 71 - y)
+            if edge < 5:
+                h = 3 + (1 if hash3(x // 2, y // 2, 0, seed) < 0.4 else 0)
+                for z in range(h):
+                    v.set(x, y, z, TURF if z == h - 1 else (CLAY_DARK if z % 2 else CLAY))
+            else:
+                v.set(x, y, 0, WET if hash3(x, y, 2, seed) < 0.7 else CLAY_DARK)
+    V.heap(v, 34, 58, r=5, h=5, m=CLAY, seed=seed)
+    V.heap(v, 14, 58, r=4, h=4, m=CLAY_DARK, seed=seed + 1)
+    for x in (22, 26):
+        v.box(x, 44, 3, x + 1, 68, 4, PLANK)
+    v.box(22, 44, 3, 27, 45, 4, PLANK)
+    P.ladder(P.Face(v, "x-", 5), 52, 1, 4)
+    # The hut and the tile blanks drying under a tiled shed, behind the pit.
+    K.ground(v, 14, 16, 12, 10, seed)
+    K.lean(v, 4, 24, 4, 16, 11, "y+", tier=3)
+    for x in range(6, 22, 4):
+        v.box(x, 6, 1, x + 3, 14, 3, CLAY)
+        v.box(x, 6, 3, x + 3, 14, 4, CLAY_DARK)
+    K.workshop(v, 26, 4, 46, 24, 3, "a", seed, door=("x-", 10), wins=[])
+    P.handcart(v, 8, 26, 1, along="x", load=CLAY)
+    v.anchor("cart", 14, 32, 1)
+    K.tufts(v, seed, 0.02)
     return P.colour_jitter(v, seed=seed)

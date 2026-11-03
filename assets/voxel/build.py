@@ -50,7 +50,8 @@ def recipe_for(cid, kind, recipes):
     fn = auto.pick(kind)
     if fn is None:
         return None, True
-    return {"build": fn, "file": None}, True
+    # The building placeholder stands on the old ground plate (GROUND_Z 1, D-068): the build settles it.
+    return {"build": fn, "file": None, "ground_z": 1 if kind == "building" else 0}, True
 
 
 def kind_for(content, cid):

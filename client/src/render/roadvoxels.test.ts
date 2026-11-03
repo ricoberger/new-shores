@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { chunkAt } from "../display/chunks";
-import { BOLLARD_H, fieldBase, fieldGround, paintFields, paintRoads, QUAY_H, ROAD_H, touchedChunks } from "./roadvoxels";
+import { cobbleTop } from "./groundpaint";
+import { BOLLARD_H, fieldBase, fieldGround, paintFields, paintRoads, QUAY_H, touchedChunks } from "./roadvoxels";
 import { type Field, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
 
 /** A flat grass field of w × h tiles at TERRAIN_VPT columns per tile. */
@@ -10,12 +11,15 @@ function flat(w: number, h: number): Field {
   return { nx, ny, x0: 0, y0: 0, s: 1 / TERRAIN_VPT, h: new Int8Array(nx * ny), top: new Uint32Array(nx * ny).fill(0x5a8a3a), bottom: -6, side: () => ({ r: 0, g: 0, b: 0 }) as never };
 }
 
-/** The road rows of a tile as strings ('#' road, '.' ground). */
+/** The cobble colours of the paved road (render/groundpaint.ts cobbleTop: three shades and a joint). */
+const COBBLES = new Set([0.1, 0.5, 0.8, 0.99].map(cobbleTop));
+
+/** The paved road rows of a tile as strings ('#' cobbles, '.' ground or kerb). */
 function tileRows(f: Field, x: number, y: number): string[] {
   const out: string[] = [];
   for (let b = 0; b < TERRAIN_VPT; b++) {
     let row = "";
-    for (let a = 0; a < TERRAIN_VPT; a++) row += f.h[(y * TERRAIN_VPT + b) * f.nx + x * TERRAIN_VPT + a] === ROAD_H ? "#" : ".";
+    for (let a = 0; a < TERRAIN_VPT; a++) row += COBBLES.has(f.top[(y * TERRAIN_VPT + b) * f.nx + x * TERRAIN_VPT + a] as number) ? "#" : ".";
     out.push(row);
   }
   return out;
@@ -46,53 +50,56 @@ describe("voxel roads", () => {
     expect(Array.from(f.kind ?? [])).toEqual(new Array(f.nx * f.ny).fill(0));
   });
 
-  it("sinks a two-column path one voxel with arms to the road neighbours (joins and junctions are unions)", () => {
+  it("paints a two-column path flush with the ground, with arms to the road neighbours (joins and junctions are unions; D-068)", () => {
     const f = flat(4, 4);
     const base = fieldBase(f);
     const tiles = [
-      { x: 1, y: 1, type: "road_dirt" },
-      { x: 2, y: 1, type: "road_dirt" },
-      { x: 1, y: 2, type: "road_dirt" },
+      { x: 1, y: 1, type: "road_paved" },
+      { x: 2, y: 1, type: "road_paved" },
+      { x: 1, y: 2, type: "road_paved" },
     ];
-    paintRoads(f, base, tiles, 7);
+    expect(paintRoads(f, base, tiles, 7)).toEqual([]);
+    expect(Array.from(f.h)).toEqual(Array.from(base.h));
     // The corner tile: centre plus arms east and south.
     expect(tileRows(f, 1, 1)).toEqual(["....", ".###", ".###", ".##."]);
     // Its east neighbour: an arm west only.
     expect(tileRows(f, 2, 1)).toEqual(["....", "###.", "###.", "...."]);
-    // A tile without roads stays flat.
+    // A tile without roads keeps the ground.
     expect(tileRows(f, 3, 3)).toEqual(["....", "....", "....", "...."]);
+    expect(f.top[(3 * TERRAIN_VPT + 1) * f.nx + 3 * TERRAIN_VPT + 1]).toBe(base.top[(3 * TERRAIN_VPT + 1) * f.nx + 3 * TERRAIN_VPT + 1]);
   });
 
   it("wears the edges and repaints from the base when a road goes away", () => {
     const f = flat(3, 3);
     const base = fieldBase(f);
-    const changed = paintRoads(f, base, [{ x: 1, y: 1, type: "road_paved" }], 3);
-    expect(changed.length).toBe(4);
-    // The kerb: most columns around the path changed colour but kept their height.
-    let kerb = 0;
-    for (let k = 0; k < f.nx * f.ny; k++) if (f.h[k] === 0 && f.top[k] !== base.top[k]) kerb++;
-    expect(kerb).toBeGreaterThan(4);
-    const back = paintRoads(f, base, [], 3);
-    expect(back.length).toBe(4);
+    expect(paintRoads(f, base, [{ x: 1, y: 1, type: "road_paved" }], 3)).toEqual([]);
+    // The path and its kerb: the columns around it changed colour, no height.
+    let painted = 0;
+    for (let k = 0; k < f.nx * f.ny; k++) if (f.top[k] !== base.top[k]) painted++;
+    expect(painted).toBeGreaterThan(4 + 4);
+    expect(paintRoads(f, base, [], 3)).toEqual([]);
     expect(Array.from(f.h)).toEqual(Array.from(base.h));
     expect(Array.from(f.top)).toEqual(Array.from(base.top));
   });
 
-  it("never sinks the beach or the shelves", () => {
+  it("never paints the beach or the shelves", () => {
     const f = flat(2, 1);
     f.h.fill(-1);
     const base = fieldBase(f);
     expect(paintRoads(f, base, [{ x: 0, y: 0 }], 1)).toEqual([]);
+    expect(Array.from(f.top)).toEqual(Array.from(base.top));
   });
 
   it("names the chunks whose meshes a height change touches (neighbours across a chunk's edge too)", () => {
     const f = flat(40, 4);
-    const base = fieldBase(f);
     const chunk = (x: number, y: number) => chunkAt(x, y, 40, 4);
-    // A lone road tile at x 32: its path is inside chunk 1,0.
-    expect([...touchedChunks(paintRoads(f, base, [{ x: 32, y: 1 }], 1), f, chunk)]).toEqual(["1,0"]);
-    // Joined with x 31: the arms reach the shared edge, both chunks rebuild.
-    expect([...touchedChunks(paintRoads(f, base, [{ x: 31, y: 1 }, { x: 32, y: 1 }], 1), f, chunk)].sort()).toEqual(["0,0", "1,0"]);
+    const col = (tx: number, a: number) => (1 * TERRAIN_VPT + 1) * f.nx + tx * TERRAIN_VPT + a;
+    // A column inside tile 32: chunk 1,0 only.
+    expect([...touchedChunks([col(32, 1)], f, chunk)]).toEqual(["1,0"]);
+    // Tile 32's first column: its neighbour is in tile 31, both chunks rebuild.
+    expect([...touchedChunks([col(32, 0)], f, chunk)].sort()).toEqual(["0,0", "1,0"]);
+    // A plain road changes no height, so no chunk.
+    expect(paintRoads(f, fieldBase(f), [{ x: 31, y: 1 }, { x: 32, y: 1 }], 1)).toEqual([]);
   });
 });
 
@@ -108,8 +115,8 @@ describe("field ground", () => {
     // Furrows: alternate rows along x differ, columns of one row are close.
     expect(f.top[at(0, 0)]).not.toBe(base.top[at(0, 0)]);
     expect((f.top[at(0, 0)]! >> 16) & 255).toBeLessThan((f.top[at(0, 1)]! >> 16) & 255);
-    // The sunk road columns keep their colour.
-    expect(f.h[at(1, 0)]).toBe(ROAD_H);
+    // The road columns keep their colour (and the ground's height).
+    expect(f.h[at(1, 0)]).toBe(0);
     expect(f.top[at(1, 0)]).toBe(road[at(1, 0)]);
     // Colour only: no height changes; a repaint without the field restores the ground.
     paintRoads(f, base, [], 1);
@@ -127,8 +134,8 @@ describe("field ground", () => {
     const base = fieldBase(f);
     paintRoads(f, base, [0, 1, 2].map((x) => ({ x, y: 0, type: "road_dirt" })), 7);
     const row = (j: number) => Array.from(f.h.slice(j * f.nx, (j + 1) * f.nx));
-    // The road columns (rows 1–2): level 0 sunk one voxel, the middle tile rising 1, 2, 3, 4 steps (minus the voxel), the last flat at level 1 (its east edge no road).
-    expect(row(1)).toEqual([0, -1, -1, -1, 0, 1, 2, 3, 3, 3, 3, 4]);
+    // The road columns (rows 1–2): level 0 flush, the middle tile rising 1, 2, 3, 4 steps (the terrace's ramp), the last flat at level 1.
+    expect(row(1)).toEqual([0, 0, 0, 0, 1, 2, 3, 4, 4, 4, 4, 4]);
     // Off the road the terrace edge stays a wall.
     expect(row(0).slice(4, 8)).toEqual([4, 4, 4, 4]);
   });

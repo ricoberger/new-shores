@@ -1,53 +1,31 @@
 """
-Gold smelter (4 × 6; D-057 §3, V5): the tier-2 smelter's battered blast
-furnace with its sooty stack (smoke) and glowing mouth, and beside it a
-strongroom of dressed ashlar — cornice, a low hipped roof with a brass
-finial, an iron-banded door, barred windows — behind a paling with a
-guard's lamp; crucibles, a chest of gold bars at the door, charcoal, a
-sentry bench and a cart.
+Gold smelter (4 × 6; V7 rework, tier IV): a battered ashlar furnace tower with a
+glowing mouth and a slim stack (smoke) beside a cream-plaster casting hall
+under slate, stacked gold ingots, a heap of black slag, a cart. 12 voxels per tile.
 """
 
-from nsvoxel import detail_v5 as Q
 from nsvoxel import parts as P
+from nsvoxel import parts_kit as K
 from nsvoxel.grid import mat
-from nsvoxel.mats import BRASS, IRON, TIMBER_DARK
 
-ROOF = mat("terracotta", 0.78)
-SOOT = mat("iron", 0.9)
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
+GOODS = mat("ochre", 1.6)
+GLOW = mat("ochre", 1.9)
 
 
 def build(ctx):
-    v = ctx.vox()  # 32 × 48
-    seed = 115
-    P.yard(v, 0, 0, 32, 48, "dirt", seed=seed)
-    P.yard(v, 18, 22, 32, 44, "paved", seed=seed)
-    Q.furnace(v, 3, 3, size=14, tiers=4, step=4, seed=seed)
-    # Strongroom.
-    x0, y0, x1, y1 = 20, 4, 31, 20
-    P.plinth(v, x0, y0, x1, y1, 1, mat("stone", 0.84), out=1)
-    Q.ashlar(v, x0, y0, x1, y1, 1, 12)
-    Q.cornice(v, x0, y0, x1, y1, 12)
-    r = P.roof(v, x0, x1, y0, y1, 13, "tiles", hip=True, m=ROOF, seed=seed, eaves=False)
-    Q.finial(v, (x0 + x1) // 2, (y0 + y1) // 2, r.top, BRASS, h=3)
-    f = P.Face(v, "y+", y1 - 1)
-    P.entrance(f, 24, 2, 3, 6, leaf=IRON, frame=Q.DRESSED, lintel=Q.DRESSED, knob=BRASS)
-    for a in (7, 13):
-        ff = P.Face(v, "x-", x0)
-        P.casement(ff, a, 6, 2, 3, frame=Q.DRESSED, sill=Q.DRESSED, bars=False)
-        Q.grille(ff, a, 6, 2, 3)
-    P.fence_ring(v, 18, 2, 32, 24, kind="picket", gaps={(x, 23) for x in range(23, 27)}, seed=seed)
-    P.lamp_post(v, 19, 25, h=7)
-    # Chest of gold bars, crucibles, charcoal, bench.
-    v.box(27, 25, 1, 31, 28, 3, TIMBER_DARK)
-    v.box(27, 25, 3, 31, 28, 4, Q.GOLD)
-    v.box(28, 26, 4, 30, 27, 5, Q.GOLD)
-    for x in (4, 7, 10):
-        v.box(x, 21, 1, x + 2, 23, 3, mat("stone", 0.7))
-        v.set(x, 21, 3, Q.GOLD)
-    Q.heap(v, 8, 30, 3.5, 3.5, 3, SOOT)
-    P.bench(v, 20, 30, 1, 5)
-    P.woodpile(v, 3, 37, 1, length=8, along="x", rows=2)
-    P.handcart(v, 22, 36, 1, along="x", load=Q.GOLD)
-    v.anchor("cart", 12, 46, 1)
-    P.scatter(v, 0, 0, 18, 48, 0.012, seed=seed, kinds=("pebble",))
+    v = ctx.vox()  # 48 × 72
+    seed = 143
+    K.ground(v, 24, 50, 20, 18, seed, "paved")
+    K.furnace(v, 14, 18, glow=GLOW)
+    K.workshop(v, 26, 8, 44, 34, 4, "a", seed, door=("x-", 22), wins=[])
+    for i in range(3):
+        v.box(30, 40 + i * 4, 1, 40, 43 + i * 4, 3, GOODS)
+    v.box(30, 40, 3, 38, 43, 5, GOODS)
+    K.pile(v, 4, 44, 1, 8, 6, 4, mat("iron", 0.6), seed)
+    P.handcart(v, 28, 60, 1, along="x", load=GOODS)
+    v.anchor("cart", 34, 68, 1)
+    K.tufts(v, seed, 0.02)
     return P.colour_jitter(v, seed=seed)

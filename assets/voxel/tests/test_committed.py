@@ -119,7 +119,7 @@ class CommittedTest(unittest.TestCase):
             w, h = content.footprint(CONTENT, cid)
             cls = model.model_class(CONTENT, cid)
             for info in main_files(entry):
-                self.assertEqual(info["budget"], config.BUDGET_PER_TILE[cls] * w * h, cid)
+                self.assertEqual(info["budget"], config.BUDGET_OVERRIDE.get(cid, config.BUDGET_PER_TILE[cls] * w * h), cid)
                 self.assertLessEqual(info["triangles"], info["budget"], info["path"])
                 if cls == "field":
                     self.assertNotIn("lite", info, cid)
@@ -153,8 +153,8 @@ class CommittedTest(unittest.TestCase):
             self.assertEqual(entry.get("sway", []), sorted(set(entry.get("sway", []))))
 
     def test_models_fill_their_footprint_and_stand_on_the_ground(self):
-        slack = model.FOOTPRINT_SLACK / config.VOXELS_PER_TILE
         for cid, entry in self.placed():
+            slack = config.SLACK_OVERRIDE.get(cid, model.FOOTPRINT_SLACK) / config.VOXELS_PER_TILE
             w, h = content.footprint(CONTENT, cid)
             self.assertEqual(entry["footprint"], {"w": w, "h": h}, cid)
             mn, mx = entry["bounds"]["min"], entry["bounds"]["max"]
@@ -163,8 +163,16 @@ class CommittedTest(unittest.TestCase):
             self.assertGreaterEqual(mn[0], -w / 2 - slack, cid)
             self.assertLessEqual(mx[2], h / 2 + slack, cid)
             self.assertGreaterEqual(mn[2], -h / 2 - slack, cid)
-            self.assertGreaterEqual(mx[0] - mn[0], w - 0.3, cid)
-            self.assertGreaterEqual(mx[2] - mn[2], h - 0.3, cid)
+            # The plot reads as the model and its painted yard (D-068: the ground map): together within a tile of every edge.
+            lo, hi = [mn[0], mn[2]], [mx[0], mx[2]]
+            for info in main_files(entry):
+                for gy, row in enumerate(info.get("ground", [])):
+                    for gx, k in enumerate(row):
+                        if k != "none":
+                            lo = [min(lo[0], gx - w / 2), min(lo[1], h / 2 - gy - 1)]
+                            hi = [max(hi[0], gx + 1 - w / 2), max(hi[1], h / 2 - gy)]
+            self.assertGreaterEqual(hi[0] - lo[0], w - 1.0, cid)
+            self.assertGreaterEqual(hi[1] - lo[1], h - 1.0, cid)
             self.assertLessEqual(mn[1], 0.05, cid)
 
     def test_life_anchors(self):
@@ -191,10 +199,10 @@ class CommittedTest(unittest.TestCase):
             n = content.levels(CONTENT, cid)
             n = min(n, recipes[cid]["levels"] or n)
             self.assertEqual(sorted(models[cid]["levels"]), [str(i) for i in range(1, n + 1)], cid)
-        # Level 4 of the market and the warehouse (D-065) has no model yet; the client draws level 3.
+        # The market and the warehouse model all four levels (D-065).
         for cid in ("warehouse", "market"):
             self.assertEqual(content.levels(CONTENT, cid), 4, cid)
-            self.assertNotIn("4", models[cid]["levels"], cid)
+            self.assertIn("4", models[cid]["levels"], cid)
         for cid in config.MODEL_SHIPS:
             ship = models[cid]["ship"]
             self.assertAlmostEqual(ship["length_tiles"], CONTENT["ships"][cid]["length_tiles"], places=6, msg=cid)

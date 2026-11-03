@@ -32,6 +32,9 @@ import { addJitter, LITE_VPT, MODEL_VPT } from "./jitter";
 import { skyFill } from "./lighting";
 import { addSway } from "./sway";
 
+/** A footprint tile's ground (D-068): painted into the island's ground texture under the building; "none" is the terrain. */
+export type GroundKind = "none" | "paved" | "dirt" | "sand" | "planks";
+
 /** Manifest file entry (one GLB). */
 export interface ModelFile {
   path: string;
@@ -42,6 +45,8 @@ export interface ModelFile {
   bounds: { min: [number, number, number]; max: [number, number, number] };
   /** The lite detail level of this model (drawn at the near-LOD default zoom). */
   lite?: ModelFile;
+  /** The model's yard per footprint tile (D-068; buildings' main files): rows = footprint y, at rotation 0; absent: all terrain. */
+  ground?: GroundKind[][];
 }
 
 /** Manifest model entry (one content ID). */

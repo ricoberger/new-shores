@@ -163,7 +163,7 @@ class RecipeTest(unittest.TestCase):
                 for info in [entry.get("file")] + entry.get("variants", []) + list(entry.get("levels", {}).values()):
                     if not info:
                         continue
-                    self.assertLessEqual(info["triangles"], config.BUDGET_PER_TILE[cls] * w * h, info["path"])
+                    self.assertLessEqual(info["triangles"], config.BUDGET_OVERRIDE.get(cid, config.BUDGET_PER_TILE[cls] * w * h), info["path"])
                     if "lite" in info:
                         self.assertLessEqual(info["lite"]["triangles"], config.LITE_BUDGET_PER_TILE[cls] * w * h, info["path"])
                         self.assertGreater(info["lite"]["triangles"], 60, info["path"])

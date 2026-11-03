@@ -13,6 +13,8 @@ from nsvoxel.mats import FLOWER
 LEAF = mat("hemp", 0.82)
 TIP = mat("hemp", 1.0)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()

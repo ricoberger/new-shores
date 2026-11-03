@@ -1,60 +1,36 @@
 """
-Slaughterhouse (4 × 4; D-057 §3, V5): a low ashlar hall with a thatched
-roof and a scalding-kettle chimney (smoke), and beside it an open shed
-on posts with sides of beef hanging from a rail (red meat, pale fat;
-rigid, not cloth); a cattle pen with a trough at the front, a chopping
-block, salt barrels and a cart.
+Slaughterhouse (4 × 4; V7 variety pass, tier IV): an L-plan two-storey
+plaster-and-ashlar block under slate with a slim chimney (smoke); in front a
+tall rail with big sides of red meat, a scalding tub and salt barrels. 12
+voxels per tile; massing and signature prop in NOTES.md.
 """
 
-from nsvoxel import detail_v5 as Q
+from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
-from nsvoxel.grid import mat
-from nsvoxel.mats import CANVAS, IRON, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel import parts_kit as K
+from nsvoxel import parts_v7 as W
+from nsvoxel.grid import mat, shade_of
+from nsvoxel.mats import CANVAS, IRON, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-ROOF = mat("thatch")
-MEAT = mat("terracotta", 1.18)
-FAT = mat("canvas", 0.95)
+VOXELS_PER_TILE = 12
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
 
-
-def side_of_beef(v, x, y, z):
-    """A side of beef on a hook: 2 wide, 5 long, red with a pale fat edge, hanging from z down."""
-    v.set(x, y, z, IRON)
-    for k in range(1, 6):
-        v.set(x, y, z - k, MEAT)
-        v.set(x + 1, y, z - k, FAT if k in (1, 2) else MEAT)
-
+GOODS = mat("terracotta", 1.25)
+HAM = mat("terracotta", 0.9)
 
 def build(ctx):
-    v = ctx.vox()  # 32 × 32
-    seed = 93
-    P.yard(v, 0, 0, 32, 32, "dirt", seed=seed)
-    P.yard(v, 1, 22, 31, 32, "paved", seed=seed)
-    # The hall: low ashlar, tiles, the kettle chimney.
-    b = P.building(v, 2, 3, 18, 18, "stone", along="y", height=9, roof=ROOF, seed=seed)
-    f = b.face("y+")
-    P.barn_gate(f, 5, 2, 5, 5)
-    Q.window(f, 12, 4, 2, 3, hood="key", surround=True)
-    for a in (6, 12):
-        P.casement(b.face("x-"), a, 5, 2, 2, frame=Q.DRESSED, sill=Q.DRESSED, bars=False)
-    P.roof_chimney(v, b.roof, 6, 6, above=4, brick=True, anchor=True)
-    # Open shed with hanging sides.
-    P.lean_to(v, 20, 30, 3, 17, 10, "thatch", down="x+", m=ROOF, seed=seed)
-    v.box(20, 6, 9, 30, 7, 10, TIMBER_DARK)
-    v.box(20, 12, 9, 30, 13, 10, TIMBER_DARK)
-    for x in (21, 24, 27):
-        side_of_beef(v, x, 6, 8)
-        side_of_beef(v, x, 12, 8)
-    v.box(21, 8, 1, 29, 11, 3, TIMBER_LIGHT)  # the block table
-    v.set(23, 9, 3, IRON)
-    v.set(26, 9, 3, MEAT)
-    # Cattle pen at the front, chopping block, barrels, cart.
-    P.fence_ring(v, 2, 20, 16, 30, kind="rail", seed=seed)
-    P.trough(v, 4, 22, 1, length=6, along="x")
-    P.chopping_block(v, 19, 22)
-    P.cask(v, 26, 20, 1, lid=FAT)
-    P.cask(v, 28, 23, 1)
-    P.sacks(v, 22, 27, 1, n=2, m=CANVAS)
-    P.handcart(v, 18, 26, 1, along="y", load=MEAT)
-    v.anchor("cart", 26, 30, 1)
-    _ = TIMBER
+    v = ctx.vox()  # 48 × 48
+    seed = 167
+    K.ground(v, 24, 41, 21, 9, seed, "paved")
+    h = K.workshop(v, 6, 6, 48 - 6, 28, 4, "c", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
+    for x in (6, 40):
+        v.box(x, 34, 1, x + 1, 35, 18, TIMBER_DARK)
+    v.box(6, 34, 17, 41, 35, 18, TIMBER)
+    V.hanging(v, 8, 40, 34, 17, ((GOODS, 10), (HAM, 8)), every=4)
+    V.vat(v, 12, 42, 1, r=5, h=5, m=mat("timber", 0.8), liquid=mat("shallows", 1.2))
+    P.cask(v, 30, 40, 1, h=5, lid=CANVAS)
+    P.cask(v, 36, 40, 1, h=5, lid=CANVAS)
+    P.handcart(v, 8, 36, 1, along="x", load=GOODS)
+    v.anchor("cart", 14, 42, 1)
+    K.tufts(v, seed, 0.02)
     return P.colour_jitter(v, seed=seed)

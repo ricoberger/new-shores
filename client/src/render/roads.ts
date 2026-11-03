@@ -1,4 +1,4 @@
-// Roads (ART_DIRECTION §4): the road tiles are voxel paths in the island's
+// Roads (ART_DIRECTION §4): the road tiles are paths painted into the island's
 // terrain (render/roadvoxels.ts, render/terrain.ts); this module keeps
 // their tile type and the translucent preview of a road drag
 // (thin-instance slabs, world coordinates).

@@ -29,6 +29,8 @@ def rack(v, x0, x1, y):
     for x in range(x0 + 1, x1 - 1, 3):
         v.box(x, y + 1, 2, x + 2, y + 3, 3, BAG)
 
+GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+
 
 def build(ctx):
     v = ctx.vox()  # 48 × 96, land from y 32
@@ -100,4 +102,5 @@ def build(ctx):
     v.anchor("cart", 24, 92, 1)
     P.scatter(v, 0, land + 5, W, D, 0.015, seed=seed)
     _ = STONE_DARK
+    P.tie_floating(v, ground=0)
     return P.colour_jitter(v, seed=seed)

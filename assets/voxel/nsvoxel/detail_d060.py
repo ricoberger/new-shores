@@ -188,7 +188,7 @@ SANDSTONE_QUOIN = mat("cliff-upper", 0.8)
 SANDSTONE_PLINTH = mat("cliff-upper", 0.7)
 
 
-def warm_hall(v, x0, y0, x1, y1, height, along="x", rise=None, kind="tiles", roof=None, stone=SANDSTONE, quoin=SANDSTONE_QUOIN, seed=0):
+def warm_hall(v, x0, y0, x1, y1, height, along="x", rise=None, kind="tiles", roof=None, stone=SANDSTONE, quoin=SANDSTONE_QUOIN, seed=0, plinth_out=0):
     """
     The "stone" style of building() in warm sandstone: a plinth, coursed
     walls of `stone` to `height`, darker quoins and a roof of courses
@@ -196,7 +196,7 @@ def warm_hall(v, x0, y0, x1, y1, height, along="x", rise=None, kind="tiles", roo
     """
     from . import detail as _d
 
-    P.plinth(v, x0, y0, x1, y1, 1, SANDSTONE_PLINTH, out=1)
+    P.plinth(v, x0, y0, x1, y1, 1, SANDSTONE_PLINTH, out=plinth_out)  # flush band (V7); 1: the old proud plinth
     P.fill(v, x0, y0, x1, y1, 1, 2, SANDSTONE_PLINTH)
     P.coursed_stone(v, x0, y0, x1, y1, 2, height, stone, seed)
     P.dressed_quoins(v, x0, y0, x1, y1, 2, height, m=quoin)
