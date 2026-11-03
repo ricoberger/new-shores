@@ -27,7 +27,7 @@ import { allocateFarTerrain, type MaskIsland, MaskLayer, reliefOrder } from "./f
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { freeShallows, isQuayType, withQuays } from "../display/quay";
-import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
+import { buildingAt, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
@@ -51,8 +51,8 @@ import { JumpLatch } from "./latch";
 import { LIFE_CLASSES, LifeLayer } from "./life";
 import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
-import { RoadPreview } from "./roads";
 import { PaintPreview, type PaintMark } from "./paint";
+import { planRoadDrag } from "../display/roaddrag";
 import { t } from "../i18n";
 
 /**
@@ -188,7 +188,6 @@ export class GameRenderer {
   /** Life layer (carts, walkers, smoke, …; docs/LIFE_LAYER.md): one mesh per element class for the scene. */
   private readonly life: LifeLayer;
   private readonly marks: FootprintMarks;
-  private readonly roadPreview: RoadPreview;
   private readonly grid: GridOverlay;
   /** Ground point of the last touch tap or drag position (archipelago tiles): the grid's centre on touch. */
   private lastTouch: ArchPoint | null = null;
@@ -217,6 +216,8 @@ export class GameRenderer {
   private defs = new Map<string, ContentBuilding>();
   private hover: Point | null = null;
   private roadStart: IslandTile | null = null;
+  /** The tile under the pointer of the road drag (its ghost runs from roadStart to here). */
+  private roadEnd: TilePos | null = null;
   /** The rectangle being dragged with the field tool (place or remove) or the Demolish tool (remove fields). */
   private paint: (PaintDrag & { island: string; mode: "place" | "remove" }) | null = null;
   private readonly paintPreview: PaintPreview;
@@ -305,7 +306,6 @@ export class GameRenderer {
     this.life = new LifeLayer(this.scene, LIFE_CLASSES, quality, life, this.models);
     this.arch.setQuality(quality);
     this.marks = new FootprintMarks(this.scene);
-    this.roadPreview = new RoadPreview(this.scene);
     this.grid = new GridOverlay(this.scene);
     this.paintPreview = new PaintPreview(this.scene);
 
@@ -1437,7 +1437,10 @@ export class GameRenderer {
     const tool = this.tool();
     if (button !== 0) return;
     if (tool.kind === "none") return;
-    if (tool.kind === "road") this.roadStart = this.tileAt(p);
+    if (tool.kind === "road") {
+      this.roadStart = this.tileAt(p);
+      this.roadEnd = this.roadStart ? { x: this.roadStart.x, y: this.roadStart.y } : null;
+    }
     // Field tool: paint (or remove) a rectangle; the Demolish tool removes the fields under one.
     if (tool.kind === "field" || tool.kind === "demolish") {
       const tl = this.tileAt(p);
@@ -1455,8 +1458,7 @@ export class GameRenderer {
     }
     if (this.roadStart && button === 0) {
       const tl = this.tileOn(this.roadStart.island, cur);
-      const pl = this.arch.placement(this.roadStart.island);
-      if (tl && pl) this.roadPreview.set(lPath(this.roadStart, tl).map((q) => ({ x: q.x + pl.position.x, y: q.y + pl.position.y })));
+      if (tl) this.roadEnd = { x: tl.x, y: tl.y };
       return;
     }
     // Right-drag turns the camera about its target: dragging right turns the map counter-clockwise on screen.
@@ -1471,7 +1473,7 @@ export class GameRenderer {
   private onPointerCancel(): void {
     this.rig.snap();
     this.roadStart = null;
-    this.roadPreview.set([]);
+    this.roadEnd = null;
     this.paint = null;
   }
 
@@ -1504,7 +1506,7 @@ export class GameRenderer {
       const start = this.roadStart;
       const tl = this.tileOn(start.island, p);
       this.roadStart = null;
-      this.roadPreview.set([]);
+      this.roadEnd = null;
       if (tl && this.tool().kind === "road") this.events.road(start.island, start, tl);
     }
   }
@@ -1691,13 +1693,23 @@ export class GameRenderer {
     const toolKey = tool.kind === "field" ? `${tool.farmId}|${tool.buildingType}|${tool.rotation}|${tool.remove ? 1 : 0}` : tool.kind;
     // The quay tool tints the free shallows of the island under the pointer (D-060).
     const quayIsland = !drag && tool.kind === "road" && isQuayType(this.defs, tool.roadType) && this.hover ? this.tileAt(this.hover)?.island : undefined;
-    const key = drag
-      ? `${drag.mode}|${drag.island}|${drag.start.x},${drag.start.y}|${drag.end.x},${drag.end.y}|${toolKey}|${server?.version ?? 0}|${this.paint ? 1 : 0}`
-      : quayIsland
-        ? `quay|${quayIsland}|${server?.version ?? 0}`
-        : "";
+    const road = tool.kind === "road" && this.roadStart && this.roadEnd ? { start: this.roadStart, end: this.roadEnd, type: tool.roadType } : null;
+    const key = road
+      ? `road|${road.type}|${road.start.island}|${road.start.x},${road.start.y}|${road.end.x},${road.end.y}|${server?.version ?? 0}`
+      : drag
+        ? `${drag.mode}|${drag.island}|${drag.start.x},${drag.start.y}|${drag.end.x},${drag.end.y}|${toolKey}|${server?.version ?? 0}|${this.paint ? 1 : 0}`
+        : quayIsland
+          ? `quay|${quayIsland}|${server?.version ?? 0}`
+          : "";
     if (key === this.paintKey) return;
     this.paintKey = key;
+    if (road) {
+      // The road drag's ghost (UI.md §3): one mark per tile laid, green where the client expects a road, red where a
+      // rule rejects it; tiles already carrying the road are left unmarked (they are not sent).
+      this.paintPreview.set(this.roadDragMarks(road.start.island, road.start, road.end, road.type));
+      this.setPaintStatus(null);
+      return;
+    }
     const ql = quayIsland ? this.lookup(quayIsland) : undefined;
     const qpl = quayIsland ? this.arch.placement(quayIsland) : undefined;
     if (ql?.statics && qpl) {
@@ -1757,6 +1769,25 @@ export class GameRenderer {
     }
     const name = tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? t("field.generic")).toLowerCase() : t("field.generic");
     this.setPaintStatus(t("paint.remove", { count: n, name, Name: tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? t("field.generic")) : t("field.generic"), clipped: clipped ? t("paint.removeClipped") : "" }));
+  }
+
+  /** The marks of a road drag on an island (island tiles from `start` to `end`), by the client hint per tile. */
+  private roadDragMarks(island: string, start: TilePos, end: TilePos, roadType: string): PaintMark[] {
+    const l = this.lookup(island);
+    const pl = this.arch.placement(island);
+    if (!l?.statics || !pl) return [];
+    const detail = this.details.get(island);
+    const tiles = planRoadDrag(start, end, roadType, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs });
+    return tiles
+      .filter((tl) => tl.hint !== "skip")
+      .map((tl) => ({
+        cx: pl.position.x + tl.x + 0.5,
+        cz: -(pl.position.y + tl.y + 0.5),
+        w: 1,
+        h: 1,
+        kind: tl.hint === "ok" ? "ok" : "bad",
+        base: detail?.baseOf({ x: tl.x, y: tl.y, type: "", rotation: 0 }, { width: 1, height: 1 }) ?? 0,
+      }));
   }
 
   /** The anchors of a painted rectangle and their hint for the field tool (null: no field tool or its farm is gone). */

@@ -18,6 +18,7 @@ import { serverTimeMs } from "../display/extrapolate";
 import { tons, units } from "../display/format";
 import { countdown, shipName } from "../display/ships";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
+import { planRoadDrag, roadDragSend } from "../display/roaddrag";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
 import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
@@ -487,11 +488,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     road: (islandId: string, from: TilePos, to: TilePos) => {
       const is = model?.islands.find((x) => x.id === islandId);
       if (tool.kind !== "road" || !is) return;
-      const existing = new Set(is.roads.map((r) => `${r.x},${r.y}`));
-      const tiles = lPath(from, to).filter((tl) => !existing.has(`${tl.x},${tl.y}`));
+      // Tiles that already carry the road are not sent (display hint, the server validates the rest).
+      const st = renderer?.islandStatics().get(islandId);
+      const tiles = st
+        ? roadDragSend(planRoadDrag(from, to, tool.roadType, { island: st, buildings: is.buildings, roads: is.roads, defs }))
+        : lPath(from, to).filter((tl) => !is.roads.some((r) => r.x === tl.x && r.y === tl.y));
       if (tiles.length === 0) return;
       // A quay off the shallows would be rejected (display mirror of the rule, D-060).
-      const st = renderer?.islandStatics().get(islandId);
       if (isQuayType(defs, tool.roadType) && st && offShallows(st, tiles).length > 0) {
         toast(t("app.quayShallows", { count: SHALLOWS_REACH }));
         return;

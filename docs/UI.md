@@ -234,7 +234,13 @@ UI shows the same numbers the server uses.
   rivers never as sea. The model keeps its normal tint for a water-edge
   mismatch so one bad tile does not turn the entire building red. This is
   a display hint only: the server validates every placement.
-- Roads: drag to draw; auto-connect; cost preview. The quay (D-060) is
+- Roads: drag to draw; auto-connect; cost preview. While dragging, the
+  L-path of the drag shows as a ghost on the ground, one mark per tile in
+  the field paint's tints: green where the client expects a road, red
+  where a rule rejects it (terrain, a building, off the shallows for a
+  quay); tiles that already carry the road are left unmarked and are not
+  sent (`display/roaddrag.ts`, a display hint; bridge shapes are the
+  server's). The quay (D-060) is
   drawn the same way over shallow water; a drag that leaves the shallows
   is not sent (toast; display mirror of the rule, `display/quay.ts`).
   Quays render as a stone wharf with a timber fender and a bollard every

@@ -3,7 +3,8 @@
 // green where a field is expected, red where a rule rejects it, a fainter
 // red beyond the farm's maximum — and the fields a removal rectangle
 // covers. After the server's answer the rejected anchors flash red and
-// fade. Thin instances, one mesh per kind, world coordinates; nothing here
+// fade. The road tool's drag uses the same marks, one per tile laid
+// (display/roaddrag.ts). Thin instances, one mesh per kind, world coordinates; nothing here
 // is pickable.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";

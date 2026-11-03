@@ -920,6 +920,51 @@ function ghostWater(offset: -1 | 0 | 1, type = "fisher"): { fixture: Fixture; de
   };
 }
 
+/**
+ * A road drag held mid-way (desktop near): the tool of `roadType` dragged across a vertical run of a
+ * `crossing` road on the settled island with the most roads, eleven tiles from left to right (UI.md §3).
+ */
+function roadDrag(fixture: Fixture, roadType: string, crossing: string): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture,
+    device: "desktop",
+    run: async (page) => {
+      const at = await page.evaluate(async ([type, api]) => {
+        const content = (await (await fetch(`${api}/api/v1/content`, { credentials: "include" })).json()) as { buildings: { id: string; width: number; height: number }[] };
+        const d = window.__newShores!.getServer()!.display;
+        const is = d.islands.reduce((a, b) => (b.roads.length > a.roads.length ? b : a));
+        const has = new Set(is.roads.map((r) => `${r.x},${r.y}`));
+        const built = new Set<string>();
+        for (const b of is.buildings) {
+          const def = content.buildings.find((x) => x.id === b.type);
+          if (!def) continue;
+          const [w, h] = b.rotation === 90 || b.rotation === 270 ? [def.height, def.width] : [def.width, def.height];
+          for (let y = b.y; y < b.y + h; y++) for (let x = b.x; x < b.x + w; x++) built.add(`${x},${y}`);
+        }
+        // A vertical run of the crossed road whose row is free of buildings for the most tiles either side.
+        const free = (r: { x: number; y: number }) => {
+          let n = 0;
+          for (let dx = -5; dx <= 5; dx++) if (dx !== 0 && !built.has(`${r.x + dx},${r.y}`) && !has.has(`${r.x + dx},${r.y}`)) n++;
+          return n;
+        };
+        const vertical = is.roads.filter((r) => r.type === type && !has.has(`${r.x - 1},${r.y}`) && !has.has(`${r.x + 1},${r.y}`) && has.has(`${r.x},${r.y - 1}`) && has.has(`${r.x},${r.y + 1}`));
+        const r = vertical.reduce<(typeof vertical)[number] | undefined>((a, b) => (!a || free(b) > free(a) ? b : a), undefined);
+        if (!r) throw new Error(`no vertical ${type} run`);
+        return { island: is.id, x: r.x, y: r.y, ox: is.position.x, oy: is.position.y };
+      }, [crossing, `http://localhost:${API_PORT}`] as const);
+      await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half: HALF.near / 2, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await openBuildTab(page, roadType);
+      await page.getByTestId(`build-${roadType}`).click();
+      await dragTiles(page, at.island, { x: at.x - 5, y: at.y }, { x: at.x + 5, y: at.y }, false);
+      // Before the road ghost existed nothing is marked: the shot is taken anyway.
+      await page.waitForFunction(() => { const c = window.__newShores!.paintCounts(); return c.ok + c.bad > 0; }, undefined, { timeout: 3_000 }).catch(() => console.log("road drag: no marks"));
+      console.log(`road drag ${roadType} across ${crossing}: ${at.island} (${at.x - 5}..${at.x + 5}, ${at.y})`);
+    },
+  };
+}
+
 /** The real seafaring founding sequence at the default fixture's content-sized site. */
 function foundingShot(docked: boolean): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
@@ -990,6 +1035,9 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.locator("#building-bakery").waitFor({ state: "visible" });
     },
   },
+  // The road tool mid-drag across a road (UI.md §3): a dirt road on the settled fixture, a paved road across a dirt road on the played one.
+  "road-drag": roadDrag("settled", "road_dirt", "road_dirt"),
+  "road-drag-paved": roadDrag("played", "road_paved", "road_dirt"),
   "founding-ghost": foundingShot(false),
   "founding-docked": foundingShot(true),
   "playhouse-menu": {
