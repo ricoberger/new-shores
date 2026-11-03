@@ -124,7 +124,7 @@ UI shows the same numbers the server uses.
 │ └───────────────┘             3D canvas                     └───────┘   │
 │ 🔨 / ⚠2 / 📜 / ⛵2 / 🗺  (side dock, vertically centred)                   │
 ├──────────────────────────────────────────────────────────────────────────┤
-│ [Houses] [Production] [Public] [Harbour] [Roads]      build cards w/ thumbs │
+│ [Houses] [Production] [Public] [Harbor] [Roads]       build cards w/ thumbs │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -176,7 +176,7 @@ UI shows the same numbers the server uses.
   (ordered along the chains: no inputs first, then by the depth of the
   recipe's inputs, content order within a step; fields are not listed),
   **Public** (the Market first — it serves a `public`-group need, D-065 —
-  then the service buildings in content order) and **Harbour** (shipyard,
+  then the service buildings in content order) and **Harbor** (shipyard,
   pier, depot, then the quay, a road on the shallows that the server files
   under harbour). The groups follow the server's `category`, except
   houses, roads and the Warehouse, which are General; the Trading Post is
@@ -270,7 +270,7 @@ UI shows the same numbers the server uses.
   "Paint Tree plot" (1 gold each), painted on open land like crops.
 - The civic buildings (city guard, fire station, surgery; D-060) are
   public buildings in the Public tab; the trading pier and depot are in
-  the Harbour tab, water-edge like the Trading Post (quays count as
+  the Harbor tab, water-edge like the Trading Post (quays count as
   coast; their ghost shows the free shallows tint with the quay tool).
 - Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the radius ring is not implemented. The ghost tints the houses it would serve (client hint from the content radius; the server's `served_by` is the truth once built): `wouldServe` in `display/served.ts` takes the houses on the ghost's island whose nearest footprint tile is within the level-1 radius (a moved building: its own level) of the ghost's nearest footprint tile; it does not check the road connection or paused state, because the display has no connectivity, so a tinted house may still be unserved. The tint follows the ghost and clears when it leaves the island or the tool closes. The same hint for other ghosts (`ghostRelated`): a house tints the service buildings on its island whose own radius (their current level) reaches it; a Warehouse tints every producer (a building with a recipe) on the island, a producer every Warehouse and the Trading Post of the island. Who delivers to whom is the nearest collector by road, which the display cannot compute, so the latter two mark candidates, not the assignment (`assigned_warehouse_id` is the truth once built).
 - Producers and collectors: selecting a producer tints the Warehouse or Trading Post it delivers to (`assigned_warehouse_id`) green, selecting a Warehouse or Trading Post tints every producer delivering to it, not their fields (`client/src/display/served.ts`, the same selection tint).
@@ -365,7 +365,7 @@ UI shows the same numbers the server uses.
 **Shipyard**
 
 - Status "Idle" or "Building a Sloop · ready in 1:42 min" (no bar); a pending
-  order adds the second status line "Cancelling the order returns 50 % of
+  order adds the second status line "Canceling the order returns 50 % of
   the materials." and **Cancel order** sits in the pinned footer.
 - Always (also while an order runs, then the Order buttons are disabled), with
   no heading, a divider above and between the entries and one entry per
@@ -405,7 +405,7 @@ UI shows the same numbers the server uses.
 - Buttons: "Assign to route…" (an inline picker of the saved routes; routes
   are created only in the Routes list, the picker links there when there
   are none), unassign, "Send…" (manual shipment dialog), found settlement,
-  scrap; later: send on expedition (Harbourmaster).
+  scrap; later: send on expedition (Harbormaster).
 
 **Routes list** (panel): per route its name, then "Island 1 → Island 2
 (15:00 min)" (the loop time), then "Ships: n". Clicking a route opens it in
@@ -623,6 +623,12 @@ translation. Two sources, one switch:
   unless the player picked one on this page, which then goes to the
   account (`api/auth.ts syncAccountLanguage`). Tests run in English
   (`i18n/test-setup.ts`).
+- **US English:** the English texts — the catalogue's and the content's
+  (names, quest titles and texts, descriptions) — use American spelling:
+  harbor, center, color, jewelry, canceling, -ize. Keys and content IDs
+  may keep a British word (`build.group.harbour`, `jewellery`; IDs are
+  never renamed) and island names stay as they are.
+  `i18n/spelling.test.ts` fails on the British spellings it knows.
 - **Adding text:** add the key to `en.ts` and `de.ts` in the same change
   (the German one is required to compile) and use `t()`. The ESLint rule
   `i18n/no-hardcoded-strings` fails on JSX text, prose string literals

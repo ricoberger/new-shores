@@ -585,14 +585,14 @@ describe("HUD components", () => {
       const html = panel({ ship_order: { type: "sloop", ordered_at: "1970-01-01T00:00:00Z", due_at: "1970-01-01T00:00:42Z" } as BuildingDisplay["ship_order"] });
       expect(html.match(/data-testid="info-status">(.*?)<\/div>/)![1]).toBe("Building a Sloop · ready in 0:42 min");
       // The 50 % hint is the second status line.
-      expect(html).toMatch(/data-testid="info-status">[^]*?<\/div><div class="[^"]*fix[^"]*">Cancelling the order returns 50 % of the materials\.<\/div>/);
+      expect(html).toMatch(/data-testid="info-status">[^]*?<\/div><div class="[^"]*fix[^"]*">Canceling the order returns 50 % of the materials\.<\/div>/);
       expect(html).toContain('data-testid="shipyard-cancel"');
       // The list stays, its Order buttons are disabled.
       expect(html).toMatch(/<button[^>]*disabled=""[^>]*data-testid="shipyard-order-sloop"/);
       // Idle: enabled, no hint.
       const idle = panel({});
       expect(idle).not.toMatch(/disabled=""[^>]*data-testid="shipyard-order-sloop"/);
-      expect(text(idle)).not.toContain("Cancelling");
+      expect(text(idle)).not.toContain("Canceling");
     });
 
     it("shows the pause and resume buttons with icons, no glyphs", () => {
