@@ -2021,3 +2021,101 @@ overrides in `config.py` — `BUDGET_OVERRIDE = {"tree_plot": 450}` and
 `SLACK_OVERRIDE = {"tree_plot": 4}`. Folder 18.51 → 16.21 MiB after
 the plates (23.35 MiB after the rework); far played 14 draws / 224 k
 tris on desktop and desktop-xl.
+
+## D-069 Collector reach, hub upkeep, unlock by population, harbour extensions at Merchants
+
+- **Status:** accepted (2026-11-03)
+- **Context:** the owner's tier 2–4 playtest after the V7 rework. A
+  producer delivers to the nearest collector by road with no distance
+  limit, so one Trading Post and one Warehouse serve an island of any
+  size; the collector throughput (Trading Post 30/55/80/110, Warehouse
+  30/50/70/90 per minute) is the only limiter and was felt to be very
+  high, so warehouses are rarely needed. Market, Warehouse and Trading
+  Post have upkeep 0 at every level. Tier unlocks (D-012, D-056) mix a
+  population count with named buildings (`market` + `chapel`, `tavern`,
+  `church`); the house upgrade gate already enforces those buildings
+  through need coverage, so the list reads as arbitrary ("why a tavern
+  and not a school?"). All four harbour extensions sit at Citizens.
+  CONTENT §7 named a reach rule as "a new decision".
+- **Decision:**
+  1. **Reach.** Every collector has a **reach** per level, measured
+     like a public-building radius (Euclidean from the nearest footprint
+     tile, MECHANICS §6): Trading Post **20 / 24 / 28 / 32**, Warehouse
+     **14 / 17 / 20 / 23** tiles (provisional). A producer is
+     *assignable* to a collector when its **building footprint** (never
+     its fields, plots or pastures) lies within the reach and the
+     producer is road-connected to it; assignment is the nearest
+     assignable collector by road (ties as today). A producer without an
+     assignable collector gets the bottleneck **`no_collector_in_reach`**
+     and **stalls** — rate 0, buffer kept, nothing lost (D-009); the
+     warnings panel and the card show it; the ghost tint of a placed
+     collector or producer is exact (reach + road connection are both
+     display state, D-027 hint, server result is truth).
+  2. **Throughput** per level cut to Trading Post **20 / 40 / 60 / 80**,
+     Warehouse **20 / 35 / 50 / 65** per minute (provisional), so that a
+     quarter of 8–10 producers wants its own warehouse.
+  3. **Hub upkeep** per level: Warehouse 5 / 10 / 15 / 25, Market 5 / 10
+     / 20 / 30, Trading Post 0 / 10 / 20 / 30 gold/min (level 1 of the
+     Trading Post is the founding building and stays free). Houses keep
+     no upkeep; tax is their economy.
+  4. **Unlock by population only:** Citizens 120 Settlers, Merchants 360
+     Citizens, Patricians 1 200 Merchants, archipelago-wide as before;
+     the `buildings` list leaves the unlock conditions (schema keeps the
+     key optional for region 2). The intro quests keep leading the
+     player to market, chapel, tavern and church.
+  5. **Harbour extensions:** `trading_pier` and `depot` move to
+     **Merchants**; shipyard and quay stay at Citizens.
+  6. **Hub levels** keep their D-065 gate (tier unlocked); the hub card
+     shows the lock reason ("Requires Citizens") like the build-menu
+     tabs (UI item, no rule change).
+  All numbers are settled by the D-067 plan replay: the reference plans
+  are re-generated with the new rules (more warehouses, earlier piers
+  only from Merchants), the tier targets are reported, never relaxed by
+  loosening a rule.
+- **Why:** reach makes warehouse placement a real layout decision (Anno
+  1404's Kontor / Markthaus reach) and gives the ghost tint something
+  exact to show; upkeep makes the hubs felt as infrastructure; a pure
+  population ladder is honest (the buildings are already required by
+  the upgrade gate); the pier and depot only matter once several routes
+  run, which is tier 3 in our pacing.
+- **Consequences:** sim schema bump (`reach` per level, `trading_pier` /
+  `depot` tier), assignment with reach in `internal/sim` (golden
+  fixtures), new bottleneck code in openapi and `display/status.ts`,
+  warnings panel entry, ghost tint for collectors and producers
+  (`display/served.ts`), hub card lock reason, CONTENT tables (§7
+  collectors, unlock table, harbour tiers), MECHANICS §5 and §12,
+  plans in `server/testdata/plans` re-generated, almanac shows reach.
+  Per-island evaluation of the hub gate was considered and rejected
+  (farm islands without houses could never upgrade).
+- **Rejected:** a reduced throughput factor instead of a stall for
+  unreached producers (hides a placement error); reach along roads
+  (Anno 117 / 1800 model — a per-house BFS on the server and a
+  connectivity model in the display for the hint; B7 of the same
+  interview kept public radii Euclidean for the same reason); a
+  four-tier harbour ladder (one toy per tier for its own sake);
+  "≥ 1 resident of the tier" as the hub-level gate (equivalent to the
+  unlock archipelago-wide, wrong per island); house upkeep.
+
+## D-070 Route stops: unload limits and a keep-minimum when loading
+
+- **Status:** accepted (2026-11-03)
+- **Context:** a stop unloads everything listed and loads up to
+  `max_amount`; the owner wants to cap what a harbour receives and to
+  protect an island's own stock from being emptied by a route.
+- **Decision:** `stops[].unload[]` gets an optional **`max_amount`**
+  (tonnes unloaded per visit, capacity still applies; the rest stays
+  aboard); `stops[].load[]` gets an optional **`keep`** — the stop
+  loads only the stock above `keep` tonnes (`load = min(max_amount −
+  aboard, stock − keep, slot room)`). Both evaluated at `ship_arrived`
+  (§9.2), both default to today's behaviour when absent; the route
+  editor shows them as number fields behind the good (`t`); the almanac
+  route chapter explains both.
+- **Why:** the two levers every Anno route needs (1800 has both);
+  without `keep` a stone route starves the quarry island's own
+  builders.
+- **Consequences:** route schema bump (openapi + `route_invalid` for
+  `keep` / `max_amount` < 0), `internal/sim` arrival handling with
+  golden fixtures, route editor fields and translations, MECHANICS §9.2.
+- **Rejected:** per-good island reserves outside routes (a second place
+  for the same setting); percentage-based keep (tonnes are what the
+  player sees everywhere).

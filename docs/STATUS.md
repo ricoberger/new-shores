@@ -1,10 +1,11 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after #67 (art leftovers: distinct smelters, cattle farm,
-standing lace / optician props, mill sails, standing crops for hemp /
-hop / woad / vine, grove jitter ±1, `woad` palette role); next the
-owner's playtest and the next polish pass.
+docs sync; details live in the linked documents. Last update: after #67 and the owner's playtest — D-069 (collector
+reach, hub upkeep, population-only unlocks, pier / depot at Merchants)
+and D-070 (route unload limits and keep-minimum) recorded; polish 5
+(playtest UI / road / life-layer items, US English) runs on its
+branch.
 
 ## What exists
 
@@ -101,9 +102,14 @@ in the sync after a task unless the task says otherwise; nobody adds the
      references, tier kit, workshop massings, wheat field toned down)
      merged; ~~art leftovers~~ (#67: smelter outbuildings, cattle farm,
      lace / optician props, mill sails, standing crops, grove jitter
-     ±1, `woad` role; folder 23.53 MiB) merged. **Next: the owner's
-     playtest** (`make dev FIXTURE=played`, snapshots) → the next polish
-     pass from its findings. Open small items — art: playhouse /
+     ±1, `woad` role; folder 23.53 MiB) merged; playtest done →
+     **polish 5** (Opus, running: market under Public, road ghost,
+     plain road surfaces, paved replaces dirt, deposit highlight,
+     house upgrade cost line, one cart with driver, animals in pens,
+     terrace fill in ground colour, US English) → **D-069 / D-070
+     session** (reach + throughput + upkeep + unlocks + harbour tiers
+     with the plan replay; route `max_amount` on unload and `keep`;
+     hub card lock reason). Open small items — art: playhouse /
      university / cathedral / shipyard / depot / trading pier still at
      8 voxels/tile (folder room: 0.47 MiB — needs a variant dropped or
      harder quantisation), beach a touch loud, terracotta share check
