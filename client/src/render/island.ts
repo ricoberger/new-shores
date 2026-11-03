@@ -393,7 +393,7 @@ export class IslandDetail {
     this.updateBlobs(display, defs);
     yield;
     const blocked = footprintTiles(display.buildings, defs);
-    yield* this.rock.steps(statics, this.seed, blocked, footprintRects(display.buildings, defs));
+    yield* this.rock.steps(statics, this.seed, blocked, footprintRects(display.buildings, defs), yardTiles(display, defs, this.registry));
     this.rock.setBridges(this.ground.bridges(), this.id);
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.rock.heightAt(x, y));
     yield;
@@ -564,7 +564,7 @@ export class IslandDetail {
     if (!st) return;
     const blocked = this.footprintTiles();
     const built = this.builtFrom;
-    this.rock.update(st, this.seed, blocked, built ? footprintRects(built.display.buildings, built.defs) : []);
+    this.rock.update(st, this.seed, blocked, built ? footprintRects(built.display.buildings, built.defs) : [], built ? yardTiles(built.display, built.defs, this.registry) : []);
     this.rock.setBridges(this.ground.bridges(), this.id);
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.rock.heightAt(x, y));
   }

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Terrain } from "../api/client";
 import { marchingSquares, traceLoops } from "../display/coastline";
-import { BRIDGE_DECK, bridgeRuns, cover, groundY, insideGrid, insideLoops, IslandGround, LEVEL_HEIGHT, LEVEL_STEPS, plinthColumns, reliefColumns, reliefOf, RIVER_DROP, ROCK_STEPS, roadRamps, rockField } from "./terraces";
+import { EDGE_STONE, FILL_KINDS, fillSide } from "./groundpaint";
+import { BRIDGE_DECK, bridgeRuns, cover, groundY, insideGrid, insideLoops, IslandGround, LEVEL_HEIGHT, LEVEL_STEPS, FILL_KIND, plinthColumns, plinthFill, reliefColumns, reliefOf, RIVER_DROP, ROCK_STEPS, roadRamps, rockField } from "./terraces";
 import { EMPTY, islandField, VOXEL_STEP, withRock } from "./voxelterrain";
 
 // The relief (D-058): terrace levels, rock and rivers as voxel columns.
@@ -250,6 +251,28 @@ describe("island ground", () => {
     expect(p[6 * c.nx + 5]).toBe(0);
     const f = rockField(c, 1, p);
     expect(f.h[1 * c.nx + 5]).toBe(LEVEL_STEPS);
-    expect(f.kind![1 * c.nx + 5]).toBe(1);
+    // A grass fill (kind index 0) to LEVEL_STEPS.
+    expect(f.kind![1 * c.nx + 5]).toBe(FILL_KIND + LEVEL_STEPS);
+  });
+
+  it("gives a fill the footprint's ground: the yard's paint on top, its colour on the walls under a stone edge course", () => {
+    const rel = reliefOf(island(rows, lv));
+    const c = reliefColumns(rel, 4, 1);
+    const p = plinthColumns(c, rel, [{ x: 1, y: 0, w: 2, h: 1 }]);
+    const k = 1 * c.nx + 5;
+    // No yard: grass, green on top.
+    const grass = rockField(c, 1, p, plinthFill(c, p, rel.width, []));
+    const g = grass.top[k] as number;
+    expect((g >> 8) & 255).toBeGreaterThan((g >> 16) & 255);
+    // A paved yard on the tile: cobbles on top (greyish, not green), paved walls under the stone edge.
+    const fill = plinthFill(c, p, rel.width, [{ x: 1, y: 0, kind: "paved" }]);
+    expect(FILL_KINDS[fill[k] as number]).toBe("paved");
+    expect(fill[1 * c.nx + 1]).toBe(0);
+    const paved = rockField(c, 1, p, fill);
+    expect(paved.top[k]).not.toBe(g);
+    const kd = paved.kind![k] as number;
+    expect(paved.side(LEVEL_STEPS - 1, kd)).toEqual(EDGE_STONE);
+    expect(paved.side(0, kd)).toEqual(fillSide("paved", 0));
+    expect(paved.side(0, kd)).not.toEqual(grass.side(0, grass.kind![k] as number));
   });
 });

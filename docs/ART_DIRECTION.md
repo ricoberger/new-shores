@@ -228,14 +228,21 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   voxel arch models (`decor_bridge_1/2`) over straight road runs of one
   or two river tiles, at the banks' level, hidden at far.
 - **Things on terraces:** buildings and fields stand on the highest
-  level under their footprint, lower columns filled with dressed-stone
-  plinths; a road tile next to a road one level lower ramps across the
+  level under their footprint, lower columns filled up to it (a terrace
+  fill, `render/terraces.ts`). The fill takes the footprint's ground
+  paint: its top is the tile's yard kind from the model's ground map
+  (cobbles, packed earth, sand, planks), else the island's grass; its
+  walls are that ground a shade darker, every other course darker still,
+  under a one-voxel dressed-stone edge course at the top
+  (`render/groundpaint.ts` `fillTop`, `fillSide`, `EDGE_STONE`); a road tile next to a road one level lower ramps across the
   upper tile (never on a river); carts, walkers, animals, the ghost, the
   grid and picking follow the ground height. Boats stay on the sea. The
   placement ghost of a building across a terrace edge gets a translucent
   stepped plinth in the same validity tint: each footprint tile below the
   base is filled up to it from its own level, with walls toward the outside
-  (the tile levels are the renderer's, `IslandGround.tile`).
+  coloured like the built fill (the tile's yard kind from the shown model
+  file's ground map, else grass, under the stone edge course; the tile
+  levels are the renderer's, `IslandGround.tile`).
 - **Skerries** (D-058) are tiny islands of rock with a grass or sand
   top: drawn like islands (minimap and far view included), never
   labelled, focused or picked. Their shallows, like every island's

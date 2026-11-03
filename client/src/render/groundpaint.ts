@@ -51,6 +51,42 @@ export function mixTop(p: number, c: Color3, t: number): number {
   return pack({ r: r + (c.r - r) * t, g: g + (c.g - g) * t, b: b + (c.b - b) * t });
 }
 
+/**
+ * The ground of a terrace fill (D-058 plinths; ART_DIRECTION §4): the
+ * footprint tile's yard kind from the model's ground map, else grass. The
+ * fill's top takes that ground's paint, its walls the ground's colour a
+ * shade darker under a one-voxel stone edge course (EDGE_STONE).
+ */
+export type FillKind = Exclude<GroundKind, "none"> | "grass";
+/** Fill kinds by index (the rock field's side kinds encode the index). */
+export const FILL_KINDS: readonly FillKind[] = ["grass", "paved", "dirt", "sand", "planks"];
+/** The edge course of a terrace fill: dressed stone (the old plinths' stone). */
+export const EDGE_STONE = c3(BUILDINGS.stone);
+const GRASS_WALL = Color3.Lerp(c3(TERRAIN.grass_a), c3(TERRAIN.forest_floor), 0.45);
+
+/** The top colour (packed) of a fill column (i, j) of a kind; `grass` is the island's grass colour there. */
+export function fillTop(kind: FillKind, i: number, j: number, seed: number, grass: Color3): number {
+  const r = hash2(i, j, seed + 81);
+  switch (kind) {
+    case "paved":
+      return cobbleTop(r);
+    case "dirt":
+      return dirtTop(r, hash2(i, j, seed + 82));
+    case "sand":
+      return pack(SAND.scale(0.95 + 0.08 * r));
+    case "planks":
+      return pack(PLANKS.scale((j % 2 === 0 ? 1.0 : 0.9) + 0.04 * r));
+    default:
+      return pack(grass.scale(0.97 + 0.06 * r));
+  }
+}
+
+/** The wall colour of a fill's course z (steps) under its edge course: the ground a shade darker, every other course darker still. */
+export function fillSide(kind: FillKind, z: number): Color3 {
+  const c = kind === "paved" ? PAVED : kind === "dirt" ? DIRT : kind === "sand" ? SAND : kind === "planks" ? PLANKS : GRASS_WALL;
+  return c.scale(z % 2 === 0 ? 0.78 : 0.86);
+}
+
 /** A yard tile on the island: its kind (never "none"). */
 export interface YardTile {
   x: number;

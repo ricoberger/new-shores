@@ -7,6 +7,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import type { ContentBuilding } from "../api/client";
 import { waterEdgeTiles } from "../display/geometry";
 import { GHOST_LIFT, ghostPlinth, ghostTint, PlacementGhost } from "./ghost";
+import { EDGE_STONE, fillSide } from "./groundpaint";
 import { type ModelData, ModelRegistry, parseGlb } from "./models";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD } from "./palette";
 
@@ -165,6 +166,24 @@ describe("ghost plinth on terrace edges", () => {
     expect(Math.max(...xs)).toBeCloseTo(4);
     expect(Math.min(...zs)).toBeCloseTo(-5);
     expect(Math.max(...zs)).toBeCloseTo(-3);
+  });
+
+  it("colours the courses like the built fill: the ground (yard kind, else grass), the top course stone", () => {
+    const p = ghostPlinth({ x: 2, y: 3, w: 1, h: 1 }, 0.5, () => 0, () => "dirt")!;
+    // Quads of 4 vertices × 4 colour channels; the top course (y up to the base) first.
+    const colourAt = (y: number, m = p) => {
+      for (let i = 0; i < m.positions.length / 3; i++) if (Math.abs((m.positions[i * 3 + 1] as number) - y) < 1e-6) return m.colors.slice(i * 4, i * 4 + 3);
+      return null;
+    };
+    const top = colourAt(0.5 + GHOST_LIFT)!;
+    expect(top[0]).toBeCloseTo(EDGE_STONE.r);
+    expect(top[1]).toBeCloseTo(EDGE_STONE.g);
+    const foot = colourAt(0)!;
+    expect(foot[0]).toBeCloseTo(fillSide("dirt", 0).r);
+    expect(foot[2]).toBeCloseTo(fillSide("dirt", 0).b);
+    // Grass by default.
+    const g = ghostPlinth({ x: 2, y: 3, w: 1, h: 1 }, 0.5, () => 0)!;
+    expect(colourAt(0, g)![1]).toBeCloseTo(fillSide("grass", 0).g);
   });
 
   it("starts a wall at the outside tile's higher ground", () => {

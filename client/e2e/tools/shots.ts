@@ -1021,6 +1021,46 @@ function fieldAnimals(field: string): { fixture: Fixture; device: Device; run: (
   };
 }
 
+/** Close on the built buildings standing across terrace edges in the played world (`rank`: 0 the one with the most filled tiles, 1 the next), their terrace fills in view. */
+function terraceFill(rank: number): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "played",
+    device: "desktop",
+    run: async (page) => {
+      const at = await page.evaluate(
+        async ([api, rank]) => {
+          const server = window.__newShores!.getServer()!;
+          const content = (await (await fetch(`${api}/api/v1/content`, { credentials: "include" })).json()) as { buildings: { id: string; width: number; height: number; field?: unknown; category: string }[] };
+          const found: { x: number; y: number; n: number; type: string }[] = [];
+          for (const is of server.display.islands.filter((i) => i.buildings.length > 0)) {
+            const tiles = (await (await fetch(`${api}/api/v1/world/islands/${is.id}/tiles`, { credentials: "include" })).json()) as { width: number; levels?: string };
+            if (!tiles.levels) continue;
+            const level = (x: number, y: number) => (tiles.levels as string).charCodeAt(y * tiles.width + x) - 48;
+            for (const b of is.buildings) {
+              const d = content.buildings.find((c) => c.id === b.type);
+              if (!d || d.field || d.category === "roads") continue;
+              const [w, h] = b.rotation === 90 || b.rotation === 270 ? [d.height, d.width] : [d.width, d.height];
+              let max = 0;
+              for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) max = Math.max(max, level(b.x + x, b.y + y));
+              let n = 0;
+              for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) n += max - level(b.x + x, b.y + y);
+              if (n > 0) found.push({ x: is.position.x + b.x + w / 2, y: is.position.y + b.y + h / 2, n, type: b.type });
+            }
+          }
+          found.sort((a, b) => b.n - a.n);
+          const f = found[Math.min(rank as number, found.length - 1)];
+          if (!f) throw new Error("no building across a terrace edge in the played world");
+          return f;
+        },
+        [`http://localhost:${API_PORT}`, rank] as const,
+      );
+      await setCamera(page, { x: at.x, y: at.y, half: 6, rotation: 0 });
+      await settle(page);
+      console.log(`terrace fill ${rank}: ${at.type} at (${at.x}, ${at.y}), ${at.n} filled tile levels`);
+    },
+  };
+}
+
 /** The real seafaring founding sequence at the default fixture's content-sized site. */
 function foundingShot(docked: boolean): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
@@ -1098,6 +1138,8 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   "deposits-far": depositHighlight("far"),
   "pasture-cows": fieldAnimals("cattle_pasture"),
   "pasture-pigs": fieldAnimals("pig_pen"),
+  "terrace-fill": terraceFill(0),
+  "terrace-fill-2": terraceFill(1),
   "founding-ghost": foundingShot(false),
   "founding-docked": foundingShot(true),
   "playhouse-menu": {
