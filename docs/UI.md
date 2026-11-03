@@ -172,14 +172,15 @@ UI shows the same numbers the server uses.
   are dimmed and disabled with the lock reason. Inside a tab the cards stay
   one sideways-scrolling row, in groups with a small label at each group's
   start (empty groups are hidden): **General** (the tier's house where it
-  can be placed, roads, then the Market and the Warehouse), **Production**
+  can be placed, roads, then the Warehouse), **Production**
   (ordered along the chains: no inputs first, then by the depth of the
   recipe's inputs, content order within a step; fields are not listed),
-  **Public** and **Harbour** (shipyard, pier, depot, then the quay, a road
-  on the shallows that the server files under harbour). The groups follow
-  the server's `category`, except houses, roads, the Warehouse and the
-  Market, which are General; the Trading Post is never listed and houses of
-  later tiers are upgrade-only.
+  **Public** (the Market first — it serves a `public`-group need, D-065 —
+  then the service buildings in content order) and **Harbour** (shipyard,
+  pier, depot, then the quay, a road on the shallows that the server files
+  under harbour). The groups follow the server's `category`, except
+  houses, roads and the Warehouse, which are General; the Trading Post is
+  never listed and houses of later tiers are upgrade-only.
   A card shows the name and the 128 px model **thumbnail** in its upper
   right corner, and two lines, each on one line; below them is a note row
   that every card has (so all cards are equally high in every tab): the

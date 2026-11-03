@@ -107,8 +107,8 @@ describe("fields in the HUD (D-051 part 4)", () => {
       }),
     );
     const order = [...html.matchAll(/<button[^>]*data-testid="build-([a-z_]+)"/g)].map((m) => m[1]).filter((id) => id !== "demolish" && !id?.startsWith("tab"));
-    // General (Market, Warehouse), Production, Public; the Trading Post is not built from the menu.
-    expect(order).toEqual(["market", "warehouse", "lumberjack", "sheep_farm", "weaver_wool", "tavern"]);
+    // General (Warehouse), Production, Public (Market first); the Trading Post is not built from the menu.
+    expect(order).toEqual(["warehouse", "lumberjack", "sheep_farm", "weaver_wool", "market", "tavern"]);
     expect(html).not.toContain('data-testid="build-pasture"');
     // Every card carries its model thumbnail from the asset build (decorative).
     expect(html.match(/<img [^>]*src="\/models\/thumbs\/sheep_farm.png"[^>]*>/)?.[0]).toContain('alt=""');
