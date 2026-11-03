@@ -1000,6 +1000,27 @@ function depositHighlight(view: "mid" | "far"): { fixture: Fixture; device: Devi
   };
 }
 
+/** Close on the first field of a type in the played world, its animals in view (LIFE_LAYER §3, pasture animals). */
+function fieldAnimals(field: string): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "played",
+    device: "desktop",
+    run: async (page) => {
+      const at = await page.evaluate((type) => {
+        const d = window.__newShores!.getServer()!.display;
+        for (const is of d.islands) {
+          const b = is.buildings.find((x) => x.type === type);
+          if (b) return { x: is.position.x + b.x + 2, y: is.position.y + b.y + 2 };
+        }
+        throw new Error(`no ${type} in the played world`);
+      }, field);
+      await setCamera(page, { x: at.x, y: at.y, half: 7, rotation: 0 });
+      await settle(page);
+      console.log(`${field}: (${at.x}, ${at.y})`);
+    },
+  };
+}
+
 /** The real seafaring founding sequence at the default fixture's content-sized site. */
 function foundingShot(docked: boolean): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
@@ -1075,6 +1096,8 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   "road-drag-paved": roadDrag("played", "road_paved", "road_dirt"),
   "deposits": depositHighlight("mid"),
   "deposits-far": depositHighlight("far"),
+  "pasture-cows": fieldAnimals("cattle_pasture"),
+  "pasture-pigs": fieldAnimals("pig_pen"),
   "founding-ghost": foundingShot(false),
   "founding-docked": foundingShot(true),
   "playhouse-menu": {

@@ -19,6 +19,8 @@ import {
   pastureActive,
   RESIDENTS_PER_STROLLER,
   SHEEP_PER_PASTURE,
+  COWS_PER_PASTURE,
+  PIGS_PER_PEN,
   SHEEP_STEP_MS,
   strollers,
   SMOKE_LIFE_MS,
@@ -443,6 +445,49 @@ describe("inhabitants and animals", () => {
     // Mid LOD: standing (props), far: none.
     expect(sheepAt(herd, 10_000, { moving: false, smoke: true, props: true })).toEqual(sheepAt(herd, 99_000, { moving: false, smoke: true, props: true }));
     expect(sheepAt(herd, 10_000, { moving: false, smoke: false, props: false })).toHaveLength(0);
+  });
+
+  it("puts cows in cattle pastures (dairy and cattle farms) and pigs in pig pens, seeded per field, inside the field", () => {
+    const farmDefs = new Map<string, ContentBuilding>([
+      ...townDefs,
+      ["dairy_farm", { id: "dairy_farm", width: 4, height: 5, tier: "citizens", category: "production", fields: {} } as unknown as ContentBuilding],
+      ["cattle_pasture", { id: "cattle_pasture", width: 4, height: 7, tier: "citizens", category: "production", field: { type: "cattle_pasture", farm: ["dairy_farm", "cattle_farm"] } } as unknown as ContentBuilding],
+      ["pig_farm", { id: "pig_farm", width: 3, height: 4, tier: "citizens", category: "production", fields: {} } as unknown as ContentBuilding],
+      ["pig_pen", { id: "pig_pen", width: 3, height: 4, tier: "citizens", category: "production", field: { type: "pig_pen", farm: "pig_farm" } } as unknown as ContentBuilding],
+    ]);
+    const dairy = { id: 70, type: "dairy_farm", x: 20, y: 2, rotation: 0, status: "ok" } as unknown as BuildingDisplay;
+    const cows = { id: 71, type: "cattle_pasture", x: 24, y: 2, rotation: 0, status: "ok", active: true, farm_id: 70 } as unknown as BuildingDisplay;
+    const pigFarm = { id: 80, type: "pig_farm", x: 30, y: 2, rotation: 0, status: "ok" } as unknown as BuildingDisplay;
+    const pen = { id: 81, type: "pig_pen", x: 33, y: 2, rotation: 90, status: "ok", active: true, farm_id: 80 } as unknown as BuildingDisplay;
+    const at = (t: number) => {
+      const life = new IslandLife();
+      life.update(island([dairy, cows, pigFarm, pen]), farmDefs, null);
+      const s = record();
+      life.frame(t, s, NEAR, BIG);
+      return s;
+    };
+    const s = at(10_000);
+    expect(s.by.get(CLS.cow)).toHaveLength(COWS_PER_PASTURE);
+    expect(s.by.get(CLS.pig)).toHaveLength(PIGS_PER_PEN);
+    expect(s.by.has(CLS.sheep)).toBe(false);
+    for (let t = 0; t < 4 * SHEEP_STEP_MS; t += 1100) {
+      const f = at(t);
+      for (const p of f.by.get(CLS.cow) ?? []) {
+        expect(p.x).toBeGreaterThan(24);
+        expect(p.x).toBeLessThan(28);
+        expect(p.y).toBeGreaterThan(2);
+        expect(p.y).toBeLessThan(9);
+      }
+      // The pen turned 90°: 4 wide, 3 deep.
+      for (const p of f.by.get(CLS.pig) ?? []) {
+        expect(p.x).toBeGreaterThan(33);
+        expect(p.x).toBeLessThan(37);
+        expect(p.y).toBeGreaterThan(2);
+        expect(p.y).toBeLessThan(5);
+      }
+    }
+    // Deterministic: the same time, the same herd.
+    expect(at(12_345).by.get(CLS.pig)).toEqual(at(12_345).by.get(CLS.pig));
   });
 });
 

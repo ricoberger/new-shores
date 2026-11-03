@@ -517,6 +517,8 @@ export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
   [CLS.boat]: { geometry: box(0.3, 0.12, 0.8, TIMBER), model: { id: "life_boat" } },
   [CLS.crate]: { geometry: box(0.24, 0.24, 0.24, TIMBER), model: { id: "life_crate" } },
   [CLS.sheep]: { geometry: box(0.12, 0.18, 0.18, c4(BUILDINGS.canvas)), model: { id: "life_sheep" } },
+  [CLS.pig]: { geometry: box(0.25, 0.2, 0.5, c4(BUILDINGS.terracotta)), model: { id: "life_pig" } },
+  [CLS.cow]: { geometry: box(0.33, 0.45, 0.75, c4(BUILDINGS.canvas)), model: { id: "life_cow" } },
   [CLS.gullUp]: { geometry: gull(0.07) },
   [CLS.gullDown]: { geometry: gull(-0.06) },
 };

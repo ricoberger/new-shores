@@ -51,6 +51,8 @@ export const CLS = {
   gullUp: "gull_up",
   gullDown: "gull_down",
   sheep: "sheep",
+  pig: "pig",
+  cow: "cow",
 } as const;
 
 /**
@@ -70,12 +72,22 @@ const HOME_PAUSE_MS = 4000;
 const STROLLER_SIDE = 0.14;
 
 /**
- * Sheep (LIFE_LAYER §5): SHEEP_PER_PASTURE wander inside each pasture: in
- * every SHEEP_STEP_MS a sheep walks for SHEEP_WALK of the step to a new
- * hashed spot, then grazes. An inactive pasture's sheep stand still and
- * greyed (the unpaid-ship multiplier).
+ * Pasture animals (LIFE_LAYER §5): sheep in pastures, cows in cattle
+ * pastures (dairy and cattle farms), pigs in pig pens — a few per field
+ * wander inside it, seeded per field: in every SHEEP_STEP_MS an animal
+ * walks for SHEEP_WALK of the step to a new hashed spot, then grazes. An
+ * inactive field's animals stand still and greyed (the unpaid-ship
+ * multiplier).
  */
 export const SHEEP_PER_PASTURE = 2;
+export const COWS_PER_PASTURE = 2;
+export const PIGS_PER_PEN = 3;
+/** The animals of a field type (content `field.type`) and how many per field. */
+export const PASTURE_ANIMALS: Readonly<Record<string, { cls: string; count: number }>> = {
+  pasture: { cls: "sheep", count: SHEEP_PER_PASTURE },
+  cattle_pasture: { cls: "cow", count: COWS_PER_PASTURE },
+  pig_pen: { cls: "pig", count: PIGS_PER_PEN },
+};
 export const SHEEP_STEP_MS = 9000;
 const SHEEP_WALK = 0.35;
 const SHEEP_MARGIN = 0.32;
@@ -95,6 +107,8 @@ interface Stroller {
 }
 
 interface Sheep {
+  /** The animal's class (sheep, cow, pig). */
+  cls: string;
   /** Field interior (island tiles). */
   x0: number;
   y0: number;
@@ -157,17 +171,18 @@ export function strollers(display: IslandDisplay, defs: ReadonlyMap<string, Cont
   return out;
 }
 
-/** The sheep of the island's pastures (SHEEP_PER_PASTURE each). */
-export function pastureSheep(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): Sheep[] {
+/** The animals of the island's pastures and pens (PASTURE_ANIMALS by field type). */
+export function pastureAnimals(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): Sheep[] {
   const byId = new Map(display.buildings.map((b) => [b.id, b]));
   const out: Sheep[] = [];
   for (const b of display.buildings) {
     const def = defs.get(b.type);
-    if (!def?.field || def.id !== "pasture") continue;
+    const kind = def?.field ? PASTURE_ANIMALS[def.field.type ?? def.id] : undefined;
+    if (!def || !kind) continue;
     const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
     const active = pastureActive(b, byId.get(b.farm_id as number));
-    for (let i = 0; i < SHEEP_PER_PASTURE; i++) {
-      out.push({ x0: b.x + SHEEP_MARGIN, y0: b.y + SHEEP_MARGIN, w: w - 2 * SHEEP_MARGIN, h: h - 2 * SHEEP_MARGIN, key: `${b.id}:${i}`, active });
+    for (let i = 0; i < kind.count; i++) {
+      out.push({ cls: kind.cls, x0: b.x + SHEEP_MARGIN, y0: b.y + SHEEP_MARGIN, w: w - 2 * SHEEP_MARGIN, h: h - 2 * SHEEP_MARGIN, key: `${b.id}:${i}`, active });
     }
   }
   return out;
@@ -359,7 +374,7 @@ export class IslandLife implements LifePlan {
     }
     this.updateHarbour(display, defs);
     this.strollers = strollers(display, defs, MAX_STROLLERS);
-    this.sheep = pastureSheep(display, defs);
+    this.sheep = pastureAnimals(display, defs);
   }
 
   private updateHarbour(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
@@ -502,12 +517,12 @@ export class IslandLife implements LifePlan {
     sink.add(CLS.villager(s.tier, s.variant), x, ROAD_H + bob, y, facing(at.heading), VILLAGER_SCALE);
   }
 
-  /** A sheep at time nowMs (null: standing at its first spot, the mid LOD), walking then grazing in each step. */
+  /** A pasture animal at time nowMs (null: standing at its first spot, the mid LOD), walking then grazing in each step. */
   private drawSheep(s: Sheep, nowMs: number | null, sink: LifeSink): void {
     const spot = (k: number) => ({ x: s.x0 + hash01(s.key, k, "x") * s.w, y: s.y0 + hash01(s.key, k, "y") * s.h });
     if (!s.active || nowMs === null) {
       const p = spot(0);
-      sink.add(CLS.sheep, p.x, FIELD_H, p.y, hash01(s.key, "yaw") * Math.PI * 2, 1, s.active ? undefined : INACTIVE_TINT);
+      sink.add(s.cls, p.x, FIELD_H, p.y, hash01(s.key, "yaw") * Math.PI * 2, 1, s.active ? undefined : INACTIVE_TINT);
       return;
     }
     const u = (nowMs + hash01(s.key, "phase") * SHEEP_STEP_MS) / SHEEP_STEP_MS;
@@ -518,7 +533,7 @@ export class IslandLife implements LifePlan {
     const e = f * f * (3 - 2 * f);
     const heading = Math.atan2(b.y - a.y, b.x - a.x);
     // Head down while grazing: a slight forward pitch.
-    sink.add(CLS.sheep, a.x + (b.x - a.x) * e, FIELD_H, a.y + (b.y - a.y) * e, facing(heading), 1, undefined, f >= 1 ? 0.12 : 0);
+    sink.add(s.cls, a.x + (b.x - a.x) * e, FIELD_H, a.y + (b.y - a.y) * e, facing(heading), 1, undefined, f >= 1 ? 0.12 : 0);
   }
 
   private drawBoat(b: Boat, nowMs: number, sink: LifeSink): void {

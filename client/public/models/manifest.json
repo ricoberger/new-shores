@@ -1231,6 +1231,41 @@
       },
       "kind": "life"
     },
+    "life_cow": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.1667,
+          0.5833,
+          0.4167
+        ],
+        "min": [
+          -0.1667,
+          0.0,
+          -0.3333
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.1667,
+            0.5833,
+            0.4167
+          ],
+          "min": [
+            -0.1667,
+            0.0,
+            -0.3333
+          ]
+        },
+        "budget": 760,
+        "bytes": 5808,
+        "path": "life_cow.glb",
+        "sha256": "4ef394f14408b51527ca42028d48484970afbfe17e43a87e3e8e99f5917c93c9",
+        "triangles": 148
+      },
+      "kind": "life"
+    },
     "life_crate": {
       "anchors": {},
       "bounds": {
@@ -1263,6 +1298,41 @@
         "path": "life_crate.glb",
         "sha256": "f3ca10c8a3aeac82e00d4159a1f4670c68340285c033f1a9f4d704f57b3cbf99",
         "triangles": 34
+      },
+      "kind": "life"
+    },
+    "life_pig": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.1667,
+          0.25,
+          0.3333
+        ],
+        "min": [
+          -0.0833,
+          0.0,
+          -0.25
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.1667,
+            0.25,
+            0.3333
+          ],
+          "min": [
+            -0.0833,
+            0.0,
+            -0.25
+          ]
+        },
+        "budget": 760,
+        "bytes": 3244,
+        "path": "life_pig.glb",
+        "sha256": "0630bac00dbcc5e30e767ea5acb306be149d33ceda706834f6f375bedfdef5fb",
+        "triangles": 54
       },
       "kind": "life"
     },

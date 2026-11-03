@@ -57,8 +57,9 @@ Not in scope: weather, day/night (D-048), combat units, horses as traffic.
 - **Stroller count:** `floor(residents / 8)` per house, placed on the
   nearest road tiles by hash(building id, index), re-spread when the
   resident count changes (a boundary in the payload).
-- **Pasture animals:** `fields.assigned × 2` sheep per sheep farm, wander
-  inside their own field footprints.
+- **Pasture animals:** per field, seeded by the field's ID: 2 sheep in a
+  pasture, 2 cows in a cattle pasture (dairy and cattle farms), 3 pigs in
+  a pig pen; they wander inside their own field footprints.
 
 ## 4. Pipeline additions
 
@@ -130,7 +131,11 @@ that name". All motion is procedural.
   or Trading Post, not by status; waiting ships bob at anchor.
 - Pasture: the recipe's static sheep were removed; 2 instanced sheep per
   pasture wander inside it; "inactive" = field inactive or farm paused →
-  sheep stand still, tinted.
+  sheep stand still, tinted. Polish 5: cattle pastures get 2 cows and pig
+  pens 3 pigs the same way (`PASTURE_ANIMALS` in `display/lifeplan.ts`);
+  their models `life_cow` and `life_pig` are the kit's `cow` and `pig`
+  (`parts_kit.py`, as on the dairy, cattle and pig farms) at the farms'
+  12 voxels per tile.
 - Construction: stages A→B→C over 2.4 s of server time (0.24 s in e2e's
   10× clock), scaffolding on footprints ≥ 3×3, turned with the building;
   fields and `?life=0` keep the rise-in.
