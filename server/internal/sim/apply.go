@@ -749,8 +749,21 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 		if !harbourRoutable(c, &tmp) {
 			return fmt.Errorf("%w: the quay would close the harbour of %q", ErrHarbourBlocked, is.ID)
 		}
-	} else {
-		if err := checkTiles(is, is.occupancy(c), cmd.Tiles, allowRiver); err != nil {
+	}
+	// A land road replaces a road of a lower type on its tile (MECHANICS
+	// §3): the old road's demolition refund, the new road's cost, and the
+	// tile never stops being a road. Same or higher types stay occupied.
+	replaced := map[string]int64{}
+	if !def.Road.Shallows {
+		fresh := make([]Pos, 0, len(cmd.Tiles))
+		for _, p := range cmd.Tiles {
+			if old := replaceableRoad(is, c, def, p); old != nil {
+				replaced[old.ID]++
+				continue
+			}
+			fresh = append(fresh, p)
+		}
+		if err := checkTiles(is, is.occupancy(c), fresh, allowRiver); err != nil {
 			return err
 		}
 		if err := checkBridges(is, cmd.Tiles); err != nil {
@@ -763,6 +776,10 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 	}
 
 	chargeCost(w, is, def.Cost, n, l)
+	now := w.LastEvaluatedAt.UnixMilli()
+	for _, old := range sortedKeys(replaced) {
+		refund(is, c, c.BuildingByID[old].Cost, replaced[old], l, now)
+	}
 	if is.Roads == nil {
 		is.Roads = map[int]string{}
 	}
@@ -771,6 +788,25 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 	}
 	afterChange(is, c)
 	return nil
+}
+
+// replaceableRoad is the land road on tile p that a road of type def
+// replaces: one of a lower type, i.e. of an earlier tier (MECHANICS §3);
+// nil when the tile is off the grid, has no road, or has a road of the
+// same or a higher type, or either road is a quay.
+func replaceableRoad(is *Island, c *content.Catalogue, def *content.Building, p Pos) *content.Building {
+	if !is.InBounds(p.X, p.Y) {
+		return nil
+	}
+	old := c.BuildingByID[is.Roads[is.index(p.X, p.Y)]]
+	if old == nil || old.Road == nil || old.Road.Shallows || def.Road == nil || def.Road.Shallows {
+		return nil
+	}
+	ot, nt := c.TierByID[old.Tier], c.TierByID[def.Tier]
+	if ot == nil || nt == nil || ot.Index >= nt.Index {
+		return nil
+	}
+	return old
 }
 
 // refundAmount is the demolition refund of a material: 50 % of the cost,

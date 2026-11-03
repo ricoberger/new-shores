@@ -1,0 +1,129 @@
+{
+  "name": "road_replace",
+  "description": "Paved roads replace dirt roads (MECHANICS §3): a lumberjack delivers over a dirt road to the Trading Post. The paved road dragged over the whole dirt road replaces it in one command: the paved cost is charged for every tile, the dirt road's demolition refund (50 % of its materials; none here) is added, the lumberjack stays connected and assigned to the Trading Post without a gap, and its transfer delay drops with the paved road's time per tile. A dirt road dragged back over the paved tiles (a lower type over a higher one) and a paved road over paved tiles fail (occupied) and leave the world byte-identical.",
+  "content": "server/testdata/content/old_coast_pre_d054",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~",
+      "~~~~~...ffffff.~",
+      "~.......ffffff.~",
+      "~.......ffffff.~",
+      "~..............~",
+      "~.......ffffff.~",
+      "~.......ffffff.~",
+      "~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "gold": 1001,
+    "workforce": {
+      "settlers": 1000
+    },
+    "stock": {
+      "planks": 5,
+      "stone": 20
+    },
+    "unlocked_tiers": [
+      "citizens"
+    ]
+  },
+  "steps": [
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          10,
+          2
+        ],
+        "rect": [
+          12,
+          2,
+          12,
+          3
+        ],
+        "count": 1
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          9,
+          3
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "road": {
+        "type": "road_paved",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          9,
+          3
+        ],
+        "all_tiles": true
+      }
+    },
+    {
+      "expect_error": "occupied",
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          3,
+          4
+        ],
+        "all_tiles": true
+      }
+    },
+    {
+      "expect_error": "occupied",
+      "road": {
+        "type": "road_paved",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          3,
+          4
+        ],
+        "all_tiles": true
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    }
+  ]
+}

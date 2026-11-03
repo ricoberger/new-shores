@@ -491,7 +491,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       // Tiles that already carry the road are not sent (display hint, the server validates the rest).
       const st = renderer?.islandStatics().get(islandId);
       const tiles = st
-        ? roadDragSend(planRoadDrag(from, to, tool.roadType, { island: st, buildings: is.buildings, roads: is.roads, defs }))
+        ? roadDragSend(planRoadDrag(from, to, tool.roadType, { island: st, buildings: is.buildings, roads: is.roads, defs, tiers: content?.tiers }))
         : lPath(from, to).filter((tl) => !is.roads.some((r) => r.x === tl.x && r.y === tl.y));
       if (tiles.length === 0) return;
       // A quay off the shallows would be rejected (display mirror of the rule, D-060).

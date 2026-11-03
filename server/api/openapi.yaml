@@ -1292,6 +1292,12 @@ components:
           description: Degrees; 90 and 270 swap width and height.
     PlaceRoadCommand:
       type: object
+      description: |
+        The tiles are free tiles, or tiles with a land road of a lower type
+        (an earlier tier), which the new road replaces: their old road's
+        demolition refund is added and the new road's cost is charged for
+        every tile (MECHANICS §3). A tile with a road of the same or a
+        higher type, or a quay tile, fails the command with `occupied`.
       additionalProperties: false
       required: [type, island_id, road_type, tiles]
       properties:

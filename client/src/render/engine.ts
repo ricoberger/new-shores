@@ -214,6 +214,7 @@ export class GameRenderer {
   private lastIslands: ReadonlyMap<string, Island> | null = null;
   private lastContent: unknown = null;
   private defs = new Map<string, ContentBuilding>();
+  private tiers: readonly { id: string; index: number }[] = [];
   private hover: Point | null = null;
   private roadStart: IslandTile | null = null;
   /** The tile under the pointer of the road drag (its ghost runs from roadStart to here). */
@@ -1014,6 +1015,7 @@ export class GameRenderer {
     if (snap.content !== this.lastContent && snap.content) {
       this.lastContent = snap.content;
       this.defs = new Map(snap.content.buildings.map((b) => [b.id, b]));
+      this.tiers = snap.content.tiers;
       this.shipLengths = new Map(snap.content.ships.map((s) => [s.id, shipLengthRatio(s)]));
       this.arch.setShipLengths(this.shipLengths);
       // The zoom-out cap of the region (an older server sends none: no cap).
@@ -1705,7 +1707,8 @@ export class GameRenderer {
     this.paintKey = key;
     if (road) {
       // The road drag's ghost (UI.md §3): one mark per tile laid, green where the client expects a road, red where a
-      // rule rejects it; tiles already carrying the road are left unmarked (they are not sent).
+      // rule rejects it; a road of a lower type is replaced (green), one of the same or a higher type is left unmarked
+      // (not sent).
       this.paintPreview.set(this.roadDragMarks(road.start.island, road.start, road.end, road.type));
       this.setPaintStatus(null);
       return;
@@ -1777,7 +1780,8 @@ export class GameRenderer {
     const pl = this.arch.placement(island);
     if (!l?.statics || !pl) return [];
     const detail = this.details.get(island);
-    const tiles = planRoadDrag(start, end, roadType, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs });
+    const tiles = planRoadDrag(start, end, roadType, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs, tiers: this.tiers });
+    // A road the new one replaces (MECHANICS §3) is marked like a new tile.
     return tiles
       .filter((tl) => tl.hint !== "skip")
       .map((tl) => ({
@@ -1785,7 +1789,7 @@ export class GameRenderer {
         cz: -(pl.position.y + tl.y + 0.5),
         w: 1,
         h: 1,
-        kind: tl.hint === "ok" ? "ok" : "bad",
+        kind: tl.hint === "bad" ? "bad" : "ok",
         base: detail?.baseOf({ x: tl.x, y: tl.y, type: "", rotation: 0 }, { width: 1, height: 1 }) ?? 0,
       }));
   }
