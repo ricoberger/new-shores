@@ -328,6 +328,10 @@ UI shows the same numbers the server uses.
   buildings: one row per category (icon and name, fulfilment %). The reason if
   not met is the tooltip ("short supply", "no supply on the island", "out of
   range"); a building or chain need lists its buildings there.
+- "Upgrade" (not on a house of the highest tier): the cost line of the
+  upgrade — the next tier's house — like the build menu's: "150 gold ·
+  [planks] 5 t · [stone] 3 t", goods by icon (name and stock in the
+  tooltip), what the balance or stock does not cover red.
 - Upgrade button; when it is disabled, the server's reason is one short line below all footer buttons (they keep their size) and the button's tooltip; none on a house of the highest tier, like the levelled buildings at their last level.
 
 **Trading Post**
@@ -342,8 +346,9 @@ UI shows the same numbers the server uses.
 - A collapsed "Producers (n)" like the Warehouse's.
 - "Upgrade to level n" (not at the last level): one grey line with the next
   level's numbers ("500 t capacity per good · 2 berths · 55.0 t/min
-  throughput") and the cost line (gold, goods with icons, " · " between the
-  items, red when short). The **Upgrade** button is pinned in the footer.
+  throughput") and the cost line like the build menu's (gold, then each
+  good as icon and amount — the name and stock are the tooltip — " · "
+  between the items, red when short). The **Upgrade** button is pinned in the footer.
 
 **Trading pier** (D-060)
 
@@ -377,9 +382,9 @@ UI shows the same numbers the server uses.
 - A collapsed "Producers (n)": one row per assigned producer, the name a link
   that selects it (no ID); "None yet" without any. All producers are listed (the card body scrolls).
 - "Upgrade to level n" (not at the last level): one grey line with the next
-  level's numbers ("55.0 t/min throughput") and one cost line (gold, goods with
-  icons, " · " between the items; what the balance or stock does not cover is
-  red). The **Upgrade** button is pinned in the footer next to Move and
+  level's numbers ("55.0 t/min throughput") and one cost line like the
+  build menu's (gold, then each good as icon and amount, " · " between the
+  items; what the balance or stock does not cover is red). The **Upgrade** button is pinned in the footer next to Move and
   Demolish (a warehouse cannot be paused). The Trading Post shares the
   producers list, the upgrade preview and the footer button.
 

@@ -424,6 +424,7 @@ export const de: Record<keyof typeof en, string> = {
   "infoPanel.upgrade.hint.gold": "{amount} Gold",
   "infoPanel.upgrade.hint.costs": "Kostet {short} mehr",
   "infoPanel.upgradeTo": "Ausbau auf Stufe {level}",
+  "infoPanel.upgradeSection": "Ausbau",
   "infoPanel.capacityPerGood": "{amount} Kapazität je Ware",
   "infoPanel.berthsCount": "{count} Liegeplätze",
   "infoPanel.throughputRate": "{rate} Durchsatz",

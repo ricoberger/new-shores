@@ -216,7 +216,6 @@ function UpgradePreview({
 }) {
   const next = nextLevelOf(content, b);
   if (!next) return null;
-  const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
   const cost = next.cost ?? { gold: 0, materials: {} };
   return (
     <div className={styles.section} data-testid={testId}>
@@ -235,38 +234,68 @@ function UpgradePreview({
           {lockReason(model, content, next.tier)}
         </div>
       )}
-      {/* The content's upgrade cost; a part the balance or the island's stock does not cover is red (the server decides). */}
-      <DotRow
-        testId={`${testId}-cost`}
-        items={[
-          <span
-            key="gold"
-            className={cost.gold > model.gold ? styles.warn : undefined}
-            data-short={cost.gold > model.gold || undefined}
-            title={t("infoPanel.goldOnHand", { amount: units(model.gold) })}
-          >
-            {t("infoPanel.goldAmount", { amount: units(cost.gold) })}
-          </span>,
-          ...Object.entries(cost.materials).map(([g, n]) => {
-            const have = island.inventory[g]?.stock ?? 0;
-            return (
-              <span
-                key={g}
-                className={`${styles.withIcon} ${have < n ? styles.warn : ""}`}
-                data-short={have < n || undefined}
-                data-testid={`${testId}-cost-${g}`}
-                title={t("infoPanel.inStock", { amount: tons(have) })}
-              >
-                {tons(n)}
-                <Icon path={goodIcon(g)} />
-                {goodName(g)}
-              </span>
-            );
-          }),
-        ]}
-      />
+      <UpgradeCost cost={cost} island={island} model={model} content={content} testId={testId} />
     </div>
   );
+}
+
+/**
+ * An upgrade's cost line like the build menu's: "{gold} gold · [icon] n t · …",
+ * goods by icon (the name and the stock are the tooltip); a part the balance or
+ * the island's stock does not cover is red (the server decides).
+ */
+function UpgradeCost({
+  cost,
+  island,
+  model,
+  content,
+  testId,
+}: {
+  cost: { gold: number; materials: Record<string, number> };
+  island: IslandDisplay;
+  model: DisplayState;
+  content: Content;
+  testId: string;
+}) {
+  const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
+  return (
+    <DotRow
+      testId={`${testId}-cost`}
+      items={[
+        <span
+          key="gold"
+          className={cost.gold > model.gold ? styles.warn : undefined}
+          data-short={cost.gold > model.gold || undefined}
+          title={t("infoPanel.goldOnHand", { amount: units(model.gold) })}
+        >
+          {t("infoPanel.goldAmount", { amount: units(cost.gold) })}
+        </span>,
+        ...Object.entries(cost.materials).map(([g, n]) => {
+          const have = island.inventory[g]?.stock ?? 0;
+          return (
+            <span
+              key={g}
+              className={`${styles.withIcon} ${have < n ? styles.warn : ""}`}
+              data-short={have < n || undefined}
+              data-testid={`${testId}-cost-${g}`}
+              title={`${goodName(g)} · ${t("infoPanel.inStock", { amount: tons(have) })}`}
+            >
+              <Icon path={goodIcon(g)} />
+              <span className={styles.srOnly}>{goodName(g)}</span>
+              {tons(n)}
+            </span>
+          );
+        }),
+      ]}
+    />
+  );
+}
+
+/** The cost of a house's upgrade: the next tier's house (content), undefined at the highest tier or for an unknown one. */
+function nextHouseCost(content: Content, b: BuildingDisplay): { gold: number; materials: Record<string, number> } | undefined {
+  const tier = content.tiers.find((x) => x.house === b.type);
+  const next = tier ? content.tiers[tier.index + 1] : undefined;
+  return next?.house ? content.buildings.find((x) => x.id === next.house)?.cost : undefined;
 }
 
 function AssignedProducers({
@@ -739,6 +768,12 @@ export function InfoPanel({
                 </table>
               </div>
             ))}
+            {!isTopTierHouse(content, b) && nextHouseCost(content, b) && (
+              <div className={styles.section} data-testid="house-upgrade">
+                <div className={styles.sectionTitle}>{t("infoPanel.upgradeSection")}</div>
+                <UpgradeCost cost={nextHouseCost(content, b)!} island={island} model={model} content={content} testId="house-upgrade" />
+              </div>
+            )}
           </>
         )}
 

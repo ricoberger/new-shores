@@ -422,6 +422,7 @@ export const en = {
   "infoPanel.upgrade.hint.gold": "{amount} gold",
   "infoPanel.upgrade.hint.costs": "Costs {short} more",
   "infoPanel.upgradeTo": "Upgrade to level {level}",
+  "infoPanel.upgradeSection": "Upgrade",
   "infoPanel.capacityPerGood": "{amount} capacity per good",
   "infoPanel.berthsCount": "{count} berths",
   "infoPanel.throughputRate": "{rate} throughput",
