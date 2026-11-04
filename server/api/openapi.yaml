@@ -3673,6 +3673,9 @@ components:
                   berths:
                     type: integer
                     description: Ships that can load or unload at once (count).
+                  tier:
+                    type: string
+                    description: Tier that must be unlocked to upgrade into this level (D-065, extended to the Trading Post); absent on the first level.
                   cost:
                     type: object
                     additionalProperties: false

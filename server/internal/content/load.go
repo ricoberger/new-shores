@@ -311,6 +311,7 @@ type rawBuilding struct {
 			Reach      int                    `json:"reach"`
 			Upkeep     json.Number            `json:"upkeep_per_min"`
 			Berths     int                    `json:"berths"`
+			Tier       string                 `json:"tier"`
 			Cost       map[string]json.Number `json:"cost"`
 		} `json:"levels"`
 	} `json:"trading_post"`
@@ -834,6 +835,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 				Reach:            l.Reach,
 				UpkeepPerMin:     levelUpkeep(col, file, ent, fmt.Sprintf("trading_post.levels[%d].upkeep_per_min", i), l.Upkeep, b.UpkeepPerMin),
 				Berths:           l.Berths,
+				Tier:             l.Tier,
 			}
 			if l.Cost != nil {
 				cost := decodeCost(col, file, ent, l.Cost, goods)

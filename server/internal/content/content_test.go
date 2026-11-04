@@ -310,9 +310,10 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("warehouse levels = %s", got)
 	}
 	for i, l := range tp.TradingPost.Levels {
-		tpLevels = append(tpLevels, fmt.Sprintf("%d/%d/%d", l.ThroughputPerMin/1000, tp.ReachAt(i+1), tp.UpkeepAt(i+1)/1000))
+		tpLevels = append(tpLevels, fmt.Sprintf("%d/%d/%d:%s", l.ThroughputPerMin/1000, tp.ReachAt(i+1), tp.UpkeepAt(i+1)/1000, tp.LevelTier(i+1)))
 	}
-	if got := strings.Join(tpLevels, " "); got != "20/20/0 40/24/10 60/28/20 80/32/30" {
+	// The Trading Post's levels 2-4 have the warehouse's tier gate (D-065 extended).
+	if got := strings.Join(tpLevels, " "); got != "20/20/0: 40/24/10:citizens 60/28/20:merchants 80/32/30:patricians" {
 		t.Errorf("trading post levels = %s", got)
 	}
 	mk := c.BuildingByID["market"]

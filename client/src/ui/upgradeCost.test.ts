@@ -86,6 +86,17 @@ describe("collector reach and upkeep per level (D-069 §6)", () => {
     expect(html).toContain('data-testid="warehouse-upgrade-locked"');
   });
 
+  it("shows the Trading Post's lock reason like the warehouse's (D-065 extended)", () => {
+    const tp = { ...of("trading_post"), level: 1 };
+    const tier = content.buildings.find((d) => d.id === "trading_post")!.trading_post!.levels[1]!.tier;
+    expect(tier).toBe("citizens");
+    const locked = panel(tp, island, { ...base, tiers: base.tiers.map((x) => ({ ...x, unlocked: x.id === "settlers" })) });
+    expect(locked).toContain('data-testid="trading-post-upgrade-locked"');
+    expect(visible(locked.match(/data-testid="trading-post-upgrade-locked">(.*?)<\/div>/)?.[1] ?? "")).toContain("Citizens");
+    const open = panel(tp, island, { ...base, tiers: base.tiers.map((x) => ({ ...x, unlocked: x.id === "settlers" || x.id === "citizens" })) });
+    expect(open).not.toContain('data-testid="trading-post-upgrade-locked"');
+  });
+
   it("lists the Trading Post's reach", () => {
     const tp = of("trading_post");
     const reach = content.buildings.find((d) => d.id === "trading_post")!.trading_post!.levels[(tp.level ?? 1) - 1]!.reach;

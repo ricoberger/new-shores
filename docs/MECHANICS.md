@@ -342,7 +342,8 @@ cycle:   seconds               at 100 % efficiency
   **`no_collector_in_reach`** and **stalls**: rate 0, its buffer kept,
   nothing lost (D-009; like an unconnected producer with inputs, it
   sits right after `not_connected` in the status precedence, §14).
-  Upgrading a collector raises its reach and reassigns at once;
+  Upgrading a collector raises its reach and reassigns at once; the
+  Trading Post's and a Warehouse's level *n* needs tier *n* unlocked (§12);
   demolishing the only collector in reach stalls its producers. Houses,
   public buildings and shipyards only need the road connection (no
   reach). `R` is the sum of base output
@@ -844,7 +845,9 @@ keys must be earlier tiers. The first tier is always unlocked. Unlocks are
 permanent (no regression) and have no rate effect; the unlock moment is
 reported as a `tier_unlocked` boundary. Placing a building (or road) of a
 locked tier fails with `ErrTierLocked`; so does ordering a ship of a
-locked tier or upgrading a public building into a level of one. The
+locked tier or upgrading a public building, a Warehouse or the Trading
+Post into a level of one (level *n* of each needs tier *n*, D-065 extended
+to the Trading Post: level 2 Citizens, 3 Merchants, 4 Patricians). The
 unlocks are population only (D-069 §4): 120 Settlers (Citizens), 360
 Citizens (Merchants) and 1 200 Merchants (Patricians); the buildings the
 D-056 list named are required by the house upgrade gate anyway. The

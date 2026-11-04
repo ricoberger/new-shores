@@ -54835,157 +54835,30 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade_trading_post": {
-        "island": "isle-01",
-        "x": 163,
-        "y": 149
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 72,
         "y": 19
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -56005,45 +55878,22 @@
       }
     },
     {
-      "place": {
-        "island": "isle-01",
-        "type": "brewery",
-        "x": 156,
-        "y": 116,
-        "rotation": 90
-      }
-    },
-    {
-      "road": {
-        "island": "isle-01",
-        "type": "road_dirt",
-        "from": [
-          149,
-          127
-        ],
-        "to": [
-          149,
-          120
-        ]
-      }
-    },
-    {
-      "road": {
-        "island": "isle-01",
-        "type": "road_dirt",
-        "from": [
-          150,
-          120
-        ],
-        "to": [
-          155,
-          120
-        ]
+      "advance": {
+        "duration": "1m"
       }
     },
     {
       "advance": {
         "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "island": "isle-01",
+        "type": "brewery",
+        "x": 196,
+        "y": 90,
+        "rotation": 90
       }
     },
     {
@@ -56065,9 +55915,38 @@
       "place": {
         "island": "isle-01",
         "type": "butcher",
-        "x": 197,
-        "y": 91,
-        "rotation": 90
+        "x": 192,
+        "y": 89,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "island": "isle-01",
+        "type": "road_dirt",
+        "from": [
+          201,
+          89
+        ],
+        "to": [
+          196,
+          89
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -56079,19 +55958,9 @@
       "place": {
         "island": "isle-01",
         "type": "meadery",
-        "x": 152,
-        "y": 115,
-        "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
+        "x": 192,
+        "y": 85,
+        "rotation": 90
       }
     },
     {
@@ -56118,9 +55987,9 @@
       "place": {
         "island": "isle-01",
         "type": "tailor",
-        "x": 192,
-        "y": 90,
-        "rotation": 90
+        "x": 188,
+        "y": 81,
+        "rotation": 0
       }
     },
     {
@@ -56128,12 +55997,26 @@
         "island": "isle-01",
         "type": "road_dirt",
         "from": [
-          201,
-          90
+          196,
+          77
         ],
         "to": [
-          197,
-          90
+          196,
+          81
+        ]
+      }
+    },
+    {
+      "road": {
+        "island": "isle-01",
+        "type": "road_dirt",
+        "from": [
+          195,
+          81
+        ],
+        "to": [
+          192,
+          81
         ]
       }
     },
@@ -56176,21 +56059,6 @@
           214,
           99
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -56332,6 +56200,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 47,
@@ -56362,16 +56235,6 @@
         "x": 86,
         "y": 143,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -56660,6 +56523,16 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 50,
@@ -56687,6 +56560,26 @@
           102,
           150
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -56797,40 +56690,10 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade_warehouse": {
         "island": "isle-01",
         "x": 197,
         "y": 70
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -56904,27 +56767,12 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "cheese_dairy",
-        "x": 192,
-        "y": 86,
-        "rotation": 90
+        "x": 184,
+        "y": 80,
+        "rotation": 0
       }
     },
     {
@@ -56932,12 +56780,12 @@
         "island": "isle-01",
         "type": "road_dirt",
         "from": [
-          197,
-          89
+          192,
+          80
         ],
         "to": [
-          197,
-          89
+          188,
+          80
         ]
       }
     },
@@ -56951,15 +56799,25 @@
       }
     },
     {
-      "upgrade": {
-        "island": "isle-01",
-        "x": 55,
-        "y": 52
+      "advance": {
+        "duration": "1m"
       }
     },
     {
       "advance": {
         "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "island": "isle-01",
+        "x": 55,
+        "y": 52
       }
     },
     {
@@ -56990,11 +56848,16 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "leather_works",
-        "x": 189,
-        "y": 86,
+        "x": 181,
+        "y": 83,
         "rotation": 0
       }
     },
@@ -57003,12 +56866,12 @@
         "island": "isle-01",
         "type": "road_dirt",
         "from": [
-          197,
-          88
+          188,
+          79
         ],
         "to": [
-          197,
-          85
+          183,
+          79
         ]
       }
     },
@@ -57017,12 +56880,12 @@
         "island": "isle-01",
         "type": "road_dirt",
         "from": [
-          196,
-          85
+          183,
+          80
         ],
         "to": [
-          191,
-          85
+          183,
+          82
         ]
       }
     },
@@ -57184,23 +57047,9 @@
       "place": {
         "island": "isle-01",
         "type": "weaver_wool",
-        "x": 186,
-        "y": 85,
-        "rotation": 0
-      }
-    },
-    {
-      "road": {
-        "island": "isle-01",
-        "type": "road_dirt",
-        "from": [
-          190,
-          85
-        ],
-        "to": [
-          189,
-          85
-        ]
+        "x": 179,
+        "y": 80,
+        "rotation": 90
       }
     },
     {
@@ -57208,6 +57057,16 @@
         "island": "isle-01",
         "x": 58,
         "y": 53
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -58301,30 +58160,11 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "brewery",
-        "x": 184,
-        "y": 80,
-        "rotation": 90
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "island": "isle-01",
-        "type": "butcher",
-        "x": 198,
-        "y": 85,
+        "x": 197,
+        "y": 83,
         "rotation": 0
       }
     },
@@ -58336,6 +58176,15 @@
     {
       "advance": {
         "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "island": "isle-01",
+        "type": "butcher",
+        "x": 178,
+        "y": 76,
+        "rotation": 90
       }
     },
     {
@@ -58362,8 +58211,8 @@
       "place": {
         "island": "isle-01",
         "type": "tailor",
-        "x": 190,
-        "y": 81,
+        "x": 203,
+        "y": 85,
         "rotation": 90
       }
     },
@@ -58377,10 +58226,25 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 41,
         "y": 49
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -58963,37 +58827,9 @@
       "place": {
         "island": "isle-01",
         "type": "weaver_wool",
-        "x": 181,
-        "y": 78,
-        "rotation": 0
-      }
-    },
-    {
-      "road": {
-        "island": "isle-01",
-        "type": "road_dirt",
-        "from": [
-          196,
-          77
-        ],
-        "to": [
-          196,
-          78
-        ]
-      }
-    },
-    {
-      "road": {
-        "island": "isle-01",
-        "type": "road_dirt",
-        "from": [
-          195,
-          78
-        ],
-        "to": [
-          184,
-          78
-        ]
+        "x": 192,
+        "y": 82,
+        "rotation": 90
       }
     },
     {
@@ -59120,24 +58956,9 @@
       "place": {
         "island": "isle-01",
         "type": "winepress",
-        "x": 180,
-        "y": 72,
+        "x": 183,
+        "y": 73,
         "rotation": 90
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -61411,6 +61232,21 @@
             45
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -64495,21 +64331,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "type": "pig_farm",
@@ -64965,6 +64786,16 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "surgery",
@@ -64985,11 +64816,6 @@
           135,
           129
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -65380,6 +65206,143 @@
       }
     },
     {
+      "upgrade_trading_post": {
+        "island": "isle-01",
+        "x": 163,
+        "y": 149
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "advance": {
         "duration": "1m"
       }
@@ -65634,11 +65597,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "cathedral",
@@ -65652,12 +65610,26 @@
         "island": "isle-01",
         "type": "road_dirt",
         "from": [
+          149,
+          127
+        ],
+        "to": [
+          149,
+          125
+        ]
+      }
+    },
+    {
+      "road": {
+        "island": "isle-01",
+        "type": "road_dirt",
+        "from": [
           148,
-          120
+          125
         ],
         "to": [
           148,
-          120
+          125
         ]
       }
     },
@@ -65666,11 +65638,6 @@
         "island": "isle-01",
         "x": 48,
         "y": 50
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -65725,31 +65692,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-06",
         "type": "copper_smelter",
@@ -65765,6 +65707,66 @@
         "x": 34,
         "y": 99,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -65802,17 +65804,17 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "surgery",
         "x": 49,
         "y": 65,
         "rotation": 90
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -65900,31 +65902,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 58,
@@ -65938,6 +65915,31 @@
         "x": 186,
         "y": 110,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -65990,16 +65992,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 139,
@@ -66027,26 +66019,6 @@
             }
           }
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -66237,19 +66209,37 @@
       "place": {
         "island": "isle-01",
         "type": "cooperage",
-        "x": 195,
-        "y": 81,
+        "x": 156,
+        "y": 117,
         "rotation": 90
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "island": "isle-01",
+        "type": "road_dirt",
+        "from": [
+          149,
+          124
+        ],
+        "to": [
+          149,
+          120
+        ]
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "island": "isle-01",
+        "type": "road_dirt",
+        "from": [
+          150,
+          120
+        ],
+        "to": [
+          155,
+          120
+        ]
       }
     },
     {
@@ -66257,16 +66247,6 @@
         "island": "isle-01",
         "x": 53,
         "y": 69
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -66305,8 +66285,8 @@
       "place": {
         "island": "isle-01",
         "type": "slaughterhouse",
-        "x": 203,
-        "y": 85,
+        "x": 197,
+        "y": 79,
         "rotation": 0
       }
     },
@@ -66360,16 +66340,6 @@
           166,
           119
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -66588,20 +66558,15 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 42,
         "y": 46
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -66612,22 +66577,37 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "lace_maker",
-        "x": 203,
-        "y": 82,
-        "rotation": 90
+        "x": 193,
+        "y": 76,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -66641,8 +66621,8 @@
       "place": {
         "island": "isle-01",
         "type": "luthier",
-        "x": 189,
-        "y": 73,
+        "x": 191,
+        "y": 68,
         "rotation": 0
       }
     },
@@ -66650,9 +66630,29 @@
       "place": {
         "island": "isle-01",
         "type": "optician",
-        "x": 197,
-        "y": 77,
+        "x": 203,
+        "y": 81,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {

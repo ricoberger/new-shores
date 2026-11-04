@@ -369,15 +369,15 @@ founding cost 200 gold / 15 planks (start stock, D-051) — the levels below.
 
 Collector levels (D-069, provisional; T = throughput per minute, reach in
 tiles from the nearest footprint tile like a service radius, upkeep in
-gold/min; level *n* of the warehouse and the market needs tier *n*,
-D-065):
+gold/min; level *n* of the Trading Post, the warehouse and the market
+needs tier *n*, D-065, extended to the Trading Post):
 
 | Collector | Level | Capacity | T | Reach | Upkeep | Berths | Upgrade cost |
 |---|---|---|---|---|---|---|---|
 | Trading Post | 1 | 300 | 20 | 20 | 0 | 1 | founding (200 gold / 15 planks) |
-| Trading Post | 2 | 500 | 40 | 24 | 10 | 2 | 300 gold / 20 planks / 10 stone |
-| Trading Post | 3 | 800 | 60 | 28 | 20 | 3 | 600 gold / 30 planks / 20 stone |
-| Trading Post | 4 | 1 200 | 80 | 32 | 30 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
+| Trading Post | 2 (Citizens) | 500 | 40 | 24 | 10 | 2 | 300 gold / 20 planks / 10 stone |
+| Trading Post | 3 (Merchants) | 800 | 60 | 28 | 20 | 3 | 600 gold / 30 planks / 20 stone |
+| Trading Post | 4 (Patricians) | 1 200 | 80 | 32 | 30 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
 | Warehouse | 1 | — | 20 | 14 | 1 | — | placement (50 gold / 6 planks) |
 | Warehouse | 2 (Citizens) | — | 35 | 17 | 10 | — | 150 gold / 10 planks / 5 stone |
 | Warehouse | 3 (Merchants) | — | 50 | 20 | 15 | — | 300 gold / 15 planks / 10 stone |
@@ -572,7 +572,7 @@ it carries:
 |---|---|---|
 | `recipe` (later `recipes[]`, D-041) | `inputs[] {good, amount}` (may be empty), `outputs[] {good, amount}` (non-empty), `cycle_seconds` | producers |
 | `house` | `tier` | residences |
-| `trading_post` | `levels[] {capacity, throughput_per_min, reach?, upkeep_per_min?, berths, cost?}` — level 1 has no cost (founding places it), later levels have one (`upgrade_trading_post`); with `water_rows` (per-column water prefix) | Trading Post, one per island |
+| `trading_post` | `levels[] {capacity, throughput_per_min, reach?, upkeep_per_min?, berths, tier?, cost?}` — level 1 has no cost or tier (founding places it), later levels have a cost (`upgrade_trading_post`) and name the tier they need (D-065); with `water_rows` (per-column water prefix) | Trading Post, one per island |
 | `pier` | `berths` (≥ 1) — berths added to the island's pool; needs `water_rows`; no collector, service or levels (D-060) | trading_pier |
 | `depot` | `capacity` — fixed capacity per good added to the island; no levels, collector, service or pier (D-062) | depot |
 | `warehouse` | `levels[] {throughput_per_min, reach?, upkeep_per_min?, tier?, cost?}` — collector only, no capacity (`upgrade_warehouse`); every later level names the tier it needs (D-065) | inland Warehouse |
@@ -765,7 +765,7 @@ per level, population-only unlocks, harbour extensions at Merchants;
 | Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 48 / 24 / 82 / 118 | 48 / 12 / 85 / 128 | 12 / 78 / 15 / 22 |
 | Quests | island 2 / first house (unlock, tools) | 45 / 85 | 32 / 64 (11, 100) | 32 / 68 (8, 111) | 13 / 17; 17 earlier than without claims |
 | Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 224 / 256 / 369 | 220 / 263 / 397 | 20 / 7 / 23 |
-| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 826 / 866 / 1073 | 831 / 872 / 1078 | 69 / 88 / 722 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 826 / 866 / 1073 | 808 / 847 / 1078 | 92 / 113 / 722 |
 
 Plan changes for D-069 (generator and authoring levers only):
 
@@ -782,7 +782,14 @@ Plan changes for D-069 (generator and authoring levers only):
   producer first tries a collector upgrade (upkeep for land in the rich
   late game). The home island then has 13 collectors for 142 producers.
 - Merchants: the Trading Post upgrade moves after the 21 Settler
-  upgrades (level 2 costs 10 gold/min).
+  upgrades (level 2 costs 10 gold/min). Its level 2 (minute 195) and
+  level 3 (minute 240) come after the Citizens and Merchants unlocks,
+  so their tier gate changes nothing there.
+- Patricians: the Trading Post's level 4 needs Patricians (tier gate):
+  its upgrade moves from minute 720 to right after the first Patrician
+  house (done at minute 922). Without the 30 gold/min upkeep in
+  between, the unlock and the first house come 23 and 25 minutes earlier
+  (831 / 872 before the gate).
 - Patricians: pig farms #13–14 and the second dairy farm move to island
   6 (milk home on the pig route, created first); the round's two wheat
   farms come before its pastures and small buildings — the warehouses

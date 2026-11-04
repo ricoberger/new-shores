@@ -167,8 +167,8 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 		},
 		{
 			"missing cost on a later level",
-			[]string{`"berths": 2,
-          "cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"berths": 2`},
+			[]string{`"tier": "citizens",
+          "cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"tier": "citizens"`},
 			[]string{FileBuildings, `building "trading_post"`, "trading_post.levels[1]", "schema violation", "missing property 'cost'"},
 		},
 		{

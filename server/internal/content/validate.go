@@ -171,6 +171,9 @@ func checkReferences(c *Catalogue) error {
 					col.add(FileBuildings, ent, fmt.Sprintf("trading_post.levels[%d]", i), "capacity and throughput must be > 0 and berths >= 1")
 				}
 				checkLevelCost(col, ent, fmt.Sprintf("trading_post.levels[%d].cost", i), i, l.Cost)
+				if l.Tier != "" {
+					tier(FileBuildings, ent, fmt.Sprintf("trading_post.levels[%d].tier", i), l.Tier)
+				}
 			}
 			if b.WaterRows == nil || b.WaterRows.Min < 1 {
 				col.add(FileBuildings, ent, "water_rows", "a trading post is a water-edge building (min >= 1)")

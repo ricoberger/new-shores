@@ -2139,11 +2139,6 @@
       }
     },
     {
-      "upgrade_trading_post": {
-        "island": "isle-01"
-      }
-    },
-    {
       "upgrade": {
         "quarter": "home-3",
         "from": "house_citizens",
@@ -2895,6 +2890,12 @@
         "quarter": "home-1",
         "from": "house_merchants",
         "count": 1
+      }
+    },
+    {
+      "note": "Level 4 needs Patricians (D-065 extended to the Trading Post): after the first Patrician house.",
+      "upgrade_trading_post": {
+        "island": "isle-01"
       }
     },
     {

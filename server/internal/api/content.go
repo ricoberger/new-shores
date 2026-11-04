@@ -221,6 +221,8 @@ type tradingPostLevelJSON struct {
 	Reach        int   `json:"reach"`
 	UpkeepPerMin int64 `json:"upkeep_per_min"`
 	Berths       int   `json:"berths"`
+	// Tier must be unlocked to upgrade into the level (D-065).
+	Tier string `json:"tier,omitempty"`
 	// Cost is the upgrade cost into the level (absent on the first level).
 	Cost *costJSON `json:"cost,omitempty"`
 }
@@ -541,7 +543,7 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 	if tp := b.TradingPost; tp != nil {
 		bj.TradingPost = &tradingPostJSON{Levels: []tradingPostLevelJSON{}}
 		for _, l := range tp.Levels {
-			lj := tradingPostLevelJSON{Capacity: l.Capacity, ThroughputPerMin: l.ThroughputPerMin, Reach: l.Reach, UpkeepPerMin: l.UpkeepPerMin, Berths: l.Berths}
+			lj := tradingPostLevelJSON{Capacity: l.Capacity, ThroughputPerMin: l.ThroughputPerMin, Reach: l.Reach, UpkeepPerMin: l.UpkeepPerMin, Berths: l.Berths, Tier: l.Tier}
 			if l.Cost != nil {
 				cost := newCostJSON(*l.Cost)
 				lj.Cost = &cost

@@ -46,6 +46,7 @@
           "reach": 24,
           "upkeep_per_min": 10,
           "berths": 2,
+          "tier": "citizens",
           "cost": { "gold": 300, "planks": 20, "stone": 10 }
         },
         {
@@ -54,6 +55,7 @@
           "reach": 28,
           "upkeep_per_min": 20,
           "berths": 3,
+          "tier": "merchants",
           "cost": { "gold": 600, "planks": 30, "stone": 20 }
         },
         {
@@ -62,6 +64,7 @@
           "reach": 32,
           "upkeep_per_min": 30,
           "berths": 4,
+          "tier": "patricians",
           "cost": { "gold": 1200, "planks": 40, "stone": 30, "tools": 10 }
         }
       ]

@@ -68,6 +68,7 @@ export function loadContent(dir: string): Content {
           reach: l.reach ?? 0,
           upkeep_per_min: m(l.upkeep_per_min ?? 0),
           berths: l.berths,
+          ...(l.tier ? { tier: l.tier } : {}),
           ...(l.cost ? { cost: cost(l.cost) } : {}),
         })),
       };

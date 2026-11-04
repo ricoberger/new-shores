@@ -2506,6 +2506,8 @@ export interface components {
                     upkeep_per_min: number;
                     /** @description Ships that can load or unload at once (count). */
                     berths: number;
+                    /** @description Tier that must be unlocked to upgrade into this level (D-065, extended to the Trading Post); absent on the first level. */
+                    tier?: string;
                     /**
                      * @description Upgrade cost into this level (`upgrade_trading_post`);
                      *     absent on the first level, which the building cost

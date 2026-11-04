@@ -353,7 +353,7 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   if (b.field?.fertility) needsSite.push(t("almanac.site.fertility", { name: titleCase(fertilityName(b.field.fertility)) }));
   const levels: LevelView[] = [];
   b.trading_post?.levels?.forEach((l, i) =>
-    levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, throughput: l.throughput_per_min / 1000, berths: l.berths, reach: l.reach, upkeep: upkeepOf(l) }),
+    levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, throughput: l.throughput_per_min / 1000, berths: l.berths, reach: l.reach, upkeep: upkeepOf(l), tier: l.tier }),
   );
   b.warehouse?.levels?.forEach((l, i) =>
     levels.push({ level: i + 1, cost: costParts(l.cost), throughput: l.throughput_per_min / 1000, reach: l.reach, upkeep: upkeepOf(l), tier: l.tier }),

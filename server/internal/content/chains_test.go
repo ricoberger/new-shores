@@ -148,6 +148,18 @@ func TestLoadRejectsInvalidChains(t *testing.T) {
 			[]string{`"cost": { "gold": 150, "planks": 10, "stone": 5 }`, `"tier": "dukes", "cost": { "gold": 150, "planks": 10, "stone": 5 }`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[1].tier"},
 		},
+		{
+			"unknown trading post tier", FileBuildings,
+			[]string{`"tier": "citizens",
+          "cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"tier": "dukes",
+          "cost": { "gold": 300, "planks": 20, "stone": 10 }`},
+			[]string{FileBuildings, `building "trading_post"`, "trading_post.levels[1].tier"},
+		},
+		{
+			"tier on the first trading post level", FileBuildings,
+			[]string{`"upkeep_per_min": 0, "berths": 1 }`, `"upkeep_per_min": 0, "berths": 1, "tier": "settlers" }`},
+			[]string{FileBuildings, "schema violation"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

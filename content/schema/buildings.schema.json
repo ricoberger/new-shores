@@ -99,7 +99,7 @@
             "prefixItems": [
               {
                 "$ref": "#/$defs/trading_post_level",
-                "not": { "required": ["cost"] }
+                "not": { "anyOf": [{ "required": ["cost"] }, { "required": ["tier"] }] }
               }
             ],
             "items": {
@@ -331,6 +331,11 @@
           "description": "Ships that can load or unload at the pier at the same time (MECHANICS §9.3).",
           "type": "integer",
           "minimum": 1
+        },
+        "tier": {
+          "description": "Tier that must be unlocked to upgrade into this level (D-065, extended to the Trading Post).",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
         },
         "cost": {
           "description": "Upgrade cost into this level (gold from the world, materials from the island).",

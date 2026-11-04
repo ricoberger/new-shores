@@ -293,6 +293,8 @@ describe("almanac model of the collectors (D-069)", () => {
       expect(view.levels.map((l) => l.throughput)).toEqual(levels.map((l) => l.throughput_per_min / 1000));
       expect(view.levels.map((l) => l.upkeep)).toEqual(levels.map((l) => l.upkeep_per_min / 1000));
     }
+    // Both collectors' levels 2-4 need Citizens, Merchants, Patricians (D-065, extended to the Trading Post).
+    expect(buildingView(idx, idx.building("trading_post")!).levels.map((l) => l.tier)).toEqual([undefined, "citizens", "merchants", "patricians"]);
     // Pier and depot come with the Merchants (D-069 §2).
     expect(idx.building("trading_pier")!.tier).toBe("merchants");
     expect(idx.building("depot")!.tier).toBe("merchants");

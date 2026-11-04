@@ -410,6 +410,9 @@ type TradingPostLevel struct {
 	UpkeepPerMin Qty
 	// Berths is the number of ships that can handle cargo at once.
 	Berths int
+	// Tier must be unlocked to upgrade into this level (D-065 extended to
+	// the Trading Post; "" none, always "" on the first level).
+	Tier string
 	// Cost is the upgrade cost into this level; nil for the first level
 	// (placed with the building cost), set for every later level.
 	Cost *Cost
@@ -507,6 +510,8 @@ func (b *Building) LevelTier(level int) string {
 		return ""
 	}
 	switch {
+	case b.TradingPost != nil:
+		return b.TradingPost.Levels[level-1].Tier
 	case b.Warehouse != nil:
 		return b.Warehouse.Levels[level-1].Tier
 	case b.Service != nil:
