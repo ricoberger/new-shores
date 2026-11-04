@@ -239,7 +239,6 @@ export const de: Record<keyof typeof en, string> = {
   "app.hint.fieldsAdd": "Klicken, um ein Feld anzulegen, oder ein Rechteck neben dem Hof oder seinen Feldern aufziehen ({degrees}°) · R drehen · Esc / Rechtsklick beenden",
   "app.hint.movePick": "Ein Gebäude anklicken, um es zu verschieben · Esc / Rechtsklick beenden",
   "app.hint.planning": "Planung: Das legt einen Plan an (kostenlos) · Bauen über seine Karte",
-  "app.moveField": "Felder lassen sich nicht verschieben: abreißen und neu anlegen",
   "app.hint.demolish": "Ein Gebäude, Feld oder eine Straße anklicken zum Abreißen, über Felder ziehen zum Entfernen · Esc / Rechtsklick abbrechen",
   "app.found.here": "„Hier Siedlung gründen“ lässt dich das Kontor mit seinem Steg im Wasser platzieren; {ship} ist hier.",
   "app.found.sails": "„Hier Siedlung gründen“ lässt dich das Kontor mit seinem Steg im Wasser platzieren; {ship} segelt zuerst hin.",

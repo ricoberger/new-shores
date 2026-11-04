@@ -57,7 +57,7 @@ import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
 import { PaintPreview, type PaintMark } from "./paint";
 import { planRoadDrag } from "../display/roaddrag";
-import { hintFarm, hintSite, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plansUnder } from "../display/plans";
+import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plansUnder } from "../display/plans";
 import { PlanLayer, type PlanRoadTile, type PlanSpec } from "./plans";
 import { t } from "../i18n";
 
@@ -1672,13 +1672,13 @@ export class GameRenderer {
     this.marks.set(marks);
   }
 
-  /** The building the Move tool would pick under the pointer: not a field (fields follow their farm). */
+  /** The building or plan the Move tool would pick under the pointer: over a field its farm (fields follow their farm). */
   private movableUnderPointer(): { b: BuildingDisplay; island: IslandDisplay } | undefined {
     const tl = this.hover ? this.tileAt(this.hover) : null;
     const island = tl ? this.displayIsland(tl.island) : undefined;
-    const b = tl && island ? buildingAt(island.buildings, this.defs, tl.x, tl.y) : undefined;
-    if (!b || !island || this.defs.get(b.type)?.field) return undefined;
-    return { b, island };
+    const m = tl && island ? moveTarget(island, this.defs, tl.x, tl.y) : undefined;
+    if (!m || !island) return undefined;
+    return { b: { id: m.id, type: m.type, x: m.x, y: m.y, rotation: m.rotation, status: "ok" } as BuildingDisplay, island };
   }
 
   /**

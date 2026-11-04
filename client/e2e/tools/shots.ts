@@ -852,23 +852,29 @@ function linkedGhost(type: string, fixture: Fixture, near: string, half = 12): {
 }
 
 /** The build bar's Move tool (UI.md §3) on the played fixture: hovering a sawmill ("pick", its hover mark) or after picking it, its ghost a few tiles away ("ghost"). */
-function moveTool(stage: "pick" | "ghost"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+function moveTool(stage: "pick" | "ghost", target: "sawmill" | "field" = "sawmill"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
     fixture: "played",
     device: "desktop",
     run: async (page) => {
-      const at = await page.evaluate(() => {
+      const at = await page.evaluate((target) => {
         const d = window.__newShores!.getServer()!.display;
         const is = d.islands.reduce((a, b) => (b.buildings.length > a.buildings.length ? b : a));
+        if (target === "field") {
+          // A sheep farm's pasture next to it: the pick is the farm (fields follow their farm).
+          const farm = is.buildings.find((x) => x.type === "sheep_farm" && (x.fields?.ids.length ?? 0) > 0)!;
+          const f = is.buildings.find((x) => x.id === farm.fields!.ids[0])!;
+          return { island: is.id, x: f.x + 1, y: f.y + 1, ox: is.position.x, oy: is.position.y };
+        }
         const list = is.buildings.filter((x) => x.type === "sawmill");
         const b = list[Math.floor(list.length / 2)]!;
         return { island: is.id, x: b.x + 1, y: b.y + 1, ox: is.position.x, oy: is.position.y };
-      });
+      }, target);
       await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half: 12, rotation: 0 });
       await settle(page);
       if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
       await page.getByTestId("tool-move").click();
-      const p = await tileAt(page, at.island, at.x, at.y);
+      const p = await tileAt(page, at.island, at.x, at.y, target === "field");
       await page.mouse.move(p.x, p.y);
       if (stage === "pick") return settle(page);
       await page.mouse.click(p.x, p.y);
@@ -1565,6 +1571,9 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   "ghost-terrace-6-invalid": ghostTerrace("market", "no_road"),
   "move-pick": moveTool("pick"),
   "move-ghost": moveTool("ghost"),
+  // The Move tool over a pasture picks its sheep farm: the hover mark on the farm, then the farm's ghost (step 6 of D-071's polish).
+  "move-pick-field": moveTool("pick", "field"),
+  "move-ghost-field": moveTool("ghost", "field"),
   // Planning mode (D-071): the toggle on with a house ghost beside the played world's planned quarter, and the quarter itself (desktop and phone).
   "planning-mode": planningShot(true),
   "planned-quarter": planningShot(false),

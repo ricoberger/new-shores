@@ -8,7 +8,7 @@
 import type { BuildingDisplay, ContentBuilding, IslandDisplay, PlanCostDisplay, PlanDisplay, PlannedRoadDisplay } from "../api/client";
 import type { CostPart } from "./buildMenu";
 import type { RoadDragTile } from "./roaddrag";
-import { buildingAt, type FootprintDef, rotatedFootprint, type TilePos, tileKey } from "./geometry";
+import { buildingAt, type FootprintDef, type Rotation, rotatedFootprint, type TilePos, tileKey } from "./geometry";
 
 /**
  * A plan as a building of the hint data (footprint only). `chain`: a
@@ -144,4 +144,28 @@ export function planCostParts(cost: PlanCostDisplay, gold: number, stock: (good:
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([good, amount]) => ({ good, amount, short: amount > stock(good) })),
   };
+}
+
+/**
+ * What the Move tool picks under a tile (UI.md §3): the building or plan
+ * there, but for a field (real or planned) its farm — fields follow their
+ * farm, so clicking one means the farm. Undefined for bare ground, roads
+ * and a field whose farm is not on the island.
+ */
+export function moveTarget(
+  is: Pick<IslandDisplay, "buildings" | "plans">,
+  defs: ReadonlyMap<string, FootprintDef & { field?: unknown }>,
+  x: number,
+  y: number,
+): { id: number; type: string; x: number; y: number; rotation: Rotation; planned: boolean } | undefined {
+  const b = buildingAt(is.buildings, defs, x, y);
+  const p = b ? undefined : planAt(is, defs, x, y);
+  const hit = b ?? p;
+  if (!hit) return undefined;
+  const farmId = hit.farm_id;
+  if (farmId === undefined || !defs.get(hit.type)?.field) return { id: hit.id, type: hit.type, x: hit.x, y: hit.y, rotation: hit.rotation, planned: !b };
+  const farm = is.buildings.find((f) => f.id === farmId);
+  if (farm) return { id: farm.id, type: farm.type, x: farm.x, y: farm.y, rotation: farm.rotation, planned: false };
+  const plan = (is.plans ?? []).find((f) => f.id === farmId);
+  return plan ? { id: plan.id, type: plan.type, x: plan.x, y: plan.y, rotation: plan.rotation, planned: true } : undefined;
 }

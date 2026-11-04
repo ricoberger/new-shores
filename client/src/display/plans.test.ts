@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding, IslandDisplay, PlanDisplay } from "../api/client";
 import { fieldPlacementHint } from "./fields";
-import { hintFarm, hintSite, planAsBuilding, planAt, planCostParts, planCount, planFarmOf, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plannedRoadTiles, plansUnder } from "./plans";
+import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, planCostParts, planCount, planFarmOf, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plannedRoadTiles, plansUnder } from "./plans";
 import { planRoadDrag } from "./roaddrag";
 
 const def = (id: string, w: number, h: number, extra: Partial<ContentBuilding> = {}) => ({ id, name: id, width: w, height: h, category: "production", ...extra }) as ContentBuilding;
@@ -112,5 +112,19 @@ describe("plan lookups for cards and tools (D-071 §4)", () => {
       { good: "planks", amount: 2000, short: false },
       { good: "stone", amount: 3000, short: true },
     ]);
+  });
+});
+
+describe("the Move tool's pick", () => {
+  it("picks the building or plan under a tile, and for a field its farm", () => {
+    expect(moveTarget(island, defs, 5, 5)).toEqual({ id: 1, type: "wheat_farm", x: 4, y: 4, rotation: 0, planned: false });
+    // The field at (7,4) and the planned field at (8,4) both mean the farm.
+    expect(moveTarget(island, defs, 7, 4)?.id).toBe(1);
+    expect(moveTarget(island, defs, 8, 4)?.id).toBe(1);
+    expect(moveTarget(island, defs, 2, 2)).toMatchObject({ id: 10, planned: true });
+    expect(moveTarget(island, defs, 3, 4)).toBeUndefined();
+    // A planned field of a planned farm picks the planned farm.
+    const withFarm = { ...island, plans: [plan(20, "wheat_farm", 10, 0), plan(21, "wheat_field", 13, 0, 20)] };
+    expect(moveTarget(withFarm, defs, 13, 0)).toMatchObject({ id: 20, type: "wheat_farm", planned: true });
   });
 });

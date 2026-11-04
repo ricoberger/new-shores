@@ -20,7 +20,7 @@ import { tons, units } from "../display/format";
 import { countdown, shipName } from "../display/ships";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { planRoadDrag, roadDragSend } from "../display/roaddrag";
-import { hintSite, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag } from "../display/plans";
+import { hintSite, moveTarget, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag } from "../display/plans";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
 import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
@@ -576,15 +576,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     },
     pickMove: (at: IslandTile) => {
       const is = model?.islands.find((x) => x.id === at.island);
-      // Plans move like buildings (D-071 §4, free).
-      const b = is ? (buildingAt(is.buildings, defs, at.x, at.y) ?? planAt(is, defs, at.x, at.y)) : undefined;
-      if (!b) return;
-      // A field cannot be moved (the server rejects it): it follows its farm.
-      if (defs.get(b.type)?.field) {
-        toast(t("app.moveField"));
-        return;
-      }
-      setTool({ kind: "move", buildingId: b.id, buildingType: b.type, rotation: b.rotation, pick: true });
+      // A building or plan (D-071, free); a field means its farm (fields follow their farm).
+      const m = is ? moveTarget(is, defs, at.x, at.y) : undefined;
+      if (!m) return;
+      setTool({ kind: "move", buildingId: m.id, buildingType: m.type, rotation: m.rotation, pick: true });
     },
     cancelTool: () => setTool(NO_TOOL),
     ghostHint: (text: string | null) => setGhostHint(text),

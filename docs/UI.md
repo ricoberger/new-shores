@@ -287,8 +287,10 @@ UI shows the same numbers the server uses.
   building (the one under the pointer carries the hover mark), place its
   ghost (validity tint, R rotates; on touch tap and Confirm), and the tool
   comes back for the next building; Esc or a right click leaves it.
-  Same rules as the card's Move: a field shows a toast instead (fields
-  follow their farm), roads are not buildings to pick.
+  Same rules as the card's Move, except that clicking a field picks its
+  farm (fields follow their farm; the hover mark is on the farm too, and
+  a planned field picks its farm or planned farm); roads are not
+  buildings to pick.
 - **Planning** (D-071): the build bar's **planning toggle** (pencil and
   ruler icon, before Move and Demolish; pressed while on) switches every
   placement — buildings, road drags, fields painted or tapped — to a
