@@ -31,10 +31,10 @@ type Migrations map[int]Migration
 type MigrationNotes struct{}
 
 // SchemaMigrations returns the registered schema migrations; c is the
-// content catalogue of the binary for migrations that need content. None
-// is registered: worlds of schema 1-11 are not migrated (the game was not
-// deployed; schema 12 introduces per-column water rows, D-062), but fail
-// to load with ErrSchemaVersion (a fresh database is required).
+// content catalogue of the binary for migrations that need content. Only
+// 14 -> 15 is registered (migrate14to15, D-071 plans); worlds of schema
+// 1-13 are not migrated (the game was not deployed), but fail to load
+// with ErrSchemaVersion (a fresh database is required).
 //
 // Adding the next migration (docs/ARCHITECTURE.md §4.1):
 //
@@ -47,7 +47,18 @@ type MigrationNotes struct{}
 //     checks the re-encode/round-trip/Advance/Display template
 //     (TestSchemaFixtures in migrate_test.go).
 func SchemaMigrations(_ *content.Catalogue) Migrations {
-	return Migrations{}
+	return Migrations{14: migrate14to15}
+}
+
+// migrate14to15 adds the plans of D-071 (Island.Plans,
+// Island.PlannedRoads): both are optional and absent in a schema-14
+// world, which has no plans, so the world JSON is unchanged.
+func migrate14to15(e RawEnvelope, _ *MigrationNotes) (RawEnvelope, error) {
+	var world map[string]json.RawMessage
+	if err := json.Unmarshal(e.World, &world); err != nil {
+		return e, fmt.Errorf("schema 14 world: %w", err)
+	}
+	return e, nil
 }
 
 // DecodeWith is Decode with an explicit migration registry. An envelope

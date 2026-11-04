@@ -201,6 +201,59 @@ handlers only.
   remaining capacity, the command fails with `ErrSurplusLoss` unless the
   player explicitly accepts the loss (confirmation dialog), in which case
   stock is clamped and the excess counted as `lost`.
+- **Planning (D-071).** A **plan** is a planned building, a planned
+  field or a planned road tile, stored on the island apart from its
+  buildings and roads (`Island.Plans`, `Island.PlannedRoads`; plan IDs
+  come from the building ID sequence). Plans are made with the normal
+  placement commands and a flag — `place_building`, `place_road`,
+  `place_fields` / `place_field` with **`planned: true`** — and are
+  validated with every placement rule of the command (bounds, terrain,
+  occupancy, water rows, coast, deposit, fertility, harbour, bridges,
+  shallows, the field rules) **except the tier lock and the cost**;
+  nothing is charged. Trading Posts (founding), houses above the first
+  tier (`upgrade_only`) and hub levels cannot be planned; the island
+  must be settled. A planned road tile goes only on a free tile (it
+  never replaces a road). Fields painted on a planned farm are always
+  planned; a planned field is validated against the island with its
+  plans built, so it chains through the farm's planned fields; a field
+  maximum counts the farm's fields and planned fields.
+  - **Reservation:** a plan's footprint (water rows included) and a
+    planned road tile are occupied for every other placement, move and
+    field check (`occupied`). The one exception: a road placed over
+    planned road tiles **replaces** them (one transaction, the road's
+    normal cost).
+  - **Invisible to the sim:** a plan has no cost, upkeep, workforce,
+    production, service, reach or road connection; it is not a
+    building or a road for any rule, quest, unlock or summary, and no
+    plan command changes derived state or schedules an event. A world
+    with plans advances exactly like the same world without them
+    (tested).
+  - **Build** is manual only: `build_plan {island_id, building_id}`
+    places a planned building with the normal placement at that
+    instant (tier, settlement, site, cost; typed errors, e.g.
+    `tier_locked`, `insufficient_gold`) under a new building ID; a
+    **planned farm is built together with its planned fields** — one
+    transaction, the farm's and the fields' cost; a field that cannot be
+    afforded fails the whole command, a planned field whose site is no
+    longer valid (the farm was moved away from it, the maximum reached)
+    stays planned for the new farm. `building_id` of a planned field
+    builds its farm's plan (or, for a real farm, its planned fields);
+    the ID of a **real farm** builds its planned fields (the fields
+    built from the farm card). `build_plan {island_id, x, y}` builds
+    the **planned road segment** through that tile — the 4-connected
+    planned road tiles of the tile's road type — with `place_road`
+    (all or nothing, tier and cost). An ID or tile without a plan
+    fails with `plan_not_found`.
+  - **Move and demolish** a plan with the normal commands on its ID or
+    tiles, free of charge: `move_building` on a planned building
+    (placement rules without tier and cost; its own footprint counts as
+    free, its planned fields stay), `demolish` (a planned farm goes with
+    its planned fields), `demolish_road` (planned tiles go for free in
+    the same command as real ones), `demolish_fields` (planned fields
+    of the farm). Demolishing a **real farm** removes its planned
+    fields; demolishing the last Trading Post (unsettling) removes the
+    island's plans. There is no cap on plans and no automatic or batch
+    build.
 
 ## 3. Roads and connection (D-014)
 
@@ -208,7 +261,8 @@ handlers only.
   adjacent to its footprint to a road tile adjacent to a **collector's**
   (Trading Post or Warehouse) footprint on the same island (D-042). This is the single connectivity
   rule for producers, public buildings and houses alike; a house on a road
-  stub that does not reach a warehouse is *not* connected. Roads are tiles;
+  stub that does not reach a warehouse is *not* connected. A planned
+  road tile (D-071, §2) is never a road for this rule. Roads are tiles;
   dirt roads (tier 1), paved roads (tier 2, +speed) and quays (tier 2,
   D-060) are the types.
 - **Replacing a road:** `place_road` on a tile that carries a land road
@@ -922,6 +976,8 @@ house cost is paid. One alternative per category is enough.
 - `advance(advance(s, t1), t2) == advance(s, t2)` for `t1 ≤ t2`.
 - Applying an event at `due_at` then advancing equals the recorded behaviour
   regardless of processing delay.
+- Plans are invisible (D-071): a world with plans advances exactly like
+  the same world without them.
 
 ## 14. UI feedback rules derived from mechanics
 

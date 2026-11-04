@@ -56,6 +56,7 @@ type PlaceField struct {
 	Type     string
 	X, Y     int
 	Rotation int
+	Planned  bool
 }
 
 func (PlaceField) isCommand() {}
@@ -74,17 +75,24 @@ const MaxFieldTiles = 512
 // without a state change (Result.Unchanged; every tile carries its
 // reason). Duplicate tiles or more than MaxFieldTiles fail the whole
 // command.
+//
+// Planned (D-071) places planned fields instead: free, without the tier
+// lock, validated against the island with its plans built (a planned
+// field chains through the farm's planned fields). Fields of a planned
+// farm are always planned.
 type PlaceFields struct {
 	IslandID string
 	FarmID   int64
 	Type     string
 	Tiles    []Pos
 	Rotation int
+	Planned  bool
 }
 
 // DemolishFields demolishes the fields of the farm FarmID covering Tiles,
-// each once, with the refund of its cost; a tile without a field of the
-// farm is rejected (ErrBuildingNotFound). The valid tiles are applied in
+// each once, with the refund of its cost; a planned field of the farm
+// (D-071) is removed for free, and FarmID may name a planned farm; a
+// tile without a field of the farm is rejected (ErrBuildingNotFound). The valid tiles are applied in
 // one state change. Like PlaceFields, when no tile is valid the command
 // still succeeds without a state change (Result.Unchanged; every tile
 // carries its reason): a demolish rectangle painted over no field is not
@@ -309,7 +317,7 @@ func newFieldSites(is *Island, c *content.Catalogue, farm *Building, def *conten
 	s := &fieldSites{is: is, def: def, farm: farm, max: fdef.Fields.Max, occupied: make([]bool, is.Width*is.Height), reach: make([]bool, is.Width*is.Height)}
 	s.w, s.h = footprint(def, rotation)
 	for i, id := range is.occupancy(c) {
-		s.occupied[i] = id != 0 || is.Roads[i] != ""
+		s.occupied[i] = id != 0 || is.roadOrPlan(i)
 	}
 	fw, fh := footprint(fdef, farm.Rotation)
 	s.mark(farm.X, farm.Y, fw, fh)
@@ -448,7 +456,7 @@ func PlaceFieldFree(w *World, c *content.Catalogue, cmd PlaceField, l *Ledger) e
 // placeField is PlaceFields with one tile: the tile's error is the
 // command's error.
 func placeField(w *World, c *content.Catalogue, cmd PlaceField, charge bool, l *Ledger) error {
-	results, err := placeFields(w, c, PlaceFields{IslandID: cmd.IslandID, FarmID: cmd.FarmID, Type: cmd.Type, Tiles: []Pos{{cmd.X, cmd.Y}}, Rotation: cmd.Rotation}, charge, l)
+	results, err := placeFields(w, c, PlaceFields{IslandID: cmd.IslandID, FarmID: cmd.FarmID, Type: cmd.Type, Tiles: []Pos{{cmd.X, cmd.Y}}, Rotation: cmd.Rotation, Planned: cmd.Planned}, charge, l)
 	if err != nil {
 		return err
 	}
@@ -496,14 +504,22 @@ func placeFields(w *World, c *content.Catalogue, cmd PlaceFields, charge bool, l
 	if def.Field == nil {
 		return nil, fmt.Errorf("%w: %q is not a field", ErrFieldTypeMismatch, cmd.Type)
 	}
+	planned := cmd.Planned
 	farm := is.Building(cmd.FarmID)
+	if farm == nil {
+		// The fields of a planned farm are planned (D-071).
+		farm, planned = is.Plan(cmd.FarmID), true
+	}
 	if farm == nil {
 		return nil, fmt.Errorf("%w: farm %d on island %q", ErrBuildingNotFound, cmd.FarmID, cmd.IslandID)
 	}
 	if !validRotation(cmd.Rotation) {
 		return nil, fmt.Errorf("%w: rotation %d", ErrInvalidCommand, cmd.Rotation)
 	}
-	if charge && !TierUnlocked(w, c, def.Tier) {
+	if planned && !charge {
+		return nil, fmt.Errorf("%w: plans are player commands", ErrInvalidCommand)
+	}
+	if charge && !planned && !TierUnlocked(w, c, def.Tier) {
 		return nil, fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
 	}
 	if charge && !settled(is, c) {
@@ -512,7 +528,11 @@ func placeFields(w *World, c *content.Catalogue, cmd PlaceFields, charge bool, l
 	if err := checkBatchTiles(cmd.Tiles); err != nil {
 		return nil, err
 	}
-	sites, err := newFieldSites(is, c, farm, def, cmd.Rotation)
+	site := is
+	if planned {
+		site = planView(is)
+	}
+	sites, err := newFieldSites(site, c, farm, def, cmd.Rotation)
 	if err != nil {
 		return nil, err
 	}
@@ -530,7 +550,7 @@ func placeFields(w *World, c *content.Catalogue, cmd PlaceFields, charge bool, l
 				continue
 			}
 			err := sites.check(p.X, p.Y)
-			if err == nil && charge {
+			if err == nil && charge && !planned {
 				err = checkCost(w, is, def.Cost, int64(len(order)+1))
 			}
 			results[i] = TileResult{X: p.X, Y: p.Y, Err: err}
@@ -547,6 +567,13 @@ func placeFields(w *World, c *content.Catalogue, cmd PlaceFields, charge bool, l
 	}
 
 	// Validation complete: mutate.
+	if planned {
+		for _, i := range order {
+			p := cmd.Tiles[i]
+			addPlan(w, is, &Building{Type: def.ID, X: p.X, Y: p.Y, Rotation: cmd.Rotation, FarmID: farm.ID})
+		}
+		return results, nil
+	}
 	if charge {
 		chargeCost(w, is, def.Cost, int64(len(order)), l)
 	}
@@ -569,6 +596,9 @@ func demolishFields(w *World, c *content.Catalogue, cmd DemolishFields, l *Ledge
 	}
 	farm := is.Building(cmd.FarmID)
 	if farm == nil {
+		farm = is.Plan(cmd.FarmID) // a planned farm has planned fields only (D-071)
+	}
+	if farm == nil {
 		return nil, fmt.Errorf("%w: farm %d on island %q", ErrBuildingNotFound, cmd.FarmID, cmd.IslandID)
 	}
 	if fdef := c.BuildingByID[farm.Type]; fdef == nil || fdef.Fields == nil {
@@ -579,7 +609,7 @@ func demolishFields(w *World, c *content.Catalogue, cmd DemolishFields, l *Ledge
 	}
 	occ := is.occupancy(c)
 	results := make([]TileResult, len(cmd.Tiles))
-	var remove []*Building
+	var remove, plans []*Building
 	chosen := map[int64]bool{}
 	for i, p := range cmd.Tiles {
 		results[i] = TileResult{X: p.X, Y: p.Y}
@@ -587,7 +617,15 @@ func demolishFields(w *World, c *content.Catalogue, cmd DemolishFields, l *Ledge
 			results[i].Err = fmt.Errorf("%w: (%d,%d)", ErrOutOfBounds, p.X, p.Y)
 			continue
 		}
-		b := is.Building(occ[is.index(p.X, p.Y)])
+		id := occ[is.index(p.X, p.Y)]
+		if pl := is.Plan(id); pl != nil && pl.FarmID == farm.ID {
+			if !chosen[pl.ID] {
+				chosen[pl.ID] = true
+				plans = append(plans, pl)
+			}
+			continue
+		}
+		b := is.Building(id)
 		if b == nil || b.FarmID != farm.ID || c.BuildingByID[b.Type] == nil || c.BuildingByID[b.Type].Field == nil {
 			results[i].Err = fmt.Errorf("%w: no field of %s %d at (%d,%d)", ErrBuildingNotFound, farm.Type, farm.ID, p.X, p.Y)
 			continue
@@ -597,11 +635,17 @@ func demolishFields(w *World, c *content.Catalogue, cmd DemolishFields, l *Ledge
 			remove = append(remove, b)
 		}
 	}
-	if len(remove) == 0 {
+	if len(remove) == 0 && len(plans) == 0 {
 		return results, nil // no valid tile: no state change
 	}
 
 	// Validation complete: mutate.
+	for _, pl := range plans {
+		removePlan(is, pl.ID)
+	}
+	if len(remove) == 0 {
+		return results, nil // plans only: the sim sees no change
+	}
 	now := w.LastEvaluatedAt.UnixMilli()
 	for _, b := range remove {
 		removeBuilding(is, b.ID)

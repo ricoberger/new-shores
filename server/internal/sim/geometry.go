@@ -1,6 +1,8 @@
 package sim
 
 import (
+	"slices"
+
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
@@ -112,15 +114,15 @@ func (is *Island) buildingRoads(def *content.Building, b *Building) []Pos {
 	return is.adjacentRoads(b.X, b.Y, w, h)
 }
 
-// occupancy maps each tile index to the ID of the building covering it.
-// Occupancy returns the ID of the building covering each tile (row-major,
-// 0 for none): one snapshot for scans over many tiles, where BuildingAt
-// would rebuild it per tile.
+// Occupancy returns the ID of the building or plan (D-071) covering each
+// tile (row-major, 0 for none): one snapshot for scans over many tiles,
+// where BuildingAt would rebuild it per tile. Plans count: their
+// footprints are reserved.
 func (is *Island) Occupancy(c *content.Catalogue) []int64 { return is.occupancy(c) }
 
 func (is *Island) occupancy(c *content.Catalogue) []int64 {
 	occ := make([]int64, is.Width*is.Height)
-	for _, b := range is.Buildings {
+	for _, b := range slices.Concat(is.Buildings, is.Plans) {
 		def := c.BuildingByID[b.Type]
 		if def == nil {
 			continue
@@ -135,6 +137,12 @@ func (is *Island) occupancy(c *content.Catalogue) []int64 {
 		}
 	}
 	return occ
+}
+
+// roadOrPlan reports whether tile i carries a road or a planned road
+// (D-071): either keeps every other placement off the tile.
+func (is *Island) roadOrPlan(i int) bool {
+	return is.Roads[i] != "" || is.PlannedRoads[i] != ""
 }
 
 // buildableTerrain reports whether buildings and roads may be placed on the

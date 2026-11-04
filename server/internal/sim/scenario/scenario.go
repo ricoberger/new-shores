@@ -120,12 +120,14 @@ type SeaShip struct {
 }
 
 // Placement is a building position. Island defaults to the first island.
+// Planned places a plan (D-071; place steps only).
 type Placement struct {
 	Island   string `json:"island,omitempty"`
 	Type     string `json:"type,omitempty"`
 	X        int    `json:"x"`
 	Y        int    `json:"y"`
 	Rotation int    `json:"rotation"`
+	Planned  bool   `json:"planned,omitempty"`
 }
 
 // Grid places Count buildings at (X + i*DX, Y + i*DY).
@@ -140,12 +142,14 @@ type Grid struct {
 // vertical, both ends inclusive. Tiles that already carry a road are
 // skipped unless AllTiles is set: then every tile is sent and the
 // simulation decides (a road of a lower type is replaced, MECHANICS §3).
+// Planned places planned road tiles (D-071; road steps only).
 type Road struct {
 	Island   string `json:"island,omitempty"`
 	Type     string `json:"type"`
 	From     [2]int `json:"from"`
 	To       [2]int `json:"to"`
 	AllTiles bool   `json:"all_tiles,omitempty"`
+	Planned  bool   `json:"planned,omitempty"`
 }
 
 // At addresses the building covering a tile.
@@ -178,13 +182,17 @@ type MoveStep struct {
 // that moment, and repeats the pass while a pass placed a field (so a
 // chain grows outwards), up to Count fields (0: until the farm's maximum
 // or no anchor fits); it fails when it placed none or, with a Count, fewer.
+// Planned (D-071) sends every tile, or every anchor of Rect in row-major
+// order, as one planned PlaceFields; the farm may be a plan. It fails
+// when no field was planned or, with a Count, another number.
 type FieldsStep struct {
-	Island string   `json:"island,omitempty"`
-	Farm   [2]int   `json:"farm"`
-	Type   string   `json:"type,omitempty"`
-	Rect   *[4]int  `json:"rect,omitempty"`
-	Tiles  [][2]int `json:"tiles,omitempty"`
-	Count  int      `json:"count,omitempty"`
+	Island  string   `json:"island,omitempty"`
+	Farm    [2]int   `json:"farm"`
+	Type    string   `json:"type,omitempty"`
+	Rect    *[4]int  `json:"rect,omitempty"`
+	Tiles   [][2]int `json:"tiles,omitempty"`
+	Count   int      `json:"count,omitempty"`
+	Planned bool     `json:"planned,omitempty"`
 }
 
 // StockGrant adds Amount units of Good to the island (fails above capacity).
@@ -316,6 +324,10 @@ type Step struct {
 	Fields     *FieldsStep  `json:"fields,omitempty"`
 	Stock      *StockGrant  `json:"stock,omitempty"`
 	Advance    *AdvanceStep `json:"advance,omitempty"`
+	// BuildPlan builds the plan covering the tile (D-071): a planned
+	// building or field, a planned road tile (its segment) or a real farm
+	// (its planned fields).
+	BuildPlan *At `json:"build_plan,omitempty"`
 }
 
 func (s Step) kind() (string, error) {
@@ -323,7 +335,7 @@ func (s Step) kind() (string, error) {
 	for name, set := range map[string]bool{
 		"place": s.Place != nil, "place_grid": s.PlaceGrid != nil, "road": s.Road != nil,
 		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "pause": s.Pause != nil,
-		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "move": s.Move != nil, "fields": s.Fields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
+		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "build_plan": s.BuildPlan != nil, "move": s.Move != nil, "fields": s.Fields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
 		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
@@ -811,6 +823,9 @@ func (r *runner) buildingAt(at *At) (string, *sim.Building, error) {
 	}
 	b := is.BuildingAt(r.c, at.X, at.Y)
 	if b == nil {
+		b = is.PlanAt(r.c, at.X, at.Y) // a plan is addressed like a building (D-071)
+	}
+	if b == nil {
 		return "", nil, fmt.Errorf("no building at (%d,%d) on %q", at.X, at.Y, id)
 	}
 	return id, b, nil
@@ -870,7 +885,7 @@ func (r *runner) step(i int, st Step) error {
 	switch {
 	case st.Place != nil:
 		p := st.Place
-		return r.apply(sim.PlaceBuilding{IslandID: r.islandID(p.Island), Type: p.Type, X: p.X, Y: p.Y, Rotation: p.Rotation})
+		return r.apply(sim.PlaceBuilding{IslandID: r.islandID(p.Island), Type: p.Type, X: p.X, Y: p.Y, Rotation: p.Rotation, Planned: p.Planned})
 	case st.PlaceGrid != nil:
 		g := st.PlaceGrid
 		for k := 0; k < g.Count; k++ {
@@ -894,7 +909,22 @@ func (r *runner) step(i int, st Step) error {
 		if len(tiles) == 0 {
 			return nil
 		}
-		return r.apply(sim.PlaceRoad{IslandID: id, Type: st.Road.Type, Tiles: tiles})
+		return r.apply(sim.PlaceRoad{IslandID: id, Type: st.Road.Type, Tiles: tiles, Planned: st.Road.Planned})
+	case st.BuildPlan != nil:
+		id := r.islandID(st.BuildPlan.Island)
+		is := r.w.Island(id)
+		if is == nil {
+			return fmt.Errorf("%w: %q", sim.ErrUnknownIsland, id)
+		}
+		at := st.BuildPlan
+		if is.PlannedRoadAt(at.X, at.Y) != "" {
+			return r.apply(sim.BuildPlan{IslandID: id, Tile: &sim.Pos{X: at.X, Y: at.Y}})
+		}
+		_, b, err := r.buildingAt(at)
+		if err != nil {
+			return err
+		}
+		return r.apply(sim.BuildPlan{IslandID: id, PlanID: b.ID})
 	case st.DemolishRd != nil:
 		return r.apply(sim.DemolishRoad{IslandID: r.islandID(st.DemolishRd.Island), Tiles: lPath(st.DemolishRd)})
 	case st.Demolish != nil:
@@ -1072,6 +1102,8 @@ func (r *runner) fields(f *FieldsStep) error {
 	switch {
 	case (f.Rect == nil) == (len(f.Tiles) == 0):
 		return errors.New("fields: set exactly one of rect and tiles")
+	case f.Planned:
+		return r.plannedFields(f, id, farm.ID, typ)
 	case f.Rect == nil:
 		for _, t := range f.Tiles {
 			if err := place(t[0], t[1]); err != nil {
@@ -1110,6 +1142,38 @@ func (r *runner) fields(f *FieldsStep) error {
 	}
 	if f.Count > 0 && placed < f.Count {
 		return fmt.Errorf("fields: placed %d of %d %s in rect %v", placed, f.Count, typ, *f.Rect)
+	}
+	return nil
+}
+
+// plannedFields plans the fields of a planned fields step in one
+// PlaceFields (D-071).
+func (r *runner) plannedFields(f *FieldsStep, island string, farm int64, typ string) error {
+	var tiles []sim.Pos
+	for _, t := range f.Tiles {
+		tiles = append(tiles, sim.Pos{X: t[0], Y: t[1]})
+	}
+	if f.Rect != nil {
+		x0, y0, x1, y1 := min(f.Rect[0], f.Rect[2]), min(f.Rect[1], f.Rect[3]), max(f.Rect[0], f.Rect[2]), max(f.Rect[1], f.Rect[3])
+		for y := y0; y <= y1; y++ {
+			for x := x0; x <= x1; x++ {
+				tiles = append(tiles, sim.Pos{X: x, Y: y})
+			}
+		}
+	}
+	res, err := sim.ApplyWithResult(r.w, r.c, sim.PlaceFields{IslandID: island, FarmID: farm, Type: typ, Tiles: tiles, Planned: true}, r.l)
+	if err != nil {
+		return err
+	}
+	sim.MarkSeen(r.w)
+	n := 0
+	for _, t := range res.Tiles {
+		if t.Err == nil {
+			n++
+		}
+	}
+	if n == 0 || (f.Count > 0 && n != f.Count) {
+		return fmt.Errorf("fields: planned %d %s (count %d)", n, typ, f.Count)
 	}
 	return nil
 }
@@ -1175,7 +1239,7 @@ func Sentinels() map[string]error {
 		"reroll_not_allowed":    sim.ErrRerollNotAllowed, "invalid_name": sim.ErrInvalidName,
 		"field_type_mismatch": sim.ErrFieldTypeMismatch, "field_not_adjacent": sim.ErrFieldNotAdjacent,
 		"field_max_reached": sim.ErrFieldMaxReached, "field_wrong_farm": sim.ErrFieldWrongFarm,
-		"field_needs_farm": sim.ErrFieldNeedsFarm,
+		"field_needs_farm": sim.ErrFieldNeedsFarm, "plan_not_found": sim.ErrPlanNotFound,
 	}
 }
 

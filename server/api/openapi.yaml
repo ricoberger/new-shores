@@ -960,6 +960,7 @@ components:
         - field_max_reached
         - field_wrong_farm
         - field_needs_farm
+        - plan_not_found
         - invalid_name
         - reroll_not_allowed
         - over_capacity

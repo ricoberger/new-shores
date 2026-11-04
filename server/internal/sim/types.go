@@ -137,7 +137,15 @@ type Island struct {
 	Roads map[int]string `json:"roads,omitempty"`
 	// Buildings sorted by ascending ID.
 	Buildings []*Building `json:"buildings,omitempty"`
-	Inventory Inventory   `json:"inventory"`
+	// Plans are the planned buildings and planned fields of the island
+	// (D-071, plans.go), sorted by ascending ID; their IDs come from
+	// World.NextBuildingID like building IDs. A plan reserves its
+	// footprint and is invisible to every other rule.
+	Plans []*Building `json:"plans,omitempty"`
+	// PlannedRoads maps a tile index to the road type of a planned road
+	// tile (D-071): reserved like a plan, never a road for connectivity.
+	PlannedRoads map[int]string `json:"planned_roads,omitempty"`
+	Inventory    Inventory      `json:"inventory"`
 	// Fertilities are the island-wide fertility tags (MECHANICS §2), sorted
 	// as seeded; a building whose work_area needs a fertility can only be
 	// placed on an island that has it.
@@ -461,6 +469,13 @@ func (is *Island) clone() *Island {
 		c.Fertilities = append([]string(nil), is.Fertilities...)
 	}
 	c.Roads = maps.Clone(is.Roads)
+	c.PlannedRoads = maps.Clone(is.PlannedRoads)
+	if is.Plans != nil {
+		c.Plans = make([]*Building, len(is.Plans))
+		for i, p := range is.Plans {
+			c.Plans[i] = p.clone()
+		}
+	}
 	c.WorkforceGrant = maps.Clone(is.WorkforceGrant)
 	if is.Buildings != nil {
 		c.Buildings = make([]*Building, len(is.Buildings))

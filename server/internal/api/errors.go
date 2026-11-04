@@ -100,6 +100,7 @@ var simErrors = []simError{
 	{sim.ErrShipNotFound, "ship_not_found", http.StatusNotFound},
 	{sim.ErrRouteNotFound, "route_not_found", http.StatusNotFound},
 	{sim.ErrQuestNotFound, "quest_not_found", http.StatusNotFound},
+	{sim.ErrPlanNotFound, "plan_not_found", http.StatusNotFound},
 	// 409: the command conflicts with the current state.
 	{sim.ErrOccupied, "occupied", http.StatusConflict},
 	{sim.ErrRerollNotAllowed, "reroll_not_allowed", http.StatusConflict},
