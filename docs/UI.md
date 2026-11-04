@@ -342,7 +342,8 @@ UI shows the same numbers the server uses.
   reads `buildings` only). The Move tool picks plans like buildings; the
   **Demolish tool** removes a clicked plan or planned road tile at once
   (free, no confirmation), and its rectangle removes the planned
-  buildings and fields under it with the fields.
+  buildings and fields under it with the fields and the planned road
+  tiles with the roads (`demolish_roads`).
 - Buildings may be placed without a road; the ghost shows yellow ("not
   connected") rather than red, and the warnings panel lists the building
   until a road reaches it. A producer on a road whose collectors are all

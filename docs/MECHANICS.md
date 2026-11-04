@@ -248,8 +248,9 @@ handlers only.
     tiles, free of charge: `move_building` on a planned building
     (placement rules without tier and cost; its own footprint counts as
     free, its planned fields stay), `demolish` (a planned farm goes with
-    its planned fields), `demolish_road` (planned tiles go for free in
-    the same command as real ones), `demolish_fields` (planned fields
+    its planned fields), `demolish_road` and `demolish_roads` (planned
+    tiles go for free in the same command as real ones, §3),
+    `demolish_fields` (planned fields
     of the farm). Demolishing a **real farm** removes its planned
     fields; demolishing the last Trading Post (unsettling) removes the
     island's plans. There is no cap on plans and no automatic or batch
