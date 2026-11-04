@@ -2147,3 +2147,65 @@ timings: 48 / 12 / 85 / 128 · 32 / 68 · 220 / 263 / 397 · 808 / 847 /
 (defaults reproduce the previous output), route editor number fields
 (`keep`, `max`; empty = none / all), almanac Ships page gained a Routes
 chapter.
+
+## D-071 Planning mode: planned placements that are built by hand
+
+- **Status:** accepted (2026-11-04)
+- **Context:** the owner wants to lay out a quarter before he can pay
+  for it — reach rings (D-069), service radii and fields make layout a
+  real decision — and asked for a planning toggle next to the Demolish
+  and Move tools.
+- **Decision:**
+  1. **Planning mode** is a toggle in the build bar. While it is on,
+     every placement — buildings, roads, fields — creates a **plan**
+     instead of a building; off, placements build directly as today.
+     Plans persist across toggling, sessions and devices.
+  2. A plan is a **server-side object on the island** in state
+     `planned`: its footprint is **reserved** (nothing else can be built
+     or moved there), validated at planning time with the full
+     placement rules (terrain, water rows, fertility, deposit, coast,
+     spacing) **except the tier lock** (planning a locked-tier building
+     is allowed) and the cost. It has no cost, upkeep, workforce,
+     production, service or reach, is not a collector, not a road for
+     connectivity, counts for no quest or unlock — invisible to the sim.
+  3. **Building a plan is manual only**: the plan's card offers **Build
+     · Move · Demolish**. Build applies the normal placement command at
+     that instant (cost, tier, typed errors); Move is free with normal
+     validity; Demolish is free. There is no batch build and no
+     automatic build.
+  4. **Roads and fields**: planned road tiles are reserved like
+     buildings; a planned road tile's card covers the connected planned
+     segment ("Planned road · N tiles", Build · Demolish). A planned farm
+     carries planned fields, built together with it; fields painted on a
+     real farm in planning mode are planned fields built from the farm's
+     card. A real road placed over a planned road replaces the plan.
+     Demolishing a real farm removes its planned fields; the Demolish
+     tool removes plans it is dragged over.
+  5. **Look**: the ghost material (translucent, untinted) with a thin
+     gold footprint outline; no stage, smoke, badge or life-layer
+     figures; not drawn in the far mesh or far road layer. The card
+     shows the cost in build-menu format (unaffordable parts red, fields
+     included for a farm) and the reason Build would fail. A selected
+     planned collector or service building shows its gold reach /
+     radius ring; plans never count in ghost hints.
+  6. Trading Posts (founding) and hub levels cannot be planned. No cap
+     on the number of plans.
+- **Why:** layout is the game's core decision and should be possible
+  before the resources are there; manual build keeps the economy under
+  the player's hand — an automatic build-when-affordable would spend
+  gold and materials while the player is away, exactly where D-008 /
+  D-009 want the world to stall, not to act.
+- **Consequences:** sim schema bump (planned state for buildings,
+  roads, fields), commands (plan / build / move / demolish plan or a
+  `planned` flag on the existing ones — session's choice, documented in
+  MECHANICS), footprint reservation in every placement check, display
+  payload `planned: true`, openapi; client toggle, ghost look, plan
+  cards, planned road segment card, rings on selected plans; snapshots
+  and dev fixtures carry plans; D-067 plans unaffected (they never
+  plan). MECHANICS §Placement, UI.md tools and cards, almanac note.
+- **Rejected:** client-only sketches in local storage (lost across
+  devices, no footprint reservation); automatic build-when-affordable
+  or a batch "build all affordable" button (gold and material drain
+  while away, and the only piece that would have needed scheduled
+  events); free sketches without reservation (two plans or a plan and
+  a building overlapping).
