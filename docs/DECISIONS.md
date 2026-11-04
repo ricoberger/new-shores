@@ -2210,6 +2210,23 @@ chapter.
   events); free sketches without reservation (two plans or a plan and
   a building overlapping).
 
+*As built (#70):* plans are created by the existing placement commands
+with `planned: true` (`place_building`, `place_road`, `place_fields`);
+`build_plan {island_id, building_id | x, y}` builds a planned building
+(a planned farm with its planned fields, a real farm's planned fields)
+or the connected planned road segment through a tile; Move and Demolish
+use the normal commands on the plan (free). `demolish_roads` is a new
+batch command (≤ 512 tiles, per-tile result, 50 % refund per tile) for
+the Demolish rectangle, which removes roads, fields and plans but never
+a building. Sim schema 15 (no-op migration), content unchanged. The
+payload lists `plans` and `planned_roads` apart from buildings, each
+buildable unit with its `plan_cost` and the first reason Build would
+fail. Public buildings and the market show their gold radius ring on
+ghost and selection (hidden at far zoom); the Move tool picks the farm
+from a field. Golden fixtures include "advancement with plans equals
+without" and `roads_demolish_rect`. Far budget unchanged (15 draws /
+211 k triangles, no plan layer in the far mesh).
+
 ## D-072 Anno 117 island sizes, a one-island camera cap, Anno 117 service radii, coastal massifs and wider rivers
 
 - **Status:** accepted (2026-11-04)
@@ -2250,11 +2267,17 @@ chapter.
      scales with it: Trading Post 24 / 28 / 32 / 36, Warehouse 18 / 21 /
      24 / 27. All provisional; the D-067 plan replay tunes costs and
      reach, radii stay as listed unless a plan proves one wrong.
-  4. **Coastal massifs**: the mountain ridge (D-058 §2) runs along one
-     side of the island as a massif with cliffs to the sea on its outer
-     flank; the interior is one connected plain. Rivers rise in the
-     massif and reach a bay on the far side. Deposits stay on the
-     mountain edge; ≥ 2 Trading Post sites per habitable island hold.
+  4. **Rim massifs**: the mountain ridge (D-058 §2) becomes **2–4
+     compact massifs around the rim** of a large island (1–2 medium,
+     0–1 small), on different sides, one dominant; cliffs to the sea on
+     the outer flank, a gentle foot inland; the **interior is one
+     connected plain**, no massif crosses it, and the coast between
+     massifs is beach. Rivers rise in a massif and cross the plain to a
+     bay on another side (where the bridges matter). Deposit slots are
+     spread over the massifs. Generator heights rise from 1–4 to
+     **1–6** (large), 1–5 (medium), 1–3 (small) at the client's 8 steps
+     per level, so peaks reach ≈ 6 tiles; mountain share of land stays
+     10–19 %; ≥ 2 Trading Post sites per habitable island hold.
   5. **Rivers 2 tiles wide** (3 at the mouth; was 1 / 2); bridges span
      the width (a 2-tile arched bridge model; a road tile per river
      tile as today); small islands keep no rivers.

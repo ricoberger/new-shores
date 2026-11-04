@@ -7,15 +7,16 @@ and D-070 (route unload limits and keep-minimum) recorded; polish 5
 (#68) and the D-069 / D-070 implementation (#69: collector reach,
 hub upkeep, population-only unlocks, pier / depot at Merchants,
 tier-gated Trading Post levels, route unload limits and keep, deposit
-markers, move tool) merged; D-071 planning mode (running) and D-072 Anno 117 island
-sizes / camera cap / service radii recorded; next the D-072 server and
-client sessions.
+markers, move tool) and #70 (D-071 planning mode: planned buildings,
+roads and fields built by hand, gold radius rings, Demolish rectangle
+for roads) merged; D-072 Anno 117 island sizes / camera cap / service
+radii recorded; next the D-072 server and client sessions.
 
 ## What exists
 
 | Area | State | Where |
 |---|---|---|
-| Simulation (pure Go, lazy, deterministic) | tiers 1–4 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename, batch field placement, terrain table, ship names, weighted need shares with cumulative tiers and a services category, building levels (`upgrade_building`), recipe input alternatives, upgrade gate ≥ 0.6, founding cargo exempt from slots, berths spaced by ship length, tier 3–4 deposits (one gold slot per archipelago), shared fields (`farm` list), `ship_count.type` quests, D-058 skeleton islands with terrace levels, rivers, islets, cliffs and skerries, sea routing on a 4-tile grid (`path` per leg, routed founding voyage); D-069 collector reach (Euclidean per level, building footprint only, `no_collector_in_reach` stall), per-level hub upkeep, population-only unlocks, tier-gated Trading Post and warehouse levels; D-070 route `unload[].max_amount` / `load[].keep`; schema 14 | `server/internal/sim`, MECHANICS.md |
+| Simulation (pure Go, lazy, deterministic) | tiers 1–4 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename, batch field placement, terrain table, ship names, weighted need shares with cumulative tiers and a services category, building levels (`upgrade_building`), recipe input alternatives, upgrade gate ≥ 0.6, founding cargo exempt from slots, berths spaced by ship length, tier 3–4 deposits (one gold slot per archipelago), shared fields (`farm` list), `ship_count.type` quests, D-058 skeleton islands with terrace levels, rivers, islets, cliffs and skerries, sea routing on a 4-tile grid (`path` per leg, routed founding voyage); D-069 collector reach (Euclidean per level, building footprint only, `no_collector_in_reach` stall), per-level hub upkeep, population-only unlocks, tier-gated Trading Post and warehouse levels; D-070 route `unload[].max_amount` / `load[].keep`; D-071 plans (planned buildings, roads and fields reserved but invisible to the sim, `build_plan`, `demolish_roads`); schema 15 | `server/internal/sim`, MECHANICS.md |
 | Content | `old_coast` 0.18.0: D-054 footprints/costs/fields, D-056 need model (shares 1.0 lone / 0.6, cumulative lower-tier rates), D-065 ranked service chains (faith chapel/church/cathedral, education school/university, culture tavern/playhouse; minimum rank per tier) with `goods` / `public` display groups, tiers 1–4 complete with two alternatives per category from tier 2 (Citizens bread/cheese, cider/mead, linen/leather_jerkins; Merchants sausages/pies, beer/brandy, coats/dyed_garments, books/soap; Patricians roast_beef/oysters, wine/grain_spirit, fine_garments/lace, candles/spectacles, jewellery/instruments), salt / bricks / coal / glass, 100 buildings, market and warehouse with four tier-gated levels (own models per level since #66), civic needs safety/fire protection (Merchants) and health (Patricians) with one radius each, lumberjack with tree plots, quay (Citizens) / trading pier 6×9 and depot (Merchants, D-069), playhouse (theatre retired), Anno-sized footprints with per-column `water_rows` (D-062/D-063), islands 192/112/64/16 + `scenic` skerries (spacing 50/120, straits ≥ 24, void ≤ 150) with iron/clay/salt/coal/quartz/copper/gold deposits, `smoke`/`boat` flags, sloop 1.2 (2 slots) / brig 1.0 / galleon 0.85, 12 intro + 5 + 6 + 6 tier quests; reference games generated from plans (D-067, `server/testdata/plans`, `replay-plan`): 48/12/85/128 · 32/68 · 220/263/397 · 808/847/1078 (D-069 numbers: TP throughput 20/40/60/80, reach 20/24/28/32, upkeep 0/10/20/30; warehouse 20/35/50/65, reach 14/17/20/23, upkeep 1/10/15/25; market upkeep 0/10/20/30; unlocks 120 Settlers / 360 Citizens / 1 200 Merchants) | `content/old_coast`, CONTENT.md |
 | Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store, `--fixture` / `--snapshot` start state, `GET/POST /api/v1/dev/snapshot` and `POST /api/v1/dev/reset` (tooling routes, D-066) | `server/internal/*`, ARCHITECTURE.md |
 | Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA; `make shots` / `make model-sheet` for looking at the result (no e2e/visual/perf suites, D-052); **Almanac** — public reference at `/almanac` (tiers, buildings, goods with chain trees, needs, ships, quests, islands) generated from the served content, UI.md §9; terraced voxel terrain with rivers, bridges, cliffs, crags and skerries, route ribbons and ship legs along the routed paths (D-058); goods shown in tonnes (`t`, `t/min`), currency as the word gold; build menu with tier tabs (locked tiers show their unlock conditions) and cards grouped General / Production (chain order) / Public / Harbour with icon costs (unaffordable parts red) and in → out lines; placement ghosts tint the buildings they would link with (display hint, server `served_by` / `assigned_warehouse_id` once built); producers ↔ collector selection tint (#65); polish 5 (#68): market under Public, road drag ghost, plain road surfaces, paved roads replace dirt roads in place (sim rule, 50 % refund), deposit tiles tinted + far-label icon while a mine / quarry tool is active, house and hub upgrade cost lines in build-menu format, one cart with a driver per producer, cows / pigs in pastures and pens (`life_cow`, `life_pig`), terrace fill in the footprint's ground colour, **US English** source with a spelling test (`i18n/spelling.test.ts`; keys and content IDs keep their spelling); D-069 / D-070 (#69): exact ghost tint by reach, gold reach ring on the selected collector and its ghost, reach / upkeep on cards and in the almanac, lock reason on hub upgrades, route editor `keep` / `max` fields, almanac Routes chapter, deposit marker badges, **move tool** in the build bar, terrace fill walls in earth tone | `client/`, UI.md |
@@ -110,17 +111,14 @@ in the sync after a task unless the task says otherwise; nobody adds the
      ~~polish 5~~ (#68: market under Public, road ghost, plain road
      surfaces, paved replaces dirt, deposit highlight, upgrade cost
      lines, cart with driver, animals in pens, terrace fill, US
-     English) merged; ~~D-069 / D-070~~ (#69) merged → **next: D-071
-     planning mode** (planned placements, manual Build / Move /
-     Demolish, running) with the **polish items** (gold radius ring for
-     public buildings and the market on selection and ghost, hidden at
-     far zoom; move tool picks a farm when a field is clicked) → **D-072**
-     in two sessions: server (Anno 117 island areas 31.6 k / 13.4 k /
-     5.9 k, coastal massifs, 2-tile rivers, radii / reach / costs, plans
-     and fixtures regenerated) then client (camera cap 80, far budget
-     re-measured, first frame, 2-tile bridges) (reach + throughput + upkeep + unlocks + harbour tiers
-     with the plan replay; route `max_amount` on unload and `keep`;
-     hub card lock reason). Open small items — art: playhouse /
+     English) merged; ~~D-069 / D-070~~ (#69) merged; ~~D-071 planning
+     mode~~ (#70: plans via `planned: true`, `build_plan`,
+     `demolish_roads`, gold radius rings, move picks the farm from a
+     field, schema 15) merged → **next: D-072** in two sessions:
+     server (Anno 117 island areas 31.6 k / 13.4 k / 5.9 k, 2–4 rim
+     massifs with heights to 6, 2-tile rivers, radii / reach / costs,
+     plans and fixtures regenerated) then client (camera cap 80, far
+     budget re-measured, first frame, 2-tile bridges). Open small items — art: playhouse /
      university / cathedral / shipyard / depot / trading pier still at
      8 voxels/tile (folder room: 0.47 MiB — needs a variant dropped or
      harder quantisation), beach a touch loud, terracotta share check
@@ -129,12 +127,12 @@ in the sync after a task unless the task says otherwise; nobody adds the
      a cliff), deposit markers as floating icons above the tiles while
      the tool is active ~~(done in #69)~~, field crops vary per voxel
      only; balance: tier-1/2 gold margin is thin (hub level-1 upkeep
-     had to stay 0 / 1 for the plans to pass)
-     (one model per field type); UI: dash only the unrouted draft legs,
+     had to stay 0 / 1 for the plans to pass); UI: dash only the unrouted draft legs,
      toast click → build menu, `?stats=1` per-model voxel density,
      build-menu nits (dangling `· →` on cards without inputs, Market's
      own icon on its second line), `$` fallback glyph for
-     `paused_unpaid` in `display/status.ts`.
+     `paused_unpaid` in `display/status.ts`, planned yard buildings
+     already show their yard plate (paint the yard only once built?).
      ~~Long house cards, size row, population popup wrap, berth queue,
      producer list cap, top-tier upgrade button~~ fixed in #65.
    - ~~Quantised GLB export~~ done (V3b/c, #42): 12.9 MB, ≈ 32
