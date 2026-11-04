@@ -2096,6 +2096,28 @@ tris on desktop and desktop-xl.
   "≥ 1 resident of the tier" as the hub-level gate (equivalent to the
   unlock archipelago-wide, wrong per island); house upkeep.
 
+**As built** (#69, 2026-11-04): content `old_coast-0.18.0`, sim schema
+14. Final numbers after the plan replay: Trading Post throughput
+20 / 40 / 60 / 80, reach 20 / 24 / 28 / 32, upkeep 0 / 10 / 20 / 30;
+Warehouse throughput 20 / 35 / 50 / 65, reach 14 / 17 / 20 / 23,
+upkeep **1** / 10 / 15 / 25; Market upkeep **0** / 10 / 20 / 30. Three
+deviations from the decision's provisional numbers, all forced by the
+reference games (targets were not relaxed): market level 1 upkeep 0
+(any upkeep soft-locks the Citizens game), warehouse level 1 upkeep 1
+(5 or 2 failed the Merchants game), warehouse level 1 reach 14 (17 let
+the Citizens Trading Post load fall below its target) — the tier-1/2
+gold margin is thin and is a balance-pass candidate. Assignment and the
+`no_collector_in_reach` stall as decided; the plan generator gained a
+reach-aware warehouse placement mode (a warehouse follows a remote
+producer). **Trading Post levels are tier-gated like the warehouse**
+(level 2 Citizens, 3 Merchants, 4 Patricians; `tier` on the level,
+`ErrTierLocked`) — the ungated level 4 was bought at minute 720 in the
+Patricians plan and its upkeep slowed the game by 23 minutes. Reach
+ring (gold, like all rings) on the selected collector and its ghost,
+exact ghost tint, reach and upkeep on cards and in the almanac. Plan
+timings: 48 / 12 / 85 / 128 · 32 / 68 · 220 / 263 / 397 · 808 / 847 /
+1078, all within target.
+
 ## D-070 Route stops: unload limits and a keep-minimum when loading
 
 - **Status:** accepted (2026-11-03)
@@ -2119,3 +2141,9 @@ tris on desktop and desktop-xl.
 - **Rejected:** per-good island reserves outside routes (a second place
   for the same setting); percentage-based keep (tonnes are what the
   player sees everywhere).
+
+**As built** (#69, 2026-11-04): as decided; `unload[].max_amount` and
+`load[].keep` in the route schema and openapi, golden `route_limits`
+(defaults reproduce the previous output), route editor number fields
+(`keep`, `max`; empty = none / all), almanac Ships page gained a Routes
+chapter.
