@@ -62,7 +62,8 @@ export type FillKind = Exclude<GroundKind, "none"> | "grass";
 export const FILL_KINDS: readonly FillKind[] = ["grass", "paved", "dirt", "sand", "planks"];
 /** The edge course of a terrace fill: dressed stone (the old plinths' stone). */
 export const EDGE_STONE = c3(BUILDINGS.stone);
-const GRASS_WALL = Color3.Lerp(c3(TERRAIN.grass_a), c3(TERRAIN.forest_floor), 0.45);
+/** The terrace earth (voxelterrain.ts EARTH): the walls of every fill, whatever its top. */
+const FILL_EARTH = Color3.Lerp(c3(TERRAIN.road_dirt), c3(ISLAND.rock_deep), 0.3);
 
 /** The top colour (packed) of a fill column (i, j) of a kind; `grass` is the island's grass colour there. */
 export function fillTop(kind: FillKind, i: number, j: number, seed: number, grass: Color3): number {
@@ -81,10 +82,13 @@ export function fillTop(kind: FillKind, i: number, j: number, seed: number, gras
   }
 }
 
-/** The wall colour of a fill's course z (steps) under its edge course: the ground a shade darker, every other course darker still. */
-export function fillSide(kind: FillKind, z: number): Color3 {
-  const c = kind === "paved" ? PAVED : kind === "dirt" ? DIRT : kind === "sand" ? SAND : kind === "planks" ? PLANKS : GRASS_WALL;
-  return c.scale(z % 2 === 0 ? 0.78 : 0.86);
+/**
+ * The wall colour of a fill's course z (steps) under its edge course: the
+ * natural terrace earth, every other course a shade darker (green walls
+ * read as a cliff); only the top takes the yard or grass colour.
+ */
+export function fillSide(z: number): Color3 {
+  return FILL_EARTH.scale(z % 2 === 0 ? 0.9 : 1);
 }
 
 /** A yard tile on the island: its kind (never "none"). */
