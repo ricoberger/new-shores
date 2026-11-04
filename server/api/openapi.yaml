@@ -2940,11 +2940,12 @@ components:
           description: Empty when not paused.
         status:
           type: string
-          enum: [paused, not_connected, warehouse_full, input_starved, throttled, short_of_workers, low_efficiency, not_adjacent, ok]
+          enum: [paused, not_connected, no_collector_in_reach, warehouse_full, input_starved, throttled, short_of_workers, low_efficiency, not_adjacent, ok]
           description: |
             Primary status (MECHANICS §14). `not_adjacent`: a field whose
             chain to its farm is broken (inactive; fields are otherwise
-            `ok`).
+            `ok`). `no_collector_in_reach`: a producer on a road to a
+            collector, none of which reaches it (D-069; stalled).
         efficiency_permille:
           type: integer
           format: int64
@@ -3652,7 +3653,7 @@ components:
               items:
                 type: object
                 additionalProperties: false
-                required: [capacity, throughput_per_min, berths]
+                required: [capacity, throughput_per_min, reach, upkeep_per_min, berths]
                 properties:
                   capacity:
                     type: integer
@@ -3662,6 +3663,13 @@ components:
                     type: integer
                     format: int64
                     description: Collector throughput (milli-units per minute).
+                  reach:
+                    type: integer
+                    description: Collector reach (tiles, D-069; 0 = no limit).
+                  upkeep_per_min:
+                    type: integer
+                    format: int64
+                    description: Upkeep at this level (milli-gold per minute, D-069).
                   berths:
                     type: integer
                     description: Ships that can load or unload at once (count).
@@ -3697,12 +3705,19 @@ components:
               items:
                 type: object
                 additionalProperties: false
-                required: [throughput_per_min]
+                required: [throughput_per_min, reach, upkeep_per_min]
                 properties:
                   throughput_per_min:
                     type: integer
                     format: int64
                     description: Collector throughput (milli-units per minute).
+                  reach:
+                    type: integer
+                    description: Collector reach (tiles, D-069; 0 = no limit).
+                  upkeep_per_min:
+                    type: integer
+                    format: int64
+                    description: Upkeep at this level (milli-gold per minute, D-069).
                   tier:
                     type: string
                     description: Tier that must be unlocked to upgrade into this level (D-065).
@@ -3782,11 +3797,15 @@ components:
               items:
                 type: object
                 additionalProperties: false
-                required: [radius]
+                required: [radius, upkeep_per_min]
                 properties:
                   radius:
                     type: integer
                     description: Service radius (tiles).
+                  upkeep_per_min:
+                    type: integer
+                    format: int64
+                    description: Upkeep at this level (milli-gold per minute, D-069).
                   tier:
                     type: string
                     description: Tier that must be unlocked to upgrade into this level.

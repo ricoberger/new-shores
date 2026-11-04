@@ -1991,10 +1991,11 @@ export interface components {
             /**
              * @description Primary status (MECHANICS §14). `not_adjacent`: a field whose
              *     chain to its farm is broken (inactive; fields are otherwise
-             *     `ok`).
+             *     `ok`). `no_collector_in_reach`: a producer on a road to a
+             *     collector, none of which reaches it (D-069; stalled).
              * @enum {string}
              */
-            status: "paused" | "not_connected" | "warehouse_full" | "input_starved" | "throttled" | "short_of_workers" | "low_efficiency" | "not_adjacent" | "ok";
+            status: "paused" | "not_connected" | "no_collector_in_reach" | "warehouse_full" | "input_starved" | "throttled" | "short_of_workers" | "low_efficiency" | "not_adjacent" | "ok";
             /**
              * Format: int64
              * @description Work-area efficiency (permille; 1000 without work area). For a
@@ -2496,6 +2497,13 @@ export interface components {
                      * @description Collector throughput (milli-units per minute).
                      */
                     throughput_per_min: number;
+                    /** @description Collector reach (tiles, D-069; 0 = no limit). */
+                    reach: number;
+                    /**
+                     * Format: int64
+                     * @description Upkeep at this level (milli-gold per minute, D-069).
+                     */
+                    upkeep_per_min: number;
                     /** @description Ships that can load or unload at once (count). */
                     berths: number;
                     /**
@@ -2524,6 +2532,13 @@ export interface components {
                      * @description Collector throughput (milli-units per minute).
                      */
                     throughput_per_min: number;
+                    /** @description Collector reach (tiles, D-069; 0 = no limit). */
+                    reach: number;
+                    /**
+                     * Format: int64
+                     * @description Upkeep at this level (milli-gold per minute, D-069).
+                     */
+                    upkeep_per_min: number;
                     /** @description Tier that must be unlocked to upgrade into this level (D-065). */
                     tier?: string;
                     /**
@@ -2580,6 +2595,11 @@ export interface components {
                 levels: {
                     /** @description Service radius (tiles). */
                     radius: number;
+                    /**
+                     * Format: int64
+                     * @description Upkeep at this level (milli-gold per minute, D-069).
+                     */
+                    upkeep_per_min: number;
                     /** @description Tier that must be unlocked to upgrade into this level. */
                     tier?: string;
                     /**

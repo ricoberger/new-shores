@@ -285,7 +285,11 @@ UI shows the same numbers the server uses.
   no confirmation. Roads cannot be moved.
 - Buildings may be placed without a road; the ghost shows yellow ("not
   connected") rather than red, and the warnings panel lists the building
-  until a road reaches it. The ghost is red with the reason for the
+  until a road reaches it. A producer on a road whose collectors are all
+  too far (D-069) shows "Out of reach" (status `no_collector_in_reach`:
+  the not-connected colour with its own distance icon) and the warnings
+  panel lists it as "Out of reach of any warehouse" with the fix "Build a
+  Warehouse nearby or upgrade the Trading Post or a Warehouse". The ghost is red with the reason for the
   server-side hard failures the client can know from content and island
   data without rules: missing fertility tag, no deposit under the
   footprint, locked tier, upgrade-only house.
