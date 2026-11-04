@@ -1903,7 +1903,9 @@
             "island_id": "start",
             "load": [],
             "unload": [
-              "tools"
+              {
+                "good": "tools"
+              }
             ]
           }
         ],
@@ -3919,7 +3921,9 @@
                 "island_id": "start",
                 "load": [],
                 "unload": [
-                  "tools"
+                  {
+                    "good": "tools"
+                  }
                 ]
               }
             ],
@@ -5935,7 +5939,9 @@
                 "island_id": "start",
                 "load": [],
                 "unload": [
-                  "tools"
+                  {
+                    "good": "tools"
+                  }
                 ]
               }
             ],
@@ -7951,7 +7957,9 @@
                 "island_id": "start",
                 "load": [],
                 "unload": [
-                  "tools"
+                  {
+                    "good": "tools"
+                  }
                 ]
               }
             ],
@@ -9967,7 +9975,9 @@
                 "island_id": "start",
                 "load": [],
                 "unload": [
-                  "tools"
+                  {
+                    "good": "tools"
+                  }
                 ]
               }
             ],

@@ -10,11 +10,11 @@ export type Selection =
   | { kind: "ship"; id: number }
   | { kind: "island"; id: string };
 
-/** Editable stop of a route draft (amounts in whole units). */
+/** Editable stop of a route draft (amounts in whole units; keep and the unload max are optional, D-070). */
 export interface DraftStop {
   island: string;
-  load: { good: string; max: number }[];
-  unload: string[];
+  load: { good: string; max: number; keep?: number }[];
+  unload: { good: string; max?: number }[];
 }
 
 export interface Draft {

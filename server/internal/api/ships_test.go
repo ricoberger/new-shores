@@ -81,6 +81,14 @@ type displayView struct {
 		Name    string  `json:"name"`
 		ShipIDs []int64 `json:"ship_ids"`
 		LoopMs  int64   `json:"loop_ms"`
+		Stops   []struct {
+			Load []struct {
+				Keep int64 `json:"keep"`
+			} `json:"load"`
+			Unload []struct {
+				MaxAmount *int64 `json:"max_amount"`
+			} `json:"unload"`
+		} `json:"stops"`
 	} `json:"routes"`
 	Islands []struct {
 		ID        string `json:"id"`
@@ -201,8 +209,18 @@ func TestShipCommandsOverHTTP(t *testing.T) {
 	ss.fails(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"trading_post","x":8,"y":0,"rotation":0}`, http.StatusConflict, "island_already_settled")
 	ss.fails(t, `{"type":"demolish","island_id":"start","building_id":1}`, http.StatusConflict, "last_trading_post")
 
-	route := `"stops":[{"island_id":"island2","load":[{"good":"planks","max_amount":10000}],"unload":[]},{"island_id":"start","load":[],"unload":["planks"]}]`
+	route := `"stops":[{"island_id":"island2","load":[{"good":"planks","max_amount":10000}],"unload":[]},{"island_id":"start","load":[],"unload":[{"good":"planks"}]}]`
 	ss.ok(t, `{"type":"create_route","name":"Planks home",`+route+`}`)
+	// D-070 stop limits: keep and unload max_amount >= 0 in whole units;
+	// unload entries are objects.
+	limited := `"stops":[{"island_id":"island2","load":[{"good":"planks","max_amount":10000,"keep":5000}],"unload":[]},{"island_id":"start","load":[],"unload":[{"good":"planks","max_amount":0}]}]`
+	ss.ok(t, `{"type":"update_route","route_id":1,"name":"",`+limited+`}`)
+	if st := ss.view(t).Routes[0].Stops; st[0].Load[0].Keep != 5000 || st[1].Unload[0].MaxAmount == nil || *st[1].Unload[0].MaxAmount != 0 {
+		t.Fatalf("limited stops %+v", st)
+	}
+	ss.fails(t, `{"type":"update_route","route_id":1,"stops":[{"island_id":"island2","load":[{"good":"planks","max_amount":10000,"keep":-1000}],"unload":[]},{"island_id":"start","load":[],"unload":[]}]}`, http.StatusBadRequest, "route_invalid")
+	ss.fails(t, `{"type":"update_route","route_id":1,"stops":[{"island_id":"island2","load":[],"unload":[]},{"island_id":"start","load":[],"unload":[{"good":"planks","max_amount":-1000}]}]}`, http.StatusBadRequest, "route_invalid")
+	ss.failsSpec(t, `{"type":"update_route","route_id":1,"stops":[{"island_id":"island2","load":[],"unload":[]},{"island_id":"start","load":[],"unload":["planks"]}]}`, http.StatusBadRequest, "bad_request", false)
 	ss.ok(t, `{"type":"update_route","route_id":1,"name":"",`+route+`}`)
 	ss.fails(t, `{"type":"unassign_ship","ship_id":1}`, http.StatusConflict, "ship_not_on_route")
 	ss.ok(t, `{"type":"assign_ship","ship_id":1,"route_id":1}`)

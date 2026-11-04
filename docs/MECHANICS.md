@@ -676,14 +676,20 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
 ### 9.2 Routes
 
 ```
-route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}], ships: [...] }
+route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{good, max_amount?}]}], ships: [...] }
 ```
 
 - A route has 2–8 stops; consecutive stops are on different islands
   (`route_invalid`).
-- At a stop: unload listed goods (respecting capacity; remainder stays
-  aboard), then load listed goods **topping up to** `max_amount` per good
-  within slot availability. Handling takes `ship_handling_base_seconds +
+- At a stop: unload listed goods (respecting capacity and the unload
+  rule's optional `max_amount`, the most unloaded per visit; remainder
+  stays aboard), then load listed goods **topping up to** `max_amount`
+  per good from the stock above the load rule's optional `keep`, within
+  slot availability: `load = min(max_amount − aboard, stock − keep, slot
+  room)` (D-070). Both limits are evaluated at `ship_arrived`; absent,
+  `keep` is 0 and the unload is unlimited. `keep` and the unload
+  `max_amount` are whole units ≥ 0, an unload limit only for a good the
+  stop unloads (`route_invalid`). Handling takes `ship_handling_base_seconds +
   ship_handling_seconds_per_unit × units moved` (provisional 10 s +
   0.2 s/unit) and needs a free **berth** (§9.3).
 - A ship is `{routeId, stopIndex, legDepartAt, legArriveAt, cargo}`; its
@@ -708,12 +714,13 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   a virtual hold `H` = the smallest `slots × slot_size` among the assigned
   ships (or among all ship types when none is assigned); for every good
   that appears in a load rule, walk the stops twice from stop 0 with
-  `aboard = 0` — at each stop unload first (the island gains `aboard`,
-  `aboard = 0` if the good is in `unload`), then load (`delta = max(0,
+  `aboard = 0` — at each stop unload first (if the good is in `unload`
+  the island gains `u = min(aboard, unload max_amount)` and `aboard −=
+  u`), then load (`delta = max(0,
   min(max_amount, H) − aboard)`; the island loses `delta`); the second
   pass's per-island sums are `per_loop`; `per_min = per_loop ×
   assigned_ships × 60 000 / loop_ms` (0 without ships). Stock availability
-  and cross-good slot competition are ignored, so the UI labels the values
+  (and so `keep`) and cross-good slot competition are ignored, so the UI labels the values
   "estimated". This is a derived display field, never used by rules.
 - Manual shipment = a one-off two-stop leg from the ship's island to a
   target island with an explicit cargo list taken from the island

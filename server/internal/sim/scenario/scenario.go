@@ -211,11 +211,14 @@ type RouteStep struct {
 }
 
 // RouteStopSpec is a route stop; Load maps goods to the maximum aboard in
-// units.
+// units, Keep to the stock the stop leaves on the island and UnloadMax to
+// the most unloaded per visit (D-070), all in units.
 type RouteStopSpec struct {
-	Island string                 `json:"island"`
-	Load   map[string]json.Number `json:"load,omitempty"`
-	Unload []string               `json:"unload,omitempty"`
+	Island    string                 `json:"island"`
+	Load      map[string]json.Number `json:"load,omitempty"`
+	Keep      map[string]json.Number `json:"keep,omitempty"`
+	Unload    []string               `json:"unload,omitempty"`
+	UnloadMax map[string]json.Number `json:"unload_max,omitempty"`
 }
 
 // ShipStep addresses a ship (and a route for assign_ship) by sequential ID.
@@ -835,7 +838,28 @@ func (r *runner) stops(specs []RouteStopSpec) ([]sim.Stop, error) {
 			if err != nil {
 				return nil, fmt.Errorf("load %s: %w", g, err)
 			}
-			st.Load = append(st.Load, sim.LoadRule{Good: g, MaxAmount: v})
+			lr := sim.LoadRule{Good: g, MaxAmount: v}
+			if k, ok := sp.Keep[g]; ok {
+				if lr.Keep, err = parseUnits(k); err != nil {
+					return nil, fmt.Errorf("keep %s: %w", g, err)
+				}
+			}
+			st.Load = append(st.Load, lr)
+		}
+		for g := range sp.Keep {
+			if _, ok := sp.Load[g]; !ok {
+				return nil, fmt.Errorf("keep %s: the stop does not load it", g)
+			}
+		}
+		for _, g := range sortedKeys(sp.UnloadMax) {
+			v, err := parseUnits(sp.UnloadMax[g])
+			if err != nil {
+				return nil, fmt.Errorf("unload max %s: %w", g, err)
+			}
+			if st.UnloadMax == nil {
+				st.UnloadMax = map[string]sim.Qty{}
+			}
+			st.UnloadMax[g] = v
 		}
 		out = append(out, st)
 	}

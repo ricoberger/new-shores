@@ -175,12 +175,18 @@ type shipJSON struct {
 type loadRuleJSON struct {
 	Good      *string `json:"good"`
 	MaxAmount *int64  `json:"max_amount"`
+	Keep      *int64  `json:"keep"`
+}
+
+type unloadRuleJSON struct {
+	Good      *string `json:"good"`
+	MaxAmount *int64  `json:"max_amount"`
 }
 
 type routeStopJSON struct {
-	IslandID *string        `json:"island_id"`
-	Load     []loadRuleJSON `json:"load"`
-	Unload   []string       `json:"unload"`
+	IslandID *string          `json:"island_id"`
+	Load     []loadRuleJSON   `json:"load"`
+	Unload   []unloadRuleJSON `json:"unload"`
 }
 
 type routeJSON struct {
@@ -707,12 +713,28 @@ func decodeStops(stops []routeStopJSON) ([]sim.Stop, error) {
 		case len(st.Load) > maxStopEntries || len(st.Unload) > maxStopEntries:
 			return nil, fmt.Errorf("%w: stop %d has more than %d load or unload entries", sim.ErrInvalidCommand, i, maxStopEntries)
 		}
-		stop := sim.Stop{IslandID: *st.IslandID, Unload: append([]string(nil), st.Unload...)}
+		stop := sim.Stop{IslandID: *st.IslandID}
+		for j, u := range st.Unload {
+			if u.Good == nil {
+				return nil, fmt.Errorf("%w: stop %d unload %d needs good", sim.ErrInvalidCommand, i, j)
+			}
+			stop.Unload = append(stop.Unload, *u.Good)
+			if u.MaxAmount != nil {
+				if stop.UnloadMax == nil {
+					stop.UnloadMax = map[string]sim.Qty{}
+				}
+				stop.UnloadMax[*u.Good] = *u.MaxAmount
+			}
+		}
 		for j, lr := range st.Load {
 			if lr.Good == nil || lr.MaxAmount == nil {
 				return nil, fmt.Errorf("%w: stop %d load %d needs good and max_amount", sim.ErrInvalidCommand, i, j)
 			}
-			stop.Load = append(stop.Load, sim.LoadRule{Good: *lr.Good, MaxAmount: *lr.MaxAmount})
+			rule := sim.LoadRule{Good: *lr.Good, MaxAmount: *lr.MaxAmount}
+			if lr.Keep != nil {
+				rule.Keep = *lr.Keep
+			}
+			stop.Load = append(stop.Load, rule)
 		}
 		out = append(out, stop)
 	}

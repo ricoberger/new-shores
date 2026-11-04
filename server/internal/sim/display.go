@@ -222,15 +222,24 @@ type RouteEffectDisplay struct {
 
 // RouteStopDisplay is one stop of a route.
 type RouteStopDisplay struct {
-	IslandID string            `json:"island_id"`
-	Load     []LoadRuleDisplay `json:"load"`
-	Unload   []string          `json:"unload"`
+	IslandID string              `json:"island_id"`
+	Load     []LoadRuleDisplay   `json:"load"`
+	Unload   []UnloadRuleDisplay `json:"unload"`
 }
 
-// LoadRuleDisplay loads a good until MaxAmount milli-units are aboard.
+// LoadRuleDisplay loads a good until MaxAmount milli-units are aboard,
+// only from the stock above Keep (D-070).
 type LoadRuleDisplay struct {
 	Good      string `json:"good"`
 	MaxAmount Qty    `json:"max_amount"`
+	Keep      Qty    `json:"keep,omitempty"`
+}
+
+// UnloadRuleDisplay unloads a good, at most MaxAmount milli-units per
+// visit when set (D-070).
+type UnloadRuleDisplay struct {
+	Good      string `json:"good"`
+	MaxAmount *Qty   `json:"max_amount,omitempty"`
 }
 
 // PositionDisplay is an archipelago position in tiles.
@@ -716,7 +725,14 @@ func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
 		}
 	}
 	for _, st := range r.Stops {
-		sd := RouteStopDisplay{IslandID: st.IslandID, Load: []LoadRuleDisplay{}, Unload: append([]string{}, st.Unload...)}
+		sd := RouteStopDisplay{IslandID: st.IslandID, Load: []LoadRuleDisplay{}, Unload: []UnloadRuleDisplay{}}
+		for _, g := range st.Unload {
+			u := UnloadRuleDisplay{Good: g}
+			if m, ok := st.UnloadMax[g]; ok {
+				u.MaxAmount = &m
+			}
+			sd.Unload = append(sd.Unload, u)
+		}
 		for _, lr := range st.Load {
 			sd.Load = append(sd.Load, LoadRuleDisplay(lr))
 		}

@@ -2,6 +2,7 @@ package sim
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"strconv"
 	"strings"
@@ -39,12 +40,17 @@ type Stop struct {
 	Load     []LoadRule `json:"load,omitempty"`
 	// Unload lists the goods unloaded at the stop.
 	Unload []string `json:"unload,omitempty"`
+	// UnloadMax caps the milli-units of an unloaded good per visit
+	// (D-070); a good without an entry unloads all it can.
+	UnloadMax map[string]Qty `json:"unload_max,omitempty"`
 }
 
-// LoadRule loads Good until MaxAmount milli-units are aboard.
+// LoadRule loads Good until MaxAmount milli-units are aboard, only from
+// the island's stock above Keep milli-units (D-070; 0: all of it).
 type LoadRule struct {
 	Good      string `json:"good"`
 	MaxAmount Qty    `json:"max_amount"`
+	Keep      Qty    `json:"keep,omitempty"`
 }
 
 func (r *Route) clone() *Route {
@@ -65,6 +71,9 @@ func cloneStops(stops []Stop) []Stop {
 		}
 		if s.Unload != nil {
 			out[i].Unload = append([]string(nil), s.Unload...)
+		}
+		if s.UnloadMax != nil {
+			out[i].UnloadMax = maps.Clone(s.UnloadMax)
 		}
 	}
 	return out
@@ -143,6 +152,8 @@ func validateRoute(w *World, c *content.Catalogue, name string, stops []Stop) er
 				return invalid("stop %d: %s loaded twice", i, lr.Good)
 			case lr.MaxAmount <= 0 || lr.MaxAmount%content.MilliPerUnit != 0:
 				return invalid("stop %d: max amount of %s must be a whole number of units > 0", i, lr.Good)
+			case lr.Keep < 0 || lr.Keep%content.MilliPerUnit != 0:
+				return invalid("stop %d: keep of %s must be a whole number of units >= 0", i, lr.Good)
 			}
 			loads[lr.Good] = true
 		}
@@ -157,6 +168,14 @@ func validateRoute(w *World, c *content.Catalogue, name string, stops []Stop) er
 				return invalid("stop %d: %s is both loaded and unloaded", i, g)
 			}
 			unloads[g] = true
+		}
+		for g, m := range st.UnloadMax {
+			switch {
+			case !unloads[g]:
+				return invalid("stop %d: unload limit for %q, which the stop does not unload", i, g)
+			case m < 0 || m%content.MilliPerUnit != 0:
+				return invalid("stop %d: unload max amount of %s must be a whole number of units >= 0", i, g)
+			}
 		}
 	}
 	return nil
@@ -307,7 +326,11 @@ func routeEffects(r *Route, hold Qty) []routeEffect {
 			for _, st := range r.Stops {
 				var delta Qty
 				if slices.Contains(st.Unload, g) {
-					delta, aboard = aboard, 0
+					delta = aboard
+					if m, ok := st.UnloadMax[g]; ok {
+						delta = min(delta, m)
+					}
+					aboard -= delta
 				}
 				for _, lr := range st.Load {
 					if lr.Good == g {

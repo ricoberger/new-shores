@@ -99580,10 +99580,18 @@
             "island_id": "isle-01",
             "load": [],
             "unload": [
-              "hops",
-              "tools",
-              "iron",
-              "stone"
+              {
+                "good": "hops"
+              },
+              {
+                "good": "tools"
+              },
+              {
+                "good": "iron"
+              },
+              {
+                "good": "stone"
+              }
             ]
           },
           {
@@ -99662,10 +99670,18 @@
             "island_id": "isle-01",
             "load": [],
             "unload": [
-              "bricks",
-              "stone",
-              "planks",
-              "wool_garments"
+              {
+                "good": "bricks"
+              },
+              {
+                "good": "stone"
+              },
+              {
+                "good": "planks"
+              },
+              {
+                "good": "wool_garments"
+              }
             ]
           },
           {
@@ -99766,13 +99782,27 @@
             "island_id": "isle-01",
             "load": [],
             "unload": [
-              "glass",
-              "brass",
-              "thread",
-              "grapes",
-              "hemp",
-              "stone",
-              "bricks"
+              {
+                "good": "glass"
+              },
+              {
+                "good": "brass"
+              },
+              {
+                "good": "thread"
+              },
+              {
+                "good": "grapes"
+              },
+              {
+                "good": "hemp"
+              },
+              {
+                "good": "stone"
+              },
+              {
+                "good": "bricks"
+              }
             ]
           }
         ],
@@ -99883,8 +99913,12 @@
               }
             ],
             "unload": [
-              "pigs",
-              "milk"
+              {
+                "good": "pigs"
+              },
+              {
+                "good": "milk"
+              }
             ]
           },
           {
@@ -99900,7 +99934,9 @@
               }
             ],
             "unload": [
-              "stone"
+              {
+                "good": "stone"
+              }
             ]
           }
         ],
@@ -100019,11 +100055,21 @@
             "island_id": "isle-01",
             "load": [],
             "unload": [
-              "pigs",
-              "salt",
-              "milk",
-              "cattle",
-              "hops"
+              {
+                "good": "pigs"
+              },
+              {
+                "good": "salt"
+              },
+              {
+                "good": "milk"
+              },
+              {
+                "good": "cattle"
+              },
+              {
+                "good": "hops"
+              }
             ]
           }
         ],
@@ -199850,10 +199896,18 @@
                 "island_id": "isle-01",
                 "load": [],
                 "unload": [
-                  "hops",
-                  "tools",
-                  "iron",
-                  "stone"
+                  {
+                    "good": "hops"
+                  },
+                  {
+                    "good": "tools"
+                  },
+                  {
+                    "good": "iron"
+                  },
+                  {
+                    "good": "stone"
+                  }
                 ]
               },
               {
@@ -199932,10 +199986,18 @@
                 "island_id": "isle-01",
                 "load": [],
                 "unload": [
-                  "bricks",
-                  "stone",
-                  "planks",
-                  "wool_garments"
+                  {
+                    "good": "bricks"
+                  },
+                  {
+                    "good": "stone"
+                  },
+                  {
+                    "good": "planks"
+                  },
+                  {
+                    "good": "wool_garments"
+                  }
                 ]
               },
               {
@@ -200036,13 +200098,27 @@
                 "island_id": "isle-01",
                 "load": [],
                 "unload": [
-                  "glass",
-                  "brass",
-                  "thread",
-                  "grapes",
-                  "hemp",
-                  "stone",
-                  "bricks"
+                  {
+                    "good": "glass"
+                  },
+                  {
+                    "good": "brass"
+                  },
+                  {
+                    "good": "thread"
+                  },
+                  {
+                    "good": "grapes"
+                  },
+                  {
+                    "good": "hemp"
+                  },
+                  {
+                    "good": "stone"
+                  },
+                  {
+                    "good": "bricks"
+                  }
                 ]
               }
             ],
@@ -200153,8 +200229,12 @@
                   }
                 ],
                 "unload": [
-                  "pigs",
-                  "milk"
+                  {
+                    "good": "pigs"
+                  },
+                  {
+                    "good": "milk"
+                  }
                 ]
               },
               {
@@ -200170,7 +200250,9 @@
                   }
                 ],
                 "unload": [
-                  "stone"
+                  {
+                    "good": "stone"
+                  }
                 ]
               }
             ],
@@ -200289,11 +200371,21 @@
                 "island_id": "isle-01",
                 "load": [],
                 "unload": [
-                  "pigs",
-                  "salt",
-                  "milk",
-                  "cattle",
-                  "hops"
+                  {
+                    "good": "pigs"
+                  },
+                  {
+                    "good": "salt"
+                  },
+                  {
+                    "good": "milk"
+                  },
+                  {
+                    "good": "cattle"
+                  },
+                  {
+                    "good": "hops"
+                  }
                 ]
               }
             ],

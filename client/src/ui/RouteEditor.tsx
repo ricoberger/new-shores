@@ -91,11 +91,11 @@ export function RouteEditor(p: Props) {
       }),
     ),
     ...st.unload.map(
-      (good, index): GoodRow => ({
+      (u, index): GoodRow => ({
         mode: "unload",
         index,
         key: `unload-${index}`,
-        good,
+        good: u.good,
         max: 0,
       }),
     ),
@@ -113,7 +113,7 @@ export function RouteEditor(p: Props) {
       if (patch.mode === "unload")
         setStop(i, {
           load: st.load.filter((_, k) => k !== r.index),
-          unload: [...st.unload, good],
+          unload: [...st.unload, { good }],
         });
       else
         setStop(i, {
@@ -123,12 +123,12 @@ export function RouteEditor(p: Props) {
     } else if (r.mode === "load") {
       setStop(i, {
         load: st.load.map((x, k) =>
-          k === r.index ? { good, max: patch.max ?? x.max } : x,
+          k === r.index ? { ...x, good, max: patch.max ?? x.max } : x,
         ),
       });
     } else {
       setStop(i, {
-        unload: st.unload.map((x, k) => (k === r.index ? good : x)),
+        unload: st.unload.map((x, k) => (k === r.index ? { ...x, good } : x)),
       });
     }
   };

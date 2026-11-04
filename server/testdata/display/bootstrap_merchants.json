@@ -32909,10 +32909,18 @@
             "island_id": "isle-01",
             "load": [],
             "unload": [
-              "tools",
-              "hops",
-              "planks",
-              "stone"
+              {
+                "good": "tools"
+              },
+              {
+                "good": "hops"
+              },
+              {
+                "good": "planks"
+              },
+              {
+                "good": "stone"
+              }
             ]
           },
           {
@@ -32996,8 +33004,12 @@
               }
             ],
             "unload": [
-              "bricks",
-              "stone"
+              {
+                "good": "bricks"
+              },
+              {
+                "good": "stone"
+              }
             ]
           },
           {
@@ -33013,7 +33025,9 @@
               }
             ],
             "unload": [
-              "wool_garments"
+              {
+                "good": "wool_garments"
+              }
             ]
           }
         ],
@@ -66145,10 +66159,18 @@
                 "island_id": "isle-01",
                 "load": [],
                 "unload": [
-                  "tools",
-                  "hops",
-                  "planks",
-                  "stone"
+                  {
+                    "good": "tools"
+                  },
+                  {
+                    "good": "hops"
+                  },
+                  {
+                    "good": "planks"
+                  },
+                  {
+                    "good": "stone"
+                  }
                 ]
               },
               {
@@ -66232,8 +66254,12 @@
                   }
                 ],
                 "unload": [
-                  "bricks",
-                  "stone"
+                  {
+                    "good": "bricks"
+                  },
+                  {
+                    "good": "stone"
+                  }
                 ]
               },
               {
@@ -66249,7 +66275,9 @@
                   }
                 ],
                 "unload": [
-                  "wool_garments"
+                  {
+                    "good": "wool_garments"
+                  }
                 ]
               }
             ],
@@ -99381,10 +99409,18 @@
                 "island_id": "isle-01",
                 "load": [],
                 "unload": [
-                  "tools",
-                  "hops",
-                  "planks",
-                  "stone"
+                  {
+                    "good": "tools"
+                  },
+                  {
+                    "good": "hops"
+                  },
+                  {
+                    "good": "planks"
+                  },
+                  {
+                    "good": "stone"
+                  }
                 ]
               },
               {
@@ -99468,8 +99504,12 @@
                   }
                 ],
                 "unload": [
-                  "bricks",
-                  "stone"
+                  {
+                    "good": "bricks"
+                  },
+                  {
+                    "good": "stone"
+                  }
                 ]
               },
               {
@@ -99485,7 +99525,9 @@
                   }
                 ],
                 "unload": [
-                  "wool_garments"
+                  {
+                    "good": "wool_garments"
+                  }
                 ]
               }
             ],
@@ -132617,10 +132659,18 @@
                 "island_id": "isle-01",
                 "load": [],
                 "unload": [
-                  "tools",
-                  "hops",
-                  "planks",
-                  "stone"
+                  {
+                    "good": "tools"
+                  },
+                  {
+                    "good": "hops"
+                  },
+                  {
+                    "good": "planks"
+                  },
+                  {
+                    "good": "stone"
+                  }
                 ]
               },
               {
@@ -132704,8 +132754,12 @@
                   }
                 ],
                 "unload": [
-                  "bricks",
-                  "stone"
+                  {
+                    "good": "bricks"
+                  },
+                  {
+                    "good": "stone"
+                  }
                 ]
               },
               {
@@ -132721,7 +132775,9 @@
                   }
                 ],
                 "unload": [
-                  "wool_garments"
+                  {
+                    "good": "wool_garments"
+                  }
                 ]
               }
             ],

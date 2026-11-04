@@ -32260,7 +32260,9 @@
               }
             ],
             "unload": [
-              "tools"
+              {
+                "good": "tools"
+              }
             ]
           },
           {
@@ -32272,8 +32274,12 @@
               }
             ],
             "unload": [
-              "stone",
-              "planks"
+              {
+                "good": "stone"
+              },
+              {
+                "good": "planks"
+              }
             ]
           }
         ],

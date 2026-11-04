@@ -687,7 +687,9 @@
               }
             ],
             "unload": [
-              "planks"
+              {
+                "good": "planks"
+              }
             ]
           },
           {
@@ -699,7 +701,9 @@
               }
             ],
             "unload": [
-              "wood"
+              {
+                "good": "wood"
+              }
             ]
           }
         ],
@@ -1511,7 +1515,9 @@
                   }
                 ],
                 "unload": [
-                  "planks"
+                  {
+                    "good": "planks"
+                  }
                 ]
               },
               {
@@ -1523,7 +1529,9 @@
                   }
                 ],
                 "unload": [
-                  "wood"
+                  {
+                    "good": "wood"
+                  }
                 ]
               }
             ],
@@ -2335,7 +2343,9 @@
                   }
                 ],
                 "unload": [
-                  "planks"
+                  {
+                    "good": "planks"
+                  }
                 ]
               },
               {
@@ -2347,7 +2357,9 @@
                   }
                 ],
                 "unload": [
-                  "wood"
+                  {
+                    "good": "wood"
+                  }
                 ]
               }
             ],
@@ -3159,7 +3171,9 @@
                   }
                 ],
                 "unload": [
-                  "planks"
+                  {
+                    "good": "planks"
+                  }
                 ]
               },
               {
@@ -3171,7 +3185,9 @@
                   }
                 ],
                 "unload": [
-                  "wood"
+                  {
+                    "good": "wood"
+                  }
                 ]
               }
             ],

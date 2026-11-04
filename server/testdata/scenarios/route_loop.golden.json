@@ -1015,7 +1015,9 @@
               }
             ],
             "unload": [
-              "planks"
+              {
+                "good": "planks"
+              }
             ]
           },
           {
@@ -1027,7 +1029,9 @@
               }
             ],
             "unload": [
-              "wood"
+              {
+                "good": "wood"
+              }
             ]
           }
         ],

@@ -12,18 +12,18 @@ export function draftFromRoute(r: RouteDisplay): Draft {
     name: r.name,
     stops: r.stops.map((s) => ({
       island: s.island_id,
-      load: s.load.map((l) => ({ good: l.good, max: Math.floor(l.max_amount / 1000) })),
-      unload: [...s.unload],
+      load: s.load.map((l) => ({ good: l.good, max: Math.floor(l.max_amount / 1000), ...(l.keep ? { keep: Math.floor(l.keep / 1000) } : {}) })),
+      unload: s.unload.map((u) => ({ good: u.good, ...(u.max_amount !== undefined ? { max: Math.floor(u.max_amount / 1000) } : {}) })),
     })),
   };
 }
 
-/** The stops of create_route / update_route (max_amount in milli-units). */
+/** The stops of create_route / update_route (max_amount and keep in milli-units; a keep of 0 is left out). */
 export function stopsFromDraft(d: Draft): RouteStop[] {
   return d.stops.map((s) => ({
     island_id: s.island,
-    load: s.load.filter((l) => l.good !== "").map((l) => ({ good: l.good, max_amount: l.max * 1000 })),
-    unload: s.unload.filter((g) => g !== ""),
+    load: s.load.filter((l) => l.good !== "").map((l) => ({ good: l.good, max_amount: l.max * 1000, ...(l.keep ? { keep: l.keep * 1000 } : {}) })),
+    unload: s.unload.filter((u) => u.good !== "").map((u) => ({ good: u.good, ...(u.max !== undefined ? { max_amount: u.max * 1000 } : {}) })),
   }));
 }
 

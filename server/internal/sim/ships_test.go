@@ -369,17 +369,22 @@ func TestRouteValidationAndCRUD(t *testing.T) {
 	expectErr(t, w, c, CreateRoute{Stops: []Stop{stop("a"), stop("b")}}, ErrRouteInvalid)
 	w, s := routeWorld(t, c)
 	for name, stops := range map[string][]Stop{
-		"one stop":         {stop("a")},
-		"nine stops":       {stop("a"), stop("b"), stop("a"), stop("b"), stop("a"), stop("b"), stop("a"), stop("b"), stop("a")},
-		"unknown island":   {stop("a"), stop("x")},
-		"consecutive":      {stop("a"), stop("a"), stop("b")},
-		"last equal first": {stop("a"), stop("b"), stop("a")},
-		"unknown good":     {{IslandID: "a", Load: []LoadRule{{"silk", 1000}}}, stop("b")},
-		"duplicate load":   {{IslandID: "a", Load: []LoadRule{{"wood", 1000}, {"wood", 2000}}}, stop("b")},
-		"duplicate unload": {{IslandID: "a", Unload: []string{"wood", "wood"}}, stop("b")},
-		"load and unload":  {{IslandID: "a", Load: []LoadRule{{"wood", 1000}}, Unload: []string{"wood"}}, stop("b")},
-		"zero max":         {{IslandID: "a", Load: []LoadRule{{"wood", 0}}}, stop("b")},
-		"fractional max":   {{IslandID: "a", Load: []LoadRule{{"wood", 1500}}}, stop("b")},
+		"one stop":           {stop("a")},
+		"nine stops":         {stop("a"), stop("b"), stop("a"), stop("b"), stop("a"), stop("b"), stop("a"), stop("b"), stop("a")},
+		"unknown island":     {stop("a"), stop("x")},
+		"consecutive":        {stop("a"), stop("a"), stop("b")},
+		"last equal first":   {stop("a"), stop("b"), stop("a")},
+		"unknown good":       {{IslandID: "a", Load: []LoadRule{{Good: "silk", MaxAmount: 1000}}}, stop("b")},
+		"duplicate load":     {{IslandID: "a", Load: []LoadRule{{Good: "wood", MaxAmount: 1000}, {Good: "wood", MaxAmount: 2000}}}, stop("b")},
+		"duplicate unload":   {{IslandID: "a", Unload: []string{"wood", "wood"}}, stop("b")},
+		"load and unload":    {{IslandID: "a", Load: []LoadRule{{Good: "wood", MaxAmount: 1000}}, Unload: []string{"wood"}}, stop("b")},
+		"zero max":           {{IslandID: "a", Load: []LoadRule{{Good: "wood", MaxAmount: 0}}}, stop("b")},
+		"fractional max":     {{IslandID: "a", Load: []LoadRule{{Good: "wood", MaxAmount: 1500}}}, stop("b")},
+		"negative keep":      {{IslandID: "a", Load: []LoadRule{{Good: "wood", MaxAmount: 1000, Keep: -1000}}}, stop("b")},
+		"fractional keep":    {{IslandID: "a", Load: []LoadRule{{Good: "wood", MaxAmount: 1000, Keep: 500}}}, stop("b")},
+		"negative unload":    {{IslandID: "a", Unload: []string{"wood"}, UnloadMax: map[string]Qty{"wood": -1000}}, stop("b")},
+		"fractional unload":  {{IslandID: "a", Unload: []string{"wood"}, UnloadMax: map[string]Qty{"wood": 1500}}, stop("b")},
+		"limit not unloaded": {{IslandID: "a", UnloadMax: map[string]Qty{"wood": 1000}}, stop("b")},
 	} {
 		t.Run(name, func(t *testing.T) { expectErr(t, w, c, CreateRoute{Stops: stops}, ErrRouteInvalid) })
 	}
@@ -417,8 +422,8 @@ func TestRouteLoop(t *testing.T) {
 		t.Fatal(err)
 	}
 	mustApply(t, w, c, CreateRoute{Stops: []Stop{
-		{IslandID: "a", Load: []LoadRule{{"wood", 60_000}}, Unload: []string{"fish"}},
-		{IslandID: "b", Load: []LoadRule{{"fish", 30_000}}, Unload: []string{"wood"}},
+		{IslandID: "a", Load: []LoadRule{{Good: "wood", MaxAmount: 60_000}}, Unload: []string{"fish"}},
+		{IslandID: "b", Load: []LoadRule{{Good: "fish", MaxAmount: 30_000}}, Unload: []string{"wood"}},
 	}})
 	now := w.LastEvaluatedAt.UnixMilli()
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
@@ -455,7 +460,7 @@ func TestRouteLoop(t *testing.T) {
 	// route stop 0 is b, so the arrival at a matches stop 1 cyclically.
 	mustApply(t, w, c, UpdateRoute{RouteID: 1, Stops: []Stop{
 		{IslandID: "b", Unload: []string{"fish"}},
-		{IslandID: "a", Load: []LoadRule{{"planks", 10_000}}},
+		{IslandID: "a", Load: []LoadRule{{Good: "planks", MaxAmount: 10_000}}},
 	}})
 	toArrival() // arrives at a = stop 1 (cyclic search from StopIndex 0)
 	if s.StopIndex != 0 || s.Leg.ToIsland != "b" || cargoAmounts(s)["planks"] != 10_000 || cargoAmounts(s)["fish"] != 30_000 {
@@ -477,6 +482,47 @@ func TestRouteLoop(t *testing.T) {
 	mustAdvance(t, w, c, time.Duration(s.BerthUntilMs-w.LastEvaluatedAt.UnixMilli())*time.Millisecond)
 	if s.State != ShipIdle || s.BerthUntilMs != 0 {
 		t.Fatalf("after unloading: %+v", s)
+	}
+}
+
+// TestRouteStopLimits (D-070): a stop loads only the stock above keep
+// and unloads at most the unload max per visit; the rest stays aboard.
+func TestRouteStopLimits(t *testing.T) {
+	c := catalogue(t)
+	w, s := routeWorld(t, c)
+	if err := AddStock(w, c, "b", "fish", 80_000, nil); err != nil {
+		t.Fatal(err)
+	}
+	mustApply(t, w, c, CreateRoute{Stops: []Stop{
+		{IslandID: "a", Unload: []string{"fish"}, UnloadMax: map[string]Qty{"fish": 20_000}},
+		{IslandID: "b", Load: []LoadRule{{Good: "fish", MaxAmount: 50_000, Keep: 45_000}}},
+	}})
+	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
+	// At b: 80 fish, keep 45: 35 loaded (not 50).
+	if got := cargoAmounts(s)["fish"]; got != 35_000 || w.Island("b").Inventory.Stock["fish"] != 45_000 {
+		t.Fatalf("at b: aboard %d, b fish %d", got, w.Island("b").Inventory.Stock["fish"])
+	}
+	toArrival := func() {
+		t.Helper()
+		mustAdvance(t, w, c, time.Duration(s.Leg.ArriveAtMs-w.LastEvaluatedAt.UnixMilli())*time.Millisecond)
+	}
+	fishA := w.Island("a").Inventory.Stock["fish"]
+	toArrival() // at a: unload 20 of 35
+	if got := cargoAmounts(s)["fish"]; got != 15_000 || w.Island("a").Inventory.Stock["fish"] != fishA+20_000 {
+		t.Fatalf("at a: aboard %d, a fish %d (was %d)", got, w.Island("a").Inventory.Stock["fish"], fishA)
+	}
+	toArrival() // at b: stock 45 = keep, nothing loaded
+	if got := cargoAmounts(s)["fish"]; got != 15_000 || w.Island("b").Inventory.Stock["fish"] != 45_000 {
+		t.Fatalf("at b again: aboard %d, b fish %d", got, w.Island("b").Inventory.Stock["fish"])
+	}
+	// The display carries both limits.
+	d, err := Display(w, c, w.LastEvaluatedAt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	st := d.Routes[0].Stops
+	if st[0].Unload[0].MaxAmount == nil || *st[0].Unload[0].MaxAmount != 20_000 || st[1].Load[0].Keep != 45_000 {
+		t.Fatalf("display stops %+v", st)
 	}
 }
 
@@ -622,7 +668,7 @@ func TestShipInsolvency(t *testing.T) {
 	if err := AddStock(w, c, "b", "fish", 40_000, nil); err != nil {
 		t.Fatal(err)
 	}
-	mustApply(t, w, c, CreateRoute{Stops: []Stop{{IslandID: "b", Load: []LoadRule{{"fish", 40_000}}}, {IslandID: "a"}}})
+	mustApply(t, w, c, CreateRoute{Stops: []Stop{{IslandID: "b", Load: []LoadRule{{Good: "fish", MaxAmount: 40_000}}}, {IslandID: "a"}}})
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
 	w.Gold, w.GoldSub = 0, 0
 	bs := mustAdvance(t, w, c, time.Millisecond)
@@ -709,8 +755,8 @@ func TestDueEventComposition(t *testing.T) {
 		t.Fatal(err)
 	}
 	mustApply(t, w, c, CreateRoute{Stops: []Stop{
-		{IslandID: "a", Load: []LoadRule{{"wood", 60_000}}, Unload: []string{"fish"}},
-		{IslandID: "b", Load: []LoadRule{{"fish", 30_000}}, Unload: []string{"wood"}},
+		{IslandID: "a", Load: []LoadRule{{Good: "wood", MaxAmount: 60_000}}, Unload: []string{"fish"}},
+		{IslandID: "b", Load: []LoadRule{{Good: "fish", MaxAmount: 30_000}}, Unload: []string{"wood"}},
 	}})
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
 	mustApply(t, w, c, OrderShip{IslandID: "a", BuildingID: 2, ShipType: "sloop"})
