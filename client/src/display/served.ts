@@ -72,6 +72,18 @@ export function collectorReach(def: ContentBuilding | undefined, level = 1): num
   return levels[Math.min(Math.max(level, 1), levels.length) - 1]?.reach ?? 0;
 }
 
+/**
+ * The service radius of a public building or the market at a level (its
+ * level's radius, else the building's one; level 1 for a new building or
+ * a plan), or null for a building that serves no need. The same measure
+ * as a collector's reach (nearest footprint tiles), so `reachOutline`
+ * draws both rings.
+ */
+export function serviceRadius(def: ContentBuilding | undefined, level = 1): number | null {
+  if (!def?.service) return null;
+  return def.service.levels?.[Math.max(level, 1) - 1]?.radius ?? def.service.radius;
+}
+
 /** Gap in whole tiles between two footprints on one axis (0 when they overlap): the nearest tiles' centre distance. */
 function gap(a: number, aw: number, b: number, bw: number): number {
   return Math.max(0, b - (a + aw - 1), a - (b + bw - 1));

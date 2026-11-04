@@ -420,8 +420,8 @@ async function nameRoute(page: Page, name: string): Promise<void> {
   await page.getByTestId("route-rename-save").click();
 }
 
-async function tileAt(page: Page, island: string, x: number, y: number): Promise<{ x: number; y: number }> {
-  return page.evaluate(([id, tx, ty]) => window.__newShores!.tileToScreen(id as string, tx as number, ty as number), [island, x, y] as const);
+async function tileAt(page: Page, island: string, x: number, y: number, onGround = false): Promise<{ x: number; y: number }> {
+  return page.evaluate(([id, tx, ty, g]) => window.__newShores!.tileToScreen(id as string, tx as number, ty as number, g as boolean), [island, x, y, onGround] as const);
 }
 
 /** The first farm of a type (default: sheep farm) of the loaded world (island ID and tile). */
@@ -924,6 +924,79 @@ function planningShot(ghost: boolean): { fixture: Fixture; device: Device | Devi
       await page.mouse.move(p.x, p.y);
       await page.waitForFunction(() => window.__newShores!.ghostValidity() !== null, undefined, { timeout: 10_000 });
       await page.getByTestId("tool-hint-planning").waitFor({ state: "visible" });
+    },
+  };
+}
+
+/** Turns the last two fields of the played world's first wheat farm into planned fields (demolish, then plan them again). */
+async function planFarmFields(page: Page): Promise<void> {
+  const w = (await (await fetch(`http://localhost:${API_PORT}/api/v1/world`)).json()) as WorldResponse;
+  for (const is of w.display.islands) {
+    const farm = is.buildings.find((b) => b.type === "wheat_farm" && (b.fields?.ids.length ?? 0) >= 2);
+    if (!farm?.fields) continue;
+    const fields = farm.fields.ids.slice(-2).map((id) => is.buildings.find((b) => b.id === id)!);
+    const tiles = fields.map((f) => ({ x: f.x, y: f.y }));
+    for (const c of [
+      { type: "demolish_fields", island_id: is.id, farm_id: farm.id, tiles },
+      { type: "place_fields", island_id: is.id, farm_id: farm.id, building_type: fields[0]!.type, tiles, rotation: fields[0]!.rotation, planned: true },
+    ]) {
+      const err = await harbourCommand(page, c);
+      if (err) throw new Error(`planFarmFields: ${c.type}: ${err}`);
+    }
+    await page.waitForFunction((id) => window.__newShores!.getServer()!.display.islands.some((i) => i.buildings.some((b) => b.id === id && b.planned_fields)), farm.id, { timeout: 15_000 });
+    return;
+  }
+  throw new Error("planFarmFields: no wheat farm with fields");
+}
+
+/**
+ * A plan card (D-071 §4, played fixture, desktop and phone): `plan` the
+ * planned warehouse of the quarter (its gold reach ring), `road` a tile of
+ * the planned street (the segment's card), `farm` the farm with planned
+ * fields (its "Build planned fields" block).
+ */
+function planCardShot(kind: "plan" | "road" | "farm"): { fixture: Fixture; device: Device[]; run: (page: Page) => Promise<void> } {
+  const card = kind === "plan" ? "plan-card" : kind === "road" ? "planned-road-card" : "farm-planned-fields";
+  return {
+    fixture: "played",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      // The played world has no real farm with room for planned fields: the last two fields of a wheat farm are
+      // demolished and planned again through the real API (the farm card's block then lists them).
+      if (kind === "farm") await planFarmFields(page);
+      // Candidate tiles in order: a model in front may cover one, so the next is tried.
+      const target = await page.evaluate((kind) => {
+        const d = window.__newShores!.getServer()!.display;
+        for (const is of d.islands) {
+          const at = (tiles: { x: number; y: number }[]) => ({ island: is.id, ox: is.position.x, oy: is.position.y, tiles });
+          if (kind === "plan") {
+            const p = (is.plans ?? []).find((p) => p.type === "warehouse") ?? (is.plans ?? []).find((p) => p.farm_id === undefined);
+            if (p) return at([{ x: p.x + 1, y: p.y + 1 }]);
+          } else if (kind === "road") {
+            const r = (is.planned_roads ?? [])[0];
+            // From the street's ends inward (the middle may sit behind the quarter's houses).
+            if (r) return at([...r.tiles].sort((a, b) => Math.abs(a.x - r.tiles[0]!.x) - Math.abs(b.x - r.tiles[0]!.x)).filter((_, i) => i < 6));
+          } else {
+            const f = is.buildings.find((b) => b.planned_fields);
+            if (f) return at([{ x: f.x + 1, y: f.y + 1 }]);
+          }
+        }
+        throw new Error(`planCardShot: no ${kind}`);
+      }, kind);
+      const first = target.tiles[0]!;
+      await setCamera(page, { x: target.ox + first.x, y: target.oy + first.y, half: kind === "plan" ? 14 : 10, rotation: 0 });
+      await settle(page);
+      for (const tl of target.tiles) {
+        const p = await tileAt(page, target.island, tl.x, tl.y, true);
+        await page.mouse.click(p.x, p.y);
+        if (await page.getByTestId(card).isVisible()) break;
+        await page.waitForTimeout(300);
+        if (await page.getByTestId(card).isVisible()) break;
+      }
+      await page.getByTestId(card).waitFor({ state: "visible", timeout: 5000 });
+      if (kind === "farm") await page.getByTestId(card).scrollIntoViewIfNeeded();
+      await page.mouse.move(5, 400);
+      await settle(page);
     },
   };
 }
@@ -1485,6 +1558,10 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   // Planning mode (D-071): the toggle on with a house ghost beside the played world's planned quarter, and the quarter itself (desktop and phone).
   "planning-mode": planningShot(true),
   "planned-quarter": planningShot(false),
+  // Plan cards (D-071 §4): a planned warehouse (gold reach ring), the planned street's card, the farm's planned fields.
+  "plan-card": planCardShot("plan"),
+  "planned-road-card": planCardShot("road"),
+  "farm-planned-fields": planCardShot("farm"),
   // A Merchant house of the merchants fixture selected (D-056 C3), desktop and phone.
   "merchant-house-card": {
     fixture: "merchants",

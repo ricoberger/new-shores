@@ -5,6 +5,7 @@ import {
   type Command,
   type ContentBuilding,
   NetworkError,
+  type PlanDisplay,
   type Player,
   type RouteDisplay,
   type ShipDisplay,
@@ -19,7 +20,7 @@ import { tons, units } from "../display/format";
 import { countdown, shipName } from "../display/ships";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { planRoadDrag, roadDragSend } from "../display/roaddrag";
-import { hintSite, planningRoadDrag } from "../display/plans";
+import { hintSite, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag } from "../display/plans";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
 import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
@@ -38,6 +39,7 @@ import { CloseButton } from "./CloseButton";
 import { type ConfirmRequest, ConfirmDialog } from "./Dialogs";
 import { GameCanvas } from "./GameCanvas";
 import { InfoPanel } from "./InfoPanel";
+import { PlanCard, PlannedFieldsBlock, PlannedRoadCard } from "./PlanCard";
 import { IslandCard } from "./IslandCard";
 import { Minimap } from "./Minimap";
 import { RouteEditor } from "./RouteEditor";
@@ -71,7 +73,7 @@ const CONFIRM_DEMOLISH_GOLD = 100_000;
 /** Test hook (dev and E2E builds only; tree-shaken from production builds). */
 export interface TestHook {
   /** Viewport position of the centre of an island tile, any island at any LOD (NaN for unknown islands and during a camera animation). */
-  tileToScreen(islandId: string, x: number, y: number): { x: number; y: number };
+  tileToScreen(islandId: string, x: number, y: number, onGround?: boolean): { x: number; y: number };
   getServer(): WorldResponse | null;
   /** The display name of a building type in the current language (shots find a building's panel by it). */
   buildingName(type: string): string | null;
@@ -232,6 +234,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   useEffect(() => {
     rendererRef.current?.setHoverBuilding(null);
   }, [selectedBuildingId]);
+  // A selected plan or planned road segment (D-071 §4); gone once it is built or removed.
+  const planSel = vs.selection.kind === "plan" || vs.selection.kind === "plannedRoad" ? vs.selection : null;
+  const planIsland = planSel ? model?.islands.find((is) => is.id === planSel.island) : undefined;
+  const selectedPlan = planSel?.kind === "plan" ? planIsland?.plans?.find((p) => p.id === planSel.id) : undefined;
+  const selectedPlannedRoad = planSel?.kind === "plannedRoad" && planIsland ? plannedRoadAt(planIsland, planSel.x, planSel.y) : undefined;
   const selectedShipId = vs.selection.kind === "ship" ? vs.selection.id : null;
   const selectedShip = selectedShipId === null ? undefined : model?.ships.find((s) => s.id === selectedShipId);
   const warehouseType = content?.buildings.find((b) => b.trading_post)?.id ?? "";
@@ -294,6 +301,24 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       return;
     }
     void demolish(islandId, b, false);
+  };
+
+  /**
+   * Builds a plan (D-071 §4, build_plan): on success the building that
+   * replaced it is selected (a planned field: its farm; the server gives
+   * a built plan a new ID, found at the plan's position).
+   */
+  const buildPlan = async (islandId: string, plan: PlanDisplay) => {
+    // Where the built building will be: the plan, or for a planned field its farm (a building, or a planned farm).
+    const before = model?.islands.find((x) => x.id === islandId);
+    const farmPlan = plan.farm_id !== undefined ? before?.plans?.find((p) => p.id === plan.farm_id) : undefined;
+    const realFarm = plan.farm_id !== undefined && !farmPlan ? plan.farm_id : undefined;
+    const at = farmPlan ?? plan;
+    const { ok, res } = await sendCommand({ type: "build_plan", island_id: islandId, building_id: plan.id });
+    if (!ok) return;
+    const is = res?.display.islands.find((x) => x.id === islandId);
+    const built = is ? buildingAt(is.buildings, defs, at.x, at.y) : undefined;
+    dispatch({ type: "selectBuilding", id: realFarm ?? built?.id ?? null });
   };
 
   /**
@@ -398,7 +423,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   /** The field tool ends when its farm has the maximum (after a field or a painted rectangle); else it stays. */
   const afterFields = (tl: Extract<Tool, { kind: "field" }>, res: WorldResponse | null) => {
-    const farm = res?.display.islands.flatMap((is) => is.buildings).find((b) => b.id === tl.farmId);
+    // A planned farm (D-071) counts its planned fields.
+    const farm =
+      res?.display.islands.flatMap((is) => is.buildings).find((b) => b.id === tl.farmId) ??
+      res?.display.islands.flatMap((is) => (is.plans ?? []).filter((p) => p.id === tl.farmId).map((p) => plannedFarmAsBuilding(p, is, defs.get(p.type)))).find((b) => b !== undefined);
     if (!farm || (farm.fields && farm.fields.ids.length >= farm.fields.max)) {
       setTool((cur) => (cur === tl || (cur.kind === "field" && cur.farmId === tl.farmId) ? NO_TOOL : cur));
       if (farm) toast(t("app.fieldsFull", { farm: defs.get(farm.type)?.name ?? t("app.theFarm"), field: defs.get(tl.buildingType)?.name ?? t("app.theField") }));
@@ -483,6 +511,17 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       dispatch({ type: "tapShip", id });
     },
     tapSea: () => dispatch({ type: "tapSea" }),
+    tapPlan: (island: string, id: number) => {
+      setPanel("none");
+      dispatch({ type: "selectPlan", island, id });
+    },
+    tapPlannedRoad: (island: string, at: TilePos) => {
+      setPanel("none");
+      dispatch({ type: "selectPlannedRoad", island, x: at.x, y: at.y });
+    },
+    demolishPlans: (island: string, ids: number[]) => {
+      for (const id of ids) void send({ type: "demolish", island_id: island, building_id: id, accept_surplus_loss: false });
+    },
     place: (at: IslandTile) => {
       if (tool.kind === "build") placeGhost(tool, at);
     },
@@ -523,15 +562,20 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       const is = model?.islands.find((x) => x.id === at.island);
       if (!is) return;
       const b = buildingAt(is.buildings, defs, at.x, at.y);
+      // A plan goes at once and for free (D-071 §4): no confirmation.
+      const plan = b ? undefined : planAt(is, defs, at.x, at.y);
       if (b) {
         requestDemolish(is.id, b);
-      } else if (is.roads.some((r) => r.x === at.x && r.y === at.y)) {
+      } else if (plan) {
+        void send({ type: "demolish", island_id: is.id, building_id: plan.id, accept_surplus_loss: false });
+      } else if (is.roads.some((r) => r.x === at.x && r.y === at.y) || plannedRoadAt(is, at.x, at.y)) {
         void send({ type: "demolish_road", island_id: is.id, tiles: [{ x: at.x, y: at.y }] });
       }
     },
     pickMove: (at: IslandTile) => {
       const is = model?.islands.find((x) => x.id === at.island);
-      const b = is ? buildingAt(is.buildings, defs, at.x, at.y) : undefined;
+      // Plans move like buildings (D-071 §4, free).
+      const b = is ? (buildingAt(is.buildings, defs, at.x, at.y) ?? planAt(is, defs, at.x, at.y)) : undefined;
       if (!b) return;
       // A field cannot be moved (the server rejects it): it follows its farm.
       if (defs.get(b.type)?.field) {
@@ -630,6 +674,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   useEffect(() => renderer?.setSelected(selected), [renderer, selected, snap.server]);
   useEffect(() => renderer?.setPlanning(planning), [renderer, planning]);
+  const planSelKey = planSel ? JSON.stringify(planSel) : "";
+  useEffect(() => renderer?.setSelectedPlan(planSelKey ? (JSON.parse(planSelKey) as Parameters<GameRenderer["setSelectedPlan"]>[0]) : null), [renderer, planSelKey]);
 
   // Selection ring, highlighted route and the editor's live draft.
   const archSel = vs.selection.kind === "ship" || vs.selection.kind === "island" ? vs.selection : ({ kind: "none" } as const);
@@ -679,7 +725,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     if (import.meta.env.DEV || import.meta.env.VITE_E2E === "1") {
       const nan = { x: NaN, y: NaN };
       window.__newShores = {
-        tileToScreen: (id, x, y) => rendererRef.current?.tileToScreen(id, x, y) ?? nan,
+        tileToScreen: (id, x, y, onGround) => rendererRef.current?.tileToScreen(id, x, y, onGround) ?? nan,
         getServer: () => sync.getSnapshot().server,
         buildingName: (type) => sync.getSnapshot().content?.buildings.find((b) => b.id === type)?.name ?? null,
         lod: () => rendererRef.current?.currentLod() ?? "near",
@@ -885,6 +931,56 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onRename={async (name) => (await send({ type: "rename_island", island_id: id, name })) === null}
         />
       );
+    } else if (selectedPlan && planIsland) {
+      const plan = selectedPlan;
+      const islandId = planIsland.id;
+      rightKey = "plan";
+      rightTitle = t("plan.title", { name: defs.get(plan.type)?.name ?? plan.type });
+      rightClose = () => dispatch({ type: "clearSelection" });
+      right = (
+        <PlanCard
+          key={plan.id}
+          plan={plan}
+          island={planIsland}
+          model={model}
+          content={content}
+          onBuild={() => void buildPlan(islandId, plan)}
+          onMove={() => setTool({ kind: "move", buildingId: plan.id, buildingType: plan.type, rotation: plan.rotation })}
+          onDemolish={() =>
+            void send({ type: "demolish", island_id: islandId, building_id: plan.id, accept_surplus_loss: false }).then((err) => {
+              if (!err) dispatch({ type: "clearSelection" });
+            })
+          }
+          onPaintFields={(fieldType, remove) => setTool({ kind: "field", farmId: plan.id, island: islandId, buildingType: fieldType, rotation: 0, ...(remove ? { remove: true } : {}) })}
+          onClose={() => dispatch({ type: "clearSelection" })}
+        />
+      );
+    } else if (selectedPlannedRoad && planIsland && planSel?.kind === "plannedRoad") {
+      const road = selectedPlannedRoad;
+      const islandId = planIsland.id;
+      const at = { x: planSel.x, y: planSel.y };
+      rightKey = "plannedRoad";
+      rightTitle = t("plan.road", { count: road.tiles.length });
+      rightClose = () => dispatch({ type: "clearSelection" });
+      right = (
+        <PlannedRoadCard
+          road={road}
+          island={planIsland}
+          model={model}
+          content={content}
+          onBuild={() =>
+            void send({ type: "build_plan", island_id: islandId, ...at }).then((err) => {
+              if (!err) dispatch({ type: "clearSelection" });
+            })
+          }
+          onDemolish={() =>
+            void send({ type: "demolish_road", island_id: islandId, tiles: road.tiles.map((tl) => ({ x: tl.x, y: tl.y })) }).then((err) => {
+              if (!err) dispatch({ type: "clearSelection" });
+            })
+          }
+          onClose={() => dispatch({ type: "clearSelection" })}
+        />
+      );
     } else if (selectedBuilding && selectedOwner) {
       const island = selectedOwner;
       const islandId = island.id;
@@ -911,6 +1007,18 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onUpgrade={() => void send({ type: "upgrade_house", island_id: islandId, building_id: selectedBuilding.id })}
           onUpgradeBuilding={() => void send({ type: "upgrade_building", island_id: islandId, building_id: selectedBuilding.id })}
           onSelectBuilding={focus}
+          plannedFields={
+            selectedBuilding.planned_fields && (
+              <PlannedFieldsBlock
+                island={island}
+                model={model}
+                content={content}
+                count={selectedBuilding.planned_fields.ids.length}
+                cost={selectedBuilding.planned_fields.plan_cost}
+                onBuild={() => void send({ type: "build_plan", island_id: islandId, building_id: selectedBuilding.id })}
+              />
+            )
+          }
           onAddField={(fieldType, remove) => {
             setTool({ kind: "field", farmId: selectedBuilding.id, island: islandId, buildingType: fieldType, rotation: 0, ...(remove ? { remove: true } : {}) });
           }}

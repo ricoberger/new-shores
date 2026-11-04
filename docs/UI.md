@@ -311,6 +311,28 @@ UI shows the same numbers the server uses.
   goes on free tiles only), and planned fields chain their farm and
   count toward its maximum. A real road dragged over a planned road
   replaces the plan.
+- **Plan cards** (D-071 §4, `ui/PlanCard.tsx`): a click (or long
+  press) at near LOD on a plan opens its card — **"Planned: X"** with
+  "Building costs" in build-menu format (the server's `plan_cost`, a
+  planned farm's fields included; parts the island cannot cover now in
+  red), the server's reason as "Can't build now: …" when building would
+  fail, and **Build · Move · Demolish** (Build is never disabled: the
+  server decides; a built plan selects the new building). A planned
+  farm's card counts its planned fields and paints more (the field tool
+  on the plan: its fields are always planned, free). A planned field's
+  card names its farm and builds the farm's planned fields (no Move: it
+  follows its farm). A planned road tile opens **"Planned road · N
+  tiles"** for its segment (the 4-connected planned tiles of one type):
+  type, cost, reason, Build · Demolish. A real farm with planned fields
+  shows "N planned fields", their cost and **Build planned fields** on
+  its card. A selected plan carries a hover mark; a selected planned
+  Warehouse or Trading Post shows its level-1 reach and a planned
+  public building or market its level-1 radius as a **gold ring**.
+  Plans never count in the served/served-by hints (`display/served.ts`
+  reads `buildings` only). The Move tool picks plans like buildings; the
+  **Demolish tool** removes a clicked plan or planned road tile at once
+  (free, no confirmation), and its rectangle removes the planned
+  buildings and fields under it with the fields.
 - Buildings may be placed without a road; the ghost shows yellow ("not
   connected") rather than red, and the warnings panel lists the building
   until a road reaches it. A producer on a road whose collectors are all

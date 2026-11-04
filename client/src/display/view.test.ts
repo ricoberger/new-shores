@@ -43,6 +43,17 @@ describe("one continuous world (no view mode)", () => {
   });
 });
 
+describe("plan selection (D-071 §4)", () => {
+  it("selects a plan or a planned road tile; a tap elsewhere or Escape clears it", () => {
+    let s = run(fresh(), { type: "selectPlan", island: "start", id: 12 });
+    expect(s.selection).toEqual({ kind: "plan", island: "start", id: 12 });
+    s = run(s, { type: "selectPlannedRoad", island: "start", x: 3, y: 4 });
+    expect(s.selection).toEqual({ kind: "plannedRoad", island: "start", x: 3, y: 4 });
+    expect(run(s, { type: "tapIsland", id: "start", building: null }).selection).toEqual({ kind: "none" });
+    expect(run(s, { type: "escape" }).selection).toEqual({ kind: "none" });
+  });
+});
+
 describe("selection", () => {
   it("ships before islands, sea clears", () => {
     let s = run(fresh(), { type: "tapShip", id: 3 });
