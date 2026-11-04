@@ -2209,3 +2209,87 @@ chapter.
   while away, and the only piece that would have needed scheduled
   events); free sketches without reservation (two plans or a plan and
   a building overlapping).
+
+## D-072 Anno 117 island sizes, a one-island camera cap, Anno 117 service radii, coastal massifs and wider rivers
+
+- **Status:** accepted (2026-11-04)
+- **Context:** D-062 took Anno 117's building footprints and D-054 its
+  field counts one-to-one, but D-053's islands are about half of their
+  Anno 117 counterparts by buildable area (measured over seeds 1–50:
+  large 18 590, medium 6 222, small 2 136 tiles against Anno 117's
+  31 573 / 13 369 / 5 860 — "total tiles" there is the buildable area,
+  12 tiles per house). A farm therefore eats the same area as in Anno
+  on an island half the size. The service radii came from the Anno
+  1404 pattern (a chapel per block): the Patricians reference game
+  needs 7 chapels, 7 markets, 4 churches and 4 schools for 194 houses,
+  while Anno 117's quarter of ≈ 300 houses is served by one set of
+  public buildings. The far view at the zoom cap (half extent 120)
+  shows a whole large island with two or three neighbours; Anno 117's
+  farthest camera shows less than one large island, the overview is the
+  map. The owner also wants the mountains along the coast rather than
+  across the island and rivers a tile wider, as in Anno.
+- **Decision:**
+  1. **Island sizes = Anno 117 buildable areas**, composition and count
+     unchanged: 3 large (≈ 31.6 k buildable, ≈ 250 tiles across), 5
+     medium (≈ 13.4 k), 4 small (≈ 5.9 k), 0–2 rocks, skerries;
+     archipelago buildable ≈ 185 k ± 10 % (was 91 k). No extra-large
+     class now (recorded as an option for a later region: Anno 117's
+     38.9 k class). Water gaps unchanged (spacing ≥ 50, nearest ≤ 120,
+     straits ≥ 24, open sea ≤ 150); the extent grows with the islands.
+     Shape rules scale with √area (plain ≈ 52 / 32 / 19 before item 4).
+  2. **Camera cap** `camera.max_half_extent` 120 → **80**: the far view
+     shows about one large island; the minimap is the archipelago
+     overview. LOD bands unchanged (near < 30, mid 30–54, far 54–cap).
+  3. **Service radii after Anno 117** (dirt-road ranges × 0.75 for our
+     Euclidean rule, D-065 ranks and D-060 civic needs unchanged):
+     market 20 / 24 / 28 / 32 per level; chapel 16 (unchanged), church
+     28, cathedral 50; tavern 20, playhouse 38; school 20, university
+     46; city guard 26, fire station 22, surgery 28. Costs and upkeep of
+     church, cathedral, playhouse, university and market levels 3–4
+     rise (×2 as the starting point). **Collector reach** (D-069)
+     scales with it: Trading Post 24 / 28 / 32 / 36, Warehouse 18 / 21 /
+     24 / 27. All provisional; the D-067 plan replay tunes costs and
+     reach, radii stay as listed unless a plan proves one wrong.
+  4. **Coastal massifs**: the mountain ridge (D-058 §2) runs along one
+     side of the island as a massif with cliffs to the sea on its outer
+     flank; the interior is one connected plain. Rivers rise in the
+     massif and reach a bay on the far side. Deposits stay on the
+     mountain edge; ≥ 2 Trading Post sites per habitable island hold.
+  5. **Rivers 2 tiles wide** (3 at the mouth; was 1 / 2); bridges span
+     the width (a 2-tile arched bridge model; a road tile per river
+     tile as today); small islands keep no rivers.
+- **Must hold:** D-048's far budget (≤ 40 draws / 250 k triangles) at
+  the new cap on the largest-island fixture and "no pan frame > 50 ms"
+  on the dense mid fixture; D-067's tier targets (60 / 90 / 100 / 150 ·
+  45 / 85 · 240 / 270 / 420 · 900 / 960 / 1 800), never relaxed — plans
+  re-generated on the new islands; a first frame that does not get
+  noticeably slower (the large island's payload grows ≈ 1.7×; split the
+  payload rather than the island if it does).
+- **Why:** one ruler for everything — footprints, fields, islands,
+  radii, reach — so balance stops being re-derived; the top of each
+  service chain becomes the landmark a city turns around (the Anno 117
+  screenshots), while shrines stay small and local; a one-island far
+  view keeps the voxel world a world rather than a map and makes the far
+  budget scale with the viewport instead of the archipelago; a coastal
+  massif leaves the plain whole and reads as Anno's islands do.
+- **Consequences:** `islands.json` sizes and shape parameters, generator
+  (massif placement, river width, plain targets, buildable target),
+  atlas statistics and tests, content version bump, radii / costs /
+  reach in `buildings.json`, sim schema bump, every fixture, scenario,
+  golden, dev snapshot and reference plan regenerated (existing
+  `.snapshots` are invalid), bridge model variant (`make assets`),
+  client cap, far-budget fixture re-measured at cap 80 (a LOD step only
+  if it is over), minimap as the overview, CONTENT §islands and tables,
+  MECHANICS §6 radii, ART_DIRECTION §4 (rivers, bridges, massifs),
+  D-053 / D-058 superseded in those points, D-065 / D-060 / D-069
+  numbers amended. Two sessions after D-071: server (generator,
+  content, plans, fixtures) then client (cap, far budget, first frame,
+  bridges).
+- **Rejected:** copying the Anno 117 map composition (4 XL + 4 L + 6 M +
+  3 S ≈ 380 k buildable — a multiplayer map's worth of land for one
+  player, and a rendering rewrite); shrinking farms and fields instead
+  (undoes D-054 / D-062 and the model fit); keeping the 1404 radii
+  (chapel-per-block on bigger islands); a far-LOD rewrite to keep the
+  archipelago-wide far view; paved roads extending the radius by 50 %
+  as in Anno 117 (needs road-distance coverage, rejected with D-069 —
+  parked as an idea for paved roads).

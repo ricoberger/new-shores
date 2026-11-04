@@ -7,8 +7,9 @@ and D-070 (route unload limits and keep-minimum) recorded; polish 5
 (#68) and the D-069 / D-070 implementation (#69: collector reach,
 hub upkeep, population-only unlocks, pier / depot at Merchants,
 tier-gated Trading Post levels, route unload limits and keep, deposit
-markers, move tool) merged; D-071 planning mode recorded; next its implementation
-session with the polish items.
+markers, move tool) merged; D-071 planning mode (running) and D-072 Anno 117 island
+sizes / camera cap / service radii recorded; next the D-072 server and
+client sessions.
 
 ## What exists
 
@@ -111,9 +112,13 @@ in the sync after a task unless the task says otherwise; nobody adds the
      lines, cart with driver, animals in pens, terrace fill, US
      English) merged; ~~D-069 / D-070~~ (#69) merged → **next: D-071
      planning mode** (planned placements, manual Build / Move /
-     Demolish) with the **polish items** (gold radius ring for
+     Demolish, running) with the **polish items** (gold radius ring for
      public buildings and the market on selection and ghost, hidden at
-     far zoom; move tool picks a farm when a field is clicked) (reach + throughput + upkeep + unlocks + harbour tiers
+     far zoom; move tool picks a farm when a field is clicked) → **D-072**
+     in two sessions: server (Anno 117 island areas 31.6 k / 13.4 k /
+     5.9 k, coastal massifs, 2-tile rivers, radii / reach / costs, plans
+     and fixtures regenerated) then client (camera cap 80, far budget
+     re-measured, first frame, 2-tile bridges) (reach + throughput + upkeep + unlocks + harbour tiers
      with the plan replay; route `max_amount` on unload and `keep`;
      hub card lock reason). Open small items — art: playhouse /
      university / cathedral / shipyard / depot / trading pier still at
