@@ -248,7 +248,7 @@ export class GameRenderer {
   private readonly reachRing: ReachRing;
   private readonly depositMarkers: DepositMarkers;
   /** The reach of the collector ghost under the pointer (D-069 §1), or null. */
-  private ghostReach: { island: string; x: number; y: number; w: number; h: number; r: number } | null = null;
+  private ghostReach: { island: string; x: number; y: number; w: number; h: number; r: number; gold?: boolean } | null = null;
   private depositKey = "";
   private lastPaintStatus: string | null = null;
   private selected: number | null = null;
@@ -1720,10 +1720,12 @@ export class GameRenderer {
         this.ghostTintFor = key;
         this.setGhostTint(ghostRelated({ type: def.id, island: tl.island, x: tl.x, y: tl.y, rotation: tool.rotation, level }, { buildings: [...this.defs.values()] }, server.display));
       }
-      const r = collectorReach(def, level);
-      if (r) {
+      // A collector's reach (selection yellow), or a public building's or the market's radius (gold).
+      const reach = collectorReach(def, level);
+      const radius = reach ? null : serviceRadius(def, level);
+      if (reach || radius) {
         const [w, h] = rotatedFootprint(def.width, def.height, tool.rotation);
-        this.ghostReach = { island: tl.island, x: tl.x, y: tl.y, w, h, r };
+        this.ghostReach = { island: tl.island, x: tl.x, y: tl.y, w, h, r: (reach ?? radius) as number, ...(radius ? { gold: true } : {}) };
       }
     } else {
       this.ghostTintFor = "";
@@ -2043,9 +2045,12 @@ export class GameRenderer {
    * The reach ring (UI.md §3, D-069 §1): around a Warehouse or Trading
    * Post ghost, else around the selected one, on an island drawn in
    * detail. Content reach at the building's level; none without a limit.
+   * The same ring in gold is a public building's or the market's service
+   * radius (D-071), and a selected plan's level-1 reach or radius.
    */
   private updateReachRing(): void {
-    let src: { island: string; x: number; y: number; w: number; h: number; r: number; gold?: boolean } | null = this.ghostReach;
+    // None at far zoom: the ring is a hint of the near and mid views.
+    let src: { island: string; x: number; y: number; w: number; h: number; r: number; gold?: boolean } | null = this.lod === "far" ? null : this.ghostReach;
     // A selected planned collector or service building: its level-1 reach or radius in gold (D-071 §4).
     const plan = !src && this.lod !== "far" ? this.findPlan() : undefined;
     const planDef = plan ? this.defs.get(plan.plan.type) : undefined;
@@ -2057,10 +2062,11 @@ export class GameRenderer {
     if (!src && this.selected !== null && this.lod !== "far") {
       const found = this.findBuilding(this.selected);
       const def = found ? this.defs.get(found.b.type) : undefined;
-      const r = found && def ? collectorReach(def, found.b.level ?? 1) : null;
-      if (found && def && r) {
+      const reach = found && def ? collectorReach(def, found.b.level ?? 1) : null;
+      const radius = found && def && !reach ? serviceRadius(def, found.b.level ?? 1) : null;
+      if (found && def && (reach || radius)) {
         const [w, h] = rotatedFootprint(def.width, def.height, found.b.rotation);
-        src = { island: found.island.id, x: found.b.x, y: found.b.y, w, h, r };
+        src = { island: found.island.id, x: found.b.x, y: found.b.y, w, h, r: (reach ?? radius) as number, ...(radius ? { gold: true } : {}) };
       }
     }
     const d = src ? this.details.get(src.island) : undefined;
@@ -2081,6 +2087,11 @@ export class GameRenderer {
   /** Whether the reach ring is drawn (tests and shots). */
   reachRingShown(): boolean {
     return this.reachRing.shown();
+  }
+
+  /** Which ring is drawn: none, a collector's reach (yellow) or gold (a service radius or a plan's ring; tests and shots). */
+  ring(): "none" | "reach" | "gold" {
+    return !this.reachRing.shown() ? "none" : this.reachRing.gold() ? "gold" : "reach";
   }
 
   /** How many deposit markers float over the highlighted clusters (tests and shots). */

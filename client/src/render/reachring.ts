@@ -1,6 +1,8 @@
 // The reach ring (UI.md §3, D-069 §1): the outline of a collector's reach
 // (display/served.ts reachOutline) as a thin band in the selection yellow,
-// around a Warehouse or Trading Post ghost or the selected one. Like the
+// around a Warehouse or Trading Post ghost or the selected one; in gold the
+// service radius of a public building or the market and a plan's ring
+// (D-071). Like the
 // deposit highlight it is drawn after the scene (rendering group 1, depth
 // cleared) so terrain and models never hide it. One mesh, rebuilt when the
 // outline changes; world coordinates; never pickable.

@@ -827,7 +827,7 @@ async function openBuildTab(page: Page, type: string): Promise<void> {
 }
 
 /** A ghost of `type` three tiles beside the middle building of `near` (a type prefix) on the island with the most buildings. */
-function linkedGhost(type: string, fixture: Fixture, near: string): { fixture: Fixture; device: Device[]; run: (page: Page) => Promise<void> } {
+function linkedGhost(type: string, fixture: Fixture, near: string, half = 12): { fixture: Fixture; device: Device[]; run: (page: Page) => Promise<void> } {
   return {
     fixture,
     device: ["desktop", "phone"],
@@ -839,7 +839,7 @@ function linkedGhost(type: string, fixture: Fixture, near: string): { fixture: F
         const b = list[Math.floor(list.length / 2)]!;
         return { island: is.id, x: b.x + 3, y: b.y, ox: is.position.x, oy: is.position.y };
       }, near);
-      await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half: 12, rotation: 0 });
+      await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half, rotation: 0 });
       await settle(page);
       if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
       await openBuildTab(page, type);
@@ -1540,6 +1540,16 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   // the services reaching it, a warehouse the producers, a sawmill the warehouses and Trading Post.
   "ghost-service": linkedGhost("chapel", "settled", "house_"),
   "ghost-house": linkedGhost("house_settlers", "played", "chapel"),
+  // The gold radius ring (D-071): a market ghost among the houses, and a selected market (desktop and phone).
+  "radius-ring-ghost": linkedGhost("market", "played", "house_", 20),
+  "radius-ring": {
+    fixture: "played",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      await selectBuilding(page, "market", { x: 2, y: 2 }, 20);
+      await page.waitForFunction(() => window.__newShores!.ring() === "gold", undefined, { timeout: 10_000 });
+    },
+  },
   "ghost-warehouse": linkedGhost("warehouse", "played", "sawmill"),
   "ghost-producer": linkedGhost("sawmill", "played", "trading_post"),
   "ghost-water-valid": ghostWater(0),

@@ -116,6 +116,8 @@ export interface TestHook {
   depositMarkerCount(): number;
   /** Plans and planned road tiles drawn (D-071; none at far LOD). */
   planCount(): number;
+  /** The reach/radius ring drawn: none, a collector's reach (yellow) or gold (a service radius or a plan's ring, D-071). */
+  ring(): "none" | "reach" | "gold";
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
@@ -757,6 +759,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         depositCount: () => rendererRef.current?.depositCount() ?? 0,
         depositMarkerCount: () => rendererRef.current?.depositMarkerCount() ?? 0,
         planCount: () => rendererRef.current?.planCount() ?? 0,
+        ring: () => rendererRef.current?.ring() ?? "none",
         quality: () => rendererRef.current?.quality() ?? "low",
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         assets: () =>
