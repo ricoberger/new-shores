@@ -17,7 +17,7 @@ import type { SyncSnapshot } from "../api/sync";
 import { archipelagoRect, type CameraView, frameIslandView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
 import { fieldsUnder, type PaintDrag, paintAnchors, paintCountText, paintTiles, planPaint } from "../display/fieldpaint";
-import { ghostRelated, servedRelated } from "../display/served";
+import { collectorReach, ghostRelated, reachOutline, servedRelated } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad, rectQuadOverlap } from "../display/frustum";
 import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
 import { visibleChunks } from "../display/chunks";
@@ -27,7 +27,7 @@ import { allocateFarTerrain, type MaskIsland, MaskLayer, reliefOrder } from "./f
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { freeShallows, isQuayType, withQuays } from "../display/quay";
-import { buildingAt, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
+import { buildingAt, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
@@ -35,6 +35,7 @@ import { type ArchPoint, dockPoints, type ModelAnchor, seaPoint, shipLengthRatio
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
 import { depositTiles, highlightedDeposit } from "../display/deposits";
 import { DepositHighlight, type DepositMark } from "./deposithighlight";
+import { ReachRing } from "./reachring";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
 import { flankDocks, isFlankAnchor, withIdleAtPier } from "./moorings";
@@ -227,6 +228,9 @@ export class GameRenderer {
   /** Cache key of the painted rectangle's preview, and its marks' state for the release. */
   private paintKey = "";
   private readonly depositHighlight: DepositHighlight;
+  private readonly reachRing: ReachRing;
+  /** The reach of the collector ghost under the pointer (D-069 §1), or null. */
+  private ghostReach: { island: string; x: number; y: number; w: number; h: number; r: number } | null = null;
   private depositKey = "";
   private lastPaintStatus: string | null = null;
   private selected: number | null = null;
@@ -314,6 +318,7 @@ export class GameRenderer {
     this.grid = new GridOverlay(this.scene);
     this.paintPreview = new PaintPreview(this.scene);
     this.depositHighlight = new DepositHighlight(this.scene);
+    this.reachRing = new ReachRing(this.scene);
 
     this.ghost = new PlacementGhost(this.scene, this.models);
 
@@ -382,6 +387,7 @@ export class GameRenderer {
     // A pinned clock (shots) holds the flash of rejected tiles.
     this.paintPreview.tick(tl, this.frozenAt !== null);
     this.updateDeposits();
+    this.updateReachRing();
     this.updateGrid();
     this.updateMarks();
     this.engine._drawCalls.fetchNewFrame();
@@ -1602,6 +1608,7 @@ export class GameRenderer {
     const pl = tl ? this.arch.placement(tl.island) : undefined;
     // A painted rectangle and the removal mode have their own preview (updatePaint).
     const painting = this.paint !== null || (tool.kind === "field" && tool.remove === true);
+    this.ghostReach = null;
     if (!ghostTool || !def || !tl || !pl || painting) {
       this.ghost.hide();
       this.ghostValid = null;
@@ -1618,6 +1625,11 @@ export class GameRenderer {
       if (key !== this.ghostTintFor) {
         this.ghostTintFor = key;
         this.setGhostTint(ghostRelated({ type: def.id, island: tl.island, x: tl.x, y: tl.y, rotation: tool.rotation, level }, { buildings: [...this.defs.values()] }, server.display));
+      }
+      const r = collectorReach(def, level);
+      if (r) {
+        const [w, h] = rotatedFootprint(def.width, def.height, tool.rotation);
+        this.ghostReach = { island: tl.island, x: tl.x, y: tl.y, w, h, r };
       }
     } else {
       this.ghostTintFor = "";
@@ -1873,6 +1885,41 @@ export class GameRenderer {
       for (const t of depositTiles(is, kind, this.defs)) marks.push({ cx: pl.position.x + t.x + 0.5, cz: -(pl.position.y + t.y + 0.5), base: d.reliefAt(t.x, t.y) });
     }
     this.depositHighlight.set(marks);
+  }
+
+  /**
+   * The reach ring (UI.md §3, D-069 §1): around a Warehouse or Trading
+   * Post ghost, else around the selected one, on an island drawn in
+   * detail. Content reach at the building's level; none without a limit.
+   */
+  private updateReachRing(): void {
+    let src = this.ghostReach;
+    if (!src && this.selected !== null && this.lod !== "far") {
+      const found = this.findBuilding(this.selected);
+      const def = found ? this.defs.get(found.b.type) : undefined;
+      const r = found && def ? collectorReach(def, found.b.level ?? 1) : null;
+      if (found && def && r) {
+        const [w, h] = rotatedFootprint(def.width, def.height, found.b.rotation);
+        src = { island: found.island.id, x: found.b.x, y: found.b.y, w, h, r };
+      }
+    }
+    const d = src ? this.details.get(src.island) : undefined;
+    const pl = src ? this.arch.placement(src.island) : undefined;
+    if (!src || !d || !pl || !d.hasTiles()) {
+      this.reachRing.set("", null);
+      return;
+    }
+    const key = `${src.island}|${src.x}|${src.y}|${src.w}|${src.h}|${src.r}|${pl.position.x}|${pl.position.y}`;
+    const outline = reachOutline({ x: src.x, y: src.y, w: src.w, h: src.h }, src.r);
+    this.reachRing.set(
+      key,
+      outline.map((p) => ({ x: pl.position.x + p.x, z: -(pl.position.y + p.y), y: d.reliefAt(Math.floor(p.x), Math.floor(p.y)) })),
+    );
+  }
+
+  /** Whether the reach ring is drawn (tests and shots). */
+  reachRingShown(): boolean {
+    return this.reachRing.shown();
   }
 
   /** How many deposit tiles the mine or quarry tool highlights (tests and shots). */

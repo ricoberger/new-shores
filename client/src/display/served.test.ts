@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding, DisplayState } from "../api/client";
 import { loadContent } from "../almanac/testContent";
 import { rotatedFootprint } from "./geometry";
-import { ghostRelated, servedRelated, wouldServe } from "./served";
+import { collectorReach, ghostRelated, reachOutline, servedRelated, wouldServe } from "./served";
 
 const b = (id: number, extra: Record<string, unknown> = {}) => ({ id, ...extra }) as unknown as BuildingDisplay;
 const chapel = { service: { radius: 16 } } as unknown as ContentBuilding;
@@ -105,7 +105,6 @@ describe("wouldServe (ghost hint, D-027)", () => {
 describe("ghostRelated (ghost hint, D-027)", () => {
   const isle = base.islands.find((is) => is.id === "isle-01")!;
   const idsOf = (...types: string[]) => isle.buildings.filter((b) => types.includes(b.type)).map((b) => b.id).sort((a, b) => a - b);
-  const sorted = (ids: number[]) => [...ids].sort((a, b) => a - b);
   const ghost = (type: string, x = 0, y = 0) => ({ type, island: "isle-01", x, y, rotation: 0 });
 
   it("a service building: the houses it would serve", () => {
@@ -125,20 +124,44 @@ describe("ghostRelated (ghost hint, D-027)", () => {
     for (const id of ghostRelated(at(0), content, base)) expect(allowed.has(id)).toBe(true);
   });
 
-  it("a Warehouse: every producer on the island, nothing else", () => {
-    const producers = idsOf("fisher", "lumberjack", "sawmill", "sheep_farm", "weaver_wool", "quarry");
-    expect(sorted(ghostRelated(ghost("warehouse"), content, base))).toEqual(producers);
+  it("a Warehouse: the producers within its reach at its level (D-069), nothing else", () => {
+    const reach = collectorReach(def("warehouse"), 1)!;
+    expect(reach).toBeGreaterThan(0);
+    const sawmill = isle.buildings.find((b) => b.type === "sawmill")!;
+    const [sw] = rotatedFootprint(def("sawmill").width, def("sawmill").height, sawmill.rotation);
+    // A warehouse whose nearest tile is reach (in) or reach + 1 (out) tiles right of the sawmill, in its rows.
+    const at = (gap: number, level = 1) => ({ ...ghost("warehouse", sawmill.x + sw - 1 + gap, sawmill.y), level });
+    expect(ghostRelated(at(reach), content, base)).toContain(sawmill.id);
+    expect(ghostRelated(at(reach + 1), content, base)).not.toContain(sawmill.id);
+    // A higher level reaches further (a moved warehouse keeps its level).
+    expect(ghostRelated(at(reach + 1, 2), content, base)).toContain(sawmill.id);
+    const producers = new Set(idsOf("fisher", "lumberjack", "sawmill", "sheep_farm", "weaver_wool", "quarry"));
+    for (const id of ghostRelated(at(reach), content, base)) expect(producers.has(id) || !!def(isle.buildings.find((b) => b.id === id)!.type).recipe).toBe(true);
   });
 
-  it("a producer: every Warehouse and Trading Post on its island, none of another island", () => {
-    // The reference game has warehouses too (the generator's collectors, D-069).
-    expect(sorted(ghostRelated(ghost("sawmill"), content, base))).toEqual(sorted(idsOf("trading_post", "warehouse")));
-    const warehouse = { ...isle.buildings[0]!, id: 900_001, type: "warehouse" };
-    const withWarehouse = { islands: [{ ...isle, buildings: [...isle.buildings, warehouse] }, ...base.islands.filter((is) => is.id !== "isle-01")] };
-    expect(sorted(ghostRelated(ghost("sawmill"), content, withWarehouse))).toEqual(sorted([...idsOf("trading_post", "warehouse"), 900_001]));
-    expect(ghostRelated({ ...ghost("sawmill"), island: "isle-02" }, content, base)).toEqual(
-      base.islands.find((is) => is.id === "isle-02")!.buildings.filter((b) => b.type === "trading_post" || b.type === "warehouse").map((b) => b.id),
-    );
+  it("a producer: the Warehouses and Trading Posts whose reach covers it, none of another island", () => {
+    const tp = isle.buildings.find((b) => b.type === "trading_post")!;
+    const reach = collectorReach(def("trading_post"), tp.level ?? 1)!;
+    const [tw] = rotatedFootprint(def("trading_post").width, def("trading_post").height, tp.rotation);
+    const at = (gap: number) => ghost("sawmill", tp.x + tw - 1 + gap, tp.y);
+    expect(ghostRelated(at(reach), content, base)).toContain(tp.id);
+    expect(ghostRelated(at(reach + 1), content, base)).not.toContain(tp.id);
+    const collectors = new Set(idsOf("trading_post", "warehouse"));
+    for (const id of ghostRelated(at(0), content, base)) expect(collectors.has(id)).toBe(true);
+    expect(ghostRelated({ ...at(0), island: "isle-02" }, content, base).every((id) => !collectors.has(id))).toBe(true);
+  });
+
+  it("the reach outline: the footprint grown by reach + ½ tile around its corner tiles", () => {
+    const pts = reachOutline({ x: 10, y: 20, w: 2, h: 2 }, 5, 4);
+    expect(pts).toHaveLength(20);
+    const xs = pts.map((p) => p.x);
+    const ys = pts.map((p) => p.y);
+    expect(Math.min(...xs)).toBeCloseTo(10.5 - 5.5);
+    expect(Math.max(...xs)).toBeCloseTo(11.5 + 5.5);
+    expect(Math.min(...ys)).toBeCloseTo(20.5 - 5.5);
+    expect(Math.max(...ys)).toBeCloseTo(21.5 + 5.5);
+    expect(collectorReach(def("chapel"))).toBeNull();
+    expect(collectorReach(def("warehouse"), 99)).toBe(def("warehouse").warehouse!.levels.at(-1)!.reach);
   });
 
   it("is empty for anything else (roads, fields, the shipyard) or an unknown island", () => {

@@ -65,12 +65,14 @@ export function loadContent(dir: string): Content {
         levels: b.trading_post.levels.map((l: Raw) => ({
           capacity: m(l.capacity),
           throughput_per_min: m(l.throughput_per_min),
+          reach: l.reach ?? 0,
+          upkeep_per_min: m(l.upkeep_per_min ?? 0),
           berths: l.berths,
           ...(l.cost ? { cost: cost(l.cost) } : {}),
         })),
       };
     if (b.warehouse)
-      out.warehouse = { levels: b.warehouse.levels.map((l: Raw) => ({ throughput_per_min: m(l.throughput_per_min), ...(l.tier ? { tier: l.tier } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };
+      out.warehouse = { levels: b.warehouse.levels.map((l: Raw) => ({ throughput_per_min: m(l.throughput_per_min), reach: l.reach ?? 0, upkeep_per_min: m(l.upkeep_per_min ?? 0), ...(l.tier ? { tier: l.tier } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })) };
     if (b.road) out.road = { ms_per_tile: m(b.road.seconds_per_tile), shallows: !!b.road.shallows };
     if (b.pier) out.pier = { berths: b.pier.berths };
     if (b.depot)
@@ -81,7 +83,7 @@ export function loadContent(dir: string): Content {
         radius: levels[0]?.radius,
         ...(b.service.chain ? { chain: b.service.chain, rank: b.service.rank } : {}),
         // Level n needs tier n (D-065), derived like the server does.
-        levels: levels.map((l, i) => ({ radius: l.radius, ...(i > 0 && tierIDs[i] ? { tier: tierIDs[i] } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })),
+        levels: levels.map((l, i) => ({ radius: l.radius, upkeep_per_min: m(l.upkeep_per_min ?? b.upkeep_per_min ?? 0), ...(i > 0 && tierIDs[i] ? { tier: tierIDs[i] } : {}), ...(l.cost ? { cost: cost(l.cost) } : {}) })),
       };
     }
     if (b.work_area?.fertility) out.work_area = { fertility: b.work_area.fertility };
