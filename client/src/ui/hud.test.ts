@@ -379,6 +379,35 @@ describe("HUD components", () => {
       expect(html).not.toContain("route-delete");
     });
 
+    it("shows keep and the unload limit as number fields behind the good (D-070); empty is none / all", () => {
+      const limited = fixture("route_limits");
+      const r = limited.routes[0]!;
+      const html = renderToStaticMarkup(
+        createElement(RouteEditor, {
+          model: limited,
+          content,
+          routeId: r.id,
+          draft: draftFromRoute(r),
+          error: null,
+          onChange: noop,
+          onAddStop: noop,
+          onRemoveStop: noop,
+          onMoveStop: noop,
+          onSave: noop,
+          onDelete: noop,
+          onClose: noop,
+          onUnassign: noop,
+          onAssign: noop,
+        }),
+      );
+      const field = (testId: string) => html.match(new RegExp(`<input[^>]*data-testid="${testId}"[^>]*>`))?.[0] ?? "";
+      expect(field("route-load-keep-0-0")).toMatch(/min="0".*aria-label="Stop 1: keep on the island \(t\)".*value="250"/);
+      expect(field("route-unload-max-1-0")).toMatch(/min="0".*aria-label="Stop 2: unload at most \(t\)".*value="30"/);
+      // Stop 1 unloads planks without a limit, stop 2 loads planks without keep: empty fields with their placeholder.
+      expect(field("route-unload-max-0-0")).toMatch(/placeholder="all".*value=""/);
+      expect(field("route-load-keep-1-0")).toMatch(/placeholder="keep".*value=""/);
+    });
+
     it("names the route in the header like an island: the pencil, then the input with Rename and Cancel icons", () => {
       const html = editor(route.id);
       expect(html).toMatch(new RegExp(`data-testid="route-editor-title">${route.name}</h2>`));

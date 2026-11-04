@@ -427,8 +427,10 @@ three lines per route.
   the island name and "(unsettled)" where it applies; the stock is
   shown per good below);
   a stop is one card: number, island picker, move up/down and remove, then
-  one list of goods: good | Load / Unload | amount ("top up to" for a
-  load, "all" for an unload) | the island's current stock | remove, and a
+  one list of goods: good | Load / Unload | amounts in whole t (a load:
+  "top up to" and an optional "keep" on the island, D-070; an unload: an
+  optional most per visit, empty shows "all"; both ≥ 0, empty is no
+  limit) | the island's current stock | remove, and a
   "+ good" link (loads and unloads are still separate rules in the route). A "+ first stop…" / "+ stop…" picker adds stops, never a click
   on an island in the world. Server errors (e.g. consecutive stops on one
   island, `route_invalid`) are shown as toast and inline.
@@ -576,6 +578,9 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   archipelago-wide pools, the home guarantees, the schema version) is
   read defensively and shown only when present. Building pages show a
   depot's level table, a pier's berths and the quay's site (shallows).
+  The Ships page ends with a Routes chapter that words the route rules
+  of MECHANICS §9.2: unload first, then load; "top up to", the optional
+  keep on the island and the optional most unloaded per visit (D-070).
 - **Look:** the HUD's parchment in a dark-wood frame, Cinzel headings,
   brass accent; left navigation on desktop, sticky tabs on the phone;
   a search box filters buildings, goods, ships, quests, tiers and island
