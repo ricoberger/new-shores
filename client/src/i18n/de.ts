@@ -364,6 +364,7 @@ export const de: Record<keyof typeof en, string> = {
   "error.last_trading_post": "Das Kontor kann nicht abgerissen werden, solange andere Gebäude auf der Insel stehen.",
   "error.not_connected": "Das Gebäude hat keinen Weg zu einem Kontor oder Lagerhaus.",
   "error.quest_not_found": "Auftrag nicht gefunden.",
+  "error.plan_not_found": "Diesen Plan gibt es nicht mehr.",
   "error.quest_not_completed": "Der Auftrag ist noch nicht erfüllt.",
   "error.quest_already_claimed": "Die Belohnung wurde bereits abgeholt.",
   "error.field_type_mismatch": "Dieses Gebäude ist kein Feld.",

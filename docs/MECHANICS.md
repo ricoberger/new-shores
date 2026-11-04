@@ -254,6 +254,14 @@ handlers only.
     fields; demolishing the last Trading Post (unsettling) removes the
     island's plans. There is no cap on plans and no automatic or batch
     build.
+  - **Display:** the payload lists plans apart from buildings and roads
+    — `plans` (planned buildings and fields, `planned: true`, a field
+    with its `farm_id`) and `planned_roads` (segments) — each buildable
+    unit with its `plan_cost`: the cost of `build_plan` now (a planned
+    farm with its planned fields) and the first reason it would fail at
+    the payload's instant (the error code), so the client computes no
+    rule; a real farm with planned fields carries `planned_fields`
+    (IDs and `plan_cost`).
 
 ## 3. Roads and connection (D-014)
 

@@ -413,6 +413,24 @@
             }
           }
         ],
+        "plans": [
+          {
+            "id": 6,
+            "type": "bakery",
+            "x": 24,
+            "y": 1,
+            "rotation": 0,
+            "planned": true,
+            "plan_cost": {
+              "gold": 300000,
+              "materials": {
+                "planks": 15000,
+                "stone": 15000
+              },
+              "reason": "tier_locked"
+            }
+          }
+        ],
         "workforce": {
           "settlers": {
             "available": 1000000,
@@ -895,6 +913,24 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                }
+              }
+            ],
+            "plans": [
+              {
+                "id": 6,
+                "type": "bakery",
+                "x": 24,
+                "y": 1,
+                "rotation": 0,
+                "planned": true,
+                "plan_cost": {
+                  "gold": 300000,
+                  "materials": {
+                    "planks": 15000,
+                    "stone": 15000
+                  },
+                  "reason": "tier_locked"
                 }
               }
             ],
@@ -1383,6 +1419,24 @@
                 }
               }
             ],
+            "plans": [
+              {
+                "id": 6,
+                "type": "bakery",
+                "x": 24,
+                "y": 1,
+                "rotation": 0,
+                "planned": true,
+                "plan_cost": {
+                  "gold": 300000,
+                  "materials": {
+                    "planks": 15000,
+                    "stone": 15000
+                  },
+                  "reason": "tier_locked"
+                }
+              }
+            ],
             "workforce": {
               "settlers": {
                 "available": 1000000,
@@ -1865,6 +1919,24 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                }
+              }
+            ],
+            "plans": [
+              {
+                "id": 6,
+                "type": "bakery",
+                "x": 24,
+                "y": 1,
+                "rotation": 0,
+                "planned": true,
+                "plan_cost": {
+                  "gold": 300000,
+                  "materials": {
+                    "planks": 15000,
+                    "stone": 15000
+                  },
+                  "reason": "tier_locked"
                 }
               }
             ],
@@ -2353,6 +2425,24 @@
                 }
               }
             ],
+            "plans": [
+              {
+                "id": 6,
+                "type": "bakery",
+                "x": 24,
+                "y": 1,
+                "rotation": 0,
+                "planned": true,
+                "plan_cost": {
+                  "gold": 300000,
+                  "materials": {
+                    "planks": 15000,
+                    "stone": 15000
+                  },
+                  "reason": "tier_locked"
+                }
+              }
+            ],
             "workforce": {
               "settlers": {
                 "available": 1000000,
@@ -2835,6 +2925,24 @@
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
+                }
+              }
+            ],
+            "plans": [
+              {
+                "id": 6,
+                "type": "bakery",
+                "x": 24,
+                "y": 1,
+                "rotation": 0,
+                "planned": true,
+                "plan_cost": {
+                  "gold": 300000,
+                  "materials": {
+                    "planks": 15000,
+                    "stone": 15000
+                  },
+                  "reason": "tier_locked"
                 }
               }
             ],

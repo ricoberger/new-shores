@@ -94,8 +94,21 @@ func TestDevSnapshotRoundTrip(t *testing.T) {
 	if _, status := ts.reset(`{"fixture":"settled"}`); status != http.StatusOK {
 		t.Fatalf("reset settled: %d", status)
 	}
+	// A plan (D-071) is part of the snapshot.
+	ts.mutateWorld(func(w *sim.World) {
+		is := w.Islands[0]
+		for i := range is.Width * is.Height {
+			if sim.Apply(w, catalogue(t), sim.PlaceBuilding{IslandID: is.ID, Type: "house_settlers", X: i % is.Width, Y: i / is.Width, Planned: true}) == nil {
+				return
+			}
+		}
+		t.Fatal("no site for a planned house")
+	})
 	ts.clock.Add(time.Minute)
 	saved := ts.snapshot()
+	if !bytes.Contains(saved.body, []byte(`"plans"`)) {
+		t.Fatal("the snapshot carries no plans")
+	}
 	if ct := saved.header.Get("Content-Type"); ct != "application/json" {
 		t.Errorf("Content-Type = %q", ct)
 	}

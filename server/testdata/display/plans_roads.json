@@ -365,6 +365,41 @@
             "active": true
           }
         ],
+        "planned_roads": [
+          {
+            "type": "road_paved",
+            "planned": true,
+            "tiles": [
+              {
+                "x": 2,
+                "y": 9
+              },
+              {
+                "x": 3,
+                "y": 9
+              },
+              {
+                "x": 4,
+                "y": 9
+              },
+              {
+                "x": 5,
+                "y": 9
+              },
+              {
+                "x": 6,
+                "y": 9
+              }
+            ],
+            "plan_cost": {
+              "gold": 25000,
+              "materials": {
+                "stone": 5000
+              },
+              "reason": "tier_locked"
+            }
+          }
+        ],
         "workforce": {
           "settlers": {
             "available": 1000000,
@@ -800,6 +835,41 @@
                 "throughput_factor_permille": 1000,
                 "farm_id": 2,
                 "active": true
+              }
+            ],
+            "planned_roads": [
+              {
+                "type": "road_paved",
+                "planned": true,
+                "tiles": [
+                  {
+                    "x": 2,
+                    "y": 9
+                  },
+                  {
+                    "x": 3,
+                    "y": 9
+                  },
+                  {
+                    "x": 4,
+                    "y": 9
+                  },
+                  {
+                    "x": 5,
+                    "y": 9
+                  },
+                  {
+                    "x": 6,
+                    "y": 9
+                  }
+                ],
+                "plan_cost": {
+                  "gold": 25000,
+                  "materials": {
+                    "stone": 5000
+                  },
+                  "reason": "tier_locked"
+                }
               }
             ],
             "workforce": {
@@ -1239,6 +1309,41 @@
                 "active": true
               }
             ],
+            "planned_roads": [
+              {
+                "type": "road_paved",
+                "planned": true,
+                "tiles": [
+                  {
+                    "x": 2,
+                    "y": 9
+                  },
+                  {
+                    "x": 3,
+                    "y": 9
+                  },
+                  {
+                    "x": 4,
+                    "y": 9
+                  },
+                  {
+                    "x": 5,
+                    "y": 9
+                  },
+                  {
+                    "x": 6,
+                    "y": 9
+                  }
+                ],
+                "plan_cost": {
+                  "gold": 25000,
+                  "materials": {
+                    "stone": 5000
+                  },
+                  "reason": "tier_locked"
+                }
+              }
+            ],
             "workforce": {
               "settlers": {
                 "available": 1000000,
@@ -1674,6 +1779,41 @@
                 "throughput_factor_permille": 1000,
                 "farm_id": 2,
                 "active": true
+              }
+            ],
+            "planned_roads": [
+              {
+                "type": "road_paved",
+                "planned": true,
+                "tiles": [
+                  {
+                    "x": 2,
+                    "y": 9
+                  },
+                  {
+                    "x": 3,
+                    "y": 9
+                  },
+                  {
+                    "x": 4,
+                    "y": 9
+                  },
+                  {
+                    "x": 5,
+                    "y": 9
+                  },
+                  {
+                    "x": 6,
+                    "y": 9
+                  }
+                ],
+                "plan_cost": {
+                  "gold": 25000,
+                  "materials": {
+                    "stone": 5000
+                  },
+                  "reason": "tier_locked"
+                }
               }
             ],
             "workforce": {
@@ -2113,6 +2253,41 @@
                 "active": true
               }
             ],
+            "planned_roads": [
+              {
+                "type": "road_paved",
+                "planned": true,
+                "tiles": [
+                  {
+                    "x": 2,
+                    "y": 9
+                  },
+                  {
+                    "x": 3,
+                    "y": 9
+                  },
+                  {
+                    "x": 4,
+                    "y": 9
+                  },
+                  {
+                    "x": 5,
+                    "y": 9
+                  },
+                  {
+                    "x": 6,
+                    "y": 9
+                  }
+                ],
+                "plan_cost": {
+                  "gold": 25000,
+                  "materials": {
+                    "stone": 5000
+                  },
+                  "reason": "tier_locked"
+                }
+              }
+            ],
             "workforce": {
               "settlers": {
                 "available": 1000000,
@@ -2548,6 +2723,41 @@
                 "throughput_factor_permille": 1000,
                 "farm_id": 2,
                 "active": true
+              }
+            ],
+            "planned_roads": [
+              {
+                "type": "road_paved",
+                "planned": true,
+                "tiles": [
+                  {
+                    "x": 2,
+                    "y": 9
+                  },
+                  {
+                    "x": 3,
+                    "y": 9
+                  },
+                  {
+                    "x": 4,
+                    "y": 9
+                  },
+                  {
+                    "x": 5,
+                    "y": 9
+                  },
+                  {
+                    "x": 6,
+                    "y": 9
+                  }
+                ],
+                "plan_cost": {
+                  "gold": 25000,
+                  "materials": {
+                    "stone": 5000
+                  },
+                  "reason": "tier_locked"
+                }
               }
             ],
             "workforce": {

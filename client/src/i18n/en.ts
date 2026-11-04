@@ -362,6 +362,7 @@ export const en = {
   "error.last_trading_post": "The Trading Post cannot go while other buildings stand on the island.",
   "error.not_connected": "The building has no road to a Trading Post or a Warehouse.",
   "error.quest_not_found": "Quest not found.",
+  "error.plan_not_found": "That plan no longer exists.",
   "error.quest_not_completed": "The quest is not completed yet.",
   "error.quest_already_claimed": "The reward was already claimed.",
   "error.field_type_mismatch": "That building is not a field.",

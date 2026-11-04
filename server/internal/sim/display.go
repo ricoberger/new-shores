@@ -344,6 +344,11 @@ type IslandDisplay struct {
 	Inventory map[string]GoodDisplay `json:"inventory"`
 	Roads     []RoadDisplay          `json:"roads"`
 	Buildings []BuildingDisplay      `json:"buildings"`
+	// Plans are the planned buildings and fields, PlannedRoads the
+	// planned road segments (D-071); absent when the island has none.
+	// They are never buildings or roads.
+	Plans        []PlanDisplay        `json:"plans,omitempty"`
+	PlannedRoads []PlannedRoadDisplay `json:"planned_roads,omitempty"`
 	// Workforce per tier with houses or demand on the island.
 	Workforce map[string]WorkforceDisplay `json:"workforce"`
 	// Population per tier (milli-residents).
@@ -520,6 +525,8 @@ type BuildingDisplay struct {
 	// status not_adjacent).
 	FarmID *int64 `json:"farm_id,omitempty"`
 	Active *bool  `json:"active,omitempty"`
+	// PlannedFields is set for a farm with planned fields (D-071).
+	PlannedFields *PlannedFieldsDisplay `json:"planned_fields,omitempty"`
 }
 
 // BerthsDisplay is the pier of a Trading Post: its berths (count), the
@@ -870,6 +877,7 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, wr *worldRates, r
 		}
 		d.Buildings = append(d.Buildings, bd)
 	}
+	displayPlans(w, c, is, &d)
 	return d
 }
 
