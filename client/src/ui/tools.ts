@@ -12,8 +12,14 @@ export type Tool =
   /** `pending`: the tile a touch tap put the ghost on, waiting for Confirm. */
   | { kind: "build"; buildingType: string; rotation: Rotation; pending?: IslandTile }
   | { kind: "road"; roadType: string }
-  /** Moving a placed building (D-042); the ghost uses its footprint. */
-  | { kind: "move"; buildingId: number; buildingType: string; rotation: Rotation; pending?: IslandTile }
+  /**
+   * Moving a placed building (D-042); the ghost uses its footprint. `pick`:
+   * started from the build bar's Move tool, which comes back for the next
+   * building after a move.
+   */
+  | { kind: "move"; buildingId: number; buildingType: string; rotation: Rotation; pending?: IslandTile; pick?: boolean }
+  /** The build bar's Move tool before a building is picked: a click on one starts its move (UI.md §3). */
+  | { kind: "movePick" }
   /** Placing the Trading Post of an unsettled island from a ship's cargo (D-051): the ship sails there first unless it is idle there. */
   | { kind: "found"; shipId: number; buildingType: string; rotation: Rotation; pending?: IslandTile }
   /**

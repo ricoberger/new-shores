@@ -282,7 +282,13 @@ UI shows the same numbers the server uses.
 - **Move** (D-042): "Move" in the info panel (or drag a selected building)
   lifts it into a ghost that follows the pointer with the same validity
   colours; click/tap places it, Esc cancels and the building stays. Free;
-  no confirmation. Roads cannot be moved.
+  no confirmation. Roads cannot be moved. The build bar also has a
+  **Move tool** (icon button next to Demolish): pick the tool, click a
+  building (the one under the pointer carries the hover mark), place its
+  ghost (validity tint, R rotates; on touch tap and Confirm), and the tool
+  comes back for the next building; Esc or a right click leaves it.
+  Same rules as the card's Move: a field shows a toast instead (fields
+  follow their farm), roads are not buildings to pick.
 - Buildings may be placed without a road; the ghost shows yellow ("not
   connected") rather than red, and the warnings panel lists the building
   until a road reaches it. A producer on a road whose collectors are all
@@ -481,8 +487,8 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   hint bar hides and the insolvency banner is limited to one line.
 - Compact top bar: see §2 (icons and numbers, island on a second row in
   portrait; popups open on tap). Build menu: the
-  desktop look (folder tabs, parchment cards, an icon-only Demolish button
-  pinned at the right of the tab row behind a divider), with ≥ 44 px tabs and cards on touch; short landscape
+  desktop look (folder tabs, parchment cards, icon-only Move and Demolish
+  buttons pinned at the right of the tab row behind a divider), with ≥ 44 px tabs and cards on touch; short landscape
   phones keep the stacked layout with smaller cards and thumbnails. Hints and banners stack below the top
   bar; toasts below the top bar.
 - **Gestures** (one pointer-event recogniser; input type decides per

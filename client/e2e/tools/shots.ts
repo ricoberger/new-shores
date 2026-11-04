@@ -851,6 +851,34 @@ function linkedGhost(type: string, fixture: Fixture, near: string): { fixture: F
   };
 }
 
+/** The build bar's Move tool (UI.md §3) on the played fixture: hovering a sawmill ("pick", its hover mark) or after picking it, its ghost a few tiles away ("ghost"). */
+function moveTool(stage: "pick" | "ghost"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "played",
+    device: "desktop",
+    run: async (page) => {
+      const at = await page.evaluate(() => {
+        const d = window.__newShores!.getServer()!.display;
+        const is = d.islands.reduce((a, b) => (b.buildings.length > a.buildings.length ? b : a));
+        const list = is.buildings.filter((x) => x.type === "sawmill");
+        const b = list[Math.floor(list.length / 2)]!;
+        return { island: is.id, x: b.x + 1, y: b.y + 1, ox: is.position.x, oy: is.position.y };
+      });
+      await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half: 12, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await page.getByTestId("tool-move").click();
+      const p = await tileAt(page, at.island, at.x, at.y);
+      await page.mouse.move(p.x, p.y);
+      if (stage === "pick") return settle(page);
+      await page.mouse.click(p.x, p.y);
+      const q = await tileAt(page, at.island, at.x + 5, at.y + 2);
+      await page.mouse.move(q.x, q.y);
+      await page.waitForFunction(() => window.__newShores!.ghostValidity() !== null, undefined, { timeout: 10_000 });
+    },
+  };
+}
+
 function ghostTerrace(type: string, state: "ok" | "no_road" | "invalid"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
     fixture: "settled",
@@ -1403,6 +1431,8 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   "ghost-terrace-3-invalid": ghostTerrace("hemp_farm", "invalid"),
   "ghost-terrace-6": ghostTerrace("warehouse", "ok"),
   "ghost-terrace-6-invalid": ghostTerrace("market", "no_road"),
+  "move-pick": moveTool("pick"),
+  "move-ghost": moveTool("ghost"),
   // A Merchant house of the merchants fixture selected (D-056 C3), desktop and phone.
   "merchant-house-card": {
     fixture: "merchants",

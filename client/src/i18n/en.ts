@@ -235,6 +235,8 @@ export const en = {
   "app.hint.road": "Drag to draw a road · Esc / right click cancel",
   "app.hint.fieldsRemove": "Click or drag over {name}s to remove them · Esc / right click leave",
   "app.hint.fieldsAdd": "Click to add a {name}, drag to paint a rectangle next to the farm or its fields ({degrees}°) · R rotate · Esc / right click leave",
+  "app.hint.movePick": "Click a building to move it · Esc / right click leave",
+  "app.moveField": "Fields cannot be moved: demolish them and add them again",
   "app.hint.demolish": "Click a building, field or road to demolish, drag over fields to remove them · Esc / right click cancel",
   "app.found.here": "\"Found settlement here\" lets you place the Trading Post with its pier on the water; {ship} is here.",
   "app.found.sails": "\"Found settlement here\" lets you place the Trading Post with its pier on the water; {ship} sails there first.",

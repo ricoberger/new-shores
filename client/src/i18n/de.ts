@@ -237,6 +237,8 @@ export const de: Record<keyof typeof en, string> = {
   "app.hint.road": "Ziehen, um eine Straße zu zeichnen · Esc / Rechtsklick abbrechen",
   "app.hint.fieldsRemove": "Klicken oder über Felder ziehen, um sie zu entfernen · Esc / Rechtsklick beenden",
   "app.hint.fieldsAdd": "Klicken, um ein Feld anzulegen, oder ein Rechteck neben dem Hof oder seinen Feldern aufziehen ({degrees}°) · R drehen · Esc / Rechtsklick beenden",
+  "app.hint.movePick": "Ein Gebäude anklicken, um es zu verschieben · Esc / Rechtsklick beenden",
+  "app.moveField": "Felder lassen sich nicht verschieben: abreißen und neu anlegen",
   "app.hint.demolish": "Ein Gebäude, Feld oder eine Straße anklicken zum Abreißen, über Felder ziehen zum Entfernen · Esc / Rechtsklick abbrechen",
   "app.found.here": "„Hier Siedlung gründen“ lässt dich das Kontor mit seinem Steg im Wasser platzieren; {ship} ist hier.",
   "app.found.sails": "„Hier Siedlung gründen“ lässt dich das Kontor mit seinem Steg im Wasser platzieren; {ship} segelt zuerst hin.",

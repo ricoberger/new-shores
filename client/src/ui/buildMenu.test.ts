@@ -175,3 +175,17 @@ describe("build cards", () => {
     expect(card(render({ initialTier: "citizens", fertilities: ["wheat"] }), "wheat_farm")).not.toContain("build-fertility-");
   });
 });
+
+describe("build bar Move tool (UI.md §3)", () => {
+  it("sits next to Demolish when the HUD wires it, pressed while picking or moving from it", () => {
+    expect(render()).not.toContain('data-testid="tool-move"');
+    const idle = render({ onMoveTool: noop });
+    expect(idle).toMatch(/aria-pressed="false"[^>]*aria-label="Move"[^>]*data-testid="tool-move"/);
+    expect(idle.indexOf('data-testid="tool-move"')).toBeLessThan(idle.indexOf('data-testid="tool-demolish"'));
+    expect(render({ onMoveTool: noop, tool: { kind: "movePick" } })).toMatch(/aria-pressed="true"[^>]*data-testid="tool-move"/);
+    const picked = { kind: "move", buildingId: 1, buildingType: "fisher", rotation: 0, pick: true } as const;
+    expect(render({ onMoveTool: noop, tool: picked })).toMatch(/aria-pressed="true"[^>]*data-testid="tool-move"/);
+    // A move from the card is not the bar's tool.
+    expect(render({ onMoveTool: noop, tool: { ...picked, pick: undefined } })).toMatch(/aria-pressed="false"[^>]*data-testid="tool-move"/);
+  });
+});

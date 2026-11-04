@@ -21,6 +21,8 @@ interface Props {
   tool: Tool;
   onSelect: (b: ContentBuilding) => void;
   onDemolishTool: () => void;
+  /** The Move tool (UI.md §3): pick a building, place it, pick the next. */
+  onMoveTool?: () => void;
   /** Short landscape phones: the same menu with a tighter density (smaller cards and thumbnails). */
   dense?: boolean;
   /** The tier tab opened first instead of the current one (screenshots, tests). */
@@ -50,10 +52,11 @@ export function tierNumeral(index: number): string {
  */
 const cap = (v: string) => v.charAt(0).toUpperCase() + v.slice(1);
 
-export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, dense = false, initialTier }: Props) {
+export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, onMoveTool, dense = false, initialTier }: Props) {
   const [chosen, setChosen] = useState<string | null>(initialTier ?? null);
   if (!content) return null;
   const tabs = buildTierTabs(model, content);
+  const moving = tool.kind === "movePick" || (tool.kind === "move" && tool.pick === true);
   // The current tier unless the player opened another one (or the chosen one is gone).
   const shown = tabs.find((tab) => tab.id === chosen)?.id ?? defaultBuildTier(tabs);
   const island = model?.islands.find((is) => is.id === islandId);
@@ -97,6 +100,19 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
           ))}
         </div>
         <span className={styles.tabDivider} aria-hidden="true" />
+        {onMoveTool && (
+          <button
+            type="button"
+            className={`${styles.toolButton} ${moving ? styles.itemActive : ""}`}
+            onClick={onMoveTool}
+            aria-pressed={moving}
+            aria-label={t("infoPanel.move")}
+            title={t("infoPanel.move")}
+            data-testid="tool-move"
+          >
+            <Icon path={toolIcon("move")} />
+          </button>
+        )}
         <button
           type="button"
           className={`${styles.toolButton} ${tool.kind === "demolish" ? styles.itemActive : ""}`}

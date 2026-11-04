@@ -121,6 +121,8 @@ export interface RendererEvents {
   /** The live count of a painted or removal rectangle ("n / max …"), null when no rectangle is dragged. */
   paintStatus(text: string | null): void;
   demolish(at: IslandTile): void;
+  /** The Move tool picks the building under a tile (the UI looks it up; roads and fields are not moved). */
+  pickMove(at: IslandTile): void;
   cancelTool(): void;
   /**
    * The placement ghost's hint changed: why the server would reject the
@@ -1440,6 +1442,9 @@ export class GameRenderer {
         return;
       case "demolish":
         this.events.demolish(tl);
+        return;
+      case "movePick":
+        this.events.pickMove(tl);
     }
   }
 
@@ -1561,7 +1566,9 @@ export class GameRenderer {
   private updateMarks(): void {
     const tool = this.tool();
     const server = this.sync.getSnapshot().server;
-    const key = `${this.selected ?? ""}|${this.hoverBuilding ?? ""}|${tool.kind === "field" ? tool.farmId : ""}|${server?.version ?? 0}|${this.lod}`;
+    // The Move tool marks the building it would pick under the pointer.
+    const pick = tool.kind === "movePick" ? this.movableUnderPointer() : undefined;
+    const key = `${this.selected ?? ""}|${this.hoverBuilding ?? ""}|${tool.kind === "field" ? tool.farmId : ""}|${pick?.b.id ?? ""}|${server?.version ?? 0}|${this.lod}`;
     if (key === this.marksKey) return;
     this.marksKey = key;
     const marks: Mark[] = [];
@@ -1587,8 +1594,18 @@ export class GameRenderer {
       if (tool.kind === "field" && tool.farmId !== this.selected) chainOf(this.findBuilding(tool.farmId));
       const hover = this.hoverBuilding === null ? undefined : this.findBuilding(this.hoverBuilding);
       if (hover) add(hover.island, hover.b, "hover");
+      if (pick) add(pick.island, pick.b, "hover");
     }
     this.marks.set(marks);
+  }
+
+  /** The building the Move tool would pick under the pointer: not a field (fields follow their farm). */
+  private movableUnderPointer(): { b: BuildingDisplay; island: IslandDisplay } | undefined {
+    const tl = this.hover ? this.tileAt(this.hover) : null;
+    const island = tl ? this.displayIsland(tl.island) : undefined;
+    const b = tl && island ? buildingAt(island.buildings, this.defs, tl.x, tl.y) : undefined;
+    if (!b || !island || this.defs.get(b.type)?.field) return undefined;
+    return { b, island };
   }
 
   /**
