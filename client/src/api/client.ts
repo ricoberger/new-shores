@@ -26,6 +26,9 @@ export type LoadRule = Schemas["LoadRule"];
 export type UnloadRule = Schemas["UnloadRule"];
 export type IslandTiles = Schemas["IslandTiles"];
 export type DepositDisplay = Schemas["DepositDisplay"];
+export type PlanDisplay = Schemas["PlanDisplay"];
+export type PlannedRoadDisplay = Schemas["PlannedRoadDisplay"];
+export type PlanCostDisplay = Schemas["PlanCostDisplay"];
 /**
  * Static data of an island the renderer and the placement hints read: the
  * full terrain rows (GET …/islands/{id}/tiles) with the fertilities and

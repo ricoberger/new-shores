@@ -19,6 +19,7 @@ import { tons, units } from "../display/format";
 import { countdown, shipName } from "../display/ships";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { planRoadDrag, roadDragSend } from "../display/roaddrag";
+import { hintSite, planningRoadDrag } from "../display/plans";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
 import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
@@ -111,6 +112,8 @@ export interface TestHook {
   depositCount(): number;
   /** Deposit markers floating over the highlighted clusters (UI.md §3). */
   depositMarkerCount(): number;
+  /** Plans and planned road tiles drawn (D-071; none at far LOD). */
+  planCount(): number;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
@@ -162,6 +165,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const [vs, dispatch] = useReducer(viewReducer, undefined, initialViewState);
   const [tool, setTool] = useState<Tool>(NO_TOOL);
+  // Planning mode (D-071): every placement — building, road, field — creates a plan. Session state; the plans persist on the server.
+  const [planning, setPlanning] = useState(false);
   const [buildOpen, setBuildOpen] = useState(loadBuildOpen);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
@@ -254,6 +259,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   };
 
   const send = async (cmd: Command): Promise<ApiError | null> => (await sendCommand(cmd)).error;
+
+  /** The `planned` flag of the placement commands in planning mode (D-071); nothing otherwise (the default false). */
+  const plannedFlag = planning ? { planned: true } : {};
 
   const demolish = async (islandId: string, b: BuildingDisplay, acceptSurplusLoss: boolean) => {
     const err = await send({ type: "demolish", island_id: islandId, building_id: b.id, accept_surplus_loss: acceptSurplusLoss });
@@ -361,9 +369,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     }
     const cmd: Command =
       tl.kind === "build"
-        ? { type: "place_building", island_id: islandId, building_type: tl.buildingType, x, y, rotation: tl.rotation }
+        ? { type: "place_building", island_id: islandId, building_type: tl.buildingType, x, y, rotation: tl.rotation, ...plannedFlag }
         : tl.kind === "field"
-          ? { type: "place_field", island_id: islandId, farm_id: tl.farmId, building_type: tl.buildingType, x, y, rotation: tl.rotation }
+          ? { type: "place_field", island_id: islandId, farm_id: tl.farmId, building_type: tl.buildingType, x, y, rotation: tl.rotation, ...plannedFlag }
           : tl.kind === "move"
             ? { type: "move_building", island_id: islandId, building_id: tl.buildingId, x, y, rotation: tl.rotation }
             : { type: "found_island", ship_id: tl.shipId, island_id: islandId, building_type: tl.buildingType, x, y, rotation: tl.rotation };
@@ -414,6 +422,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       building_type: p.buildingType,
       tiles: p.tiles,
       rotation: p.rotation as 0 | 90 | 180 | 270,
+      ...plannedFlag,
     });
     if (!ok) {
       if (error) void sync.refresh();
@@ -495,10 +504,12 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     road: (islandId: string, from: TilePos, to: TilePos) => {
       const is = model?.islands.find((x) => x.id === islandId);
       if (tool.kind !== "road" || !is) return;
-      // Tiles that already carry the road are not sent (display hint, the server validates the rest).
+      // Tiles that already carry the road are not sent (display hint, the server validates the rest); plans reserve
+      // their tiles, and a planned road goes on free tiles only (D-071).
       const st = renderer?.islandStatics().get(islandId);
-      const tiles = st
-        ? roadDragSend(planRoadDrag(from, to, tool.roadType, { island: st, buildings: is.buildings, roads: is.roads, defs, tiers: content?.tiers }))
+      const drag = st ? planRoadDrag(from, to, tool.roadType, { island: st, buildings: hintSite(is, false).buildings, roads: is.roads, defs, tiers: content?.tiers }) : null;
+      const tiles = drag
+        ? roadDragSend(planning ? planningRoadDrag(drag, is) : drag)
         : lPath(from, to).filter((tl) => !is.roads.some((r) => r.x === tl.x && r.y === tl.y));
       if (tiles.length === 0) return;
       // A quay off the shallows would be rejected (display mirror of the rule, D-060).
@@ -506,7 +517,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         toast(t("app.quayShallows", { count: SHALLOWS_REACH }));
         return;
       }
-      void send({ type: "place_road", island_id: islandId, road_type: tool.roadType, tiles });
+      void send({ type: "place_road", island_id: islandId, road_type: tool.roadType, tiles, ...plannedFlag });
     },
     demolish: (at: IslandTile) => {
       const is = model?.islands.find((x) => x.id === at.island);
@@ -546,6 +557,21 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       dispatch({ type: "selectIsland", id });
     },
     camera: (info: CameraInfo) => setCam(info),
+  };
+
+  /**
+   * Planning mode on or off (D-071). Off ends a build or road tool of a
+   * tier that is not unlocked (only plans may be of a locked tier).
+   */
+  const togglePlanning = () => {
+    const next = !planning;
+    setPlanning(next);
+    if (next) return;
+    const unlocked = (type: string) => {
+      const tier = defs.get(type)?.tier;
+      return !tier || model?.tiers.find((x) => x.id === tier)?.unlocked !== false;
+    };
+    setTool((tl) => ((tl.kind === "build" && !unlocked(tl.buildingType)) || (tl.kind === "road" && !unlocked(tl.roadType)) ? NO_TOOL : tl));
   };
 
   const selectBuildItem = (b: ContentBuilding) => {
@@ -603,6 +629,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   }, []);
 
   useEffect(() => renderer?.setSelected(selected), [renderer, selected, snap.server]);
+  useEffect(() => renderer?.setPlanning(planning), [renderer, planning]);
 
   // Selection ring, highlighted route and the editor's live draft.
   const archSel = vs.selection.kind === "ship" || vs.selection.kind === "island" ? vs.selection : ({ kind: "none" } as const);
@@ -683,6 +710,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         paintCounts: () => rendererRef.current?.paintCounts() ?? { ok: 0, bad: 0, max: 0, remove: 0, flash: 0 },
         depositCount: () => rendererRef.current?.depositCount() ?? 0,
         depositMarkerCount: () => rendererRef.current?.depositMarkerCount() ?? 0,
+        planCount: () => rendererRef.current?.planCount() ?? 0,
         quality: () => rendererRef.current?.quality() ?? "low",
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         assets: () =>
@@ -987,6 +1015,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           : t("app.hint.fieldsAdd", { name: fieldName, degrees: tool.rotation }))}
       {tool.kind === "demolish" && t("app.hint.demolish")}
       {tool.kind === "movePick" && t("app.hint.movePick")}
+      {planning && (tool.kind === "build" || tool.kind === "road" || tool.kind === "field") && !(tool.kind === "field" && tool.remove) && (
+        <div className={styles.hintCount} data-testid="tool-hint-planning">
+          {t("app.hint.planning")}
+        </div>
+      )}
       {paintStatus && (tool.kind === "field" || tool.kind === "demolish") && (
         <div className={styles.hintCount} data-testid="paint-count">
           {paintStatus}
@@ -1023,10 +1056,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           />
           <InsolvencyBanner model={model} onOpenWarnings={() => togglePanel("warnings", true)} compact={phone} oneLine={tightLandscape} />
           {placementBar && isGhostTool(tool) && (
-            <PlacementBar tool={tool} hint={ghostHint} paintStatus={paintStatus} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
+            <PlacementBar tool={tool} planning={planning} hint={ghostHint} paintStatus={paintStatus} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
           )}
           {demolishBar && <DemolishBar onDone={() => setTool(NO_TOOL)} />}
-          {roadBar && <RoadBar onDone={() => setTool(NO_TOOL)} />}
+          {roadBar && <RoadBar planning={planning} onDone={() => setTool(NO_TOOL)} />}
           {phone && toolHint}
           {phone && unreachable}
         </div>
@@ -1074,6 +1107,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
                 onSelect={selectBuildItem}
                 onDemolishTool={() => setTool((tl) => (tl.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
                 onMoveTool={() => setTool((tl) => (tl.kind === "movePick" || (tl.kind === "move" && tl.pick) ? NO_TOOL : { kind: "movePick" }))}
+                planning={planning}
+                onPlanTool={togglePlanning}
                 dense={layout.mode === "phone-landscape"}
               />
             )

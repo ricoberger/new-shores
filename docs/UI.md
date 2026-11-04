@@ -289,6 +289,28 @@ UI shows the same numbers the server uses.
   comes back for the next building; Esc or a right click leaves it.
   Same rules as the card's Move: a field shows a toast instead (fields
   follow their farm), roads are not buildings to pick.
+- **Planning** (D-071): the build bar's **planning toggle** (pencil and
+  ruler icon, before Move and Demolish; pressed while on) switches every
+  placement — buildings, road drags, fields painted or tapped — to a
+  **plan**: the same commands with `planned: true` (MECHANICS §2
+  "Planning"), free, without the tier lock, so the cards of a locked
+  tier can be picked while planning (they keep their lock note). The
+  tool hint adds "Planning: this creates a plan" (touch: the placement
+  and road bars start with "Planning ·"). The toggle is a session
+  setting; the plans stay on the server across toggling, sessions and
+  devices. Turning it off ends a build tool of a locked tier. Plans are
+  drawn in the ghost material — the model translucent and untinted (the
+  footprint box while it loads) — with a thin gold outline of the
+  footprint; planned road tiles are translucent slabs with the gold
+  outline along the planned road's edge (`render/plans.ts`). No
+  construction stage, smoke, status badge or life-layer figure, and none
+  at the far view (not in the far mesh or the far road layer). Plans
+  reserve their tiles in the client hints too (`display/plans.ts`): a
+  road drag or field ghost over a plan is red; in planning mode the road
+  drag skips tiles that carry a road or a planned road (a planned road
+  goes on free tiles only), and planned fields chain their farm and
+  count toward its maximum. A real road dragged over a planned road
+  replaces the plan.
 - Buildings may be placed without a road; the ghost shows yellow ("not
   connected") rather than red, and the warnings panel lists the building
   until a road reaches it. A producer on a road whose collectors are all

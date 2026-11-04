@@ -57,6 +57,29 @@ describe("build menu tabs", () => {
   });
 });
 
+describe("build menu planning toggle (D-071)", () => {
+  it("shows the toggle next to Move and Demolish, pressed while planning", () => {
+    expect(render()).not.toContain("tool-plan");
+    const off = render({ onPlanTool: noop });
+    expect(off).toMatch(/aria-pressed="false"[^>]*data-testid="tool-plan"/);
+    const on = render({ onPlanTool: noop, planning: true });
+    expect(on).toMatch(/aria-pressed="true"[^>]*data-testid="tool-plan"/);
+    // Before Move and Demolish in the tab bar.
+    const both = render({ onPlanTool: noop, onMoveTool: noop });
+    expect(both.indexOf("tool-plan")).toBeLessThan(both.indexOf("tool-move"));
+    expect(both.indexOf("tool-move")).toBeLessThan(both.indexOf("tool-demolish"));
+  });
+
+  it("enables the cards of a locked tier while planning, keeping the lock note", () => {
+    const html = render({ initialTier: "citizens", planning: true, onPlanTool: noop });
+    expect(html.match(/<button[^>]*data-testid="build-bakery"[^>]*>/)?.[0]).not.toContain("disabled");
+    expect(text(html.match(/data-testid="build-lock-bakery"[^>]*>(.*?)<\/span>/)![1]!)).toBe("Needs Citizens — 88/120 Settlers · Build Chapel");
+    // Still locked while the island loads.
+    const loading = render({ initialTier: "citizens", planning: true, loading: true });
+    expect(loading.match(/<button[^>]*data-testid="build-bakery"[^>]*>/)?.[0]).toContain("disabled");
+  });
+});
+
 describe("build menu groups", () => {
   const groups = (tier: string) => buildMenuGroups(content, tier).map((r) => [r.group, r.items.map((b) => b.id)] as const);
 

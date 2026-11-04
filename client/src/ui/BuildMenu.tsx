@@ -23,6 +23,10 @@ interface Props {
   onDemolishTool: () => void;
   /** The Move tool (UI.md §3): pick a building, place it, pick the next. */
   onMoveTool?: () => void;
+  /** Planning mode (D-071): placements create plans; the cards of a locked tier can be planned. */
+  planning?: boolean;
+  /** The planning toggle next to Move and Demolish (D-071); none without it. */
+  onPlanTool?: () => void;
   /** Short landscape phones: the same menu with a tighter density (smaller cards and thumbnails). */
   dense?: boolean;
   /** The tier tab opened first instead of the current one (screenshots, tests). */
@@ -52,7 +56,7 @@ export function tierNumeral(index: number): string {
  */
 const cap = (v: string) => v.charAt(0).toUpperCase() + v.slice(1);
 
-export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, onMoveTool, dense = false, initialTier }: Props) {
+export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, onMoveTool, planning = false, onPlanTool, dense = false, initialTier }: Props) {
   const [chosen, setChosen] = useState<string | null>(initialTier ?? null);
   if (!content) return null;
   const tabs = buildTierTabs(model, content);
@@ -100,6 +104,19 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
           ))}
         </div>
         <span className={styles.tabDivider} aria-hidden="true" />
+        {onPlanTool && (
+          <button
+            type="button"
+            className={`${styles.toolButton} ${planning ? styles.itemActive : ""}`}
+            onClick={onPlanTool}
+            aria-pressed={planning}
+            aria-label={t("build.planning")}
+            title={t(planning ? "build.planningOn" : "build.planningOff")}
+            data-testid="tool-plan"
+          >
+            <Icon path={toolIcon("plan")} />
+          </button>
+        )}
         {onMoveTool && (
           <button
             type="button"
@@ -132,7 +149,9 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
               <div className={styles.groupLabel}>{t(`build.group.${run.group}`)}</div>
               <div className={styles.groupItems}>
                 {run.items.map((b) => {
-                  const locked = !tabs.find((tab) => tab.id === b.tier)?.unlocked || loading;
+                  // A locked tier's cards can be planned (D-071: planning ignores the tier lock).
+                  const tierLocked = !tabs.find((tab) => tab.id === b.tier)?.unlocked;
+                  const locked = (tierLocked && !planning) || loading;
                   const fertility = fertilityNeed(b, fertilities);
                   const cost = buildCost(b, model?.gold ?? 0, stock);
                   const needCategory = b.service ? serviceNeedCategory(content, b) : undefined;
@@ -219,7 +238,7 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                         </span>
                       )}
                       {/* The note row (always there, so every card is equally high): why the tier is locked. */}
-                      {locked ? (
+                      {locked || tierLocked ? (
                         <span className={`${styles.lock} ${styles.cardNote}`} data-testid={`build-lock-${b.id}`}>
                           {lockText(b)}
                         </span>

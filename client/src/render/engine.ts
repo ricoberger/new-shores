@@ -57,6 +57,8 @@ import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
 import { PaintPreview, type PaintMark } from "./paint";
 import { planRoadDrag } from "../display/roaddrag";
+import { hintFarm, hintSite, planningRoadDrag } from "../display/plans";
+import { PlanLayer, type PlanRoadTile, type PlanSpec } from "./plans";
 import { t } from "../i18n";
 
 /**
@@ -203,6 +205,10 @@ export class GameRenderer {
   private marksKey = "";
   private hoverBuilding: number | null = null;
   private readonly ghost: PlacementGhost;
+  /** Plans (D-071): planned buildings, fields and road tiles in the ghost look, at near and mid LOD. */
+  private readonly plans: PlanLayer;
+  /** Planning mode (D-071): placements create plans; the road drag and field hints follow the planned placement rules. */
+  private planning = false;
   private lookups = new Map<string, IslandLookups>();
   private lastGhostHint: string | null = null;
   /** What the placement ghost would be linked with (houses it serves, buildings serving it, producers or collectors), tinted like a selection (a hint). */
@@ -326,6 +332,7 @@ export class GameRenderer {
     this.depositMarkers = new DepositMarkers(this.scene);
 
     this.ghost = new PlacementGhost(this.scene, this.models);
+    this.plans = new PlanLayer(this.scene, this.models);
 
     this.input = new PointerInput(canvas, () => this.ratio(), {
       pointerDown: (kind, first) => this.onPointerDown(kind, first),
@@ -393,6 +400,7 @@ export class GameRenderer {
     this.paintPreview.tick(tl, this.frozenAt !== null);
     this.updateDeposits();
     this.updateReachRing();
+    this.updatePlans();
     this.updateGrid();
     this.updateMarks();
     this.engine._drawCalls.fetchNewFrame();
@@ -1683,10 +1691,10 @@ export class GameRenderer {
       if (!farm || farm.island.id !== tl.island) {
         hint = t("field.hint.otherIsland");
       } else if (l?.statics) {
-        const h = fieldPlacementHint(farm.b, def, tl.x, tl.y, tool.rotation, {
+        // Plans reserve their tiles; in planning mode planned fields chain and count (D-071).
+        const h = fieldPlacementHint(hintFarm(farm.b, l.display, this.planning), def, tl.x, tl.y, tool.rotation, {
           island: l.statics,
-          buildings: l.display.buildings,
-          roads: l.display.roads,
+          ...hintSite(l.display, this.planning),
           defs: this.defs,
         });
         if (h) hint = fieldHintText(h, def.name, this.defs.get(farm.b.type)?.name ?? farm.b.type);
@@ -1819,7 +1827,9 @@ export class GameRenderer {
     const pl = this.arch.placement(island);
     if (!l?.statics || !pl) return [];
     const detail = this.details.get(island);
-    const tiles = planRoadDrag(start, end, roadType, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs, tiers: this.tiers });
+    // Plans reserve their tiles; a planned road goes on free tiles only (D-071).
+    const drag = planRoadDrag(start, end, roadType, { island: l.statics, buildings: hintSite(l.display, false).buildings, roads: l.display.roads, defs: this.defs, tiers: this.tiers });
+    const tiles = this.planning ? planningRoadDrag(drag, l.display) : drag;
     // A road the new one replaces (MECHANICS §3) is marked like a new tile.
     return tiles
       .filter((tl) => tl.hint !== "skip")
@@ -1843,7 +1853,7 @@ export class GameRenderer {
     if (!def || !farm || !l?.statics) return null;
     const [w, h] = tool.rotation === 90 || tool.rotation === 270 ? [def.height, def.width] : [def.width, def.height];
     const { anchors, clipped } = paintAnchors(drag, w, h);
-    const plan = planPaint(farm.b, def, anchors, tool.rotation, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs }, clipped);
+    const plan = planPaint(hintFarm(farm.b, l.display, this.planning), def, anchors, tool.rotation, { island: l.statics, ...hintSite(l.display, this.planning), defs: this.defs }, clipped);
     const wrongIsland = farm.island.id !== drag.island;
     if (wrongIsland) for (const tl of plan.tiles) tl.hint = "not_adjacent";
     return { plan, wrongIsland };
@@ -1911,6 +1921,48 @@ export class GameRenderer {
     }
     this.depositHighlight.set(marks);
     this.depositMarkers.set(kind, markers);
+  }
+
+  /**
+   * The plans (D-071 §5) of the islands drawn in detail at near and mid
+   * LOD; none at far (not in the far mesh or the far road layer).
+   * Rebuilt when the server state, the detailed islands or the loaded
+   * models change.
+   */
+  private updatePlans(): void {
+    const server = this.sync.getSnapshot().server;
+    const ready = server && this.lod !== "far" ? [...this.details].filter(([id, d]) => d.hasTiles() && this.arch.placement(id)) : [];
+    const key = ready.length > 0 && server ? `${server.version}|${this.modelLoads}|${ready.map(([id]) => id).join(",")}` : "";
+    if (!key) {
+      this.plans.set("", [], []);
+      return;
+    }
+    const plans: PlanSpec[] = [];
+    const roads: PlanRoadTile[] = [];
+    for (const [id, d] of ready) {
+      const is = this.displayIsland(id);
+      const pl = this.arch.placement(id);
+      if (!is || !pl) continue;
+      for (const p of is.plans ?? []) {
+        const def = this.defs.get(p.type);
+        if (def) plans.push({ id: p.id, def, island: pl.position, x: p.x, y: p.y, rotation: p.rotation, base: d.baseOf(p, def) });
+      }
+      for (const r of is.planned_roads ?? []) {
+        for (const tl of r.tiles) roads.push({ island: pl.position, x: tl.x, y: tl.y, base: d.baseOf({ x: tl.x, y: tl.y, type: "", rotation: 0 }, { width: 1, height: 1 }) });
+      }
+    }
+    this.plans.set(key, plans, roads);
+  }
+
+  /** Planning mode (D-071): the road drag and field hints follow the planned placement rules. */
+  setPlanning(on: boolean): void {
+    this.planning = on;
+    this.paintKey = "";
+  }
+
+  /** How many plans and planned road tiles are drawn (tests and shots). */
+  planCount(): number {
+    return this.plans.shown();
   }
 
   /**

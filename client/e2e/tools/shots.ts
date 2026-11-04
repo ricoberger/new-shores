@@ -879,6 +879,55 @@ function moveTool(stage: "pick" | "ghost"): { fixture: Fixture; device: Device; 
   };
 }
 
+/** The centre of the plans (D-071) of the island with the most plans (island tiles) and the island's position. */
+async function plannedQuarter(page: Page): Promise<{ island: string; x: number; y: number; ox: number; oy: number; free: { x: number; y: number } }> {
+  return page.evaluate(() => {
+    const d = window.__newShores!.getServer()!.display;
+    const count = (i: (typeof d.islands)[number]) => (i.plans ?? []).length + (i.planned_roads ?? []).reduce((n, r) => n + r.tiles.length, 0);
+    const is = d.islands.reduce((a, b) => (count(b) > count(a) ? b : a));
+    // The planned buildings that are not fields (the quarter), else every plan.
+    const quarter = (is.plans ?? []).filter((p) => p.farm_id === undefined && !p.type.endsWith("_farm"));
+    const list = quarter.length > 0 ? quarter : (is.plans ?? []);
+    if (list.length === 0) throw new Error("plannedQuarter: no plans");
+    const xs = list.map((p) => p.x);
+    const ys = list.map((p) => p.y);
+    const x = Math.round((Math.min(...xs) + Math.max(...xs)) / 2) + 1;
+    const y = Math.round((Math.min(...ys) + Math.max(...ys)) / 2) + 1;
+    // A tile beside the quarter for the ghost: left of its westernmost plan (the played quarter backs onto open grass there).
+    const left = Math.min(...xs) - 4;
+    return { island: is.id, x, y, ox: is.position.x, oy: is.position.y, free: { x: left, y } };
+  });
+}
+
+/**
+ * Planning mode (D-071, played fixture): the planned quarter at near zoom
+ * — the plans in the ghost look with their gold outline — and, with
+ * `ghost`, the planning toggle pressed and a house ghost beside the
+ * quarter with the tool hint's planning line.
+ */
+function planningShot(ghost: boolean): { fixture: Fixture; device: Device | Device[]; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "played",
+    device: ghost ? "desktop" : ["desktop", "phone"],
+    run: async (page) => {
+      const q = await plannedQuarter(page);
+      await setCamera(page, { x: q.ox + q.x - (ghost ? 3 : 0), y: q.oy + q.y, half: ghost ? 14 : 16, rotation: 0 });
+      await settle(page);
+      await page.waitForFunction(() => window.__newShores!.planCount() > 0, undefined, { timeout: 10_000 });
+      if (!ghost) return;
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+      await page.getByTestId("tool-plan").click();
+      await openBuildTab(page, "house_settlers");
+      await page.getByTestId("build-house_settlers").click();
+      const p = await tileAt(page, q.island, q.free.x, q.free.y);
+      await page.mouse.move(p.x, p.y);
+      await page.waitForFunction(() => window.__newShores!.ghostValidity() !== null, undefined, { timeout: 10_000 });
+      await page.getByTestId("tool-hint-planning").waitFor({ state: "visible" });
+    },
+  };
+}
+
 function ghostTerrace(type: string, state: "ok" | "no_road" | "invalid"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
     fixture: "settled",
@@ -1433,6 +1482,9 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   "ghost-terrace-6-invalid": ghostTerrace("market", "no_road"),
   "move-pick": moveTool("pick"),
   "move-ghost": moveTool("ghost"),
+  // Planning mode (D-071): the toggle on with a house ghost beside the played world's planned quarter, and the quarter itself (desktop and phone).
+  "planning-mode": planningShot(true),
+  "planned-quarter": planningShot(false),
   // A Merchant house of the merchants fixture selected (D-056 C3), desktop and phone.
   "merchant-house-card": {
     fixture: "merchants",
