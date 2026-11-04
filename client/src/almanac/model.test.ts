@@ -280,3 +280,21 @@ describe("almanac model of the harbour buildings (D-060)", () => {
     expect(quay).toMatchObject({ shallows: true, roadSecondsPerTile: 0.6 });
   });
 });
+
+describe("almanac model of the collectors (D-069)", () => {
+  const idx = buildIndex(loadContent("content/old_coast"));
+
+  it("lists reach, throughput and upkeep per level and the harbour buildings' tiers", () => {
+    for (const id of ["trading_post", "warehouse"]) {
+      const def = idx.building(id)!;
+      const levels = def.trading_post?.levels ?? def.warehouse!.levels;
+      const view = buildingView(idx, def);
+      expect(view.levels.map((l) => l.reach)).toEqual(levels.map((l) => l.reach));
+      expect(view.levels.map((l) => l.throughput)).toEqual(levels.map((l) => l.throughput_per_min / 1000));
+      expect(view.levels.map((l) => l.upkeep)).toEqual(levels.map((l) => l.upkeep_per_min / 1000));
+    }
+    // Pier and depot come with the Merchants (D-069 §2).
+    expect(idx.building("trading_pier")!.tier).toBe("merchants");
+    expect(idx.building("depot")!.tier).toBe("merchants");
+  });
+});

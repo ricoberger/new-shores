@@ -1131,6 +1131,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.locator("#building-bakery").waitFor({ state: "visible" });
     },
   },
+  // The warehouse's almanac card: reach, throughput and upkeep per level (D-069).
+  "almanac-warehouse": {
+    fixture: "default",
+    device: ["desktop"],
+    almanac: "/almanac/buildings/warehouse",
+    run: async (page) => {
+      await page.locator("#building-warehouse").waitFor({ state: "visible" });
+    },
+  },
   // The road tool mid-drag across a road (UI.md §3): a dirt road on the settled fixture, a paved road across a dirt road on the played one.
   "road-drag": roadDrag("settled", "road_dirt", "road_dirt"),
   "road-drag-paved": roadDrag("played", "road_paved", "road_dirt"),

@@ -132,6 +132,8 @@ export const de: Record<keyof typeof en, string> = {
   "almanac.b.belongsTo": "Gehört zu",
   "almanac.b.levels": "Stufen",
   "almanac.b.capacityPerGood": "Kapazität je Ware",
+  "almanac.b.upkeepPerMin": "Unterhalt (Gold/min)",
+  "almanac.b.noLimit": "unbegrenzt",
   "almanac.b.throughputPerMin": "Durchsatz/min",
   "almanac.b.upgradeCost": "Ausbaukosten",
   "almanac.b.builtAsIs": "wie gebaut",

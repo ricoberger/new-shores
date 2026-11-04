@@ -130,6 +130,8 @@ export const en = {
   "almanac.b.belongsTo": "Belongs to",
   "almanac.b.levels": "Levels",
   "almanac.b.capacityPerGood": "Capacity per good",
+  "almanac.b.upkeepPerMin": "Upkeep (gold/min)",
+  "almanac.b.noLimit": "no limit",
   "almanac.b.throughputPerMin": "Throughput/min",
   "almanac.b.upgradeCost": "Upgrade cost",
   "almanac.b.builtAsIs": "built as is",

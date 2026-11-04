@@ -149,7 +149,7 @@ ship is a sloop; the shipyard unlocks at tier 2 (D-056).
 | ships | sails | `sailmaker` (hemp → sails, 60 s) [6 C] | — |
 
 Infrastructure: `trading_post` lvl 2, `market` and `warehouse` lvl 2 (D-065), `road_paved`, `quay` (D-060), `tavern`, `school`,
-`city_guard`, `trading_pier`, `depot` (D-060), `shipyard` (sloop, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
+`city_guard`, `shipyard` (sloop, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
 The construction chains (quarry, tool chain) are **Settler-staffed** per the
 bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
 must be producible before any Citizen exists. Likewise bricks (tier 3) are
@@ -175,8 +175,8 @@ One recipe per building (D-041): `leather_works` is a separate building from
 `tannery` rather than a second recipe.
 
 Infrastructure: `trading_post` lvl 3, `market` and `warehouse` lvl 3 (D-065), `church`,
-`playhouse`, `fire_station` (one level, D-065), `brig`
-(4 slots), `house_merchants`;
+`playhouse`, `fire_station` (one level, D-065), `trading_pier`, `depot`
+(D-060; Merchants since D-069 §5), `brig` (4 slots), `house_merchants`;
 `harbourmaster_office` (world map, expeditions, contracts) is an ONLINE
 feature, not a tier gate, and not authored yet. Variety reserve
 (D-056): fur_coats (`trapper`, `furrier`), tableware (`potter`;

@@ -320,7 +320,7 @@ cycle:   seconds               at 100 % efficiency
   than micro-sorting). It is also the island's pier (§9.3) and the
   endpoint for ships, founding and trades. Coastal with its front rows
   over water (§2).
-- **Depots** (D-062; water-edge, Citizens) add a fixed 150 capacity per
+- **Depots** (D-062; water-edge, Merchants since D-069) add a fixed 150 capacity per
   good while a Trading Post stands: `capacity[good]` = Trading Post level
   capacity + Σ depot capacities (one function for production caps, ships,
   quests and display). Any number may stand on an island; no levels,
@@ -736,7 +736,7 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
   queued as the next due moment after the earliest berth frees (FIFO by
   arrival time, then ship ID). Manual shipments, route ships and later
   trade ships queue alike. **Trading piers** (D-060; water-edge,
-  Citizens, no levels) add their `berths` (provisional 2) to the
+  Merchants since D-069, no levels) add their `berths` (provisional 2) to the
   island's pool: berths = Trading Post level berths + Σ pier berths; the
   sim keeps one pool and one queue per island. D-062 changes no berth
   arithmetic: the 6×6 Trading Post still has 1–4 by level; a 6×9 pier

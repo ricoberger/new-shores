@@ -295,6 +295,10 @@ export interface LevelView {
   throughput?: number;
   berths?: number;
   radius?: number;
+  /** Collector reach in tiles (D-069; 0: no limit). */
+  reach?: number;
+  /** Upkeep at the level, gold per minute (D-069). */
+  upkeep?: number;
   tier?: string;
 }
 
@@ -335,6 +339,11 @@ export interface BuildingView {
   shallows: boolean;
 }
 
+/** A level's upkeep in gold per minute; undefined when the payload has none (read defensively). */
+function upkeepOf(l: { upkeep_per_min?: number }): number | undefined {
+  return typeof l.upkeep_per_min === "number" ? l.upkeep_per_min / 1000 : undefined;
+}
+
 export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   const r = b.recipe;
   const needsSite: string[] = [];
@@ -344,10 +353,12 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   if (b.field?.fertility) needsSite.push(t("almanac.site.fertility", { name: titleCase(fertilityName(b.field.fertility)) }));
   const levels: LevelView[] = [];
   b.trading_post?.levels?.forEach((l, i) =>
-    levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, throughput: l.throughput_per_min / 1000, berths: l.berths }),
+    levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, throughput: l.throughput_per_min / 1000, berths: l.berths, reach: l.reach, upkeep: upkeepOf(l) }),
   );
-  b.warehouse?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), throughput: l.throughput_per_min / 1000, tier: l.tier }));
-  b.service?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), radius: l.radius, tier: l.tier }));
+  b.warehouse?.levels?.forEach((l, i) =>
+    levels.push({ level: i + 1, cost: costParts(l.cost), throughput: l.throughput_per_min / 1000, reach: l.reach, upkeep: upkeepOf(l), tier: l.tier }),
+  );
+  b.service?.levels?.forEach((l, i) => levels.push({ level: i + 1, cost: costParts(l.cost), radius: l.radius, upkeep: upkeepOf(l), tier: l.tier }));
   const cycle = r?.cycle_ms ?? 0;
   const modules = idx.modulesOf(b.id).map((m) => ({ building: m.id }));
   const mods = b.fields ? modules.map((m) => ({ ...m, required: b.fields?.required, max: b.fields?.max })) : modules;
