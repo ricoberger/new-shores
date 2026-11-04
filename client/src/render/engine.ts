@@ -33,9 +33,10 @@ import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
 import { type ArchPoint, dockPoints, type ModelAnchor, seaPoint, shipLengthRatio } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
-import { depositTiles, highlightedDeposit } from "../display/deposits";
+import { depositClusters, depositTiles, highlightedDeposit } from "../display/deposits";
 import { DepositHighlight, type DepositMark } from "./deposithighlight";
 import { ReachRing } from "./reachring";
+import { DepositMarkers, type DepositMarker } from "./depositmarkers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
 import { flankDocks, isFlankAnchor, withIdleAtPier } from "./moorings";
@@ -229,6 +230,7 @@ export class GameRenderer {
   private paintKey = "";
   private readonly depositHighlight: DepositHighlight;
   private readonly reachRing: ReachRing;
+  private readonly depositMarkers: DepositMarkers;
   /** The reach of the collector ghost under the pointer (D-069 §1), or null. */
   private ghostReach: { island: string; x: number; y: number; w: number; h: number; r: number } | null = null;
   private depositKey = "";
@@ -319,6 +321,7 @@ export class GameRenderer {
     this.paintPreview = new PaintPreview(this.scene);
     this.depositHighlight = new DepositHighlight(this.scene);
     this.reachRing = new ReachRing(this.scene);
+    this.depositMarkers = new DepositMarkers(this.scene);
 
     this.ghost = new PlacementGhost(this.scene, this.models);
 
@@ -760,6 +763,7 @@ export class GameRenderer {
       // Status icons face the camera at every azimuth.
       this.iconRotation = v.rotation;
       for (const d of this.details.values()) d.setRotation(v.rotation);
+      this.depositMarkers.setRotation(v.rotation);
     }
     const focus = focusedIsland(islands, v);
     this.cullChunks(islands);
@@ -1878,13 +1882,18 @@ export class GameRenderer {
     if (key === this.depositKey) return;
     this.depositKey = key;
     const marks: DepositMark[] = [];
+    const markers: DepositMarker[] = [];
     for (const [id, d] of ready) {
       const is = this.displayIsland(id);
       const pl = this.arch.placement(id);
       if (!is || !pl || !kind) continue;
-      for (const t of depositTiles(is, kind, this.defs)) marks.push({ cx: pl.position.x + t.x + 0.5, cz: -(pl.position.y + t.y + 0.5), base: d.reliefAt(t.x, t.y) });
+      const tiles = depositTiles(is, kind, this.defs);
+      for (const t of tiles) marks.push({ cx: pl.position.x + t.x + 0.5, cz: -(pl.position.y + t.y + 0.5), base: d.reliefAt(t.x, t.y) });
+      // A floating badge over every cluster (UI.md §3 deposit markers).
+      for (const c of depositClusters(tiles)) markers.push({ cx: pl.position.x + c.x + 0.5, cz: -(pl.position.y + c.y + 0.5), base: d.reliefAt(c.x, c.y) });
     }
     this.depositHighlight.set(marks);
+    this.depositMarkers.set(kind, markers);
   }
 
   /**
@@ -1920,6 +1929,11 @@ export class GameRenderer {
   /** Whether the reach ring is drawn (tests and shots). */
   reachRingShown(): boolean {
     return this.reachRing.shown();
+  }
+
+  /** How many deposit markers float over the highlighted clusters (tests and shots). */
+  depositMarkerCount(): number {
+    return this.depositMarkers.shown();
   }
 
   /** How many deposit tiles the mine or quarry tool highlights (tests and shots). */

@@ -992,7 +992,7 @@ function depositHighlight(view: "mid" | "far"): { fixture: Fixture; device: Devi
       if (view === "mid") {
         // Before the highlight existed nothing is tinted: the shot is taken anyway.
         await page.waitForFunction(() => (window.__newShores!.depositCount?.() ?? 0) > 0, undefined, { timeout: 3_000 }).catch(() => console.log("deposits: no highlight"));
-        console.log(`deposits: ${await page.evaluate(() => window.__newShores!.depositCount?.() ?? 0)} tiles highlighted`);
+        console.log(`deposits: ${await page.evaluate(() => window.__newShores!.depositCount?.() ?? 0)} tiles highlighted, ${await page.evaluate(() => window.__newShores!.depositMarkerCount?.() ?? 0)} markers`);
       } else {
         await page.mouse.move(5, 5);
       }

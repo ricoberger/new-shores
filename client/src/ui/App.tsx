@@ -109,6 +109,8 @@ export interface TestHook {
   paintCounts(): Record<"ok" | "bad" | "max" | "remove" | "flash", number>;
   /** Deposit tiles the mine or quarry tool highlights (UI.md §3). */
   depositCount(): number;
+  /** Deposit markers floating over the highlighted clusters (UI.md §3). */
+  depositMarkerCount(): number;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
@@ -667,6 +669,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
         paintCounts: () => rendererRef.current?.paintCounts() ?? { ok: 0, bad: 0, max: 0, remove: 0, flash: 0 },
         depositCount: () => rendererRef.current?.depositCount() ?? 0,
+        depositMarkerCount: () => rendererRef.current?.depositMarkerCount() ?? 0,
         quality: () => rendererRef.current?.quality() ?? "low",
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         assets: () =>
