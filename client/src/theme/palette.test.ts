@@ -113,6 +113,7 @@ describe("palette values (ART_DIRECTION §2)", () => {
       paused_player: "#56B4E9",
       paused_unpaid: "#D55E00",
       not_connected: "#CC79A7",
+      no_collector_in_reach: "#CC79A7",
       warehouse_full: "#E69F00",
       input_starved: "#F0E442",
       throttled: "#0072B2",

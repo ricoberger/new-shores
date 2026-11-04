@@ -37,7 +37,7 @@ export const VILLAGER_SCALE = 1.7;
 export const VILLAGER_VARIANTS = 3;
 
 /** Statuses with no deliveries: no cart (LIFE_LAYER §1, "no carts = not connected or starved"). */
-const NO_DELIVERY = new Set(["paused", "not_connected", "input_starved", "warehouse_full"]);
+const NO_DELIVERY = new Set(["paused", "not_connected", "no_collector_in_reach", "input_starved", "warehouse_full"]);
 
 /** The element classes of the life layer (render/life.ts LIFE_CLASSES). */
 export const CLS = {

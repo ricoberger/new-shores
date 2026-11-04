@@ -9,6 +9,7 @@
   },
   "snapshot_every": 10,
   "continues": "bootstrap_merchants.plan.json",
+  "collectors": "reach_upgrade",
   "actions": [
     {
       "step": {
@@ -1541,9 +1542,18 @@
       }
     },
     {
+      "note": "D-069: before the pig farms of this round, which otherwise take the grass it needs next to the warehouses reach asks for.",
       "build": {
         "island": "isle-01",
-        "type": "pig_farm",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "note": "D-069: the last wheat farm right after the round's first one, before the pastures and small buildings fragment the grass.",
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
         "count": 1
       }
     },
@@ -1581,22 +1591,8 @@
       }
     },
     {
-      "build": {
-        "island": "isle-01",
-        "type": "dairy_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "cheese_dairy",
         "count": 1
       }
     },
@@ -1617,13 +1613,6 @@
     {
       "houses": {
         "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "pig_farm",
         "count": 1
       }
     },
@@ -1723,13 +1712,15 @@
                 "stone": 30
               },
               "unload": [
-                "pigs"
+                "pigs",
+                "milk"
               ]
             },
             {
               "island": "isle-06",
               "load": {
-                "pigs": 50
+                "pigs": 50,
+                "milk": 30
               },
               "unload": [
                 "stone"
@@ -1751,6 +1742,36 @@
       "build": {
         "island": "isle-06",
         "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "note": "D-069: pig farms #13–14 on isle-06 too (pig route): the warehouses reach asks for take the home grass of the last wheat farm.",
+      "build": {
+        "island": "isle-06",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "note": "D-069: on isle-06 (milk home on the pig route): the warehouses reach asks for take the home grass this pasture needed.",
+      "build": {
+        "island": "isle-06",
+        "type": "dairy_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cheese_dairy",
         "count": 1
       }
     },
@@ -1790,13 +1811,6 @@
     {
       "houses": {
         "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "wheat_farm",
         "count": 1
       }
     },
@@ -2107,13 +2121,6 @@
     {
       "build": {
         "island": "isle-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
         "type": "apiary",
         "count": 1
       }
@@ -2129,11 +2136,6 @@
         "island": "isle-01",
         "type": "salt_pans",
         "count": 1
-      }
-    },
-    {
-      "upgrade_trading_post": {
-        "island": "isle-01"
       }
     },
     {
@@ -2888,6 +2890,12 @@
         "quarter": "home-1",
         "from": "house_merchants",
         "count": 1
+      }
+    },
+    {
+      "note": "Level 4 needs Patricians (D-065 extended to the Trading Post): after the first Patrician house.",
+      "upgrade_trading_post": {
+        "island": "isle-01"
       }
     },
     {

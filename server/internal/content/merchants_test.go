@@ -169,7 +169,7 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 	if tr := c.TierByID["merchants"]; tr.House != "house_merchants" {
 		t.Errorf("merchants house %q", tr.House)
 	}
-	if tr := c.TierByID["patricians"]; !slices.Equal(tr.Unlock.Buildings, []string{"church"}) {
+	if tr := c.TierByID["patricians"]; len(tr.Unlock.Buildings) != 0 {
 		t.Errorf("patricians unlock %v", tr.Unlock.Buildings)
 	}
 	// The services ladder (CONTENT §2): radius per public building, by tier.
@@ -351,7 +351,9 @@ func TestTierThreeMatchesPlannedModels(t *testing.T) {
 	for _, b := range c.Buildings {
 		// D-060's civic buildings are authored ahead of their models
 		// (the models session plans and builds them).
-		if b.Tier == "merchants" && !seen[b.ID] && b.ID != "fire_station" && b.ID != "playhouse" {
+		// The trading pier and the depot are D-060 harbour models planned
+		// in d060.json; D-069 §5 moved them to the Merchants.
+		if b.Tier == "merchants" && !seen[b.ID] && b.ID != "fire_station" && b.ID != "playhouse" && b.ID != "trading_pier" && b.ID != "depot" {
 			t.Errorf("%s is not in the planned tier-3 models", b.ID)
 		}
 		if b.Boat != (b.ID == "fisher" || b.ID == "oyster_beds") {

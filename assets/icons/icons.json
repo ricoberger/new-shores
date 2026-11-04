@@ -577,6 +577,13 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/crossed-chains.svg",
       "sha256": "cf302982ffed8c57ece348904ad3e12e42b093b66469b7c7613fcb98d18837ee"
     },
+    "status:no_collector_in_reach": {
+      "file": "path-distance.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/path-distance.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/path-distance.svg",
+      "sha256": "362560f11785e62983058a866f676e0d1a42a6bb4ba874b8efa78f6b307f26c4"
+    },
     "status:warehouse_full": {
       "file": "cardboard-box-closed.svg",
       "author": "Delapouite",

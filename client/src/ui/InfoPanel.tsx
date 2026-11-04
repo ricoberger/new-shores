@@ -1,5 +1,5 @@
 import { type ReactNode, useRef } from "react";
-import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
+import type { BuildingDisplay, Content, ContentBuilding, DisplayState, IslandDisplay } from "../api/client";
 import { percent, perMin, seconds, speedFactor, tons, tonsPerMin, tonsRatio, units } from "../display/format";
 import { countdownWithUnit, orderTiming } from "../display/ships";
 import { fieldBuildingOf } from "../display/fields";
@@ -146,6 +146,10 @@ interface LevelDef {
   throughput_per_min?: number;
   /** Service radius of a levelled public building (D-056). */
   radius?: number;
+  /** Collector reach of a Trading Post or Warehouse level (tiles; 0: no limit, D-069). */
+  reach?: number;
+  /** Upkeep at the level (milli-gold per minute, D-069). */
+  upkeep_per_min?: number;
   /** Tier the upgrade into this level needs (D-056). */
   tier?: string;
   cost?: { gold: number; materials: Record<string, number> };
@@ -156,6 +160,28 @@ function nextLevelOf(content: Content, b: BuildingDisplay): LevelDef | undefined
   const def = content.buildings.find((d) => d.id === b.type);
   const levels: LevelDef[] = def?.trading_post?.levels ?? def?.warehouse?.levels ?? def?.service?.levels ?? [];
   return b.level !== undefined ? levels[b.level] : undefined;
+}
+
+/** A collector's reach and upkeep at its current level (content, D-069): table rows of its details. */
+function ReachUpkeepRows({ building: b, def, testId }: { building: BuildingDisplay; def: ContentBuilding | undefined; testId: string }) {
+  const level = (def?.trading_post?.levels ?? def?.warehouse?.levels)?.[(b.level ?? 1) - 1];
+  if (!level) return null;
+  return (
+    <>
+      {level.reach > 0 && (
+        <tr>
+          <td>{t("infoPanel.reach")}</td>
+          <td data-testid={`${testId}-reach`}>{t("infoPanel.tiles", { count: level.reach })}</td>
+        </tr>
+      )}
+      {typeof level.upkeep_per_min === "number" && (
+        <tr>
+          <td>{t("infoPanel.upkeep")}</td>
+          <td data-testid={`${testId}-upkeep`}>{t("infoPanel.upkeepRate", { rate: perMin(b.paused ? 0 : level.upkeep_per_min) })}</td>
+        </tr>
+      )}
+    </>
+  );
 }
 
 /** What the next level brings and costs (the Upgrade button itself is in the footer). */
@@ -227,6 +253,8 @@ function UpgradePreview({
           ...(next.berths !== undefined ? [<span key="berths">{t("infoPanel.berthsCount", { count: next.berths })}</span>] : []),
           ...(next.throughput_per_min !== undefined ? [<span key="throughput">{t("infoPanel.throughputRate", { rate: tonsPerMin(next.throughput_per_min) })}</span>] : []),
           ...(next.radius !== undefined ? [<span key="radius">{t("infoPanel.radiusTiles", { count: next.radius })}</span>] : []),
+          ...(next.reach ? [<span key="reach">{t("infoPanel.reachTiles", { count: next.reach })}</span>] : []),
+          ...(typeof next.upkeep_per_min === "number" ? [<span key="upkeep">{t("infoPanel.upkeepLevel", { rate: perMin(next.upkeep_per_min) })}</span>] : []),
         ]}
       />
       {next.tier && !tierUnlocked(model, next.tier) && (
@@ -452,6 +480,7 @@ function TradingPostSection({
               <td>{t("infoPanel.load")}</td>
               <td>{percent(b.load_permille ?? 0)}</td>
             </tr>
+            <ReachUpkeepRows building={b} def={def} testId="trading-post" />
             <tr>
               <td>{t("infoPanel.berths")}</td>
               <td data-testid="trading-post-berths">
@@ -686,7 +715,9 @@ export function InfoPanel({
                 </tr>
                 <tr>
                   <td>{t("infoPanel.upkeep")}</td>
-                  <td data-testid="info-upkeep">{t("infoPanel.upkeepRate", { rate: perMin(b.paused ? 0 : def.upkeep_per_min) })}</td>
+                  <td data-testid="info-upkeep">
+                    {t("infoPanel.upkeepRate", { rate: perMin(b.paused ? 0 : (def.service.levels[(b.level ?? 1) - 1]?.upkeep_per_min ?? def.upkeep_per_min)) })}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -850,6 +881,7 @@ export function InfoPanel({
                     <td>{t("infoPanel.load")}</td>
                     <td data-testid="warehouse-load">{percent(b.load_permille ?? 0)}</td>
                   </tr>
+                  <ReachUpkeepRows building={b} def={def} testId="warehouse" />
                 </tbody>
               </table>
             </div>

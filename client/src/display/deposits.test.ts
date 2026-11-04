@@ -7,7 +7,7 @@ import type { DisplayState } from "../api/client";
 import { loadContent } from "../almanac/testContent";
 import { WorldOverlay } from "../ui/WorldOverlay";
 import { NO_TOOL } from "../ui/tools";
-import { depositCount, depositTiles, highlightedDeposit } from "./deposits";
+import { depositClusters, depositCount, depositTiles, highlightedDeposit } from "./deposits";
 
 const base = (JSON.parse(readFileSync(join(__dirname, "../../../server/testdata/display/bootstrap_citizens.json"), "utf8")) as { base: DisplayState }).base;
 const content = loadContent("content/old_coast");
@@ -44,5 +44,35 @@ describe("deposit highlight (UI.md §3)", () => {
     expect(on).toContain('data-testid="island-label-deposit-isle-02"');
     expect(on).not.toContain('data-testid="island-label-deposit-isle-03"');
     expect(render(null)).not.toContain("island-label-deposit-");
+  });
+});
+
+describe("depositClusters (deposit markers)", () => {
+  it("groups 8-connected tiles and floats each marker over its tile nearest the cluster's centre", () => {
+    const tiles = [
+      // A 3×3 block: the centre tile.
+      ...[0, 1, 2].flatMap((y) => [0, 1, 2].map((x) => ({ x: 10 + x, y: 20 + y }))),
+      // A diagonal pair joins into one cluster; the tie goes to the upper row.
+      { x: 30, y: 5 },
+      { x: 31, y: 6 },
+      // A lone tile.
+      { x: 0, y: 40 },
+    ];
+    expect(depositClusters(tiles)).toEqual([
+      { x: 30, y: 5, tiles: 2 },
+      { x: 11, y: 21, tiles: 9 },
+      { x: 0, y: 40, tiles: 1 },
+    ]);
+    expect(depositClusters([])).toEqual([]);
+  });
+
+  it("every marker stands on a deposit tile of the reference game", () => {
+    for (const is of base.islands) {
+      const stone = is.deposits.filter((d) => d.kind === "stone");
+      const keys = new Set(stone.map((d) => `${d.x},${d.y}`));
+      const clusters = depositClusters(stone);
+      expect(clusters.reduce((n, c) => n + c.tiles, 0)).toBe(stone.length);
+      for (const c of clusters) expect(keys.has(`${c.x},${c.y}`)).toBe(true);
+    }
   });
 });

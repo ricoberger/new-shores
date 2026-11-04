@@ -14,17 +14,20 @@ import (
 
 // Building statuses (MECHANICS §14). A building has one primary status; the
 // precedence is the order of the constants: paused > not_connected >
-// warehouse_full > input_starved > throttled > short_of_workers >
+// no_collector_in_reach > warehouse_full > input_starved > throttled > short_of_workers >
 // low_efficiency > ok. A field is ok or StatusNotAdjacent (fields.go).
 const (
-	StatusPaused         = "paused"
-	StatusNotConnected   = "not_connected"
-	StatusWarehouseFull  = "warehouse_full"
-	StatusInputStarved   = "input_starved"
-	StatusThrottled      = "throttled"
-	StatusShortOfWorkers = "short_of_workers"
-	StatusLowEfficiency  = "low_efficiency"
-	StatusOK             = "ok"
+	StatusPaused       = "paused"
+	StatusNotConnected = "not_connected"
+	// StatusNoCollectorInReach: road-connected, but no Trading Post or
+	// Warehouse reaches the footprint (D-069); the producer stalls.
+	StatusNoCollectorInReach = "no_collector_in_reach"
+	StatusWarehouseFull      = "warehouse_full"
+	StatusInputStarved       = "input_starved"
+	StatusThrottled          = "throttled"
+	StatusShortOfWorkers     = "short_of_workers"
+	StatusLowEfficiency      = "low_efficiency"
+	StatusOK                 = "ok"
 )
 
 // timeLayout formats timestamps as RFC 3339 in UTC with millisecond
@@ -219,15 +222,24 @@ type RouteEffectDisplay struct {
 
 // RouteStopDisplay is one stop of a route.
 type RouteStopDisplay struct {
-	IslandID string            `json:"island_id"`
-	Load     []LoadRuleDisplay `json:"load"`
-	Unload   []string          `json:"unload"`
+	IslandID string              `json:"island_id"`
+	Load     []LoadRuleDisplay   `json:"load"`
+	Unload   []UnloadRuleDisplay `json:"unload"`
 }
 
-// LoadRuleDisplay loads a good until MaxAmount milli-units are aboard.
+// LoadRuleDisplay loads a good until MaxAmount milli-units are aboard,
+// only from the stock above Keep (D-070).
 type LoadRuleDisplay struct {
 	Good      string `json:"good"`
 	MaxAmount Qty    `json:"max_amount"`
+	Keep      Qty    `json:"keep,omitempty"`
+}
+
+// UnloadRuleDisplay unloads a good, at most MaxAmount milli-units per
+// visit when set (D-070).
+type UnloadRuleDisplay struct {
+	Good      string `json:"good"`
+	MaxAmount *Qty   `json:"max_amount,omitempty"`
 }
 
 // PositionDisplay is an archipelago position in tiles.
@@ -713,7 +725,14 @@ func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
 		}
 	}
 	for _, st := range r.Stops {
-		sd := RouteStopDisplay{IslandID: st.IslandID, Load: []LoadRuleDisplay{}, Unload: append([]string{}, st.Unload...)}
+		sd := RouteStopDisplay{IslandID: st.IslandID, Load: []LoadRuleDisplay{}, Unload: []UnloadRuleDisplay{}}
+		for _, g := range st.Unload {
+			u := UnloadRuleDisplay{Good: g}
+			if m, ok := st.UnloadMax[g]; ok {
+				u.MaxAmount = &m
+			}
+			sd.Unload = append(sd.Unload, u)
+		}
 		for _, lr := range st.Load {
 			sd.Load = append(sd.Load, LoadRuleDisplay(lr))
 		}
@@ -1039,6 +1058,8 @@ func producerStatus(is *Island, p *producer) string {
 	switch {
 	case p.b.Paused:
 		return StatusPaused
+	case p.b.OutOfReach:
+		return StatusNoCollectorInReach
 	case !p.connected:
 		return StatusNotConnected
 	}

@@ -99,7 +99,7 @@
             "prefixItems": [
               {
                 "$ref": "#/$defs/trading_post_level",
-                "not": { "required": ["cost"] }
+                "not": { "anyOf": [{ "required": ["cost"] }, { "required": ["tier"] }] }
               }
             ],
             "items": {
@@ -317,10 +317,25 @@
       "properties": {
         "capacity": { "type": "number", "exclusiveMinimum": 0 },
         "throughput_per_min": { "type": "number", "exclusiveMinimum": 0 },
+        "reach": {
+          "description": "Collector reach in tiles at this level (D-069, MECHANICS \u00a75): a producer is assignable when its building footprint lies within this Euclidean distance of the collector's footprint (nearest tiles, the service-radius rule). Absent: no reach limit (pinned test content only; the loader requires it on every level or none).",
+          "type": "integer",
+          "minimum": 1
+        },
+        "upkeep_per_min": {
+          "description": "Upkeep in gold per minute at this level (D-069 hub upkeep); absent: the building's upkeep_per_min. Level 1 equals the building's upkeep_per_min.",
+          "type": "number",
+          "minimum": 0
+        },
         "berths": {
           "description": "Ships that can load or unload at the pier at the same time (MECHANICS §9.3).",
           "type": "integer",
           "minimum": 1
+        },
+        "tier": {
+          "description": "Tier that must be unlocked to upgrade into this level (D-065, extended to the Trading Post).",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
         },
         "cost": {
           "description": "Upgrade cost into this level (gold from the world, materials from the island).",
@@ -334,6 +349,16 @@
       "required": ["throughput_per_min"],
       "properties": {
         "throughput_per_min": { "type": "number", "exclusiveMinimum": 0 },
+        "reach": {
+          "description": "Collector reach in tiles at this level (D-069, MECHANICS \u00a75): a producer is assignable when its building footprint lies within this Euclidean distance of the collector's footprint (nearest tiles, the service-radius rule). Absent: no reach limit (pinned test content only; the loader requires it on every level or none).",
+          "type": "integer",
+          "minimum": 1
+        },
+        "upkeep_per_min": {
+          "description": "Upkeep in gold per minute at this level (D-069 hub upkeep); absent: the building's upkeep_per_min. Level 1 equals the building's upkeep_per_min.",
+          "type": "number",
+          "minimum": 0
+        },
         "tier": {
           "description": "Tier that must be unlocked to upgrade into this level (D-065).",
           "type": "string",
@@ -351,6 +376,11 @@
       "required": ["radius"],
       "properties": {
         "radius": { "type": "integer", "minimum": 1 },
+        "upkeep_per_min": {
+          "description": "Upkeep in gold per minute at this level (D-069 hub upkeep); absent: the building's upkeep_per_min. Level 1 equals the building's upkeep_per_min.",
+          "type": "number",
+          "minimum": 0
+        },
         "cost": {
           "description": "Upgrade cost into this level (gold from the world, materials from the island).",
           "$ref": "#/$defs/cost"

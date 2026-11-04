@@ -66,3 +66,40 @@ describe("upgrade cost lines like the build menu (UI.md §4)", () => {
     expect(line.indexOf(icon("planks"))).toBeLessThan(line.indexOf("10\u00a0t"));
   });
 });
+
+describe("collector reach and upkeep per level (D-069 §6)", () => {
+  const wh = (level: number) => ({ ...of("house_settlers"), id: 99_001, type: "warehouse", level, residents: undefined, residents_max: undefined, needs: undefined }) as BuildingDisplay;
+  const cell = (html: string, testId: string) => visible(html.match(new RegExp(`data-testid="${testId}">(.*?)</td>`))?.[1] ?? "");
+  const levels = content.buildings.find((d) => d.id === "warehouse")!.warehouse!.levels;
+
+  it("lists the warehouse's reach and upkeep at its level and the next level's in the upgrade line", () => {
+    const html = panel(wh(1), island);
+    expect(cell(html, "warehouse-reach")).toBe(`${levels[0]!.reach} tiles`);
+    expect(cell(html, "warehouse-upkeep")).toBe(`${(levels[0]!.upkeep_per_min / 1000).toFixed(1)} gold/min`);
+    const stats = visible(html.match(/data-testid="warehouse-upgrade-stats">(.*?)<\/div>/)?.[1] ?? "");
+    expect(stats).toContain(`${levels[1]!.reach} tiles reach`);
+    expect(stats).toContain(`${(levels[1]!.upkeep_per_min / 1000).toFixed(1)} gold/min upkeep`);
+  });
+
+  it("shows the lock reason of a level whose tier is not unlocked", () => {
+    const html = panel(wh(1), island, { ...base, tiers: base.tiers.map((x) => ({ ...x, unlocked: x.id === "settlers" })) });
+    expect(html).toContain('data-testid="warehouse-upgrade-locked"');
+  });
+
+  it("shows the Trading Post's lock reason like the warehouse's (D-065 extended)", () => {
+    const tp = { ...of("trading_post"), level: 1 };
+    const tier = content.buildings.find((d) => d.id === "trading_post")!.trading_post!.levels[1]!.tier;
+    expect(tier).toBe("citizens");
+    const locked = panel(tp, island, { ...base, tiers: base.tiers.map((x) => ({ ...x, unlocked: x.id === "settlers" })) });
+    expect(locked).toContain('data-testid="trading-post-upgrade-locked"');
+    expect(visible(locked.match(/data-testid="trading-post-upgrade-locked">(.*?)<\/div>/)?.[1] ?? "")).toContain("Citizens");
+    const open = panel(tp, island, { ...base, tiers: base.tiers.map((x) => ({ ...x, unlocked: x.id === "settlers" || x.id === "citizens" })) });
+    expect(open).not.toContain('data-testid="trading-post-upgrade-locked"');
+  });
+
+  it("lists the Trading Post's reach", () => {
+    const tp = of("trading_post");
+    const reach = content.buildings.find((d) => d.id === "trading_post")!.trading_post!.levels[(tp.level ?? 1) - 1]!.reach;
+    expect(cell(panel(tp, island), "trading-post-reach")).toBe(`${reach} tiles`);
+  });
+});

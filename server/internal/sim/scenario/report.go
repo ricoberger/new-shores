@@ -353,6 +353,8 @@ func reason(c *content.Catalogue, is sim.IslandDisplay, b sim.BuildingDisplay) s
 		return "Paused by player"
 	case sim.StatusNotConnected:
 		return "No road to a warehouse"
+	case sim.StatusNoCollectorInReach:
+		return "No Trading Post or Warehouse in reach"
 	case sim.StatusWarehouseFull:
 		for _, good := range sortedKeys(b.Rates.Outputs) {
 			if g := is.Inventory[good]; g.Stock+g.InTransit >= g.Capacity {

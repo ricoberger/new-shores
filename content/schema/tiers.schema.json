@@ -29,7 +29,7 @@
       "unlock": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["population", "buildings"],
+        "required": ["population"],
         "properties": {
           "population": {
             "type": "object",
@@ -37,6 +37,7 @@
             "additionalProperties": { "type": "integer", "minimum": 0 }
           },
           "buildings": {
+            "description": "Buildings that must stand somewhere in the archipelago (optional; the Old Coast unlocks by population only, D-069).",
             "type": "array",
             "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
           }

@@ -76,7 +76,9 @@ describe("build menu groups", () => {
     const citizens = groups("citizens");
     expect(citizens.map(([g]) => g)).toEqual(["general", "production", "public", "harbour"]);
     expect(citizens[0]).toEqual(["general", ["road_paved"]]);
-    expect(citizens[3]).toEqual(["harbour", ["shipyard", "trading_pier", "depot", "quay"]]);
+    // Pier and depot arrive with the Merchants (D-069 §5).
+    expect(citizens[3]).toEqual(["harbour", ["shipyard", "quay"]]);
+    expect(groups("merchants").find(([g]) => g === "harbour")).toEqual(["harbour", ["trading_pier", "depot"]]);
   });
 
   it("orders Production along the chains: raw first, then intermediate, then final goods", () => {
@@ -171,5 +173,19 @@ describe("build cards", () => {
     // Only what it needs, not what the island has.
     expect(text(farm.match(/data-testid="build-fertility-wheat_farm"[^>]*>(.*?)<\/span>/)![1]!)).toBe("Needs wheat fertility");
     expect(card(render({ initialTier: "citizens", fertilities: ["wheat"] }), "wheat_farm")).not.toContain("build-fertility-");
+  });
+});
+
+describe("build bar Move tool (UI.md §3)", () => {
+  it("sits next to Demolish when the HUD wires it, pressed while picking or moving from it", () => {
+    expect(render()).not.toContain('data-testid="tool-move"');
+    const idle = render({ onMoveTool: noop });
+    expect(idle).toMatch(/aria-pressed="false"[^>]*aria-label="Move"[^>]*data-testid="tool-move"/);
+    expect(idle.indexOf('data-testid="tool-move"')).toBeLessThan(idle.indexOf('data-testid="tool-demolish"'));
+    expect(render({ onMoveTool: noop, tool: { kind: "movePick" } })).toMatch(/aria-pressed="true"[^>]*data-testid="tool-move"/);
+    const picked = { kind: "move", buildingId: 1, buildingType: "fisher", rotation: 0, pick: true } as const;
+    expect(render({ onMoveTool: noop, tool: picked })).toMatch(/aria-pressed="true"[^>]*data-testid="tool-move"/);
+    // A move from the card is not the bar's tool.
+    expect(render({ onMoveTool: noop, tool: { ...picked, pick: undefined } })).toMatch(/aria-pressed="false"[^>]*data-testid="tool-move"/);
   });
 });

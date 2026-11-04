@@ -272,7 +272,7 @@ UI shows the same numbers the server uses.
   public buildings in the Public tab; the trading pier and depot are in
   the Harbor tab, water-edge like the Trading Post (quays count as
   coast; their ghost shows the free shallows tint with the quay tool).
-- Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the radius ring is not implemented. The ghost tints the houses it would serve (client hint from the content radius; the server's `served_by` is the truth once built): `wouldServe` in `display/served.ts` takes the houses on the ghost's island whose nearest footprint tile is within the level-1 radius (a moved building: its own level) of the ghost's nearest footprint tile; it does not check the road connection or paused state, because the display has no connectivity, so a tinted house may still be unserved. The tint follows the ghost and clears when it leaves the island or the tool closes. The same hint for other ghosts (`ghostRelated`): a house tints the service buildings on its island whose own radius (their current level) reaches it; a Warehouse tints every producer (a building with a recipe) on the island, a producer every Warehouse and the Trading Post of the island. Who delivers to whom is the nearest collector by road, which the display cannot compute, so the latter two mark candidates, not the assignment (`assigned_warehouse_id` is the truth once built).
+- Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the service radius ring is not implemented (collectors have a reach ring, below). The ghost tints the houses it would serve (client hint from the content radius; the server's `served_by` is the truth once built): `wouldServe` in `display/served.ts` takes the houses on the ghost's island whose nearest footprint tile is within the level-1 radius (a moved building: its own level) of the ghost's nearest footprint tile; it does not check the road connection or paused state, because the display has no connectivity, so a tinted house may still be unserved. The tint follows the ghost and clears when it leaves the island or the tool closes. The same hint for other ghosts (`ghostRelated`): a house tints the service buildings on its island whose own radius (their current level) reaches it; a Warehouse or Trading Post ghost tints the producers (buildings with a recipe) on the island within its reach at its level (D-069 §1: nearest footprint tiles, the server's measure; a moved one keeps its level), a producer ghost the Warehouses and the Trading Post whose reach at their current level covers it. Who delivers to whom is the nearest of those by road, which the display cannot compute, so the latter two mark candidates in reach, not the assignment (`assigned_warehouse_id` is the truth once built). A **reach ring** (a thin band in the selection yellow, drawn over the scene like the deposit highlight) outlines the reach around a Warehouse or Trading Post ghost, else around the selected one (whose producers are tinted as before); none at the far view. The Trading Post and Warehouse cards list Reach and Upkeep of the current level, and "Upgrade to level N" the next level's reach and upkeep with the lock reason of a level whose tier is not unlocked ("Requires Citizens", like the build-menu tabs).
 - Producers and collectors: selecting a producer tints the Warehouse or Trading Post it delivers to (`assigned_warehouse_id`) green, selecting a Warehouse or Trading Post tints every producer delivering to it, not their fields (`client/src/display/served.ts`, the same selection tint).
 - Confirm on click/tap; the server validates and responds; the ghost becomes
   the building when the response arrives (round-trip ≈ 100 ms; show a brief
@@ -282,10 +282,20 @@ UI shows the same numbers the server uses.
 - **Move** (D-042): "Move" in the info panel (or drag a selected building)
   lifts it into a ghost that follows the pointer with the same validity
   colours; click/tap places it, Esc cancels and the building stays. Free;
-  no confirmation. Roads cannot be moved.
+  no confirmation. Roads cannot be moved. The build bar also has a
+  **Move tool** (icon button next to Demolish): pick the tool, click a
+  building (the one under the pointer carries the hover mark), place its
+  ghost (validity tint, R rotates; on touch tap and Confirm), and the tool
+  comes back for the next building; Esc or a right click leaves it.
+  Same rules as the card's Move: a field shows a toast instead (fields
+  follow their farm), roads are not buildings to pick.
 - Buildings may be placed without a road; the ghost shows yellow ("not
   connected") rather than red, and the warnings panel lists the building
-  until a road reaches it. The ghost is red with the reason for the
+  until a road reaches it. A producer on a road whose collectors are all
+  too far (D-069) shows "Out of reach" (status `no_collector_in_reach`:
+  the not-connected colour with its own distance icon) and the warnings
+  panel lists it as "Out of reach of any warehouse" with the fix "Build a
+  Warehouse nearby or upgrade the Trading Post or a Warehouse". The ghost is red with the reason for the
   server-side hard failures the client can know from content and island
   data without rules: missing fertility tag, no deposit under the
   footprint, locked tier, upgrade-only house.
@@ -293,7 +303,11 @@ UI shows the same numbers the server uses.
   `requires_deposit`) is the build tool, the tiles of its deposit kind are
   tinted in the selection yellow on every island drawn in detail (near
   and mid zoom; drawn over the rock and outcrops so they are never
-  hidden; tiles under a building are left out), and at far zoom the
+  hidden; tiles under a building are left out) with a floating
+  **deposit marker** above every cluster of those tiles (8-connected; the
+  build menu's deposit icon on a parchment badge with an ink rim, status-
+  badge style, facing the camera over the cluster's tile nearest its
+  centre, drawn over the scene), and at far zoom the
   label of every island with that deposit carries the deposit's icon and
   tile count. Both go away when the tool closes. Display only (D-027):
   the deposits come from the payload (`display/deposits.ts`).
@@ -423,8 +437,10 @@ three lines per route.
   the island name and "(unsettled)" where it applies; the stock is
   shown per good below);
   a stop is one card: number, island picker, move up/down and remove, then
-  one list of goods: good | Load / Unload | amount ("top up to" for a
-  load, "all" for an unload) | the island's current stock | remove, and a
+  one list of goods: good | Load / Unload | amounts in whole t (a load:
+  "top up to" and an optional "keep" on the island, D-070; an unload: an
+  optional most per visit, empty shows "all"; both ≥ 0, empty is no
+  limit) | the island's current stock | remove, and a
   "+ good" link (loads and unloads are still separate rules in the route). A "+ first stop…" / "+ stop…" picker adds stops, never a click
   on an island in the world. Server errors (e.g. consecutive stops on one
   island, `route_invalid`) are shown as toast and inline.
@@ -471,8 +487,8 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   hint bar hides and the insolvency banner is limited to one line.
 - Compact top bar: see §2 (icons and numbers, island on a second row in
   portrait; popups open on tap). Build menu: the
-  desktop look (folder tabs, parchment cards, an icon-only Demolish button
-  pinned at the right of the tab row behind a divider), with ≥ 44 px tabs and cards on touch; short landscape
+  desktop look (folder tabs, parchment cards, icon-only Move and Demolish
+  buttons pinned at the right of the tab row behind a divider), with ≥ 44 px tabs and cards on touch; short landscape
   phones keep the stacked layout with smaller cards and thumbnails. Hints and banners stack below the top
   bar; toasts below the top bar.
 - **Gestures** (one pointer-event recogniser; input type decides per
@@ -572,6 +588,9 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   archipelago-wide pools, the home guarantees, the schema version) is
   read defensively and shown only when present. Building pages show a
   depot's level table, a pier's berths and the quay's site (shallows).
+  The Ships page ends with a Routes chapter that words the route rules
+  of MECHANICS §9.2: unload first, then load; "top up to", the optional
+  keep on the island and the optional most unloaded per visit (D-070).
 - **Look:** the HUD's parchment in a dark-wood frame, Cinzel headings,
   brass accent; left navigation on desktop, sticky tabs on the phone;
   a search box filters buildings, goods, ships, quests, tiers and island

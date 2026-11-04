@@ -1133,10 +1133,14 @@ func upgradeLevel(w *World, c *content.Catalogue, is *Island, b *Building, def *
 	}
 
 	// Validation complete: mutate. Capacity, throughput and service radius
-	// are derived from the level; the next settle recomputes all rates.
+	// are derived from the level; the next settle recomputes all rates. A
+	// collector's reach grows with its level (D-069): reassign producers.
 	chargeCost(w, is, *cost, 1, l)
 	b.Level = level + 1
 	b.Berths = def.BerthsAt(b.Level)
+	if def.Collector() {
+		recomputeConnectivity(is, c)
+	}
 	clearRegimes(is)
 	return nil
 }

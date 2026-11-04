@@ -60,6 +60,17 @@ describe("route drafts", () => {
   });
 });
 
+describe("route drafts with stop limits (D-070)", () => {
+  it("round-trips keep and the unload max", () => {
+    const r = fixture("route_limits").routes[0]!;
+    const d = draftFromRoute(r);
+    expect(d.stops[0]!.load[0]).toEqual({ good: "wood", max: 100, keep: 250 });
+    expect(d.stops[1]!.unload[0]).toEqual({ good: "wood", max: 30 });
+    expect(d.stops[0]!.unload[0]).toEqual({ good: "planks" });
+    expect(stopsFromDraft(d)).toEqual(r.stops);
+  });
+});
+
 describe("route ribbons shown", () => {
   // Route 1's legs a → b and b → a go around land; route 2 has no voyages (straight ribbons).
   const voyage = [

@@ -424,7 +424,8 @@ export interface components {
          *       name that is not 1–24 printable characters after trimming),
          *       `route_invalid` (route
          *       rules: 2–8 stops at settled islands, consecutive stops differ,
-         *       known goods without duplicates, whole-unit maximums, name ≤ 40
+         *       known goods without duplicates, whole-unit maximums, keep and
+         *       unload limits ≥ 0 (D-070), name ≤ 40
          *       characters; or a shipment to an unknown island or the ship's own
          *       island),
          *       `invalid_token` (verification or reset token unknown, used or
@@ -1045,14 +1046,14 @@ export interface components {
         };
         /**
          * @description A route stop. At the stop the ship first unloads the `unload` goods
-         *     (limited by free capacity; the rest stays aboard), then loads the
-         *     `load` goods.
+         *     (limited by free capacity and the rule's `max_amount`; the rest
+         *     stays aboard), then loads the `load` goods (D-070).
          */
         RouteStop: {
             island_id: string;
             load: components["schemas"]["LoadRule"][];
-            /** @description Goods to unload (content good IDs). */
-            unload: string[];
+            /** @description Goods to unload. */
+            unload: components["schemas"]["UnloadRule"][];
         };
         LoadRule: {
             good: string;
@@ -1061,6 +1062,24 @@ export interface components {
              * @description Load until this amount of the good is aboard (top up to), in milli-units; a whole number of units > 0.
              */
             max_amount: number;
+            /**
+             * Format: int64
+             * @description Load only the island's stock above this amount (D-070), in
+             *     milli-units; a whole number of units >= 0. Absent: 0 (all of
+             *     it). Loaded: min(max_amount - aboard, stock - keep, slot room).
+             */
+            keep?: number;
+        };
+        UnloadRule: {
+            /** @description Content good ID. */
+            good: string;
+            /**
+             * Format: int64
+             * @description Unload at most this amount per visit (D-070), in milli-units;
+             *     a whole number of units >= 0. Absent: all aboard (free capacity
+             *     still applies).
+             */
+            max_amount?: number;
         };
         /**
          * @description Create a route: 2–8 stops at settled islands, consecutive stops
@@ -1673,7 +1692,7 @@ export interface components {
         RouteStopDisplay: {
             island_id: string;
             load: components["schemas"]["LoadRule"][];
-            unload: string[];
+            unload: components["schemas"]["UnloadRule"][];
         };
         ShipOrderDisplay: {
             /** @description Content ship ID. */
@@ -1972,10 +1991,11 @@ export interface components {
             /**
              * @description Primary status (MECHANICS §14). `not_adjacent`: a field whose
              *     chain to its farm is broken (inactive; fields are otherwise
-             *     `ok`).
+             *     `ok`). `no_collector_in_reach`: a producer on a road to a
+             *     collector, none of which reaches it (D-069; stalled).
              * @enum {string}
              */
-            status: "paused" | "not_connected" | "warehouse_full" | "input_starved" | "throttled" | "short_of_workers" | "low_efficiency" | "not_adjacent" | "ok";
+            status: "paused" | "not_connected" | "no_collector_in_reach" | "warehouse_full" | "input_starved" | "throttled" | "short_of_workers" | "low_efficiency" | "not_adjacent" | "ok";
             /**
              * Format: int64
              * @description Work-area efficiency (permille; 1000 without work area). For a
@@ -2477,8 +2497,17 @@ export interface components {
                      * @description Collector throughput (milli-units per minute).
                      */
                     throughput_per_min: number;
+                    /** @description Collector reach (tiles, D-069; 0 = no limit). */
+                    reach: number;
+                    /**
+                     * Format: int64
+                     * @description Upkeep at this level (milli-gold per minute, D-069).
+                     */
+                    upkeep_per_min: number;
                     /** @description Ships that can load or unload at once (count). */
                     berths: number;
+                    /** @description Tier that must be unlocked to upgrade into this level (D-065, extended to the Trading Post); absent on the first level. */
+                    tier?: string;
                     /**
                      * @description Upgrade cost into this level (`upgrade_trading_post`);
                      *     absent on the first level, which the building cost
@@ -2505,6 +2534,13 @@ export interface components {
                      * @description Collector throughput (milli-units per minute).
                      */
                     throughput_per_min: number;
+                    /** @description Collector reach (tiles, D-069; 0 = no limit). */
+                    reach: number;
+                    /**
+                     * Format: int64
+                     * @description Upkeep at this level (milli-gold per minute, D-069).
+                     */
+                    upkeep_per_min: number;
                     /** @description Tier that must be unlocked to upgrade into this level (D-065). */
                     tier?: string;
                     /**
@@ -2561,6 +2597,11 @@ export interface components {
                 levels: {
                     /** @description Service radius (tiles). */
                     radius: number;
+                    /**
+                     * Format: int64
+                     * @description Upkeep at this level (milli-gold per minute, D-069).
+                     */
+                    upkeep_per_min: number;
                     /** @description Tier that must be unlocked to upgrade into this level. */
                     tier?: string;
                     /**

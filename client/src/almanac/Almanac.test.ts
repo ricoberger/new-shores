@@ -57,6 +57,10 @@ describe("almanac rendering", () => {
     const ships = html({ section: "ships" });
     for (const s of content.ships) expect(ships).toContain(`id="ship-${s.id}"`);
     expect(ships).toContain("2 slots × 50");
+    // The route chapter explains top-up, keep and the unload limit (D-070).
+    expect(ships).toContain("data-testid=\"almanac-routes\"");
+    expect(ships).toContain("loads only the stock above this amount");
+    expect(ships).toContain("at most the amount you set per visit");
     const quests = html({ section: "quests" });
     for (const q of content.quests) expect(quests.split(`id="quest-${q.id}"`).length - 1, q.id).toBe(1);
     expect(quests).toContain("Lay 10 tiles of Dirt road");

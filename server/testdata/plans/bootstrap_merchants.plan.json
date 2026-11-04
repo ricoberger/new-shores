@@ -46,15 +46,16 @@
       }
     },
     {
-      "upgrade_trading_post": {
-        "island": "isle-01"
-      }
-    },
-    {
       "upgrade": {
         "quarter": "home-1",
         "from": "house_settlers",
         "count": 21
+      }
+    },
+    {
+      "note": "D-069: level 2 costs 10 gold/min upkeep; after the Citizen upgrades so that their taxes carry it.",
+      "upgrade_trading_post": {
+        "island": "isle-01"
       }
     },
     {

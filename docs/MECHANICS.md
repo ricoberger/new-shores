@@ -236,12 +236,13 @@ handlers only.
   the island's grid (`harbour_blocked`). Cost and speed are content
   (provisional 5 gold / 2 stone per tile, 0.6 s/tile like the paved
   road).
-- Each connected producer is **assigned** to the nearest collector by road
-  distance `d`: the number of road tiles on the shortest 4-connected road
+- Each connected producer is **assigned** to the nearest collector whose
+  reach covers it (§5, D-069) by road distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile
   adjacent to the collector, both ends included. Equal lengths prefer the
   lower summed per-tile time; equal collectors prefer the lowest ID.
-  Assignment is recomputed when roads, buildings or collectors change. Only
+  Assignment is recomputed when roads, buildings or collectors change
+  (also a collector's upgrade: its reach grows). Only
   buildings with a recipe are assigned; collectors need no road themselves.
 - **Transfer delay** per delivery: `transfer_base_seconds + Σ seconds_per_tile`
   over the path (content; provisional 10 s + 1 s/tile dirt, 0.6 s/tile
@@ -319,7 +320,7 @@ cycle:   seconds               at 100 % efficiency
   than micro-sorting). It is also the island's pier (§9.3) and the
   endpoint for ships, founding and trades. Coastal with its front rows
   over water (§2).
-- **Depots** (D-062; water-edge, Citizens) add a fixed 150 capacity per
+- **Depots** (D-062; water-edge, Merchants since D-069) add a fixed 150 capacity per
   good while a Trading Post stands: `capacity[good]` = Trading Post level
   capacity + Σ depot capacities (one function for production caps, ships,
   quests and display). Any number may stand on an island; no levels,
@@ -329,8 +330,23 @@ cycle:   seconds               at 100 % efficiency
   a depot its own `capacity`, no `level`; the Trading Post shows the total.
 - **Collectors** fetch producer output: the Trading Post has a base
   **throughput** `T` and every **Warehouse** (inland, cheap, no coast, no
-  capacity) adds its own `T` (levels raise it). Each producer is assigned
-  to the nearest collector by road (§3). `R` is the sum of base output
+  capacity) adds its own `T` (levels raise it). Every collector has a
+  **reach** per level (D-069; content `reach`, CONTENT §7): a production
+  building is *assignable* to a collector when the Euclidean distance
+  between the nearest tiles of the two footprints (tile centres, like a
+  service radius, §6.2) is at most the reach — the producer's **building
+  footprint** only, never its fields, plots or pastures — and it is
+  road-connected to it (§3). Each producer is assigned to the nearest
+  assignable collector by road (ties: lowest ID). A producer that is
+  road-connected only to collectors out of reach has the status
+  **`no_collector_in_reach`** and **stalls**: rate 0, its buffer kept,
+  nothing lost (D-009; like an unconnected producer with inputs, it
+  sits right after `not_connected` in the status precedence, §14).
+  Upgrading a collector raises its reach and reassigns at once; the
+  Trading Post's and a Warehouse's level *n* needs tier *n* unlocked (§12);
+  demolishing the only collector in reach stalls its producers. Houses,
+  public buildings and shipyards only need the road connection (no
+  reach). `R` is the sum of base output
   rates of a collector's assigned producers that are **running**
   (connected, not paused, not fully starved, not blocked). If `R > T`,
   every running assigned producer gets `throughput_factor = T / R`; else 1.
@@ -527,7 +543,11 @@ decorations, and the tier-1 market and chapel. **Never-pausable buildings
 carry no upkeep** (D-046): their running cost is folded into their
 construction price, so a fully stalled city always has `balance_rate ≥ 0`
 from floor-level taxes and gold keeps accumulating. Pausable public
-buildings (tavern and up) keep upkeep.
+buildings (tavern and up) keep upkeep. The exception are the hubs (D-069 §3):
+Trading Post, warehouses and the market carry upkeep per level
+(CONTENT §7; the Trading Post's and the market's level 1 are free) and
+are never paused; when nothing pausable is left their upkeep holds gold
+at zero until taxes cover it (a demolished hub stops its upkeep).
 
 - **Auto-resume**: the candidate is the most recently auto-paused
   building. It resumes when both hold: (a) gold ≥
@@ -657,14 +677,20 @@ buildings (tavern and up) keep upkeep.
 ### 9.2 Routes
 
 ```
-route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}], ships: [...] }
+route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{good, max_amount?}]}], ships: [...] }
 ```
 
 - A route has 2–8 stops; consecutive stops are on different islands
   (`route_invalid`).
-- At a stop: unload listed goods (respecting capacity; remainder stays
-  aboard), then load listed goods **topping up to** `max_amount` per good
-  within slot availability. Handling takes `ship_handling_base_seconds +
+- At a stop: unload listed goods (respecting capacity and the unload
+  rule's optional `max_amount`, the most unloaded per visit; remainder
+  stays aboard), then load listed goods **topping up to** `max_amount`
+  per good from the stock above the load rule's optional `keep`, within
+  slot availability: `load = min(max_amount − aboard, stock − keep, slot
+  room)` (D-070). Both limits are evaluated at `ship_arrived`; absent,
+  `keep` is 0 and the unload is unlimited. `keep` and the unload
+  `max_amount` are whole units ≥ 0, an unload limit only for a good the
+  stop unloads (`route_invalid`). Handling takes `ship_handling_base_seconds +
   ship_handling_seconds_per_unit × units moved` (provisional 10 s +
   0.2 s/unit) and needs a free **berth** (§9.3).
 - A ship is `{routeId, stopIndex, legDepartAt, legArriveAt, cargo}`; its
@@ -689,12 +715,13 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   a virtual hold `H` = the smallest `slots × slot_size` among the assigned
   ships (or among all ship types when none is assigned); for every good
   that appears in a load rule, walk the stops twice from stop 0 with
-  `aboard = 0` — at each stop unload first (the island gains `aboard`,
-  `aboard = 0` if the good is in `unload`), then load (`delta = max(0,
+  `aboard = 0` — at each stop unload first (if the good is in `unload`
+  the island gains `u = min(aboard, unload max_amount)` and `aboard −=
+  u`), then load (`delta = max(0,
   min(max_amount, H) − aboard)`; the island loses `delta`); the second
   pass's per-island sums are `per_loop`; `per_min = per_loop ×
   assigned_ships × 60 000 / loop_ms` (0 without ships). Stock availability
-  and cross-good slot competition are ignored, so the UI labels the values
+  (and so `keep`) and cross-good slot competition are ignored, so the UI labels the values
   "estimated". This is a derived display field, never used by rules.
 - Manual shipment = a one-off two-stop leg from the ship's island to a
   target island with an explicit cargo list taken from the island
@@ -710,7 +737,7 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   queued as the next due moment after the earliest berth frees (FIFO by
   arrival time, then ship ID). Manual shipments, route ships and later
   trade ships queue alike. **Trading piers** (D-060; water-edge,
-  Citizens, no levels) add their `berths` (provisional 2) to the
+  Merchants since D-069, no levels) add their `berths` (provisional 2) to the
   island's pool: berths = Trading Post level berths + Σ pier berths; the
   sim keeps one pool and one queue per island. D-062 changes no berth
   arithmetic: the 6×6 Trading Post still has 1–4 by level; a 6×9 pier
@@ -809,7 +836,7 @@ Tier `n+1` becomes available (house upgrades and new buildings unlock) when
 all of the tier's `unlock` conditions in content hold:
 
 ```json
-{ "population": { "settlers": 120 }, "buildings": ["market", "chapel"] }
+{ "population": { "settlers": 120 } }
 ```
 
 Conditions are evaluated against the player's whole archipelago at the end
@@ -818,10 +845,14 @@ keys must be earlier tiers. The first tier is always unlocked. Unlocks are
 permanent (no regression) and have no rate effect; the unlock moment is
 reported as a `tier_unlocked` boundary. Placing a building (or road) of a
 locked tier fails with `ErrTierLocked`; so does ordering a ship of a
-locked tier or upgrading a public building into a level of one. The
-unlocks (D-056) are 120 Settlers + market + chapel (Citizens), 360
-Citizens + tavern (Merchants) and 1 200 Merchants (Patricians; the
-church joins once it is authored). The client toasts an unlock it sees
+locked tier or upgrading a public building, a Warehouse or the Trading
+Post into a level of one (level *n* of each needs tier *n*, D-065 extended
+to the Trading Post: level 2 Citizens, 3 Merchants, 4 Patricians). The
+unlocks are population only (D-069 §4): 120 Settlers (Citizens), 360
+Citizens (Merchants) and 1 200 Merchants (Patricians); the buildings the
+D-056 list named are required by the house upgrade gate anyway. The
+content format keeps an optional `buildings` list (a building of each
+type must stand somewhere in the archipelago) for later regions. The client toasts an unlock it sees
 during a session with the number of new buildings.
 
 **House upgrade gate (D-056):** a house upgrades when it is at `max`
@@ -896,13 +927,14 @@ house cost is paid. One alternative per category is enough.
 
 Each building state maps to one icon and one sentence with a fix. A building
 has exactly one primary status; precedence when several apply:
-`paused` > `not_connected` > `warehouse_full` > `input_starved` >
+`paused` > `not_connected` > `no_collector_in_reach` > `warehouse_full` > `input_starved` >
 `throttled` > `short_of_workers` > `low_efficiency` > `ok`.
 
 | State | Message | Suggested fix |
 |---|---|---|
 | paused (player) | "Paused by you" | resume |
 | not connected | "No road to the Trading Post or a Warehouse" | build road |
+| no collector in reach | "Out of reach of any warehouse" | Warehouse nearby / upgrade the collector |
 | input starved | "Missing: iron ore (0/min)" | build producer / import |
 | warehouse full | "Planks at capacity (400/400)" | upgrade Trading Post / consume |
 | throttled | "Trading Post overloaded (140 %)" (or "Warehouse …") | Warehouse / upgrade |

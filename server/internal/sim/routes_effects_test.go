@@ -19,15 +19,24 @@ func TestRouteEffectsFormula(t *testing.T) {
 			name: "two stops",
 			stops: []Stop{
 				{IslandID: "a", Unload: []string{"fish"}},
-				{IslandID: "b", Load: []LoadRule{{"fish", 50_000}}},
+				{IslandID: "b", Load: []LoadRule{{Good: "fish", MaxAmount: 50_000}}},
 			},
 			hold: 100_000,
 			want: []routeEffect{{"a", "fish", 50_000}, {"b", "fish", -50_000}},
 		},
 		{
+			name: "unload max (D-070)",
+			stops: []Stop{
+				{IslandID: "a", Unload: []string{"fish"}, UnloadMax: map[string]Qty{"fish": 20_000}},
+				{IslandID: "b", Load: []LoadRule{{Good: "fish", MaxAmount: 50_000}}},
+			},
+			hold: 100_000,
+			want: []routeEffect{{"a", "fish", 20_000}, {"b", "fish", -20_000}},
+		},
+		{
 			name: "cap by hold",
 			stops: []Stop{
-				{IslandID: "a", Load: []LoadRule{{"wood", 200_000}}},
+				{IslandID: "a", Load: []LoadRule{{Good: "wood", MaxAmount: 200_000}}},
 				{IslandID: "b", Unload: []string{"wood"}},
 			},
 			hold: 100_000,
@@ -38,8 +47,8 @@ func TestRouteEffectsFormula(t *testing.T) {
 			// unloaded at c; the hold keeps nothing across the loop.
 			name: "carry-over",
 			stops: []Stop{
-				{IslandID: "a", Load: []LoadRule{{"wood", 30_000}}, Unload: []string{"fish"}},
-				{IslandID: "b", Load: []LoadRule{{"wood", 50_000}, {"fish", 10_000}}},
+				{IslandID: "a", Load: []LoadRule{{Good: "wood", MaxAmount: 30_000}}, Unload: []string{"fish"}},
+				{IslandID: "b", Load: []LoadRule{{Good: "wood", MaxAmount: 50_000}, {Good: "fish", MaxAmount: 10_000}}},
 				{IslandID: "c", Unload: []string{"wood"}},
 			},
 			hold: 100_000,
@@ -55,7 +64,7 @@ func TestRouteEffectsFormula(t *testing.T) {
 			name: "never unloaded",
 			stops: []Stop{
 				{IslandID: "a"},
-				{IslandID: "b", Load: []LoadRule{{"fish", 20_000}}},
+				{IslandID: "b", Load: []LoadRule{{Good: "fish", MaxAmount: 20_000}}},
 			},
 			hold: 100_000,
 			want: nil,
@@ -66,8 +75,8 @@ func TestRouteEffectsFormula(t *testing.T) {
 			name: "carry across loop",
 			stops: []Stop{
 				{IslandID: "a", Unload: []string{"wood"}},
-				{IslandID: "b", Load: []LoadRule{{"wood", 40_000}}},
-				{IslandID: "c", Load: []LoadRule{{"wood", 60_000}}},
+				{IslandID: "b", Load: []LoadRule{{Good: "wood", MaxAmount: 40_000}}},
+				{IslandID: "c", Load: []LoadRule{{Good: "wood", MaxAmount: 60_000}}},
 			},
 			hold: 50_000,
 			want: []routeEffect{{"a", "wood", 50_000}, {"b", "wood", -40_000}, {"c", "wood", -10_000}},
@@ -90,7 +99,7 @@ func TestRouteEffectsDisplay(t *testing.T) {
 	w, s := routeWorld(t, c)
 	mustApply(t, w, c, CreateRoute{Stops: []Stop{
 		{IslandID: "a", Unload: []string{"fish"}},
-		{IslandID: "b", Load: []LoadRule{{"fish", 50_000}}},
+		{IslandID: "b", Load: []LoadRule{{Good: "fish", MaxAmount: 50_000}}},
 	}})
 	mustApply(t, w, c, CreateRoute{Stops: []Stop{{IslandID: "a"}, {IslandID: "b"}}})
 	check := func(label string, perMin Qty) {

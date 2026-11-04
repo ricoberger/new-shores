@@ -23,6 +23,7 @@ export type RouteDisplay = Schemas["RouteDisplay"];
 export type ShipOrderDisplay = Schemas["ShipOrderDisplay"];
 export type RouteStop = Schemas["RouteStop"];
 export type LoadRule = Schemas["LoadRule"];
+export type UnloadRule = Schemas["UnloadRule"];
 export type IslandTiles = Schemas["IslandTiles"];
 export type DepositDisplay = Schemas["DepositDisplay"];
 /**

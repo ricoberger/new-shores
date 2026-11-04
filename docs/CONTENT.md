@@ -32,10 +32,16 @@ games tune the tax).
 
 | Unlocks | Requires |
 |---|---|
-| Citizens | 120 Settlers, `market`, `chapel` |
-| Merchants | 360 Citizens, `tavern` (D-056) |
-| Patricians | 1 200 Merchants, `church` (D-056) |
+| Citizens | 120 Settlers (D-069: population only) |
+| Merchants | 360 Citizens |
+| Patricians | 1 200 Merchants |
 | Islands | no tier gating — every island can be settled from the start (D-051) |
+
+Since D-069 the unlocks are population only: the market, chapel, tavern
+and church the D-056 list named are already required by the house
+upgrade gate (their categories ≥ 0.6), and the intro quests still lead
+the player to them. `tiers.json` keeps `unlock.buildings` as an optional
+key for later regions.
 
 ### Need categories per tier (D-056; supersedes D-031's bonus and D-033)
 
@@ -143,7 +149,7 @@ ship is a sloop; the shipyard unlocks at tier 2 (D-056).
 | ships | sails | `sailmaker` (hemp → sails, 60 s) [6 C] | — |
 
 Infrastructure: `trading_post` lvl 2, `market` and `warehouse` lvl 2 (D-065), `road_paved`, `quay` (D-060), `tavern`, `school`,
-`city_guard`, `trading_pier`, `depot` (D-060), `shipyard` (sloop, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
+`city_guard`, `shipyard` (sloop, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
 The construction chains (quarry, tool chain) are **Settler-staffed** per the
 bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
 must be producible before any Citizen exists. Likewise bricks (tier 3) are
@@ -169,8 +175,8 @@ One recipe per building (D-041): `leather_works` is a separate building from
 `tannery` rather than a second recipe.
 
 Infrastructure: `trading_post` lvl 3, `market` and `warehouse` lvl 3 (D-065), `church`,
-`playhouse`, `fire_station` (one level, D-065), `brig`
-(4 slots), `house_merchants`;
+`playhouse`, `fire_station` (one level, D-065), `trading_pier`, `depot`
+(D-060; Merchants since D-069 §5), `brig` (4 slots), `house_merchants`;
 `harbourmaster_office` (world map, expeditions, contracts) is an ONLINE
 feature, not a tier gate, and not authored yet. Variety reserve
 (D-056): fur_coats (`trapper`, `furrier`), tableware (`potter`;
@@ -251,9 +257,9 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 |---|---|---|---|---|---|---|---|---|
 | `house_settlers` | 1 | 3×3 | — | Residence | 0 / 5 | 0 | — | R; all houses 3×3, upgrade in place |
 | `road_dirt` | 1 | 1×1 | — | road | see text | 0 | — |  |
-| `trading_post` | 1 | 6×6 | 1–2 | Trading Post (D-062) | see text | 0 | — | founding only; levels as below |
-| `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 0 | — | collector; throughput per level, four levels (D-065, below) |
-| `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 12; lvl 2 (tier 2) radius 15, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 18, 1000 gold / 15 planks / 30 stone; lvl 4 (tier 4) radius 21, 5000 gold / 15 planks / 45 stone / 15 bricks (D-065) |
+| `trading_post` | 1 | 6×6 | 1–2 | Trading Post (D-062) | see text | 0 / 10 / 20 / 30 | — | founding only; collector with reach; levels as below (D-069) |
+| `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 1 / 10 / 15 / 25 | — | collector; reach and throughput per level, four levels (D-065, D-069, below) |
+| `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 / 10 / 20 / 30 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 12; lvl 2 (tier 2) radius 15, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 18, 1000 gold / 15 planks / 30 stone; lvl 4 (tier 4) radius 21, 5000 gold / 15 planks / 45 stone / 15 bricks (D-065) |
 | `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 0 | — | R, radius 16; faith rank 1 (D-065) |
 | `lumberjack` | 1 | 3×3 + 24 `tree_plot` | — | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest) |
 | `tree_plot` | 1 | 1×1 field | — | field tile | 1 g | 0 | — | lumberjack only; painted; grass or forest, no fertility (D-059) |
@@ -266,8 +272,6 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `house_citizens` | 2 | 3×3 | — | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | — | road | see text | 0 | — | 3 gold / 1 stone |
 | `quay` | 2 | 1×1 on shallows | — | road (D-060) | see text | 0 | — | 5 gold / 2 stone; 0.6 s/tile; water-edge buildings stand on it |
-| `trading_pier` | 2 | 6×9 | 5–6 | Pier class (ours) | 250 / 20 / 10 | 0 | — | R, never auto-paused; +2 berths for the island (D-060); no levels |
-| `depot` | 2 | 4×11 | 7–9 | Depot class (ours) | 280 / 20 / 10 | 0 | — | R, never auto-paused; +150 capacity per good, no levels; any number (D-062) |
 | `quarry` | 2 | 3×8 on a stone slot | — | Limestone Quarry | 120 / 9 / 0 | 3 | 8 S | R; strip into the mountain |
 | `iron_mine` | 2 | 3×8 on an iron slot | — | Iron Mine | 180 / 6 / 6 | 2 | 10 S | R |
 | `charcoal_burner` | 2 | 5×6 | — | Charcoal Burner | 90 / 9 / 0 | 2 | 4 S | R, forest nearby (visual) |
@@ -300,6 +304,8 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `church` | 3 | 6×10 | — | Sanctuary | 1500 / 30 / 15 / 0 | 6 | — | R, radius 20; faith rank 2 (D-065) |
 | `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 30 / 60 / 30 | 15 | — | R, radius 24 (tier 3 since D-056); culture rank 2 (D-065) |
 | `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, fire protection; radius 16, one level (D-065) |
+| `trading_pier` | 3 | 6×9 | 5–6 | Pier class (ours) | 250 / 20 / 10 | 0 | — | R, never auto-paused; +2 berths for the island (D-060); no levels; Merchants since D-069 §5 |
+| `depot` | 3 | 4×11 | 7–9 | Depot class (ours) | 280 / 20 / 10 | 0 | — | R, never auto-paused; +150 capacity per good, no levels; any number (D-062); Merchants since D-069 §5 |
 | `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 4 | — | R, radius 20, health; one level, glass cost (D-062) |
 | `harbourmaster_office` | 3 | 5×5 | (reserve) | Repair Crane class | 1000 / 60 / 45 / 0 | 6 | — | world map, expeditions, contracts |
 | `butcher` | 3 | 4×5 | — | Victualler class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
@@ -361,17 +367,35 @@ Roads: `road_dirt` 1 gold; `road_paved` 3 gold / 1 stone; `quay` 5 gold /
 2 stone on the shallows (D-060, MECHANICS §3). Trading Post
 founding cost 200 gold / 15 planks (start stock, D-051) — the levels below.
 
-Trading Post levels (provisional): lvl 1 cap 300 / T 30 / 1 berth; lvl 2
-cap 500 / T 55 / 2 berths (upgrade 300 gold / 20 planks / 10 stone); lvl 3
-cap 800 / T 80 / 3 berths (600 gold / 30 planks / 20 stone); lvl 4 cap
-1 200 / T 110 / 4 berths (1 200 gold / 40 planks / 30 stone / 10 tools).
-Warehouse levels (provisional, throughput only — collectors have no
-radius rule in the sim; level *n* needs tier *n*, D-065): lvl 1 T 30;
-lvl 2 T 50 (Citizens; 150 gold / 10 planks / 5 stone); lvl 3 T 70
-(Merchants; 300 gold / 15 planks / 10 stone); lvl 4 T 90 (Patricians;
-600 gold / 20 planks / 20 stone). A 6×6 hub earns its size with
-throughput (D-054); a reach rule would be a new decision. Market and
-warehouse level 4 have no model yet; the client draws level 3.
+Collector levels (D-069, provisional; T = throughput per minute, reach in
+tiles from the nearest footprint tile like a service radius, upkeep in
+gold/min; level *n* of the Trading Post, the warehouse and the market
+needs tier *n*, D-065, extended to the Trading Post):
+
+| Collector | Level | Capacity | T | Reach | Upkeep | Berths | Upgrade cost |
+|---|---|---|---|---|---|---|---|
+| Trading Post | 1 | 300 | 20 | 20 | 0 | 1 | founding (200 gold / 15 planks) |
+| Trading Post | 2 (Citizens) | 500 | 40 | 24 | 10 | 2 | 300 gold / 20 planks / 10 stone |
+| Trading Post | 3 (Merchants) | 800 | 60 | 28 | 20 | 3 | 600 gold / 30 planks / 20 stone |
+| Trading Post | 4 (Patricians) | 1 200 | 80 | 32 | 30 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
+| Warehouse | 1 | — | 20 | 14 | 1 | — | placement (50 gold / 6 planks) |
+| Warehouse | 2 (Citizens) | — | 35 | 17 | 10 | — | 150 gold / 10 planks / 5 stone |
+| Warehouse | 3 (Merchants) | — | 50 | 20 | 15 | — | 300 gold / 15 planks / 10 stone |
+| Warehouse | 4 (Patricians) | — | 65 | 23 | 25 | — | 600 gold / 20 planks / 20 stone |
+
+Market upkeep per level 0 / 10 / 20 / 30. D-069 §3 named 5 for the
+level 1 of market and warehouse; the plan replay tuned them: a market
+with any upkeep placed before the first houses holds gold at zero for
+good (it cannot be paused and roads cost gold), so its level 1 stays
+free like the Trading Post's; a warehouse at 5 gold/min (2.5 fishers)
+cost the Merchants game 30–50 minutes against its targets at the
+number of warehouses reach needs, 2 still 8–10, so level 1 costs 1
+(half a fisher) and the upkeep is felt from level 2 on (§12). Before D-069
+the Trading Post had T 30 / 55 / 80 / 110 and the warehouse T 30 / 50 /
+70 / 90, both without reach, and no hub carried upkeep. A producer only
+delivers to a collector whose reach covers its building footprint
+(MECHANICS §5); a 6×6 warehouse is the placement lever for that. Market
+and warehouse level 4 have no model yet; the client draws level 3.
 
 Harbour extensions (D-060, provisional, numbers ours — no Anno
 counterpart): the **trading pier** adds 2 berths to its island's pool
@@ -379,7 +403,9 @@ counterpart): the **trading pier** adds 2 berths to its island's pool
 while a Trading Post stands (MECHANICS §5): 150 each, no levels, any
 number (D-062). Both have
 upkeep 0 and `pause_category: never` like the Trading Post (a paused
-depot would question its own capacity).
+depot would question its own capacity). Both arrive with the Merchants
+(D-069 §5: they matter once several routes run); shipyard and quay stay
+at Citizens.
 
 ## 8. Ships
 
@@ -535,7 +561,7 @@ Every building has `id`, `name`, `region` (must equal the region id),
 called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min` and
 `pause_category`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **13**, content **old_coast-0.17.0** (D-065): no migration while
+World schema **13**, content **old_coast-0.18.0** (D-069): no migration while
 undeployed; recreate local databases with `make down VOLUMES=1 && make up`.
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.
@@ -546,18 +572,28 @@ it carries:
 |---|---|---|
 | `recipe` (later `recipes[]`, D-041) | `inputs[] {good, amount}` (may be empty), `outputs[] {good, amount}` (non-empty), `cycle_seconds` | producers |
 | `house` | `tier` | residences |
-| `trading_post` | `levels[] {capacity, throughput_per_min, berths, cost?}` — level 1 has no cost (founding places it), later levels have one (`upgrade_trading_post`); with `water_rows` (per-column water prefix) | Trading Post, one per island |
+| `trading_post` | `levels[] {capacity, throughput_per_min, reach?, upkeep_per_min?, berths, tier?, cost?}` — level 1 has no cost or tier (founding places it), later levels have a cost (`upgrade_trading_post`) and name the tier they need (D-065); with `water_rows` (per-column water prefix) | Trading Post, one per island |
 | `pier` | `berths` (≥ 1) — berths added to the island's pool; needs `water_rows`; no collector, service or levels (D-060) | trading_pier |
 | `depot` | `capacity` — fixed capacity per good added to the island; no levels, collector, service or pier (D-062) | depot |
-| `warehouse` | `levels[] {throughput_per_min, tier?, cost?}` — collector only, no capacity (`upgrade_warehouse`); every later level names the tier it needs (D-065) | inland Warehouse |
+| `warehouse` | `levels[] {throughput_per_min, reach?, upkeep_per_min?, tier?, cost?}` — collector only, no capacity (`upgrade_warehouse`); every later level names the tier it needs (D-065) | inland Warehouse |
 | `road` | `seconds_per_tile`, `shallows?` (true: laid on the shallows instead of land, D-060) (building must be 1×1) | roads, quay |
-| `service` | `radius` or `levels[] {radius, cost?}` (level *n* needs tier *n*, derived by the loader, D-065; only the market has levels); `chain` + `rank` for a chain building (one radius, D-065) | public buildings |
+| `service` | `radius` or `levels[] {radius, upkeep_per_min?, cost?}` (level *n* needs tier *n*, derived by the loader, D-065; only the market has levels); `chain` + `rank` for a chain building (one radius, D-065) | public buildings |
 | `work_area` | `fertility` (island-wide tag the island must carry, else `no_fertility`); no radius or terrain rule | farms (the lumberjack is a farm since D-059) |
 | `fields` | `type` (a field building's `field.type`), `required`, `max` | farms (D-051 part 4), lumberjack (D-059) |
 | `field` | `type`, `farm` (the farm type that owns it, or a list of farm types sharing the module: `cattle_pasture` serves `dairy_farm` and `cattle_farm`), `terrain[]`, `fertility?` — 1×1 (crops) or a pasture module (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires every listed farm to exist with a matching `fields.type` | pasture, wheat_field, orchard_plot, hemp_field, pig_pen, meadow, cattle_pasture, hop_field, woad_field, vine_row, tree_plot |
 | `workforce` | `tier`, `amount` | producers only (D-035) |
 | `requires_deposit` | deposit type; the footprint must cover ≥ 1 tile with that deposit (`no_deposit`) and may cover mountain tiles | mines, quarries |
 | `slot` | typed deposit/harbour slots (D-036) — not yet implemented; `requires_deposit` is the interim rule | — |
+
+Collector and hub levels (D-069): `reach` (tiles, integer ≥ 1) is the
+collector reach of a Trading Post or Warehouse level (MECHANICS §5); it
+must be set on every level or on none (absent: no reach limit, only the
+pinned test contents) and never shrinks from one level to the next.
+`upkeep_per_min` on a level is that level's upkeep (absent: the
+building's); level 1 must equal the building's top-level
+`upkeep_per_min`. A `pause_category: never` building carries no upkeep
+(D-046) — except the hubs, collectors and public buildings with levels,
+whose levels carry upkeep (D-069 §3).
 | `shipyard` | `ships[]` (ship IDs it can build) | shipyard |
 | `smoke` | boolean, absent false — display only: the model carries chimney/smoke anchors and the client draws smoke | producers whose model has a chimney: every shipped producer except hop_farm, woad_farm, leather_works, tailor, printing_press, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, fashion_house, thread_spinner, lace_maker, quartz_quarry, copper_mine, gold_mine and luthier |
 | `boat` | boolean, absent false — display only: the client rows a boat out from the model's boat anchor and back; needs `water_rows` | water-edge producers (fisher, oyster_beds) |
@@ -622,7 +658,8 @@ whether it is the home class (the almanac's Islands table).
 
 `tiers.json`: array in progression order of `{ id, name, residents: {floor,
 max}, tax_per_resident_per_min, house?, unlock: { population: {tier: n},
-buildings: [], goods_delivered: [] } }`. `house` is optional: a tier
+buildings?: [] } }` (`buildings` optional; the Old Coast unlocks by
+population only, D-069). `house` is optional: a tier
 without it is *declared only* (no needs, no house building may reference
 it; upgrading into it fails cleanly) — this is how Citizens exist in the
 first playable before its content is authored. `unlock.population` keys
@@ -716,6 +753,49 @@ and building/island choices are the only pacing levers. The final Patrician
 measurement is conservative, not the earliest crossing. Merchants lose the
 health gate but these layout repairs cost about six minutes versus the
 old 223/258/291 replay. The checklist below retains older balancing history.
+
+### D-069 reference results (sim minutes, seed 1053001)
+
+Content `old_coast-0.18.0` (collector reach and throughput, hub upkeep
+per level, population-only unlocks, harbour extensions at Merchants;
+§7 collector levels):
+
+| Game | Milestones | Targets | D-065 | D-069 | Margins |
+|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 48 / 24 / 82 / 118 | 48 / 12 / 85 / 128 | 12 / 78 / 15 / 22 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 32 / 64 (11, 100) | 32 / 68 (8, 111) | 13 / 17; 17 earlier than without claims |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 224 / 256 / 369 | 220 / 263 / 397 | 20 / 7 / 23 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 826 / 866 / 1073 | 808 / 847 / 1078 | 92 / 113 / 722 |
+
+Plan changes for D-069 (generator and authoring levers only):
+
+- The citizens plan sets `collectors: "reach"` (inherited by the
+  continuing plans): before a production building the generator places
+  a warehouse when no collector reaches its site or the one it would
+  deliver to (the sim's assignment) would exceed its throughput at
+  nominal rates; the warehouse goes within level-1 reach, forest before
+  grass, keeping the producer's road and fields free; where no road
+  comes near enough yet (a remote quarry), the producer goes first and
+  its warehouse follows on its road. Farms first try to raise a
+  collector's level instead (no land).
+- The patricians plan sets `collectors: "reach_upgrade"`: every
+  producer first tries a collector upgrade (upkeep for land in the rich
+  late game). The home island then has 13 collectors for 142 producers.
+- Merchants: the Trading Post upgrade moves after the 21 Settler
+  upgrades (level 2 costs 10 gold/min). Its level 2 (minute 195) and
+  level 3 (minute 240) come after the Citizens and Merchants unlocks,
+  so their tier gate changes nothing there.
+- Patricians: the Trading Post's level 4 needs Patricians (tier gate):
+  its upgrade moves from minute 720 to right after the first Patrician
+  house (done at minute 922). Without the 30 gold/min upkeep in
+  between, the unlock and the first house come 23 and 25 minutes earlier
+  (831 / 872 before the gate).
+- Patricians: pig farms #13–14 and the second dairy farm move to island
+  6 (milk home on the pig route, created first); the round's two wheat
+  farms come before its pastures and small buildings — the warehouses
+  took the grass of the last wheat farm.
+- The population-only unlocks open Citizens at minute 12 instead of 24
+  (no market or chapel condition).
 
 ### D-065 reference results (sim minutes, seed 1053001)
 

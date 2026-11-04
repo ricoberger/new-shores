@@ -1,0 +1,202 @@
+{
+  "name": "route_limits",
+  "description": "(p) route_loop with the D-070 stop limits: the start island keeps 250 wood (the stop loads only the wood above it, up to 100 aboard) and island 2 takes at most 30 wood per visit (the rest stays aboard); three loops; goods are conserved exactly across both islands and the cargo aboard.",
+  "content": "server/testdata/content/old_coast_pre_d054",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 36,
+      "y": 48,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~",
+        "~~~~~cccccccccccc~",
+        "~cccccccccccccccc~",
+        "~................~",
+        "~................~",
+        "~................~",
+        "~...........mIIm.~",
+        "~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 1501,
+    "stock": {
+      "planks": 200,
+      "sails": 10,
+      "wood": 280
+    },
+    "workforce": {
+      "settlers": 100
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          5
+        ],
+        "to": [
+          28,
+          5
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "order_ship": {
+        "x": 6,
+        "y": 1,
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 23,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          23,
+          6
+        ],
+        "rect": [
+          25,
+          6,
+          25,
+          7
+        ],
+        "count": 1
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "island2",
+        "cargo": {
+          "planks": 50
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m35s"
+      }
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "island2",
+        "x": 1,
+        "y": 0,
+        "rotation": 0
+      }
+    },
+    {
+      "stock": {
+        "island": "island2",
+        "good": "planks",
+        "amount": 100
+      }
+    },
+    {
+      "create_route": {
+        "name": "Wood out (keep 250), planks back",
+        "stops": [
+          {
+            "island": "start",
+            "load": {
+              "wood": 100
+            },
+            "unload": [
+              "planks"
+            ],
+            "keep": {
+              "wood": 250
+            }
+          },
+          {
+            "island": "island2",
+            "load": {
+              "planks": 40
+            },
+            "unload": [
+              "wood"
+            ],
+            "unload_max": {
+              "wood": 30
+            }
+          }
+        ]
+      }
+    },
+    {
+      "assign_ship": {
+        "ship": 1,
+        "route": 1
+      }
+    },
+    {
+      "advance": {
+        "duration": "3m37.623s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "3m37.623s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "3m37.623s"
+      }
+    }
+  ]
+}

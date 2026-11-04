@@ -327,10 +327,14 @@ func handlingMs(c *content.Catalogue, moved Qty) int64 {
 }
 
 // unloadGood moves up to the amount aboard of good into the island
-// inventory, limited by the free committed capacity; the excess stays
-// aboard. It returns the unloaded milli-units.
-func unloadGood(is *Island, c *content.Catalogue, amounts map[string]Qty, good string, now int64, l *Ledger) Qty {
+// inventory, limited by the free committed capacity and by limit (D-070;
+// negative: none); the excess stays aboard. It returns the unloaded
+// milli-units.
+func unloadGood(is *Island, c *content.Catalogue, amounts map[string]Qty, good string, limit Qty, now int64, l *Ledger) Qty {
 	take := min(amounts[good], freeMilli(is, c, good, now))
+	if limit >= 0 {
+		take = min(take, limit)
+	}
 	if take <= 0 {
 		return 0
 	}
@@ -354,7 +358,7 @@ func unloadAll(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) Qt
 	amounts := cargoAmounts(s)
 	var moved Qty
 	for _, g := range sortedKeys(amounts) {
-		moved += unloadGood(is, c, amounts, g, now, l)
+		moved += unloadGood(is, c, amounts, g, -1, now, l)
 	}
 	setCargo(s, def.SlotSize, amounts)
 	clearRegimes(is)
@@ -404,11 +408,15 @@ func handleStop(w *World, c *content.Catalogue, s *Ship, r *Route, island string
 	if is, def := w.Island(island), c.ShipByID[s.Type]; is != nil && def != nil {
 		amounts := cargoAmounts(s)
 		for _, g := range stop.Unload {
-			moved += unloadGood(is, c, amounts, g, now, l)
+			limit, ok := stop.UnloadMax[g]
+			if !ok {
+				limit = -1
+			}
+			moved += unloadGood(is, c, amounts, g, limit, now, l)
 		}
 		for _, lr := range stop.Load {
 			want := lr.MaxAmount - amounts[lr.Good]
-			take := min(want, is.Inventory.Stock[lr.Good], cargoRoom(amounts, lr.Good, def.SlotSize, def.Slots))
+			take := min(want, is.Inventory.Stock[lr.Good]-lr.Keep, cargoRoom(amounts, lr.Good, def.SlotSize, def.Slots))
 			if take <= 0 {
 				continue
 			}

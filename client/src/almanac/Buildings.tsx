@@ -74,6 +74,9 @@ export function BuildingCard({ idx, view, linked, level = 3 }: { idx: Index; vie
           </Row>
         )}
         {view.radius !== undefined && <Row label={t("almanac.b.serviceRadius")}>{t("infoPanel.tiles", { count: view.levels.length > 1 ? view.levels.map((l) => l.radius).join(" / ") : view.radius })}</Row>}
+        {view.levels.some((l) => l.reach) && (
+          <Row label={t("infoPanel.reach")}>{t("infoPanel.tiles", { count: view.levels.map((l) => l.reach || "–").join(" / ") })}</Row>
+        )}
         {view.roadSecondsPerTile !== undefined && <Row label={t("almanac.b.transfer")}>{t("almanac.b.secondsPerTile", { count: num(view.roadSecondsPerTile) })}</Row>}
         {view.shallows && <Row label={t("almanac.b.site")}>{t("almanac.b.shallows")}</Row>}
         {view.depotCapacity !== undefined && <Row label={t("infoPanel.adds")}>{t("infoPanel.capacityPerGood", { amount: tonsText(num(view.depotCapacity)) })}</Row>}
@@ -119,7 +122,7 @@ export function BuildingCard({ idx, view, linked, level = 3 }: { idx: Index; vie
 }
 
 function Levels({ idx, view }: { idx: Index; view: BuildingView }) {
-  const has = (k: "capacity" | "throughput" | "berths" | "radius") => view.levels.some((l) => l[k] !== undefined);
+  const has = (k: "capacity" | "throughput" | "berths" | "radius" | "reach" | "upkeep") => view.levels.some((l) => l[k] !== undefined);
   return (
     <div className={styles.tableWrap}>
       <table className={styles.table}>
@@ -133,6 +136,8 @@ function Levels({ idx, view }: { idx: Index; view: BuildingView }) {
             {has("throughput") && <th scope="col" className={styles.num}>{t("almanac.b.throughputPerMin")}</th>}
             {has("berths") && <th scope="col" className={styles.num}>{t("infoPanel.berths")}</th>}
             {has("radius") && <th scope="col" className={styles.num}>{t("infoPanel.radius")}</th>}
+            {has("reach") && <th scope="col" className={styles.num}>{t("infoPanel.reach")}</th>}
+            {has("upkeep") && <th scope="col" className={styles.num}>{t("almanac.b.upkeepPerMin")}</th>}
             <th scope="col">{t("almanac.b.upgradeCost")}</th>
           </tr>
         </thead>
@@ -147,6 +152,8 @@ function Levels({ idx, view }: { idx: Index; view: BuildingView }) {
               {has("throughput") && <td className={styles.num}>{l.throughput === undefined ? "" : tonsPerMinText(num(l.throughput))}</td>}
               {has("berths") && <td className={styles.num}>{l.berths ?? ""}</td>}
               {has("radius") && <td className={styles.num}>{l.radius ?? ""}</td>}
+              {has("reach") && <td className={styles.num}>{l.reach ? l.reach : l.reach === 0 ? t("almanac.b.noLimit") : ""}</td>}
+              {has("upkeep") && <td className={styles.num}>{l.upkeep === undefined ? "" : num(l.upkeep)}</td>}
               <td>{l.level === 1 ? <span className={styles.small}>{t("almanac.b.builtAsIs")}</span> : <Cost idx={idx} parts={l.cost} />}</td>
             </tr>
           ))}

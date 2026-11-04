@@ -50,6 +50,15 @@ export function Ships({ idx, id }: { idx: Index; id?: string }) {
           </article>
         ))}
       </div>
+      <section aria-labelledby="ships-routes" data-testid="almanac-routes">
+        <h3 id="ships-routes">{t("almanac.s.routes")}</h3>
+        <p>{t("almanac.s.routesLead")}</p>
+        <dl className={styles.defs}>
+          <Row label={t("routeEditor.load")}>{t("almanac.s.routesLoad")}</Row>
+          <Row label={t("almanac.s.routesKeep")}>{t("almanac.s.routesKeepText")}</Row>
+          <Row label={t("routeEditor.unload")}>{t("almanac.s.routesUnload")}</Row>
+        </dl>
+      </section>
     </>
   );
 }

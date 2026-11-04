@@ -1,0 +1,62 @@
+{
+  "name": "trading_post_tier_gate",
+  "description": "Trading Post levels have the warehouse's tier gate (D-065 extended): with Citizens unlocked and the materials on hand, upgrade_trading_post raises the post to level 2 (Citizens); the next upgrade to level 3 needs Merchants and fails with tier_locked, the world byte-identical and the gold and materials untouched.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~c~~c..............................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "gold": 5000,
+    "stock": {
+      "planks": 100,
+      "stone": 100
+    },
+    "unlocked_tiers": [
+      "citizens"
+    ]
+  },
+  "steps": [
+    {
+      "upgrade_trading_post": {
+        "x": 1,
+        "y": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade_trading_post": {
+        "x": 1,
+        "y": 0
+      },
+      "expect_error": "tier_locked"
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

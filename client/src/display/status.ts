@@ -9,6 +9,7 @@ export type StatusKey =
   | "paused_player"
   | "paused_unpaid"
   | "not_connected"
+  | "no_collector_in_reach"
   | "warehouse_full"
   | "input_starved"
   | "throttled"
@@ -28,6 +29,8 @@ export const STATUS_STYLES: Record<StatusKey, StatusStyle> = {
   paused_player: { glyph: "II", color: STATUS.paused_player },
   paused_unpaid: { glyph: "$", color: STATUS.paused_unpaid },
   not_connected: { glyph: "×", color: STATUS.not_connected },
+  // A connection problem like not_connected: its colour, its own icon (D-069).
+  no_collector_in_reach: { glyph: "↔", color: STATUS.not_connected },
   warehouse_full: { glyph: "▲", color: STATUS.warehouse_full },
   input_starved: { glyph: "?", color: STATUS.input_starved },
   throttled: { glyph: "»", color: STATUS.throttled },
@@ -93,6 +96,8 @@ export function statusText(b: BuildingDisplay, island: IslandDisplay, display: D
         fix: shipyard ? t("status.not_connected.fixShipyard") : t("status.not_connected.fix"),
       };
     }
+    case "no_collector_in_reach":
+      return { key, sentence: t("status.no_collector_in_reach.sentence"), fix: t("status.no_collector_in_reach.fix") };
     case "input_starved": {
       const goods = (b.status_goods ?? []).map((g) => t("status.input_starved.good", { name: goodName(content, g), rate: tonsPerMin(island.inventory[g]?.rate_per_min ?? 0) }));
       return { key, sentence: t("status.input_starved.sentence", { goods: goods.join(", ") || t("status.input_starved.inputs") }), fix: t("status.input_starved.fix") };

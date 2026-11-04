@@ -109,6 +109,8 @@ export interface TestHook {
   paintCounts(): Record<"ok" | "bad" | "max" | "remove" | "flash", number>;
   /** Deposit tiles the mine or quarry tool highlights (UI.md §3). */
   depositCount(): number;
+  /** Deposit markers floating over the highlighted clusters (UI.md §3). */
+  depositMarkerCount(): number;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
@@ -380,6 +382,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       // move and found end on success. On a move the building stays selected
       // at its new position.
       if (tl.kind === "build") setTool((cur) => (cur === tl && cur.kind === "build" && cur.pending ? { ...cur, pending: undefined } : cur));
+      // The build bar's Move tool stays for the next building (UI.md §3).
+      else if (tl.kind === "move" && tl.pick) setTool((cur) => (cur === tl ? { kind: "movePick" } : cur));
       else setTool((cur) => (cur === tl ? NO_TOOL : cur));
     });
   };
@@ -436,7 +440,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     const next = !buildOpen;
     setBuildOpen(next);
     saveBuildOpen(next);
-    if (!next) setTool((tl) => (tl.kind === "build" || tl.kind === "road" || tl.kind === "demolish" ? NO_TOOL : tl));
+    if (!next) setTool((tl) => (tl.kind === "build" || tl.kind === "road" || tl.kind === "demolish" || tl.kind === "movePick" || (tl.kind === "move" && tl.pick) ? NO_TOOL : tl));
   };
 
   const rotateTool = (steps: number) =>
@@ -513,6 +517,17 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       } else if (is.roads.some((r) => r.x === at.x && r.y === at.y)) {
         void send({ type: "demolish_road", island_id: is.id, tiles: [{ x: at.x, y: at.y }] });
       }
+    },
+    pickMove: (at: IslandTile) => {
+      const is = model?.islands.find((x) => x.id === at.island);
+      const b = is ? buildingAt(is.buildings, defs, at.x, at.y) : undefined;
+      if (!b) return;
+      // A field cannot be moved (the server rejects it): it follows its farm.
+      if (defs.get(b.type)?.field) {
+        toast(t("app.moveField"));
+        return;
+      }
+      setTool({ kind: "move", buildingId: b.id, buildingType: b.type, rotation: b.rotation, pick: true });
     },
     cancelTool: () => setTool(NO_TOOL),
     ghostHint: (text: string | null) => setGhostHint(text),
@@ -667,6 +682,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
         paintCounts: () => rendererRef.current?.paintCounts() ?? { ok: 0, bad: 0, max: 0, remove: 0, flash: 0 },
         depositCount: () => rendererRef.current?.depositCount() ?? 0,
+        depositMarkerCount: () => rendererRef.current?.depositMarkerCount() ?? 0,
         quality: () => rendererRef.current?.quality() ?? "low",
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         assets: () =>
@@ -970,6 +986,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           ? t("app.hint.fieldsRemove", { name: fieldName })
           : t("app.hint.fieldsAdd", { name: fieldName, degrees: tool.rotation }))}
       {tool.kind === "demolish" && t("app.hint.demolish")}
+      {tool.kind === "movePick" && t("app.hint.movePick")}
       {paintStatus && (tool.kind === "field" || tool.kind === "demolish") && (
         <div className={styles.hintCount} data-testid="paint-count">
           {paintStatus}
@@ -1056,6 +1073,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
                 tool={tool}
                 onSelect={selectBuildItem}
                 onDemolishTool={() => setTool((tl) => (tl.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
+                onMoveTool={() => setTool((tl) => (tl.kind === "movePick" || (tl.kind === "move" && tl.pick) ? NO_TOOL : { kind: "movePick" }))}
                 dense={layout.mode === "phone-landscape"}
               />
             )

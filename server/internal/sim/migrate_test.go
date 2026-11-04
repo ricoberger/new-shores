@@ -15,18 +15,19 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// TestSchemaMigrationsRegistered: schema 13 (D-065 service chains) registers no
-// migration: envelopes of schema 1-12 (the game was not
+// TestSchemaMigrationsRegistered: schema 14 (D-069 collector reach) registers no
+// migration: envelopes of schema 1-13 (the game was not
 // deployed), envelopes without a version and newer ones fail loudly with
 // ErrSchemaVersion.
 func TestSchemaMigrationsRegistered(t *testing.T) {
 	m := SchemaMigrations(catalogue(t))
-	if SchemaVersion != 13 || len(m) != 0 {
+	if SchemaVersion != 14 || len(m) != 0 {
 		t.Fatalf("SchemaVersion %d with %d migrations: add migration tests", SchemaVersion, len(m))
 	}
 	for _, raw := range []string{
 		`{"schema_version":0,"content_version":"x","world":{}}`,
-		`{"schema_version":14,"content_version":"x","world":{}}`,
+		`{"schema_version":15,"content_version":"x","world":{}}`,
+		`{"schema_version":13,"content_version":"old_coast-0.17.0","world":{}}`,
 		`{"schema_version":12,"content_version":"old_coast-0.16.0","world":{}}`,
 		`{"schema_version":11,"content_version":"old_coast-0.15.0","world":{}}`,
 		`{"schema_version":10,"content_version":"old_coast-0.13.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,

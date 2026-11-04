@@ -113,10 +113,15 @@ func checkReferences(c *Catalogue) error {
 		// A building that is never auto-paused carries no upkeep: its
 		// running cost is folded into its price, so a fully stalled city
 		// (everything pausable paused) never has a negative balance and
-		// recovers on its own (D-009).
-		if b.PauseCategory == "never" && b.UpkeepPerMin != 0 {
+		// recovers on its own (D-009). The hubs are the exception (D-069
+		// §3): collectors and public buildings with levels carry upkeep
+		// per level; with nothing left to pause gold is held at zero
+		// (MECHANICS §7).
+		hub := b.Collector() || (b.Service != nil && len(b.Service.Levels) > 1)
+		if b.PauseCategory == "never" && b.UpkeepPerMin != 0 && !hub {
 			col.add(FileBuildings, ent, "upkeep_per_min", "must be 0 for pause_category never")
 		}
+		checkLevels(col, ent, b)
 		for _, m := range b.Cost.Materials {
 			good(FileBuildings, ent, "cost."+m.Good, m.Good)
 		}
@@ -166,6 +171,9 @@ func checkReferences(c *Catalogue) error {
 					col.add(FileBuildings, ent, fmt.Sprintf("trading_post.levels[%d]", i), "capacity and throughput must be > 0 and berths >= 1")
 				}
 				checkLevelCost(col, ent, fmt.Sprintf("trading_post.levels[%d].cost", i), i, l.Cost)
+				if l.Tier != "" {
+					tier(FileBuildings, ent, fmt.Sprintf("trading_post.levels[%d].tier", i), l.Tier)
+				}
 			}
 			if b.WaterRows == nil || b.WaterRows.Min < 1 {
 				col.add(FileBuildings, ent, "water_rows", "a trading post is a water-edge building (min >= 1)")
@@ -604,5 +612,54 @@ func checkLevelCost(col *collector, ent, field string, i int, cost *Cost) {
 		col.add(FileBuildings, ent, field, "an upgrade level needs a cost")
 	case cost != nil && cost.Gold < 0:
 		col.add(FileBuildings, ent, field+".gold", "must be >= 0")
+	}
+}
+
+// checkLevels validates the per-level upkeep and the collector reach
+// (D-069): upkeep >= 0 with level 1 equal to the building's upkeep_per_min;
+// reach on every level of a collector or on none, each > 0 and not below
+// the previous level's.
+func checkLevels(col *collector, ent string, b *Building) {
+	type lvl struct {
+		upkeep Qty
+		reach  int
+	}
+	var levels []lvl
+	prefix := ""
+	switch {
+	case b.TradingPost != nil:
+		prefix = "trading_post"
+		for _, l := range b.TradingPost.Levels {
+			levels = append(levels, lvl{l.UpkeepPerMin, l.Reach})
+		}
+	case b.Warehouse != nil:
+		prefix = "warehouse"
+		for _, l := range b.Warehouse.Levels {
+			levels = append(levels, lvl{l.UpkeepPerMin, l.Reach})
+		}
+	case b.Service != nil:
+		prefix = "service"
+		for _, l := range b.Service.Levels {
+			levels = append(levels, lvl{l.UpkeepPerMin, -1})
+		}
+	}
+	withReach := 0
+	for i, l := range levels {
+		field := fmt.Sprintf("%s.levels[%d]", prefix, i)
+		if l.upkeep < 0 {
+			col.add(FileBuildings, ent, field+".upkeep_per_min", "must be >= 0")
+		}
+		if i == 0 && l.upkeep != b.UpkeepPerMin {
+			col.add(FileBuildings, ent, field+".upkeep_per_min", "level 1 must equal the building's upkeep_per_min")
+		}
+		if l.reach > 0 {
+			withReach++
+			if i > 0 && l.reach < levels[i-1].reach {
+				col.add(FileBuildings, ent, field+".reach", "must not be below the previous level's")
+			}
+		}
+	}
+	if withReach > 0 && withReach != len(levels) {
+		col.add(FileBuildings, ent, prefix+".levels", "reach must be set on every level or on none")
 	}
 }

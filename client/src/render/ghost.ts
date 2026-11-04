@@ -19,7 +19,7 @@ import { ghostOffset, previewOffset, skyFill } from "./lighting";
 import { GHOST, GHOST_INVALID } from "./palette";
 import { type ModelEntry, modelFileFor, modelMesh, type ModelRegistry, placement, worldData } from "./models";
 import { LEVEL_HEIGHT, LEVEL_STEPS } from "./terraces";
-import { EDGE_STONE, type FillKind, fillSide, groundTiles } from "./groundpaint";
+import { EDGE_STONE, fillSide } from "./groundpaint";
 
 /** Opacity of the box ghost and of the model ghost. */
 const BOX_ALPHA = 0.45;
@@ -73,8 +73,8 @@ export interface PlinthMesh {
  * starts at that tile's own level; walls stand only on the sides toward
  * tiles outside the footprint, from the higher of the two grounds to the
  * base, in courses of one terrace step coloured like the built fills
- * (terraces.ts): the tile's ground (`fill`: its yard kind, else grass)
- * with every other course darker, the top course the stone edge.
+ * (terraces.ts): terrace earth with every other course darker, the top
+ * course the stone edge.
  * A footprint on one level has none. Coordinates: x, z = island tile
  * units with z = −y (the mesh sits at the island's position).
  */
@@ -82,7 +82,6 @@ export function ghostPlinth(
   foot: { x: number; y: number; w: number; h: number },
   base: number,
   ground: (x: number, y: number) => number,
-  fill: (x: number, y: number) => FillKind = () => "grass",
 ): PlinthMesh | null {
   const out: PlinthMesh = { positions: [], normals: [], colors: [], indices: [] };
   const step = LEVEL_HEIGHT / LEVEL_STEPS;
@@ -108,7 +107,7 @@ export function ghostPlinth(
         for (let k = 0; k < courses; k++) {
           const y0 = base - k * step + GHOST_LIFT;
           const y1 = k === courses - 1 ? from : base - (k + 1) * step + GHOST_LIFT;
-          const c = k === 0 ? EDGE_STONE : fillSide(fill(tx, ty), courses - 1 - k);
+          const c = k === 0 ? EDGE_STONE : fillSide(courses - 1 - k);
           const at = out.positions.length / 3;
           const [a, b] = side.c;
           for (const [cx, cz, y] of [[a[0], a[1], y1], [b[0], b[1], y1], [b[0], b[1], y0], [a[0], a[1], y0]] as const) {
@@ -244,10 +243,7 @@ export class PlacementGhost {
       for (let y = spec.y - 1; y <= spec.y + h; y++) for (let x = spec.x - 1; x <= spec.x + w; x++) levels.push(ground(x, y));
       key = `${spec.def.id},${spec.rotation},${spec.buildingId ?? ""},${spec.level ?? ""},${spec.x},${spec.y},${w},${h},${base}|${levels.join(",")}`;
       if (key !== this.plinthKey) {
-        // The yard kinds of the shown model file (the built fill's ground, terraces.ts plinthFill).
-        const yard = modelFileFor(entry, { id: spec.buildingId ?? 0, level: spec.level ?? 1 })?.ground;
-        const kinds = new Map((yard ? groundTiles(entry, spec.def, spec, yard) : []).map((t) => [`${t.x},${t.y}`, t.kind] as const));
-        data = ghostPlinth({ x: spec.x, y: spec.y, w, h }, base, ground, (x, y) => kinds.get(`${x},${y}`) ?? "grass");
+        data = ghostPlinth({ x: spec.x, y: spec.y, w, h }, base, ground);
       }
     }
     if (key !== this.plinthKey) {

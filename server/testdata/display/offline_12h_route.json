@@ -1002,7 +1002,9 @@
               }
             ],
             "unload": [
-              "fish"
+              {
+                "good": "fish"
+              }
             ]
           },
           {
@@ -1014,7 +1016,9 @@
               }
             ],
             "unload": [
-              "planks"
+              {
+                "good": "planks"
+              }
             ]
           }
         ],
@@ -2140,7 +2144,9 @@
                   }
                 ],
                 "unload": [
-                  "fish"
+                  {
+                    "good": "fish"
+                  }
                 ]
               },
               {
@@ -2152,7 +2158,9 @@
                   }
                 ],
                 "unload": [
-                  "planks"
+                  {
+                    "good": "planks"
+                  }
                 ]
               }
             ],
@@ -3278,7 +3286,9 @@
                   }
                 ],
                 "unload": [
-                  "fish"
+                  {
+                    "good": "fish"
+                  }
                 ]
               },
               {
@@ -3290,7 +3300,9 @@
                   }
                 ],
                 "unload": [
-                  "planks"
+                  {
+                    "good": "planks"
+                  }
                 ]
               }
             ],
@@ -4416,7 +4428,9 @@
                   }
                 ],
                 "unload": [
-                  "fish"
+                  {
+                    "good": "fish"
+                  }
                 ]
               },
               {
@@ -4428,7 +4442,9 @@
                   }
                 ],
                 "unload": [
-                  "planks"
+                  {
+                    "good": "planks"
+                  }
                 ]
               }
             ],
@@ -5554,7 +5570,9 @@
                   }
                 ],
                 "unload": [
-                  "fish"
+                  {
+                    "good": "fish"
+                  }
                 ]
               },
               {
@@ -5566,7 +5584,9 @@
                   }
                 ],
                 "unload": [
-                  "planks"
+                  {
+                    "good": "planks"
+                  }
                 ]
               }
             ],

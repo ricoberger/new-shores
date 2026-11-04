@@ -462,10 +462,10 @@ function rockSide(z: number, ground: number): Color3 {
   return rel <= 0 ? FOOT : rel === 1 ? ROCK_DEEP : rockStrata(z);
 }
 
-/** Terrace fill walls (side kind ≥ FILL_KIND): the ground's colour, the top layer a stone edge course. */
+/** Terrace fill walls (side kind ≥ FILL_KIND): terrace earth, the top layer a stone edge course. */
 function fillWall(z: number, kd: number): Color3 {
   const top = (kd - FILL_KIND) % 16;
-  return z >= top - 1 ? EDGE_STONE : fillSide(FILL_KINDS[Math.floor((kd - FILL_KIND) / 16)] ?? "grass", z);
+  return z >= top - 1 ? EDGE_STONE : fillSide(z);
 }
 
 /** The fill kind index (FILL_KINDS) of every plinth column: the yard kind of its tile, else grass (0). */

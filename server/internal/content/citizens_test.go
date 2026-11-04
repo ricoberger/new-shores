@@ -142,7 +142,7 @@ func TestLoadCitizensContent(t *testing.T) {
 	}
 
 	tp := c.BuildingByID["trading_post"].TradingPost
-	if len(tp.Levels) != 4 || tp.Levels[0].Cost != nil || tp.Levels[1].Capacity != 500_000 || tp.Levels[1].ThroughputPerMin != 55_000 ||
+	if len(tp.Levels) != 4 || tp.Levels[0].Cost != nil || tp.Levels[1].Capacity != 500_000 || tp.Levels[1].ThroughputPerMin != 40_000 ||
 		tp.Levels[1].Berths != 2 || tp.Levels[1].Cost == nil {
 		t.Fatalf("trading post levels = %+v", tp.Levels)
 	}
@@ -162,13 +162,13 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 	}{
 		{
 			"cost on the first level",
-			[]string{`{ "capacity": 300, "throughput_per_min": 30, "berths": 1 }`, `{ "capacity": 300, "throughput_per_min": 30, "berths": 1, "cost": { "gold": 1 } }`},
+			[]string{`"reach": 20, "upkeep_per_min": 0, "berths": 1 }`, `"reach": 20, "upkeep_per_min": 0, "berths": 1, "cost": { "gold": 1 } }`},
 			[]string{FileBuildings, `building "trading_post"`, "trading_post.levels[0]", "schema violation", "'not' failed"},
 		},
 		{
 			"missing cost on a later level",
-			[]string{`"berths": 2,
-          "cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"berths": 2`},
+			[]string{`"tier": "citizens",
+          "cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"tier": "citizens"`},
 			[]string{FileBuildings, `building "trading_post"`, "trading_post.levels[1]", "schema violation", "missing property 'cost'"},
 		},
 		{

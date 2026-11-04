@@ -65,6 +65,7 @@ export function GameCanvas({ sync, tool, events, onRenderer, quality, forceFxaa 
         removeFields: (island, farm, tiles, clipped) => ev().removeFields(island, farm, tiles, clipped),
         paintStatus: (text) => ev().paintStatus(text),
         demolish: (at) => ev().demolish(at),
+        pickMove: (at) => ev().pickMove(at),
         cancelTool: () => ev().cancelTool(),
         ghostHint: (text) => ev().ghostHint(text),
         inspectBuilding: (id) => ev().inspectBuilding(id),

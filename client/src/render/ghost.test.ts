@@ -168,8 +168,8 @@ describe("ghost plinth on terrace edges", () => {
     expect(Math.max(...zs)).toBeCloseTo(-3);
   });
 
-  it("colours the courses like the built fill: the ground (yard kind, else grass), the top course stone", () => {
-    const p = ghostPlinth({ x: 2, y: 3, w: 1, h: 1 }, 0.5, () => 0, () => "dirt")!;
+  it("colours the courses like the built fill: terrace earth, the top course stone", () => {
+    const p = ghostPlinth({ x: 2, y: 3, w: 1, h: 1 }, 0.5, () => 0)!;
     // Quads of 4 vertices × 4 colour channels; the top course (y up to the base) first.
     const colourAt = (y: number, m = p) => {
       for (let i = 0; i < m.positions.length / 3; i++) if (Math.abs((m.positions[i * 3 + 1] as number) - y) < 1e-6) return m.colors.slice(i * 4, i * 4 + 3);
@@ -179,11 +179,11 @@ describe("ghost plinth on terrace edges", () => {
     expect(top[0]).toBeCloseTo(EDGE_STONE.r);
     expect(top[1]).toBeCloseTo(EDGE_STONE.g);
     const foot = colourAt(0)!;
-    expect(foot[0]).toBeCloseTo(fillSide("dirt", 0).r);
-    expect(foot[2]).toBeCloseTo(fillSide("dirt", 0).b);
-    // Grass by default.
-    const g = ghostPlinth({ x: 2, y: 3, w: 1, h: 1 }, 0.5, () => 0)!;
-    expect(colourAt(0, g)![1]).toBeCloseTo(fillSide("grass", 0).g);
+    expect(foot[0]).toBeCloseTo(fillSide(0).r);
+    expect(foot[1]).toBeCloseTo(fillSide(0).g);
+    expect(foot[2]).toBeCloseTo(fillSide(0).b);
+    // Earth, not green.
+    expect(foot[0]).toBeGreaterThan(foot[1] as number);
   });
 
   it("starts a wall at the outside tile's higher ground", () => {

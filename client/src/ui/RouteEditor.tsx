@@ -42,6 +42,14 @@ interface GoodRow {
   good: string;
   /** Top-up amount of a load row (0 for unload). */
   max: number;
+  /** A load row's keep-minimum on the island, an unload row's most per visit (whole t; undefined: none / all, D-070). */
+  limit?: number;
+}
+
+/** A limit field's value as whole tonnes ≥ 0; empty is no limit (D-070). */
+function limitOf(value: string): number | undefined {
+  if (value.trim() === "") return undefined;
+  return Math.max(0, Math.floor(Number(value) || 0));
 }
 
 /**
@@ -88,15 +96,17 @@ export function RouteEditor(p: Props) {
         key: `load-${index}`,
         good: l.good,
         max: l.max,
+        limit: l.keep,
       }),
     ),
     ...st.unload.map(
-      (good, index): GoodRow => ({
+      (u, index): GoodRow => ({
         mode: "unload",
         index,
         key: `unload-${index}`,
-        good,
+        good: u.good,
         max: 0,
+        limit: u.max,
       }),
     ),
   ];
@@ -104,7 +114,7 @@ export function RouteEditor(p: Props) {
   const setGood = (
     i: number,
     r: GoodRow,
-    patch: { good?: string; max?: number; mode?: GoodRow["mode"] },
+    patch: { good?: string; max?: number; limit?: number | null; mode?: GoodRow["mode"] },
   ) => {
     const st = draft.stops[i];
     if (!st) return;
@@ -113,7 +123,7 @@ export function RouteEditor(p: Props) {
       if (patch.mode === "unload")
         setStop(i, {
           load: st.load.filter((_, k) => k !== r.index),
-          unload: [...st.unload, good],
+          unload: [...st.unload, { good }],
         });
       else
         setStop(i, {
@@ -122,13 +132,19 @@ export function RouteEditor(p: Props) {
         });
     } else if (r.mode === "load") {
       setStop(i, {
-        load: st.load.map((x, k) =>
-          k === r.index ? { good, max: patch.max ?? x.max } : x,
-        ),
+        load: st.load.map((x, k) => {
+          if (k !== r.index) return x;
+          const keep = patch.limit === undefined ? x.keep : (patch.limit ?? undefined);
+          return { good, max: patch.max ?? x.max, ...(keep !== undefined ? { keep } : {}) };
+        }),
       });
     } else {
       setStop(i, {
-        unload: st.unload.map((x, k) => (k === r.index ? good : x)),
+        unload: st.unload.map((x, k) => {
+          if (k !== r.index) return x;
+          const max = patch.limit === undefined ? x.max : (patch.limit ?? undefined);
+          return { good, ...(max !== undefined ? { max } : {}) };
+        }),
       });
     }
   };
@@ -261,27 +277,51 @@ export function RouteEditor(p: Props) {
                   <option value="unload">{t("routeEditor.unload")}</option>
                 </select>
                 {r.mode === "load" ? (
+                  <>
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      className={`${styles.input} ${styles.amount}`}
+                      value={r.max}
+                      onChange={(e) =>
+                        setGood(i, r, {
+                          max: Math.max(
+                            1,
+                            Math.floor(Number(e.target.value) || 0),
+                          ),
+                        })
+                      }
+                      aria-label={t("routeEditor.topUp", { n: i + 1 })}
+                      title={t("routeEditor.topUpHint")}
+                      data-testid={`route-load-max-${i}-${r.index}`}
+                    />
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      className={`${styles.input} ${styles.amount}`}
+                      value={r.limit ?? ""}
+                      placeholder={t("routeEditor.keepNone")}
+                      onChange={(e) => setGood(i, r, { limit: limitOf(e.target.value) ?? null })}
+                      aria-label={t("routeEditor.keep", { n: i + 1 })}
+                      title={t("routeEditor.keepHint")}
+                      data-testid={`route-load-keep-${i}-${r.index}`}
+                    />
+                  </>
+                ) : (
                   <input
                     type="number"
-                    min={1}
+                    min={0}
                     step={1}
                     className={`${styles.input} ${styles.amount}`}
-                    value={r.max}
-                    onChange={(e) =>
-                      setGood(i, r, {
-                        max: Math.max(
-                          1,
-                          Math.floor(Number(e.target.value) || 0),
-                        ),
-                      })
-                    }
-                    aria-label={t("routeEditor.topUp", { n: i + 1 })}
-                    data-testid={`route-load-max-${i}-${r.index}`}
+                    value={r.limit ?? ""}
+                    placeholder={t("routeEditor.all")}
+                    onChange={(e) => setGood(i, r, { limit: limitOf(e.target.value) ?? null })}
+                    aria-label={t("routeEditor.unloadMax", { n: i + 1 })}
+                    title={t("routeEditor.unloadMaxHint")}
+                    data-testid={`route-unload-max-${i}-${r.index}`}
                   />
-                ) : (
-                  <span className={`${styles.small} ${styles.amount}`}>
-                    {t("routeEditor.all")}
-                  </span>
                 )}
                 <span
                   className={styles.small}

@@ -153,7 +153,7 @@ func TestAwaySummaryEvents(t *testing.T) {
 	if err := AddStock(w, c, "b", "fish", 40_000, nil); err != nil {
 		t.Fatal(err)
 	}
-	mustApply(t, w, c, CreateRoute{Stops: []Stop{{IslandID: "b", Load: []LoadRule{{"fish", 40_000}}}, {IslandID: "a", Unload: []string{"fish"}}}})
+	mustApply(t, w, c, CreateRoute{Stops: []Stop{{IslandID: "b", Load: []LoadRule{{Good: "fish", MaxAmount: 40_000}}}, {IslandID: "a", Unload: []string{"fish"}}}})
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
 	mustApply(t, w, c, PlaceBuilding{IslandID: "a", Type: "sawmill", X: 12, Y: 3})
 	w.Gold, w.GoldSub = 0, 0

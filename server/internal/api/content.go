@@ -217,7 +217,12 @@ type houseJSON struct {
 type tradingPostLevelJSON struct {
 	Capacity         int64 `json:"capacity"`
 	ThroughputPerMin int64 `json:"throughput_per_min"`
-	Berths           int   `json:"berths"`
+	// Reach is the collector reach in tiles (D-069; 0: no limit).
+	Reach        int   `json:"reach"`
+	UpkeepPerMin int64 `json:"upkeep_per_min"`
+	Berths       int   `json:"berths"`
+	// Tier must be unlocked to upgrade into the level (D-065).
+	Tier string `json:"tier,omitempty"`
 	// Cost is the upgrade cost into the level (absent on the first level).
 	Cost *costJSON `json:"cost,omitempty"`
 }
@@ -228,6 +233,9 @@ type tradingPostJSON struct {
 
 type warehouseLevelJSON struct {
 	ThroughputPerMin int64 `json:"throughput_per_min"`
+	// Reach is the collector reach in tiles (D-069; 0: no limit).
+	Reach        int   `json:"reach"`
+	UpkeepPerMin int64 `json:"upkeep_per_min"`
 	// Tier must be unlocked to upgrade into the level (D-065).
 	Tier string `json:"tier,omitempty"`
 	// Cost is the upgrade cost into the level (absent on the first level).
@@ -264,8 +272,9 @@ type serviceJSON struct {
 }
 
 type serviceLevelJSON struct {
-	Radius int    `json:"radius"`
-	Tier   string `json:"tier,omitempty"`
+	Radius       int    `json:"radius"`
+	UpkeepPerMin int64  `json:"upkeep_per_min"`
+	Tier         string `json:"tier,omitempty"`
 	// Cost is the upgrade cost into the level (absent on the first level).
 	Cost *costJSON `json:"cost,omitempty"`
 }
@@ -534,7 +543,7 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 	if tp := b.TradingPost; tp != nil {
 		bj.TradingPost = &tradingPostJSON{Levels: []tradingPostLevelJSON{}}
 		for _, l := range tp.Levels {
-			lj := tradingPostLevelJSON{Capacity: l.Capacity, ThroughputPerMin: l.ThroughputPerMin, Berths: l.Berths}
+			lj := tradingPostLevelJSON{Capacity: l.Capacity, ThroughputPerMin: l.ThroughputPerMin, Reach: l.Reach, UpkeepPerMin: l.UpkeepPerMin, Berths: l.Berths, Tier: l.Tier}
 			if l.Cost != nil {
 				cost := newCostJSON(*l.Cost)
 				lj.Cost = &cost
@@ -545,7 +554,7 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 	if wh := b.Warehouse; wh != nil {
 		bj.Warehouse = &warehouseJSON{Levels: []warehouseLevelJSON{}}
 		for _, l := range wh.Levels {
-			lj := warehouseLevelJSON{ThroughputPerMin: l.ThroughputPerMin, Tier: l.Tier}
+			lj := warehouseLevelJSON{ThroughputPerMin: l.ThroughputPerMin, Reach: l.Reach, UpkeepPerMin: l.UpkeepPerMin, Tier: l.Tier}
 			if l.Cost != nil {
 				cost := newCostJSON(*l.Cost)
 				lj.Cost = &cost
@@ -564,8 +573,8 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 	}
 	if s := b.Service; s != nil {
 		bj.Service = &serviceJSON{Radius: s.RadiusAt(1), Chain: s.Chain, Rank: s.Rank, Levels: []serviceLevelJSON{}}
-		for _, l := range s.Levels {
-			lj := serviceLevelJSON{Radius: l.Radius, Tier: l.Tier}
+		for i, l := range s.Levels {
+			lj := serviceLevelJSON{Radius: l.Radius, UpkeepPerMin: b.UpkeepAt(i + 1), Tier: l.Tier}
 			if l.Cost != nil {
 				cost := newCostJSON(*l.Cost)
 				lj.Cost = &cost
