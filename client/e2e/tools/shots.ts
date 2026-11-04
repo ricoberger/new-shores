@@ -885,6 +885,43 @@ function moveTool(stage: "pick" | "ghost", target: "sawmill" | "field" = "sawmil
   };
 }
 
+/**
+ * The Demolish tool dragged (not released) over the planned dirt street of
+ * the played fixture and the real roads next to it: the road and planned
+ * road tiles under the rectangle tint red, with the plans and fields, and
+ * the status line counts them (one demolish_roads on release).
+ */
+function demolishRoadsDrag(): { fixture: Fixture; device: Device[]; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "played",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      const at = await page.evaluate(() => {
+        const d = window.__newShores!.getServer()!.display;
+        const is = d.islands.find((i) => (i.planned_roads ?? []).length > 0);
+        if (!is) throw new Error("demolish-roads-drag: no planned road");
+        const tiles = is.planned_roads!.flatMap((r) => r.tiles);
+        const xs = tiles.map((t) => t.x);
+        const ys = tiles.map((t) => t.y);
+        const x0 = Math.min(...xs) - 2;
+        const x1 = Math.max(...xs) - 3;
+        // Down from the planned street to the next rows of real road below it.
+        const y0 = Math.min(...ys) - 1;
+        const below = is.roads.filter((r) => r.x >= x0 && r.x <= x1 && r.y > y0).map((r) => r.y);
+        const y1 = Math.min(Math.max(...ys) + 6, Math.max(y0 + 2, ...below.filter((y) => y <= y0 + 8)));
+        return { island: is.id, x0, y0, x1, y1, ox: is.position.x, oy: is.position.y };
+      });
+      await setCamera(page, { x: at.ox + (at.x0 + at.x1) / 2, y: at.oy + (at.y0 + at.y1) / 2, half: HALF.near / 1.5, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await page.getByTestId("tool-demolish").click();
+      await dragTiles(page, at.island, { x: at.x0, y: at.y0 }, { x: at.x1, y: at.y1 }, false);
+      await settle(page);
+      console.log(`demolish roads drag: ${at.island} (${at.x0},${at.y0})..(${at.x1},${at.y1})`);
+    },
+  };
+}
+
 /** The centre of the plans (D-071) of the island with the most plans (island tiles) and the island's position. */
 async function plannedQuarter(page: Page): Promise<{ island: string; x: number; y: number; ox: number; oy: number; free: { x: number; y: number } }> {
   return page.evaluate(() => {
@@ -1571,6 +1608,8 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   "ghost-terrace-6-invalid": ghostTerrace("market", "no_road"),
   "move-pick": moveTool("pick"),
   "move-ghost": moveTool("ghost"),
+  // The Demolish tool's rectangle over roads and a planned road (red tiles, the status count).
+  "demolish-roads-drag": demolishRoadsDrag(),
   // The Move tool over a pasture picks its sheep farm: the hover mark on the farm, then the farm's ghost (step 6 of D-071's polish).
   "move-pick-field": moveTool("pick", "field"),
   "move-ghost-field": moveTool("ghost", "field"),

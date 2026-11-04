@@ -16,7 +16,7 @@ import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, PlanDispl
 import type { SyncSnapshot } from "../api/sync";
 import { archipelagoRect, type CameraView, frameIslandView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
-import { fieldsUnder, type PaintDrag, paintAnchors, paintCountText, paintTiles, planPaint } from "../display/fieldpaint";
+import { fieldsUnder, type PaintDrag, paintAnchors, demolishStatus, paintCountText, paintTiles, planPaint } from "../display/fieldpaint";
 import { collectorReach, ghostRelated, reachOutline, servedRelated, serviceRadius } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad, rectQuadOverlap } from "../display/frustum";
 import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
@@ -57,7 +57,7 @@ import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
 import { PaintPreview, type PaintMark } from "./paint";
 import { planRoadDrag } from "../display/roaddrag";
-import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plansUnder } from "../display/plans";
+import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plansUnder, roadsUnder } from "../display/plans";
 import { PlanLayer, type PlanRoadTile, type PlanSpec } from "./plans";
 import { t } from "../i18n";
 
@@ -126,6 +126,8 @@ export interface RendererEvents {
   removeFields(island: string, farmId: number, tiles: TilePos[], clipped: boolean): void;
   /** The Demolish tool's rectangle covered planned buildings (D-071 §4): one demolish per plan (free). */
   demolishPlans(island: string, ids: number[]): void;
+  /** The Demolish tool's rectangle covered roads or planned roads: one demolish_roads with those tiles (MECHANICS §3). */
+  removeRoads(island: string, tiles: TilePos[], clipped: boolean): void;
   /** The live count of a painted or removal rectangle ("n / max …"), null when no rectangle is dragged. */
   paintStatus(text: string | null): void;
   demolish(at: IslandTile): void;
@@ -1872,6 +1874,8 @@ export class GameRenderer {
     // Planned fields go with the fields; the Demolish tool takes the planned buildings under the rectangle too (D-071 §4).
     const groups = l ? fieldsUnder(tiles, hintSite(l.display, false).buildings, this.defs, tool.kind === "field" ? tool.farmId : null) : new Map();
     const plans = l && tool.kind === "demolish" ? plansUnder(tiles, l.display, this.defs).map((p) => planAsBuilding(p, false)) : [];
+    // The Demolish tool also takes the roads and planned roads under it (one demolish_roads).
+    const roads = l && tool.kind === "demolish" ? roadsUnder(tiles, l.display) : [];
     const marks: PaintMark[] = [];
     let n = 0;
     for (const f of [...[...groups.values()].flatMap((g) => g.fields), ...plans]) {
@@ -1881,9 +1885,15 @@ export class GameRenderer {
       marks.push(mark(f.x, f.y, w, h, "remove"));
       n++;
     }
+    for (const r of roads) marks.push(mark(r.x, r.y, 1, 1, "remove"));
     this.paintPreview.set(marks);
     if (!this.paint) {
       this.setPaintStatus(null);
+      return;
+    }
+    if (tool.kind === "demolish") {
+      const fields = n - plans.length;
+      this.setPaintStatus(demolishStatus(fields, plans.length, roads.length, clipped));
       return;
     }
     const name = tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? t("field.generic")).toLowerCase() : t("field.generic");
@@ -1964,11 +1974,14 @@ export class GameRenderer {
     const l = this.lookup(island);
     if (!l) return;
     // Planned fields of the farm go too (the server removes them with demolish_fields, D-071).
-    for (const [farm, g] of fieldsUnder(tiles, hintSite(l.display, false).buildings, this.defs, farmId)) this.events.removeFields(island, farm, g.tiles, clipped);
-    // The Demolish tool (no farm) removes the planned buildings under the rectangle as well.
+    const groups = fieldsUnder(tiles, hintSite(l.display, false).buildings, this.defs, farmId);
+    for (const [farm, g] of groups) this.events.removeFields(island, farm, g.tiles, clipped);
+    // The Demolish tool (no farm) removes the planned buildings and the roads under the rectangle as well.
     if (farmId === null) {
       const plans = plansUnder(tiles, l.display, this.defs);
       if (plans.length > 0) this.events.demolishPlans(island, plans.map((p) => p.id));
+      const roads = roadsUnder(tiles, l.display);
+      if (roads.length > 0) this.events.removeRoads(island, roads, clipped && groups.size === 0);
     }
   }
 

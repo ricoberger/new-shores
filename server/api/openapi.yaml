@@ -143,8 +143,8 @@ paths:
       summary: Advance the world to now and apply one command.
       description: |
         Commands (`command.type`): `place_building`, `place_road`,
-        `demolish`, `demolish_road`, `place_field`, `place_fields`,
-        `demolish_fields`,
+        `demolish`, `demolish_road`, `demolish_roads`, `place_field`,
+        `place_fields`, `demolish_fields`,
         `set_paused`, `upgrade_building` (deprecated aliases
         `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
         `move_building`, and the ship and route commands `order_ship`,
@@ -741,8 +741,8 @@ components:
           type: array
           description: |
             Per-tile outcome of a batch command (`place_fields`,
-            `demolish_fields`, D-054), one entry per request tile in
-            request order; absent for every other command.
+            `demolish_fields`, D-054; `demolish_roads`), one entry per
+            request tile in request order; absent for every other command.
           items:
             $ref: "#/components/schemas/TileResult"
     TileResult:
@@ -885,6 +885,15 @@ components:
         error: 200 with every tile `ok: false` and its reason, the
         unchanged version, no state change and no event (`place_fields`
         and `demolish_fields` alike).
+
+        `demolish_roads` is the batch form of `demolish_road` for the
+        Demolish tool's rectangle (at most 512 tiles): the tiles with a
+        road or a planned road go in one state change, the others are
+        reported in `tile_results` (`no_road`, `out_of_bounds`) and
+        skipped; without a road under the rectangle it succeeds without a
+        change like the field batches. It fails as a whole with 400
+        `invalid_command` (no tiles, more than 512, duplicates) or 404
+        `unknown_island`.
 
         `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
         or no `island_id` for a quest that rewards goods), 404
@@ -1113,6 +1122,7 @@ components:
         - $ref: "#/components/schemas/PlaceRoadCommand"
         - $ref: "#/components/schemas/DemolishCommand"
         - $ref: "#/components/schemas/DemolishRoadCommand"
+        - $ref: "#/components/schemas/DemolishRoadsCommand"
         - $ref: "#/components/schemas/PlaceFieldCommand"
         - $ref: "#/components/schemas/PlaceFieldsCommand"
         - $ref: "#/components/schemas/DemolishFieldsCommand"
@@ -1146,6 +1156,7 @@ components:
           place_road: "#/components/schemas/PlaceRoadCommand"
           demolish: "#/components/schemas/DemolishCommand"
           demolish_road: "#/components/schemas/DemolishRoadCommand"
+          demolish_roads: "#/components/schemas/DemolishRoadsCommand"
           place_field: "#/components/schemas/PlaceFieldCommand"
           place_fields: "#/components/schemas/PlaceFieldsCommand"
           demolish_fields: "#/components/schemas/DemolishFieldsCommand"
@@ -1361,6 +1372,26 @@ components:
           type: string
         tiles:
           $ref: "#/components/schemas/TileList"
+    DemolishRoadsCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Demolish the roads and planned roads (D-071) under `tiles`, the
+        tiles of the Demolish tool's rectangle, in one state change: a
+        road tile with the refund of its road type (50 % of the materials
+        per tile, rounded down per tile, no gold), a planned road tile
+        free of charge. A tile without either is reported (`no_road`, or
+        `out_of_bounds`) and skipped; without a valid tile it succeeds
+        unchanged (200, every tile `ok: false`, no event).
+      required: [type, island_id, tiles]
+      properties:
+        type:
+          type: string
+          enum: [demolish_roads]
+        island_id:
+          type: string
+        tiles:
+          $ref: "#/components/schemas/FieldTileList"
     PlaceFieldCommand:
       type: object
       additionalProperties: false
@@ -1409,7 +1440,7 @@ components:
       type: array
       minItems: 1
       maxItems: 512
-      description: Tiles of a field batch, without duplicates.
+      description: Tiles of a batch (fields, D-054; roads under a rectangle), without duplicates.
       items:
         $ref: "#/components/schemas/Tile"
     PlaceFieldsCommand:

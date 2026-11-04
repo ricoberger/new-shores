@@ -260,7 +260,7 @@ UI shows the same numbers the server uses.
   Pasture modules (3×3) paint on a 3×3 step grid. **Remove fields** by
   right-click/long-press on Paint (rectangle drag → `demolish_fields`);
   the Demolish tool dragged over fields removes the fields of every farm
-  under it. The ghost is a hint only; the server's per-tile result is
+  under it (and the roads and plans, below). The ghost is a hint only; the server's per-tile result is
   the truth (D-027). The tool stays active until max or Esc/right-click. Inactive fields
   are drawn desaturated with the `not_adjacent` status (and a yellow mark);
   selecting a farm or a field tints its farm and fields green like a
@@ -278,7 +278,15 @@ UI shows the same numbers the server uses.
   the building when the response arrives (round-trip ≈ 100 ms; show a brief
   "building" animation regardless).
 - Demolish mode with confirmation for anything costing > 100 gold; refund
-  shown.
+  shown. **Dragging a rectangle** with the Demolish tool removes what is
+  cheap to lay again and never a building: the fields under it (one
+  `demolish_fields` per farm), the plans (D-071) and every road and
+  planned road tile (one `demolish_roads`, MECHANICS §3; 50 % refund per
+  road tile, rounded down per tile), without confirmation. While
+  dragging, the affected footprints and road tiles tint red and the
+  status line counts them ("Remove 3 fields, 1 plan, 12 road tiles";
+  "Nothing to remove" over none). At most 512 tiles, like field
+  painting.
 - **Move** (D-042): "Move" in the info panel (or drag a selected building)
   lifts it into a ghost that follows the pointer with the same validity
   colours; click/tap places it, Esc cancels and the building stays. Free;

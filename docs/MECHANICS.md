@@ -283,6 +283,14 @@ handlers only.
   higher type on a tile, and any quay tile, stay `occupied`; the command
   fails as a whole. The road tool sends the tiles it can replace and
   skips the others (display hint, the server decides).
+- **Demolishing roads in a rectangle:** `demolish_roads` (the Demolish
+  tool's drag) removes every road and planned road tile among its tiles
+  (at most 512) in one state change; tiles without one are skipped and
+  reported (`no_road`), like the field batches (D-054). Each road tile
+  refunds 50 % of its type's materials, rounded down **per tile** (a
+  paved road's single stone refunds nothing), no gold; planned tiles go
+  for free. The command touches no building or field (the tool removes
+  fields and plans under the rectangle with their own commands).
 - **Quays** (D-060) are roads on the island's **shallows**: water tiles
   of its grid, not river, within 3 tiles (Chebyshev) of its own land
   (any tile but water, river and islet; derived from the tiles, no

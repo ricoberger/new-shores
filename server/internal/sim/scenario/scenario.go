@@ -152,6 +152,13 @@ type Road struct {
 	Planned  bool   `json:"planned,omitempty"`
 }
 
+// RectStep is a rectangle of tiles (x0, y0, x1, y1, corners inclusive, in
+// either order) on an island.
+type RectStep struct {
+	Island string `json:"island,omitempty"`
+	Rect   [4]int `json:"rect"`
+}
+
 // At addresses the building covering a tile.
 type At struct {
 	Island            string `json:"island,omitempty"`
@@ -312,18 +319,22 @@ type Step struct {
 	// produce one.
 	AwaySummary bool `json:"away_summary,omitempty"`
 
-	Place      *Placement   `json:"place,omitempty"`
-	PlaceGrid  *Grid        `json:"place_grid,omitempty"`
-	Road       *Road        `json:"road,omitempty"`
-	Demolish   *At          `json:"demolish,omitempty"`
-	DemolishRd *Road        `json:"demolish_road,omitempty"`
-	Pause      *At          `json:"pause,omitempty"`
-	Resume     *At          `json:"resume,omitempty"`
-	Upgrade    *At          `json:"upgrade,omitempty"`
-	Move       *MoveStep    `json:"move,omitempty"`
-	Fields     *FieldsStep  `json:"fields,omitempty"`
-	Stock      *StockGrant  `json:"stock,omitempty"`
-	Advance    *AdvanceStep `json:"advance,omitempty"`
+	Place      *Placement `json:"place,omitempty"`
+	PlaceGrid  *Grid      `json:"place_grid,omitempty"`
+	Road       *Road      `json:"road,omitempty"`
+	Demolish   *At        `json:"demolish,omitempty"`
+	DemolishRd *Road      `json:"demolish_road,omitempty"`
+	// DemolishRoads removes the roads and planned roads in a rectangle
+	// (sim.DemolishRoads, the Demolish tool's drag): every tile of Rect
+	// in row order; tiles without a road are skipped.
+	DemolishRoads *RectStep    `json:"demolish_roads,omitempty"`
+	Pause         *At          `json:"pause,omitempty"`
+	Resume        *At          `json:"resume,omitempty"`
+	Upgrade       *At          `json:"upgrade,omitempty"`
+	Move          *MoveStep    `json:"move,omitempty"`
+	Fields        *FieldsStep  `json:"fields,omitempty"`
+	Stock         *StockGrant  `json:"stock,omitempty"`
+	Advance       *AdvanceStep `json:"advance,omitempty"`
 	// BuildPlan builds the plan covering the tile (D-071): a planned
 	// building or field, a planned road tile (its segment) or a real farm
 	// (its planned fields).
@@ -334,7 +345,7 @@ func (s Step) kind() (string, error) {
 	var kinds []string
 	for name, set := range map[string]bool{
 		"place": s.Place != nil, "place_grid": s.PlaceGrid != nil, "road": s.Road != nil,
-		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "pause": s.Pause != nil,
+		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "demolish_roads": s.DemolishRoads != nil, "pause": s.Pause != nil,
 		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "build_plan": s.BuildPlan != nil, "move": s.Move != nil, "fields": s.Fields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
@@ -927,6 +938,17 @@ func (r *runner) step(i int, st Step) error {
 		return r.apply(sim.BuildPlan{IslandID: id, PlanID: b.ID})
 	case st.DemolishRd != nil:
 		return r.apply(sim.DemolishRoad{IslandID: r.islandID(st.DemolishRd.Island), Tiles: lPath(st.DemolishRd)})
+	case st.DemolishRoads != nil:
+		x0, y0, x1, y1 := st.DemolishRoads.Rect[0], st.DemolishRoads.Rect[1], st.DemolishRoads.Rect[2], st.DemolishRoads.Rect[3]
+		x0, x1 = min(x0, x1), max(x0, x1)
+		y0, y1 = min(y0, y1), max(y0, y1)
+		var tiles []sim.Pos
+		for y := y0; y <= y1; y++ {
+			for x := x0; x <= x1; x++ {
+				tiles = append(tiles, sim.Pos{X: x, Y: y})
+			}
+		}
+		return r.apply(sim.DemolishRoads{IslandID: r.islandID(st.DemolishRoads.Island), Tiles: tiles})
 	case st.Demolish != nil:
 		id, b, err := r.buildingAt(st.Demolish)
 		if err != nil {

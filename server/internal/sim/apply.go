@@ -54,6 +54,19 @@ type DemolishRoad struct {
 	Tiles    []Pos
 }
 
+// DemolishRoads is the batch form of DemolishRoad for the Demolish tool's
+// rectangle (UI.md §3): every tile with a road or a planned road (D-071)
+// is removed in one state change, a road tile with the refund of its road
+// type (50 % of the materials per tile, rounded down per tile), a planned
+// one for free. A tile without either is rejected (ErrNoRoad, or
+// ErrOutOfBounds) and skipped. Like DemolishFields, when no tile is valid
+// the command still succeeds without a state change (Result.Unchanged).
+// Duplicate tiles or more than MaxFieldTiles fail the whole command.
+type DemolishRoads struct {
+	IslandID string
+	Tiles    []Pos
+}
+
 // SetPaused pauses or resumes a building. Pausing is allowed for buildings
 // whose pause_category is not never; resuming for every paused building,
 // whatever the reason.
@@ -115,6 +128,7 @@ func (MoveBuilding) isCommand()       {}
 func (PlaceRoad) isCommand()          {}
 func (Demolish) isCommand()           {}
 func (DemolishRoad) isCommand()       {}
+func (DemolishRoads) isCommand()      {}
 func (SetPaused) isCommand()          {}
 func (UpgradeHouse) isCommand()       {}
 func (UpgradeBuilding) isCommand()    {}
@@ -139,10 +153,10 @@ func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) err
 }
 
 // Result is the outcome of a successful command beyond the world change:
-// the per-tile results of a batch command (PlaceFields, DemolishFields;
-// nil for every other command). Unchanged is set when the command
-// succeeded without changing the world (a PlaceFields or DemolishFields
-// without a valid tile): there is nothing to commit or publish.
+// the per-tile results of a batch command (PlaceFields, DemolishFields,
+// DemolishRoads; nil for every other command). Unchanged is set when the
+// command succeeded without changing the world (a batch without a valid
+// tile): there is nothing to commit or publish.
 type Result struct {
 	Tiles     []TileResult
 	Unchanged bool
@@ -184,6 +198,9 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Resul
 		err = demolish(w, c, cmd, l)
 	case DemolishRoad:
 		err = demolishRoad(w, c, cmd, l)
+	case DemolishRoads:
+		res.Tiles, err = demolishRoads(w, c, cmd, l)
+		res.Unchanged = err == nil && noTileApplied(res.Tiles)
 	case BuildPlan:
 		err = buildPlan(w, c, cmd, l)
 	case PlaceField:
@@ -991,6 +1008,37 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	}
 	afterChange(is, c)
 	return nil
+}
+
+func demolishRoads(w *World, c *content.Catalogue, cmd DemolishRoads, l *Ledger) ([]TileResult, error) {
+	is, err := lookupIsland(w, cmd.IslandID)
+	if err != nil {
+		return nil, err
+	}
+	if err := checkBatchTiles(cmd.Tiles); err != nil {
+		return nil, err
+	}
+	results := make([]TileResult, len(cmd.Tiles))
+	var valid []Pos
+	for i, p := range cmd.Tiles {
+		results[i] = TileResult{X: p.X, Y: p.Y}
+		switch {
+		case !is.InBounds(p.X, p.Y):
+			results[i].Err = fmt.Errorf("%w: (%d,%d)", ErrOutOfBounds, p.X, p.Y)
+		case is.RoadAt(p.X, p.Y) == "" && is.PlannedRoadAt(p.X, p.Y) == "":
+			results[i].Err = fmt.Errorf("%w: (%d,%d)", ErrNoRoad, p.X, p.Y)
+		default:
+			valid = append(valid, p)
+		}
+	}
+	if len(valid) == 0 {
+		return results, nil // no road under the rectangle: no state change
+	}
+	// The valid tiles are exactly what DemolishRoad takes all or nothing.
+	if err := demolishRoad(w, c, DemolishRoad{IslandID: is.ID, Tiles: valid}, l); err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 func demolishRoad(w *World, c *content.Catalogue, cmd DemolishRoad, l *Ledger) error {

@@ -470,6 +470,14 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     });
   };
 
+  /** The Demolish tool's rectangle over roads: one demolish_roads (MECHANICS §3; the server answers every tile, nothing to flash). */
+  const removeRoads = (islandId: string, tiles: TilePos[], clipped: boolean) => {
+    if (clipped) toast(t("app.clipped", { count: MAX_PAINT_TILES }));
+    void sendCommand({ type: "demolish_roads", island_id: islandId, tiles }).then(({ ok, error }) => {
+      if (!ok && error) void sync.refresh();
+    });
+  };
+
   const confirmPlacement = () => {
     if (isGhostTool(tool) && tool.pending) placeGhost(tool, tool.pending);
   };
@@ -532,6 +540,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     },
     paintFields,
     removeFields,
+    removeRoads,
     paintStatus: (text: string | null) => setPaintStatus(text),
     pend: (at: IslandTile) => setTool((tl) => (isGhostTool(tl) ? { ...tl, pending: at } : tl)),
     unpend: () => setTool((tl) => (isGhostTool(tl) && tl.pending ? { ...tl, pending: undefined } : tl)),

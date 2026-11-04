@@ -62,8 +62,8 @@ export interface paths {
         /**
          * Advance the world to now and apply one command.
          * @description Commands (`command.type`): `place_building`, `place_road`,
-         *     `demolish`, `demolish_road`, `place_field`, `place_fields`,
-         *     `demolish_fields`,
+         *     `demolish`, `demolish_road`, `demolish_roads`, `place_field`,
+         *     `place_fields`, `demolish_fields`,
          *     `set_paused`, `upgrade_building` (deprecated aliases
          *     `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
          *     `move_building`, and the ship and route commands `order_ship`,
@@ -392,8 +392,8 @@ export interface components {
             display: components["schemas"]["DisplayState"];
             /**
              * @description Per-tile outcome of a batch command (`place_fields`,
-             *     `demolish_fields`, D-054), one entry per request tile in
-             *     request order; absent for every other command.
+             *     `demolish_fields`, D-054; `demolish_roads`), one entry per
+             *     request tile in request order; absent for every other command.
              */
             tile_results?: components["schemas"]["TileResult"][];
         };
@@ -517,6 +517,15 @@ export interface components {
          *     unchanged version, no state change and no event (`place_fields`
          *     and `demolish_fields` alike).
          *
+         *     `demolish_roads` is the batch form of `demolish_road` for the
+         *     Demolish tool's rectangle (at most 512 tiles): the tiles with a
+         *     road or a planned road go in one state change, the others are
+         *     reported in `tile_results` (`no_road`, `out_of_bounds`) and
+         *     skipped; without a road under the rectangle it succeeds without a
+         *     change like the field batches. It fails as a whole with 400
+         *     `invalid_command` (no tiles, more than 512, duplicates) or 404
+         *     `unknown_island`.
+         *
          *     `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
          *     or no `island_id` for a quest that rewards goods), 404
          *     `quest_not_found`, `unknown_island`; 409 `quest_not_completed`,
@@ -615,7 +624,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["DemolishRoadsCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -785,6 +794,24 @@ export interface components {
             tiles: components["schemas"]["TileList"];
         };
         /**
+         * @description Demolish the roads and planned roads (D-071) under `tiles`, the
+         *     tiles of the Demolish tool's rectangle, in one state change: a
+         *     road tile with the refund of its road type (50 % of the materials
+         *     per tile, rounded down per tile, no gold), a planned road tile
+         *     free of charge. A tile without either is reported (`no_road`, or
+         *     `out_of_bounds`) and skipped; without a valid tile it succeeds
+         *     unchanged (200, every tile `ok: false`, no event).
+         */
+        DemolishRoadsCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "demolish_roads";
+            island_id: string;
+            tiles: components["schemas"]["FieldTileList"];
+        };
+        /**
          * @description Place one field of `building_type` from the farm `farm_id` at
          *     (`x`, `y`), the top-left tile of the rotated footprint (D-051
          *     part 4). The footprint (the field type's content footprint) must be
@@ -826,7 +853,7 @@ export interface components {
              */
             planned?: boolean;
         };
-        /** @description Tiles of a field batch, without duplicates. */
+        /** @description Tiles of a batch (fields, D-054; roads under a rectangle), without duplicates. */
         FieldTileList: components["schemas"]["Tile"][];
         /**
          * @description Place fields of `building_type` from the farm `farm_id` at every

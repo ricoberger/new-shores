@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding, IslandDisplay, PlanDisplay } from "../api/client";
 import { fieldPlacementHint } from "./fields";
-import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, planCostParts, planCount, planFarmOf, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plannedRoadTiles, plansUnder } from "./plans";
+import { hintFarm, hintSite, moveTarget, planAsBuilding, roadsUnder, planAt, planCostParts, planCount, planFarmOf, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plannedRoadTiles, plansUnder } from "./plans";
 import { planRoadDrag } from "./roaddrag";
 
 const def = (id: string, w: number, h: number, extra: Partial<ContentBuilding> = {}) => ({ id, name: id, width: w, height: h, category: "production", ...extra }) as ContentBuilding;
@@ -126,5 +126,14 @@ describe("the Move tool's pick", () => {
     // A planned field of a planned farm picks the planned farm.
     const withFarm = { ...island, plans: [plan(20, "wheat_farm", 10, 0), plan(21, "wheat_field", 13, 0, 20)] };
     expect(moveTarget(withFarm, defs, 13, 0)).toMatchObject({ id: 20, type: "wheat_farm", planned: true });
+  });
+});
+
+describe("the Demolish tool's rectangle over roads", () => {
+  it("takes the road and planned road tiles under it, in the rectangle's order", () => {
+    const rect = [];
+    for (let y = 4; y <= 8; y++) for (let x = 3; x <= 5; x++) rect.push({ x, y });
+    expect(roadsUnder(rect, island)).toEqual([{ x: 3, y: 4 }, { x: 4, y: 8 }, { x: 5, y: 8 }]);
+    expect(roadsUnder([{ x: 0, y: 0 }], island)).toEqual([]);
   });
 });

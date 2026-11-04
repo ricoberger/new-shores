@@ -169,3 +169,13 @@ export function moveTarget(
   const plan = (is.plans ?? []).find((f) => f.id === farmId);
   return plan ? { id: plan.id, type: plan.type, x: plan.x, y: plan.y, rotation: plan.rotation, planned: true } : undefined;
 }
+
+/**
+ * The road and planned road tiles (D-071) among `tiles`, in their order:
+ * what the Demolish tool's rectangle removes with one `demolish_roads`
+ * (MECHANICS §3). Every road type counts, quays included.
+ */
+export function roadsUnder(tiles: readonly TilePos[], is: Pick<IslandDisplay, "roads" | "planned_roads">): TilePos[] {
+  const roads = new Set<string>([...is.roads.map(tileKey), ...plannedRoadTiles(is).map(tileKey)]);
+  return tiles.filter((p) => roads.has(tileKey(p))).map(({ x, y }) => ({ x, y }));
+}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { fieldPlacementHint } from "./fields";
-import { fieldsUnder, MAX_PAINT_TILES, paintAnchors, paintCountText, paintTiles, planPaint } from "./fieldpaint";
+import { demolishStatus, fieldsUnder, MAX_PAINT_TILES, paintAnchors, paintCountText, paintTiles, planPaint } from "./fieldpaint";
 
 const def = (id: string, w: number, h: number, extra: Partial<ContentBuilding> = {}) =>
   ({ id, name: id, width: w, height: h, category: "production", ...extra }) as ContentBuilding;
@@ -162,5 +162,13 @@ describe("fieldsUnder", () => {
     const one = fieldsUnder(paintTiles({ start: { x: 8, y: 5 }, end: { x: 21, y: 6 } }).tiles, buildings, defs, 1);
     expect([...one.keys()]).toEqual([1]);
     expect(fieldsUnder([{ x: 30, y: 12 }], buildings, defs, null).size).toBe(0);
+  });
+});
+
+describe("the Demolish tool's count", () => {
+  it("lists the fields, plans and road tiles it removes", () => {
+    expect(demolishStatus(3, 1, 12, false)).toBe("Remove 3 fields, 1 plan, 12 road tiles");
+    expect(demolishStatus(0, 0, 1, true)).toBe("Remove 1 road tile · clipped to 512 tiles");
+    expect(demolishStatus(0, 0, 0, false)).toBe("Nothing to remove");
   });
 });

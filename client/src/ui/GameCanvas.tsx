@@ -56,6 +56,7 @@ export function GameCanvas({ sync, tool, events, onRenderer, quality, forceFxaa 
         tapPlan: (island, id) => ev().tapPlan(island, id),
         tapPlannedRoad: (island, at) => ev().tapPlannedRoad(island, at),
         demolishPlans: (island, ids) => ev().demolishPlans(island, ids),
+        removeRoads: (island, tiles, clipped) => ev().removeRoads(island, tiles, clipped),
         place: (at) => ev().place(at),
         pend: (at) => ev().pend(at),
         unpend: () => ev().unpend(),

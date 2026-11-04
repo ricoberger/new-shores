@@ -22,6 +22,7 @@ const (
 	cmdPlaceRoad     = "place_road"
 	cmdDemolish      = "demolish"
 	cmdDemolishRoad  = "demolish_road"
+	cmdDemolishRoads = "demolish_roads"
 	cmdPlaceField    = "place_field"
 	cmdPlaceFields   = "place_fields"
 	cmdDemolishField = "demolish_fields"
@@ -309,6 +310,8 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeDemolish(raw)
 	case cmdDemolishRoad:
 		cmd, err = decodeDemolishRoad(raw)
+	case cmdDemolishRoads:
+		cmd, err = decodeDemolishRoads(raw)
 	case cmdPlaceField:
 		cmd, err = decodePlaceField(raw)
 	case cmdPlaceFields:
@@ -529,6 +532,23 @@ func decodeDemolishRoad(raw json.RawMessage) (sim.Command, error) {
 		return nil, err
 	}
 	return sim.DemolishRoad{IslandID: *c.IslandID, Tiles: tiles}, nil
+}
+
+// decodeDemolishRoads decodes demolish_roads (the Demolish tool's
+// rectangle): the tile list of a batch, like the field batches.
+func decodeDemolishRoads(raw json.RawMessage) (sim.Command, error) {
+	var c demolishRoadJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	if c.IslandID == nil {
+		return nil, missing("island_id")
+	}
+	tiles, err := decodeFieldTiles(c.Tiles)
+	if err != nil {
+		return nil, err
+	}
+	return sim.DemolishRoads{IslandID: *c.IslandID, Tiles: tiles}, nil
 }
 
 // decodeFieldTiles decodes the tile list of a field batch: 1 to

@@ -160,3 +160,53 @@ func TestPlansAPI(t *testing.T) {
 		t.Fatalf("demolish plan: plans %+v, gold %d -> %d", v.Islands[0].Plans, gold, v.Gold)
 	}
 }
+
+// TestDemolishRoadsAPI: demolish_roads (the Demolish tool's rectangle)
+// removes the roads and planned roads under its tiles in one version and
+// reports every tile in tile_results; over no road it answers 200 with the
+// unchanged version; duplicates fail as a whole.
+func TestDemolishRoadsAPI(t *testing.T) {
+	ts := newTestServer(t, 1)
+	if res := ts.command(`{"type":"place_road","island_id":"start","road_type":"road_dirt","tiles":[{"x":3,"y":4},{"x":4,"y":4},{"x":5,"y":4}]}`, nil); res.status != http.StatusOK {
+		t.Fatalf("road: %d %s", res.status, res.body)
+	}
+	if res := ts.command(`{"type":"place_road","island_id":"start","road_type":"road_dirt","planned":true,"tiles":[{"x":6,"y":4},{"x":7,"y":4}]}`, nil); res.status != http.StatusOK {
+		t.Fatalf("planned road: %d %s", res.status, res.body)
+	}
+	before := ts.getWorld()
+	rect := func(tiles string) string {
+		return `{"type":"demolish_roads","island_id":"start","tiles":` + tiles + `}`
+	}
+
+	res := ts.do(http.MethodPost, "/api/v1/world/commands", `{"command":`+rect(tileList([2]int{3, 6}, [2]int{4, 6}))+`}`, true)
+	var none batchJSON
+	if res.status != http.StatusOK || json.Unmarshal(res.body, &none) != nil {
+		t.Fatalf("no road: %d %s", res.status, res.body)
+	}
+	if none.Version != before.Version || len(none.TileResults) != 2 || none.TileResults[0].OK || none.TileResults[0].Reason != "no_road" {
+		t.Fatalf("no road: version %d (before %d), results %+v", none.Version, before.Version, none.TileResults)
+	}
+	res = ts.do(http.MethodPost, "/api/v1/world/commands", `{"command":`+rect(tileList([2]int{4, 4}, [2]int{4, 4}))+`}`, true)
+	if res.status != http.StatusBadRequest || errorCode(t, res) != "invalid_command" {
+		t.Fatalf("duplicates: %d %s", res.status, res.body)
+	}
+
+	tiles := [][2]int{{4, 4}, {5, 4}, {6, 4}, {4, 5}}
+	res = ts.command(rect(tileList(tiles...)), nil)
+	var b batchJSON
+	if res.status != http.StatusOK || json.Unmarshal(res.body, &b) != nil {
+		t.Fatalf("rect: %d %s", res.status, res.body)
+	}
+	if b.Version != before.Version+1 || len(b.TileResults) != 4 || !b.TileResults[0].OK || !b.TileResults[2].OK || b.TileResults[3].Reason != "no_road" {
+		t.Fatalf("rect: version %d, results %+v", b.Version, b.TileResults)
+	}
+	is := plansOf(t, b.Display).Islands[0]
+	if len(is.Planned) != 1 || len(is.Planned[0].Tiles) != 1 {
+		t.Errorf("planned roads %+v", is.Planned)
+	}
+	for _, r := range is.Roads {
+		if r.Y == 4 && (r.X == 4 || r.X == 5) {
+			t.Errorf("road tile (%d,%d) left", r.X, r.Y)
+		}
+	}
+}
