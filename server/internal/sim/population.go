@@ -338,7 +338,7 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
 		if def != nil && !b.Paused {
-			r.upkeep += def.UpkeepPerMin
+			r.upkeep += def.UpkeepAt(b.Level) // per level for hubs (D-069)
 		}
 		tier := houseTier(b, c)
 		if tier == nil {

@@ -134,6 +134,8 @@ type segment struct {
 	chains   *Chains
 	actions  []Action
 	trim     bool
+	// collectors is the plan's Collectors mode (empty: inherited).
+	collectors string
 }
 
 // segments resolves continues and actions_of into the runs of a plan.
@@ -170,9 +172,9 @@ func segments(path string, p *Plan) ([]segment, error) {
 			return nil, fmt.Errorf("plan %s continues %s, which does not end with a wait", p.Name, base.Name)
 		}
 		last.trim = true
-		return append(segs, segment{name: p.Name, quarters: p.Quarters, chains: p.Chains, actions: p.Actions}), nil
+		return append(segs, segment{name: p.Name, quarters: p.Quarters, chains: p.Chains, actions: p.Actions, collectors: p.Collectors}), nil
 	}
-	return []segment{{name: p.Name, quarters: p.Quarters, chains: p.Chains, actions: p.Actions}}, nil
+	return []segment{{name: p.Name, quarters: p.Quarters, chains: p.Chains, actions: p.Actions, collectors: p.Collectors}}, nil
 }
 
 func sameHeader(p, base *Plan) error {
@@ -210,6 +212,10 @@ type gen struct {
 	// whose chain plots are reserved.
 	chains  *Chains
 	chained map[string]bool
+	// collectors is the Collectors mode in force.
+	collectors string
+	// siteFilter, when set, rejects sites in site (collectors).
+	siteFilter func(def *content.Building, s layout.Site) bool
 }
 
 func (g *gen) world() *sim.World { return g.sess.World() }
@@ -231,6 +237,12 @@ func (g *gen) sessStart() time.Time { return g.startAt }
 func (g *gen) segment(s segment) error {
 	if g.startAt.IsZero() {
 		g.startAt = g.world().LastEvaluatedAt
+	}
+	if s.collectors != "" {
+		if s.collectors != collectorsReach && s.collectors != collectorsUpgrade {
+			return fmt.Errorf("%s: unknown collectors mode %q", s.name, s.collectors)
+		}
+		g.collectors = s.collectors
 	}
 	if s.chains != nil {
 		if err := checkChains(s.chains, g.c); err != nil {
@@ -442,7 +454,7 @@ func (g *gen) upkeep(w *sim.World) sim.Qty {
 	for _, is := range w.Islands {
 		for _, b := range is.Buildings {
 			if def := g.c.BuildingByID[b.Type]; def != nil {
-				n += def.UpkeepPerMin
+				n += def.UpkeepAt(b.Level)
 			}
 		}
 	}
@@ -772,6 +784,15 @@ func (g *gen) build(b *Build) error {
 		if !ok {
 			continue
 		}
+		if g.collectors != "" && def.Recipe != nil && g.needsCollector(g.world().Island(b.Island), g.collectorLoads(g.world().Island(b.Island)), def, s) {
+			s2, path2, fields2, ok, err := g.collectedSite(b.Island, def, anchor, spare, s, path, fields)
+			if err != nil {
+				return err
+			}
+			if ok {
+				s, path, fields = s2, path2, fields2
+			}
+		}
 		_, err := g.place(b.Island, b.Type, s, path, fields)
 		return err
 	}
@@ -810,6 +831,10 @@ func (g *gen) site(lp *layout.Planner, island string, def *content.Building, anc
 			pd := ringDistance(is, dists, s.X, s.Y, fw, fh)
 			if pd < 0 {
 				g.trialFails["no road"]++
+				continue
+			}
+			if g.siteFilter != nil && !g.siteFilter(def, s) {
+				g.trialFails["filtered"]++
 				continue
 			}
 			if !chk.Valid(def, s.X, s.Y, s.Rot) {

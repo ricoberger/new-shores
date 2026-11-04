@@ -76,7 +76,9 @@ describe("build menu groups", () => {
     const citizens = groups("citizens");
     expect(citizens.map(([g]) => g)).toEqual(["general", "production", "public", "harbour"]);
     expect(citizens[0]).toEqual(["general", ["road_paved"]]);
-    expect(citizens[3]).toEqual(["harbour", ["shipyard", "trading_pier", "depot", "quay"]]);
+    // Pier and depot arrive with the Merchants (D-069 §5).
+    expect(citizens[3]).toEqual(["harbour", ["shipyard", "quay"]]);
+    expect(groups("merchants").find(([g]) => g === "harbour")).toEqual(["harbour", ["trading_pier", "depot"]]);
   });
 
   it("orders Production along the chains: raw first, then intermediate, then final goods", () => {

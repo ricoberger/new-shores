@@ -403,6 +403,11 @@ type TradingPostLevel struct {
 	Capacity Qty
 	// ThroughputPerMin in milli-units per minute (as a collector).
 	ThroughputPerMin Qty
+	// Reach is the collector reach in tiles (D-069); 0 means no limit.
+	Reach int
+	// UpkeepPerMin is the upkeep at this level in milli-gold per minute
+	// (D-069); level 1 equals the building's.
+	UpkeepPerMin Qty
 	// Berths is the number of ships that can handle cargo at once.
 	Berths int
 	// Cost is the upgrade cost into this level; nil for the first level
@@ -459,6 +464,11 @@ type Warehouse struct {
 type WarehouseLevel struct {
 	// ThroughputPerMin in milli-units per minute.
 	ThroughputPerMin Qty
+	// Reach is the collector reach in tiles (D-069); 0 means no limit.
+	Reach int
+	// UpkeepPerMin is the upkeep at this level in milli-gold per minute
+	// (D-069); level 1 equals the building's.
+	UpkeepPerMin Qty
 	// Tier must be unlocked to upgrade into this level (D-065; "" none,
 	// always "" on the first level).
 	Tier string
@@ -521,6 +531,35 @@ func (b *Building) ThroughputAt(level int) Qty {
 	return 0
 }
 
+// ReachAt is the collector reach in tiles of a Trading Post or Warehouse
+// at a 1-based level (clamped; D-069); 0 means no limit (content without
+// reach, and every other building).
+func (b *Building) ReachAt(level int) int {
+	switch {
+	case b.TradingPost != nil:
+		return b.TradingPost.Levels[clampLevel(level, len(b.TradingPost.Levels))].Reach
+	case b.Warehouse != nil:
+		return b.Warehouse.Levels[clampLevel(level, len(b.Warehouse.Levels))].Reach
+	}
+	return 0
+}
+
+// UpkeepAt is the upkeep (milli-gold per minute) of the building at a
+// 1-based level (clamped): the level's upkeep for a Trading Post, a
+// Warehouse or a public building with levels (D-069 hub upkeep), the
+// building's upkeep otherwise.
+func (b *Building) UpkeepAt(level int) Qty {
+	switch {
+	case b.TradingPost != nil:
+		return b.TradingPost.Levels[clampLevel(level, len(b.TradingPost.Levels))].UpkeepPerMin
+	case b.Warehouse != nil:
+		return b.Warehouse.Levels[clampLevel(level, len(b.Warehouse.Levels))].UpkeepPerMin
+	case b.Service != nil && len(b.Service.Levels) > 0:
+		return b.Service.Levels[clampLevel(level, len(b.Service.Levels))].UpkeepPerMin
+	}
+	return b.UpkeepPerMin
+}
+
 // LevelCost is the upgrade cost into a 1-based level of a Trading Post or
 // Warehouse; nil for the first level, out-of-range levels and other
 // buildings.
@@ -570,6 +609,9 @@ type Service struct {
 // ServiceLevel is one level of a public building.
 type ServiceLevel struct {
 	Radius int
+	// UpkeepPerMin is the upkeep at this level in milli-gold per minute
+	// (D-069: the market's levels); level 1 equals the building's.
+	UpkeepPerMin Qty
 	// Tier must be unlocked to upgrade into this level ("" none; always ""
 	// on the first level).
 	Tier string

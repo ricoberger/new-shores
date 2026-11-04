@@ -41,6 +41,14 @@ type Plan struct {
 	ClaimQuests string `json:"claim_quests,omitempty"`
 	// Road is the road type the generator lays.
 	Road string `json:"road,omitempty"`
+	// Collectors "reach" lets the generator place a warehouse before a
+	// production building that no collector reaches or whose collector
+	// would exceed its throughput (D-069); "reach_upgrade" does the same
+	// but first raises the level of a collector whose next level would
+	// reach the producer (land for upkeep: for rich, crowded late games);
+	// empty: only the plan's own warehouses. A continuing plan inherits
+	// it.
+	Collectors string `json:"collectors,omitempty"`
 	// MaxWait bounds the wait for one action (default 240m).
 	MaxWait string `json:"max_wait,omitempty"`
 	// Chains are the ranked public-service chains (D-065) the quarters'

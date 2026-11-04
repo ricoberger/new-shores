@@ -308,6 +308,8 @@ type rawBuilding struct {
 		Levels []struct {
 			Capacity   json.Number            `json:"capacity"`
 			Throughput json.Number            `json:"throughput_per_min"`
+			Reach      int                    `json:"reach"`
+			Upkeep     json.Number            `json:"upkeep_per_min"`
 			Berths     int                    `json:"berths"`
 			Cost       map[string]json.Number `json:"cost"`
 		} `json:"levels"`
@@ -315,6 +317,8 @@ type rawBuilding struct {
 	Warehouse *struct {
 		Levels []struct {
 			Throughput json.Number            `json:"throughput_per_min"`
+			Reach      int                    `json:"reach"`
+			Upkeep     json.Number            `json:"upkeep_per_min"`
 			Tier       string                 `json:"tier"`
 			Cost       map[string]json.Number `json:"cost"`
 		} `json:"levels"`
@@ -335,6 +339,7 @@ type rawBuilding struct {
 		Rank   int    `json:"rank"`
 		Levels []struct {
 			Radius int                    `json:"radius"`
+			Upkeep json.Number            `json:"upkeep_per_min"`
 			Cost   map[string]json.Number `json:"cost"`
 		} `json:"levels"`
 	} `json:"service"`
@@ -455,6 +460,15 @@ func (c *collector) fixed(file, entity, field string, n json.Number, places int)
 		c.add(file, entity, field, "%v", err)
 	}
 	return v
+}
+
+// levelUpkeep is the upkeep of a building level (D-069): the level's own
+// upkeep_per_min, or the building's when the level has none.
+func levelUpkeep(c *collector, file, entity, field string, n json.Number, building Qty) Qty {
+	if n == "" {
+		return building
+	}
+	return c.fixed(file, entity, field, n, 3)
 }
 
 // maxWhole bounds whole-number content values that are scaled to fixed
@@ -817,6 +831,8 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 			lvl := TradingPostLevel{
 				Capacity:         col.fixed(file, ent, fmt.Sprintf("trading_post.levels[%d].capacity", i), l.Capacity, 3),
 				ThroughputPerMin: col.fixed(file, ent, fmt.Sprintf("trading_post.levels[%d].throughput_per_min", i), l.Throughput, 3),
+				Reach:            l.Reach,
+				UpkeepPerMin:     levelUpkeep(col, file, ent, fmt.Sprintf("trading_post.levels[%d].upkeep_per_min", i), l.Upkeep, b.UpkeepPerMin),
 				Berths:           l.Berths,
 			}
 			if l.Cost != nil {
@@ -835,6 +851,8 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		for i, l := range w.Levels {
 			lvl := WarehouseLevel{
 				ThroughputPerMin: col.fixed(file, ent, fmt.Sprintf("warehouse.levels[%d].throughput_per_min", i), l.Throughput, 3),
+				Reach:            l.Reach,
+				UpkeepPerMin:     levelUpkeep(col, file, ent, fmt.Sprintf("warehouse.levels[%d].upkeep_per_min", i), l.Upkeep, b.UpkeepPerMin),
 				Tier:             l.Tier,
 			}
 			if l.Cost != nil {
@@ -862,10 +880,10 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		// is the single level.
 		b.Service = &Service{Chain: s.Chain, Rank: s.Rank}
 		if len(s.Levels) == 0 {
-			b.Service.Levels = []ServiceLevel{{Radius: s.Radius}}
+			b.Service.Levels = []ServiceLevel{{Radius: s.Radius, UpkeepPerMin: b.UpkeepPerMin}}
 		}
-		for _, l := range s.Levels {
-			lvl := ServiceLevel{Radius: l.Radius}
+		for i, l := range s.Levels {
+			lvl := ServiceLevel{Radius: l.Radius, UpkeepPerMin: levelUpkeep(col, file, ent, fmt.Sprintf("service.levels[%d].upkeep_per_min", i), l.Upkeep, b.UpkeepPerMin)}
 			if l.Cost != nil {
 				cost := decodeCost(col, file, ent, l.Cost, goods)
 				lvl.Cost = &cost

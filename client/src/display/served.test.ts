@@ -131,12 +131,13 @@ describe("ghostRelated (ghost hint, D-027)", () => {
   });
 
   it("a producer: every Warehouse and Trading Post on its island, none of another island", () => {
-    expect(ghostRelated(ghost("sawmill"), content, base)).toEqual(idsOf("trading_post"));
+    // The reference game has warehouses too (the generator's collectors, D-069).
+    expect(sorted(ghostRelated(ghost("sawmill"), content, base))).toEqual(sorted(idsOf("trading_post", "warehouse")));
     const warehouse = { ...isle.buildings[0]!, id: 900_001, type: "warehouse" };
     const withWarehouse = { islands: [{ ...isle, buildings: [...isle.buildings, warehouse] }, ...base.islands.filter((is) => is.id !== "isle-01")] };
-    expect(sorted(ghostRelated(ghost("sawmill"), content, withWarehouse))).toEqual(sorted([...idsOf("trading_post"), 900_001]));
+    expect(sorted(ghostRelated(ghost("sawmill"), content, withWarehouse))).toEqual(sorted([...idsOf("trading_post", "warehouse"), 900_001]));
     expect(ghostRelated({ ...ghost("sawmill"), island: "isle-02" }, content, base)).toEqual(
-      base.islands.find((is) => is.id === "isle-02")!.buildings.filter((b) => b.type === "trading_post").map((b) => b.id),
+      base.islands.find((is) => is.id === "isle-02")!.buildings.filter((b) => b.type === "trading_post" || b.type === "warehouse").map((b) => b.id),
     );
   });
 

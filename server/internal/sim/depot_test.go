@@ -105,7 +105,7 @@ func TestDepotNextToTradingPostKeepsTheHarbourOpen(t *testing.T) {
 				t.Fatal(err)
 			}
 			w.Gold = 10_000_000
-			w.UnlockedTiers = append(w.UnlockedTiers, "citizens")
+			w.UnlockedTiers = append(w.UnlockedTiers, "citizens", "merchants") // the pier and the depot are Merchant buildings (D-069 §5)
 			for _, g := range []string{"stone", "planks"} {
 				if err := AddStock(w, c, "main", g, 100_000, nil); err != nil {
 					t.Fatal(err)

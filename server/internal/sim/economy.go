@@ -102,7 +102,7 @@ func (p pauseTarget) upkeep(c *content.Catalogue) Qty {
 		return 0
 	}
 	if def := c.BuildingByID[p.b.Type]; def != nil {
-		return def.UpkeepPerMin
+		return def.UpkeepAt(p.b.Level)
 	}
 	return 0
 }
@@ -328,14 +328,14 @@ func pauseCandidate(w *World, c *content.Catalogue) pauseTarget {
 	for _, is := range w.Islands {
 		for _, b := range is.Buildings {
 			def := c.BuildingByID[b.Type]
-			if def == nil || b.Paused || def.UpkeepPerMin <= 0 {
+			if def == nil || b.Paused || def.UpkeepAt(b.Level) <= 0 {
 				continue
 			}
 			rank := pauseRank(def.PauseCategory)
 			if rank == 0 {
 				continue
 			}
-			consider(&cand{p: pauseTarget{is: is, b: b}, id: b.ID, rank: rank, tier: tierIndex(def.Tier), up: def.UpkeepPerMin})
+			consider(&cand{p: pauseTarget{is: is, b: b}, id: b.ID, rank: rank, tier: tierIndex(def.Tier), up: def.UpkeepAt(b.Level)})
 		}
 	}
 	// Ranks are exclusive to buildings or ships, so IDs are only compared

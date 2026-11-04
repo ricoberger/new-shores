@@ -5,6 +5,7 @@ import (
 	"errors"
 	"maps"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -576,6 +577,31 @@ func withUpkeep(base *content.Catalogue, upkeep map[string]Qty) *content.Catalog
 	for id, up := range upkeep {
 		b := *base.BuildingByID[id]
 		b.UpkeepPerMin = up
+		// Every level the same (D-069 levels carry their own upkeep).
+		if b.TradingPost != nil {
+			tp := *b.TradingPost
+			tp.Levels = slices.Clone(tp.Levels)
+			for i := range tp.Levels {
+				tp.Levels[i].UpkeepPerMin = up
+			}
+			b.TradingPost = &tp
+		}
+		if b.Warehouse != nil {
+			wh := *b.Warehouse
+			wh.Levels = slices.Clone(wh.Levels)
+			for i := range wh.Levels {
+				wh.Levels[i].UpkeepPerMin = up
+			}
+			b.Warehouse = &wh
+		}
+		if b.Service != nil {
+			sv := *b.Service
+			sv.Levels = slices.Clone(sv.Levels)
+			for i := range sv.Levels {
+				sv.Levels[i].UpkeepPerMin = up
+			}
+			b.Service = &sv
+		}
 		c.BuildingByID[id] = &b
 	}
 	return &c

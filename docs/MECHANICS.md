@@ -527,7 +527,11 @@ decorations, and the tier-1 market and chapel. **Never-pausable buildings
 carry no upkeep** (D-046): their running cost is folded into their
 construction price, so a fully stalled city always has `balance_rate ≥ 0`
 from floor-level taxes and gold keeps accumulating. Pausable public
-buildings (tavern and up) keep upkeep.
+buildings (tavern and up) keep upkeep. The exception are the hubs (D-069 §3):
+Trading Post, warehouses and the market carry upkeep per level
+(CONTENT §7; the Trading Post's and the market's level 1 are free) and
+are never paused; when nothing pausable is left their upkeep holds gold
+at zero until taxes cover it (a demolished hub stops its upkeep).
 
 - **Auto-resume**: the candidate is the most recently auto-paused
   building. It resumes when both hold: (a) gold ≥
@@ -809,7 +813,7 @@ Tier `n+1` becomes available (house upgrades and new buildings unlock) when
 all of the tier's `unlock` conditions in content hold:
 
 ```json
-{ "population": { "settlers": 120 }, "buildings": ["market", "chapel"] }
+{ "population": { "settlers": 120 } }
 ```
 
 Conditions are evaluated against the player's whole archipelago at the end
@@ -819,9 +823,11 @@ permanent (no regression) and have no rate effect; the unlock moment is
 reported as a `tier_unlocked` boundary. Placing a building (or road) of a
 locked tier fails with `ErrTierLocked`; so does ordering a ship of a
 locked tier or upgrading a public building into a level of one. The
-unlocks (D-056) are 120 Settlers + market + chapel (Citizens), 360
-Citizens + tavern (Merchants) and 1 200 Merchants (Patricians; the
-church joins once it is authored). The client toasts an unlock it sees
+unlocks are population only (D-069 §4): 120 Settlers (Citizens), 360
+Citizens (Merchants) and 1 200 Merchants (Patricians); the buildings the
+D-056 list named are required by the house upgrade gate anyway. The
+content format keeps an optional `buildings` list (a building of each
+type must stand somewhere in the archipelago) for later regions. The client toasts an unlock it sees
 during a session with the number of new buildings.
 
 **House upgrade gate (D-056):** a house upgrades when it is at `max`

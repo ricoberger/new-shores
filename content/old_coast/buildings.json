@@ -39,22 +39,28 @@
     "pause_category": "never",
     "trading_post": {
       "levels": [
-        { "capacity": 300, "throughput_per_min": 30, "berths": 1 },
+        { "capacity": 300, "throughput_per_min": 20, "reach": 20, "upkeep_per_min": 0, "berths": 1 },
         {
           "capacity": 500,
-          "throughput_per_min": 55,
+          "throughput_per_min": 40,
+          "reach": 24,
+          "upkeep_per_min": 10,
           "berths": 2,
           "cost": { "gold": 300, "planks": 20, "stone": 10 }
         },
         {
           "capacity": 800,
-          "throughput_per_min": 80,
+          "throughput_per_min": 60,
+          "reach": 28,
+          "upkeep_per_min": 20,
           "berths": 3,
           "cost": { "gold": 600, "planks": 30, "stone": 20 }
         },
         {
           "capacity": 1200,
-          "throughput_per_min": 110,
+          "throughput_per_min": 80,
+          "reach": 32,
+          "upkeep_per_min": 30,
           "berths": 4,
           "cost": { "gold": 1200, "planks": 40, "stone": 30, "tools": 10 }
         }
@@ -70,23 +76,29 @@
     "coastal": false,
     "requires_road": false,
     "cost": { "gold": 50, "planks": 6 },
-    "upkeep_per_min": 0,
+    "upkeep_per_min": 1,
     "pause_category": "never",
     "warehouse": {
       "levels": [
-        { "throughput_per_min": 30 },
+        { "throughput_per_min": 20, "reach": 14, "upkeep_per_min": 1 },
         {
-          "throughput_per_min": 50,
+          "throughput_per_min": 35,
+          "reach": 17,
+          "upkeep_per_min": 10,
           "tier": "citizens",
           "cost": { "gold": 150, "planks": 10, "stone": 5 }
         },
         {
-          "throughput_per_min": 70,
+          "throughput_per_min": 50,
+          "reach": 20,
+          "upkeep_per_min": 15,
           "tier": "merchants",
           "cost": { "gold": 300, "planks": 15, "stone": 10 }
         },
         {
-          "throughput_per_min": 90,
+          "throughput_per_min": 65,
+          "reach": 23,
+          "upkeep_per_min": 25,
           "tier": "patricians",
           "cost": { "gold": 600, "planks": 20, "stone": 20 }
         }
@@ -106,10 +118,10 @@
     "pause_category": "never",
     "service": {
       "levels": [
-        { "radius": 12 },
-        { "radius": 15, "cost": { "gold": 400, "planks": 10, "stone": 10 } },
-        { "radius": 18, "cost": { "gold": 1000, "planks": 15, "stone": 30 } },
-        { "radius": 21, "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } }
+        { "radius": 12, "upkeep_per_min": 0 },
+        { "radius": 15, "upkeep_per_min": 10, "cost": { "gold": 400, "planks": 10, "stone": 10 } },
+        { "radius": 18, "upkeep_per_min": 20, "cost": { "gold": 1000, "planks": 15, "stone": 30 } },
+        { "radius": 21, "upkeep_per_min": 30, "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } }
       ]
     }
   },
@@ -308,7 +320,7 @@
     "id": "trading_pier",
     "name": "Trading Pier",
     "region": "old_coast",
-    "tier": "citizens",
+    "tier": "merchants",
     "footprint": [6, 9],
     "water_rows": { "min": 5, "max": 6 },
     "coastal": false,
@@ -322,7 +334,7 @@
     "id": "depot",
     "name": "Depot",
     "region": "old_coast",
-    "tier": "citizens",
+    "tier": "merchants",
     "footprint": [4, 11],
     "water_rows": { "min": 7, "max": 9 },
     "coastal": false,

@@ -166,7 +166,7 @@ func TestLevelTierGates(t *testing.T) {
 		want  []int
 	}{
 		{market, "market", func(d *content.Building, l int) int { return d.Service.RadiusAt(l) }, []int{12, 15, 18, 21}},
-		{warehouse, "warehouse", func(d *content.Building, l int) int { return int(d.ThroughputAt(l) / 1000) }, []int{30, 50, 70, 90}},
+		{warehouse, "warehouse", func(d *content.Building, l int) int { return int(d.ThroughputAt(l) / 1000) }, []int{20, 35, 50, 65}},
 	} {
 		def := c.BuildingByID[tc.typ]
 		cmd := UpgradeBuilding{IslandID: "main", BuildingID: tc.id}
