@@ -59,7 +59,7 @@ func TestFixtures(t *testing.T) {
 					}
 				}
 				for _, b := range w.Island(home).Buildings {
-					if def := c.BuildingByID[b.Type]; def.Field == nil && def.TradingPost == nil && b.AssignedWarehouseID == 0 {
+					if def := c.BuildingByID[b.Type]; def.Field == nil && !def.Collector() && b.AssignedWarehouseID == 0 {
 						t.Errorf("%s %d not connected", b.Type, b.ID)
 					}
 				}
@@ -230,7 +230,7 @@ func checkPatricians(t *testing.T, c *content.Catalogue, w *sim.World) {
 			if b.Type == patriciansHouse && (b.House == nil || b.House.Residents < c.TierByID[patriciansTier].ResidentsFloor) {
 				t.Errorf("patrician house %d residents %+v", b.ID, b.House)
 			}
-			if def := c.BuildingByID[b.Type]; def.Field == nil && def.TradingPost == nil && b.AssignedWarehouseID == 0 {
+			if def := c.BuildingByID[b.Type]; def.Field == nil && !def.Collector() && b.AssignedWarehouseID == 0 {
 				t.Errorf("%s: %s %d not connected", is.ID, b.Type, b.ID)
 			}
 		}

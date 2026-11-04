@@ -14,7 +14,12 @@ import (
 //   - Among paths of equal length the one with the lowest summed per-tile
 //     transfer time is used (relevant once several road types exist).
 //   - The building is assigned to the warehouse with the smallest d; ties go
-//     to the lowest warehouse ID.
+//     to the lowest warehouse ID. A production building is only assignable
+//     to a collector whose reach at its level covers the building's
+//     footprint (never its fields): Euclidean distance between the nearest
+//     footprint tiles, like a service radius (D-069, MECHANICS §5). A
+//     producer road-connected only to collectors out of reach gets no
+//     assignment and is marked OutOfReach (it stalls).
 //   - transfer delay = transfer_base + sum of seconds_per_tile of every road
 //     tile on the path.
 //   - Public buildings (service block), shipyards and houses are connected
@@ -89,6 +94,8 @@ func warehouseField(is *Island, c *content.Catalogue, start []Pos) roadField {
 func recomputeConnectivity(is *Island, c *content.Catalogue) {
 	type wh struct {
 		id    int64
+		b     *Building
+		def   *content.Building
 		field roadField
 	}
 	var whs []wh
@@ -98,7 +105,7 @@ func recomputeConnectivity(is *Island, c *content.Catalogue) {
 			continue
 		}
 		start := is.buildingRoads(def, b)
-		whs = append(whs, wh{id: b.ID, field: warehouseField(is, c, start)})
+		whs = append(whs, wh{id: b.ID, b: b, def: def, field: warehouseField(is, c, start)})
 	}
 
 	for _, b := range is.Buildings {
@@ -106,10 +113,12 @@ func recomputeConnectivity(is *Island, c *content.Catalogue) {
 		if def == nil || (def.Recipe == nil && def.Service == nil && def.House == nil && def.Shipyard == nil) {
 			continue
 		}
-		b.AssignedWarehouseID, b.RoadDistance, b.TransferDelayMs = 0, 0, 0
+		b.AssignedWarehouseID, b.RoadDistance, b.TransferDelayMs, b.OutOfReach = 0, 0, 0, false
 		adj := is.buildingRoads(def, b)
 		bestDist := unreachable
 		var bestDelay int64
+		fw, fh := footprint(def, b.Rotation)
+		roadOnly := false       // connected by road to a collector out of reach
 		for _, w := range whs { // ascending ID: strict < keeps the lowest ID on ties
 			d, delay := unreachable, int64(0)
 			for _, p := range adj {
@@ -122,11 +131,18 @@ func recomputeConnectivity(is *Island, c *content.Catalogue) {
 					d, delay = fd, w.field.delay[i]
 				}
 			}
+			if d != unreachable && def.Recipe != nil {
+				if r := w.def.ReachAt(w.b.Level); r > 0 && !withinRadius(w.def, w.b, b.X, b.Y, fw, fh, r) {
+					roadOnly = true
+					continue
+				}
+			}
 			if d != unreachable && (bestDist == unreachable || d < bestDist) {
 				bestDist, bestDelay = d, delay
 				b.AssignedWarehouseID = w.id
 			}
 		}
+		b.OutOfReach = roadOnly && b.AssignedWarehouseID == 0
 		if b.AssignedWarehouseID != 0 && def.Recipe != nil {
 			b.RoadDistance = bestDist
 			// At least 1 ms so that new output never arrives within the step

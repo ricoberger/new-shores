@@ -229,6 +229,10 @@ type Building struct {
 	RoadDistance int `json:"road_distance,omitempty"`
 	// TransferDelayMs is the delivery latency to the assigned warehouse.
 	TransferDelayMs int64 `json:"transfer_delay_ms,omitempty"`
+	// OutOfReach marks a producer that is road-connected to a collector
+	// but within the reach of none (D-069): it stalls (rate 0, buffer
+	// kept). Derived state like AssignedWarehouseID (roads.go).
+	OutOfReach bool `json:"out_of_reach,omitempty"`
 
 	// Progress is the production cycle accumulator in [0, SubPerMilli);
 	// one full cycle at 100 % corresponds to SubPerMilli.

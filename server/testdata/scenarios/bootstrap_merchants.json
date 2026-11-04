@@ -5830,6 +5830,20 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "island": "isle-02",
+        "type": "warehouse",
+        "x": 81,
+        "y": 130,
+        "rotation": 0
+      }
+    },
+    {
       "create_route": {
         "name": "Garments out, bricks home",
         "stops": [
@@ -5868,11 +5882,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "dairy_farm",
@@ -5893,6 +5902,11 @@
           149,
           149
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -5926,11 +5940,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -5961,6 +5970,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -5973,11 +5987,6 @@
             159
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -6050,6 +6059,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "pig_farm",
@@ -6071,11 +6085,6 @@
             148
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -6136,6 +6145,11 @@
             155
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -6366,11 +6380,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -7511,6 +7520,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -7719,11 +7733,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "warehouse",
@@ -7744,6 +7753,11 @@
           115,
           97
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -7770,368 +7784,368 @@
       }
     },
     {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            148,
+            136
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            146,
+            138
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            147,
+            136
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            149,
+            136
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            146,
+            137
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            146,
+            139
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            146,
+            136
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            148,
+            135
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            145,
+            138
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            147,
+            135
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            149,
+            135
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            145,
+            137
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            145,
+            139
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            146,
+            135
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            145,
+            136
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            148,
+            134
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            144,
+            138
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            147,
+            134
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            149,
+            134
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            144,
+            137
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            144,
+            139
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            145,
+            135
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            146,
+            134
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          147,
+          137
+        ],
+        "tiles": [
+          [
+            144,
+            136
+          ]
+        ]
+      }
+    },
+    {
       "advance": {
         "duration": "1m"
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            148,
-            136
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            146,
-            138
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            147,
-            136
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            149,
-            136
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            146,
-            137
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            146,
-            139
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            146,
-            136
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            148,
-            135
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            145,
-            138
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            147,
-            135
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            149,
-            135
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            145,
-            137
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            145,
-            139
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            146,
-            135
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            145,
-            136
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            148,
-            134
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            144,
-            138
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            147,
-            134
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            149,
-            134
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            144,
-            137
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            144,
-            139
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            145,
-            135
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            146,
-            134
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          147,
-          137
-        ],
-        "tiles": [
-          [
-            144,
-            136
-          ]
-        ]
       }
     },
     {
@@ -8141,20 +8155,6 @@
         "x": 144,
         "y": 130,
         "rotation": 90
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "island": "isle-02",
-        "type": "warehouse",
-        "x": 78,
-        "y": 136,
-        "rotation": 0
       }
     },
     {
@@ -8592,6 +8592,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "island": "isle-01",
         "type": "road_dirt",
@@ -8603,11 +8608,6 @@
           127,
           108
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -9382,6 +9382,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -9529,11 +9534,6 @@
             105
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -11415,6 +11415,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -11577,11 +11582,6 @@
             100
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -13687,6 +13687,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -13849,11 +13854,6 @@
             84
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -14061,6 +14061,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -14073,11 +14078,6 @@
             112
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -14157,16 +14157,6 @@
         "x": 181,
         "y": 123,
         "rotation": 90
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -14541,6 +14531,11 @@
             94
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -15108,6 +15103,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "wheat_farm",
@@ -15173,6 +15173,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "island": "isle-01",
         "type": "road_dirt",
@@ -15187,11 +15192,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -15807,6 +15807,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -15879,11 +15884,6 @@
             92
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -16517,6 +16517,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -16589,11 +16594,6 @@
             101
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -17227,6 +17227,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -17299,11 +17304,6 @@
             90
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -17383,17 +17383,17 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "tailor",
         "x": 143,
         "y": 126,
         "rotation": 90
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {

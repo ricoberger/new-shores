@@ -22,11 +22,12 @@ import (
 // islet and cliff terrains, roads on rivers), and version 12 the per-column
 // water rows (D-062), and version 13 the ranked service chains (D-065:
 // guard and fire station lose their levels, the market and the warehouse
-// have four; a stored level 2 of a guard or fire station is not migrated).
-// Versions 1-12 have no
+// have four; a stored level 2 of a guard or fire station is not migrated),
+// and version 14 the collector reach (D-069: Building.OutOfReach, hub
+// upkeep per level, content old_coast-0.18.0). Versions 1-13 have no
 // migration path (the game was not deployed; a fresh database is needed:
 // make down VOLUMES=1 && make up).
-const SchemaVersion = 13
+const SchemaVersion = 14
 
 // Envelope is the versioned persistence format of a world
 // (docs/ARCHITECTURE.md §4.1).

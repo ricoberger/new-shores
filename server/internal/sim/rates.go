@@ -299,6 +299,9 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 		switch {
 		case b.Paused:
 			base = 0
+		case b.OutOfReach:
+			// No collector in reach (D-069): stalls, the buffer is kept.
+			base = 0
 		case !p.connected && len(def.Recipe.Inputs) > 0:
 			base = 0
 		case !p.connected:

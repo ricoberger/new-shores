@@ -784,6 +784,7 @@ func (g *gen) build(b *Build) error {
 		if !ok {
 			continue
 		}
+		collected := true
 		if g.collectors != "" && def.Recipe != nil && g.needsCollector(g.world().Island(b.Island), g.collectorLoads(g.world().Island(b.Island)), def, s) {
 			s2, path2, fields2, ok, err := g.collectedSite(b.Island, def, anchor, spare, s, path, fields)
 			if err != nil {
@@ -792,9 +793,12 @@ func (g *gen) build(b *Build) error {
 			if ok {
 				s, path, fields = s2, path2, fields2
 			}
+			collected = ok
 		}
-		_, err := g.place(b.Island, b.Type, s, path, fields)
-		return err
+		if _, err := g.place(b.Island, b.Type, s, path, fields); err != nil || collected {
+			return err
+		}
+		return g.collectAfter(b.Island, def, s)
 	}
 	return fmt.Errorf("no connected site for %s on %s", b.Type, b.Island)
 }

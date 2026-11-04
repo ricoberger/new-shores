@@ -765,7 +765,7 @@ per level, population-only unlocks, harbour extensions at Merchants;
 | Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 48 / 24 / 82 / 118 | 48 / 12 / 85 / 128 | 12 / 78 / 15 / 22 |
 | Quests | island 2 / first house (unlock, tools) | 45 / 85 | 32 / 64 (11, 100) | 32 / 68 (8, 111) | 13 / 17; 17 earlier than without claims |
 | Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 224 / 256 / 369 | 220 / 263 / 397 | 20 / 7 / 23 |
-| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 826 / 866 / 1073 | 830 / 869 / 1075 | 70 / 91 / 725 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 826 / 866 / 1073 | 831 / 872 / 1078 | 69 / 88 / 722 |
 
 Plan changes for D-069 (generator and authoring levers only):
 
@@ -774,8 +774,10 @@ Plan changes for D-069 (generator and authoring levers only):
   a warehouse when no collector reaches its site or the one it would
   deliver to (the sim's assignment) would exceed its throughput at
   nominal rates; the warehouse goes within level-1 reach, forest before
-  grass, keeping the producer's road and fields free. Farms first try to
-  raise a collector's level instead (no land).
+  grass, keeping the producer's road and fields free; where no road
+  comes near enough yet (a remote quarry), the producer goes first and
+  its warehouse follows on its road. Farms first try to raise a
+  collector's level instead (no land).
 - The patricians plan sets `collectors: "reach_upgrade"`: every
   producer first tries a collector upgrade (upkeep for land in the rich
   late game). The home island then has 13 collectors for 142 producers.

@@ -236,12 +236,13 @@ handlers only.
   the island's grid (`harbour_blocked`). Cost and speed are content
   (provisional 5 gold / 2 stone per tile, 0.6 s/tile like the paved
   road).
-- Each connected producer is **assigned** to the nearest collector by road
-  distance `d`: the number of road tiles on the shortest 4-connected road
+- Each connected producer is **assigned** to the nearest collector whose
+  reach covers it (§5, D-069) by road distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile
   adjacent to the collector, both ends included. Equal lengths prefer the
   lower summed per-tile time; equal collectors prefer the lowest ID.
-  Assignment is recomputed when roads, buildings or collectors change. Only
+  Assignment is recomputed when roads, buildings or collectors change
+  (also a collector's upgrade: its reach grows). Only
   buildings with a recipe are assigned; collectors need no road themselves.
 - **Transfer delay** per delivery: `transfer_base_seconds + Σ seconds_per_tile`
   over the path (content; provisional 10 s + 1 s/tile dirt, 0.6 s/tile
@@ -329,8 +330,22 @@ cycle:   seconds               at 100 % efficiency
   a depot its own `capacity`, no `level`; the Trading Post shows the total.
 - **Collectors** fetch producer output: the Trading Post has a base
   **throughput** `T` and every **Warehouse** (inland, cheap, no coast, no
-  capacity) adds its own `T` (levels raise it). Each producer is assigned
-  to the nearest collector by road (§3). `R` is the sum of base output
+  capacity) adds its own `T` (levels raise it). Every collector has a
+  **reach** per level (D-069; content `reach`, CONTENT §7): a production
+  building is *assignable* to a collector when the Euclidean distance
+  between the nearest tiles of the two footprints (tile centres, like a
+  service radius, §6.2) is at most the reach — the producer's **building
+  footprint** only, never its fields, plots or pastures — and it is
+  road-connected to it (§3). Each producer is assigned to the nearest
+  assignable collector by road (ties: lowest ID). A producer that is
+  road-connected only to collectors out of reach has the status
+  **`no_collector_in_reach`** and **stalls**: rate 0, its buffer kept,
+  nothing lost (D-009; like an unconnected producer with inputs, it
+  sits right after `not_connected` in the status precedence, §14).
+  Upgrading a collector raises its reach and reassigns at once;
+  demolishing the only collector in reach stalls its producers. Houses,
+  public buildings and shipyards only need the road connection (no
+  reach). `R` is the sum of base output
   rates of a collector's assigned producers that are **running**
   (connected, not paused, not fully starved, not blocked). If `R > T`,
   every running assigned producer gets `throughput_factor = T / R`; else 1.
@@ -902,13 +917,14 @@ house cost is paid. One alternative per category is enough.
 
 Each building state maps to one icon and one sentence with a fix. A building
 has exactly one primary status; precedence when several apply:
-`paused` > `not_connected` > `warehouse_full` > `input_starved` >
+`paused` > `not_connected` > `no_collector_in_reach` > `warehouse_full` > `input_starved` >
 `throttled` > `short_of_workers` > `low_efficiency` > `ok`.
 
 | State | Message | Suggested fix |
 |---|---|---|
 | paused (player) | "Paused by you" | resume |
 | not connected | "No road to the Trading Post or a Warehouse" | build road |
+| no collector in reach | "Out of reach of any warehouse" | Warehouse nearby / upgrade the collector |
 | input starved | "Missing: iron ore (0/min)" | build producer / import |
 | warehouse full | "Planks at capacity (400/400)" | upgrade Trading Post / consume |
 | throttled | "Trading Post overloaded (140 %)" (or "Warehouse …") | Warehouse / upgrade |

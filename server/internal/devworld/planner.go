@@ -75,7 +75,9 @@ func (f *fixture) placeNear(island, typ string, anchor sim.Pos) int64 {
 // placeNearThen is placeNear where a site only counts when then (if set)
 // succeeds on the world with the building placed; a failed then is
 // rolled back and the next site is tried. Sites and roads off the forest
-// come first; only when there is none may they cover forest.
+// come first; only when there is none may they cover forest. A producer
+// that no collector reaches there (D-069) gets a warehouse near it,
+// granted like a farm's materials.
 func (f *fixture) placeNearThen(island, typ string, anchor sim.Pos, then func(id int64) bool) int64 {
 	if f.err != nil {
 		return 0
@@ -87,8 +89,18 @@ func (f *fixture) placeNearThen(island, typ string, anchor sim.Pos, then func(id
 		f.err = nil
 		id = f.placeOnce(island, typ, anchor, then)
 	}
+	if b := f.w.Island(island).Building(id); f.err == nil && b != nil && b.OutOfReach && f.c.BuildingByID[collectorType] != nil {
+		f.grant(island, &f.c.BuildingByID[collectorType].Cost)
+		f.placeNearThen(island, collectorType, sim.Pos{X: b.X, Y: b.Y}, func(int64) bool {
+			pb := f.w.Island(island).Building(id)
+			return pb != nil && !pb.OutOfReach
+		})
+	}
 	return id
 }
+
+// collectorType is the collector the fixtures place for reach (D-069).
+const collectorType = "warehouse"
 
 func (f *fixture) placeOnce(island, typ string, anchor sim.Pos, then func(id int64) bool) int64 {
 	def := f.c.BuildingByID[typ]

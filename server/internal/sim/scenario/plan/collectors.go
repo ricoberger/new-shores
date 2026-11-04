@@ -164,6 +164,30 @@ func (g *gen) collectedSite(island string, def *content.Building, anchor sim.Pos
 	return s, path, fields, true, nil
 }
 
+// collectAfter gives a producer placed beyond every collector's reach a
+// warehouse after all: one its own road now reaches (before the producer
+// stood there, no road came near enough), else a collector upgrade.
+func (g *gen) collectAfter(island string, def *content.Building, s layout.Site) error {
+	w, h := layout.Dims(def, s.Rot)
+	if g.collectorFor(g.world().Island(island), s.X, s.Y, w, h) != nil {
+		return nil
+	}
+	reaches := func(d *content.Building, ws layout.Site) bool {
+		ww, wh := layout.Dims(d, ws.Rot)
+		r := d.ReachAt(1)
+		return rectDist2(ws.X, ws.Y, ww, wh, s.X, s.Y, w, h) <= r*r
+	}
+	placed, err := g.placeCollector(island, def, s, nil, nil, reaches)
+	if err != nil || placed {
+		return err
+	}
+	up, err := g.reachByUpgrade(island, s, w, h)
+	if err == nil && !up {
+		g.logf("collector: %s at (%d,%d) stays beyond reach", def.ID, s.X, s.Y)
+	}
+	return err
+}
+
 // reachByUpgrade upgrades the nearest collector whose next level (its
 // tier unlocked) reaches the footprint at s and reports whether it did.
 func (g *gen) reachByUpgrade(island string, s layout.Site, w, h int) (bool, error) {
