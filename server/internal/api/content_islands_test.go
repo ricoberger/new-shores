@@ -11,9 +11,9 @@ func TestSizeClassPayload(t *testing.T) {
 	}
 	large := p.SizeClasses[0]
 	want := sizeClassJSON{
-		ID: "large", Name: "Large", Size: 192,
+		ID: "large", Name: "Large", Size: 254,
 		Count: rangeJSON{3, 3}, Fertilities: rangeJSON{2, 4}, Deposits: rangeJSON{0, 4},
-		Shape: shapeJSON{Arms: rangeJSON{1, 3}, Plain: 40, Rivers: rangeJSON{1, 2}, Levels: 2, Islets: rangeJSON{3, 6}},
+		Shape: shapeJSON{Arms: rangeJSON{1, 3}, Plain: 52, Rivers: rangeJSON{1, 2}, Levels: 2, Islets: rangeJSON{3, 6}},
 		Home:  true,
 	}
 	if large != want {

@@ -485,12 +485,7 @@
     {
       "found": {
         "ship": 2,
-        "island": "isle-06",
-        "at": [
-          59,
-          107,
-          180
-        ]
+        "island": "isle-06"
       }
     },
     {
@@ -782,6 +777,12 @@
     {
       "civic": {
         "quarter": "home-3",
+        "type": "school-3"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-3",
         "type": "tavern"
       }
     },
@@ -801,13 +802,13 @@
     {
       "civic": {
         "quarter": "home-3",
-        "type": "church"
+        "type": "playhouse-2"
       }
     },
     {
       "civic": {
         "quarter": "home-3",
-        "type": "church-2"
+        "type": "church"
       }
     },
     {
@@ -2245,12 +2246,6 @@
       }
     },
     {
-      "civic": {
-        "quarter": "home-4",
-        "type": "church-2"
-      }
-    },
-    {
       "upgrade": {
         "quarter": "home-4",
         "from": "house_settlers",
@@ -2485,11 +2480,7 @@
       "build": {
         "island": "isle-02",
         "type": "warehouse",
-        "count": 1,
-        "at": [
-          169,
-          52
-        ]
+        "count": 1
       }
     },
     {

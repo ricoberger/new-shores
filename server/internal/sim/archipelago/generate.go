@@ -38,8 +38,8 @@ type Archipelago struct {
 }
 
 // GeneratorVersion identifies the island generator's output; see the rule
-// in the package comment. 2: round islands replaced by D-058 outlines.
-const GeneratorVersion = 2
+// in the package comment. 2: round islands replaced by D-058 outlines; 3: D-072 Anno 117 sizes.
+const GeneratorVersion = 3
 
 // MaxSeed bounds world seeds to 53 bits, so that they survive a JSON
 // number in the client (D-053 display) unchanged.

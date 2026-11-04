@@ -20,7 +20,7 @@ const (
 	ridgeMaxPct      = 20
 	ridgeSmallMinPct = 9
 	ridgeSmallMaxPct = 11
-	ridgeLargeSize   = 96
+	ridgeLargeSize   = 140
 	ridgeFlankPct    = 55
 	// pocketMaxPct bounds the buildable pockets cut off by the massif that
 	// turn to mountain, percent of the land.

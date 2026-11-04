@@ -98,10 +98,6 @@
     {
       "id": "home-2",
       "island": "isle-01",
-      "near": [
-        119,
-        99
-      ],
       "civic": [
         "market",
         "chapel"
@@ -111,10 +107,6 @@
     {
       "id": "home-3",
       "island": "isle-01",
-      "near": [
-        93,
-        22
-      ],
       "civic": [
         "market",
         "chapel",
@@ -136,10 +128,6 @@
     {
       "id": "isle6-1",
       "island": "isle-06",
-      "near": [
-        57,
-        95
-      ],
       "civic": [
         "market",
         "chapel",
@@ -156,10 +144,6 @@
     {
       "id": "home-4",
       "island": "isle-01",
-      "near": [
-        57,
-        46
-      ],
       "civic": [
         "market",
         "chapel",
@@ -181,10 +165,6 @@
     {
       "id": "home-5",
       "island": "isle-01",
-      "near": [
-        105,
-        159
-      ],
       "civic": [
         "market",
         "chapel"
@@ -206,9 +186,9 @@
         "ship": 1,
         "island": "isle-01",
         "at": [
-          163,
-          149,
-          90
+          55,
+          175,
+          0
         ]
       }
     },
@@ -313,7 +293,7 @@
           "ship": 1,
           "to": "isle-02",
           "cargo": {
-            "planks": 40
+            "planks": 45
           }
         }
       }
@@ -327,12 +307,7 @@
     {
       "found": {
         "ship": 1,
-        "island": "isle-02",
-        "at": [
-          214,
-          109,
-          90
-        ]
+        "island": "isle-02"
       }
     },
     {

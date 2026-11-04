@@ -433,16 +433,17 @@ and short hops, the galleon large and slow for bulk. Ship positions and legs fol
 
 | Property | Value |
 |---|---|
-| Habitable islands per archipelago | 12: 3 large (≈ 192×192), 5 medium (≈ 112×112), 4 small (≈ 64×64) |
+| Habitable islands per archipelago | 12: 3 large (≈ 254×254), 5 medium (≈ 165×165), 4 small (≈ 106×106) (D-072) |
 | Resource rocks | 0–2 (≈ 16×16, mountain + coast; Trading Post and mines only) |
 | Skerries | 4–8 per archipelago (class `scenic`, 4–12 tiles of rock with a grass or sand top): scenery only — no sites, fertilities, deposits or name, not settleable, not a destination; land for routing, minimap and far view |
-| Shape per class | arms 1–3 (small 1–2); plain ≥ 40 / 24 / 14 tiles square; rivers 1–2 / 0–1 / 0; terrace levels 2 / 2 / 1; islets 3–6 / 2–5 / 2–4 (large / medium / small; rocks and skerries none) |
+| Shape per class | arms 1–3 (small 1–2); plain ≥ 52 / 32 / 19 tiles square; rivers 1–2 / 0–1 / 0; terrace levels 2 / 2 / 1; islets 3–6 / 2–5 / 2–4 (large / medium / small; rocks and skerries none) |
 | Fertilities per habitable island | 2–4 from the pool (wheat, apple, hemp 3–5 times per archipelago; hops, woad, grapes 2–5 times; provisional) |
 | Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
 | Shallows | water tiles of an island's grid (not river) within 3 tiles (Chebyshev) of its own land, islets excluded; derived from the tiles, the quay's ground (D-060, MECHANICS §3) |
 | Spacing | ≥ 50 tiles between islands, nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
-| Buildable area | 91 000 tiles (coast, grass, forest) per archipelago ± 10 % (≈ 48 % of the 189 696-tile land extents, the share the shape rules give: ≈ 17.7 k per large island, D-054; provisional) |
+| Buildable area | 185 000 tiles (coast, grass, forest) per archipelago ± 10 % (D-072; ≈ 49 % of the 374 617-tile land extents, the share the shape rules give; provisional) |
+| Anno 117 sizes (D-072) | buildable mean over seeds 1–50: large 31 826 (Anno 117: 31 573), medium 13 330 (13 369), small 5 933 (5 860) tiles; ≈ 2 650 / 1 110 / 490 houses at 12 tiles per house |
 | Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
 
 Guarantees per tier are specified in MECHANICS §10. No gating (D-051).
@@ -629,9 +630,9 @@ tier 4: grain_distillery, glass_smelter, copper_smelter, gold_smelter).
 ```json
 {
   "size_classes": [
-    { "id": "large", "name": "Large", "size": 192, "count": { "min": 3, "max": 3 },
+    { "id": "large", "name": "Large", "size": 254, "count": { "min": 3, "max": 3 },
       "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 },
-      "shape": { "arms": { "min": 1, "max": 3 }, "plain": 40, "rivers": { "min": 1, "max": 2 },
+      "shape": { "arms": { "min": 1, "max": 3 }, "plain": 52, "rivers": { "min": 1, "max": 2 },
                  "levels": 2, "islets": { "min": 3, "max": 6 } } },
     { "id": "rock", "size": 16, "rock": true, "…": "…" },
     { "id": "scenic", "name": "Skerry", "size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "…": "…" }

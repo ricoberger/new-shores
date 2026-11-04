@@ -826,7 +826,8 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
 
 - Each archipelago is generated from a **seed stored on the world**
   (D-053) by a pure function of seed and content: **12 habitable islands**
-  (3 large ≈ 192×192, 5 medium ≈ 112×112, 4 small ≈ 64×64 extents) plus
+  (3 large ≈ 254×254, 5 medium ≈ 165×165, 4 small ≈ 106×106 extents;
+  Anno 117 buildable areas, D-072) plus
   0–2 resource rocks (≈ 16×16, mountain and coast only) and 4–8
   **skerries** (below). Each island gets fertilities (2–4 from the pool;
   rocks none), typed deposit slots (0–4) and a harbour area proportional
@@ -844,7 +845,7 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
   with 1–3 arms) through a distance field and warped noise; large and
   medium islands keep at least one bay ≥ 15 % of their span deep and one
   peninsula ≥ 10 % beyond the body. Each keeps **one contiguous plain** on
-  one terrace level (large ≥ 40×40, medium ≥ 24×24, small ≥ 14×14 grass)
+  one terrace level (large ≥ 52×52, medium ≥ 32×32, small ≥ 19×19 grass)
   that the Trading Post and shipyard sites reach by land or bridges.
   - **Mountains** form a massif along a ridge spine (15–20 % of the land
     on large and medium islands, ≈ 10 % on small); where the massif or a
