@@ -62,8 +62,8 @@ export interface paths {
         /**
          * Advance the world to now and apply one command.
          * @description Commands (`command.type`): `place_building`, `place_road`,
-         *     `demolish`, `demolish_road`, `place_field`, `place_fields`,
-         *     `demolish_fields`,
+         *     `demolish`, `demolish_road`, `demolish_roads`, `place_field`,
+         *     `place_fields`, `demolish_fields`,
          *     `set_paused`, `upgrade_building` (deprecated aliases
          *     `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
          *     `move_building`, and the ship and route commands `order_ship`,
@@ -392,8 +392,8 @@ export interface components {
             display: components["schemas"]["DisplayState"];
             /**
              * @description Per-tile outcome of a batch command (`place_fields`,
-             *     `demolish_fields`, D-054), one entry per request tile in
-             *     request order; absent for every other command.
+             *     `demolish_fields`, D-054; `demolish_roads`), one entry per
+             *     request tile in request order; absent for every other command.
              */
             tile_results?: components["schemas"]["TileResult"][];
         };
@@ -517,6 +517,15 @@ export interface components {
          *     unchanged version, no state change and no event (`place_fields`
          *     and `demolish_fields` alike).
          *
+         *     `demolish_roads` is the batch form of `demolish_road` for the
+         *     Demolish tool's rectangle (at most 512 tiles): the tiles with a
+         *     road or a planned road go in one state change, the others are
+         *     reported in `tile_results` (`no_road`, `out_of_bounds`) and
+         *     skipped; without a road under the rectangle it succeeds without a
+         *     change like the field batches. It fails as a whole with 400
+         *     `invalid_command` (no tiles, more than 512, duplicates) or 404
+         *     `unknown_island`.
+         *
          *     `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
          *     or no `island_id` for a quest that rewards goods), 404
          *     `quest_not_found`, `unknown_island`; 409 `quest_not_completed`,
@@ -541,7 +550,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -615,7 +624,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["DemolishRoadsCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -722,6 +731,13 @@ export interface components {
              * @enum {integer}
              */
             rotation: 0 | 90 | 180 | 270;
+            /**
+             * @description Optional, default false. Make a plan instead (D-071, MECHANICS §2 "Planning"): every
+             *     placement rule except the tier lock and the cost; nothing is
+             *     charged; the plan reserves its tiles and is invisible to the
+             *     simulation.
+             */
+            planned?: boolean;
         };
         /**
          * @description The tiles are free tiles, or tiles with a land road of a lower type
@@ -729,6 +745,8 @@ export interface components {
          *     demolition refund is added and the new road's cost is charged for
          *     every tile (MECHANICS §3). A tile with a road of the same or a
          *     higher type, or a quay tile, fails the command with `occupied`.
+         *     Planned road tiles (D-071) under the road are replaced by it; a
+         *     planned road (`planned: true`) goes on free tiles only.
          */
         PlaceRoadCommand: {
             /**
@@ -740,6 +758,13 @@ export interface components {
             /** @description Content building ID with a road block. */
             road_type: string;
             tiles: components["schemas"]["TileList"];
+            /**
+             * @description Optional, default false. Make a plan instead (D-071, MECHANICS §2 "Planning"): every
+             *     placement rule except the tier lock and the cost; nothing is
+             *     charged; the plan reserves its tiles and is invisible to the
+             *     simulation.
+             */
+            planned?: boolean;
         };
         DemolishCommand: {
             /**
@@ -767,6 +792,24 @@ export interface components {
             type: "demolish_road";
             island_id: string;
             tiles: components["schemas"]["TileList"];
+        };
+        /**
+         * @description Demolish the roads and planned roads (D-071) under `tiles`, the
+         *     tiles of the Demolish tool's rectangle, in one state change: a
+         *     road tile with the refund of its road type (50 % of the materials
+         *     per tile, rounded down per tile, no gold), a planned road tile
+         *     free of charge. A tile without either is reported (`no_road`, or
+         *     `out_of_bounds`) and skipped; without a valid tile it succeeds
+         *     unchanged (200, every tile `ok: false`, no event).
+         */
+        DemolishRoadsCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "demolish_roads";
+            island_id: string;
+            tiles: components["schemas"]["FieldTileList"];
         };
         /**
          * @description Place one field of `building_type` from the farm `farm_id` at
@@ -802,8 +845,15 @@ export interface components {
              * @enum {integer}
              */
             rotation?: 0 | 90 | 180 | 270;
+            /**
+             * @description Optional, default false. Make a plan instead (D-071, MECHANICS §2 "Planning"): every
+             *     placement rule except the tier lock and the cost; nothing is
+             *     charged; the plan reserves its tiles and is invisible to the
+             *     simulation.
+             */
+            planned?: boolean;
         };
-        /** @description Tiles of a field batch, without duplicates. */
+        /** @description Tiles of a batch (fields, D-054; roads under a rectangle), without duplicates. */
         FieldTileList: components["schemas"]["Tile"][];
         /**
          * @description Place fields of `building_type` from the farm `farm_id` at every
@@ -840,6 +890,13 @@ export interface components {
              * @enum {integer}
              */
             rotation?: 0 | 90 | 180 | 270;
+            /**
+             * @description Optional, default false. Make a plan instead (D-071, MECHANICS §2 "Planning"): every
+             *     placement rule except the tier lock and the cost; nothing is
+             *     charged; the plan reserves its tiles and is invisible to the
+             *     simulation. The fields of a planned farm are always planned.
+             */
+            planned?: boolean;
         };
         /**
          * @description Demolish the fields of the farm `farm_id` covering `tiles`
@@ -850,7 +907,8 @@ export interface components {
          *     applied in one state change; `tile_results` reports every tile.
          *     Without a valid tile (a rectangle over no field of the farm) it
          *     succeeds like `place_fields`: 200, every tile `ok: false`, the
-         *     unchanged version, no event.
+         *     unchanged version, no event. Planned fields of the farm (D-071)
+         *     are removed free of charge.
          */
         DemolishFieldsCommand: {
             /**
@@ -967,7 +1025,8 @@ export interface components {
          *     island, free of charge (D-042). The building keeps its ID and state;
          *     goods in transit keep arriving. Its own current footprint counts as
          *     free, so a one-tile shift is valid; the identical position is a
-         *     valid no-op.
+         *     valid no-op. A planned building (D-071) moves the same way, without
+         *     tier check; its planned fields stay; a planned field cannot move.
          */
         MoveBuildingCommand: {
             /**
@@ -990,6 +1049,38 @@ export interface components {
              * @enum {integer}
              */
             rotation: 0 | 90 | 180 | 270;
+        };
+        /**
+         * @description Build a plan (D-071) with the normal placement at this instant:
+         *     tier lock, settlement, site and cost, with their error codes
+         *     (`tier_locked`, `insufficient_gold`, `occupied`, ...). Either
+         *     `building_id` — a planned building (a planned farm is built
+         *     together with its planned fields, all or nothing for the cost; a
+         *     planned field whose site is no longer valid stays planned), a
+         *     planned field (its farm's plan, or the planned fields of a real
+         *     farm) or a real farm (its planned fields) — or `x` and `y`, a
+         *     planned road tile: its planned road segment (the 4-connected
+         *     planned road tiles of its road type) is built like `place_road`.
+         *     The built building gets a new building ID. Without a plan there:
+         *     `plan_not_found`. PlanCostDisplay shows the cost and the first
+         *     failing reason in advance.
+         */
+        BuildPlanCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "build_plan";
+            island_id: string;
+            /**
+             * Format: int64
+             * @description Plan ID (PlanDisplay.id) or the ID of a real farm with planned fields; not with x and y.
+             */
+            building_id?: number;
+            /** @description Column of a planned road tile (with y). */
+            x?: number;
+            /** @description Row of a planned road tile (with x). */
+            y?: number;
         };
         /**
          * @description Order a ship at a shipyard (a building with a `shipyard` block that
@@ -1781,6 +1872,17 @@ export interface components {
             roads: components["schemas"]["RoadDisplay"][];
             /** @description Buildings by ascending ID. */
             buildings: components["schemas"]["BuildingDisplay"][];
+            /**
+             * @description Planned buildings and fields by ascending ID (D-071); absent
+             *     when the island has none. Plans are never buildings.
+             */
+            plans?: components["schemas"]["PlanDisplay"][];
+            /**
+             * @description Planned road segments (D-071) in row-major order of their
+             *     first tile; absent when the island has none. Planned road
+             *     tiles are never roads.
+             */
+            planned_roads?: components["schemas"]["PlannedRoadDisplay"][];
             /** @description Workforce pool keyed by tier ID. */
             workforce: {
                 [key: string]: components["schemas"]["WorkforceDisplay"];
@@ -2128,6 +2230,69 @@ export interface components {
             farm_id?: number;
             /** @description Fields only — whether the chain to the farm is intact; `false` has status `not_adjacent`. */
             active?: boolean;
+            /** @description Farms with planned fields only (D-071); `build_plan` on the farm builds them. */
+            planned_fields?: {
+                /** @description Plan IDs of the farm's planned fields, ascending. */
+                ids: number[];
+                plan_cost: components["schemas"]["PlanCostDisplay"];
+            };
+        };
+        /** @description A planned building or field (D-071). */
+        PlanDisplay: {
+            /**
+             * Format: int64
+             * @description Plan ID (from the building ID sequence; `build_plan`, `move_building`, `demolish`).
+             */
+            id: number;
+            /** @description Content building ID. */
+            type: string;
+            /** @description Left column of the rotated footprint (tiles). */
+            x: number;
+            /** @description Top row of the rotated footprint (tiles). */
+            y: number;
+            /**
+             * @description Degrees.
+             * @enum {integer}
+             */
+            rotation: 0 | 90 | 180 | 270;
+            /** @enum {boolean} */
+            planned: true;
+            /**
+             * Format: int64
+             * @description Planned fields only — ID of the farm (a plan or a building).
+             */
+            farm_id?: number;
+            plan_cost?: components["schemas"]["PlanCostDisplay"];
+        };
+        /** @description A planned road segment (D-071), built as one by `build_plan` on any of its tiles. */
+        PlannedRoadDisplay: {
+            /** @description Content building ID of the road type. */
+            type: string;
+            /** @enum {boolean} */
+            planned: true;
+            /** @description The 4-connected planned tiles of this road type, row-major. */
+            tiles: components["schemas"]["Tile"][];
+            plan_cost: components["schemas"]["PlanCostDisplay"];
+        };
+        /**
+         * @description What `build_plan` would cost now (a planned farm: with its planned
+         *     fields) and, when it would fail at the payload's instant, the
+         *     first failing reason as an error code (`tier_locked`,
+         *     `island_not_settled`, a site code such as `occupied`, or
+         *     `insufficient_gold` / `insufficient_materials`). The sites of
+         *     planned fields are not part of the reason.
+         */
+        PlanCostDisplay: {
+            /**
+             * Format: int64
+             * @description Milli-gold.
+             */
+            gold: number;
+            /** @description Milli-units keyed by good ID. */
+            materials: {
+                [key: string]: number;
+            };
+            reason?: components["schemas"]["ErrorCode"];
         };
         Content: {
             /** @description The language of the text fields. */

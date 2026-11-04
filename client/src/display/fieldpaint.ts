@@ -153,6 +153,21 @@ export function paintCountText(plan: PaintPlan): string {
 }
 
 /**
+ * The live count of the Demolish tool's rectangle: the fields (planned ones
+ * included), the planned buildings and the road tiles (planned ones
+ * included) it removes, "Nothing to remove" over none.
+ */
+export function demolishStatus(fields: number, plans: number, roads: number, clipped: boolean): string {
+  const parts = [
+    ...(fields > 0 ? [t("paint.partFields", { count: fields })] : []),
+    ...(plans > 0 ? [t("paint.partPlans", { count: plans })] : []),
+    ...(roads > 0 ? [t("paint.partRoads", { count: roads })] : []),
+  ];
+  const cut = clipped ? t("paint.removeClipped") : "";
+  return parts.length === 0 ? t("paint.removeNothing") + cut : t("paint.demolish", { parts: parts.join(", "), clipped: cut });
+}
+
+/**
  * The fields of the farm `farmId` (any farm: null) a rectangle of tiles
  * covers, and per farm the tiles of the rectangle on its fields (what a
  * demolish_fields sends: a field covered by several tiles goes once).

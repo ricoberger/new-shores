@@ -260,7 +260,7 @@ UI shows the same numbers the server uses.
   Pasture modules (3×3) paint on a 3×3 step grid. **Remove fields** by
   right-click/long-press on Paint (rectangle drag → `demolish_fields`);
   the Demolish tool dragged over fields removes the fields of every farm
-  under it. The ghost is a hint only; the server's per-tile result is
+  under it (and the roads and plans, below). The ghost is a hint only; the server's per-tile result is
   the truth (D-027). The tool stays active until max or Esc/right-click. Inactive fields
   are drawn desaturated with the `not_adjacent` status (and a yellow mark);
   selecting a farm or a field tints its farm and fields green like a
@@ -272,13 +272,21 @@ UI shows the same numbers the server uses.
   public buildings in the Public tab; the trading pier and depot are in
   the Harbor tab, water-edge like the Trading Post (quays count as
   coast; their ghost shows the free shallows tint with the quay tool).
-- Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the service radius ring is not implemented (collectors have a reach ring, below). The ghost tints the houses it would serve (client hint from the content radius; the server's `served_by` is the truth once built): `wouldServe` in `display/served.ts` takes the houses on the ghost's island whose nearest footprint tile is within the level-1 radius (a moved building: its own level) of the ghost's nearest footprint tile; it does not check the road connection or paused state, because the display has no connectivity, so a tinted house may still be unserved. The tint follows the ghost and clears when it leaves the island or the tool closes. The same hint for other ghosts (`ghostRelated`): a house tints the service buildings on its island whose own radius (their current level) reaches it; a Warehouse or Trading Post ghost tints the producers (buildings with a recipe) on the island within its reach at its level (D-069 §1: nearest footprint tiles, the server's measure; a moved one keeps its level), a producer ghost the Warehouses and the Trading Post whose reach at their current level covers it. Who delivers to whom is the nearest of those by road, which the display cannot compute, so the latter two mark candidates in reach, not the assignment (`assigned_warehouse_id` is the truth once built). A **reach ring** (a thin band in the selection yellow, drawn over the scene like the deposit highlight) outlines the reach around a Warehouse or Trading Post ghost, else around the selected one (whose producers are tinted as before); none at the far view. The Trading Post and Warehouse cards list Reach and Upkeep of the current level, and "Upgrade to level N" the next level's reach and upkeep with the lock reason of a level whose tier is not unlocked ("Requires Citizens", like the build-menu tabs).
+- Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`). A **radius ring** in gold (D-071: the colour of plans, apart from the collectors' yellow reach ring below) outlines the service radius around a public building's or the market's ghost (level 1; a moved one at its level), else around the selected one at its current level, the same measure as the reach (nearest footprint tiles, `reachOutline`); none at the far view. The ghost tints the houses it would serve (client hint from the content radius; the server's `served_by` is the truth once built): `wouldServe` in `display/served.ts` takes the houses on the ghost's island whose nearest footprint tile is within the level-1 radius (a moved building: its own level) of the ghost's nearest footprint tile; it does not check the road connection or paused state, because the display has no connectivity, so a tinted house may still be unserved. The tint follows the ghost and clears when it leaves the island or the tool closes. The same hint for other ghosts (`ghostRelated`): a house tints the service buildings on its island whose own radius (their current level) reaches it; a Warehouse or Trading Post ghost tints the producers (buildings with a recipe) on the island within its reach at its level (D-069 §1: nearest footprint tiles, the server's measure; a moved one keeps its level), a producer ghost the Warehouses and the Trading Post whose reach at their current level covers it. Who delivers to whom is the nearest of those by road, which the display cannot compute, so the latter two mark candidates in reach, not the assignment (`assigned_warehouse_id` is the truth once built). A **reach ring** (a thin band in the selection yellow, drawn over the scene like the deposit highlight) outlines the reach around a Warehouse or Trading Post ghost, else around the selected one (whose producers are tinted as before); none at the far view. Reach and radius ring are one ring (`render/reachring.ts`): the ghost's first, else the selected plan's (gold, D-071 §4), else the selected building's. The Trading Post and Warehouse cards list Reach and Upkeep of the current level, and "Upgrade to level N" the next level's reach and upkeep with the lock reason of a level whose tier is not unlocked ("Requires Citizens", like the build-menu tabs).
 - Producers and collectors: selecting a producer tints the Warehouse or Trading Post it delivers to (`assigned_warehouse_id`) green, selecting a Warehouse or Trading Post tints every producer delivering to it, not their fields (`client/src/display/served.ts`, the same selection tint).
 - Confirm on click/tap; the server validates and responds; the ghost becomes
   the building when the response arrives (round-trip ≈ 100 ms; show a brief
   "building" animation regardless).
 - Demolish mode with confirmation for anything costing > 100 gold; refund
-  shown.
+  shown. **Dragging a rectangle** with the Demolish tool removes what is
+  cheap to lay again and never a building: the fields under it (one
+  `demolish_fields` per farm), the plans (D-071) and every road and
+  planned road tile (one `demolish_roads`, MECHANICS §3; 50 % refund per
+  road tile, rounded down per tile), without confirmation. While
+  dragging, the affected footprints and road tiles tint red and the
+  status line counts them ("Remove 3 fields, 1 plan, 12 road tiles";
+  "Nothing to remove" over none). At most 512 tiles, like field
+  painting.
 - **Move** (D-042): "Move" in the info panel (or drag a selected building)
   lifts it into a ghost that follows the pointer with the same validity
   colours; click/tap places it, Esc cancels and the building stays. Free;
@@ -287,8 +295,55 @@ UI shows the same numbers the server uses.
   building (the one under the pointer carries the hover mark), place its
   ghost (validity tint, R rotates; on touch tap and Confirm), and the tool
   comes back for the next building; Esc or a right click leaves it.
-  Same rules as the card's Move: a field shows a toast instead (fields
-  follow their farm), roads are not buildings to pick.
+  Same rules as the card's Move, except that clicking a field picks its
+  farm (fields follow their farm; the hover mark is on the farm too, and
+  a planned field picks its farm or planned farm); roads are not
+  buildings to pick.
+- **Planning** (D-071): the build bar's **planning toggle** (pencil and
+  ruler icon, before Move and Demolish; pressed while on) switches every
+  placement — buildings, road drags, fields painted or tapped — to a
+  **plan**: the same commands with `planned: true` (MECHANICS §2
+  "Planning"), free, without the tier lock, so the cards of a locked
+  tier can be picked while planning (they keep their lock note). The
+  tool hint adds "Planning: this creates a plan" (touch: the placement
+  and road bars start with "Planning ·"). The toggle is a session
+  setting; the plans stay on the server across toggling, sessions and
+  devices. Turning it off ends a build tool of a locked tier. Plans are
+  drawn in the ghost material — the model translucent and untinted (the
+  footprint box while it loads) — with a thin gold outline of the
+  footprint; planned road tiles are translucent slabs with the gold
+  outline along the planned road's edge (`render/plans.ts`). No
+  construction stage, smoke, status badge or life-layer figure, and none
+  at the far view (not in the far mesh or the far road layer). Plans
+  reserve their tiles in the client hints too (`display/plans.ts`): a
+  road drag or field ghost over a plan is red; in planning mode the road
+  drag skips tiles that carry a road or a planned road (a planned road
+  goes on free tiles only), and planned fields chain their farm and
+  count toward its maximum. A real road dragged over a planned road
+  replaces the plan.
+- **Plan cards** (D-071 §4, `ui/PlanCard.tsx`): a click (or long
+  press) at near LOD on a plan opens its card — **"Planned: X"** with
+  "Building costs" in build-menu format (the server's `plan_cost`, a
+  planned farm's fields included; parts the island cannot cover now in
+  red), the server's reason as "Can't build now: …" when building would
+  fail, and **Build · Move · Demolish** (Build is never disabled: the
+  server decides; a built plan selects the new building). A planned
+  farm's card counts its planned fields and paints more (the field tool
+  on the plan: its fields are always planned, free). A planned field's
+  card names its farm and builds the farm's planned fields (no Move: it
+  follows its farm). A planned road tile opens **"Planned road · N
+  tiles"** for its segment (the 4-connected planned tiles of one type):
+  type, cost, reason, Build · Demolish. A real farm with planned fields
+  shows "N planned fields", their cost and **Build planned fields** on
+  its card. A selected plan carries a hover mark; a selected planned
+  Warehouse or Trading Post shows its level-1 reach and a planned
+  public building or market its level-1 radius as a **gold ring**.
+  Plans never count in the served/served-by hints (`display/served.ts`
+  reads `buildings` only). The Move tool picks plans like buildings; the
+  **Demolish tool** removes a clicked plan or planned road tile at once
+  (free, no confirmation), and its rectangle removes the planned
+  buildings and fields under it with the fields and the planned road
+  tiles with the roads (`demolish_roads`).
 - Buildings may be placed without a road; the ghost shows yellow ("not
   connected") rather than red, and the warnings panel lists the building
   until a road reaches it. A producer on a road whose collectors are all

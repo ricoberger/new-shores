@@ -420,8 +420,8 @@ async function nameRoute(page: Page, name: string): Promise<void> {
   await page.getByTestId("route-rename-save").click();
 }
 
-async function tileAt(page: Page, island: string, x: number, y: number): Promise<{ x: number; y: number }> {
-  return page.evaluate(([id, tx, ty]) => window.__newShores!.tileToScreen(id as string, tx as number, ty as number), [island, x, y] as const);
+async function tileAt(page: Page, island: string, x: number, y: number, onGround = false): Promise<{ x: number; y: number }> {
+  return page.evaluate(([id, tx, ty, g]) => window.__newShores!.tileToScreen(id as string, tx as number, ty as number, g as boolean), [island, x, y, onGround] as const);
 }
 
 /** The first farm of a type (default: sheep farm) of the loaded world (island ID and tile). */
@@ -827,7 +827,7 @@ async function openBuildTab(page: Page, type: string): Promise<void> {
 }
 
 /** A ghost of `type` three tiles beside the middle building of `near` (a type prefix) on the island with the most buildings. */
-function linkedGhost(type: string, fixture: Fixture, near: string): { fixture: Fixture; device: Device[]; run: (page: Page) => Promise<void> } {
+function linkedGhost(type: string, fixture: Fixture, near: string, half = 12): { fixture: Fixture; device: Device[]; run: (page: Page) => Promise<void> } {
   return {
     fixture,
     device: ["desktop", "phone"],
@@ -839,7 +839,7 @@ function linkedGhost(type: string, fixture: Fixture, near: string): { fixture: F
         const b = list[Math.floor(list.length / 2)]!;
         return { island: is.id, x: b.x + 3, y: b.y, ox: is.position.x, oy: is.position.y };
       }, near);
-      await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half: 12, rotation: 0 });
+      await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half, rotation: 0 });
       await settle(page);
       if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
       await openBuildTab(page, type);
@@ -852,29 +852,194 @@ function linkedGhost(type: string, fixture: Fixture, near: string): { fixture: F
 }
 
 /** The build bar's Move tool (UI.md §3) on the played fixture: hovering a sawmill ("pick", its hover mark) or after picking it, its ghost a few tiles away ("ghost"). */
-function moveTool(stage: "pick" | "ghost"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+function moveTool(stage: "pick" | "ghost", target: "sawmill" | "field" = "sawmill"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
   return {
     fixture: "played",
     device: "desktop",
     run: async (page) => {
-      const at = await page.evaluate(() => {
+      const at = await page.evaluate((target) => {
         const d = window.__newShores!.getServer()!.display;
         const is = d.islands.reduce((a, b) => (b.buildings.length > a.buildings.length ? b : a));
+        if (target === "field") {
+          // A sheep farm's pasture next to it: the pick is the farm (fields follow their farm).
+          const farm = is.buildings.find((x) => x.type === "sheep_farm" && (x.fields?.ids.length ?? 0) > 0)!;
+          const f = is.buildings.find((x) => x.id === farm.fields!.ids[0])!;
+          return { island: is.id, x: f.x + 1, y: f.y + 1, ox: is.position.x, oy: is.position.y };
+        }
         const list = is.buildings.filter((x) => x.type === "sawmill");
         const b = list[Math.floor(list.length / 2)]!;
         return { island: is.id, x: b.x + 1, y: b.y + 1, ox: is.position.x, oy: is.position.y };
-      });
+      }, target);
       await setCamera(page, { x: at.ox + at.x, y: at.oy + at.y, half: 12, rotation: 0 });
       await settle(page);
       if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
       await page.getByTestId("tool-move").click();
-      const p = await tileAt(page, at.island, at.x, at.y);
+      const p = await tileAt(page, at.island, at.x, at.y, target === "field");
       await page.mouse.move(p.x, p.y);
       if (stage === "pick") return settle(page);
       await page.mouse.click(p.x, p.y);
       const q = await tileAt(page, at.island, at.x + 5, at.y + 2);
       await page.mouse.move(q.x, q.y);
       await page.waitForFunction(() => window.__newShores!.ghostValidity() !== null, undefined, { timeout: 10_000 });
+    },
+  };
+}
+
+/**
+ * The Demolish tool dragged (not released) over the planned dirt street of
+ * the played fixture and the real roads next to it: the road and planned
+ * road tiles under the rectangle tint red, with the plans and fields, and
+ * the status line counts them (one demolish_roads on release).
+ */
+function demolishRoadsDrag(): { fixture: Fixture; device: Device[]; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "played",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      const at = await page.evaluate(() => {
+        const d = window.__newShores!.getServer()!.display;
+        const is = d.islands.find((i) => (i.planned_roads ?? []).length > 0);
+        if (!is) throw new Error("demolish-roads-drag: no planned road");
+        const tiles = is.planned_roads!.flatMap((r) => r.tiles);
+        const xs = tiles.map((t) => t.x);
+        const ys = tiles.map((t) => t.y);
+        const x0 = Math.min(...xs) - 2;
+        const x1 = Math.max(...xs) - 3;
+        // Down from the planned street to the next rows of real road below it.
+        const y0 = Math.min(...ys) - 1;
+        const below = is.roads.filter((r) => r.x >= x0 && r.x <= x1 && r.y > y0).map((r) => r.y);
+        const y1 = Math.min(Math.max(...ys) + 6, Math.max(y0 + 2, ...below.filter((y) => y <= y0 + 8)));
+        return { island: is.id, x0, y0, x1, y1, ox: is.position.x, oy: is.position.y };
+      });
+      await setCamera(page, { x: at.ox + (at.x0 + at.x1) / 2, y: at.oy + (at.y0 + at.y1) / 2, half: HALF.near / 1.5, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await page.getByTestId("tool-demolish").click();
+      await dragTiles(page, at.island, { x: at.x0, y: at.y0 }, { x: at.x1, y: at.y1 }, false);
+      await settle(page);
+      console.log(`demolish roads drag: ${at.island} (${at.x0},${at.y0})..(${at.x1},${at.y1})`);
+    },
+  };
+}
+
+/** The centre of the plans (D-071) of the island with the most plans (island tiles) and the island's position. */
+async function plannedQuarter(page: Page): Promise<{ island: string; x: number; y: number; ox: number; oy: number; free: { x: number; y: number } }> {
+  return page.evaluate(() => {
+    const d = window.__newShores!.getServer()!.display;
+    const count = (i: (typeof d.islands)[number]) => (i.plans ?? []).length + (i.planned_roads ?? []).reduce((n, r) => n + r.tiles.length, 0);
+    const is = d.islands.reduce((a, b) => (count(b) > count(a) ? b : a));
+    // The planned buildings that are not fields (the quarter), else every plan.
+    const quarter = (is.plans ?? []).filter((p) => p.farm_id === undefined && !p.type.endsWith("_farm"));
+    const list = quarter.length > 0 ? quarter : (is.plans ?? []);
+    if (list.length === 0) throw new Error("plannedQuarter: no plans");
+    const xs = list.map((p) => p.x);
+    const ys = list.map((p) => p.y);
+    const x = Math.round((Math.min(...xs) + Math.max(...xs)) / 2) + 1;
+    const y = Math.round((Math.min(...ys) + Math.max(...ys)) / 2) + 1;
+    // A tile beside the quarter for the ghost: left of its westernmost plan (the played quarter backs onto open grass there).
+    const left = Math.min(...xs) - 4;
+    return { island: is.id, x, y, ox: is.position.x, oy: is.position.y, free: { x: left, y } };
+  });
+}
+
+/**
+ * Planning mode (D-071, played fixture): the planned quarter at near zoom
+ * — the plans in the ghost look with their gold outline — and, with
+ * `ghost`, the planning toggle pressed and a house ghost beside the
+ * quarter with the tool hint's planning line.
+ */
+function planningShot(ghost: boolean): { fixture: Fixture; device: Device | Device[]; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "played",
+    device: ghost ? "desktop" : ["desktop", "phone"],
+    run: async (page) => {
+      const q = await plannedQuarter(page);
+      await setCamera(page, { x: q.ox + q.x - (ghost ? 3 : 0), y: q.oy + q.y, half: ghost ? 14 : 16, rotation: 0 });
+      await settle(page);
+      await page.waitForFunction(() => window.__newShores!.planCount() > 0, undefined, { timeout: 10_000 });
+      if (!ghost) return;
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+      await page.getByTestId("tool-plan").click();
+      await openBuildTab(page, "house_settlers");
+      await page.getByTestId("build-house_settlers").click();
+      const p = await tileAt(page, q.island, q.free.x, q.free.y);
+      await page.mouse.move(p.x, p.y);
+      await page.waitForFunction(() => window.__newShores!.ghostValidity() !== null, undefined, { timeout: 10_000 });
+      await page.getByTestId("tool-hint-planning").waitFor({ state: "visible" });
+    },
+  };
+}
+
+/** Turns the last two fields of the played world's first wheat farm into planned fields (demolish, then plan them again). */
+async function planFarmFields(page: Page): Promise<void> {
+  const w = (await (await fetch(`http://localhost:${API_PORT}/api/v1/world`)).json()) as WorldResponse;
+  for (const is of w.display.islands) {
+    const farm = is.buildings.find((b) => b.type === "wheat_farm" && (b.fields?.ids.length ?? 0) >= 2);
+    if (!farm?.fields) continue;
+    const fields = farm.fields.ids.slice(-2).map((id) => is.buildings.find((b) => b.id === id)!);
+    const tiles = fields.map((f) => ({ x: f.x, y: f.y }));
+    for (const c of [
+      { type: "demolish_fields", island_id: is.id, farm_id: farm.id, tiles },
+      { type: "place_fields", island_id: is.id, farm_id: farm.id, building_type: fields[0]!.type, tiles, rotation: fields[0]!.rotation, planned: true },
+    ]) {
+      const err = await harbourCommand(page, c);
+      if (err) throw new Error(`planFarmFields: ${c.type}: ${err}`);
+    }
+    await page.waitForFunction((id) => window.__newShores!.getServer()!.display.islands.some((i) => i.buildings.some((b) => b.id === id && b.planned_fields)), farm.id, { timeout: 15_000 });
+    return;
+  }
+  throw new Error("planFarmFields: no wheat farm with fields");
+}
+
+/**
+ * A plan card (D-071 §4, played fixture, desktop and phone): `plan` the
+ * planned warehouse of the quarter (its gold reach ring), `road` a tile of
+ * the planned street (the segment's card), `farm` the farm with planned
+ * fields (its "Build planned fields" block).
+ */
+function planCardShot(kind: "plan" | "road" | "farm"): { fixture: Fixture; device: Device[]; run: (page: Page) => Promise<void> } {
+  const card = kind === "plan" ? "plan-card" : kind === "road" ? "planned-road-card" : "farm-planned-fields";
+  return {
+    fixture: "played",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      // The played world has no real farm with room for planned fields: the last two fields of a wheat farm are
+      // demolished and planned again through the real API (the farm card's block then lists them).
+      if (kind === "farm") await planFarmFields(page);
+      // Candidate tiles in order: a model in front may cover one, so the next is tried.
+      const target = await page.evaluate((kind) => {
+        const d = window.__newShores!.getServer()!.display;
+        for (const is of d.islands) {
+          const at = (tiles: { x: number; y: number }[]) => ({ island: is.id, ox: is.position.x, oy: is.position.y, tiles });
+          if (kind === "plan") {
+            const p = (is.plans ?? []).find((p) => p.type === "warehouse") ?? (is.plans ?? []).find((p) => p.farm_id === undefined);
+            if (p) return at([{ x: p.x + 1, y: p.y + 1 }]);
+          } else if (kind === "road") {
+            const r = (is.planned_roads ?? [])[0];
+            // From the street's ends inward (the middle may sit behind the quarter's houses).
+            if (r) return at([...r.tiles].sort((a, b) => Math.abs(a.x - r.tiles[0]!.x) - Math.abs(b.x - r.tiles[0]!.x)).filter((_, i) => i < 6));
+          } else {
+            const f = is.buildings.find((b) => b.planned_fields);
+            if (f) return at([{ x: f.x + 1, y: f.y + 1 }]);
+          }
+        }
+        throw new Error(`planCardShot: no ${kind}`);
+      }, kind);
+      const first = target.tiles[0]!;
+      await setCamera(page, { x: target.ox + first.x, y: target.oy + first.y, half: kind === "plan" ? 14 : 10, rotation: 0 });
+      await settle(page);
+      for (const tl of target.tiles) {
+        const p = await tileAt(page, target.island, tl.x, tl.y, true);
+        await page.mouse.click(p.x, p.y);
+        if (await page.getByTestId(card).isVisible()) break;
+        await page.waitForTimeout(300);
+        if (await page.getByTestId(card).isVisible()) break;
+      }
+      await page.getByTestId(card).waitFor({ state: "visible", timeout: 5000 });
+      if (kind === "farm") await page.getByTestId(card).scrollIntoViewIfNeeded();
+      await page.mouse.move(5, 400);
+      await settle(page);
     },
   };
 }
@@ -1418,6 +1583,16 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   // the services reaching it, a warehouse the producers, a sawmill the warehouses and Trading Post.
   "ghost-service": linkedGhost("chapel", "settled", "house_"),
   "ghost-house": linkedGhost("house_settlers", "played", "chapel"),
+  // The gold radius ring (D-071): a market ghost among the houses, and a selected market (desktop and phone).
+  "radius-ring-ghost": linkedGhost("market", "played", "house_", 20),
+  "radius-ring": {
+    fixture: "played",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      await selectBuilding(page, "market", { x: 2, y: 2 }, 20);
+      await page.waitForFunction(() => window.__newShores!.ring() === "gold", undefined, { timeout: 10_000 });
+    },
+  },
   "ghost-warehouse": linkedGhost("warehouse", "played", "sawmill"),
   "ghost-producer": linkedGhost("sawmill", "played", "trading_post"),
   "ghost-water-valid": ghostWater(0),
@@ -1433,6 +1608,18 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   "ghost-terrace-6-invalid": ghostTerrace("market", "no_road"),
   "move-pick": moveTool("pick"),
   "move-ghost": moveTool("ghost"),
+  // The Demolish tool's rectangle over roads and a planned road (red tiles, the status count).
+  "demolish-roads-drag": demolishRoadsDrag(),
+  // The Move tool over a pasture picks its sheep farm: the hover mark on the farm, then the farm's ghost (step 6 of D-071's polish).
+  "move-pick-field": moveTool("pick", "field"),
+  "move-ghost-field": moveTool("ghost", "field"),
+  // Planning mode (D-071): the toggle on with a house ghost beside the played world's planned quarter, and the quarter itself (desktop and phone).
+  "planning-mode": planningShot(true),
+  "planned-quarter": planningShot(false),
+  // Plan cards (D-071 §4): a planned warehouse (gold reach ring), the planned street's card, the farm's planned fields.
+  "plan-card": planCardShot("plan"),
+  "planned-road-card": planCardShot("road"),
+  "farm-planned-fields": planCardShot("farm"),
   // A Merchant house of the merchants fixture selected (D-056 C3), desktop and phone.
   "merchant-house-card": {
     fixture: "merchants",

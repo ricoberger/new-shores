@@ -90,13 +90,22 @@ func TestEnvelopeRoundTripThroughJSONB(t *testing.T) {
 	_, id := newWorld(t, st, time.Hour)
 	ctx := context.Background()
 	var before []byte
-	// Build some state: a sawmill and an advance of one hour.
+	// Build some state: a sawmill, plans and an advance of one hour.
 	_, err := st.Update(ctx, id, func(w *sim.World, _ int64, now time.Time) (bool, error) {
 		if _, err := sim.Advance(w, catalogue(t), now); err != nil {
 			return false, err
 		}
 		if err := sim.Apply(w, catalogue(t), sim.PlaceBuilding{IslandID: "start", Type: "sawmill", X: 10, Y: 5, Rotation: 180}); err != nil {
 			return false, err
+		}
+		// Plans (D-071) are part of the stored state.
+		for _, cmd := range []sim.Command{
+			sim.PlaceBuilding{IslandID: "start", Type: "sheep_farm", X: 14, Y: 5, Planned: true},
+			sim.PlaceRoad{IslandID: "start", Type: "road_dirt", Tiles: []sim.Pos{{X: 3, Y: 4}, {X: 4, Y: 4}}, Planned: true},
+		} {
+			if err := sim.Apply(w, catalogue(t), cmd); err != nil {
+				return false, err
+			}
 		}
 		var err error
 		before, err = sim.Encode(w, catalogue(t).Region.Version)
@@ -127,6 +136,9 @@ func TestEnvelopeRoundTripThroughJSONB(t *testing.T) {
 	}
 	if !bytes.Equal(before, after) {
 		t.Fatalf("envelope changed through JSONB:\n%s\n%s", before, after)
+	}
+	if is := w.Island("start"); len(is.Plans) != 1 || len(is.PlannedRoads) != 2 {
+		t.Fatalf("plans lost: %+v %v", is.Plans, is.PlannedRoads)
 	}
 	if schemaVersion != sim.SchemaVersion || !lastEval.Equal(w.LastEvaluatedAt) {
 		t.Fatalf("schema_version %d, last_evaluated_at %s vs %s", schemaVersion, lastEval, w.LastEvaluatedAt)

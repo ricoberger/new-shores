@@ -10,6 +10,8 @@ interface Props {
   hint: string | null;
   /** The live count of a painted field rectangle (D-054), or null. */
   paintStatus?: string | null;
+  /** Planning mode (D-071): the placement creates a plan (marked before the text). */
+  planning?: boolean;
   onConfirm: () => void;
   onRotate: () => void;
   onCancel: () => void;
@@ -21,7 +23,7 @@ interface Props {
  * pending; the ghost's validity colour is drawn in the scene and its
  * reason is repeated here.
  */
-export function PlacementBar({ tool, hint, paintStatus = null, onConfirm, onRotate, onCancel }: Props) {
+export function PlacementBar({ tool, hint, paintStatus = null, planning = false, onConfirm, onRotate, onCancel }: Props) {
   const what = tool.kind === "move" ? t("placement.move") : tool.kind === "found" ? t("placement.found") : tool.kind === "field" ? t("placement.field") : t("placement.place");
   const removing = tool.kind === "field" && tool.remove === true;
   let text = removing
@@ -32,9 +34,15 @@ export function PlacementBar({ tool, hint, paintStatus = null, onConfirm, onRota
   if (tool.pending && !removing) text = hint ?? t("placement.ask", { what, x: tool.pending.x, y: tool.pending.y });
   // A rectangle being painted: its live count.
   if (paintStatus) text = paintStatus;
+  const plans = planning && (tool.kind === "build" || (tool.kind === "field" && !removing));
   return (
     <div className={`${styles.panel} ${styles.toolBar}`} role="toolbar" aria-label={t("placement.label")} data-testid="placement-bar">
       <span className={`${styles.toolBarText} ${tool.pending && hint && !paintStatus && !removing ? styles.lock : ""}`} data-testid="placement-hint">
+        {plans && (
+          <span className={styles.withIcon} data-testid="placement-planning">
+            <Icon path={toolIcon("plan")} /> {t("placement.planning")}{" "}
+          </span>
+        )}
         {text}
       </span>
       <div className={styles.toolBarButtons}>
@@ -70,10 +78,17 @@ export function DemolishBar({ onDone }: { onDone: () => void }) {
 }
 
 /** The road tool on touch: drag to draw; Done leaves the tool (there is no right click). */
-export function RoadBar({ onDone }: { onDone: () => void }) {
+export function RoadBar({ onDone, planning = false }: { onDone: () => void; planning?: boolean }) {
   return (
     <div className={`${styles.panel} ${styles.toolBar}`} role="status" data-testid="road-bar">
-      <span className={styles.toolBarText}>{t("placement.road")}</span>
+      <span className={styles.toolBarText}>
+        {planning && (
+          <span className={styles.withIcon} data-testid="placement-planning">
+            <Icon path={toolIcon("plan")} /> {t("placement.planning")}{" "}
+          </span>
+        )}
+        {t("placement.road")}
+      </span>
       <button type="button" className={styles.button} onClick={onDone} data-testid="road-done">
         {t("common.done")}
       </button>

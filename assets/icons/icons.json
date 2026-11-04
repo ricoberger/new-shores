@@ -689,6 +689,13 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/move.svg",
       "sha256": "90f5994ee2d8e12da8964c20717b57e23e76dc66431ab60c08d7c3078c56b588"
     },
+    "tool:plan": {
+      "file": "pencil-ruler.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/pencil-ruler.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/pencil-ruler.svg",
+      "sha256": "66c777e165f4227072725d6b2ca4423539f8ef393f99abda83204e8e240b5541"
+    },
     "tool:rotate": {
       "file": "clockwise-rotation.svg",
       "author": "Delapouite",

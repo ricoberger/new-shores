@@ -37,6 +37,12 @@ var (
 	ErrFieldNeedsFarm    = errors.New("fields are placed from their farm")
 )
 
+// Sentinel errors of plans (D-071).
+var (
+	// ErrPlanNotFound: BuildPlan names no plan (ID or planned road tile).
+	ErrPlanNotFound = errors.New("plan not found")
+)
+
 // Sentinel errors of the population and economy rules.
 var (
 	ErrTierLocked         = errors.New("tier locked")

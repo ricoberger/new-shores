@@ -38,6 +38,7 @@ export type ToolIcon =
   | "resume"
   | "upgrade"
   | "move"
+  | "plan"
   | "rotate"
   | "confirm"
   | "cancel"

@@ -1,0 +1,119 @@
+{
+  "name": "roads_demolish_rect",
+  "description": "The Demolish tool's rectangle (demolish_roads): a lumberjack delivers over a paved road to the Trading Post, a planned dirt road runs below it. A rectangle over no road changes nothing. The rectangle x 5..7, y 3..6 removes the three paved tiles and the three planned tiles under it in one command and skips the other tiles; the paved tiles refund 50 % of their materials per tile, rounded down per tile (1 stone \u2192 none), the planned ones go for free, and the lumberjack is cut off from the Trading Post (not connected, its buffer fills).",
+  "content": "server/testdata/content/old_coast_pre_d054",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~",
+      "~~~~~...ffffff.~",
+      "~.......ffffff.~",
+      "~.......ffffff.~",
+      "~..............~",
+      "~.......ffffff.~",
+      "~.......ffffff.~",
+      "~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "gold": 1001,
+    "workforce": {
+      "settlers": 1000
+    },
+    "stock": {
+      "planks": 5,
+      "stone": 20
+    },
+    "unlocked_tiers": [
+      "citizens"
+    ]
+  },
+  "steps": [
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          10,
+          2
+        ],
+        "rect": [
+          12,
+          2,
+          12,
+          3
+        ],
+        "count": 1
+      }
+    },
+    {
+      "road": {
+        "type": "road_paved",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          9,
+          3
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          6
+        ],
+        "to": [
+          9,
+          6
+        ],
+        "planned": true
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "demolish_roads": {
+        "rect": [
+          2,
+          8,
+          9,
+          8
+        ]
+      }
+    },
+    {
+      "demolish_roads": {
+        "rect": [
+          5,
+          3,
+          7,
+          6
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    }
+  ]
+}

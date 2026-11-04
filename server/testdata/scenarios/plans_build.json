@@ -1,0 +1,237 @@
+{
+  "name": "plans_build",
+  "description": "Planning mode (D-071): a planned sheep farm with two planned pastures costs nothing and reserves its footprint: a sawmill on the plan or on a planned pasture fails (occupied), a real sawmill moved onto the plan fails (occupied), the plan cannot move onto the sawmill (occupied) but moves for free elsewhere and back. A bakery of the locked Citizens tier can be planned; building it fails with tier_locked and leaves the world unchanged. Building the farm's plan (from one of its planned pastures) places the farm with the normal placement (cost charged) together with its planned pastures, which are active at once. A planned pasture painted next to the real farm is built from the farm (build_plan on the farm). A further planned pasture is removed with the farm when the farm is demolished; a sawmill then stands where it was.",
+  "content": "server/testdata/content/old_coast_pre_d054",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~........................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "gold": 1002,
+    "workforce": {
+      "settlers": 1000
+    },
+    "stock": {
+      "planks": 40
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          28,
+          4
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 8,
+        "y": 1,
+        "rotation": 0,
+        "planned": true
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          8,
+          1
+        ],
+        "tiles": [
+          [
+            11,
+            1
+          ],
+          [
+            13,
+            1
+          ]
+        ],
+        "planned": true,
+        "count": 2
+      }
+    },
+    {
+      "expect_error": "occupied",
+      "place": {
+        "type": "sawmill",
+        "x": 9,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "expect_error": "occupied",
+      "place": {
+        "type": "sawmill",
+        "x": 13,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 20,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "expect_error": "occupied",
+      "move": {
+        "x": 20,
+        "y": 2,
+        "to_x": 9,
+        "to_y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "expect_error": "occupied",
+      "move": {
+        "x": 8,
+        "y": 1,
+        "to_x": 19,
+        "to_y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "move": {
+        "x": 8,
+        "y": 1,
+        "to_x": 8,
+        "to_y": 5,
+        "rotation": 90
+      }
+    },
+    {
+      "move": {
+        "x": 8,
+        "y": 5,
+        "to_x": 8,
+        "to_y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "bakery",
+        "x": 24,
+        "y": 1,
+        "rotation": 0,
+        "planned": true
+      }
+    },
+    {
+      "expect_error": "tier_locked",
+      "build_plan": {
+        "x": 24,
+        "y": 1
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "build_plan": {
+        "x": 11,
+        "y": 1
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          8,
+          1
+        ],
+        "tiles": [
+          [
+            6,
+            1
+          ]
+        ],
+        "planned": true,
+        "count": 1
+      }
+    },
+    {
+      "build_plan": {
+        "x": 8,
+        "y": 1
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          8,
+          1
+        ],
+        "tiles": [
+          [
+            15,
+            1
+          ]
+        ],
+        "planned": true,
+        "count": 1
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "demolish": {
+        "x": 8,
+        "y": 1
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 15,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    }
+  ]
+}

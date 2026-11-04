@@ -77,6 +77,12 @@ export const GHOST_NO_ROAD = c3(STATUS.ghost_no_road);
  */
 export const GHOST_INVALID = c3(STATUS.ghost_invalid);
 export const SELECTION = c3(STATUS.selection);
+/**
+ * Gold (D-071): the outline of a plan and the service radius ring — the
+ * buildings' brass lifted toward the selection yellow, so it reads on
+ * grass and sand and stays apart from the yellow selection and reach ring.
+ */
+export const GOLD = mix(BUILDINGS.brass, STATUS.selection, 0.4);
 /** Water rows of a water-edge ghost (D-051): the foam colour, a light strip on the sea. */
 export const WATER_ROWS = c3(WATER.foam);
 /** Chain outline: an active field of the selected farm (D-051 part 4). */

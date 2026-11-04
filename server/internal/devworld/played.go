@@ -16,7 +16,8 @@ import (
 
 // FixturePlayed is the Patricians reference game (PlayedScenario) replayed
 // to its end, which lies at now: a town grown by play rather than by a
-// fixture layout (shots of a lived-in island). It needs the scenario's
+// fixture layout (shots of a lived-in island), with plans (D-071,
+// planPlayed). It needs the scenario's
 // archipelago seed (DevSeed; another seed is ErrFixtureSeed) and the
 // scenario directory (Options.Scenarios; without it ErrFixtureSeed too).
 const FixturePlayed = "played"
@@ -97,6 +98,9 @@ func played(c *content.Catalogue, seed uint64, now time.Time, opts Options) (*si
 	}
 	if w.LastEvaluatedAt.After(now) {
 		return nil, errors.New("dev fixture played: the replay ends after now")
+	}
+	if err := planPlayed(c, w); err != nil {
+		return nil, fmt.Errorf("dev fixture %s: plans: %w", FixturePlayed, err)
 	}
 	if _, err := sim.Advance(w, c, now); err != nil {
 		return nil, fmt.Errorf("dev fixture %s: %w", FixturePlayed, err)

@@ -1,6 +1,8 @@
 // The reach ring (UI.md §3, D-069 §1): the outline of a collector's reach
 // (display/served.ts reachOutline) as a thin band in the selection yellow,
-// around a Warehouse or Trading Post ghost or the selected one. Like the
+// around a Warehouse or Trading Post ghost or the selected one; in gold the
+// service radius of a public building or the market and a plan's ring
+// (D-071). Like the
 // deposit highlight it is drawn after the scene (rendering group 1, depth
 // cleared) so terrain and models never hide it. One mesh, rebuilt when the
 // outline changes; world coordinates; never pickable.
@@ -9,7 +11,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
-import { SELECTION } from "./palette";
+import { GOLD, SELECTION } from "./palette";
 
 /** A point of the ring: scene x, z and the height of the ground under it (tiles). */
 export interface RingPoint {
@@ -67,8 +69,12 @@ export class ReachRing {
     this.mesh.setEnabled(false);
   }
 
-  /** Draws the ring through the points (key: rebuilt only when it changes); null hides it. */
-  set(key: string, points: readonly RingPoint[] | null): void {
+  /**
+   * Draws the ring through the points (key: rebuilt only when it changes);
+   * null hides it. `gold`: the plan and service radius colour (D-071),
+   * else the selection yellow of a collector's reach.
+   */
+  set(key: string, points: readonly RingPoint[] | null, gold = false): void {
     if (!points || points.length < 3) {
       this.key = "";
       this.mesh.setEnabled(false);
@@ -76,6 +82,7 @@ export class ReachRing {
     }
     if (key === this.key) return;
     this.key = key;
+    (this.mesh.material as StandardMaterial).emissiveColor = gold ? GOLD : SELECTION;
     const { positions, indices } = ringBand(points);
     const data = new VertexData();
     data.positions = positions;
@@ -88,5 +95,10 @@ export class ReachRing {
   /** Whether the ring is drawn (tests and shots). */
   shown(): boolean {
     return this.mesh.isEnabled();
+  }
+
+  /** Whether the drawn ring is the gold one (tests and shots). */
+  gold(): boolean {
+    return this.mesh.isEnabled() && (this.mesh.material as StandardMaterial).emissiveColor.equals(GOLD);
   }
 }

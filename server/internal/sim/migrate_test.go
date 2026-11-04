@@ -15,18 +15,18 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// TestSchemaMigrationsRegistered: schema 14 (D-069 collector reach) registers no
-// migration: envelopes of schema 1-13 (the game was not
+// TestSchemaMigrationsRegistered: schema 15 (D-071 plans) registers the
+// one migration 14 -> 15; envelopes of schema 1-13 (the game was not
 // deployed), envelopes without a version and newer ones fail loudly with
 // ErrSchemaVersion.
 func TestSchemaMigrationsRegistered(t *testing.T) {
 	m := SchemaMigrations(catalogue(t))
-	if SchemaVersion != 14 || len(m) != 0 {
+	if SchemaVersion != 15 || len(m) != 1 || m[14] == nil {
 		t.Fatalf("SchemaVersion %d with %d migrations: add migration tests", SchemaVersion, len(m))
 	}
 	for _, raw := range []string{
 		`{"schema_version":0,"content_version":"x","world":{}}`,
-		`{"schema_version":15,"content_version":"x","world":{}}`,
+		`{"schema_version":16,"content_version":"x","world":{}}`,
 		`{"schema_version":13,"content_version":"old_coast-0.17.0","world":{}}`,
 		`{"schema_version":12,"content_version":"old_coast-0.16.0","world":{}}`,
 		`{"schema_version":11,"content_version":"old_coast-0.15.0","world":{}}`,
@@ -74,6 +74,66 @@ func TestOldSchemaFixturesFailToLoad(t *testing.T) {
 				t.Errorf("%s: err = %v, want ErrSchemaVersion", f, err)
 			}
 		}
+	}
+}
+
+// TestMigrate14to15: every committed schema-14 envelope (before the D-071
+// plans) decodes through the registered migration into a world without
+// plans that re-encodes as schema 15 with the same world JSON, and
+// advances and displays.
+func TestMigrate14to15(t *testing.T) {
+	catalogues := map[string]*content.Catalogue{}
+	for _, c := range []*content.Catalogue{catalogue(t), shippedCatalogue(t)} {
+		catalogues[c.Region.Version] = c
+	}
+	files, err := filepath.Glob(filepath.Join("testdata", "schema14_*.json"))
+	if err != nil || len(files) < 3 {
+		t.Fatalf("schema 14 fixtures %v (%v)", files, err)
+	}
+	for _, f := range files {
+		t.Run(filepath.Base(f), func(t *testing.T) {
+			data, err := os.ReadFile(f) // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			terrain, err := os.ReadFile(strings.TrimSuffix(f, ".json") + ".terrain.gz") // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			var c *content.Catalogue
+			for key, cat := range catalogues {
+				if bytes.Contains(data, []byte(`"content_version":"`+key+`"`)) {
+					c = cat
+				}
+			}
+			if c == nil {
+				t.Fatal("no catalogue for the fixture's content version")
+			}
+			w, cv, _, err := DecodeState(data, terrain, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, is := range w.Islands {
+				if len(is.Plans) != 0 || len(is.PlannedRoads) != 0 {
+					t.Fatalf("island %s has plans after the migration", is.ID)
+				}
+			}
+			state, _, err := EncodeState(w, cv)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := bytes.Replace(bytes.TrimSuffix(data, []byte("\n")), []byte(`"schema_version":14`), []byte(`"schema_version":15`), 1)
+			if !bytes.Equal(state, want) {
+				t.Fatal("the migrated world differs from the schema-14 world")
+			}
+			end := w.LastEvaluatedAt.Add(time.Hour)
+			if _, err := Advance(w, c, end); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := Display(w, c, end); err != nil {
+				t.Fatal(err)
+			}
+		})
 	}
 }
 

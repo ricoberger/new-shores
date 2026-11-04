@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding, DisplayState } from "../api/client";
 import { loadContent } from "../almanac/testContent";
 import { rotatedFootprint } from "./geometry";
-import { collectorReach, ghostRelated, reachOutline, servedRelated, wouldServe } from "./served";
+import { collectorReach, ghostRelated, reachOutline, servedRelated, serviceRadius, wouldServe } from "./served";
 
 const b = (id: number, extra: Record<string, unknown> = {}) => ({ id, ...extra }) as unknown as BuildingDisplay;
 const chapel = { service: { radius: 16 } } as unknown as ContentBuilding;
@@ -168,5 +168,30 @@ describe("ghostRelated (ghost hint, D-027)", () => {
     expect(ghostRelated(ghost("road_dirt"), content, base)).toEqual([]);
     expect(ghostRelated(ghost("shipyard"), content, base)).toEqual([]);
     expect(ghostRelated({ ...ghost("sawmill"), island: "nowhere" }, content, base)).toEqual([]);
+  });
+});
+
+describe("plans in the served hints (D-071)", () => {
+  const isle = base.islands.find((is) => is.id === "isle-01")!;
+
+  it("ignore plans: a planned house in a chapel ghost's radius is not tinted, a planned chapel serves nobody", () => {
+    const chapelGhost = { type: "chapel", island: "isle-01", x: 0, y: 0, rotation: 0 };
+    const plain = ghostRelated(chapelGhost, content, base);
+    // Plans live in their own array: the hint reads `buildings` only.
+    const planned = { ...isle, plans: [{ id: 9001, type: "house_settlers", x: 1, y: 1, rotation: 0 as const, planned: true }] };
+    const withPlans = { ...base, islands: base.islands.map((is) => (is.id === "isle-01" ? planned : is)) };
+    expect(ghostRelated(chapelGhost, content, withPlans)).toEqual(plain);
+    const house = isle.buildings.find((b) => b.type === "house_settlers")!;
+    expect(servedRelated(house, isle.buildings, def("house_settlers"))).not.toContain(9001);
+  });
+});
+
+describe("serviceRadius", () => {
+  it("is a public building's (or the market's) radius at a level, null for anything else", () => {
+    expect(serviceRadius(def("market"), 1)).toBe(def("market").service!.levels[0]!.radius);
+    expect(serviceRadius(def("market"), 2)).toBe(def("market").service!.levels[1]!.radius);
+    expect(serviceRadius(chapel)).toBe(16);
+    expect(serviceRadius(producer)).toBeNull();
+    expect(serviceRadius(def("warehouse"))).toBeNull();
   });
 });

@@ -15,31 +15,54 @@ type Command interface{ isCommand() }
 // PlaceBuilding places a building. A building type with a road block is
 // placed as a single road tile (see PlaceRoad). Placement never requires a
 // road (D-042): a building without an adjacent road is not connected.
+//
+// Planned (D-071) creates a plan instead (plans.go): the same placement
+// rules except the tier lock and the cost; nothing is charged.
 type PlaceBuilding struct {
 	IslandID string
 	Type     string
 	X, Y     int
 	Rotation int
+	Planned  bool
 }
 
-// PlaceRoad places road tiles of one road type, all or nothing.
+// PlaceRoad places road tiles of one road type, all or nothing. A road
+// tile on a planned road replaces the plan (D-071). Planned places
+// planned road tiles instead (plans.go): free, without the tier lock,
+// only on free tiles.
 type PlaceRoad struct {
 	IslandID string
 	Type     string
 	Tiles    []Pos
+	Planned  bool
 }
 
 // Demolish removes a building. When removing a warehouse would leave more
 // goods than the remaining capacity, the command fails with ErrSurplusLoss
-// unless AcceptSurplusLoss is set.
+// unless AcceptSurplusLoss is set. BuildingID may name a plan (D-071): the
+// plan is removed for free (a planned farm with its planned fields).
 type Demolish struct {
 	IslandID          string
 	BuildingID        int64
 	AcceptSurplusLoss bool
 }
 
-// DemolishRoad removes road tiles, all or nothing.
+// DemolishRoad removes road tiles, all or nothing; a planned road tile
+// (D-071) is removed for free.
 type DemolishRoad struct {
+	IslandID string
+	Tiles    []Pos
+}
+
+// DemolishRoads is the batch form of DemolishRoad for the Demolish tool's
+// rectangle (UI.md §3): every tile with a road or a planned road (D-071)
+// is removed in one state change, a road tile with the refund of its road
+// type (50 % of the materials per tile, rounded down per tile), a planned
+// one for free. A tile without either is rejected (ErrNoRoad, or
+// ErrOutOfBounds) and skipped. Like DemolishFields, when no tile is valid
+// the command still succeeds without a state change (Result.Unchanged).
+// Duplicate tiles or more than MaxFieldTiles fail the whole command.
+type DemolishRoads struct {
 	IslandID string
 	Tiles    []Pos
 }
@@ -90,7 +113,9 @@ type UpgradeTradingPost struct {
 // MoveBuilding moves a building to another position and rotation on the
 // same island, free of charge (MECHANICS §2, D-042). X, Y is the top-left
 // tile of the rotated footprint. The building keeps its ID and all state;
-// goods in transit keep arriving. Roads cannot be moved.
+// goods in transit keep arriving. Roads cannot be moved. BuildingID may
+// name a planned building (D-071): the plan moves for free under the
+// plan rules.
 type MoveBuilding struct {
 	IslandID   string
 	BuildingID int64
@@ -103,6 +128,7 @@ func (MoveBuilding) isCommand()       {}
 func (PlaceRoad) isCommand()          {}
 func (Demolish) isCommand()           {}
 func (DemolishRoad) isCommand()       {}
+func (DemolishRoads) isCommand()      {}
 func (SetPaused) isCommand()          {}
 func (UpgradeHouse) isCommand()       {}
 func (UpgradeBuilding) isCommand()    {}
@@ -127,10 +153,10 @@ func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) err
 }
 
 // Result is the outcome of a successful command beyond the world change:
-// the per-tile results of a batch command (PlaceFields, DemolishFields;
-// nil for every other command). Unchanged is set when the command
-// succeeded without changing the world (a PlaceFields or DemolishFields
-// without a valid tile): there is nothing to commit or publish.
+// the per-tile results of a batch command (PlaceFields, DemolishFields,
+// DemolishRoads; nil for every other command). Unchanged is set when the
+// command succeeded without changing the world (a batch without a valid
+// tile): there is nothing to commit or publish.
 type Result struct {
 	Tiles     []TileResult
 	Unchanged bool
@@ -172,6 +198,11 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Resul
 		err = demolish(w, c, cmd, l)
 	case DemolishRoad:
 		err = demolishRoad(w, c, cmd, l)
+	case DemolishRoads:
+		res.Tiles, err = demolishRoads(w, c, cmd, l)
+		res.Unchanged = err == nil && noTileApplied(res.Tiles)
+	case BuildPlan:
+		err = buildPlan(w, c, cmd, l)
 	case PlaceField:
 		err = placeField(w, c, cmd, true, l)
 	case PlaceFields:
@@ -334,7 +365,7 @@ func checkTiles(is *Island, occ []int64, tiles []Pos, also string) error {
 		if t := is.Tiles[i].Terrain; !buildableTerrain(t) && (also == allowNone || t != also) {
 			return fmt.Errorf("%w: (%d,%d) is %s", ErrTerrain, p.X, p.Y, is.Tiles[i].Terrain)
 		}
-		if occ[i] != 0 || is.Roads[i] != "" {
+		if occ[i] != 0 || is.roadOrPlan(i) {
 			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
 		}
 	}
@@ -436,7 +467,11 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if charge && def.House != nil && def.House.Tier != c.Tiers[0].ID {
 		return fmt.Errorf("%w: %s (upgrade a full house of the previous tier)", ErrUpgradeOnly, def.ID)
 	}
-	if charge && !TierUnlocked(w, c, def.Tier) {
+	if cmd.Planned && !charge {
+		return fmt.Errorf("%w: plans are player commands", ErrInvalidCommand)
+	}
+	// A plan may be of a locked tier (D-071 §2); building it checks.
+	if charge && !cmd.Planned && !TierUnlocked(w, c, def.Tier) {
 		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
 	}
 	// Only FoundIsland (and seeding) places the Trading Post of an island
@@ -457,7 +492,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 		if !charge {
 			return fmt.Errorf("%w: roads cannot be placed free", ErrInvalidCommand)
 		}
-		return placeRoad(w, c, PlaceRoad{IslandID: cmd.IslandID, Type: cmd.Type, Tiles: []Pos{{cmd.X, cmd.Y}}}, l)
+		return placeRoad(w, c, PlaceRoad{IslandID: cmd.IslandID, Type: cmd.Type, Tiles: []Pos{{cmd.X, cmd.Y}}, Planned: cmd.Planned}, l)
 	}
 	if !validRotation(cmd.Rotation) {
 		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, cmd.Rotation)
@@ -471,6 +506,10 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 		if err := checkHarbourAfter(is, c, def, at, -1); err != nil {
 			return err
 		}
+	}
+	if cmd.Planned {
+		addPlan(w, is, &Building{Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation})
+		return nil
 	}
 	if charge {
 		if err := checkCost(w, is, def.Cost, 1); err != nil {
@@ -554,12 +593,12 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 			case s.occ[i] != 0:
 				return false
 			case waterAt(def, depths, x, y, rotation, tx, ty):
-				if t != content.TerrainWater || is.Roads[i] != "" {
+				if t != content.TerrainWater || is.roadOrPlan(i) {
 					return false
 				}
 			case standsOnQuay(def) && quayAt(is, s.c, i):
 				// A quay counts as coast (D-060).
-			case is.Roads[i] != "" || (!buildableTerrain(t) && (!mountain || t != content.TerrainMountain)):
+			case is.roadOrPlan(i) || (!buildableTerrain(t) && (!mountain || t != content.TerrainMountain)):
 				return false
 			}
 		}
@@ -619,7 +658,7 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 		if is.Tiles[i].Terrain != content.TerrainWater {
 			return fmt.Errorf("%w: %s at (%d,%d): front tile (%d,%d) is %s", ErrNotOnWater, def.ID, x, y, p.X, p.Y, is.Tiles[i].Terrain)
 		}
-		if occ[i] != 0 || is.Roads[i] != "" {
+		if occ[i] != 0 || is.roadOrPlan(i) {
 			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
 		}
 	}
@@ -665,6 +704,9 @@ func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
 	}
 	b := is.Building(cmd.BuildingID)
 	if b == nil {
+		if p := is.Plan(cmd.BuildingID); p != nil {
+			return movePlan(is, c, p, cmd)
+		}
 		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, cmd.BuildingID, cmd.IslandID)
 	}
 	if !validRotation(cmd.Rotation) {
@@ -716,26 +758,52 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 	if def.Road == nil {
 		return fmt.Errorf("%w: %q is not a road", ErrInvalidCommand, cmd.Type)
 	}
+	if cmd.Planned {
+		return planRoad(c, is, def, cmd)
+	}
 	if !TierUnlocked(w, c, def.Tier) {
 		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
 	}
 	if !settled(is, c) {
 		return fmt.Errorf("%w: %q", ErrIslandNotSettled, is.ID)
 	}
-	if len(cmd.Tiles) == 0 {
+	if err := checkRoadTiles(cmd.Tiles); err != nil {
+		return err
+	}
+	// A road replaces planned road tiles under it (D-071): the planned
+	// tiles count as free for the checks.
+	planned := *is
+	planned.PlannedRoads = nil
+	if err := checkRoadSite(&planned, c, def, cmd.Tiles); err != nil {
+		return err
+	}
+	return applyRoad(w, c, is, def, cmd.Tiles, l)
+}
+
+// checkRoadTiles validates the tile list of a road command: not empty,
+// no duplicates.
+func checkRoadTiles(tiles []Pos) error {
+	if len(tiles) == 0 {
 		return fmt.Errorf("%w: no tiles", ErrInvalidCommand)
 	}
 	seen := map[Pos]bool{}
-	for _, p := range cmd.Tiles {
+	for _, p := range tiles {
 		if seen[p] {
 			return fmt.Errorf("%w: duplicate tile (%d,%d)", ErrInvalidCommand, p.X, p.Y)
 		}
 		seen[p] = true
 	}
+	return nil
+}
+
+// checkRoadSite validates road tiles of type def on the island: quays on
+// free shallows that keep the harbour open, land roads on free buildable
+// land or straight bridges, where a road of a lower type is replaced.
+func checkRoadSite(is *Island, c *content.Catalogue, def *content.Building, tiles []Pos) error {
 	if def.Road.Shallows {
 		// A quay (D-060) stands on free shallows and keeps the harbour
 		// open (quay.go).
-		if err := checkQuayTiles(is, is.occupancy(c), cmd.Tiles); err != nil {
+		if err := checkQuayTiles(is, is.occupancy(c), tiles); err != nil {
 			return err
 		}
 		tmp := *is
@@ -743,34 +811,42 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 		if tmp.Roads == nil {
 			tmp.Roads = map[int]string{}
 		}
-		for _, p := range cmd.Tiles {
+		for _, p := range tiles {
 			tmp.Roads[is.index(p.X, p.Y)] = def.ID
 		}
 		if !harbourRoutable(c, &tmp) {
 			return fmt.Errorf("%w: the quay would close the harbour of %q", ErrHarbourBlocked, is.ID)
 		}
+		return nil
 	}
 	// A land road replaces a road of a lower type on its tile (MECHANICS
 	// §3): the old road's demolition refund, the new road's cost, and the
 	// tile never stops being a road. Same or higher types stay occupied.
-	replaced := map[string]int64{}
-	if !def.Road.Shallows {
-		fresh := make([]Pos, 0, len(cmd.Tiles))
-		for _, p := range cmd.Tiles {
-			if old := replaceableRoad(is, c, def, p); old != nil {
-				replaced[old.ID]++
-				continue
-			}
+	fresh := make([]Pos, 0, len(tiles))
+	for _, p := range tiles {
+		if replaceableRoad(is, c, def, p) == nil {
 			fresh = append(fresh, p)
 		}
-		if err := checkTiles(is, is.occupancy(c), fresh, allowRiver); err != nil {
-			return err
-		}
-		if err := checkBridges(is, cmd.Tiles); err != nil {
-			return err
+	}
+	if err := checkTiles(is, is.occupancy(c), fresh, allowRiver); err != nil {
+		return err
+	}
+	return checkBridges(is, tiles)
+}
+
+// applyRoad charges and places validated road tiles of type def: the
+// replaced lower roads are refunded, planned road tiles under them are
+// dropped (D-071).
+func applyRoad(w *World, c *content.Catalogue, is *Island, def *content.Building, tiles []Pos, l *Ledger) error {
+	replaced := map[string]int64{}
+	if !def.Road.Shallows {
+		for _, p := range tiles {
+			if old := replaceableRoad(is, c, def, p); old != nil {
+				replaced[old.ID]++
+			}
 		}
 	}
-	n := int64(len(cmd.Tiles))
+	n := int64(len(tiles))
 	if err := checkCost(w, is, def.Cost, n); err != nil {
 		return err
 	}
@@ -783,8 +859,13 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 	if is.Roads == nil {
 		is.Roads = map[int]string{}
 	}
-	for _, p := range cmd.Tiles {
-		is.Roads[is.index(p.X, p.Y)] = def.ID
+	for _, p := range tiles {
+		i := is.index(p.X, p.Y)
+		is.Roads[i] = def.ID
+		delete(is.PlannedRoads, i)
+	}
+	if len(is.PlannedRoads) == 0 {
+		is.PlannedRoads = nil
 	}
 	afterChange(is, c)
 	return nil
@@ -839,6 +920,10 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	}
 	b := is.Building(cmd.BuildingID)
 	if b == nil {
+		if is.Plan(cmd.BuildingID) != nil {
+			demolishPlan(is, c, cmd.BuildingID)
+			return nil
+		}
 		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, cmd.BuildingID, cmd.IslandID)
 	}
 	def := c.BuildingByID[b.Type]
@@ -909,15 +994,51 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 		refundOrder(is, c, b.Order, l, now)
 	}
 	// Demolishing a farm demolishes its fields, one refund per field
-	// (D-043, D-051 part 4).
+	// (D-043, D-051 part 4), and removes its planned fields (D-071).
 	if def.Fields != nil {
 		for _, f := range farmFieldsOf(is, c, b.ID) {
 			removeBuilding(is, f.ID)
 			refund(is, c, c.BuildingByID[f.Type].Cost, 1, l, now)
 		}
+		removePlannedFields(is, b.ID)
+	}
+	// The last Trading Post unsettles the island: its plans go too.
+	if def.TradingPost != nil {
+		is.Plans, is.PlannedRoads = nil, nil
 	}
 	afterChange(is, c)
 	return nil
+}
+
+func demolishRoads(w *World, c *content.Catalogue, cmd DemolishRoads, l *Ledger) ([]TileResult, error) {
+	is, err := lookupIsland(w, cmd.IslandID)
+	if err != nil {
+		return nil, err
+	}
+	if err := checkBatchTiles(cmd.Tiles); err != nil {
+		return nil, err
+	}
+	results := make([]TileResult, len(cmd.Tiles))
+	var valid []Pos
+	for i, p := range cmd.Tiles {
+		results[i] = TileResult{X: p.X, Y: p.Y}
+		switch {
+		case !is.InBounds(p.X, p.Y):
+			results[i].Err = fmt.Errorf("%w: (%d,%d)", ErrOutOfBounds, p.X, p.Y)
+		case is.RoadAt(p.X, p.Y) == "" && is.PlannedRoadAt(p.X, p.Y) == "":
+			results[i].Err = fmt.Errorf("%w: (%d,%d)", ErrNoRoad, p.X, p.Y)
+		default:
+			valid = append(valid, p)
+		}
+	}
+	if len(valid) == 0 {
+		return results, nil // no road under the rectangle: no state change
+	}
+	// The valid tiles are exactly what DemolishRoad takes all or nothing.
+	if err := demolishRoad(w, c, DemolishRoad{IslandID: is.ID, Tiles: valid}, l); err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 func demolishRoad(w *World, c *content.Catalogue, cmd DemolishRoad, l *Ledger) error {
@@ -930,6 +1051,7 @@ func demolishRoad(w *World, c *content.Catalogue, cmd DemolishRoad, l *Ledger) e
 	}
 	seen := map[Pos]bool{}
 	count := map[string]int64{}
+	real := 0
 	for _, p := range cmd.Tiles {
 		if !is.InBounds(p.X, p.Y) {
 			return fmt.Errorf("%w: (%d,%d)", ErrOutOfBounds, p.X, p.Y)
@@ -938,19 +1060,30 @@ func demolishRoad(w *World, c *content.Catalogue, cmd DemolishRoad, l *Ledger) e
 			return fmt.Errorf("%w: duplicate tile (%d,%d)", ErrInvalidCommand, p.X, p.Y)
 		}
 		seen[p] = true
+		if is.PlannedRoads[is.index(p.X, p.Y)] != "" {
+			continue // a planned road tile goes for free (D-071)
+		}
 		rt := is.RoadAt(p.X, p.Y)
 		if rt == "" {
 			return fmt.Errorf("%w: (%d,%d)", ErrNoRoad, p.X, p.Y)
 		}
 		count[rt]++
+		real++
 	}
 
 	now := w.LastEvaluatedAt.UnixMilli()
 	for _, p := range cmd.Tiles {
 		delete(is.Roads, is.index(p.X, p.Y))
+		delete(is.PlannedRoads, is.index(p.X, p.Y))
 	}
 	if len(is.Roads) == 0 {
 		is.Roads = nil
+	}
+	if len(is.PlannedRoads) == 0 {
+		is.PlannedRoads = nil
+	}
+	if real == 0 {
+		return nil // plans only: the sim sees no change
 	}
 	for _, rt := range sortedKeys(count) {
 		if def := c.BuildingByID[rt]; def != nil {

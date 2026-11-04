@@ -51,6 +51,19 @@ func TestPlayedFixture(t *testing.T) {
 	if n := houses(); n == 0 {
 		t.Fatal("no Patrician house")
 	}
+	plans, roads, fields := 0, 0, 0
+	for _, is := range w.Islands {
+		plans += len(is.Plans)
+		roads += len(is.PlannedRoads)
+		for _, p := range is.Plans {
+			if p.FarmID != 0 {
+				fields++
+			}
+		}
+	}
+	if plans < len(playedQuarter)+2 || roads == 0 || fields == 0 {
+		t.Fatalf("plans %d, planned road tiles %d, planned fields %d", plans, roads, fields)
+	}
 	n := houses()
 
 	playedCacheAfter = 0 // a fast machine still caches

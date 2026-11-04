@@ -24,10 +24,12 @@ import (
 // guard and fire station lose their levels, the market and the warehouse
 // have four; a stored level 2 of a guard or fire station is not migrated),
 // and version 14 the collector reach (D-069: Building.OutOfReach, hub
-// upkeep per level, content old_coast-0.18.0). Versions 1-13 have no
-// migration path (the game was not deployed; a fresh database is needed:
-// make down VOLUMES=1 && make up).
-const SchemaVersion = 14
+// upkeep per level, content old_coast-0.18.0), and version 15 the plans
+// (D-071: Island.Plans, Island.PlannedRoads; migrated from 14 unchanged,
+// a schema-14 world has no plans). Versions 1-13 have no migration path
+// (the game was not deployed; a fresh database is needed: make down
+// VOLUMES=1 && make up).
+const SchemaVersion = 15
 
 // Envelope is the versioned persistence format of a world
 // (docs/ARCHITECTURE.md §4.1).

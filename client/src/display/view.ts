@@ -8,7 +8,11 @@ export type Selection =
   | { kind: "none" }
   | { kind: "building"; id: number }
   | { kind: "ship"; id: number }
-  | { kind: "island"; id: string };
+  | { kind: "island"; id: string }
+  /** A planned building or field (D-071; plan IDs share the building ID space). */
+  | { kind: "plan"; island: string; id: number }
+  /** A planned road tile: its card covers the tile's planned road segment (D-071 §4). */
+  | { kind: "plannedRoad"; island: string; x: number; y: number };
 
 /** Editable stop of a route draft (amounts in whole units; keep and the unload max are optional, D-070). */
 export interface DraftStop {
@@ -70,6 +74,8 @@ export type ViewAction =
   | { type: "selectBuilding"; id: number | null }
   | { type: "selectShip"; id: number }
   | { type: "selectIsland"; id: string }
+  | { type: "selectPlan"; island: string; id: number }
+  | { type: "selectPlannedRoad"; island: string; x: number; y: number }
   | { type: "clearSelection" }
   | { type: "openEditor"; routeId: number | null; draft: Draft }
   | { type: "setDraft"; draft: Draft }
@@ -133,6 +139,10 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
       return select(s, { kind: "ship", id: a.id });
     case "selectIsland":
       return select(s, { kind: "island", id: a.id });
+    case "selectPlan":
+      return select(s, { kind: "plan", island: a.island, id: a.id });
+    case "selectPlannedRoad":
+      return select(s, { kind: "plannedRoad", island: a.island, x: a.x, y: a.y });
     case "clearSelection":
       return select(s, { kind: "none" });
     case "openEditor": {

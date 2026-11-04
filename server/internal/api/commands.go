@@ -22,12 +22,14 @@ const (
 	cmdPlaceRoad     = "place_road"
 	cmdDemolish      = "demolish"
 	cmdDemolishRoad  = "demolish_road"
+	cmdDemolishRoads = "demolish_roads"
 	cmdPlaceField    = "place_field"
 	cmdPlaceFields   = "place_fields"
 	cmdDemolishField = "demolish_fields"
 	cmdSetPaused     = "set_paused"
 	cmdUpgradeHouse  = "upgrade_house"
 	cmdMoveBuilding  = "move_building"
+	cmdBuildPlan     = "build_plan"
 
 	cmdUpgradeBuilding    = "upgrade_building"
 	cmdUpgradeWarehouse   = "upgrade_warehouse"
@@ -81,6 +83,7 @@ type placeBuildingJSON struct {
 	X            *int    `json:"x"`
 	Y            *int    `json:"y"`
 	Rotation     *int    `json:"rotation"`
+	Planned      bool    `json:"planned"`
 }
 
 type placeRoadJSON struct {
@@ -88,6 +91,7 @@ type placeRoadJSON struct {
 	IslandID *string    `json:"island_id"`
 	RoadType *string    `json:"road_type"`
 	Tiles    []tileJSON `json:"tiles"`
+	Planned  bool       `json:"planned"`
 }
 
 type placeFieldJSON struct {
@@ -98,6 +102,18 @@ type placeFieldJSON struct {
 	X            *int    `json:"x"`
 	Y            *int    `json:"y"`
 	Rotation     *int    `json:"rotation"`
+	Planned      bool    `json:"planned"`
+}
+
+// buildPlanJSON is the body of build_plan (D-071): building_id (a
+// planned building or field, or a real farm with planned fields) or a
+// planned road tile (x, y), never both.
+type buildPlanJSON struct {
+	Type       string  `json:"type"`
+	IslandID   *string `json:"island_id"`
+	BuildingID *int64  `json:"building_id"`
+	X          *int    `json:"x"`
+	Y          *int    `json:"y"`
 }
 
 // placeFieldsJSON is the body of place_fields (D-054): field anchors of
@@ -109,6 +125,7 @@ type placeFieldsJSON struct {
 	BuildingType *string    `json:"building_type"`
 	Tiles        []tileJSON `json:"tiles"`
 	Rotation     *int       `json:"rotation"`
+	Planned      bool       `json:"planned"`
 }
 
 type demolishFieldsJSON struct {
@@ -293,6 +310,8 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeDemolish(raw)
 	case cmdDemolishRoad:
 		cmd, err = decodeDemolishRoad(raw)
+	case cmdDemolishRoads:
+		cmd, err = decodeDemolishRoads(raw)
 	case cmdPlaceField:
 		cmd, err = decodePlaceField(raw)
 	case cmdPlaceFields:
@@ -305,6 +324,8 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeUpgrade(raw, head.Type)
 	case cmdMoveBuilding:
 		cmd, err = decodeMoveBuilding(raw)
+	case cmdBuildPlan:
+		cmd, err = decodeBuildPlan(raw)
 	case cmdOrderShip:
 		cmd, err = decodeOrderShip(raw)
 	case cmdCancelShipOrder:
@@ -449,7 +470,7 @@ func decodePlaceBuilding(raw json.RawMessage) (sim.Command, error) {
 	case c.Rotation == nil:
 		return nil, missing("rotation")
 	}
-	return sim.PlaceBuilding{IslandID: *c.IslandID, Type: *c.BuildingType, X: *c.X, Y: *c.Y, Rotation: *c.Rotation}, nil
+	return sim.PlaceBuilding{IslandID: *c.IslandID, Type: *c.BuildingType, X: *c.X, Y: *c.Y, Rotation: *c.Rotation, Planned: c.Planned}, nil
 }
 
 func decodeTiles(tiles []tileJSON) ([]sim.Pos, error) {
@@ -481,7 +502,7 @@ func decodePlaceRoad(raw json.RawMessage) (sim.Command, error) {
 	if err != nil {
 		return nil, err
 	}
-	return sim.PlaceRoad{IslandID: *c.IslandID, Type: *c.RoadType, Tiles: tiles}, nil
+	return sim.PlaceRoad{IslandID: *c.IslandID, Type: *c.RoadType, Tiles: tiles, Planned: c.Planned}, nil
 }
 
 func decodeDemolish(raw json.RawMessage) (sim.Command, error) {
@@ -511,6 +532,23 @@ func decodeDemolishRoad(raw json.RawMessage) (sim.Command, error) {
 		return nil, err
 	}
 	return sim.DemolishRoad{IslandID: *c.IslandID, Tiles: tiles}, nil
+}
+
+// decodeDemolishRoads decodes demolish_roads (the Demolish tool's
+// rectangle): the tile list of a batch, like the field batches.
+func decodeDemolishRoads(raw json.RawMessage) (sim.Command, error) {
+	var c demolishRoadJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	if c.IslandID == nil {
+		return nil, missing("island_id")
+	}
+	tiles, err := decodeFieldTiles(c.Tiles)
+	if err != nil {
+		return nil, err
+	}
+	return sim.DemolishRoads{IslandID: *c.IslandID, Tiles: tiles}, nil
 }
 
 // decodeFieldTiles decodes the tile list of a field batch: 1 to
@@ -545,7 +583,7 @@ func decodePlaceFields(raw json.RawMessage) (sim.Command, error) {
 	if c.Rotation != nil {
 		rot = *c.Rotation
 	}
-	return sim.PlaceFields{IslandID: *c.IslandID, FarmID: *c.FarmID, Type: *c.BuildingType, Tiles: tiles, Rotation: rot}, nil
+	return sim.PlaceFields{IslandID: *c.IslandID, FarmID: *c.FarmID, Type: *c.BuildingType, Tiles: tiles, Rotation: rot, Planned: c.Planned}, nil
 }
 
 func decodeDemolishFields(raw json.RawMessage) (sim.Command, error) {
@@ -588,7 +626,7 @@ func decodePlaceField(raw json.RawMessage) (sim.Command, error) {
 	if c.Rotation != nil {
 		rotation = *c.Rotation
 	}
-	return sim.PlaceField{IslandID: *c.IslandID, FarmID: *c.FarmID, Type: *c.BuildingType, X: *c.X, Y: *c.Y, Rotation: rotation}, nil
+	return sim.PlaceField{IslandID: *c.IslandID, FarmID: *c.FarmID, Type: *c.BuildingType, X: *c.X, Y: *c.Y, Rotation: rotation, Planned: c.Planned}, nil
 }
 
 func decodeSetPaused(raw json.RawMessage) (sim.Command, error) {
@@ -650,6 +688,28 @@ func decodeMoveBuilding(raw json.RawMessage) (sim.Command, error) {
 		return nil, missing("rotation")
 	}
 	return sim.MoveBuilding{IslandID: *c.IslandID, BuildingID: *c.BuildingID, X: *c.X, Y: *c.Y, Rotation: *c.Rotation}, nil
+}
+
+func decodeBuildPlan(raw json.RawMessage) (sim.Command, error) {
+	var c buildPlanJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	if c.IslandID == nil {
+		return nil, missing("island_id")
+	}
+	tile := c.X != nil || c.Y != nil
+	switch {
+	case c.BuildingID != nil && tile:
+		return nil, fmt.Errorf("%w: build_plan takes building_id or x and y, not both", sim.ErrInvalidCommand)
+	case c.BuildingID != nil:
+		return sim.BuildPlan{IslandID: *c.IslandID, PlanID: *c.BuildingID}, nil
+	case c.X == nil:
+		return nil, missing("x")
+	case c.Y == nil:
+		return nil, missing("y")
+	}
+	return sim.BuildPlan{IslandID: *c.IslandID, Tile: &sim.Pos{X: *c.X, Y: *c.Y}}, nil
 }
 
 func decodeOrderShip(raw json.RawMessage) (sim.Command, error) {

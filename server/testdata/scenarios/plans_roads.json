@@ -1,0 +1,179 @@
+{
+  "name": "plans_roads",
+  "description": "Planned roads (D-071): a planned dirt road is free and reserved (a sawmill on it fails, occupied) but no road for connectivity: a lumberjack next to it stays not connected. A real dirt road dragged over part of it replaces those planned tiles; the planned tiles removed with demolish_road go for free. Building one planned tile builds its whole segment (the 4-connected planned tiles of its type) with the normal road placement, which connects the lumberjack. A planned paved road of the locked Citizens tier fails on build with tier_locked.",
+  "content": "server/testdata/content/old_coast_pre_d054",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~ffffffff......cccccccccc~",
+      "~....ffffffff................~",
+      "~....ffffffff................~",
+      "~............................~",
+      "~....ffffffff................~",
+      "~....ffffffff................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "gold": 1002,
+    "workforce": {
+      "settlers": 1000
+    },
+    "stock": {
+      "planks": 40
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          10,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          10,
+          5
+        ],
+        "to": [
+          10,
+          8
+        ],
+        "planned": true
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          11,
+          8
+        ],
+        "to": [
+          20,
+          8
+        ],
+        "planned": true
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 18,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          18,
+          6
+        ],
+        "rect": [
+          20,
+          6,
+          20,
+          7
+        ],
+        "count": 1
+      }
+    },
+    {
+      "expect_error": "occupied",
+      "place": {
+        "type": "sawmill",
+        "x": 12,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          10,
+          5
+        ],
+        "to": [
+          10,
+          6
+        ]
+      }
+    },
+    {
+      "demolish_road": {
+        "type": "road_dirt",
+        "from": [
+          19,
+          8
+        ],
+        "to": [
+          20,
+          8
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "build_plan": {
+        "x": 14,
+        "y": 8
+      }
+    },
+    {
+      "road": {
+        "type": "road_paved",
+        "from": [
+          2,
+          9
+        ],
+        "to": [
+          6,
+          9
+        ],
+        "planned": true
+      }
+    },
+    {
+      "expect_error": "tier_locked",
+      "build_plan": {
+        "x": 4,
+        "y": 9
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    }
+  ]
+}

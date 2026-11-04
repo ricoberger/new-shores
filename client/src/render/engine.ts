@@ -12,12 +12,12 @@ import { Engine } from "@babylonjs/core/Engines/engine";
 import { Color4 } from "@babylonjs/core/Maths/math.color";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
-import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
+import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, PlanDisplay, WorldResponse } from "../api/client";
 import type { SyncSnapshot } from "../api/sync";
 import { archipelagoRect, type CameraView, frameIslandView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
-import { fieldsUnder, type PaintDrag, paintAnchors, paintCountText, paintTiles, planPaint } from "../display/fieldpaint";
-import { collectorReach, ghostRelated, reachOutline, servedRelated } from "../display/served";
+import { fieldsUnder, type PaintDrag, paintAnchors, demolishStatus, paintCountText, paintTiles, planPaint } from "../display/fieldpaint";
+import { collectorReach, ghostRelated, reachOutline, servedRelated, serviceRadius } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad, rectQuadOverlap } from "../display/frustum";
 import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
 import { visibleChunks } from "../display/chunks";
@@ -57,6 +57,8 @@ import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
 import { PaintPreview, type PaintMark } from "./paint";
 import { planRoadDrag } from "../display/roaddrag";
+import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plansUnder, roadsUnder } from "../display/plans";
+import { PlanLayer, type PlanRoadTile, type PlanSpec } from "./plans";
 import { t } from "../i18n";
 
 /**
@@ -89,6 +91,10 @@ export interface RendererEvents {
    */
   tapIsland(id: string, building?: number | null): void;
   tapShip(id: number): void;
+  /** A tap (or long press) at near LOD on a planned building or field (D-071 §4): its plan card. */
+  tapPlan(island: string, id: number): void;
+  /** A tap (or long press) at near LOD on a planned road tile: the card of its planned road segment. */
+  tapPlannedRoad(island: string, at: TilePos): void;
   /** Nothing hit (open sea or water away from land). */
   tapSea(): void;
   place(at: IslandTile): void;
@@ -118,6 +124,10 @@ export interface RendererEvents {
    * tiles on its fields.
    */
   removeFields(island: string, farmId: number, tiles: TilePos[], clipped: boolean): void;
+  /** The Demolish tool's rectangle covered planned buildings (D-071 §4): one demolish per plan (free). */
+  demolishPlans(island: string, ids: number[]): void;
+  /** The Demolish tool's rectangle covered roads or planned roads: one demolish_roads with those tiles (MECHANICS §3). */
+  removeRoads(island: string, tiles: TilePos[], clipped: boolean): void;
   /** The live count of a painted or removal rectangle ("n / max …"), null when no rectangle is dragged. */
   paintStatus(text: string | null): void;
   demolish(at: IslandTile): void;
@@ -203,6 +213,12 @@ export class GameRenderer {
   private marksKey = "";
   private hoverBuilding: number | null = null;
   private readonly ghost: PlacementGhost;
+  /** Plans (D-071): planned buildings, fields and road tiles in the ghost look, at near and mid LOD. */
+  private readonly plans: PlanLayer;
+  /** Planning mode (D-071): placements create plans; the road drag and field hints follow the planned placement rules. */
+  private planning = false;
+  /** The selected plan or planned road tile (D-071 §4), or null. */
+  private selectedPlan: { island: string; id: number } | { island: string; x: number; y: number } | null = null;
   private lookups = new Map<string, IslandLookups>();
   private lastGhostHint: string | null = null;
   /** What the placement ghost would be linked with (houses it serves, buildings serving it, producers or collectors), tinted like a selection (a hint). */
@@ -234,7 +250,7 @@ export class GameRenderer {
   private readonly reachRing: ReachRing;
   private readonly depositMarkers: DepositMarkers;
   /** The reach of the collector ghost under the pointer (D-069 §1), or null. */
-  private ghostReach: { island: string; x: number; y: number; w: number; h: number; r: number } | null = null;
+  private ghostReach: { island: string; x: number; y: number; w: number; h: number; r: number; gold?: boolean } | null = null;
   private depositKey = "";
   private lastPaintStatus: string | null = null;
   private selected: number | null = null;
@@ -326,6 +342,7 @@ export class GameRenderer {
     this.depositMarkers = new DepositMarkers(this.scene);
 
     this.ghost = new PlacementGhost(this.scene, this.models);
+    this.plans = new PlanLayer(this.scene, this.models);
 
     this.input = new PointerInput(canvas, () => this.ratio(), {
       pointerDown: (kind, first) => this.onPointerDown(kind, first),
@@ -393,6 +410,7 @@ export class GameRenderer {
     this.paintPreview.tick(tl, this.frozenAt !== null);
     this.updateDeposits();
     this.updateReachRing();
+    this.updatePlans();
     this.updateGrid();
     this.updateMarks();
     this.engine._drawCalls.fetchNewFrame();
@@ -1107,6 +1125,35 @@ export class GameRenderer {
     this.applySelection();
   }
 
+  /** The selected plan or planned road tile (D-071 §4): a hover mark on it and, for a collector or service, its gold ring. */
+  setSelectedPlan(sel: { island: string; id: number } | { island: string; x: number; y: number } | null): void {
+    this.selectedPlan = sel;
+  }
+
+  /** A selected plan (D-071), looked up in the current display. */
+  private findPlan(): { plan: PlanDisplay; island: IslandDisplay } | undefined {
+    const sel = this.selectedPlan;
+    if (!sel || !("id" in sel)) return undefined;
+    const island = this.displayIsland(sel.island);
+    const plan = island?.plans?.find((p) => p.id === sel.id);
+    return plan && island ? { plan, island } : undefined;
+  }
+
+  /**
+   * The farm the field tool adds to: a building, or a planned farm
+   * (D-071 §4) with its planned fields as its fields.
+   */
+  private fieldFarm(id: number): { b: BuildingDisplay; island: IslandDisplay; planned: boolean } | undefined {
+    const found = this.findBuilding(id);
+    if (found) return { ...found, planned: false };
+    for (const island of this.sync.getSnapshot().server?.display.islands ?? []) {
+      const p = island.plans?.find((x) => x.id === id);
+      const b = p ? plannedFarmAsBuilding(p, island, this.defs.get(p.type)) : undefined;
+      if (b) return { b, island, planned: true };
+    }
+    return undefined;
+  }
+
   private applySelection(): void {
     const found = this.selected === null ? undefined : this.findBuilding(this.selected);
     for (const [islandId, d] of this.details) {
@@ -1161,11 +1208,16 @@ export class GameRenderer {
     return { x: s.x / k, y: s.y / k };
   }
 
-  /** CSS-pixel viewport position of the centre of an island tile, any island at any LOD (NaN for unknown islands and during a camera animation). */
-  tileToScreen(islandId: string, x: number, y: number): { x: number; y: number } {
+  /**
+   * CSS-pixel viewport position of the centre of an island tile, any island at any LOD (NaN for unknown islands and
+   * during a camera animation); at sea level, or with `onGround` at the tile's ground height (an island drawn in detail
+   * on the terraces: what a click there picks).
+   */
+  tileToScreen(islandId: string, x: number, y: number, onGround = false): { x: number; y: number } {
     const p = this.arch.placement(islandId);
     if (this.moving() || !p) return { x: NaN, y: NaN };
-    return this.worldToClient(new Vector3(p.position.x + x + 0.5, 0, -(p.position.y + y + 0.5)));
+    const h = onGround ? (this.details.get(islandId)?.groundAt(x + 0.5, y + 0.5) ?? 0) : 0;
+    return this.worldToClient(new Vector3(p.position.x + x + 0.5, h, -(p.position.y + y + 0.5)));
   }
 
   /** Viewport position of a ship drawn in the last frame (NaN when not drawn or during a camera animation). */
@@ -1373,6 +1425,21 @@ export class GameRenderer {
     const is = tl ? this.displayIsland(tl.island) : undefined;
     const b = tl && is ? buildingAt(is.buildings, this.defs, tl.x, tl.y) : undefined;
     if (b) this.events.inspectBuilding(b.id);
+    else if (tl && is) this.tapPlanAt(is, tl);
+  }
+
+  /** A plan or planned road under a tile opens its card (D-071 §4); true when there was one. */
+  private tapPlanAt(is: IslandDisplay, tl: TilePos): boolean {
+    const plan = planAt(is, this.defs, tl.x, tl.y);
+    if (plan) {
+      this.events.tapPlan(is.id, plan.id);
+      return true;
+    }
+    if (plannedRoadAt(is, tl.x, tl.y)) {
+      this.events.tapPlannedRoad(is.id, { x: tl.x, y: tl.y });
+      return true;
+    }
+    return false;
   }
 
   private onTap(p: Point, button: number, kind: PointerKind): void {
@@ -1408,6 +1475,7 @@ export class GameRenderer {
       const tl = this.tileOn(id, p);
       const is = this.displayIsland(id);
       const b = tl && is ? buildingAt(is.buildings, this.defs, tl.x, tl.y) : undefined;
+      if (!b && tl && is && this.tapPlanAt(is, tl)) return;
       this.events.tapIsland(id, b?.id ?? null);
       return;
     }
@@ -1568,7 +1636,8 @@ export class GameRenderer {
     const server = this.sync.getSnapshot().server;
     // The Move tool marks the building it would pick under the pointer.
     const pick = tool.kind === "movePick" ? this.movableUnderPointer() : undefined;
-    const key = `${this.selected ?? ""}|${this.hoverBuilding ?? ""}|${tool.kind === "field" ? tool.farmId : ""}|${pick?.b.id ?? ""}|${server?.version ?? 0}|${this.lod}`;
+    const sp = this.selectedPlan;
+    const key = `${this.selected ?? ""}|${this.hoverBuilding ?? ""}|${tool.kind === "field" ? tool.farmId : ""}|${pick?.b.id ?? ""}|${server?.version ?? 0}|${this.lod}|${sp ? JSON.stringify(sp) : ""}`;
     if (key === this.marksKey) return;
     this.marksKey = key;
     const marks: Mark[] = [];
@@ -1595,17 +1664,23 @@ export class GameRenderer {
       const hover = this.hoverBuilding === null ? undefined : this.findBuilding(this.hoverBuilding);
       if (hover) add(hover.island, hover.b, "hover");
       if (pick) add(pick.island, pick.b, "hover");
+      // A selected plan, or every tile of a selected planned road segment (D-071 §4).
+      const plan = this.findPlan();
+      if (plan) add(plan.island, planAsBuilding(plan.plan, false), "hover");
+      const roadIsland = sp && "x" in sp ? this.displayIsland(sp.island) : undefined;
+      const segment = roadIsland && sp && "x" in sp ? plannedRoadAt(roadIsland, sp.x, sp.y) : undefined;
+      if (roadIsland && segment) for (const t of segment.tiles) add(roadIsland, { id: 0, type: segment.type, x: t.x, y: t.y, rotation: 0, status: "ok" } as BuildingDisplay, "hover");
     }
     this.marks.set(marks);
   }
 
-  /** The building the Move tool would pick under the pointer: not a field (fields follow their farm). */
+  /** The building or plan the Move tool would pick under the pointer: over a field its farm (fields follow their farm). */
   private movableUnderPointer(): { b: BuildingDisplay; island: IslandDisplay } | undefined {
     const tl = this.hover ? this.tileAt(this.hover) : null;
     const island = tl ? this.displayIsland(tl.island) : undefined;
-    const b = tl && island ? buildingAt(island.buildings, this.defs, tl.x, tl.y) : undefined;
-    if (!b || !island || this.defs.get(b.type)?.field) return undefined;
-    return { b, island };
+    const m = tl && island ? moveTarget(island, this.defs, tl.x, tl.y) : undefined;
+    if (!m || !island) return undefined;
+    return { b: { id: m.id, type: m.type, x: m.x, y: m.y, rotation: m.rotation, status: "ok" } as BuildingDisplay, island };
   }
 
   /**
@@ -1647,10 +1722,12 @@ export class GameRenderer {
         this.ghostTintFor = key;
         this.setGhostTint(ghostRelated({ type: def.id, island: tl.island, x: tl.x, y: tl.y, rotation: tool.rotation, level }, { buildings: [...this.defs.values()] }, server.display));
       }
-      const r = collectorReach(def, level);
-      if (r) {
+      // A collector's reach (selection yellow), or a public building's or the market's radius (gold).
+      const reach = collectorReach(def, level);
+      const radius = reach ? null : serviceRadius(def, level);
+      if (reach || radius) {
         const [w, h] = rotatedFootprint(def.width, def.height, tool.rotation);
-        this.ghostReach = { island: tl.island, x: tl.x, y: tl.y, w, h, r };
+        this.ghostReach = { island: tl.island, x: tl.x, y: tl.y, w, h, r: (reach ?? radius) as number, ...(radius ? { gold: true } : {}) };
       }
     } else {
       this.ghostTintFor = "";
@@ -1679,14 +1756,16 @@ export class GameRenderer {
     }
     // A field is checked against its farm's chain (a hint; the server validates).
     if (tool.kind === "field" && !hint) {
-      const farm = this.findBuilding(tool.farmId);
+      const farm = this.fieldFarm(tool.farmId);
       if (!farm || farm.island.id !== tl.island) {
         hint = t("field.hint.otherIsland");
       } else if (l?.statics) {
-        const h = fieldPlacementHint(farm.b, def, tl.x, tl.y, tool.rotation, {
+        // Plans reserve their tiles; in planning mode planned fields chain and count (D-071).
+        // A planned farm's fields are always planned, so they chain as in planning mode.
+        const chain = this.planning || farm.planned;
+        const h = fieldPlacementHint(hintFarm(farm.b, l.display, chain), def, tl.x, tl.y, tool.rotation, {
           island: l.statics,
-          buildings: l.display.buildings,
-          roads: l.display.roads,
+          ...hintSite(l.display, chain),
           defs: this.defs,
         });
         if (h) hint = fieldHintText(h, def.name, this.defs.get(farm.b.type)?.name ?? farm.b.type);
@@ -1792,21 +1871,29 @@ export class GameRenderer {
     }
     const { tiles, clipped } = paintTiles(drag);
     const l = this.lookup(drag.island);
-    const groups = l ? fieldsUnder(tiles, l.display.buildings, this.defs, tool.kind === "field" ? tool.farmId : null) : new Map();
+    // Planned fields go with the fields; the Demolish tool takes the planned buildings under the rectangle too (D-071 §4).
+    const groups = l ? fieldsUnder(tiles, hintSite(l.display, false).buildings, this.defs, tool.kind === "field" ? tool.farmId : null) : new Map();
+    const plans = l && tool.kind === "demolish" ? plansUnder(tiles, l.display, this.defs).map((p) => planAsBuilding(p, false)) : [];
+    // The Demolish tool also takes the roads and planned roads under it (one demolish_roads).
+    const roads = l && tool.kind === "demolish" ? roadsUnder(tiles, l.display) : [];
     const marks: PaintMark[] = [];
     let n = 0;
-    for (const g of groups.values()) {
-      for (const f of g.fields) {
-        const def = this.defs.get(f.type);
-        if (!def) continue;
-        const { w, h } = footprintBox(f.x, f.y, def.width, def.height, f.rotation);
-        marks.push(mark(f.x, f.y, w, h, "remove"));
-        n++;
-      }
+    for (const f of [...[...groups.values()].flatMap((g) => g.fields), ...plans]) {
+      const def = this.defs.get(f.type);
+      if (!def) continue;
+      const { w, h } = footprintBox(f.x, f.y, def.width, def.height, f.rotation);
+      marks.push(mark(f.x, f.y, w, h, "remove"));
+      n++;
     }
+    for (const r of roads) marks.push(mark(r.x, r.y, 1, 1, "remove"));
     this.paintPreview.set(marks);
     if (!this.paint) {
       this.setPaintStatus(null);
+      return;
+    }
+    if (tool.kind === "demolish") {
+      const fields = n - plans.length;
+      this.setPaintStatus(demolishStatus(fields, plans.length, roads.length, clipped));
       return;
     }
     const name = tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? t("field.generic")).toLowerCase() : t("field.generic");
@@ -1819,7 +1906,9 @@ export class GameRenderer {
     const pl = this.arch.placement(island);
     if (!l?.statics || !pl) return [];
     const detail = this.details.get(island);
-    const tiles = planRoadDrag(start, end, roadType, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs, tiers: this.tiers });
+    // Plans reserve their tiles; a planned road goes on free tiles only (D-071).
+    const drag = planRoadDrag(start, end, roadType, { island: l.statics, buildings: hintSite(l.display, false).buildings, roads: l.display.roads, defs: this.defs, tiers: this.tiers });
+    const tiles = this.planning ? planningRoadDrag(drag, l.display) : drag;
     // A road the new one replaces (MECHANICS §3) is marked like a new tile.
     return tiles
       .filter((tl) => tl.hint !== "skip")
@@ -1838,12 +1927,13 @@ export class GameRenderer {
     const tool = this.tool();
     if (tool.kind !== "field") return null;
     const def = this.defs.get(tool.buildingType);
-    const farm = this.findBuilding(tool.farmId);
+    const farm = this.fieldFarm(tool.farmId);
     const l = this.lookup(drag.island);
     if (!def || !farm || !l?.statics) return null;
     const [w, h] = tool.rotation === 90 || tool.rotation === 270 ? [def.height, def.width] : [def.width, def.height];
     const { anchors, clipped } = paintAnchors(drag, w, h);
-    const plan = planPaint(farm.b, def, anchors, tool.rotation, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs }, clipped);
+    const chain = this.planning || farm.planned;
+    const plan = planPaint(hintFarm(farm.b, l.display, chain), def, anchors, tool.rotation, { island: l.statics, ...hintSite(l.display, chain), defs: this.defs }, clipped);
     const wrongIsland = farm.island.id !== drag.island;
     if (wrongIsland) for (const tl of plan.tiles) tl.hint = "not_adjacent";
     return { plan, wrongIsland };
@@ -1883,7 +1973,16 @@ export class GameRenderer {
   private removeFieldsAt(island: string, tiles: readonly TilePos[], farmId: number | null, clipped: boolean): void {
     const l = this.lookup(island);
     if (!l) return;
-    for (const [farm, g] of fieldsUnder(tiles, l.display.buildings, this.defs, farmId)) this.events.removeFields(island, farm, g.tiles, clipped);
+    // Planned fields of the farm go too (the server removes them with demolish_fields, D-071).
+    const groups = fieldsUnder(tiles, hintSite(l.display, false).buildings, this.defs, farmId);
+    for (const [farm, g] of groups) this.events.removeFields(island, farm, g.tiles, clipped);
+    // The Demolish tool (no farm) removes the planned buildings and the roads under the rectangle as well.
+    if (farmId === null) {
+      const plans = plansUnder(tiles, l.display, this.defs);
+      if (plans.length > 0) this.events.demolishPlans(island, plans.map((p) => p.id));
+      const roads = roadsUnder(tiles, l.display);
+      if (roads.length > 0) this.events.removeRoads(island, roads, clipped && groups.size === 0);
+    }
   }
 
   /**
@@ -1914,19 +2013,73 @@ export class GameRenderer {
   }
 
   /**
+   * The plans (D-071 §5) of the islands drawn in detail at near and mid
+   * LOD; none at far (not in the far mesh or the far road layer).
+   * Rebuilt when the server state, the detailed islands or the loaded
+   * models change.
+   */
+  private updatePlans(): void {
+    const server = this.sync.getSnapshot().server;
+    const ready = server && this.lod !== "far" ? [...this.details].filter(([id, d]) => d.hasTiles() && this.arch.placement(id)) : [];
+    const key = ready.length > 0 && server ? `${server.version}|${this.modelLoads}|${ready.map(([id]) => id).join(",")}` : "";
+    if (!key) {
+      this.plans.set("", [], []);
+      return;
+    }
+    const plans: PlanSpec[] = [];
+    const roads: PlanRoadTile[] = [];
+    for (const [id, d] of ready) {
+      const is = this.displayIsland(id);
+      const pl = this.arch.placement(id);
+      if (!is || !pl) continue;
+      for (const p of is.plans ?? []) {
+        const def = this.defs.get(p.type);
+        if (def) plans.push({ id: p.id, def, island: pl.position, x: p.x, y: p.y, rotation: p.rotation, base: d.baseOf(p, def) });
+      }
+      for (const r of is.planned_roads ?? []) {
+        for (const tl of r.tiles) roads.push({ island: pl.position, x: tl.x, y: tl.y, base: d.baseOf({ x: tl.x, y: tl.y, type: "", rotation: 0 }, { width: 1, height: 1 }) });
+      }
+    }
+    this.plans.set(key, plans, roads);
+  }
+
+  /** Planning mode (D-071): the road drag and field hints follow the planned placement rules. */
+  setPlanning(on: boolean): void {
+    this.planning = on;
+    this.paintKey = "";
+  }
+
+  /** How many plans and planned road tiles are drawn (tests and shots). */
+  planCount(): number {
+    return this.plans.shown();
+  }
+
+  /**
    * The reach ring (UI.md §3, D-069 §1): around a Warehouse or Trading
    * Post ghost, else around the selected one, on an island drawn in
    * detail. Content reach at the building's level; none without a limit.
+   * The same ring in gold is a public building's or the market's service
+   * radius (D-071), and a selected plan's level-1 reach or radius.
    */
   private updateReachRing(): void {
-    let src = this.ghostReach;
+    // None at far zoom: the ring is a hint of the near and mid views.
+    let src: { island: string; x: number; y: number; w: number; h: number; r: number; gold?: boolean } | null = this.lod === "far" ? null : this.ghostReach;
+    // A selected planned collector or service building: its level-1 reach or radius in gold (D-071 §4).
+    const plan = !src && this.lod !== "far" ? this.findPlan() : undefined;
+    const planDef = plan ? this.defs.get(plan.plan.type) : undefined;
+    const planR = planDef ? (collectorReach(planDef, 1) ?? serviceRadius(planDef, 1)) : null;
+    if (plan && planDef && planR) {
+      const [w, h] = rotatedFootprint(planDef.width, planDef.height, plan.plan.rotation);
+      src = { island: plan.island.id, x: plan.plan.x, y: plan.plan.y, w, h, r: planR, gold: true };
+    }
     if (!src && this.selected !== null && this.lod !== "far") {
       const found = this.findBuilding(this.selected);
       const def = found ? this.defs.get(found.b.type) : undefined;
-      const r = found && def ? collectorReach(def, found.b.level ?? 1) : null;
-      if (found && def && r) {
+      const reach = found && def ? collectorReach(def, found.b.level ?? 1) : null;
+      const radius = found && def && !reach ? serviceRadius(def, found.b.level ?? 1) : null;
+      if (found && def && (reach || radius)) {
         const [w, h] = rotatedFootprint(def.width, def.height, found.b.rotation);
-        src = { island: found.island.id, x: found.b.x, y: found.b.y, w, h, r };
+        src = { island: found.island.id, x: found.b.x, y: found.b.y, w, h, r: (reach ?? radius) as number, ...(radius ? { gold: true } : {}) };
       }
     }
     const d = src ? this.details.get(src.island) : undefined;
@@ -1935,17 +2088,23 @@ export class GameRenderer {
       this.reachRing.set("", null);
       return;
     }
-    const key = `${src.island}|${src.x}|${src.y}|${src.w}|${src.h}|${src.r}|${pl.position.x}|${pl.position.y}`;
+    const key = `${src.island}|${src.x}|${src.y}|${src.w}|${src.h}|${src.r}|${pl.position.x}|${pl.position.y}|${src.gold ? 1 : 0}`;
     const outline = reachOutline({ x: src.x, y: src.y, w: src.w, h: src.h }, src.r);
     this.reachRing.set(
       key,
       outline.map((p) => ({ x: pl.position.x + p.x, z: -(pl.position.y + p.y), y: d.reliefAt(Math.floor(p.x), Math.floor(p.y)) })),
+      src.gold === true,
     );
   }
 
   /** Whether the reach ring is drawn (tests and shots). */
   reachRingShown(): boolean {
     return this.reachRing.shown();
+  }
+
+  /** Which ring is drawn: none, a collector's reach (yellow) or gold (a service radius or a plan's ring; tests and shots). */
+  ring(): "none" | "reach" | "gold" {
+    return !this.reachRing.shown() ? "none" : this.reachRing.gold() ? "gold" : "reach";
   }
 
   /** How many deposit markers float over the highlighted clusters (tests and shots). */

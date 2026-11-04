@@ -60,7 +60,8 @@ import (
 //     and sails the route "Glass home". A seed without a quartz deposit
 //     is an error (every seed of the shipped content has two or more,
 //     DevSeed included).
-//   - played: the Patricians reference game replayed (played.go).
+//   - played: the Patricians reference game replayed (played.go), with
+//     plans (D-071, plans.go).
 const (
 	FixtureDefault    = "default"
 	FixtureSeafaring  = "seafaring"

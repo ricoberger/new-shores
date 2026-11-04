@@ -79,7 +79,7 @@ func checkQuayTiles(is *Island, occ []int64, tiles []Pos) error {
 		if !Shallow(is, p.X, p.Y) {
 			return fmt.Errorf("%w: (%d,%d) is %s, a quay needs shallow water (within %d tiles of the island's land)", ErrTerrain, p.X, p.Y, is.Tiles[i].Terrain, ShallowsReach)
 		}
-		if occ[i] != 0 || is.Roads[i] != "" {
+		if occ[i] != 0 || is.roadOrPlan(i) {
 			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
 		}
 	}

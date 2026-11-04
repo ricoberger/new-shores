@@ -26,6 +26,8 @@ interface Props {
   /** Raises a Trading Post, Warehouse or levelled public building to its next level (upgrade_building, D-056). */
   onUpgradeBuilding: () => void;
   onSelectBuilding: (id: number) => void;
+  /** A farm's planned fields block (D-071 §4: count, cost, "Build planned fields"), shown under its fields. */
+  plannedFields?: ReactNode;
   /**
    * Activates the field tool bound to this farm for a field building (its
    * "Paint" button, D-051 part 4, D-054); `remove`: in its "Remove fields"
@@ -88,7 +90,8 @@ const PAINT_LONG_PRESS_MS = 450;
  * A farm's "Paint <field>" button (D-054): a click enters the field tool;
  * a right click or a long press enters its "Remove fields" mode.
  */
-function PaintButton({ field, full, onPaint }: { field: Content["buildings"][number]; full: boolean; onPaint: (remove: boolean) => void }) {
+/** `free`: the fields of a planned farm are plans (D-071), so the button names no cost. */
+export function PaintButton({ field, full, free = false, onPaint }: { field: Content["buildings"][number]; full: boolean; free?: boolean; onPaint: (remove: boolean) => void }) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const longPressed = useRef(false);
   const clear = () => {
@@ -130,7 +133,7 @@ function PaintButton({ field, full, onPaint }: { field: Content["buildings"][num
           data-testid="farm-add-field"
         >
           {t("infoPanel.paint.button", { name })}
-          {field.cost.gold > 0 && !full ? t("infoPanel.paint.cost", { gold: units(field.cost.gold) }) : ""}
+          {field.cost.gold > 0 && !full && !free ? t("infoPanel.paint.cost", { gold: units(field.cost.gold) }) : ""}
         </button>
       </div>
       <div className={styles.small} data-testid="farm-remove-hint">
@@ -533,6 +536,7 @@ export function InfoPanel({
   onUpgrade,
   onUpgradeBuilding,
   onSelectBuilding,
+  plannedFields,
   onAddField,
   nowMs,
   onOrderShip,
@@ -594,6 +598,7 @@ export function InfoPanel({
             </div>
           );
         })()}
+        {plannedFields}
 
         {b.rates && (
           <>
