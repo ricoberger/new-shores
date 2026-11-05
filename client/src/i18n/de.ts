@@ -21,7 +21,7 @@ export const de: Record<keyof typeof en, string> = {
   "almanac.footprintWater": "{width} × {height}, {count} {count, one{Reihe} other{Reihen}} im Wasser",
   "almanac.chain.deposit": "{name}-Vorkommen",
   "almanac.chain.fertility": "Boden „{name}“",
-  "almanac.shape.arms": "{range} {count, one{Arm} other{Arme}}",
+  "almanac.shape.massifs": "{range} {count, one{Bergmassiv} other{Bergmassive}}",
   "almanac.shape.rivers": "{range} {count, one{Fluss} other{Flüsse}}",
   "almanac.shape.islets": "{range} {count, one{Inselchen} other{Inselchen}}",
   "almanac.shape.plain": "Ebene {size}×{size}",

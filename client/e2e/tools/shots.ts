@@ -1367,6 +1367,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.getByTestId("almanac-search").waitFor({ state: "visible" });
     },
   },
+  // The almanac's islands table: size classes with their shape (plain, massifs, rivers, terraces, islets; D-072).
+  "almanac-islands": {
+    fixture: "default",
+    device: ["desktop", "phone"],
+    almanac: "/almanac/islands",
+    run: async (page) => {
+      await page.locator("#class-large").waitFor({ state: "visible" });
+    },
+  },
   // One building page of the almanac (deep link, scrolled to its card): the bakery, with inputs, a chain and a tier.
   "almanac-building": {
     fixture: "default",

@@ -19,7 +19,7 @@ export const en = {
   "almanac.footprintWater": "{width} × {height}, {count} {count, one{row} other{rows}} on water",
   "almanac.chain.deposit": "{name} deposit",
   "almanac.chain.fertility": "{name} fertility",
-  "almanac.shape.arms": "{range} {count, one{arm} other{arms}}",
+  "almanac.shape.massifs": "{range} {count, one{massif} other{massifs}}",
   "almanac.shape.rivers": "{range} {count, one{river} other{rivers}}",
   "almanac.shape.islets": "{range} {count, one{islet} other{islets}}",
   "almanac.shape.plain": "plain {size}×{size}",

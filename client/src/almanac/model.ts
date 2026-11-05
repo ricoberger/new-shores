@@ -557,7 +557,7 @@ export interface IslandsView {
     count?: Range;
     fertilities?: Range;
     deposits?: Range;
-    /** Shape parameters (D-058) in words, e.g. "1–3 arms, 1–2 rivers, 2 levels, 3–6 islets". */
+    /** Shape parameters (D-058, D-072) in words, e.g. "plain 52×52, 2–4 massifs, 1–2 rivers, 2 terraces, 3–6 islets". */
     shape?: string;
     /** The home candidate (D-053) is of this class. */
     home: boolean;
@@ -579,12 +579,12 @@ const rec = (v: unknown): Record<string, unknown> => (typeof v === "object" && v
 function shapeText(v: unknown): string | undefined {
   const s = rec(v);
   const parts: string[] = [];
-  const counted = (r: unknown, key: "arms" | "rivers" | "islets") => {
+  const counted = (r: unknown, key: "massifs" | "rivers" | "islets") => {
     const x = asRange(r);
     if (x && x.max > 0) parts.push(t(`almanac.shape.${key}`, { range: x.min === x.max ? String(x.min) : `${x.min}–${x.max}`, count: x.max }));
   };
-  counted(s.arms, "arms");
   if (typeof s.plain === "number" && s.plain > 0) parts.push(t("almanac.shape.plain", { size: s.plain }));
+  counted(s.massifs, "massifs");
   counted(s.rivers, "rivers");
   if (typeof s.levels === "number" && s.levels > 0) parts.push(t("almanac.shape.terraces", { count: s.levels }));
   counted(s.islets, "islets");

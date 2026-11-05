@@ -646,8 +646,9 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   shares as percent). Unknown or missing fields render nothing.
   `questText.ts` words every objective kind of MECHANICS §12a. The
   Islands page shows each size class's size, count, per-island
-  fertility and deposit ranges, shape and the home class (served since
-  D-059's fixture step); content the payload does not carry (the
+  fertility and deposit ranges, shape (plain, massifs, rivers, terraces,
+  islets; D-072) and the home class (served since D-059's fixture
+  step); content the payload does not carry (the
   archipelago-wide pools, the home guarantees, the schema version) is
   read defensively and shown only when present. Building pages show a
   depot's level table, a pier's berths and the quay's site (shallows).
