@@ -128,7 +128,7 @@ describe("mask mesh (the flat outline)", () => {
     expect(Math.max(...merged.indices)).toBe(2 * n - 1);
   });
 
-  it("costs ≤ 1.5 k triangles for a large island and ≤ 25 k for the whole archipelago (the far budget's outlines)", () => {
+  it("costs ≤ 2.5 k triangles for a large island (D-072 sizes: up to about 300 tiles across) and ≤ 25 k for the whole archipelago (the far budget's outlines)", () => {
     const fx = JSON.parse(gunzipSync(readFileSync(join(__dirname, "testdata", "farbudget", "played.json.gz"))).toString("utf8")) as { islands: IslandDisplay[] };
     let total = 0;
     let large = 0;
@@ -137,7 +137,7 @@ describe("mask mesh (the flat outline)", () => {
       total += tris;
       if (is.width >= 180) {
         large++;
-        expect(tris, is.id).toBeLessThanOrEqual(1_500);
+        expect(tris, is.id).toBeLessThanOrEqual(2_500);
       }
     }
     expect(large).toBeGreaterThan(0);

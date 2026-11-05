@@ -694,12 +694,18 @@ export class GameRenderer {
   /**
    * Founding on an island (D-058 round 4): keeps the camera when the
    * island is wholly in view below the far zoom, else frames the whole
-   * island at the current heading (frameIslandView).
+   * island at the current heading, or its centre at the zoom cap when it
+   * is larger than the view there (frameIslandView).
    */
   frameIsland(id: string): void {
     const p = this.arch.placement(id);
     if (!p) return;
-    const v = frameIslandView(this.rig.view(), this.rig.aspect(), { minX: p.position.x, minY: p.position.y, maxX: p.position.x + p.width, maxY: p.position.y + p.height });
+    const v = frameIslandView(
+      this.rig.view(),
+      this.rig.aspect(),
+      { minX: p.position.x, minY: p.position.y, maxX: p.position.x + p.width, maxY: p.position.y + p.height },
+      this.rig.zoomRange().max,
+    );
     if (!v) return;
     this.input.cancel();
     this.onPointerCancel();
@@ -1098,8 +1104,9 @@ export class GameRenderer {
     const islands = d?.islands ?? [];
     // The start at sea (D-051, D-053): nothing settled yet and the ship
     // at sea near the archipelago's centre — the camera opens on the
-    // ship at the far zoom that shows the whole archipelago for the
-    // choice of the home island.
+    // ship at the maximum zoom (the region's cap, D-072: the islands
+    // around the ship; the minimap is the overview) for the choice of the
+    // home island.
     const sea = !islands.some((x) => x.settled) ? d?.ships.find((s) => s.position) : undefined;
     // Else the settled (home) island, else the first, at the near default zoom.
     const is = islands.find((x) => x.settled) ?? islands[0];

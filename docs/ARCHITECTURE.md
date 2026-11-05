@@ -510,7 +510,8 @@ fixtures settled, patricians, played and seafaring (display and tiles
 captured from the dev server into `client/src/render/testdata/farbudget`,
 regenerated with its `capture.ts`): it builds the islands as the
 renderer does with the committed models, runs the renderer's allocation
-for the far view at every heading on desktop, phone and desktop-xl
+for the far view (the cap from `region.json`, centred on the home
+island like the shots' far view) at every heading on desktop, phone and desktop-xl
 (2992 × 1700), fails above 250 k triangles or 40 draws (an upper bound:
 the home island's enabled meshes, the mask mesh, hull and cargo per
 ship type, sea/haze/landmarks), and asserts the allocation (the home

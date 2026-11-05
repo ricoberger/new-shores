@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { declutterLabels, type LabelBox } from "./labels";
+import { declutterLabels, labelPosition, type LabelBox } from "./labels";
 
 const box = (id: string, x: number, y: number, area: number, width = 100, height = 24): LabelBox => ({ id, x, y, width, height, area });
 
@@ -21,5 +21,28 @@ describe("far labels at the cap on phones", () => {
     expect([...hidden]).toEqual(["b"]);
     // Ties: by ID.
     expect([...declutterLabels([box("y", 100, 100, 500), box("x", 120, 100, 500)], null)]).toEqual(["y"]);
+  });
+});
+
+describe("far label position (D-072: one island fills the view at the cap)", () => {
+  it("sits on the island's centre while the whole label fits inside the edge margin", () => {
+    expect(labelPosition({ x: 400, y: 300 }, 50, 1280, 800, 24, false)).toEqual({ x: 400, y: 300 });
+    expect(labelPosition({ x: 74, y: 24 }, 50, 1280, 800, 24, true)).toEqual({ x: 74, y: 24 });
+  });
+
+  it("hides another island's label whose centre is out of view", () => {
+    expect(labelPosition({ x: -200, y: 300 }, 50, 1280, 800, 24, false)).toBeNull();
+    expect(labelPosition({ x: 60, y: 300 }, 50, 1280, 800, 24, false)).toBeNull();
+    expect(labelPosition({ x: Number.NaN, y: 300 }, 50, 1280, 800, 24, true)).toBeNull();
+  });
+
+  it("keeps the label of the island the camera is over in view, on the side of its centre", () => {
+    expect(labelPosition({ x: -200, y: 300 }, 50, 1280, 800, 24, true)).toEqual({ x: 74, y: 300 });
+    expect(labelPosition({ x: 2000, y: -500 }, 50, 1280, 800, 24, true)).toEqual({ x: 1206, y: 24 });
+    expect(labelPosition({ x: 600, y: 1500 }, 50, 412, 915, 24, true)).toEqual({ x: 338, y: 891 });
+  });
+
+  it("hides every label in a viewport too small for it", () => {
+    expect(labelPosition({ x: 40, y: 40 }, 50, 100, 100, 24, true)).toBeNull();
   });
 });

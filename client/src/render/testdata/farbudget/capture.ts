@@ -4,15 +4,15 @@
 // at sea; server/internal/devworld),
 // trimmed to what the renderer reads and gzipped next to this file; and
 // `largest`: the settled fixture on LARGEST_SEED, whose home island is the
-// largest of the large size class seen (23 691 land tiles against the dev
-// seed's 21 427; seeds 1–70 scanned, V7) — the biggest island drawn in
-// detail at the cap.
+// largest of the large size class seen (41 508 land tiles against the dev
+// seed's 39 327; seeds 1–70 scanned, generator version 6) — the biggest
+// island drawn in detail at the cap.
 //
 // Run with a dev server up (any port), from the client directory, once on
 // the dev seed and once on LARGEST_SEED (the script picks by the seed):
 //   (cd ../server && go run ./cmd/server --dev --content ../content/old_coast --addr :18190) &
 //   node src/render/testdata/farbudget/capture.ts http://localhost:18190
-//   (cd ../server && go run ./cmd/server --dev --content ../content/old_coast --addr :18191 --seed 16) &
+//   (cd ../server && go run ./cmd/server --dev --content ../content/old_coast --addr :18191 --seed 31) &
 //   node src/render/testdata/farbudget/capture.ts http://localhost:18191
 // Re-run when the devworld fixtures, the island generator or the content
 // change what these worlds hold.
@@ -22,7 +22,7 @@ import { gzipSync } from "node:zlib";
 
 const api = process.argv[2] ?? "http://localhost:18190";
 /** The seed whose settled home island is the largest of its size class (the `largest` fixture). */
-const LARGEST_SEED = 16;
+const LARGEST_SEED = 31;
 
 type Json = Record<string, unknown>;
 

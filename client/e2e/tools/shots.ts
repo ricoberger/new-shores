@@ -13,6 +13,7 @@ import { type Browser, chromium, devices, type Page } from "@playwright/test";
 import type { Content, IslandTiles, WorldResponse } from "../../src/api/client.ts";
 import { waterEdgeTiles } from "../../src/display/geometry.ts";
 import { FAR_EXIT_HALF, MID_TO_NEAR_HALF } from "../../src/display/lod.ts";
+import { minimapProjection, toMinimap } from "../../src/display/minimap.ts";
 import { API_PORT, API_SERVER_COMMAND, E2E_TIME_SCALE, WEB_PORT, WEB_SERVER_COMMAND } from "../constants.ts";
 import { type Device, type Fixture, type Preset, parseShotArgs, ShotArgError, type ShotArgs, type View } from "./shots-args.ts";
 
@@ -249,16 +250,12 @@ async function setCamera(page: Page, c: { x?: number; y?: number; half?: number;
   await page.evaluate((v) => window.__newShores!.setCamera(v), c);
 }
 
-async function showArchipelago(page: Page, rotation: number): Promise<void> {
-  const centre = await page.evaluate(() => {
-    const is = window.__newShores!.getServer()!.display.islands;
-    const minX = Math.min(...is.map((i) => i.position.x));
-    const maxX = Math.max(...is.map((i) => i.position.x + i.width));
-    const minY = Math.min(...is.map((i) => i.position.y));
-    const maxY = Math.max(...is.map((i) => i.position.y + i.height));
-    return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
-  });
-  await setCamera(page, { ...centre, half: 100_000, rotation });
+/**
+ * The far view: the zoom cap (D-072: 80, one island in view; the minimap
+ * is the overview) centred on the fixture's island.
+ */
+async function showFar(page: Page, at: { x: number; y: number }, rotation: number): Promise<void> {
+  await setCamera(page, { x: at.x, y: at.y, half: 100_000, rotation });
 }
 
 async function waitLod(page: Page, lod: View): Promise<void> {
@@ -315,7 +312,7 @@ async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: D
       continue;
     }
     if (view === "far" && args.zoom === undefined && args.x === undefined) {
-      await showArchipelago(page, args.rotation);
+      await showFar(page, here, args.rotation);
     } else {
       const t = args.island ? undefined : targets?.[view];
       const half = args.zoom ?? t?.half ?? (view === "far" ? 100_000 : HALF[view]);
@@ -1821,6 +1818,38 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await setCamera(page, { x: c.x, y: c.y, half: 100_000, rotation: 0 });
       await waitLod(page, "far");
       await settle(page);
+    },
+  },
+  // The minimap as the overview at the zoom cap (D-072): the far view on the home island, then a tap on the
+  // minimap at the nearest other island's centre pans there (zoom kept); shot after the jump (desktop and phone).
+  "far-minimap-jump": {
+    fixture: "played",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      const r = await page.evaluate(() => {
+        const d = window.__newShores!.getServer()!.display;
+        const centre = (i: { position: { x: number; y: number }; width: number; height: number }) => ({ x: i.position.x + i.width / 2, y: i.position.y + i.height / 2 });
+        const home = d.islands.find((i) => i.id === "isle-01")!;
+        const h = centre(home);
+        const others = d.islands.filter((i) => i.id !== home.id && !i.scenic).map((i) => ({ id: i.id, ...centre(i) }));
+        others.sort((a, b) => Math.hypot(a.x - h.x, a.y - h.y) - Math.hypot(b.x - h.x, b.y - h.y));
+        const b = d.archipelago.bounds;
+        return { home: h, to: others[0]!, bounds: { minX: b.x, minY: b.y, maxX: b.x + b.width, maxY: b.y + b.height } };
+      });
+      await setCamera(page, { x: r.home.x, y: r.home.y, half: 100_000, rotation: 0 });
+      await waitLod(page, "far");
+      await settle(page);
+      const toggle = page.getByTestId("minimap-toggle");
+      if ((await toggle.count()) > 0 && (await toggle.getAttribute("aria-expanded")) === "false") await toggle.click();
+      const map = page.getByTestId("minimap");
+      await map.waitFor({ state: "visible" });
+      const box = (await map.boundingBox())!;
+      const at = toMinimap(minimapProjection(r.bounds, box.width, box.height), r.to);
+      await map.click({ position: { x: at.x, y: at.y } });
+      await page.waitForFunction((t) => Math.hypot(window.__newShores!.camera().x - t.x, window.__newShores!.camera().y - t.y) < 8, r.to, { timeout: 5_000 });
+      await settle(page);
+      const cam = await page.evaluate(() => window.__newShores!.camera());
+      console.log(`far-minimap-jump: tap at ${at.x.toFixed(1)}, ${at.y.toFixed(1)} px of a ${box.width} × ${box.height} minimap → ${r.to.id}; camera ${cam.x.toFixed(1)}, ${cam.y.toFixed(1)} half ${cam.half.toFixed(1)}`);
     },
   },
   // The island card, opened from an island label at far LOD (desktop).
