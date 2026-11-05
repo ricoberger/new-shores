@@ -118,13 +118,27 @@ export interface SeaPos {
  * Stops without an anchor are skipped; repeated points are dropped.
  */
 export function ribbonLegs(stops: readonly string[], paths: readonly (readonly SeaPos[] | undefined)[], anchor: (id: string) => { x: number; y: number } | null): { x: number; y: number }[][] {
-  const out: { x: number; y: number }[][] = [];
+  return legList(stops, paths, anchor).map((l) => l.pts);
+}
+
+/**
+ * Per leg of `ribbonLegs` (same legs, same order): whether the server's
+ * voyage of it is known. The route editor's draft dashes only the legs
+ * without one (a straight line until the route is saved); the others are
+ * drawn solid like a saved route.
+ */
+export function ribbonLegsRouted(stops: readonly string[], paths: readonly (readonly SeaPos[] | undefined)[], anchor: (id: string) => { x: number; y: number } | null): boolean[] {
+  return legList(stops, paths, anchor).map((l) => l.routed);
+}
+
+function legList(stops: readonly string[], paths: readonly (readonly SeaPos[] | undefined)[], anchor: (id: string) => { x: number; y: number } | null): { pts: { x: number; y: number }[]; routed: boolean }[] {
+  const out: { pts: { x: number; y: number }[]; routed: boolean }[] = [];
   for (let i = 0; i < stops.length; i++) {
     const a = anchor(stops[i] as string);
     const b = anchor(stops[(i + 1) % stops.length] as string);
     if (!a || !b) continue;
     const pts = [a, ...(paths[i] ?? []).map((p) => ({ x: p.x + 0.5, y: p.y + 0.5 })), b];
-    out.push(pts.filter((p, j) => j === 0 || p.x !== pts[j - 1]!.x || p.y !== pts[j - 1]!.y));
+    out.push({ pts: pts.filter((p, j) => j === 0 || p.x !== pts[j - 1]!.x || p.y !== pts[j - 1]!.y), routed: (paths[i]?.length ?? 0) > 0 });
   }
   return out;
 }

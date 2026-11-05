@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { Content, DisplayState } from "../api/client";
 import { cargoCoversWarehouse, depositCounts, foundingShips, islandSummary } from "./archipelago";
 import { signedTons } from "./format";
-import { createdRouteId, draftFromRoute, ribbonLegs, ribbonsShown, stopsFromDraft } from "./routes";
+import { createdRouteId, draftFromRoute, ribbonLegs, ribbonLegsRouted, ribbonsShown, stopsFromDraft } from "./routes";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -132,6 +132,15 @@ describe("route ribbons along the voyages (D-058)", () => {
       [anchors.c, anchors.b],
     ]);
     expect(ribbonLegs(["a", "x"], [], anchor)).toEqual([]);
+  });
+
+  it("tells the legs with a known voyage from the straight ones (the draft dashes only the latter)", () => {
+    expect(ribbonLegsRouted(["a", "b"], [voyage, undefined], anchor)).toEqual([true, false]);
+    expect(ribbonLegsRouted(["a", "b"], [[], voyage], anchor)).toEqual([false, true]);
+    expect(ribbonLegsRouted(["b", "c"], [], anchor)).toEqual([false, false]);
+    // Same legs as ribbonLegs: a stop without an anchor drops its legs from both.
+    expect(ribbonLegsRouted(["a", "x"], [], anchor)).toEqual([]);
+    expect(ribbonLegsRouted(["a", "b", "c"], [voyage, undefined, undefined], anchor)).toHaveLength(ribbonLegs(["a", "b", "c"], [voyage, undefined, undefined], anchor).length);
   });
 
   it("lets the draft follow the voyages its legs share with a saved route, in either direction", () => {

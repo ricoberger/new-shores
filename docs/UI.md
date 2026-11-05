@@ -89,7 +89,8 @@ UI shows the same numbers the server uses.
   draft are opaque and the other routes translucent. Each leg follows
   the server's voyage around land (`RouteDisplay.paths`, D-058; the
   draft's legs those of the saved routes, else a straight line) from
-  pier anchor to harbour and back. Ships are always drawn.
+  pier anchor to harbour and back. The draft dashes only the legs
+  without a known voyage (the straight ones); legs with one are solid. Ships are always drawn.
 - **Ships** are low-poly instances: with a leg, lerped between the two
   islands' pier anchors by `(now − depart_at) / (arrive_at − depart_at)`
   along the leg's `path` (pier anchor, harbour, waypoints, harbour, pier

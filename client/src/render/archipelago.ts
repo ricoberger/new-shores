@@ -19,7 +19,7 @@ import type { Island, IslandDisplay, RouteDisplay, ShipDisplay } from "../api/cl
 import type { Rect } from "../display/camera";
 import { detailForLod, type Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
-import { ribbonLegs, ribbonsShown } from "../display/routes";
+import { ribbonLegs, ribbonLegsRouted, ribbonsShown } from "../display/routes";
 import { alongPath, anchorSlots, type ArchPoint, berthAnchor, type Berths, type Dock, islandAnchor, type IslandPlacement, seaPoint, shipPlacement } from "../display/ships";
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
@@ -320,16 +320,17 @@ export class ArchipelagoLayer {
       const pts = legs.flatMap((leg) => leg.slice(0, -1));
       if (pts.length < 2) continue;
       keep.add(l.key);
-      // The editor's draft is dashed: not a route yet (legs without a known voyage are straight lines until it is saved).
-      const dashed = l.key === "draft";
-      const geomKey = JSON.stringify([pts, width, dashed]);
+      // The editor's draft dashes the legs without a known voyage (straight lines until it is saved); the routed legs are solid.
+      const routed = ribbonLegsRouted(l.stops, l.paths, (id) => this.anchor(id));
+      const runs = legs.map((leg, i) => ({ pts: leg, dashed: l.key === "draft" && !routed[i] }));
+      const geomKey = JSON.stringify([runs, width]);
       let line = this.routeLines.get(l.key);
       if (!line || line.key !== geomKey) {
         line?.mesh.dispose();
         line?.material.dispose();
         const material = new StandardMaterial(l.key, this.scene);
         material.disableLighting = true;
-        const mesh = this.buildLine(l.key, pts, width, dashed);
+        const mesh = this.buildLine(l.key, runs, width);
         mesh.material = material;
         line = { mesh, material, key: geomKey, color: l.color };
         this.routeLines.set(l.key, line);
@@ -360,15 +361,15 @@ export class ArchipelagoLayer {
     this.arrows.commit();
   }
 
-  /** A closed polyline of flat quads (archipelago coordinates); dashed: DRAFT_DASH × width on, DRAFT_GAP × width off. */
-  private buildLine(name: string, pts: readonly ArchPoint[], width: number, dashed = false): Mesh {
+  /** The legs of a closed route as flat quads (archipelago coordinates); a dashed leg: DRAFT_DASH × width on, DRAFT_GAP × width off. */
+  private buildLine(name: string, runs: readonly { pts: readonly ArchPoint[]; dashed: boolean }[], width: number): Mesh {
     const positions: number[] = [];
     const indices: number[] = [];
     const normals: number[] = [];
     const h = width / 2;
-    const segments: [ArchPoint, ArchPoint][] = dashed
-      ? dashPieces(pts, DRAFT_DASH * width, DRAFT_GAP * width)
-      : pts.map((a, i) => [a, pts[(i + 1) % pts.length] as ArchPoint]);
+    const segments: [ArchPoint, ArchPoint][] = runs.flatMap((run) =>
+      run.dashed ? dashPieces(run.pts, DRAFT_DASH * width, DRAFT_GAP * width, false) : run.pts.slice(0, -1).map((a, i): [ArchPoint, ArchPoint] => [a, run.pts[i + 1] as ArchPoint]),
+    );
     for (const [a, b] of segments) {
       const dx = b.x - a.x;
       const dy = b.y - a.y;
