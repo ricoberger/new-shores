@@ -319,9 +319,10 @@ UI shows the same numbers the server uses.
   and road bars start with "Planning ·"). The toggle is a session
   setting; the plans stay on the server across toggling, sessions and
   devices. Turning it off ends a build tool of a locked tier. Plans are
-  drawn in the ghost material — the model translucent and untinted (the
-  footprint box while it loads) — with a thin gold outline of the
-  footprint; planned road tiles are translucent slabs with the gold
+  drawn in the ghost material — the model translucent and untinted — with
+  a thin gold outline of the footprint, and nothing else: no slab or box
+  under a planned building (while its model loads only the outline shows);
+  planned road tiles are translucent slabs with the gold
   outline along the planned road's edge (`render/plans.ts`). A plan
   paints no yard into the ground (D-068): the yard appears once the
   building stands (only the placing ghost previews it). No
