@@ -11,8 +11,9 @@ markers, move tool) and #70 (D-071 planning mode: planned buildings,
 roads and fields built by hand, gold radius rings, Demolish rectangle
 for roads), #71 and #72 (D-072: Anno 117 island sizes, rim massifs,
 2-tile rivers with raised bridges, Anno 117 service radii and reach,
-content 0.19.0, camera cap 80, usable deposit slots) merged; next the
-owner's playtest on the new world, then polish 6.
+content 0.19.0, camera cap 80, usable deposit slots) and #73 (polish
+6, D-073 no resource rocks) merged; next the owner's playtest on the
+new world, then polish 7.
 
 ## What exists
 
@@ -122,28 +123,23 @@ in the sync after a task unless the task says otherwise; nobody adds the
      0.19.0, cap 80, plans replayed, far 13 / 198 k) and ~~D-072 part
      2~~ (#72: deposit slots reserve a usable footprint, cap-80
      framing, `/world` + `/content` before the engine, raised bridges,
-     almanac massifs; far 14 / 205 k) merged → **next: owner playtest
-     on the D-072 world → polish 6** (balance pass on radii / upkeep /
-     thin tier-1/2 gold margin, build-menu nits). Server follow-ups:
-     cache the sea-route grid `GET /world` rebuilds per request;
-     resource rocks never generated → removed (D-073; skerries stay,
-     a few more and up to ≈ 16 tiles); far view hides bridges (≈ 2 px road gap), three dev-
-     seed crossings keep a one-level step onto the bridge. Open small items — art: playhouse /
-     university / cathedral / shipyard / depot / trading pier still at
-     8 voxels/tile (folder room: 0.47 MiB — needs a variant dropped or
-     harder quantisation), beach a touch loud, terracotta share check
-     in tier 3–4 quarters (D-063 §3), terrace fill walls earth-coloured
-     (only the top takes the yard / grass colour — green walls read as
-     a cliff), deposit markers as floating icons above the tiles while
-     the tool is active ~~(done in #69)~~, field crops vary per voxel
-     only; balance: tier-1/2 gold margin is thin (hub level-1 upkeep
-     had to stay 0 / 1 for the plans to pass); UI: dash only the unrouted draft legs,
-     toast click → build menu, `?stats=1` per-model voxel density,
-     build-menu nits (dangling `· →` on cards without inputs, Market's
-     own icon on its second line), `$` fallback glyph for
-     `paused_unpaid` in `display/status.ts`, planned yard buildings
-     paint their yard into the ground — plans show only the translucent
-     model and the gold outline on untouched ground (yards once built).
+     almanac massifs; far 14 / 205 k) and ~~polish 6~~ (#73: sea-route
+     grid cached — `GET /world` p50 10.1 → 7.5 ms, resource rocks
+     removed and skerries 5–18 tiles × 6–12 (D-073), river banks never
+     below the river, Coast input chip, Market "Supplies goods" line,
+     solid routed draft legs, toast click → build menu, `?stats=1`
+     model density, far road line across rivers, no plate under a
+     selected plan) merged → **next: owner playtest on the D-072 world
+     → polish 7** (balance pass on radii / upkeep / thin tier-1/2 gold
+     margin — hub level-1 upkeep had to stay 0 / 1 for the plans to
+     pass — plus the playtest findings). Open small items — art:
+     playhouse / university / cathedral / shipyard / depot / trading
+     pier still at 8 voxels/tile (folder room: 0.47 MiB — needs a
+     variant dropped or harder quantisation), beach a touch loud,
+     terracotta share check in tier 3–4 quarters (D-063 §3), field
+     crops vary per voxel only; generator: one dead rock draw kept in
+     the island plan so seeds stay byte-identical (remove with the next
+     plan replay).
      ~~Long house cards, size row, population popup wrap, berth queue,
      producer list cap, top-tier upgrade button~~ fixed in #65.
    - ~~Quantised GLB export~~ done (V3b/c, #42): 12.9 MB, ≈ 32

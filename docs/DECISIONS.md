@@ -2383,3 +2383,9 @@ for a Trading Post site (pre-existing).
 - **Rejected:** a larger rock class (size 24) or a rock-only site rule
   — keeps a feature nobody asked for; mining outposts can return as a
   region-2 island type if a design needs them.
+
+*As built (#73):* `rock` class, `rockMinable` and rock site rules
+removed; skerries `size` 5 (5–18 tiles), count 6–12. One rock draw was
+kept in the island plan so seeds and the reference plans stay
+byte-identical; it goes with the next plan replay. Seed goldens and
+display fixtures regenerated; plans hold.
