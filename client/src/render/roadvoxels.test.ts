@@ -167,4 +167,21 @@ describe("field ground", () => {
     // Off the road the terrace edge stays a wall.
     expect(row(0).slice(4, 8)).toEqual([4, 4, 4, 4]);
   });
+
+  it("ramps a bank down to a bridge's deck one level lower (a river in a gorge, decks at the lower bank)", () => {
+    // Bank (level 1), a river tile (level 0), bank (level 2); the road crosses along x.
+    const f = flat(3, 1);
+    const flatH = new Int8Array(f.nx * f.ny);
+    for (let k = 0; k < flatH.length; k++) flatH[k] = [4, 0, 8][Math.floor((k % f.nx) / TERRAIN_VPT)] as number;
+    f.flat = flatH;
+    f.h.set(flatH);
+    const river = new Uint8Array(f.nx * f.ny);
+    for (let k = 0; k < river.length; k++) river[k] = Math.floor((k % f.nx) / TERRAIN_VPT) === 1 ? 1 : 0;
+    f.relief = { river, bank: new Uint8Array(f.nx * f.ny) } as never;
+    paintRoads(f, fieldBase(f), [0, 1, 2].map((x) => ({ x, y: 0, type: "road_dirt" })), 7);
+    const row = Array.from(f.h.slice(f.nx, 2 * f.nx));
+    // The deck stands at level 1 (the lower bank): that bank stays flat, the level-2 bank climbs 5, 6, 7, 8 from the bridge.
+    expect(row.slice(0, 4)).toEqual([4, 4, 4, 4]);
+    expect(row.slice(8, 12)).toEqual([5, 6, 7, 8]);
+  });
 });

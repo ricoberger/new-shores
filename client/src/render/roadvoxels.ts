@@ -11,8 +11,8 @@
 // far view downsamples the same colours). The road changes no height but
 // where the terrace's road ramp climbs (render/terraces.ts IslandGround:
 // a road tile with a road neighbour one level lower rises across the
-// tile, one voxel per column). River tiles carry bridges instead
-// (render/terraces.ts). Quays (D-060) stand on the water: the whole tile
+// tile, one voxel per column; toward a bridge whose deck is one level
+// lower, too). River tiles carry bridges instead (render/terraces.ts). Quays (D-060) stand on the water: the whole tile
 // is a stone wharf deck at the level of the shore, its walls stone into
 // the water below; toward open water a timber fender runs along the
 // edge, with an iron bollard on it every third tile. The island's terrain
@@ -24,7 +24,7 @@ import { ISLAND, TERRAIN } from "../theme/palette";
 import { cobbleTop, DIRT, dirtTop, KERB, STONE, STONE_DARK } from "./groundpaint";
 import { c3 } from "./palette";
 import type { RoadTile } from "./roads";
-import { LEVEL_STEPS } from "./terraces";
+import { bridgeDecks, bridgeRunsOf, LEVEL_STEPS } from "./terraces";
 import { type Field, pack, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
 
 /** Directions to a road neighbour (x, y). */
@@ -105,15 +105,28 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   // A tile's level (steps) from the flat ground of its first column (-1 off the field).
   const level = (x: number, y: number) => (x < 0 || y < 0 || x * vpt >= nx || y * vpt >= ny ? -1 : flat(y * vpt * nx + x * vpt));
   const river = (k: number) => f.relief?.river[k] === 1;
-  // Road ramps (D-058): a road tile with a road neighbour one level lower climbs to it across the tile.
+  // A river tile: its first column is river or bank (bank columns belong to river tiles).
+  const riverTile = (x: number, y: number) => {
+    if (level(x, y) < 0) return false;
+    const k = y * vpt * nx + x * vpt;
+    return river(k) || f.relief?.bank[k] === 1;
+  };
+  // The bridges' deck levels (terrace levels), as render/terraces.ts places them.
+  const tw = Math.ceil(nx / vpt);
+  const decks = bridgeDecks(
+    bridgeRunsOf(tw, Math.ceil(ny / vpt), riverTile, (x, y) => (level(x, y) < 0 ? -1 : level(x, y) / LEVEL_STEPS), has),
+    tw,
+  );
+  // Road ramps (D-058): a road tile with a road neighbour one level lower (a bridge: its deck) climbs to it across the tile.
   const rampOf = (x: number, y: number): readonly [number, number] | null => {
     const lv = level(x, y);
-    if (lv <= 0) return null;
+    if (lv <= 0 || riverTile(x, y)) return null;
     for (const d of RAMP_DIRS) {
-      const n = y * vpt * nx + x * vpt;
-      if (river(n)) return null;
-      const q = (y + d[1]) * vpt * nx + (x + d[0]) * vpt;
-      if (has(x + d[0], y + d[1]) && level(x + d[0], y + d[1]) === lv - LEVEL_STEPS && !river(q)) return d;
+      const qx = x + d[0];
+      const qy = y + d[1];
+      if (!has(qx, qy)) continue;
+      const deck = qx >= 0 && qx < tw ? decks.get(qy * tw + qx) : undefined;
+      if (deck !== undefined ? deck * LEVEL_STEPS === lv - LEVEL_STEPS : level(qx, qy) === lv - LEVEL_STEPS && !riverTile(qx, qy)) return d;
     }
     return null;
   };

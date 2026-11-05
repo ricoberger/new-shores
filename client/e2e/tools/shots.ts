@@ -1302,6 +1302,61 @@ function foundingShot(docked: boolean): { fixture: Fixture; device: Device; run:
  * `almanac`, opens that almanac path (no session, no world: the fixture is
  * unused) and shoots the page once its content is shown.
  */
+/**
+ * The fixture's bridges: straight runs of road tiles on river tiles, from
+ * the tiles the API serves; centre in archipelago tiles, the axis the road
+ * crosses along and the buildings anchored within 4 tiles (fewest first:
+ * the least hidden bridge).
+ */
+async function riverBridges(page: Page): Promise<{ island: string; x: number; y: number; len: number; axis: "x" | "y"; near: number }[]> {
+  return page.evaluate(async (port) => {
+    const d = window.__newShores!.getServer()!.display;
+    const out: { island: string; x: number; y: number; len: number; axis: "x" | "y"; near: number }[] = [];
+    for (const is of d.islands) {
+      if (is.roads.length === 0) continue;
+      const r = await fetch(`http://localhost:${port}/api/v1/world/islands/${is.id}/tiles`, { credentials: "include" });
+      const t = (await r.json()) as { width: number; height: number; terrain: string[] };
+      const roads = new Set(is.roads.map((p) => p.y * t.width + p.x));
+      const on = (x: number, y: number) => x >= 0 && y >= 0 && x < t.width && y < t.height && roads.has(y * t.width + x) && t.terrain[y * t.width + x] === "river";
+      const seen = new Set<number>();
+      for (const k of [...roads].sort((a, b) => a - b)) {
+        const x = k % t.width;
+        const y = Math.floor(k / t.width);
+        if (seen.has(k) || !on(x, y)) continue;
+        const along = on(x + 1, y) ? "x" : "y";
+        const [dx, dy] = along === "x" ? [1, 0] : [0, 1];
+        let len = 0;
+        while (on(x + len * dx, y + len * dy)) {
+          seen.add((y + len * dy) * t.width + x + len * dx);
+          len++;
+        }
+        const cx = along === "x" ? x + len / 2 : x + 0.5;
+        const cy = along === "y" ? y + len / 2 : y + 0.5;
+        const near = is.buildings.filter((bd) => Math.abs(bd.x - cx) <= 4 && Math.abs(bd.y - cy) <= 4).length;
+        out.push({ island: is.id, x: is.position.x + cx, y: is.position.y + cy, len, axis: along, near });
+      }
+    }
+    return out.sort((a, b) => a.near - b.near);
+  }, API_PORT);
+}
+
+function riverBridgeShot(half: number, device: Device | readonly Device[]): (typeof PRESET_RUN)[Preset] {
+  return {
+    fixture: "played",
+    device,
+    run: async (page) => {
+      const bridges = await riverBridges(page);
+      const b = bridges[0];
+      if (!b) throw new Error("river-bridge: the fixture has no bridge");
+      console.log(`river-bridge: ${bridges.map((r) => `${r.island} ${r.len} tiles along ${r.axis} at ${r.x}, ${r.y} (${r.near} buildings near)`).join("; ")}`);
+      // Looking along the river, across the road: the arches show from the side.
+      await setCamera(page, { x: b.x, y: b.y, half, rotation: b.axis === "x" ? Math.PI / 2 : 0 });
+      await waitLod(page, half < MID_TO_NEAR_HALF ? "near" : "mid");
+      await settle(page);
+    },
+  };
+}
+
 const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly Device[]; patch?: (w: WorldResponse) => void; almanac?: string; run: (page: Page) => Promise<void> }> = {
   // The almanac's overview page (the opening page of /almanac) on both devices.
   "almanac-overview": {
@@ -1852,6 +1907,10 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       console.log(`far-minimap-jump: tap at ${at.x.toFixed(1)}, ${at.y.toFixed(1)} px of a ${box.width} × ${box.height} minimap → ${r.to.id}; camera ${cam.x.toFixed(1)}, ${cam.y.toFixed(1)} half ${cam.half.toFixed(1)}`);
     },
   },
+  // A road bridge over the 2-tile river (D-072; a road crosses at most two river tiles, MECHANICS §10): near
+  // (desktop and phone) and mid (desktop), the camera on the fixture's first bridge, looking along the river.
+  "river-bridge": riverBridgeShot(10, ["desktop", "phone"]),
+  "river-bridge-mid": riverBridgeShot(36, "desktop"),
   // The island card, opened from an island label at far LOD (desktop).
   // A new world as it opens (D-053): the far zoom over the whole
   // archipelago, the sloop at its centre and the first quest's hint.

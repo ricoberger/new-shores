@@ -235,9 +235,14 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   bands falls into a foam pool; at level 0 the mouth loses its banks and
   shelf and steps down in small rapids into the shallows. **Bridges** are
   voxel arch models (`decor_bridge_1/2`) over straight road runs of one
-  or two river tiles, at the banks' level, hidden at far; a two-tile
-  river takes `decor_bridge_2` (a road crosses at most two river tiles,
-  so the three-tile estuary has no bridge and no `decor_bridge_3`).
+  or two river tiles, hidden at far; a two-tile river takes
+  `decor_bridge_2` (a road crosses at most two river tiles, so the
+  three-tile estuary has no bridge and no `decor_bridge_3`). The deck
+  stands at the lower bank's level: where the river runs one or two
+  levels below its banks (about a fifth of the crossings on the dev
+  seed) the raised models `decor_bridge_<n>_up1/up2` carry it on piers
+  in the water, and a bank one level higher ramps its road down to the
+  deck like a terrace ramp.
 - **Things on terraces:** buildings and fields stand on the highest
   level under their footprint, lower columns filled up to it (a terrace
   fill, `render/terraces.ts`). The fill takes the footprint's ground

@@ -613,26 +613,30 @@ export class RockLayer {
 
   /**
    * The bridges of the roads over the rivers (decor_bridge_1/2, a run of
-   * three or more tiles as pieces of two and one): centred on their run,
-   * along its axis, standing on the river's surface.
+   * three or more tiles as pieces of two and one; decor_bridge_<n>_up<k>
+   * where the deck stands k levels above the river, between high banks):
+   * centred on their run, along its axis, standing on the river's surface.
    */
   setBridges(runs: readonly BridgeRun[], name: string): void {
-    const one = decorModel(this.registry, "decor_bridge_1");
-    const two = decorModel(this.registry, "decor_bridge_2");
-    const key = `${one !== null}${two !== null}|${runs.map((b) => `${b.x},${b.y},${b.len}${b.axis}${b.level}`).join(";")}`;
+    const ids = new Set<string>();
+    for (const b of runs) for (let o = 0; o < b.len; o += 2) ids.add(bridgeModel(Math.min(2, b.len - o), b.rise));
+    const models = new Map([...ids].map((id) => [id, decorModel(this.registry, id)] as const));
+    const key = `${[...models].map(([id, md]) => `${id}${md !== null}`).join(",")}|${runs.map((b) => `${b.x},${b.y},${b.len}${b.axis}${b.level}${b.rise}`).join(";")}`;
     if (key === this.bridgeKey) return;
     this.bridgeKey = key;
     this.bridgeMesh?.dispose();
     this.bridgeMesh = null;
-    if (!one || !two || runs.length === 0) return;
+    if (runs.length === 0 || [...models.values()].some((md) => md === null)) return;
     const m = new ModelMerger();
     for (const b of runs) {
-      const y = b.level - RIVER_DROP / 8;
+      // The model's base: the river's surface below the deck's rise.
+      const y = b.level - b.rise * LEVEL_HEIGHT - RIVER_DROP / 8;
       for (let o = 0; o < b.len; ) {
         const len = b.len - o >= 2 ? 2 : 1;
         const along = o + len / 2;
-        if (b.axis === "x") m.add(len === 2 ? two : one, b.x + along, y, -(b.y + 0.5), 1, 0);
-        else m.add(len === 2 ? two : one, b.x + 0.5, y, -(b.y + along), 1, Math.PI / 2);
+        const model = models.get(bridgeModel(len, b.rise)) as NonNullable<ReturnType<typeof decorModel>>;
+        if (b.axis === "x") m.add(model, b.x + along, y, -(b.y + 0.5), 1, 0);
+        else m.add(model, b.x + 0.5, y, -(b.y + along), 1, Math.PI / 2);
         o += len;
       }
     }
@@ -749,8 +753,22 @@ export interface BridgeRun {
   y: number;
   len: number;
   axis: "x" | "y";
-  /** The deck's ground (tiles): the river's level. */
+  /** The deck's ground (tiles): the river's level raised by `rise`. */
   level: number;
+  /**
+   * Terrace levels (0 … BRIDGE_MAX_RISE) the deck stands above the
+   * river's level: up to the lower bank, so that the road runs on at the
+   * bank's height (the higher bank ramps down to it when one level up).
+   */
+  rise: number;
+}
+
+/** The highest rise of a bridge model (decor_bridge_<n>_up<k>). */
+export const BRIDGE_MAX_RISE = 2;
+
+/** The decor model of a bridge piece over `len` (1 or 2) river tiles with its deck `rise` levels up. */
+export function bridgeModel(len: number, rise: number): string {
+  return `decor_bridge_${len}${rise > 0 ? `_up${rise}` : ""}`;
 }
 
 /**
@@ -764,7 +782,8 @@ export class IslandGround {
   private roads = new Set<number>();
   /** Per tile: the ramp direction (index into RAMP_DIRS), -1 none. */
   private ramp: Int8Array = new Int8Array(0);
-  private bridgeTiles = new Set<number>();
+  /** Bridge tiles and their deck's ground (tiles). */
+  private bridgeTiles = new Map<number, number>();
   private runs: BridgeRun[] = [];
 
   /** Sets the relief (an island's statics). */
@@ -784,8 +803,8 @@ export class IslandGround {
     this.roads = new Set(tiles.filter((t) => t.x >= 0 && t.y >= 0 && t.x < width && t.y < height).map((t) => t.y * width + t.x));
     this.ramp = roadRamps(r, this.roads);
     this.runs = bridgeRuns(r, this.roads);
-    this.bridgeTiles = new Set();
-    for (const b of this.runs) for (let i = 0; i < b.len; i++) this.bridgeTiles.add(b.axis === "x" ? b.y * width + b.x + i : (b.y + i) * width + b.x);
+    this.bridgeTiles = new Map();
+    for (const b of this.runs) for (let i = 0; i < b.len; i++) this.bridgeTiles.set(b.axis === "x" ? b.y * width + b.x + i : (b.y + i) * width + b.x, b.level);
   }
 
   /** The bridges over the rivers. */
@@ -821,7 +840,8 @@ export class IslandGround {
     if (tx < 0 || ty < 0 || tx >= r.width || ty >= r.height) return 0;
     const t = ty * r.width + tx;
     const lv = r.level[t] as number;
-    if (this.bridgeTiles.has(t)) return lv * LEVEL_HEIGHT + BRIDGE_DECK;
+    const deck = this.bridgeTiles.get(t);
+    if (deck !== undefined) return deck + BRIDGE_DECK;
     const d = this.ramp[t] ?? -1;
     if (d >= 0) {
       const [dx, dy] = RAMP_DIRS[d] as readonly [number, number];
@@ -833,9 +853,14 @@ export class IslandGround {
   }
 }
 
-/** Per tile: the direction (RAMP_DIRS index) of a road tile toward a road neighbour one level lower (-1: none). */
+/**
+ * Per tile: the direction (RAMP_DIRS index) of a road tile toward a road
+ * neighbour one level lower (-1: none) — a bridge neighbour at its deck's
+ * level.
+ */
 export function roadRamps(r: Relief, roads: ReadonlySet<number>): Int8Array {
   const out = new Int8Array(r.width * r.height).fill(-1);
+  const decks = bridgeDecks(bridgeRuns(r, roads), r.width);
   for (const t of roads) {
     const x = t % r.width;
     const y = Math.floor(t / r.width);
@@ -847,7 +872,8 @@ export function roadRamps(r: Relief, roads: ReadonlySet<number>): Int8Array {
       const ny = y + dy;
       if (nx < 0 || ny < 0 || nx >= r.width || ny >= r.height) continue;
       const n = ny * r.width + nx;
-      if (roads.has(n) && (r.level[n] as number) === lv - 1 && r.terrain[n] !== "river") {
+      const deck = decks.get(n);
+      if (roads.has(n) && (deck !== undefined ? deck === lv - 1 : (r.level[n] as number) === lv - 1 && r.terrain[n] !== "river")) {
         out[t] = d;
         break;
       }
@@ -863,12 +889,37 @@ export function roadRamps(r: Relief, roads: ReadonlySet<number>): Int8Array {
  */
 export function bridgeRuns(r: Relief, roads: ReadonlySet<number>): BridgeRun[] {
   const { width, height, terrain } = r;
-  const on = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && roads.has(y * width + x) && terrain[y * width + x] === "river";
-  const road = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && roads.has(y * width + x);
+  const inside = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height;
+  return bridgeRunsOf(
+    width,
+    height,
+    (x, y) => inside(x, y) && terrain[y * width + x] === "river",
+    (x, y) => (inside(x, y) && terrain[y * width + x] !== "water" ? (r.level[y * width + x] as number) : -1),
+    (x, y) => inside(x, y) && roads.has(y * width + x),
+  );
+}
+
+/** Per bridge tile (index y × width + x): its deck's level (terrace levels). */
+export function bridgeDecks(runs: readonly BridgeRun[], width: number): Map<number, number> {
+  const out = new Map<number, number>();
+  for (const b of runs) for (let i = 0; i < b.len; i++) out.set(b.axis === "x" ? b.y * width + b.x + i : (b.y + i) * width + b.x, Math.round(b.level / LEVEL_HEIGHT));
+  return out;
+}
+
+/**
+ * bridgeRuns over accessors (the relief's tiles, or a terrain field's
+ * columns in render/roadvoxels.ts): `level` is a tile's terrace level, -1
+ * for water and outside. The deck rises from the river's level to the
+ * lower bank's (at most BRIDGE_MAX_RISE).
+ */
+export function bridgeRunsOf(width: number, height: number, river: (x: number, y: number) => boolean, level: (x: number, y: number) => number, road: (x: number, y: number) => boolean): BridgeRun[] {
+  const on = (x: number, y: number) => road(x, y) && river(x, y);
   const seen = new Set<number>();
   const out: BridgeRun[] = [];
-  for (const t of [...roads].sort((a, b) => a - b)) {
-    if (seen.has(t) || terrain[t] !== "river") continue;
+  const tiles: number[] = [];
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) if (on(x, y)) tiles.push(y * width + x);
+  for (const t of tiles) {
+    if (seen.has(t)) continue;
     const x = t % width;
     const y = Math.floor(t / width);
     // The axis: the road continues across the river along it.
@@ -879,7 +930,11 @@ export function bridgeRuns(r: Relief, roads: ReadonlySet<number>): BridgeRun[] {
     const alongX = road(x - 1, y) || road(ex + 1, y) || (ex > x && !(road(x, y - 1) || road(x, ey + 1)));
     const len = alongX ? ex - x + 1 : ey - y + 1;
     for (let i = 0; i < len; i++) seen.add(alongX ? t + i : t + i * width);
-    out.push({ x, y, len, axis: alongX ? "x" : "y", level: (r.level[t] as number) * LEVEL_HEIGHT });
+    const lv = level(x, y);
+    const [dx, dy] = alongX ? [1, 0] : [0, 1];
+    const banks = [level(x - dx, y - dy), level(x + len * dx, y + len * dy)].filter((b) => b >= 0);
+    const rise = Math.max(0, Math.min(BRIDGE_MAX_RISE, (banks.length > 0 ? Math.min(...banks) : lv) - lv));
+    out.push({ x, y, len, axis: alongX ? "x" : "y", level: (lv + rise) * LEVEL_HEIGHT, rise });
   }
   return out;
 }
