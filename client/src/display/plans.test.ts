@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding, IslandDisplay, PlanDisplay } from "../api/client";
 import { fieldPlacementHint } from "./fields";
-import { hintFarm, hintSite, moveTarget, planAsBuilding, roadsUnder, planAt, planCostParts, planCount, planFarmOf, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plannedRoadTiles, plansUnder } from "./plans";
+import { hintFarm, hintSite, moveTarget, planAsBuilding, roadsUnder, planAt, planCostParts, planCount, planFarmOf, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plannedRoadTiles, plansUnder, selectedPlanMarks } from "./plans";
 import { planRoadDrag } from "./roaddrag";
 
 const def = (id: string, w: number, h: number, extra: Partial<ContentBuilding> = {}) => ({ id, name: id, width: w, height: h, category: "production", ...extra }) as ContentBuilding;
@@ -135,5 +135,13 @@ describe("the Demolish tool's rectangle over roads", () => {
     for (let y = 4; y <= 8; y++) for (let x = 3; x <= 5; x++) rect.push({ x, y });
     expect(roadsUnder(rect, island)).toEqual([{ x: 3, y: 4 }, { x: 4, y: 8 }, { x: 5, y: 8 }]);
     expect(roadsUnder([{ x: 0, y: 0 }], island)).toEqual([]);
+  });
+});
+
+describe("selectedPlanMarks", () => {
+  it("marks every tile of a selected planned road segment and nothing for a selected planned building (no pale plate under its model)", () => {
+    expect(selectedPlanMarks(undefined)).toEqual([]);
+    const marks = selectedPlanMarks({ type: "road_dirt", tiles: [{ x: 1, y: 2 }, { x: 2, y: 2 }] } as never);
+    expect(marks.map((m) => [m.x, m.y])).toEqual([[1, 2], [2, 2]]);
   });
 });

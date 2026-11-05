@@ -349,7 +349,9 @@ UI shows the same numbers the server uses.
   tiles"** for its segment (the 4-connected planned tiles of one type):
   type, cost, reason, Build · Demolish. A real farm with planned fields
   shows "N planned fields", their cost and **Build planned fields** on
-  its card. A selected plan carries a hover mark; a selected planned
+  its card. A selected planned road segment carries a hover mark on its tiles, a selected
+  planned building none (the plate would show as a pale square under its
+  translucent model); a selected planned
   Warehouse or Trading Post shows its level-1 reach and a planned
   public building or market its level-1 radius as a **gold ring**.
   Plans never count in the served/served-by hints (`display/served.ts`

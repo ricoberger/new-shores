@@ -58,7 +58,7 @@ import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
 import { PaintPreview, type PaintMark } from "./paint";
 import { planRoadDrag } from "../display/roaddrag";
-import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plansUnder, roadsUnder } from "../display/plans";
+import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, selectedPlanMarks, planningRoadDrag, plansUnder, roadsUnder } from "../display/plans";
 import { PlanLayer, type PlanRoadTile, type PlanSpec } from "./plans";
 import { t } from "../i18n";
 
@@ -1687,12 +1687,10 @@ export class GameRenderer {
       const hover = this.hoverBuilding === null ? undefined : this.findBuilding(this.hoverBuilding);
       if (hover) add(hover.island, hover.b, "hover");
       if (pick) add(pick.island, pick.b, "hover");
-      // A selected plan, or every tile of a selected planned road segment (D-071 §4).
-      const plan = this.findPlan();
-      if (plan) add(plan.island, planAsBuilding(plan.plan, false), "hover");
+      // A selected planned road segment marks its tiles; a selected planned building no plate (display/plans.ts selectedPlanMarks).
       const roadIsland = sp && "x" in sp ? this.displayIsland(sp.island) : undefined;
       const segment = roadIsland && sp && "x" in sp ? plannedRoadAt(roadIsland, sp.x, sp.y) : undefined;
-      if (roadIsland && segment) for (const t of segment.tiles) add(roadIsland, { id: 0, type: segment.type, x: t.x, y: t.y, rotation: 0, status: "ok" } as BuildingDisplay, "hover");
+      if (roadIsland) for (const b of selectedPlanMarks(segment)) add(roadIsland, b, "hover");
     }
     this.marks.set(marks);
   }
