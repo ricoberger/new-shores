@@ -1,6 +1,9 @@
 package sim
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
 	"math/bits"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -37,6 +40,63 @@ type seaGrid struct {
 	// lagoon marks the sea cells closed as land (closeLagoons).
 	lagoon  []bool
 	islands []*Island
+	// bbox is the islands' bounding rectangle [x0, x1) × [y0, y1) the grid
+	// was sized from: a grid built over the islands alone equals one built
+	// with extra points inside it.
+	bx0, by0, bx1, by1 int
+}
+
+// SeaGrid is a built sea grid, shareable between requests (read-only
+// after construction). The API layer caches it per archipelago
+// (SeaGridKey); World.SetSeaGrid hands it to Voyage.
+type SeaGrid = seaGrid
+
+// BuildSeaGrid builds the sea grid over the islands alone.
+func BuildSeaGrid(islands []*Island) *SeaGrid { return newSeaGrid(islands) }
+
+// SeaGridKey identifies everything the world's sea grid depends on: the
+// archipelago (seed, roll, generator version) with the islands' rectangles
+// and the roads on water tiles (quays, D-060), the only ship-relevant
+// state buildings change. It is empty for a world without a seed (hand-made
+// islands whose tiles the key cannot vouch for): such a grid is not cached.
+func SeaGridKey(w *World, generatorVersion int) string {
+	if w.Seed == 0 {
+		return ""
+	}
+	h := sha256.New()
+	fmt.Fprintf(h, "%d|%d|%d|%d", w.Seed, w.ArchipelagoRoll, generatorVersion, len(w.Islands))
+	for _, is := range w.Islands {
+		fmt.Fprintf(h, "|%s,%d,%d,%d,%d", is.ID, is.X, is.Y, is.Width, is.Height)
+		if len(is.Tiles) != is.Width*is.Height {
+			continue
+		}
+		for i := range is.Tiles {
+			if is.Roads[i] != "" && is.Tiles[i].Terrain == content.TerrainWater {
+				fmt.Fprintf(h, ",%d", i)
+			}
+		}
+	}
+	return hex.EncodeToString(h.Sum(nil)[:16])
+}
+
+// SetSeaGrid lends the world a prebuilt sea grid for Voyage (nil to
+// withdraw it). The caller guarantees it matches the islands as they are
+// now (SeaGridKey); Voyage ignores it for end points outside the grid's
+// islands' bounds.
+func (w *World) SetSeaGrid(g *SeaGrid) { w.seaGrid = g }
+
+// seaGridFor is the grid of a leg: the lent one (re-pointed at the current
+// islands) when both end points lie inside its bounds, else a fresh one.
+func (w *World) seaGridFor(a, b Pos) *seaGrid {
+	if g := w.seaGrid; g != nil {
+		in := func(p Pos) bool { return p.X >= g.bx0 && p.Y >= g.by0 && p.X+1 <= g.bx1 && p.Y+1 <= g.by1 }
+		if in(a) && in(b) {
+			c := *g
+			c.islands = w.Islands
+			return &c
+		}
+	}
+	return newSeaGrid(w.Islands, a, b)
 }
 
 // newSeaGrid builds the grid over the islands' rectangles and the points.
@@ -58,6 +118,13 @@ func newSeaGrid(islands []*Island, pts ...Pos) *seaGrid {
 	}
 	m := seaMargin * seaCell
 	g := &seaGrid{x0: minX - m, y0: minY - m, islands: islands}
+	for _, is := range islands {
+		if g.bx1 == 0 && g.by1 == 0 {
+			g.bx0, g.by0, g.bx1, g.by1 = is.X, is.Y, is.X+is.Width, is.Y+is.Height
+			continue
+		}
+		g.bx0, g.by0, g.bx1, g.by1 = min(g.bx0, is.X), min(g.by0, is.Y), max(g.bx1, is.X+is.Width), max(g.by1, is.Y+is.Height)
+	}
 	g.nx = (maxX+m-g.x0)/seaCell + 1
 	g.ny = (maxY+m-g.y0)/seaCell + 1
 	g.land = make([]bool, g.nx*g.ny)
@@ -267,7 +334,11 @@ func (g *seaGrid) search(s, t int) []int {
 // searched cell centres pulled tight (each one the farthest cell still
 // in sight of the previous point).
 func SeaRoute(islands []*Island, a, b Pos) []Pos {
-	g := newSeaGrid(islands, a, b)
+	return seaRoute(newSeaGrid(islands, a, b), a, b)
+}
+
+// seaRoute is SeaRoute over a built grid.
+func seaRoute(g *seaGrid, a, b Pos) []Pos {
 	if g.clear(a, b) {
 		return nil
 	}
@@ -513,7 +584,7 @@ func Arrival(c *content.Catalogue, from Pos, to *Island) Pos {
 // Voyage is the polyline (a, the waypoints around land, b) and travel
 // time of a leg for a ship of the given speed.
 func Voyage(w *World, c *content.Catalogue, speedPermille int64, a, b Pos) ([]Pos, int64) {
-	path := append(append([]Pos{a}, SeaRoute(w.Islands, a, b)...), b)
+	path := append(append([]Pos{a}, seaRoute(w.seaGridFor(a, b), a, b)...), b)
 	return path, PathMs(path, speedPermille, c.Region.Rules.ShipSpeedMilliTilesPerMin)
 }
 

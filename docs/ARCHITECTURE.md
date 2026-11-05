@@ -328,6 +328,11 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   (D-061: `lang` or `Accept-Language`, an unknown `lang` is 400; the
   payload names `language`, `languages`, `island_names` and carries
   `Content-Language`); `GET /healthz`.
+- The sea-route grid that the display's route and ship paths search
+  (D-058 §5) is built once per archipelago and cached in the API layer
+  (`internal/api/seagrid.go`), keyed by seed, roll, generator version and
+  the roads on water tiles (quays), the only building state it depends on;
+  `internal/sim` stays stateless.
 - Errors: `{error: {code, message}}`; `code` is a stable snake_case
   enumeration listed in the OpenAPI file (one per sim sentinel error plus
   `bad_request`, `not_found`, `method_not_allowed`, `internal`); malformed
