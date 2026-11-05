@@ -142,7 +142,8 @@ in the sync after a task unless the task says otherwise; nobody adds the
      build-menu nits (dangling `· →` on cards without inputs, Market's
      own icon on its second line), `$` fallback glyph for
      `paused_unpaid` in `display/status.ts`, planned yard buildings
-     already show their yard plate (paint the yard only once built?).
+     paint their yard into the ground — plans show only the translucent
+     model and the gold outline on untouched ground (yards once built).
      ~~Long house cards, size row, population popup wrap, berth queue,
      producer list cap, top-tier upgrade button~~ fixed in #65.
    - ~~Quantised GLB export~~ done (V3b/c, #42): 12.9 MB, ≈ 32
