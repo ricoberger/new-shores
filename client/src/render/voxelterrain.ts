@@ -134,6 +134,8 @@ export interface Field {
   flat?: Int8Array;
   /** The road columns of the last road paint (render/roadvoxels.ts; 0 none, 1 dirt, 2 paved, 3 quay): field ground and yards paint around them. */
   road?: Uint8Array;
+  /** The road colours of the columns a bridge spans (render/roadvoxels.ts; 0 none, else 0x1000000 | packed RGB): the far view paints them over the river, where its bridges are hidden. */
+  bridge?: Uint32Array;
   /** The relief columns the field was built from (rock, rivers; withRock bakes the rock in). */
   relief?: ReliefColumns;
 }

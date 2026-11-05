@@ -235,7 +235,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   bands falls into a foam pool; at level 0 the mouth loses its banks and
   shelf and steps down in small rapids into the shallows. **Bridges** are
   voxel arch models (`decor_bridge_1/2`) over straight road runs of one
-  or two river tiles, hidden at far; a two-tile river takes
+  or two river tiles, hidden at far (where the road's colour is painted
+  across the river columns they span, so the road line stays whole;
+  colour only, the far budget is unchanged); a two-tile river takes
   `decor_bridge_2` (a road crosses at most two river tiles, so the
   three-tile estuary has no bridge and no `decor_bridge_3`). The deck
   stands at the lower bank's level: where the river runs one or two

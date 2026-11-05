@@ -103,7 +103,8 @@ export function farFieldColor(type: string, registry: ModelRegistry | null): Col
  * every column of a field's footprint (`w` × `h` tiles from its anchor,
  * 1 × 1 without) that paintFields paints — flat ground, no road — takes
  * the field's patch colour (`patch`, packed RGB; the fallback without),
- * a pasture's outermost columns its fence line. A copy; the near field
+ * a pasture's outermost columns its fence line; the road columns of bridges
+ * over rivers show the road's colour. A copy; the near field
  * keeps its furrows.
  */
 export function fieldPatchTops(f: Field, base: FieldBase, fields: readonly FieldTile[]): Uint32Array {
@@ -123,5 +124,7 @@ export function fieldPatchTops(f: Field, base: FieldBase, fields: readonly Field
       }
     }
   }
+  // The roads over rivers (D-068: the far view hides the bridges): the road's colour on the river columns it spans, so the line stays whole.
+  if (f.bridge) for (let k = 0; k < top.length; k++) if (f.bridge[k]) top[k] = (f.bridge[k] as number) & 0xffffff;
   return top;
 }

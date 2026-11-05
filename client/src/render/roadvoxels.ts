@@ -134,6 +134,8 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   const painted = new Set<number>();
   if (!f.road || f.road.length !== nx * ny) f.road = new Uint8Array(nx * ny);
   else f.road.fill(0);
+  if (!f.bridge || f.bridge.length !== nx * ny) f.bridge = new Uint32Array(nx * ny);
+  else f.bridge.fill(0);
   for (const [k, kind] of road) {
     const i = k % nx;
     const j = (k - i) / nx;
@@ -154,7 +156,15 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
     } else if (bh === fl || (fl > 0 && bh < fl && bh > fl - LEVEL_STEPS && !river(k))) {
       // The flat ground of the tile's level, or down a terrace's own ramp (never the beach or a rim at level 0).
       h = bh;
-    } else continue;
+    } else {
+      // A river column under a bridge: the near field keeps the water (the bridge model spans it); the far
+      // view, which hides the bridges, paints the road colour there (render/farfields.ts fieldPatchTops).
+      if (riverTile(tx, ty) && river(k)) {
+        const r = hash2(i, j, seed + 61);
+        f.bridge[k] = 0x1000000 | (kind === 2 ? cobbleTop(r) : dirtTop(r, hash2(i, j, seed + 62)));
+      }
+      continue;
+    }
     f.h[k] = h;
     f.road[k] = kind;
     painted.add(k);

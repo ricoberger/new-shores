@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { chunkAt } from "../display/chunks";
 import { cobbleTop, DIRT, KERB, STONE, STONE_DARK } from "./groundpaint";
 import { BOLLARD_H, fieldBase, fieldGround, paintFields, paintRoads, QUAY_H, touchedChunks } from "./roadvoxels";
+import { fieldPatchTops } from "./farfields";
 import { type Field, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
 
 /** A flat grass field of w × h tiles at TERRAIN_VPT columns per tile. */
@@ -183,5 +184,37 @@ describe("field ground", () => {
     // The deck stands at level 1 (the lower bank): that bank stays flat, the level-2 bank climbs 5, 6, 7, 8 from the bridge.
     expect(row.slice(0, 4)).toEqual([4, 4, 4, 4]);
     expect(row.slice(8, 12)).toEqual([5, 6, 7, 8]);
+  });
+
+  it("records the road's colour on the river columns a bridge spans, for the far view; the near field keeps the water", () => {
+    // Bank, river, bank at level 0; the road crosses along x on rows 5–6 (the two-column path).
+    const f = flat(3, 1);
+    f.flat = new Int8Array(f.nx * f.ny);
+    const river = new Uint8Array(f.nx * f.ny);
+    for (let k = 0; k < river.length; k++) river[k] = Math.floor((k % f.nx) / TERRAIN_VPT) === 1 ? 1 : 0;
+    f.relief = { river, bank: new Uint8Array(f.nx * f.ny) } as never;
+    for (let k = 0; k < river.length; k++) if (river[k]) f.h[k] = -2;
+    const water = 0x2a6f97;
+    for (let k = 0; k < river.length; k++) if (river[k]) f.top[k] = water;
+    const base = fieldBase(f);
+    paintRoads(f, base, [0, 1, 2].map((x) => ({ x, y: 0, type: "road_dirt" })), 7);
+    const lo = Math.floor(TERRAIN_VPT / 2) - 1;
+    const col = (a: number, b: number) => b * f.nx + TERRAIN_VPT + a;
+    // Near: the river column keeps its depth and colour (the bridge model spans it).
+    expect(f.h[col(3, lo)]).toBe(-2);
+    expect(f.top[col(3, lo)]).toBe(water);
+    expect(f.road?.[col(3, lo)]).toBe(0);
+    // Recorded for the far view: the road's colour on the path's columns only.
+    expect(f.bridge?.[col(3, lo)]).toBeGreaterThan(0x1000000);
+    expect(f.bridge?.[col(3, 0)]).toBe(0);
+    const far = fieldPatchTops(f, base, []);
+    for (let a = 0; a < TERRAIN_VPT; a++) {
+      expect(far[col(a, lo)]).toBe((f.bridge?.[col(a, lo)] as number) & 0xffffff);
+      expect(far[col(a, lo)]).not.toBe(water);
+      expect(far[col(a, 0)]).toBe(f.top[col(a, 0)]);
+    }
+    // Without the road the record clears.
+    paintRoads(f, base, [], 7);
+    expect(f.bridge?.some((v) => v !== 0)).toBe(false);
   });
 });
