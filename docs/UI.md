@@ -205,7 +205,8 @@ UI shows the same numbers the server uses.
      Wheat"; a mine or quarry: the deposit it needs, "Quartz deposit →
      Quartz"; a building over water without inputs, like the fisher: "Coast →
      Fish"; a card with no input at all shows no arrow), for a public building only the need category it serves
-     ("Faith", no radius). A missing fertility replaces this line with a red "Needs
+     ("Faith", no radius); the Market's reads "Supplies goods" with the goods
+     group's icon (it serves the goods needs; `build.marketSupplies`). A missing fertility replaces this line with a red "Needs
      wheat fertility" (not what the island has; the placement ghost's hint
      keeps that).
 - **Panels:** parchment with a 3 px dark-wood border and inset light-wood

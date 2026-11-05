@@ -287,6 +287,7 @@ export const de: Record<keyof typeof en, string> = {
   "build.planningOn": "Planungsmodus ist an: Platzieren legt Pläne an · klicken zum Ausschalten",
   "build.planningOff": "Planungsmodus: Platzieren legt Pläne an, die du später baust",
   "build.inputCoast": "Küste",
+  "build.marketSupplies": "Versorgt mit Waren",
   "build.needsFertility": "Braucht {fertility}-Boden",
   "build.loadingIsland": "Insel lädt …",
   "quests.chainIntro": "Einstieg",

@@ -4,7 +4,7 @@ import { t } from "../i18n";
 import { buildCost, buildMenuGroups, buildTierTabs, defaultBuildTier, serviceNeedCategory } from "../display/buildMenu";
 import { perMin, tons, units } from "../display/format";
 import { depositName, fertilityName, fertilityNeed, lockReason } from "../display/tiers";
-import { goodIcon, needIcon, resourceIcon, toolIcon } from "../theme/iconSet";
+import { goodIcon, needGroupIcon, needIcon, resourceIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
 import type { Tool } from "./tools";
@@ -245,11 +245,19 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                           )}
                           {b.service && (
                             <span className={styles.flow}>
-                              {needCategory && (
-                                <span className={styles.withIcon}>
-                                  <Icon path={needIcon({ category: needCategory.id }, needCategory.icon)} />
-                                  {needCategory.name}
+                              {needCategory?.id === "market" ? (
+                                // The Market serves the goods needs: it supplies goods (the goods group's icon) rather than a need of its own.
+                                <span className={styles.withIcon} data-testid={`build-supplies-${b.id}`}>
+                                  <Icon path={needGroupIcon("goods")} />
+                                  {t("build.marketSupplies")}
                                 </span>
+                              ) : (
+                                needCategory && (
+                                  <span className={styles.withIcon}>
+                                    <Icon path={needIcon({ category: needCategory.id }, needCategory.icon)} />
+                                    {needCategory.name}
+                                  </span>
+                                )
                               )}
                             </span>
                           )}

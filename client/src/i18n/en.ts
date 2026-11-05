@@ -285,6 +285,7 @@ export const en = {
   "build.planningOn": "Planning mode is on: placements create plans · click to turn off",
   "build.planningOff": "Planning mode: placements create plans you build later",
   "build.inputCoast": "Coast",
+  "build.marketSupplies": "Supplies goods",
   "build.needsFertility": "Needs {fertility} fertility",
   "build.loadingIsland": "Loading island…",
   "quests.chainIntro": "Intro",
