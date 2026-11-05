@@ -120,7 +120,10 @@ handlers only.
   never go on mountains, so the generator places deposits such that every
   possible mine footprint touches buildable ground (tested for the dev
   archipelago); a mine with no buildable neighbour would be placeable but
-  never connectable.
+  never connectable. Every slot admits its building next to every other:
+  the generator reserves per slot a footprint of its largest deposit
+  building on mountain tiles with a buildable neighbour, pairwise
+  disjoint, slots ≥ 16 tiles apart (D-072 part 2; `Verify` checks it).
 - **Fertility** is an island-wide tag list (`Island.Fertilities`). A farm
   whose `work_area.fertility` is set can only be placed on an island
   carrying that tag (`no_fertility`; the error lists the island's tags).
@@ -861,7 +864,8 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
     coast between the massifs is beach (cliff at most 25 % of the shore;
     no harbour buildings — reserved beach sites keep the harbour
     guarantee). Deposit slots spread over the massifs (the k-th slot on
-    the k-th largest, round robin); an island drawn without a massif
+    the k-th largest, round robin; two slots of one kind on different
+    massifs where there are two); an island drawn without a massif
     gets no deposit slots. Mountain and cliff tiles are unbuildable
     (D-036).
   - **Rivers** (large 1–2, medium 0–1, small none; D-072) rise high on

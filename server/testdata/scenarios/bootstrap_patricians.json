@@ -2542,37 +2542,37 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "found_island": {
         "ship": 1,
         "island": "isle-02",
         "x": 115,
         "y": 17,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -3438,6 +3438,96 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-02",
         "type": "house_settlers",
@@ -3650,11 +3740,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-02",
         "farm": [
@@ -3835,21 +3920,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "type": "charcoal_burner",
@@ -3873,37 +3943,12 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "type": "warehouse",
         "x": 101,
         "y": 182,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -3921,42 +3966,12 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "type": "iron_mine",
         "x": 100,
         "y": 205,
         "rotation": 90
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -3971,31 +3986,6 @@
           100,
           204
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -4107,6 +4097,91 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "update_route": {
         "route": 1,
         "name": "Planks out, tools home",
@@ -4134,42 +4209,12 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "tavern",
         "x": 126,
         "y": 162,
         "rotation": 90
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -4200,40 +4245,10 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 134,
         "y": 183
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -4269,25 +4284,10 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 137,
         "y": 182
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -4337,6 +4337,11 @@
         "island": "isle-01",
         "x": 136,
         "y": 172
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -4438,15 +4443,15 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 128,
         "y": 158
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -4557,15 +4562,15 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 143,
         "y": 160
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -4625,20 +4630,15 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade_trading_post": {
         "island": "isle-01",
         "x": 122,
         "y": 198
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -4670,6 +4670,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "island": "isle-02",
         "type": "road_dirt",
@@ -4684,17 +4689,17 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "type": "chapel",
         "x": 62,
         "y": 66,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -4808,11 +4813,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "type": "quarry",
@@ -4874,6 +4874,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "dairy_farm",
@@ -4911,11 +4916,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -4928,6 +4928,11 @@
             151
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -4976,11 +4981,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -4993,6 +4993,11 @@
             147
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -5015,20 +5020,40 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-02",
         "x": 76,
         "y": 55
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -5039,20 +5064,10 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-02",
         "x": 78,
         "y": 61
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -5124,11 +5139,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -5164,12 +5174,52 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "tannery",
         "x": 110,
         "y": 182,
         "rotation": 90
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -6002,11 +6052,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -6748,11 +6793,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "lumberjack",
@@ -7136,11 +7176,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "sawmill",
@@ -7209,28 +7244,9 @@
       "place": {
         "island": "isle-02",
         "type": "clay_pit",
-        "x": 116,
-        "y": 59,
-        "rotation": 0
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          116,
-          65
-        ],
-        "to": [
-          116,
-          65
-        ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
+        "x": 104,
+        "y": 50,
+        "rotation": 90
       }
     },
     {
@@ -7240,11 +7256,6 @@
         "x": 110,
         "y": 28,
         "rotation": 90
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -7640,16 +7651,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "dairy_farm",
@@ -7774,11 +7775,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -7806,11 +7802,6 @@
             177
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -7862,11 +7853,6 @@
         "x": 115,
         "y": 158,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -7923,6 +7909,11 @@
           117,
           146
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -9624,6 +9615,26 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "apiary",
@@ -11153,6 +11164,31 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade_trading_post": {
         "island": "isle-01",
         "x": 122,
@@ -11160,8 +11196,166 @@
       }
     },
     {
+      "place": {
+        "island": "isle-01",
+        "type": "fire_station",
+        "x": 132,
+        "y": 160,
+        "rotation": 90
+      }
+    },
+    {
+      "place": {
+        "island": "isle-01",
+        "type": "city_guard",
+        "x": 122,
+        "y": 170,
+        "rotation": 0
+      }
+    },
+    {
       "advance": {
         "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "island": "isle-01",
+        "type": "school",
+        "x": 133,
+        "y": 164,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "island": "isle-01",
+        "x": 128,
+        "y": 180
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "island": "isle-01",
+        "x": 131,
+        "y": 183
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "island": "isle-01",
+        "x": 134,
+        "y": 183
       }
     },
     {
@@ -11185,11 +11379,6 @@
           193,
           111
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -11253,11 +11442,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -11273,22 +11457,12 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "cheese_dairy",
         "x": 153,
         "y": 166,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -11399,11 +11573,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -11476,16 +11645,6 @@
             168
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -11918,11 +12077,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -13000,159 +13154,6 @@
             100
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "island": "isle-01",
-        "type": "fire_station",
-        "x": 132,
-        "y": 160,
-        "rotation": 90
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "island": "isle-01",
-        "type": "city_guard",
-        "x": 122,
-        "y": 170,
-        "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "island": "isle-01",
-        "type": "school",
-        "x": 133,
-        "y": 164,
-        "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "island": "isle-01",
-        "x": 128,
-        "y": 180
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "island": "isle-01",
-        "x": 131,
-        "y": 183
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "upgrade": {
-        "island": "isle-01",
-        "x": 134,
-        "y": 183
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -13176,11 +13177,6 @@
           138,
           101
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -13218,16 +13214,6 @@
           122,
           89
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -13325,17 +13311,22 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "butcher",
         "x": 143,
         "y": 152,
         "rotation": 90
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -13568,11 +13559,6 @@
             30
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -14251,11 +14237,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-02",
         "farm": [
@@ -14307,6 +14288,16 @@
             }
           }
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -14953,11 +14944,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -15648,11 +15634,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -16028,6 +16009,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -16358,11 +16344,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -16463,6 +16444,26 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "brewery",
@@ -16524,12 +16525,32 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "leather_works",
         "x": 148,
         "y": 173,
         "rotation": 90
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -16940,16 +16961,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "paper_mill",
@@ -16987,32 +16998,12 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "printing_press",
         "x": 98,
         "y": 156,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -17698,6 +17689,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 140,
@@ -17766,31 +17762,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-02",
         "x": 73,
@@ -17848,6 +17819,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "pig_farm",
@@ -17872,6 +17848,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -17929,6 +17910,11 @@
             108
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -18014,6 +18000,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -18041,6 +18032,11 @@
             112
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -18097,11 +18093,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -18144,6 +18135,11 @@
             111
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -18226,11 +18222,6 @@
           122,
           82
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -18662,6 +18653,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -18959,11 +18955,6 @@
             95
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -19549,6 +19540,11 @@
             95
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -19849,11 +19845,6 @@
             92
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -20469,6 +20460,11 @@
             89
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -20478,11 +20474,6 @@
         "x": 98,
         "y": 53,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -20536,6 +20527,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "brewery",
@@ -20578,17 +20574,17 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "butcher",
         "x": 106,
         "y": 151,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -20671,47 +20667,17 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "type": "hop_farm",
         "x": 112,
         "y": 60,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -21127,6 +21093,21 @@
         ],
         "tiles": [
           [
+            116,
+            65
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          112,
+          60
+        ],
+        "tiles": [
+          [
             109,
             64
           ]
@@ -21188,6 +21169,21 @@
         "tiles": [
           [
             109,
+            65
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          112,
+          60
+        ],
+        "tiles": [
+          [
+            117,
             65
           ]
         ]
@@ -21599,36 +21595,6 @@
       }
     },
     {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          112,
-          60
-        ],
-        "tiles": [
-          [
-            104,
-            62
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          112,
-          60
-        ],
-        "tiles": [
-          [
-            104,
-            60
-          ]
-        ]
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "type": "house_settlers",
@@ -21652,6 +21618,21 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 122,
@@ -21663,6 +21644,11 @@
         "island": "isle-01",
         "x": 124,
         "y": 179
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -21717,6 +21703,11 @@
             103
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -22276,11 +22267,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -22293,6 +22279,11 @@
             98
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -22344,11 +22335,6 @@
           139,
           134
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -22427,6 +22413,11 @@
         "x": 130,
         "y": 135,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -22514,15 +22505,15 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 122,
         "y": 160
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -22657,11 +22648,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 128,
@@ -22678,17 +22664,17 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "warehouse",
         "x": 51,
         "y": 182,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -22743,6 +22729,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "wheat_farm",
@@ -22752,6 +22743,501 @@
       }
     },
     {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            146,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            147,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            145,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            148,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            144,
+            99
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            149,
+            99
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            144,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            149,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            144,
+            100
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            149,
+            100
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            146,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            147,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            144,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            149,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            145,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            148,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            143,
+            99
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            143,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            143,
+            100
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            144,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            149,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            146,
+            95
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            147,
+            95
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            143,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            145,
+            95
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            148,
+            95
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            142,
+            99
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            143,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            150,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            142,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            142,
+            100
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            144,
+            95
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-01",
+        "farm": [
+          145,
+          98
+        ],
+        "tiles": [
+          [
+            149,
+            95
+          ]
+        ]
+      }
+    },
+    {
       "advance": {
         "duration": "1m"
       }
@@ -22765,501 +23251,6 @@
         ],
         "tiles": [
           [
-            146,
-            97
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            147,
-            97
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            145,
-            97
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            148,
-            97
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            144,
-            99
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            149,
-            99
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            144,
-            98
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            149,
-            98
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            144,
-            100
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            149,
-            100
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            146,
-            96
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            147,
-            96
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            144,
-            97
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            149,
-            97
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            145,
-            96
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            148,
-            96
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            143,
-            99
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            143,
-            98
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            143,
-            100
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            144,
-            96
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            149,
-            96
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            146,
-            95
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            147,
-            95
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            143,
-            97
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            145,
-            95
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            148,
-            95
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            142,
-            99
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            143,
-            96
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            150,
-            96
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            142,
-            98
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            142,
-            100
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            144,
-            95
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
-            149,
-            95
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-01",
-        "farm": [
-          145,
-          98
-        ],
-        "tiles": [
-          [
             142,
             97
           ]
@@ -23969,11 +23960,6 @@
             92
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -24484,6 +24470,11 @@
             89
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -24868,26 +24859,6 @@
         "x": 144,
         "y": 126,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -25182,6 +25153,11 @@
             67
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -25837,6 +25813,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "brewery",
@@ -25860,6 +25841,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "butcher",
@@ -25880,6 +25866,11 @@
           92,
           157
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -26032,11 +26023,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -26100,6 +26086,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "island": "isle-01",
         "farm": [
@@ -26133,11 +26124,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "meadery",
@@ -26157,15 +26143,15 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 131,
         "y": 156
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -26190,12 +26176,62 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "manual_shipment": {
         "ship": 2,
         "to": "isle-06",
         "cargo": {
           "planks": 100
         }
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -28681,16 +28717,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "order_ship": {
         "island": "isle-01",
         "x": 108,
@@ -28717,6 +28743,21 @@
     {
       "unassign_ship": {
         "ship": 2
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -37032,31 +37073,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "type": "hop_farm",
@@ -38382,6 +38398,31 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 130,
@@ -38701,31 +38742,6 @@
         "island": "isle-01",
         "x": 131,
         "y": 143
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -41291,6 +41307,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-02",
         "type": "hop_farm",
@@ -42274,6 +42295,26 @@
         "island": "isle-01",
         "x": 145,
         "y": 141
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -46618,31 +46659,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 145,
@@ -48532,16 +48548,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 149,
@@ -48584,10 +48590,45 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 149,
         "y": 125
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -48687,16 +48728,6 @@
             ]
           }
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -48874,6 +48905,16 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "assign_ship": {
         "ship": 4,
         "route": 4
@@ -48914,16 +48955,6 @@
           72,
           88
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -50700,6 +50731,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade_warehouse": {
         "island": "isle-01",
         "x": 105,
@@ -50707,10 +50743,20 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 145,
         "y": 119
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -51003,6 +51049,26 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "leather_works",
@@ -51055,11 +51121,6 @@
         "island": "isle-01",
         "x": 149,
         "y": 125
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -51140,36 +51201,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 149,
@@ -51183,16 +51214,6 @@
         "x": 92,
         "y": 168,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -51325,6 +51346,21 @@
         "island": "isle-01",
         "x": 145,
         "y": 116
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -51497,6 +51533,31 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 149,
@@ -51524,6 +51585,26 @@
           86,
           159
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -51638,66 +51719,6 @@
         "island": "isle-01",
         "x": 129,
         "y": 123
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -53286,6 +53307,16 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "salt_pans",
@@ -53323,10 +53354,20 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 149,
         "y": 119
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -54420,6 +54461,21 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "brewery",
@@ -54466,16 +54522,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "meadery",
@@ -54510,21 +54556,6 @@
           92,
           143
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -54677,36 +54708,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "school",
@@ -54736,6 +54737,66 @@
           187,
           206
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -54948,16 +55009,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "church",
@@ -54976,6 +55027,11 @@
         "island": "isle-01",
         "x": 189,
         "y": 196
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -55039,6 +55095,16 @@
           82,
           166
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -55277,10 +55343,25 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 200,
         "y": 196
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -55297,6 +55378,11 @@
         "x": 96,
         "y": 165,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -55561,6 +55647,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "cheese_dairy",
@@ -55584,11 +55675,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 194,
@@ -55601,35 +55687,15 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 189,
         "y": 196
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -55649,11 +55715,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 197,
@@ -55665,6 +55726,21 @@
         "island": "isle-01",
         "x": 194,
         "y": 208
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -55928,6 +56004,16 @@
         "island": "isle-01",
         "x": 185,
         "y": 200
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -56918,11 +57004,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "butcher",
@@ -56982,21 +57063,6 @@
         "island": "isle-01",
         "x": 185,
         "y": 197
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -57719,22 +57785,22 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "island": "isle-01",
         "type": "winepress",
         "x": 173,
         "y": 121,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -57884,16 +57950,6 @@
         "x": 108,
         "y": 191,
         "ship_type": "galleon"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -58277,41 +58333,6 @@
         "x": 92,
         "y": 70,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -59839,6 +59860,16 @@
             105
           ]
         ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -61382,6 +61413,11 @@
         "x": 77,
         "y": 85,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -63090,18 +63126,159 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "assign_ship": {
         "ship": 6,
         "route": 5
       }
     },
     {
+      "order_ship": {
+        "island": "isle-01",
+        "x": 108,
+        "y": 191,
+        "ship_type": "galleon"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "assign_ship": {
+        "ship": 7,
+        "route": 5
+      }
+    },
+    {
+      "order_ship": {
+        "island": "isle-01",
+        "x": 108,
+        "y": 191,
+        "ship_type": "brig"
+      }
+    },
+    {
+      "update_route": {
+        "route": 4,
+        "name": "Stone out, pigs home",
+        "stops": [
+          {
+            "island": "isle-01",
+            "load": {
+              "stone": 30
+            },
+            "unload": [
+              "pigs",
+              "milk"
+            ]
+          },
+          {
+            "island": "isle-06",
+            "load": {
+              "milk": 30,
+              "pigs": 150
+            },
+            "unload": [
+              "stone"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "assign_ship": {
+        "ship": 8,
+        "route": 4
+      }
+    },
+    {
       "place": {
         "island": "isle-02",
-        "type": "pig_farm",
+        "type": "cattle_farm",
         "x": 102,
-        "y": 162,
-        "rotation": 90
+        "y": 160,
+        "rotation": 0
       }
     },
     {
@@ -63109,11 +63286,26 @@
         "island": "isle-02",
         "farm": [
           102,
-          162
+          160
         ],
         "tiles": [
           [
-            103,
+            106,
+            162
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          102,
+          160
+        ],
+        "tiles": [
+          [
+            102,
             165
           ]
         ]
@@ -63124,12 +63316,12 @@
         "island": "isle-02",
         "farm": [
           102,
-          162
+          160
         ],
         "tiles": [
           [
-            106,
-            163
+            110,
+            162
           ]
         ]
       }
@@ -63139,12 +63331,12 @@
         "island": "isle-02",
         "farm": [
           102,
-          162
+          160
         ],
         "tiles": [
           [
             106,
-            159
+            155
           ]
         ]
       }
@@ -63154,11 +63346,236 @@
         "island": "isle-02",
         "farm": [
           102,
-          162
+          160
         ],
         "tiles": [
           [
             106,
+            169
+          ]
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "island": "isle-01",
+        "type": "slaughterhouse",
+        "x": 88,
+        "y": 113,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "island": "isle-02",
+        "type": "cattle_farm",
+        "x": 91,
+        "y": 167,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "island": "isle-02",
+        "type": "road_dirt",
+        "from": [
+          100,
+          171
+        ],
+        "to": [
+          95,
+          171
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          91,
+          167
+        ],
+        "tiles": [
+          [
+            92,
+            172
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          91,
+          167
+        ],
+        "tiles": [
+          [
+            96,
+            172
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          91,
+          167
+        ],
+        "tiles": [
+          [
+            88,
+            172
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          91,
+          167
+        ],
+        "tiles": [
+          [
+            87,
+            165
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          91,
+          167
+        ],
+        "tiles": [
+          [
+            84,
+            172
+          ]
+        ]
+      }
+    },
+    {
+      "place": {
+        "island": "isle-02",
+        "type": "cattle_farm",
+        "x": 110,
+        "y": 172,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "island": "isle-02",
+        "type": "road_dirt",
+        "from": [
+          102,
+          176
+        ],
+        "to": [
+          109,
+          176
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          110,
+          172
+        ],
+        "tiles": [
+          [
+            114,
+            174
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          110,
+          172
+        ],
+        "tiles": [
+          [
+            110,
+            177
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          110,
+          172
+        ],
+        "tiles": [
+          [
+            118,
+            174
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          110,
+          172
+        ],
+        "tiles": [
+          [
+            114,
             167
           ]
         ]
@@ -63168,13 +63585,13 @@
       "fields": {
         "island": "isle-02",
         "farm": [
-          102,
-          162
+          110,
+          172
         ],
         "tiles": [
           [
-            103,
-            158
+            118,
+            167
           ]
         ]
       }
@@ -63190,78 +63607,207 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "place": {
+        "island": "isle-01",
+        "type": "slaughterhouse",
+        "x": 74,
+        "y": 111,
+        "rotation": 0
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "island": "isle-01",
+        "type": "road_dirt",
+        "from": [
+          74,
+          109
+        ],
+        "to": [
+          74,
+          110
+        ]
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "place": {
+        "island": "isle-02",
+        "type": "house_settlers",
+        "x": 55,
+        "y": 77,
+        "rotation": 0
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "island": "isle-02",
+        "type": "road_dirt",
+        "from": [
+          52,
+          75
+        ],
+        "to": [
+          52,
+          77
+        ]
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "island": "isle-02",
+        "type": "road_dirt",
+        "from": [
+          53,
+          77
+        ],
+        "to": [
+          54,
+          77
+        ]
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "place": {
+        "island": "isle-02",
+        "type": "house_settlers",
+        "x": 58,
+        "y": 78,
+        "rotation": 0
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "island": "isle-02",
+        "type": "road_dirt",
+        "from": [
+          54,
+          78
+        ],
+        "to": [
+          54,
+          80
+        ]
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "island": "isle-02",
+        "type": "road_dirt",
+        "from": [
+          55,
+          80
+        ],
+        "to": [
+          57,
+          80
+        ]
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "place": {
+        "island": "isle-02",
+        "type": "house_settlers",
+        "x": 60,
+        "y": 81,
+        "rotation": 0
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "road": {
+        "island": "isle-02",
+        "type": "road_dirt",
+        "from": [
+          57,
+          81
+        ],
+        "to": [
+          59,
+          81
+        ]
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "place": {
+        "island": "isle-02",
+        "type": "pig_farm",
+        "x": 106,
+        "y": 177,
+        "rotation": 90
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          106,
+          177
+        ],
+        "tiles": [
+          [
+            107,
+            180
+          ]
+        ]
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          106,
+          177
+        ],
+        "tiles": [
+          [
+            103,
+            178
+          ]
+        ]
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          106,
+          177
+        ],
+        "tiles": [
+          [
+            107,
+            184
+          ]
+        ]
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          106,
+          177
+        ],
+        "tiles": [
+          [
+            110,
+            184
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          106,
+          177
+        ],
+        "tiles": [
+          [
+            113,
+            184
+          ]
+        ]
       }
     },
     {
@@ -63284,16 +63830,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 128,
@@ -63301,35 +63837,710 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade_trading_post": {
         "island": "isle-01",
         "x": 122,
         "y": 198
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -63946,516 +65157,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "cathedral",
@@ -64489,8 +65190,8 @@
       "place": {
         "island": "isle-02",
         "type": "salt_pans",
-        "x": 112,
-        "y": 186,
+        "x": 111,
+        "y": 201,
         "rotation": 90
       }
     },
@@ -64500,11 +65201,11 @@
         "type": "road_dirt",
         "from": [
           101,
-          188
+          201
         ],
         "to": [
-          111,
-          188
+          110,
+          201
         ]
       }
     },
@@ -64512,8 +65213,8 @@
       "place": {
         "island": "isle-02",
         "type": "house_settlers",
-        "x": 55,
-        "y": 77,
+        "x": 63,
+        "y": 81,
         "rotation": 0
       }
     },
@@ -64522,12 +65223,12 @@
         "island": "isle-02",
         "type": "road_dirt",
         "from": [
-          52,
-          75
+          59,
+          82
         ],
         "to": [
-          52,
-          77
+          59,
+          84
         ]
       }
     },
@@ -64536,38 +65237,13 @@
         "island": "isle-02",
         "type": "road_dirt",
         "from": [
-          53,
-          77
+          60,
+          84
         ],
         "to": [
-          54,
-          77
+          63,
+          84
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -64638,9 +65314,9 @@
       "place": {
         "island": "isle-02",
         "type": "salt_pans",
-        "x": 117,
-        "y": 177,
-        "rotation": 180
+        "x": 112,
+        "y": 196,
+        "rotation": 90
       }
     },
     {
@@ -64648,26 +65324,12 @@
         "island": "isle-02",
         "type": "road_dirt",
         "from": [
-          111,
-          187
+          110,
+          200
         ],
         "to": [
           111,
-          185
-        ]
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          112,
-          185
-        ],
-        "to": [
-          116,
-          185
+          200
         ]
       }
     },
@@ -64675,8 +65337,8 @@
       "place": {
         "island": "isle-02",
         "type": "house_settlers",
-        "x": 58,
-        "y": 78,
+        "x": 66,
+        "y": 82,
         "rotation": 0
       }
     },
@@ -64685,26 +65347,12 @@
         "island": "isle-02",
         "type": "road_dirt",
         "from": [
-          54,
-          78
+          64,
+          84
         ],
         "to": [
-          54,
-          80
-        ]
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          55,
-          80
-        ],
-        "to": [
-          57,
-          80
+          65,
+          84
         ]
       }
     },
@@ -64713,11 +65361,6 @@
         "island": "isle-01",
         "x": 188,
         "y": 189
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -64735,17 +65378,21 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
+      "place": {
+        "island": "isle-02",
+        "type": "warehouse",
+        "x": 47,
+        "y": 52,
+        "rotation": 0
       }
     },
     {
       "place": {
         "island": "isle-02",
         "type": "salt_pans",
-        "x": 112,
-        "y": 195,
-        "rotation": 90
+        "x": 56,
+        "y": 43,
+        "rotation": 270
       }
     },
     {
@@ -64753,47 +65400,13 @@
         "island": "isle-02",
         "type": "road_dirt",
         "from": [
-          111,
-          189
+          64,
+          48
         ],
         "to": [
-          111,
-          191
+          64,
+          48
         ]
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          112,
-          191
-        ],
-        "to": [
-          112,
-          194
-        ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -64834,232 +65447,21 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "island": "isle-02",
-        "type": "cattle_farm",
-        "x": 91,
-        "y": 167,
-        "rotation": 0
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          100,
-          171
-        ],
-        "to": [
-          95,
-          171
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          91,
-          167
-        ],
-        "tiles": [
-          [
-            92,
-            172
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          91,
-          167
-        ],
-        "tiles": [
-          [
-            96,
-            172
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          91,
-          167
-        ],
-        "tiles": [
-          [
-            88,
-            172
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          91,
-          167
-        ],
-        "tiles": [
-          [
-            87,
-            165
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          91,
-          167
-        ],
-        "tiles": [
-          [
-            84,
-            172
-          ]
-        ]
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "type": "house_settlers",
-        "x": 60,
-        "y": 81,
+        "x": 56,
+        "y": 82,
         "rotation": 0
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          57,
-          81
-        ],
-        "to": [
-          59,
-          81
-        ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
       "place": {
         "island": "isle-01",
         "type": "cooperage",
-        "x": 86,
-        "y": 114,
-        "rotation": 90
-      }
-    },
-    {
-      "road": {
-        "island": "isle-01",
-        "type": "road_dirt",
-        "from": [
-          91,
-          113
-        ],
-        "to": [
-          91,
-          113
-        ]
+        "x": 160,
+        "y": 186,
+        "rotation": 0
       }
     },
     {
@@ -65070,49 +65472,125 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "upgrade": {
         "island": "isle-01",
         "x": 185,
         "y": 197
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "island": "isle-01",
-        "type": "slaughterhouse",
-        "x": 160,
-        "y": 188,
-        "rotation": 0
       }
     },
     {
@@ -65145,95 +65623,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "island": "isle-02",
-        "type": "cattle_farm",
-        "x": 102,
-        "y": 169,
-        "rotation": 0
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          102,
-          169
-        ],
-        "tiles": [
-          [
-            106,
-            171
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          102,
-          169
-        ],
-        "tiles": [
-          [
-            102,
-            174
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          102,
-          169
-        ],
-        "tiles": [
-          [
-            110,
-            171
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          102,
-          169
-        ],
-        "tiles": [
-          [
-            107,
-            178
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          102,
-          169
-        ],
-        "tiles": [
-          [
-            109,
-            164
-          ]
-        ]
-      }
-    },
-    {
       "update_route": {
         "route": 2,
         "name": "Bricks home",
@@ -65261,60 +65650,18 @@
       "place": {
         "island": "isle-02",
         "type": "house_settlers",
-        "x": 63,
-        "y": 81,
+        "x": 65,
+        "y": 85,
         "rotation": 0
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          59,
-          82
-        ],
-        "to": [
-          59,
-          84
-        ]
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          60,
-          84
-        ],
-        "to": [
-          63,
-          84
-        ]
       }
     },
     {
       "place": {
         "island": "isle-02",
         "type": "house_settlers",
-        "x": 66,
-        "y": 82,
+        "x": 51,
+        "y": 78,
         "rotation": 0
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          64,
-          84
-        ],
-        "to": [
-          65,
-          84
-        ]
       }
     },
     {
@@ -65325,35 +65672,178 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "upgrade": {
         "island": "isle-01",
         "x": 188,
         "y": 189
+      }
+    },
+    {
+      "place": {
+        "island": "isle-02",
+        "type": "pig_farm",
+        "x": 68,
+        "y": 45,
+        "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          68,
+          45
+        ],
+        "tiles": [
+          [
+            71,
+            45
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          68,
+          45
+        ],
+        "tiles": [
+          [
+            65,
+            45
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          68,
+          45
+        ],
+        "tiles": [
+          [
+            74,
+            46
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          68,
+          45
+        ],
+        "tiles": [
+          [
+            69,
+            41
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          68,
+          45
+        ],
+        "tiles": [
+          [
+            66,
+            41
+          ]
+        ]
+      }
+    },
+    {
+      "place": {
+        "island": "isle-02",
+        "type": "pig_farm",
+        "x": 47,
+        "y": 58,
+        "rotation": 90
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          47,
+          58
+        ],
+        "tiles": [
+          [
+            46,
+            61
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          47,
+          58
+        ],
+        "tiles": [
+          [
+            44,
+            57
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          47,
+          58
+        ],
+        "tiles": [
+          [
+            43,
+            61
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          47,
+          58
+        ],
+        "tiles": [
+          [
+            46,
+            65
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "island": "isle-02",
+        "farm": [
+          47,
+          58
+        ],
+        "tiles": [
+          [
+            41,
+            57
+          ]
+        ]
       }
     },
     {
@@ -65370,11 +65860,39 @@
         "island": "isle-02",
         "type": "road_dirt",
         "from": [
-          65,
+          64,
           85
         ],
         "to": [
-          69,
+          64,
+          88
+        ]
+      }
+    },
+    {
+      "road": {
+        "island": "isle-02",
+        "type": "road_dirt",
+        "from": [
+          65,
+          88
+        ],
+        "to": [
+          68,
+          88
+        ]
+      }
+    },
+    {
+      "road": {
+        "island": "isle-02",
+        "type": "road_dirt",
+        "from": [
+          68,
+          87
+        ],
+        "to": [
+          68,
           85
         ]
       }
@@ -65385,7 +65903,7 @@
         "type": "road_dirt",
         "from": [
           69,
-          84
+          85
         ],
         "to": [
           69,
@@ -65484,234 +66002,19 @@
     },
     {
       "place": {
-        "island": "isle-02",
-        "type": "pig_farm",
-        "x": 77,
-        "y": 86,
-        "rotation": 0
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          73,
-          82
-        ],
-        "to": [
-          73,
-          88
-        ]
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          74,
-          88
-        ],
-        "to": [
-          76,
-          88
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          77,
-          86
-        ],
-        "tiles": [
-          [
-            80,
-            88
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          77,
-          86
-        ],
-        "tiles": [
-          [
-            77,
-            90
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          77,
-          86
-        ],
-        "tiles": [
-          [
-            74,
-            89
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          77,
-          86
-        ],
-        "tiles": [
-          [
-            80,
-            92
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          77,
-          86
-        ],
-        "tiles": [
-          [
-            77,
-            94
-          ]
-        ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "island": "isle-02",
-        "type": "pig_farm",
-        "x": 114,
-        "y": 170,
-        "rotation": 0
-      }
-    },
-    {
-      "road": {
-        "island": "isle-02",
-        "type": "road_dirt",
-        "from": [
-          114,
-          184
-        ],
-        "to": [
-          114,
-          174
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          114,
-          170
-        ],
-        "tiles": [
-          [
-            117,
-            171
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          114,
-          170
-        ],
-        "tiles": [
-          [
-            117,
-            167
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          114,
-          170
-        ],
-        "tiles": [
-          [
-            120,
-            171
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          114,
-          170
-        ],
-        "tiles": [
-          [
-            114,
-            166
-          ]
-        ]
-      }
-    },
-    {
-      "fields": {
-        "island": "isle-02",
-        "farm": [
-          114,
-          170
-        ],
-        "tiles": [
-          [
-            120,
-            167
-          ]
-        ]
-      }
-    },
-    {
-      "place": {
         "island": "isle-01",
         "type": "leather_works",
-        "x": 160,
-        "y": 184,
-        "rotation": 0
+        "x": 152,
+        "y": 173,
+        "rotation": 90
       }
     },
     {
       "place": {
         "island": "isle-01",
         "type": "tailor",
-        "x": 153,
-        "y": 171,
+        "x": 160,
+        "y": 181,
         "rotation": 0
       }
     },
@@ -65751,22 +66054,32 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-01",
         "type": "luthier",
-        "x": 74,
-        "y": 109,
+        "x": 86,
+        "y": 102,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -65783,11 +66096,11 @@
         "island": "isle-01",
         "type": "road_dirt",
         "from": [
-          70,
-          109
+          73,
+          110
         ],
         "to": [
-          70,
+          73,
           111
         ]
       }

@@ -12,6 +12,7 @@ package archipelago
 // ATLAS_STATS=<n> prints the guarantee statistics over seeds 1..n instead.
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -390,6 +391,15 @@ func renderIsland(is *sim.Island, c *content.Catalogue) *image.RGBA {
 			outline(img, r.X*s, r.Y*s, (r.X+r.W)*s, (r.Y+r.H)*s, max(1, s/3), hex("#F08A24"))
 		}
 	}
+	// The slot footprints (D-072 part 2): a disjoint footprint of each
+	// slot's deposit building, as Verify finds them, thin and dark.
+	if feet, ok := SlotFootprints(is, c); ok {
+		for _, r := range feet {
+			if r.W > 0 {
+				outline(img, r.X*s, r.Y*s, (r.X+r.W)*s, (r.Y+r.H)*s, 1, hex("#202020"))
+			}
+		}
+	}
 	st := statsOf(is)
 	if sc != nil && sc.Shape.Plain > 0 {
 		if x, y, ok := plainAt(is, sc.Shape.Plain); ok {
@@ -508,6 +518,9 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 		level2                             map[int]int // level-2 share of land, by tens of percent
 		massifs                            map[int]int
 		peak, tpMin, tpSum                 int
+		// slots and their pairs of one kind on one mountain component
+		// (sharedKind) and on a single-component island (sharedForced).
+		slots, sharedKind, sharedForced int
 	}
 	per := map[string]*agg{}
 	archAttempts := map[int]int{}
@@ -575,12 +588,21 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 			g.level2[10*st.levels[2]/max(1, st.levels[0]+st.levels[1]+st.levels[2])*10]++
 			g.massifs[st.massifs]++
 			g.peak = max(g.peak, st.peak)
+			sl, shared, single := slotSpread(is)
+			g.slots += sl
+			g.sharedKind += shared
+			if single {
+				g.sharedForced += shared
+			}
 			tp := tradingPostSites(is, c, c.Islands.SizeClassByID[is.SizeClass].Shape.Plain)
 			g.tpMin, g.tpSum = min(g.tpMin, tp), g.tpSum+tp
 		}
 	}
 	// Shape retries: rerun buildIsland's loop for the plans of seed 1..min(n, 50).
 	shapeTries := map[string][]int{}
+	// slotFails counts the shape attempts turned down for their slots
+	// (no slot or footprint fits, D-072 part 2).
+	slotFails := map[string]int{}
 	for seed := uint64(1); seed <= uint64(min(n, 50)); seed++ {
 		sub := derive(seed, 0)
 		late := func(k int) *rng { return newRNG(derive(sub, 3+uint64(k))) }
@@ -592,11 +614,19 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 		plans = append(append([]*plan{plans[home]}, plans[:home]...), plans[home+1:]...)
 		for i, p := range plans {
 			s := &scratch{}
-			gap := slotGap(c)
+			sr := newSlotRules(c)
 			for attempt := range maxShapeAttempts {
 				r := newRNG(derive(derive(sub, 100+uint64(i)), uint64(attempt)))
-				g := shape(r, p.class, p.massifs, p.deposits, gap, s)
-				if g != nil && verifyIsland(g.island(p), c) == nil {
+				g := shape(r, p.class, p.massifs, p.deposits, sr, s)
+				var err error
+				if g != nil {
+					err = verifyIsland(g.island(p), c)
+				}
+				switch {
+				case g == nil && s.reject == "slots", errors.Is(err, ErrSlotUnminable):
+					slotFails[p.class.ID]++
+				}
+				if g != nil && err == nil {
 					shapeTries[p.class.ID] = append(shapeTries[p.class.ID], attempt+1)
 					break
 				}
@@ -642,7 +672,40 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 		t.Logf("%-6s deepest bay %s%% of span (min/median/max) | longest peninsula %s%%", sc.ID, q(g.bays), q(g.pens))
 		t.Logf("%-6s massifs histogram %v | highest rock %d | disjoint Trading Post sites reaching the plain min %d mean %d",
 			sc.ID, g.massifs, g.peak, g.tpMin, g.tpSum/g.islands)
+		t.Logf("%-6s deposit slots %d | same-kind pairs on one massif %d (%d on islands with one massif) | shape attempts turned down for slots %d (seeds 1..%d)",
+			sc.ID, g.slots, g.sharedKind, g.sharedForced, slotFails[sc.ID], n)
 	}
+}
+
+// slotSpread returns the slot count of an island, the pairs of same-kind
+// slots on one massif (mountain and cliff component reaching massifPeak,
+// as statsOf counts them) and whether the island has at most one massif.
+func slotSpread(is *sim.Island) (slots, shared int, single bool) {
+	comp := make([]int, len(is.Tiles))
+	massifs := 0
+	for k, cs := range componentsOf(is, func(t sim.Tile) bool {
+		return t.Terrain == content.TerrainMountain || t.Terrain == content.TerrainCliff
+	}) {
+		top := 0
+		for _, i := range cs {
+			top = max(top, is.Tiles[i].Height)
+		}
+		if top >= massifPeak {
+			massifs++
+		}
+		for _, i := range cs {
+			comp[i] = k + 1
+		}
+	}
+	ds := depositSlots(is)
+	for i, a := range ds {
+		for _, b := range ds[i+1:] {
+			if a.kind == b.kind && comp[a.tiles[0].Y*is.Width+a.tiles[0].X] == comp[b.tiles[0].Y*is.Width+b.tiles[0].X] {
+				shared++
+			}
+		}
+	}
+	return len(ds), shared, massifs <= 1
 }
 
 // TestShapeAttempts renders ATLAS_ATTEMPTS shape attempts of every size
@@ -682,7 +745,7 @@ func TestShapeAttempts(t *testing.T) {
 		for attempt := range n {
 			r := newRNG(derive(derive(sub, 100+uint64(i)), uint64(attempt)))
 			s.reject = ""
-			g := shape(r, p.class, p.massifs, p.deposits, slotGap(c), s)
+			g := shape(r, p.class, p.massifs, p.deposits, newSlotRules(c), s)
 			why := s.reject
 			if g != nil {
 				is := g.island(p)

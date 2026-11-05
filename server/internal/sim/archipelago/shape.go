@@ -1,6 +1,8 @@
 package archipelago
 
 import (
+	"slices"
+
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
@@ -78,6 +80,9 @@ func ints(buf []int, n int) []int {
 type slot struct {
 	kind  string
 	tiles [2]int
+	// foot is the reserved footprint (x, y, w, h; w 0: none), the
+	// generator's own (D-072 part 2).
+	foot [4]int
 }
 
 // newGrid returns an all-water grid of n x n tiles on the scratch buffers
@@ -435,9 +440,9 @@ func grow(r *rng, g *grid, start, size int, ok func(int) bool) []int {
 // coast band around a mountain core. It returns nil when the attempt does
 // not fit (land outside the area window, no room for a feature or the
 // slots); the caller retries with a new sub-seed.
-func shape(r *rng, sc *content.SizeClass, massifs int, deposits []string, gap int, s *scratch) *grid {
+func shape(r *rng, sc *content.SizeClass, massifs int, deposits []string, sr slotRules, s *scratch) *grid {
 	if !sc.Rock {
-		return habitable(r, sc, massifs, deposits, gap, s)
+		return habitable(r, sc, massifs, deposits, sr, s)
 	}
 	g := landMass(r, sc.Size, true, s)
 	land := g.landCount()
@@ -465,7 +470,12 @@ func shape(r *rng, sc *content.SizeClass, massifs int, deposits []string, gap in
 			g.hgt[i] = 0
 		}
 	}
-	if !g.placeSlots(r, deposits, gap) {
+	// A rock is 16 tiles across: two slots cannot lie the habitable
+	// islands' gap apart, so a rock keeps the footprint's longest side
+	// (its reserved footprints stay disjoint all the same).
+	rs := sr
+	rs.gap = sr.side
+	if !g.placeSlots(r, deposits, rs) {
 		return nil
 	}
 	return g
@@ -598,12 +608,18 @@ func (g *grid) edgeMountain(i int) bool {
 }
 
 // placeSlots places one slot per entry of kinds: two 4-adjacent edge
-// mountain tiles, at Chebyshev distance >= gap from every tile of another
-// slot (gap is the longest side of a deposit building, so no footprint
-// covers two slots: a mine occupies exactly one, MECHANICS §2). The
-// slots spread over the massifs (D-072 §4): the k-th slot prefers the
-// k-th massif by size (round robin), then any edge.
-func (g *grid) placeSlots(r *rng, kinds []string, gap int) bool {
+// mountain tiles, at Chebyshev distance >= sr.gap from every tile of
+// another slot, with a reserved footprint (D-072 part 2): a rectangle of
+// the kind's footprint (either rotation) on mountain tiles that covers a
+// tile of the slot, no other slot's tile and no earlier reservation, with
+// a buildable tile 4-adjacent to it where a road can reach it. A
+// candidate without one is skipped; every slot so admits its building
+// next to every other (MECHANICS §2). The reservation is the generator's
+// own (Verify finds such footprints on the tiles again). The slots spread
+// over the massifs (D-072 §4): the k-th slot prefers the k-th massif by
+// size (round robin), then any massif that holds no slot of its kind yet,
+// then any edge.
+func (g *grid) placeSlots(r *rng, kinds []string, sr slotRules) bool {
 	type pair struct{ a, b int }
 	var cands []pair
 	for i := range g.t {
@@ -620,7 +636,7 @@ func (g *grid) placeSlots(r *rng, kinds []string, gap int) bool {
 	}
 	r.shuffle(len(cands), func(i, j int) { cands[i], cands[j] = cands[j], cands[i] })
 	far := func(a, b int) bool {
-		return max(abs(a%g.n-b%g.n), abs(a/g.n-b/g.n)) >= gap
+		return max(abs(a%g.n-b%g.n), abs(a/g.n-b/g.n)) >= sr.gap
 	}
 	order := g.massifOrder()
 	massifOf := func(i int) int {
@@ -629,15 +645,24 @@ func (g *grid) placeSlots(r *rng, kinds []string, gap int) bool {
 		}
 		return g.mass[i]
 	}
+	// used[kind] holds the massifs carrying a slot of the kind.
+	used := map[string][]int{}
 	for k, kind := range kinds {
 		want := 0
 		if len(order) > 0 {
 			want = order[k%len(order)]
 		}
+		fresh := func(c pair) bool {
+			m := massifOf(c.a)
+			return m != 0 && m == massifOf(c.b) && !slices.Contains(used[kind], m)
+		}
 		placed := false
-		for pass := range 2 {
+		for pass := range 3 {
 			for _, c := range cands {
-				if pass == 0 && (want == 0 || massifOf(c.a) != want || massifOf(c.b) != want) {
+				switch {
+				case pass == 0 && (want == 0 || massifOf(c.a) != want || massifOf(c.b) != want || !fresh(c)):
+					continue
+				case pass == 1 && (len(order) < 2 || !fresh(c)):
 					continue
 				}
 				ok := true
@@ -647,16 +672,30 @@ func (g *grid) placeSlots(r *rng, kinds []string, gap int) bool {
 							ok = false
 						}
 					}
-				}
-				if ok {
-					g.slots = append(g.slots, slot{kind: kind, tiles: [2]int{c.a, c.b}})
-					if g.dep == nil {
-						g.dep = make([]int, len(g.t))
+					// Never a slot inside an earlier reservation.
+					for _, t := range [2]int{c.a, c.b} {
+						if f := s.foot; f[2] > 0 && t%g.n >= f[0] && t%g.n < f[0]+f[2] && t/g.n >= f[1] && t/g.n < f[1]+f[3] {
+							ok = false
+						}
 					}
-					g.dep[c.a], g.dep[c.b] = len(g.slots), len(g.slots)
-					placed = true
-					break
 				}
+				if !ok {
+					continue
+				}
+				foot, ok := g.reserve(c.a, c.b, sr.feet[kind])
+				if !ok {
+					continue
+				}
+				g.slots = append(g.slots, slot{kind: kind, tiles: [2]int{c.a, c.b}, foot: foot})
+				if g.dep == nil {
+					g.dep = make([]int, len(g.t))
+				}
+				g.dep[c.a], g.dep[c.b] = len(g.slots), len(g.slots)
+				if m := massifOf(c.a); m != 0 {
+					used[kind] = append(used[kind], m)
+				}
+				placed = true
+				break
 			}
 			if placed {
 				break
@@ -667,4 +706,63 @@ func (g *grid) placeSlots(r *rng, kinds []string, gap int) bool {
 		}
 	}
 	return true
+}
+
+// reserve returns the first footprint of size foot (either rotation;
+// zero: no reservation needed) that covers tile a or b on mountain tiles
+// only, holds no deposit tile, overlaps no slot's reservation and has a
+// buildable tile 4-adjacent to it, in a fixed order.
+func (g *grid) reserve(a, b int, foot [2]int) ([4]int, bool) {
+	if foot[0] == 0 || foot[1] == 0 {
+		return [4]int{}, true
+	}
+	for _, wh := range [2][2]int{foot, {foot[1], foot[0]}} {
+		w, h := wh[0], wh[1]
+		for _, t := range [2]int{a, b} {
+			tx, ty := t%g.n, t/g.n
+			for y := ty - h + 1; y <= ty; y++ {
+				for x := tx - w + 1; x <= tx; x++ {
+					if r := [4]int{x, y, w, h}; g.footFree(r) {
+						return r, true
+					}
+				}
+			}
+		}
+	}
+	return [4]int{}, false
+}
+
+// footFree reports whether the rectangle r (x, y, w, h) lies on the grid
+// on mountain tiles without a deposit, overlaps no reservation and has a
+// buildable 4-neighbour.
+func (g *grid) footFree(r [4]int) bool {
+	x0, y0, w, h := r[0], r[1], r[2], r[3]
+	if x0 < 0 || y0 < 0 || x0+w > g.n || y0+h > g.n {
+		return false
+	}
+	for _, s := range g.slots {
+		f := s.foot
+		if f[2] > 0 && x0 < f[0]+f[2] && f[0] < x0+w && y0 < f[1]+f[3] && f[1] < y0+h {
+			return false
+		}
+	}
+	for y := y0; y < y0+h; y++ {
+		for x := x0; x < x0+w; x++ {
+			i := y*g.n + x
+			if g.t[i] != tMountain || g.depAt(i) != 0 {
+				return false
+			}
+		}
+	}
+	for x := x0; x < x0+w; x++ {
+		if buildable(g.at(x, y0-1)) || buildable(g.at(x, y0+h)) {
+			return true
+		}
+	}
+	for y := y0; y < y0+h; y++ {
+		if buildable(g.at(x0-1, y)) || buildable(g.at(x0+w, y)) {
+			return true
+		}
+	}
+	return false
 }

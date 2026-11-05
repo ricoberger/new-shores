@@ -57,14 +57,61 @@ func TestDevSeedTierThreeDeposits(t *testing.T) {
 	t.Logf("tier-3 deposits on the dev seed: %v", found)
 }
 
+// keepSeeds are the seeds whose islands keepsTheWorld compares tile by
+// tile. Since D-072 part 2 a later tier's slot needs a free footprint
+// 16 tiles from the others, which can turn down a shape the earlier
+// slots fit on (the dev seed's small isle-10 with four slots), so the
+// tile-level guarantee holds per seed; the composition (planComposition)
+// stays the same on every seed (TestLaterTierDepositsKeepThePlan).
+var keepSeeds = []uint64{1, 42}
+
 // TestLaterTierDepositsKeepTheWorld: adding a later tier's deposits only
 // turns mountain tiles into slots of the new kinds; terrain, fertilities
-// and the earlier deposits of the dev seed stay as without them.
+// and the earlier deposits of keepSeeds stay as without them.
 func TestLaterTierDepositsKeepTheWorld(t *testing.T) {
 	c := catalogue(t)
 	// Without tier 4 (the C3 world) and without tiers 3 and 4 (the S1 world).
 	for _, removed := range [][]string{tierFourKinds, append(slices.Clone(lateKinds), tierFourKinds...)} {
 		t.Run(removed[0], func(t *testing.T) { keepsTheWorld(t, c, removed) })
+	}
+}
+
+// TestLaterTierDepositsKeepThePlan: on the dev seed and keepSeeds the
+// content without a later tier's deposits draws the same composition per
+// archipelago attempt: island classes, massifs, fertilities and the
+// earlier tiers' slots (as a prefix of each island's slot list).
+func TestLaterTierDepositsKeepThePlan(t *testing.T) {
+	c := catalogue(t)
+	for _, removed := range [][]string{tierFourKinds, append(slices.Clone(lateKinds), tierFourKinds...)} {
+		base := *c
+		base.Islands.Deposits = slices.DeleteFunc(slices.Clone(c.Islands.Deposits), func(e content.PoolEntry) bool {
+			return slices.Contains(removed, e.ID)
+		})
+		for _, seed := range append([]uint64{1_053_001}, keepSeeds...) {
+			for attempt := range uint64(4) {
+				sub := derive(seed, attempt)
+				compose := func(c *content.Catalogue) ([]*plan, error) {
+					late := func(k int) *rng { return newRNG(derive(sub, 3+uint64(k))) } // #nosec G115 -- k >= 1
+					return planComposition(newRNG(derive(sub, 1)), newRNG(derive(sub, 65)), late, c)
+				}
+				with, err1 := compose(c)
+				without, err2 := compose(&base)
+				if err1 != nil || err2 != nil {
+					continue // an unassignable composition is retried by Generate either way
+				}
+				if len(with) != len(without) {
+					t.Fatalf("seed %d attempt %d: %d vs %d islands", seed, attempt, len(with), len(without))
+				}
+				for i, p := range with {
+					q := without[i]
+					if p.class != q.class || p.massifs != q.massifs || !slices.Equal(p.fertilities, q.fertilities) ||
+						len(p.deposits) < len(q.deposits) || !slices.Equal(p.deposits[:len(q.deposits)], q.deposits) {
+						t.Errorf("seed %d attempt %d without %v: island %d %v %d %v, was %v %d %v", seed, attempt, removed, i,
+							p.deposits, p.massifs, p.fertilities, q.deposits, q.massifs, q.fertilities)
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -76,7 +123,7 @@ func keepsTheWorld(t *testing.T, c *content.Catalogue, removed []string) {
 	base.Islands.Deposits = slices.DeleteFunc(slices.Clone(c.Islands.Deposits), func(e content.PoolEntry) bool {
 		return slices.Contains(removed, e.ID)
 	})
-	for _, seed := range []uint64{1_053_001, 1} {
+	for _, seed := range keepSeeds {
 		with, err := Generate(seed, c)
 		if err != nil {
 			t.Fatal(err)

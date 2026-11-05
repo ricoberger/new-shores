@@ -99,7 +99,7 @@ var (
 	ErrShipyardSite     = errors.New("no shipyard site")
 	ErrMineUnreachable  = errors.New("a deposit building footprint has no road neighbour")
 	ErrRockMines        = errors.New("a rock's deposits cannot be mined next to its trading post")
-	ErrSlotUnminable    = errors.New("a deposit slot has no valid site of its deposit building")
+	ErrSlotUnminable    = errors.New("the deposit slots have no disjoint footprints of their deposit buildings")
 	ErrNoPlain          = errors.New("no plain")
 	ErrShape            = errors.New("shape rule")
 )
@@ -107,10 +107,10 @@ var (
 // verifyIsland checks the rules of one island on its own grid (D-053
 // part 3, MECHANICS §2): a habitable island has two non-overlapping
 // Trading Post sites and a shipyard site; a rock has a Trading Post site
-// that leaves a mine site on every deposit slot; every footprint of a
-// deposit building that covers its deposit touches buildable land (roads
-// never go on mountains); every deposit slot of a habitable island has a
-// valid site of its deposit building.
+// that leaves the slot footprints below; every footprint of a deposit
+// building that covers its deposit touches buildable land (roads never go
+// on mountains); the deposit slots admit pairwise disjoint footprints of
+// their deposit buildings (SlotFootprints, D-072 part 2).
 func verifyIsland(is *sim.Island, c *content.Catalogue) error {
 	sc := c.Islands.SizeClassByID[is.SizeClass]
 	if sc == nil {
@@ -141,11 +141,8 @@ func verifyIsland(is *sim.Island, c *content.Catalogue) error {
 		}
 	}
 	if !sc.Rock {
-		for _, s := range depositSlots(is) {
-			def := firstBuilding(c, func(b *content.Building) bool { return b.RequiresDeposit == s.kind })
-			if def != nil && !mineSiteNear(chk, def, s.tiles, Rect{}) {
-				return fmt.Errorf("%w: %s slot at (%d,%d)", ErrSlotUnminable, s.kind, s.tiles[0].X, s.tiles[0].Y)
-			}
+		if _, ok := slotFootprints(chk, is, c, Rect{}); !ok {
+			return ErrSlotUnminable
 		}
 		if yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil }); yard != nil && !slices.ContainsFunc(sites(chk, is, yard), reach) {
 			return ErrShipyardSite
@@ -307,45 +304,139 @@ func components(is *sim.Island, terrain string) int {
 	return n
 }
 
-// rockMinable reports whether one Trading Post site leaves, for every
-// deposit slot, a valid site of a building requiring its kind that does
-// not overlap the Trading Post.
+// rockMinable reports whether one Trading Post site leaves pairwise
+// disjoint footprints of the deposit buildings on the slots
+// (slotFootprints) that do not overlap it.
 func rockMinable(chk *sim.SiteChecker, is *sim.Island, c *content.Catalogue, tps []Rect) bool {
-	slots := depositSlots(is)
+	cands := slotCandidates(chk, is, c)
 	for _, tp := range tps {
-		ok := true
-		for _, s := range slots {
-			def := firstBuilding(c, func(b *content.Building) bool { return b.RequiresDeposit == s.kind })
-			if def == nil {
-				continue
-			}
-			if !mineSiteNear(chk, def, s.tiles, tp) {
-				ok = false
-				break
-			}
-		}
-		if ok {
+		if _, ok := assignFootprints(cands, tp); ok {
 			return true
 		}
 	}
 	return false
 }
 
-func mineSiteNear(chk *sim.SiteChecker, def *content.Building, tiles []sim.Pos, avoid Rect) bool {
-	for _, rot := range [2]int{0, 90} {
-		w, h := footprint(def, rot)
-		for _, t := range tiles {
-			for y := t.Y - h + 1; y <= t.Y; y++ {
-				for x := t.X - w + 1; x <= t.X; x++ {
-					r := Rect{x, y, w, h, rot}
-					if !r.overlaps(avoid) && chk.Valid(def, x, y, rot) {
-						return true
+// SlotFootprints returns, for every deposit slot of an island (in
+// depositSlots order), a footprint of the largest building requiring its
+// kind such that the footprints are pairwise disjoint (D-072 part 2,
+// MECHANICS §2): each covers a tile of its slot, lies on mountain tiles
+// only and on no other slot's tile, has a buildable 4-neighbour (a road
+// can reach it) and passes the real placement check. ok is false when the
+// slots admit no such assignment.
+func SlotFootprints(is *sim.Island, c *content.Catalogue) ([]Rect, bool) {
+	return slotFootprints(sim.NewSiteChecker(is, c), is, c, Rect{})
+}
+
+func slotFootprints(chk *sim.SiteChecker, is *sim.Island, c *content.Catalogue, avoid Rect) ([]Rect, bool) {
+	return assignFootprints(slotCandidates(chk, is, c), avoid)
+}
+
+// depositBuilding returns the largest building requiring kind (nil: none).
+func depositBuilding(c *content.Catalogue, kind string) *content.Building {
+	var best *content.Building
+	for _, b := range c.Buildings {
+		if b.RequiresDeposit == kind && (best == nil || b.Width*b.Height > best.Width*best.Height) {
+			best = b
+		}
+	}
+	return best
+}
+
+// slotCandidates lists per deposit slot the footprints SlotFootprints may
+// pick from; a slot of a kind no building requires gets none and nil.
+func slotCandidates(chk *sim.SiteChecker, is *sim.Island, c *content.Catalogue) [][]Rect {
+	slots := depositSlots(is)
+	w := is.Width
+	owner := make([]int, len(is.Tiles))
+	for k, s := range slots {
+		for _, t := range s.tiles {
+			owner[t.Y*w+t.X] = k + 1
+		}
+	}
+	buildableAt := func(x, y int) bool {
+		return is.InBounds(x, y) && buildableTerrain(is.Tile(x, y).Terrain)
+	}
+	out := make([][]Rect, len(slots))
+	for k, s := range slots {
+		def := depositBuilding(c, s.kind)
+		if def == nil {
+			continue
+		}
+		seen := map[Rect]bool{}
+		out[k] = []Rect{}
+		for _, rot := range [2]int{0, 90} {
+			fw, fh := footprint(def, rot)
+			for _, t := range s.tiles {
+				for y := t.Y - fh + 1; y <= t.Y; y++ {
+					for x := t.X - fw + 1; x <= t.X; x++ {
+						r := Rect{x, y, fw, fh, rot}
+						if seen[r] || x < 0 || y < 0 || x+fw > w || y+fh > is.Height {
+							continue
+						}
+						seen[r] = true
+						ok := true
+						for ty := y; ty < y+fh && ok; ty++ {
+							for tx := x; tx < x+fw; tx++ {
+								if o := owner[ty*w+tx]; is.Tile(tx, ty).Terrain != content.TerrainMountain || (o != 0 && o != k+1) {
+									ok = false
+									break
+								}
+							}
+						}
+						if !ok {
+							continue
+						}
+						reach := false
+						for tx := x; tx < x+fw && !reach; tx++ {
+							reach = buildableAt(tx, y-1) || buildableAt(tx, y+fh)
+						}
+						for ty := y; ty < y+fh && !reach; ty++ {
+							reach = buildableAt(x-1, ty) || buildableAt(x+fw, ty)
+						}
+						if reach && chk.Valid(def, x, y, rot) {
+							out[k] = append(out[k], r)
+						}
 					}
 				}
 			}
 		}
 	}
-	return false
+	return out
+}
+
+// assignFootprints picks one candidate per slot, pairwise disjoint and
+// clear of avoid, by backtracking in slot order (bounded; slots of kinds
+// without a building, nil, pick none).
+func assignFootprints(cands [][]Rect, avoid Rect) ([]Rect, bool) {
+	picked := make([]Rect, len(cands))
+	budget := 1 << 16
+	var try func(k int) bool
+	try = func(k int) bool {
+		if k == len(cands) {
+			return true
+		}
+		if cands[k] == nil {
+			return try(k + 1)
+		}
+		for _, r := range cands[k] {
+			if budget--; budget < 0 {
+				return false
+			}
+			if r.overlaps(avoid) || slices.ContainsFunc(picked[:k], r.overlaps) {
+				continue
+			}
+			picked[k] = r
+			if try(k + 1) {
+				return true
+			}
+		}
+		return false
+	}
+	if !try(0) {
+		return nil, false
+	}
+	return picked, true
 }
 
 // minesReachable checks MECHANICS §2: every footprint (both orientations)
