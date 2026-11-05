@@ -322,7 +322,9 @@ UI shows the same numbers the server uses.
   drawn in the ghost material — the model translucent and untinted (the
   footprint box while it loads) — with a thin gold outline of the
   footprint; planned road tiles are translucent slabs with the gold
-  outline along the planned road's edge (`render/plans.ts`). No
+  outline along the planned road's edge (`render/plans.ts`). A plan
+  paints no yard into the ground (D-068): the yard appears once the
+  building stands (only the placing ghost previews it). No
   construction stage, smoke, status badge or life-layer figure, and none
   at the far view (not in the far mesh or the far road layer). Plans
   reserve their tiles in the client hints too (`display/plans.ts`): a
