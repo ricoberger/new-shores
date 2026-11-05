@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState, useSyncExternalStore } from "react";
 import {
   ApiError,
   type BuildingDisplay,
@@ -162,7 +162,11 @@ interface AppProps {
 
 export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync: source }: AppProps) {
   const [sync] = useState<SyncLike>(() => source ?? new GameSync());
-  useEffect(() => sync.start(), [sync]);
+  // A layout effect: the world and content requests start before the
+  // canvas's (passive) effect sets up the 3D engine, so that the server's
+  // answer overlaps the engine's setup instead of following it; the
+  // renderer reads the snapshot it finds.
+  useLayoutEffect(() => sync.start(), [sync]);
   useEffect(() => sync.subscribeUnauthorized(onSessionEnded), [sync, onSessionEnded]);
   const snap = useSyncExternalStore(sync.subscribe, sync.getSnapshot);
   const { model, content } = snap;
