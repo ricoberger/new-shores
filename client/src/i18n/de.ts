@@ -185,7 +185,6 @@ export const de: Record<keyof typeof en, string> = {
   "almanac.i.depositSlots": "Vorkommensplätze",
   "almanac.i.shape": "Form",
   "almanac.i.notes": "Hinweise",
-  "almanac.i.rock": "Nur Minen und das Kontor; keine Häuser oder Felder",
   "almanac.i.scenic": "Nur Kulisse (Schären); nicht besiedelbar und nicht anzusegeln",
   "almanac.i.home": "Die Heimatinsel ist eine davon",
   "almanac.i.fertilitiesLead": "Inseln mit einem Boden können die Feldfrüchte anbauen, die ihn brauchen. Inseln je Archipel:",

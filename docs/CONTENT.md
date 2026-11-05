@@ -441,11 +441,10 @@ and short hops, the galleon large and slow for bulk. Ship positions and legs fol
 | Property | Value |
 |---|---|
 | Habitable islands per archipelago | 12: 3 large (≈ 250×250), 5 medium (≈ 163×163), 4 small (≈ 106×106) (D-072) |
-| Resource rocks | 0–2 (≈ 16×16, mountain + coast; Trading Post and mines only) |
-| Skerries | 4–8 per archipelago (class `scenic`, 4–12 tiles of rock with a grass or sand top): scenery only — no sites, fertilities, deposits or name, not settleable, not a destination; land for routing, minimap and far view |
-| Shape per class | rim massifs 2–4 / 1–2 / 0–1 (10–19 % of the land, rock height up to 6 / 5 / 3; D-072); plain ≥ 52 / 32 / 19 tiles square; rivers 1–2 / 0–1 / 0; terrace levels 2 / 2 / 1; islets 3–6 / 2–5 / 2–4 (large / medium / small; rocks and skerries none) |
+| Skerries | 6–12 per archipelago (class `scenic`, `size` 5: 5–18 tiles of rock with a grass or sand top, D-073): scenery only — no sites, fertilities, deposits or name, not settleable, not a destination; land for routing, minimap and far view |
+| Shape per class | rim massifs 2–4 / 1–2 / 0–1 (10–19 % of the land, rock height up to 6 / 5 / 3; D-072); plain ≥ 52 / 32 / 19 tiles square; rivers 1–2 / 0–1 / 0; terrace levels 2 / 2 / 1; islets 3–6 / 2–5 / 2–4 (large / medium / small; skerries none) |
 | Fertilities per habitable island | 2–4 from the pool (wheat, apple, hemp 3–5 times per archipelago; hops, woad, grapes 2–5 times; provisional) |
-| Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge, ≥ 16 tiles (Chebyshev) from every other slot of the island (rocks 8); every slot admits its building: the generator reserves a footprint of the largest building requiring the kind (3 × 8, clay pit 4 × 6, either rotation) on mountain tiles covering a slot tile, with a buildable tile beside it for the road, pairwise disjoint with the other slots' (D-072 part 2; generator-only, not stored); two slots of one kind lie on different massifs when the island has two or more; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
+| Deposit slots per island | 0–4, typed; a slot is two deposit tiles on a mountain edge, ≥ 16 tiles (Chebyshev) from every other slot of the island; every slot admits its building: the generator reserves a footprint of the largest building requiring the kind (3 × 8, clay pit 4 × 6, either rotation) on mountain tiles covering a slot tile, with a buildable tile beside it for the road, pairwise disjoint with the other slots' (D-072 part 2; generator-only, not stored); two slots of one kind lie on different massifs when the island has two or more; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
 | Shallows | water tiles of an island's grid (not river) within 3 tiles (Chebyshev) of its own land, islets excluded; derived from the tiles, the quay's ground (D-060, MECHANICS §3) |
 | Spacing | ≥ 55 tiles between islands (50 before D-072: the nearest neighbour of the dev seed fell under a minute at the brig's speed), nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
@@ -641,8 +640,7 @@ tier 4: grain_distillery, glass_smelter, copper_smelter, gold_smelter).
       "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 },
       "shape": { "massifs": { "min": 2, "max": 4 }, "plain": 52, "rivers": { "min": 1, "max": 2 },
                  "levels": 2, "islets": { "min": 3, "max": 6 } } },
-    { "id": "rock", "size": 16, "rock": true, "…": "…" },
-    { "id": "scenic", "name": "Skerry", "size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "…": "…" }
+    { "id": "scenic", "name": "Skerry", "size": 5, "scenic": true, "count": { "min": 6, "max": 12 }, "…": "…" }
   ],
   "spacing": { "min": 55, "nearest_max": 120, "strait_min": 24, "void_max": 150 },
   "fertilities": "…", "deposits": "…", "buildable_area": "…", "home": "…"
@@ -651,12 +649,12 @@ tier 4: grain_distillery, glass_smelter, copper_smelter, gold_smelter).
 
 `shape` (D-058, D-072) is required per class: `massifs` (rim massifs,
 D-072) ≤ 4, `rivers` ≤ 2, `levels` ≤ 2, `islets` ≤ 8, `plain` ≤ size /
-3; a rock class has all zeros. An island with deposit slots of the
+3. An island with deposit slots of the
 first mining tier has at least one massif; one drawn without a massif
-gets no slots of the later tiers either. A `scenic` class (skerries) is no rock, has no fertilities,
+gets no slots of the later tiers either. A `scenic` class (skerries) has no fertilities,
 deposits or shape (all zeros) and a `size` of 2–8: its skerries have
 `size` … ¾ · size² tiles; it can never be the home class. `spacing`:
-`min` and `nearest_max` apply between habitable islands and rocks
+`min` and `nearest_max` apply between habitable islands
 (grid to grid), `strait_min` to every pair's land, `void_max` bounds the
 open sea inside the hull of the land. `home.terrain` lists `grass` only
 since D-059 (the lumberjack plants its trees; forest is decor). The

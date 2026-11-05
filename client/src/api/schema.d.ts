@@ -1848,8 +1848,6 @@ export interface components {
             name: string;
             /** @description Content size class of a generated island (`islands.json`), "" for a hand-made one. */
             size_class: string;
-            /** @description The island is a resource rock (mines only, no houses). */
-            rock: boolean;
             /** @description The island is a skerry (D-058) - scenery only, no name, never settled and never a destination; land for sea routes. */
             scenic: boolean;
             /** @description The island has a Trading Post (capacity > 0); unsettled islands accept only found_island. */
@@ -2326,10 +2324,8 @@ export interface components {
         };
         ContentSizeClass: {
             id: string;
-            /** @description Player-facing name, e.g. "Large" or "Resource rock". */
+            /** @description Player-facing name, e.g. "Large" or "Skerry". */
             name: string;
-            /** @description Resource rocks carry mines only (no fertility, no houses). */
-            rock: boolean;
             /** @description Skerries (D-058) are scenery only - no sites, fertilities or deposits, not settleable, no name. */
             scenic: boolean;
             /** @description Land extent in tiles (the island is about size × size). */

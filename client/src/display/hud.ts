@@ -36,11 +36,11 @@ export function islandResources(
 
 /**
  * The island's kind for the island card and the top bar (D-053): the
- * content name of its size class ("Large", "Resource rock"); empty for a
+ * content name of its size class ("Large", "Small"); empty for a
  * hand-made island. Without the content's size classes (still loading)
  * the ID stands in.
  */
-export function islandKind(island: Pick<IslandDisplay, "size_class" | "rock">, content: { size_classes?: Pick<ContentSizeClass, "id" | "name">[] } | null): string {
+export function islandKind(island: Pick<IslandDisplay, "size_class">, content: { size_classes?: Pick<ContentSizeClass, "id" | "name">[] } | null): string {
   if (!island.size_class) return "";
   return content?.size_classes?.find((c) => c.id === island.size_class)?.name ?? island.size_class;
 }

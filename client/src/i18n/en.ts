@@ -183,7 +183,6 @@ export const en = {
   "almanac.i.depositSlots": "Deposit slots",
   "almanac.i.shape": "Shape",
   "almanac.i.notes": "Notes",
-  "almanac.i.rock": "Mines and the Trading Post only; no houses or fields",
   "almanac.i.scenic": "Scenery only (skerries); cannot be settled or sailed to",
   "almanac.i.home": "The home island is one of these",
   "almanac.i.fertilitiesLead": "Islands that carry a fertility can grow the crops that need it. Islands per archipelago:",

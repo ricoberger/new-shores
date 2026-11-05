@@ -832,10 +832,9 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
 - Each archipelago is generated from a **seed stored on the world**
   (D-053) by a pure function of seed and content: **12 habitable islands**
   (3 large ≈ 250×250, 5 medium ≈ 163×163, 4 small ≈ 106×106 extents;
-  Anno 117 buildable areas, D-072) plus
-  0–2 resource rocks (≈ 16×16, mountain and coast only) and 4–8
-  **skerries** (below). Each island gets fertilities (2–4 from the pool;
-  rocks none), typed deposit slots (0–4) and a harbour area proportional
+  Anno 117 buildable areas, D-072) plus 6–12
+  **skerries** (below; no resource rocks, D-073). Each island gets
+  fertilities (2–4 from the pool), typed deposit slots (0–4) and a harbour area proportional
   to its coast; each habitable island has ≥ 2 valid Trading Post sites
   and a shipyard site. Islands are ≥ 55 tiles apart (grid to grid),
   nearest neighbour ≤ 120, every strait (land to land, skerries
@@ -887,7 +886,7 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
   tiles (Chebyshev) of its own land — islets are not own land — derived
   from the tiles; the ground of quays (§3). D-036 stands: the shallows
   band bounds the harbour area.
-- **Skerries** (size class `scenic`, D-058): 4–12 tiles of rock with a
+- **Skerries** (size class `scenic`, D-058, D-073): 5–18 tiles of rock with a
   grass or sand top, placed after the islands within the nearest
   neighbour distance. They have no sites, fertilities, deposits or name,
   do not count toward the 12 islands or the buildable area, cannot be

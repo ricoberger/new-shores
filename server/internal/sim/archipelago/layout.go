@@ -49,9 +49,6 @@ func layout(r *rng, islands []*sim.Island, rules *content.IslandRules) error {
 		// The nearest habitable neighbour (by gap) and the leg to it.
 		gap, near := 1<<30, -1
 		for k, o := range islands[1:] {
-			if sc := rules.SizeClassByID[o.SizeClass]; sc != nil && sc.Rock {
-				continue
-			}
 			if g := Gap2(h, o); g < gap {
 				gap, near = g, k+1
 			}

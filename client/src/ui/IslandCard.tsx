@@ -88,7 +88,7 @@ export function IslandCard({ islandId, model, content, statics, onClose, onRenam
       </div>
       {kind && (
         <div className={styles.small} data-testid="island-card-kind">
-          {is.rock ? kind : t("islandCard.kindIsland", { kind })}
+          {t("islandCard.kindIsland", { kind })}
         </div>
       )}
       <div className={styles.panelBody}>

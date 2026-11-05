@@ -2721,7 +2721,7 @@ components:
     IslandDisplay:
       type: object
       additionalProperties: false
-      required: [id, name, size_class, rock, scenic, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source, fertilities, deposits, terrain_mask]
+      required: [id, name, size_class, scenic, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source, fertilities, deposits, terrain_mask]
       properties:
         id:
           type: string
@@ -2731,9 +2731,6 @@ components:
         size_class:
           type: string
           description: Content size class of a generated island (`islands.json`), "" for a hand-made one.
-        rock:
-          type: boolean
-          description: The island is a resource rock (mines only, no houses).
         scenic:
           type: boolean
           description: The island is a skerry (D-058) - scenery only, no name, never settled and never a destination; land for sea routes.
@@ -3389,16 +3386,13 @@ components:
     ContentSizeClass:
       type: object
       additionalProperties: false
-      required: [id, name, rock, scenic, size, count, fertilities, deposits, shape, home]
+      required: [id, name, scenic, size, count, fertilities, deposits, shape, home]
       properties:
         id:
           type: string
         name:
           type: string
-          description: Player-facing name, e.g. "Large" or "Resource rock".
-        rock:
-          type: boolean
-          description: Resource rocks carry mines only (no fertility, no houses).
+          description: Player-facing name, e.g. "Large" or "Skerry".
         scenic:
           type: boolean
           description: Skerries (D-058) are scenery only - no sites, fertilities or deposits, not settleable, no name.

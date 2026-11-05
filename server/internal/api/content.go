@@ -55,7 +55,6 @@ type islandNameJSON struct {
 type sizeClassJSON struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
-	Rock   bool   `json:"rock"`
 	Scenic bool   `json:"scenic"`
 	Size   int    `json:"size"`
 	// Count is the number of islands of the class per archipelago;
@@ -449,7 +448,7 @@ func newContentPayload(c *content.Catalogue, lang string) contentPayload {
 	}
 	for _, sc := range c.Islands.SizeClasses {
 		p.SizeClasses = append(p.SizeClasses, sizeClassJSON{
-			ID: sc.ID, Name: tx.name("islands", sc.ID, sc.Name), Rock: sc.Rock, Scenic: sc.Scenic, Size: sc.Size,
+			ID: sc.ID, Name: tx.name("islands", sc.ID, sc.Name), Scenic: sc.Scenic, Size: sc.Size,
 			Count: newRangeJSON(sc.Count), Fertilities: newRangeJSON(sc.Fertilities), Deposits: newRangeJSON(sc.Deposits),
 			Shape: shapeJSON{
 				Massifs: newRangeJSON(sc.Shape.Massifs), Plain: sc.Shape.Plain, Rivers: newRangeJSON(sc.Shape.Rivers),

@@ -25,17 +25,16 @@ const margin = 3
 // grid is an island under construction.
 type grid struct {
 	n int // width = height
-	// pad is the water border around the land extent (margin for rocks,
-	// more for habitable islands, whose islets lie in it).
+	// pad is the water border around the land extent (margin, more for
+	// islands whose islets lie in it).
 	pad int
 	t   []byte
-	// lvl and hgt are the terrace level and rock height per tile (D-058;
-	// nil for rocks until set).
+	// lvl and hgt are the terrace level and rock height per tile (D-058).
 	lvl, hgt []int
 	// plain is the reserved plain square (x, y, side; side 0: none).
 	plain [3]int
 	// harbour marks the stretches of coast kept as straight beach for
-	// harbour sites (no notches, no cliff); nil for rocks.
+	// harbour sites (no notches, no cliff).
 	harbour []bool
 	// dep holds the deposit slot (1-based index into slots) per tile, 0 for
 	// none; nil until placeSlots places one.
@@ -134,75 +133,6 @@ func (z *noise) at(x, y int) int {
 	v00, v10 := z.v[gy*z.w+gx], z.v[gy*z.w+gx+1]
 	v01, v11 := z.v[(gy+1)*z.w+gx], z.v[(gy+1)*z.w+gx+1]
 	return (v00*(c-fx)*(c-fy) + v10*fx*(c-fy) + v01*(c-fx)*fy + v11*fx*fy) / (c * c)
-}
-
-// ellipse in doubled tile coordinates (cx, cy at a tile corner).
-type ellipse struct{ cx, cy, rx, ry int }
-
-// field returns 1024 at the centre falling to 0 on the rim (negative
-// outside), in integers.
-func (e ellipse) field(x, y int) int {
-	dx, dy := int64(2*x+1-2*e.cx), int64(2*y+1-2*e.cy)
-	rx, ry := int64(e.rx), int64(e.ry)
-	d := dx*dx*1024/(4*rx*rx) + dy*dy*1024/(4*ry*ry)
-	return int(1024 - d)
-}
-
-// landMass draws 2-4 overlapping ellipses (rocks 1-2) inside the land
-// extent size, perturbs them with value noise, keeps the largest
-// 4-connected land component and fills enclosed water (no lakes).
-func landMass(r *rng, size int, rock bool, s *scratch) *grid {
-	n := size + 2*margin
-	g := newGrid(n, s)
-	half := size / 2
-	centre := margin + half
-	k := r.between(2, 4)
-	if rock {
-		k = r.between(1, 2)
-	}
-	es := make([]ellipse, k)
-	for i := range es {
-		if i == 0 {
-			off := half / 5
-			if rock {
-				off = 0
-			}
-			es[i] = ellipse{
-				cx: centre + r.between(-off, off), cy: centre + r.between(-off, off),
-				rx: half * r.between(60, 90) / 100, ry: half * r.between(60, 90) / 100,
-			}
-			if rock {
-				es[i].rx, es[i].ry = half*r.between(105, 125)/100, half*r.between(105, 125)/100
-			}
-			continue
-		}
-		off := half * 55 / 100
-		es[i] = ellipse{
-			cx: centre + r.between(-off, off), cy: centre + r.between(-off, off),
-			rx: max(2, half*r.between(30, 60)/100), ry: max(2, half*r.between(30, 60)/100),
-		}
-	}
-	cell := max(4, size/5)
-	amp := 380
-	if rock {
-		amp = 150
-	}
-	z := newNoise(r, n, cell, amp)
-	for y := margin; y < n-margin; y++ {
-		for x := margin; x < n-margin; x++ {
-			best := -1 << 30
-			for _, e := range es {
-				best = max(best, e.field(x, y))
-			}
-			if best+z.at(x, y) > 0 {
-				g.t[y*n+x] = tGrass
-			}
-		}
-	}
-	g.smooth()
-	g.keepLargest()
-	g.fillLakes()
-	return g
 }
 
 // smooth removes one-tile spurs and fills one-tile notches: a land tile
@@ -433,95 +363,18 @@ func grow(r *rng, g *grid, start, size int, ok func(int) bool) []int {
 	return out
 }
 
-// shape builds the tiles of one island. A habitable island is a
-// skeleton shape with massifs massifs around its rim, cliffs, a plain,
-// rivers, forests, terrace levels and islets (habitable, D-058, D-072); a
-// rock is a blob with a two-tile
-// coast band around a mountain core. It returns nil when the attempt does
-// not fit (land outside the area window, no room for a feature or the
-// slots); the caller retries with a new sub-seed.
+// shape builds the tiles of one island: a skeleton shape with massifs
+// massifs around its rim, cliffs, a plain, rivers, forests, terrace levels
+// and islets (D-058, D-072). It returns nil when the attempt does not fit
+// (land outside the area window, no room for a feature or the slots); the
+// caller retries with a new sub-seed.
 func shape(r *rng, sc *content.SizeClass, massifs int, deposits []string, sr slotRules, s *scratch) *grid {
-	if !sc.Rock {
-		return habitable(r, sc, massifs, deposits, sr, s)
-	}
-	g := landMass(r, sc.Size, true, s)
-	land := g.landCount()
-	area := sc.Size * sc.Size
-	if land < area*rockMinPct/100 || land > area*rockMaxPct/100 {
-		return nil
-	}
-	dist := g.waterDistance(4)
-	g.lvl, g.hgt = make([]int, len(g.t)), make([]int, len(g.t))
-	for i, t := range g.t {
-		switch {
-		case t == tWater:
-		case dist[i] == 1:
-			g.t[i] = tCoast
-		default:
-			g.t[i] = tMountain
-			g.hgt[i] = min(dist[i]-1, 3)
-		}
-	}
-	if !g.landing(r) {
-		return nil
-	}
-	for i, t := range g.t {
-		if t == tCoast {
-			g.hgt[i] = 0
-		}
-	}
-	// A rock is 16 tiles across: two slots cannot lie the habitable
-	// islands' gap apart, so a rock keeps the footprint's longest side
-	// (its reserved footprints stay disjoint all the same).
-	rs := sr
-	rs.gap = sr.side
-	if !g.placeSlots(r, deposits, rs) {
-		return nil
-	}
-	return g
+	return habitable(r, sc, massifs, deposits, sr, s)
 }
 
-// landing deepens the one-tile coast of a rock to two tiles along a
-// random straight four-tile stretch of shore with open water in front, so
-// that a Trading Post (two land rows behind two water rows) fits.
-func (g *grid) landing(r *rng) bool {
-	type cand struct{ x, y, fx, fy, lx, ly int }
-	var cands []cand
-	for i, t := range g.t {
-		if t != tCoast {
-			continue
-		}
-		x, y := i%g.n, i/g.n
-		for _, f := range dirs4() {
-			lx, ly := -f[1], f[0]
-			ok := true
-			for k := 0; k < 4 && ok; k++ {
-				bx, by := x+k*lx, y+k*ly
-				ok = g.at(bx, by) == tCoast && g.at(bx+f[0], by+f[1]) == tWater && g.at(bx+2*f[0], by+2*f[1]) == tWater &&
-					g.at(bx-f[0], by-f[1]) != tWater
-			}
-			if ok {
-				cands = append(cands, cand{x, y, f[0], f[1], lx, ly})
-			}
-		}
-	}
-	if len(cands) == 0 {
-		return false
-	}
-	c := cands[r.intn(len(cands))]
-	for k := range 4 {
-		ix, iy := c.x+k*c.lx-c.fx, c.y+k*c.ly-c.fy
-		g.t[iy*g.n+ix] = tCoast
-	}
-	return true
-}
-
-// Shape parameters (percent): land of the size x size extent of rocks,
-// mountain and forest shares of the land (habitable islands use the
+// Shape parameters (percent): mountain and forest shares of the land (habitable islands use the
 // bounds in habitable.go).
 const (
-	rockMinPct     = 70
-	rockMaxPct     = 100
 	mountainMinPct = 4
 	mountainMaxPct = 8
 	forestMinPct   = 18

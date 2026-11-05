@@ -26,11 +26,11 @@ const defs = new Map(content.buildings.map((b) => [b.id, b as ContentBuilding]))
 
 describe("top-bar aggregates", () => {
   it("names the island's size class from content (D-053)", () => {
-    const classes = { size_classes: [{ id: "large", name: "Large" }, { id: "rock", name: "Resource rock" }] };
-    expect(islandKind({ size_class: "large", rock: false }, classes)).toBe("Large");
-    expect(islandKind({ size_class: "rock", rock: true }, classes)).toBe("Resource rock");
-    expect(islandKind({ size_class: "rock", rock: true }, null)).toBe("rock");
-    expect(islandKind({ size_class: "", rock: false }, classes)).toBe("");
+    const classes = { size_classes: [{ id: "large", name: "Large" }, { id: "small", name: "Small" }] };
+    expect(islandKind({ size_class: "large" }, classes)).toBe("Large");
+    expect(islandKind({ size_class: "small" }, classes)).toBe("Small");
+    expect(islandKind({ size_class: "small" }, null)).toBe("small");
+    expect(islandKind({ size_class: "" }, classes)).toBe("");
   });
 
   it("lists the construction materials in the goods order", () => {

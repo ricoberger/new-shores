@@ -98,16 +98,14 @@ var (
 	ErrTradingPostSites = errors.New("too few trading post sites")
 	ErrShipyardSite     = errors.New("no shipyard site")
 	ErrMineUnreachable  = errors.New("a deposit building footprint has no road neighbour")
-	ErrRockMines        = errors.New("a rock's deposits cannot be mined next to its trading post")
 	ErrSlotUnminable    = errors.New("the deposit slots have no disjoint footprints of their deposit buildings")
 	ErrNoPlain          = errors.New("no plain")
 	ErrShape            = errors.New("shape rule")
 )
 
 // verifyIsland checks the rules of one island on its own grid (D-053
-// part 3, MECHANICS §2): a habitable island has two non-overlapping
-// Trading Post sites and a shipyard site; a rock has a Trading Post site
-// that leaves the slot footprints below; every footprint of a deposit
+// part 3, MECHANICS §2): an island has two non-overlapping Trading Post
+// sites and a shipyard site; every footprint of a deposit
 // building that covers its deposit touches buildable land (roads never go
 // on mountains); the deposit slots admit pairwise disjoint footprints of
 // their deposit buildings (SlotFootprints, D-072 part 2).
@@ -117,36 +115,26 @@ func verifyIsland(is *sim.Island, c *content.Catalogue) error {
 		return fmt.Errorf("unknown size class %q", is.SizeClass)
 	}
 	chk := sim.NewSiteChecker(is, c)
-	// A habitable island's Trading Post and shipyard sites count when
-	// they reach the plain by land or bridges (D-058 part 3).
-	reach := func(Rect) bool { return true }
-	if !sc.Rock {
-		if err := verifyShape(is, sc); err != nil {
-			return err
-		}
-		var ok bool
-		if reach, ok = plainReach(is, sc.Shape.Plain); !ok {
-			return ErrNoPlain
-		}
+	if err := verifyShape(is, sc); err != nil {
+		return err
+	}
+	// The Trading Post and shipyard sites count when they reach the plain
+	// by land or bridges (D-058 part 3).
+	reach, ok := plainReach(is, sc.Shape.Plain)
+	if !ok {
+		return ErrNoPlain
 	}
 	if tp := TradingPost(c); tp != nil {
 		sites := sites(chk, is, tp)
-		switch {
-		case sc.Rock:
-			if !rockMinable(chk, is, c, sites) {
-				return ErrRockMines
-			}
-		case !disjoint(slices.DeleteFunc(sites, func(r Rect) bool { return !reach(r) })):
+		if !disjoint(slices.DeleteFunc(sites, func(r Rect) bool { return !reach(r) })) {
 			return ErrTradingPostSites
 		}
 	}
-	if !sc.Rock {
-		if _, ok := slotFootprints(chk, is, c, Rect{}); !ok {
-			return ErrSlotUnminable
-		}
-		if yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil }); yard != nil && !slices.ContainsFunc(sites(chk, is, yard), reach) {
-			return ErrShipyardSite
-		}
+	if _, ok := slotFootprints(chk, is, c, Rect{}); !ok {
+		return ErrSlotUnminable
+	}
+	if yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil }); yard != nil && !slices.ContainsFunc(sites(chk, is, yard), reach) {
+		return ErrShipyardSite
 	}
 	return minesReachable(is, c)
 }
@@ -302,19 +290,6 @@ func components(is *sim.Island, terrain string) int {
 		}
 	}
 	return n
-}
-
-// rockMinable reports whether one Trading Post site leaves pairwise
-// disjoint footprints of the deposit buildings on the slots
-// (slotFootprints) that do not overlap it.
-func rockMinable(chk *sim.SiteChecker, is *sim.Island, c *content.Catalogue, tps []Rect) bool {
-	cands := slotCandidates(chk, is, c)
-	for _, tp := range tps {
-		if _, ok := assignFootprints(cands, tp); ok {
-			return true
-		}
-	}
-	return false
 }
 
 // SlotFootprints returns, for every deposit slot of an island (in
@@ -670,13 +645,6 @@ func Verify(a *Archipelago, c *content.Catalogue) error {
 		}
 		if !sc.Deposits.Contains(n) {
 			return fmt.Errorf("%s: %d deposit slots outside %+v", is.ID, n, sc.Deposits)
-		}
-		if sc.Rock {
-			for _, t := range is.Tiles {
-				if t.Terrain != content.TerrainWater && t.Terrain != content.TerrainCoast && t.Terrain != content.TerrainMountain {
-					return fmt.Errorf("%s: a rock has %s", is.ID, t.Terrain)
-				}
-			}
 		}
 		if err := verifyIsland(is, c); err != nil {
 			return fmt.Errorf("%s: %w", is.ID, err)

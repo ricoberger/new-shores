@@ -231,8 +231,7 @@ return Display(w, now)
   the D-072 sizes and rim massifs (large 250) the state is ≈ 2.5 kB
   and the terrain ≈ 31 kB gzipped (1.24 MB of encoded rows; D-058
   sizes: 22 kB, 0.68 MB); generation 0.74 s average, 1.2 s worst over
-  seeds 1–50 (D-058 sizes: 1.05 s, 3.0 s; the resource rocks are drawn
-  first, so a failed rock no longer redraws the large islands).
+  seeds 1–50 (D-058 sizes: 1.05 s, 3.0 s).
 
 ### 4.3 Scheduled events worker
 
@@ -318,7 +317,7 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   payload includes `ships`, `routes` (with `loop_ms` and the estimated
   `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,
   `settled`, `position`, `quests`, `away_summary`, `insolvency`,
-  per-island `bounds`, `size_class`, `rock`, fertilities, deposit slots
+  per-island `bounds`, `size_class`, `scenic`, fertilities, deposit slots
   and a 1:4 terrain `mask` (PR #26; tile rows are **not** in the world
   payload); `GET /world/islands/{id}/tiles?v=<seed>-<roll>` → the full
   rows, `ETag` = sha256(seed, roll, island id), `Cache-Control: private,

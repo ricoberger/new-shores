@@ -2197,39 +2197,117 @@ levels 108/9/3 digest 35b30c1e
 ~~~~~~~~~~~~
 ~~~~~~~~~~~~
 
-isle-14 "" scenic at (346,694) 10x11 fertilities [] slots iron 0 stone 0
-levels 98/11/1 digest 4f633ade
+isle-14 "" scenic at (6,124) 9x9 fertilities [] slots iron 0 stone 0
+levels 75/6/0 digest a7255325
+~~~~~~~~~
+~~~~~~~~~
+~~~~~~~~~
+~~~...~~~
+~~~..~~~~
+~~~~.~~~~
+~~~~~~~~~
+~~~~~~~~~
+~~~~~~~~~
+
+isle-15 "" scenic at (282,678) 10x10 fertilities [] slots iron 0 stone 0
+levels 88/10/2 digest 8458bf0d
 ~~~~~~~~~~
 ~~~~~~~~~~
 ~~~~~~~~~~
-~~~~.~.~~~
-~~~~...~~~
-~~~...~~~~
-~~~~..~~~~
-~~~~~..~~~
+~~~ccc~~~~
+~~~ccc~~~~
+~~~ccc~~~~
+~~~~ccc~~~
 ~~~~~~~~~~
 ~~~~~~~~~~
 ~~~~~~~~~~
 
-isle-15 "" scenic at (18,428) 10x9 fertilities [] slots iron 0 stone 0
-levels 84/6/0 digest 7e6146ad
+isle-16 "" scenic at (20,543) 9x9 fertilities [] slots iron 0 stone 0
+levels 73/7/1 digest 8c5a0846
+~~~~~~~~~
+~~~~~~~~~
+~~~~~~~~~
+~~~...~~~
+~~~...~~~
+~~~..~~~~
+~~~~~~~~~
+~~~~~~~~~
+~~~~~~~~~
+
+isle-17 "" scenic at (161,1000) 10x10 fertilities [] slots iron 0 stone 0
+levels 93/7/0 digest bbaf9ddc
 ~~~~~~~~~~
 ~~~~~~~~~~
 ~~~~~~~~~~
-~~~~~c~~~~
-~~~cccc~~~
 ~~~~c~~~~~
+~~~ccc~~~~
+~~~~~cc~~~
+~~~~~~c~~~
 ~~~~~~~~~~
 ~~~~~~~~~~
 ~~~~~~~~~~
 
-isle-16 "" scenic at (205,1031) 9x8 fertilities [] slots iron 0 stone 0
-levels 67/5/0 digest 34349344
+isle-18 "" scenic at (127,641) 9x9 fertilities [] slots iron 0 stone 0
+levels 74/7/0 digest b696020c
 ~~~~~~~~~
 ~~~~~~~~~
 ~~~~~~~~~
+~~~ccc~~~
+~~~~cc~~~
+~~~~cc~~~
+~~~~~~~~~
+~~~~~~~~~
+~~~~~~~~~
+
+isle-19 "" scenic at (9,776) 10x10 fertilities [] slots iron 0 stone 0
+levels 91/8/1 digest 4eb51ee7
+~~~~~~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+~~~~~..~~~
+~~~~..~~~~
+~~~....~~~
+~~~~.~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+
+isle-20 "" scenic at (556,20) 13x11 fertilities [] slots iron 0 stone 0
+levels 127/14/2 digest 50af371d
+~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+~~~~~~~c~~~~~
+~~~~~ccc~~~~~
+~~~c~~cccc~~~
+~~~ccccc~~~~~
+~~~~~~cc~~~~~
+~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+
+isle-21 "" scenic at (604,879) 9x9 fertilities [] slots iron 0 stone 0
+levels 74/7/0 digest 4bd797a4
+~~~~~~~~~
+~~~~~~~~~
+~~~~~~~~~
+~~~..~~~~
 ~~~...~~~
 ~~~~..~~~
 ~~~~~~~~~
 ~~~~~~~~~
 ~~~~~~~~~
+
+isle-22 "" scenic at (939,627) 12x11 fertilities [] slots iron 0 stone 0
+levels 116/14/2 digest 85833215
+~~~~~~~~~~~~
+~~~~~~~~~~~~
+~~~~~~~~~~~~
+~~~~~...~~~~
+~~~....~~~~~
+~~~......~~~
+~~~~~.~.~~~~
+~~~~~~~.~~~~
+~~~~~~~~~~~~
+~~~~~~~~~~~~
+~~~~~~~~~~~~

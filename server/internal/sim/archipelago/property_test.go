@@ -111,17 +111,11 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 				buildable++
 			}
 		}
-		if !sc.Rock {
-			checkShape(t, c, seed, is, sc)
-		}
+		checkShape(t, c, seed, is, sc)
 		if seed <= slotFitSeeds {
 			checkSlotFit(t, c, seed, is, sc)
 		}
-		if sc.Rock {
-			if len(Sites(is, c, tp)) == 0 {
-				fail("rock %s has no Trading Post site", is.ID)
-			}
-		} else if !hasDisjoint(Sites(is, c, tp), 2) {
+		if !hasDisjoint(Sites(is, c, tp), 2) {
 			fail("%s has fewer than two disjoint Trading Post sites", is.ID)
 		}
 		if is.X < 0 || is.Y < 0 {
@@ -410,8 +404,7 @@ func checkPool(t *testing.T, seed uint64, what string, pool []content.PoolEntry,
 const slotFitSeeds = 50
 
 // checkSlotFit restates the D-072 part 2 slot rule (MECHANICS §2): the
-// slots of a habitable island lie >= 16 tiles apart (Chebyshev; a rock
-// the footprint's longest side), and every slot admits a footprint of the
+// slots of an island lie >= 16 tiles apart (Chebyshev), and every slot admits a footprint of the
 // largest building requiring its kind (either rotation) on mountain
 // tiles only, covering a tile of the slot and no other slot's tile, with
 // a buildable 4-neighbour, valid by the sim's placement check, such that
@@ -426,9 +419,6 @@ func checkSlotFit(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Islan
 		}
 	}
 	gap := 2 * side
-	if sc.Rock {
-		gap = side
-	}
 	for i, a := range slots {
 		for _, b := range slots[i+1:] {
 			for _, p := range a.tiles {

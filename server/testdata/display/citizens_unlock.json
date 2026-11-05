@@ -33,7 +33,7 @@
       "seed": 0,
       "roll": 0,
       "rerollable": false,
-      "generator_version": 6,
+      "generator_version": 7,
       "bounds": {
         "x": 0,
         "y": 0,
@@ -46,7 +46,6 @@
         "id": "main",
         "name": "",
         "size_class": "",
-        "rock": false,
         "scenic": false,
         "settled": true,
         "position": {
@@ -1497,7 +1496,7 @@
           "seed": 0,
           "roll": 0,
           "rerollable": false,
-          "generator_version": 6,
+          "generator_version": 7,
           "bounds": {
             "x": 0,
             "y": 0,
@@ -1510,7 +1509,6 @@
             "id": "main",
             "name": "",
             "size_class": "",
-            "rock": false,
             "scenic": false,
             "settled": true,
             "position": {
@@ -2961,7 +2959,7 @@
           "seed": 0,
           "roll": 0,
           "rerollable": false,
-          "generator_version": 6,
+          "generator_version": 7,
           "bounds": {
             "x": 0,
             "y": 0,
@@ -2974,7 +2972,6 @@
             "id": "main",
             "name": "",
             "size_class": "",
-            "rock": false,
             "scenic": false,
             "settled": true,
             "position": {
@@ -4425,7 +4422,7 @@
           "seed": 0,
           "roll": 0,
           "rerollable": false,
-          "generator_version": 6,
+          "generator_version": 7,
           "bounds": {
             "x": 0,
             "y": 0,
@@ -4438,7 +4435,6 @@
             "id": "main",
             "name": "",
             "size_class": "",
-            "rock": false,
             "scenic": false,
             "settled": true,
             "position": {
@@ -5889,7 +5885,7 @@
           "seed": 0,
           "roll": 0,
           "rerollable": false,
-          "generator_version": 6,
+          "generator_version": 7,
           "bounds": {
             "x": 0,
             "y": 0,
@@ -5902,7 +5898,6 @@
             "id": "main",
             "name": "",
             "size_class": "",
-            "rock": false,
             "scenic": false,
             "settled": true,
             "position": {
@@ -7353,7 +7348,7 @@
           "seed": 0,
           "roll": 0,
           "rerollable": false,
-          "generator_version": 6,
+          "generator_version": 7,
           "bounds": {
             "x": 0,
             "y": 0,
@@ -7366,7 +7361,6 @@
             "id": "main",
             "name": "",
             "size_class": "",
-            "rock": false,
             "scenic": false,
             "settled": true,
             "position": {
