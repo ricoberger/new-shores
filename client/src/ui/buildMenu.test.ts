@@ -168,6 +168,18 @@ describe("build cards", () => {
     expect(quarry).toMatch(/data-testid="build-deposit-quarry"[^>]*><svg/);
   });
 
+  it("names the coast as the input of a building over water and hides the arrow of a card with no input at all (build.inputCoast)", () => {
+    const fisher = card(render(), "fisher");
+    const info = text(fisher.match(/data-testid="build-info-fisher"[^>]*>(.*?)<\/button>/)![1]!);
+    expect(info).toMatch(/gold\/min·Coast→Fish/);
+    expect(fisher).toMatch(/data-testid="build-coast-fisher"[^>]*><svg/);
+    // No input, deposit, fields or coast: no dangling arrow.
+    const bare = { ...content, buildings: content.buildings.map((b) => (b.id === "fisher" ? { ...b, water_rows: undefined } : b)) };
+    const bareInfo = text(card(render({ content: bare }), "fisher").match(/data-testid="build-info-fisher"[^>]*>(.*?)<\/button>/)![1]!);
+    expect(bareInfo).not.toContain("→");
+    expect(bareInfo).not.toContain("Coast");
+  });
+
   it("separates a producer's several inputs with commas", () => {
     const html = render({ initialTier: "citizens" });
     const info = text(card(html, "smelter").match(/data-testid="build-info-smelter"[^>]*>(.*?)<\/button>/)![1]!);

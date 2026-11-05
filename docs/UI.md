@@ -202,7 +202,8 @@ UI shows the same numbers the server uses.
   2. upkeep ("2.0 gold/min"), a dot `·`, then for production `in → out` with
      good icons (several inputs separated by commas; a farm: its field type without a count, "Wheat field →
      Wheat"; a mine or quarry: the deposit it needs, "Quartz deposit →
-     Quartz"), for a public building only the need category it serves
+     Quartz"; a building over water without inputs, like the fisher: "Coast →
+     Fish"; a card with no input at all shows no arrow), for a public building only the need category it serves
      ("Faith", no radius). A missing fertility replaces this line with a red "Needs
      wheat fertility" (not what the island has; the placement ghost's hint
      keeps that).

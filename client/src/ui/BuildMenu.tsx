@@ -155,6 +155,9 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                   const fertility = fertilityNeed(b, fertilities);
                   const cost = buildCost(b, model?.gold ?? 0, stock);
                   const needCategory = b.service ? serviceNeedCategory(content, b) : undefined;
+                  const hasFields = (b.fields?.required ?? 0) > 0;
+                  const coastInput = !!b.recipe && (b.water_rows?.max ?? 0) > 0 && b.recipe.inputs.length === 0 && !b.requires_deposit && !hasFields;
+                  const hasInput = coastInput || !!b.requires_deposit || hasFields || (b.recipe?.inputs.length ?? 0) > 0;
                   const fieldDef = b.fields ? content.buildings.find((x) => x.id === b.fields?.type) : undefined;
                   return (
                     <button
@@ -221,7 +224,14 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                                   </span>
                                 ))
                               )}
-                              <span aria-hidden="true">→</span>
+                              {/* A building over water without inputs works on the coast (like a mine on its deposit). */}
+                              {coastInput && (
+                                <span className={styles.withIcon} data-testid={`build-coast-${b.id}`}>
+                                  <Icon path={resourceIcon("coast")} />
+                                  {t("build.inputCoast")}
+                                </span>
+                              )}
+                              {hasInput && <span aria-hidden="true">→</span>}
                               {b.recipe.outputs.map((o) => goodChip(o.good, `out-${o.good}`))}
                             </span>
                           )}
