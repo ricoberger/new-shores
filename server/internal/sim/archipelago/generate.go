@@ -38,8 +38,9 @@ type Archipelago struct {
 }
 
 // GeneratorVersion identifies the island generator's output; see the rule
-// in the package comment. 2: round islands replaced by D-058 outlines.
-const GeneratorVersion = 2
+// in the package comment. 2: round islands replaced by D-058 outlines; 3: D-072 Anno 117 sizes;
+// 4: D-072 rim massifs; 5: D-072 rivers two tiles wide.
+const GeneratorVersion = 5
 
 // MaxSeed bounds world seeds to 53 bits, so that they survive a JSON
 // number in the client (D-053 display) unchanged.
@@ -92,7 +93,9 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 	rules := &c.Islands
 	// Later mining tiers' deposits: tier 3 on stream 4 (C3), tier 4 on 5.
 	late := func(k int) *rng { return newRNG(derive(sub, 3+uint64(k))) } // #nosec G115 -- k >= 1
-	plans, err := planComposition(newRNG(derive(sub, 1)), late, c)
+	// The rim massifs on stream 65 (D-072; any free stream would do, this
+	// one keeps the dev seed's deposit composition as it was before them).
+	plans, err := planComposition(newRNG(derive(sub, 1)), newRNG(derive(sub, 65)), late, c)
 	if err != nil {
 		return nil, err
 	}
@@ -100,14 +103,26 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 	home := slices.IndexFunc(plans, func(p *plan) bool { return p.home })
 	plans = append(append([]*plan{plans[home]}, plans[:home]...), plans[home+1:]...)
 
-	a := &Archipelago{Seed: seed, Home: IslandID(0)}
-	for i, p := range plans {
-		is, err := buildIsland(derive(sub, 100+uint64(i)), p, c) // #nosec G115 -- i >= 0
+	a := &Archipelago{Seed: seed, Home: IslandID(0), Islands: make([]*sim.Island, len(plans))}
+	// The resource rocks first: their slots fail most often (D-072: the
+	// small islands without a massif carry none), and a failed rock
+	// should not cost the large islands' shapes. Every island keeps its
+	// own stream, so the order changes no result.
+	order := make([]int, 0, len(plans))
+	for _, rock := range []bool{true, false} {
+		for i, p := range plans {
+			if p.class.Rock == rock {
+				order = append(order, i)
+			}
+		}
+	}
+	for _, i := range order {
+		is, err := buildIsland(derive(sub, 100+uint64(i)), plans[i], c) // #nosec G115 -- i >= 0
 		if err != nil {
 			return nil, err
 		}
 		is.ID = IslandID(i)
-		a.Islands = append(a.Islands, is)
+		a.Islands[i] = is
 	}
 	if n := buildableArea(a.Islands); !rules.BuildableRange().Contains(n) {
 		return nil, fmt.Errorf("buildable area %d outside %+v", n, rules.BuildableRange())
@@ -145,7 +160,7 @@ func buildIsland(seed uint64, p *plan, c *content.Catalogue) (*sim.Island, error
 	gap := slotGap(c)
 	for attempt := range maxShapeAttempts {
 		r := newRNG(derive(seed, uint64(attempt))) // #nosec G115 -- attempt >= 0
-		g := shape(r, p.class, p.deposits, gap, s)
+		g := shape(r, p.class, p.massifs, p.deposits, gap, s)
 		if g == nil {
 			continue
 		}

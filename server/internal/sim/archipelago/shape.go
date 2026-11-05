@@ -39,7 +39,11 @@ type grid struct {
 	// none; nil until placeSlots places one.
 	dep   []int
 	slots []slot
-	s     *scratch
+	// mass holds the massif (1-based) per tile, 0 for none (D-072 §4);
+	// massifCount is the number of massifs drawn.
+	mass        []int
+	massifCount int
+	s           *scratch
 }
 
 // scratch holds the work buffers of the shape attempts of one island,
@@ -425,14 +429,15 @@ func grow(r *rng, g *grid, start, size int, ok func(int) bool) []int {
 }
 
 // shape builds the tiles of one island. A habitable island is a
-// skeleton shape with a ridge, cliffs, a plain, rivers, forests, terrace
-// levels and islets (habitable, D-058); a rock is a blob with a two-tile
+// skeleton shape with massifs massifs around its rim, cliffs, a plain,
+// rivers, forests, terrace levels and islets (habitable, D-058, D-072); a
+// rock is a blob with a two-tile
 // coast band around a mountain core. It returns nil when the attempt does
 // not fit (land outside the area window, no room for a feature or the
 // slots); the caller retries with a new sub-seed.
-func shape(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scratch) *grid {
+func shape(r *rng, sc *content.SizeClass, massifs int, deposits []string, gap int, s *scratch) *grid {
 	if !sc.Rock {
-		return habitable(r, sc, deposits, gap, s)
+		return habitable(r, sc, massifs, deposits, gap, s)
 	}
 	g := landMass(r, sc.Size, true, s)
 	land := g.landCount()
@@ -595,7 +600,9 @@ func (g *grid) edgeMountain(i int) bool {
 // placeSlots places one slot per entry of kinds: two 4-adjacent edge
 // mountain tiles, at Chebyshev distance >= gap from every tile of another
 // slot (gap is the longest side of a deposit building, so no footprint
-// covers two slots: a mine occupies exactly one, MECHANICS §2).
+// covers two slots: a mine occupies exactly one, MECHANICS §2). The
+// slots spread over the massifs (D-072 §4): the k-th slot prefers the
+// k-th massif by size (round robin), then any edge.
 func (g *grid) placeSlots(r *rng, kinds []string, gap int) bool {
 	type pair struct{ a, b int }
 	var cands []pair
@@ -615,24 +622,43 @@ func (g *grid) placeSlots(r *rng, kinds []string, gap int) bool {
 	far := func(a, b int) bool {
 		return max(abs(a%g.n-b%g.n), abs(a/g.n-b/g.n)) >= gap
 	}
-	for _, kind := range kinds {
+	order := g.massifOrder()
+	massifOf := func(i int) int {
+		if g.mass == nil {
+			return 0
+		}
+		return g.mass[i]
+	}
+	for k, kind := range kinds {
+		want := 0
+		if len(order) > 0 {
+			want = order[k%len(order)]
+		}
 		placed := false
-		for _, c := range cands {
-			ok := true
-			for _, s := range g.slots {
-				for _, t := range s.tiles {
-					if !far(t, c.a) || !far(t, c.b) {
-						ok = false
+		for pass := range 2 {
+			for _, c := range cands {
+				if pass == 0 && (want == 0 || massifOf(c.a) != want || massifOf(c.b) != want) {
+					continue
+				}
+				ok := true
+				for _, s := range g.slots {
+					for _, t := range s.tiles {
+						if !far(t, c.a) || !far(t, c.b) {
+							ok = false
+						}
 					}
 				}
-			}
-			if ok {
-				g.slots = append(g.slots, slot{kind: kind, tiles: [2]int{c.a, c.b}})
-				if g.dep == nil {
-					g.dep = make([]int, len(g.t))
+				if ok {
+					g.slots = append(g.slots, slot{kind: kind, tiles: [2]int{c.a, c.b}})
+					if g.dep == nil {
+						g.dep = make([]int, len(g.t))
+					}
+					g.dep[c.a], g.dep[c.b] = len(g.slots), len(g.slots)
+					placed = true
+					break
 				}
-				g.dep[c.a], g.dep[c.b] = len(g.slots), len(g.slots)
-				placed = true
+			}
+			if placed {
 				break
 			}
 		}

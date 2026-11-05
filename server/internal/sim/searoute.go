@@ -34,7 +34,9 @@ const (
 type seaGrid struct {
 	x0, y0, nx, ny int
 	land           []bool
-	islands        []*Island
+	// lagoon marks the sea cells closed as land (closeLagoons).
+	lagoon  []bool
+	islands []*Island
 }
 
 // newSeaGrid builds the grid over the islands' rectangles and the points.
@@ -72,7 +74,42 @@ func newSeaGrid(islands []*Island, pts ...Pos) *seaGrid {
 			}
 		}
 	}
+	g.closeLagoons()
 	return g
+}
+
+// closeLagoons marks the sea cells that the search cannot reach from the
+// open sea (a bay whose mouth is narrower than a cell, D-072) as land and
+// lagoon: a leg end in one reaches the open grid over its water tiles
+// (approach) instead of failing the search.
+func (g *seaGrid) closeLagoons() {
+	open := make([]bool, len(g.land))
+	open[0] = !g.land[0] // the grid's corner lies in the open-sea margin
+	queue := []int{0}
+	for len(queue) > 0 {
+		k := queue[0]
+		queue = queue[1:]
+		i, j := k%g.nx, k/g.nx
+		for dj := -1; dj <= 1; dj++ {
+			for di := -1; di <= 1; di++ {
+				ni, nj := i+di, j+dj
+				if (di == 0 && dj == 0) || ni < 0 || nj < 0 || ni >= g.nx || nj >= g.ny {
+					continue
+				}
+				nk := nj*g.nx + ni
+				if g.land[nk] || open[nk] || (di != 0 && dj != 0 && (g.land[j*g.nx+ni] || g.land[nj*g.nx+i])) {
+					continue
+				}
+				open[nk] = true
+				queue = append(queue, nk)
+			}
+		}
+	}
+	g.lagoon = make([]bool, len(g.land))
+	for k := range g.land {
+		g.lagoon[k] = !g.land[k] && !open[k]
+		g.land[k] = !open[k]
+	}
 }
 
 // cellOf is the cell index of an archipelago tile (clamped to the grid).
@@ -237,6 +274,9 @@ func SeaRoute(islands []*Island, a, b Pos) []Pos {
 	// An end in a cell with land reaches the open grid through the water
 	// tiles (approach), never across land to the nearest sea cell.
 	inA, inB := g.approach(a), g.approach(b)
+	if (len(inA) == 0 && g.lagoon[g.cellOf(a.X, a.Y)]) || (len(inB) == 0 && g.lagoon[g.cellOf(b.X, b.Y)]) {
+		return nil // a closed lagoon: no way out over water
+	}
 	s, t := g.nearestSea(a), g.nearestSea(b)
 	if len(inA) > 0 {
 		last := inA[len(inA)-1]

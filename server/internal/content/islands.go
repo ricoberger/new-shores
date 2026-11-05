@@ -52,23 +52,23 @@ type SizeClass struct {
 }
 
 // ShapeRules are the shape parameters of a size class (D-058,
-// islands.json "shape"): arms of the skeleton besides the trunk, the side
-// of the guaranteed contiguous plain (0: none), rivers, the highest
-// terrace level and islets per island.
+// islands.json "shape"): the massifs around the rim (D-072), the side of
+// the guaranteed contiguous plain (0: none), rivers, the highest terrace
+// level and islets per island.
 type ShapeRules struct {
-	Arms   Range
-	Plain  int
-	Rivers Range
-	Levels int
-	Islets Range
+	Massifs Range
+	Plain   int
+	Rivers  Range
+	Levels  int
+	Islets  Range
 }
 
-// Shape limits checked by the loader (D-058).
+// Shape limits checked by the loader (D-058, D-072).
 const (
-	MaxArms   = 3
-	MaxRivers = 2
-	MaxLevel  = 2
-	MaxIslets = 8
+	MaxMassifs = 4
+	MaxRivers  = 2
+	MaxLevel   = 2
+	MaxIslets  = 8
 )
 
 // PoolEntry is a fertility or deposit of the generator's pool with the
@@ -145,11 +145,11 @@ type rawIslands struct {
 		Fertilities rawRange `json:"fertilities"`
 		Deposits    rawRange `json:"deposits"`
 		Shape       struct {
-			Arms   rawRange `json:"arms"`
-			Plain  int      `json:"plain"`
-			Rivers rawRange `json:"rivers"`
-			Levels int      `json:"levels"`
-			Islets rawRange `json:"islets"`
+			Massifs rawRange `json:"massifs"`
+			Plain   int      `json:"plain"`
+			Rivers  rawRange `json:"rivers"`
+			Levels  int      `json:"levels"`
+			Islets  rawRange `json:"islets"`
 		} `json:"shape"`
 	} `json:"size_classes"`
 	Fertilities   []rawPoolEntry `json:"fertilities"`
@@ -189,7 +189,7 @@ func decodeIslands(col *collector, raw rawIslands, names []string) (IslandRules,
 			Fertilities: Range(sc.Fertilities),
 			Deposits:    Range(sc.Deposits),
 			Shape: ShapeRules{
-				Arms: Range(sc.Shape.Arms), Plain: sc.Shape.Plain, Rivers: Range(sc.Shape.Rivers),
+				Massifs: Range(sc.Shape.Massifs), Plain: sc.Shape.Plain, Rivers: Range(sc.Shape.Rivers),
 				Levels: sc.Shape.Levels, Islets: Range(sc.Shape.Islets),
 			},
 		}
@@ -440,7 +440,7 @@ func checkScenic(col *collector, ent string, sc *SizeClass) {
 		col.add(file, ent, "scenic", "a skerry carries no fertilities or deposits (max must be 0)")
 	}
 	if sc.Shape != (ShapeRules{}) {
-		col.add(file, ent, "shape", "a skerry has no arms, plain, rivers, levels or islets")
+		col.add(file, ent, "shape", "a skerry has no massifs, plain, rivers, levels or islets")
 	}
 	if sc.Size < MinScenicSize || sc.Size > MaxScenicSize {
 		col.add(file, ent, "size", "a skerry's size must be in [%d, %d]", MinScenicSize, MaxScenicSize)
@@ -449,16 +449,16 @@ func checkScenic(col *collector, ent string, sc *SizeClass) {
 
 // checkShape validates the shape parameters of a size class (D-058): the
 // ranges are ordered and within the limits, the plain fits the class (at
-// most a third of its size) and a resource rock is a plain blob (no arms,
-// plain, rivers, terraces or islets).
+// most a third of its size) and a resource rock is a plain blob (no
+// massifs, plain, rivers, terraces or islets).
 func checkShape(col *collector, ent string, sc *SizeClass, order func(ent, field string, rg Range)) {
 	const file = FileIslands
 	s := sc.Shape
-	order(ent, "shape.arms", s.Arms)
+	order(ent, "shape.massifs", s.Massifs)
 	order(ent, "shape.rivers", s.Rivers)
 	order(ent, "shape.islets", s.Islets)
-	if s.Arms.Max > MaxArms {
-		col.add(file, ent, "shape.arms.max", "at most %d arms", MaxArms)
+	if s.Massifs.Max > MaxMassifs {
+		col.add(file, ent, "shape.massifs.max", "at most %d massifs", MaxMassifs)
 	}
 	if s.Rivers.Max > MaxRivers {
 		col.add(file, ent, "shape.rivers.max", "at most %d rivers", MaxRivers)
@@ -472,7 +472,7 @@ func checkShape(col *collector, ent string, sc *SizeClass, order func(ent, field
 	if s.Plain < 0 || 3*s.Plain > sc.Size {
 		col.add(file, ent, "shape.plain", "must be in [0, size/3] (%d)", sc.Size/3)
 	}
-	if sc.Rock && (s.Arms.Max > 0 || s.Plain > 0 || s.Rivers.Max > 0 || s.Levels > 0 || s.Islets.Max > 0) {
-		col.add(file, ent, "shape", "a resource rock has no arms, plain, rivers, levels or islets")
+	if sc.Rock && (s.Massifs.Max > 0 || s.Plain > 0 || s.Rivers.Max > 0 || s.Levels > 0 || s.Islets.Max > 0) {
+		col.add(file, ent, "shape", "a resource rock has no massifs, plain, rivers, levels or islets")
 	}
 }

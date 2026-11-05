@@ -20,9 +20,9 @@ func TestLoadIslands(t *testing.T) {
 		rock     bool
 		deposits Range
 	}{
-		"large":  {192, Range{3, 3}, false, Range{0, 4}},
-		"medium": {112, Range{5, 5}, false, Range{0, 4}},
-		"small":  {64, Range{4, 4}, false, Range{0, 4}},
+		"large":  {250, Range{3, 3}, false, Range{0, 4}},
+		"medium": {163, Range{5, 5}, false, Range{0, 4}},
+		"small":  {106, Range{4, 4}, false, Range{0, 4}},
 		"rock":   {16, Range{0, 2}, true, Range{2, 4}},
 		"scenic": {4, Range{4, 8}, false, Range{0, 0}},
 	}
@@ -42,9 +42,9 @@ func TestLoadIslands(t *testing.T) {
 		}
 	}
 	shapes := map[string]ShapeRules{
-		"large":  {Arms: Range{1, 3}, Plain: 40, Rivers: Range{1, 2}, Levels: 2, Islets: Range{3, 6}},
-		"medium": {Arms: Range{1, 3}, Plain: 24, Rivers: Range{0, 1}, Levels: 2, Islets: Range{2, 5}},
-		"small":  {Arms: Range{1, 2}, Plain: 14, Rivers: Range{0, 0}, Levels: 1, Islets: Range{2, 4}},
+		"large":  {Massifs: Range{2, 4}, Plain: 52, Rivers: Range{1, 2}, Levels: 2, Islets: Range{3, 6}},
+		"medium": {Massifs: Range{1, 2}, Plain: 32, Rivers: Range{0, 1}, Levels: 2, Islets: Range{2, 5}},
+		"small":  {Massifs: Range{0, 1}, Plain: 19, Rivers: Range{0, 0}, Levels: 1, Islets: Range{2, 4}},
 		"rock":   {},
 		"scenic": {},
 	}
@@ -58,7 +58,7 @@ func TestLoadIslands(t *testing.T) {
 			t.Errorf("deposit %+v below the D-053 minimum", d)
 		}
 	}
-	if r.SpacingMin != 50 || r.NearestMax != 120 || r.StraitMin != 24 || r.VoidMax != 150 || r.BuildableTarget != 91_000 || r.BuildableTolerance != 100 || r.Home.SizeClass != "large" {
+	if r.SpacingMin != 55 || r.NearestMax != 120 || r.StraitMin != 24 || r.VoidMax != 150 || r.BuildableTarget != 185_000 || r.BuildableTolerance != 100 || r.Home.SizeClass != "large" {
 		t.Errorf("rules = %+v", r)
 	}
 	if len(c.IslandNames) < 40 {
@@ -163,8 +163,8 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 		},
 		{
 			"skerry with levels", FileIslands,
-			[]string{`"size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }, "shape": { "arms": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 0`, `"size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }, "shape": { "arms": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 1`},
-			[]string{FileIslands, `size class "scenic"`, "shape", "no arms"},
+			[]string{`"size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }, "shape": { "massifs": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 0`, `"size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }, "shape": { "massifs": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 1`},
+			[]string{FileIslands, `size class "scenic"`, "shape", "no massifs"},
 		},
 		{
 			"home on a skerry", FileIslands,
@@ -177,13 +177,13 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 			[]string{FileIslands, "spacing", "void_max"},
 		},
 		{
-			"rock with arms", FileIslands,
-			[]string{`"shape": { "arms": { "min": 0, "max": 0 }, "plain": 0`, `"shape": { "arms": { "min": 0, "max": 1 }, "plain": 0`},
-			[]string{FileIslands, `size class "rock"`, "shape", "no arms"},
+			"rock with massifs", FileIslands,
+			[]string{`"shape": { "massifs": { "min": 0, "max": 0 }, "plain": 0`, `"shape": { "massifs": { "min": 0, "max": 1 }, "plain": 0`},
+			[]string{FileIslands, `size class "rock"`, "shape", "no massifs"},
 		},
 		{
 			"plain larger than a third of the size", FileIslands,
-			[]string{`"plain": 14`, `"plain": 22`},
+			[]string{`"plain": 19`, `"plain": 36`},
 			[]string{FileIslands, `size class "small"`, "shape.plain"},
 		},
 		{
@@ -197,9 +197,14 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 			[]string{FileIslands, `size class "large"`, "shape.islets.max"},
 		},
 		{
-			"empty arms range", FileIslands,
-			[]string{`"arms": { "min": 1, "max": 2 }`, `"arms": { "min": 2, "max": 1 }`},
-			[]string{FileIslands, `size class "small"`, "shape.arms", "empty"},
+			"empty massifs range", FileIslands,
+			[]string{`"massifs": { "min": 0, "max": 1 }`, `"massifs": { "min": 2, "max": 1 }`},
+			[]string{FileIslands, `size class "small"`, "shape.massifs", "empty"},
+		},
+		{
+			"too many massifs", FileIslands,
+			[]string{`"massifs": { "min": 2, "max": 4 }`, `"massifs": { "min": 2, "max": 5 }`},
+			[]string{FileIslands, `size class "large"`, "shape.massifs.max"},
 		},
 		{
 			"too few names", FileIslands,

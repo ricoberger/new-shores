@@ -227,7 +227,12 @@ return Display(w, now)
   the `world_terrain` table (gzip, keyed by world and seed/roll), loaded
   with the state; at the final sizes (large 192) the state is ≈ 2.2 kB
   and the terrain ≈ 6.9 kB gzipped per world (≈ 2.8 MB decoded in
-  memory); generation 65 ms average, 275 ms worst over 200 seeds.
+  memory); generation 65 ms average, 275 ms worst over 200 seeds. At
+  the D-072 sizes and rim massifs (large 250) the state is ≈ 2.5 kB
+  and the terrain ≈ 31 kB gzipped (1.24 MB of encoded rows; D-058
+  sizes: 22 kB, 0.68 MB); generation 0.74 s average, 1.2 s worst over
+  seeds 1–50 (D-058 sizes: 1.05 s, 3.0 s; the resource rocks are drawn
+  first, so a failed rock no longer redraws the large islands).
 
 ### 4.3 Scheduled events worker
 
@@ -476,7 +481,7 @@ content `smoke`/`boat` flags, determinism), `make model-sheet RECIPE=`
 renders a sheet in about a second.
 
 **Far budget (D-048, D-057 §5).** At the zoom cap (`max_half_extent`
-120) the far LOD stays within 250 k triangles and 40 draw calls (target
+80 since D-072) the far LOD stays within 250 k triangles and 40 draw calls (target
 30) on desktop and phone. The asset budgets above bound a model; the
 client bounds the far view: fields are painted into the lite ground
 (`render/farfields.ts`), an island's far trees are thinned to

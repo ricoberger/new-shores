@@ -643,6 +643,12 @@ func (g *gen) civic(c *Civic) error {
 		return err
 	}
 	if pl.built != 0 {
+		if g.shared(q, pl) {
+			// A chain plot another quarter's action built: it serves
+			// this quarter too (D-065).
+			g.logf("%s of %s stands (a shared chain plot)", c.Type, q.spec.ID)
+			return nil
+		}
 		return fmt.Errorf("%s of %s built twice", pl.typ, q.spec.ID)
 	}
 	def := g.c.BuildingByID[pl.typ]
@@ -659,6 +665,22 @@ func (g *gen) civic(c *Civic) error {
 	}
 	pl.built = id
 	return nil
+}
+
+// shared reports whether another quarter holds the plot as well (a chain
+// plot covering several quarters).
+func (g *gen) shared(q *quarter, pl *plot) bool {
+	for _, o := range g.order {
+		if o == q {
+			continue
+		}
+		for _, p := range o.plots {
+			if p == pl {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // upgrade upgrades Count houses of type From in the quarter, each waiting

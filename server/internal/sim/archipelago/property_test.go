@@ -211,7 +211,9 @@ func checkSkerry(t *testing.T, seed uint64, is *sim.Island, sc *content.SizeClas
 // and 0 on beaches; cliffs on the coast ring (next to the sea); deposits
 // on mountain tiles at the foot (next to buildable land); two disjoint
 // Trading Post sites and a shipyard site that reach the plain by land or
-// bridges; large and medium islands keep a bay and a peninsula.
+// bridges; large and medium islands keep a bay and a peninsula; the rim
+// massifs (D-072 §4) number within the class's range, rise no higher
+// than its height and cover 10-19 % of the land.
 func checkShape(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Island, sc *content.SizeClass) {
 	t.Helper()
 	fail := func(format string, args ...any) {
@@ -222,7 +224,7 @@ func checkShape(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Island,
 	if p := largestSquare(is); p < sh.Plain {
 		fail("largest plain %d, want %d", p, sh.Plain)
 	}
-	if sc.Size >= ridgeLargeSize {
+	if sc.Size >= largeSize {
 		land := make([]bool, len(is.Tiles))
 		for i, tl := range is.Tiles {
 			land[i] = tl.Terrain != content.TerrainWater && tl.Terrain != content.TerrainIslet
@@ -234,6 +236,34 @@ func checkShape(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Island,
 	}
 	if n := components(is, content.TerrainRiver); !sh.Rivers.Contains(n) {
 		fail("%d rivers, want %v", n, sh.Rivers)
+	}
+	massifs, peak, rock, land := 0, 0, 0, 0
+	for _, c := range componentsOf(is, func(t sim.Tile) bool {
+		return t.Terrain == content.TerrainMountain || t.Terrain == content.TerrainCliff
+	}) {
+		top := 0
+		for _, i := range c {
+			top = max(top, is.Tiles[i].Height)
+		}
+		peak = max(peak, top)
+		if top >= massifPeak {
+			massifs++
+		}
+		rock += len(c)
+	}
+	for _, tl := range is.Tiles {
+		if tl.Terrain != content.TerrainWater && tl.Terrain != content.TerrainIslet {
+			land++
+		}
+	}
+	if massifs < sh.Massifs.Min || massifs > max(1, sh.Massifs.Max) {
+		fail("%d massifs, want %v", massifs, sh.Massifs)
+	}
+	if peak > massifHeight(sc.Size) {
+		fail("rock height %d, want at most %d", peak, massifHeight(sc.Size))
+	}
+	if m := 100 * rock / max(1, land); massifs > 0 && (m < massifCheckMinPct || m > massifCheckMaxPct) {
+		fail("mountain share %d%%, want %d-%d%%", m, massifCheckMinPct, massifCheckMaxPct)
 	}
 	islets := islandComponents(is, content.TerrainIslet)
 	if !sh.Islets.Contains(len(islets)) {
@@ -272,7 +302,7 @@ func checkShape(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Island,
 				}
 			}
 			if tile.Terrain != content.TerrainMountain || !foot {
-				fail("deposit at (%d,%d) on %s not at the ridge foot", x, y, tile.Terrain)
+				fail("deposit at (%d,%d) on %s not at a massif foot", x, y, tile.Terrain)
 			}
 		}
 	}
@@ -315,12 +345,13 @@ func largestSquare(is *sim.Island) int {
 	return best
 }
 
-// islandComponents returns the 8-connected components of a terrain.
-func islandComponents(is *sim.Island, terrain string) [][]int {
+// componentsOf returns the 8-connected components of the tiles ok
+// accepts.
+func componentsOf(is *sim.Island, ok func(sim.Tile) bool) [][]int {
 	seen := make([]bool, len(is.Tiles))
 	var out [][]int
 	for i, tile := range is.Tiles {
-		if tile.Terrain != terrain || seen[i] {
+		if !ok(tile) || seen[i] {
 			continue
 		}
 		seen[i] = true
@@ -329,11 +360,7 @@ func islandComponents(is *sim.Island, terrain string) [][]int {
 			x, y := comp[k]%is.Width, comp[k]/is.Width
 			for dy := -1; dy <= 1; dy++ {
 				for dx := -1; dx <= 1; dx++ {
-					if !is.InBounds(x+dx, y+dy) {
-						continue
-					}
-					j := (y+dy)*is.Width + x + dx
-					if !seen[j] && is.Tiles[j].Terrain == terrain {
+					if j := (y+dy)*is.Width + x + dx; is.InBounds(x+dx, y+dy) && !seen[j] && ok(is.Tiles[j]) {
 						seen[j] = true
 						comp = append(comp, j)
 					}
@@ -343,6 +370,11 @@ func islandComponents(is *sim.Island, terrain string) [][]int {
 		out = append(out, comp)
 	}
 	return out
+}
+
+// islandComponents returns the 8-connected components of a terrain.
+func islandComponents(is *sim.Island, terrain string) [][]int {
+	return componentsOf(is, func(t sim.Tile) bool { return t.Terrain == terrain })
 }
 
 // nearSea reports whether a sea tile lies within one tile (8-neighbours).

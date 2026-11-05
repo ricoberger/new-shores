@@ -173,11 +173,7 @@
       "build": {
         "island": "isle-01",
         "type": "warehouse",
-        "count": 1,
-        "at": [
-          60,
-          95
-        ]
+        "count": 1
       }
     },
     {

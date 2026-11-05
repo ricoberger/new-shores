@@ -117,7 +117,7 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - The **world map** (other players, offers, expeditions) remains a 2D HTML
   screen (UI.md §5); it is not part of the 3D scene.
 
-## 4. Terrain and water — diorama islands (D-050, D-057 V2, D-058)
+## 4. Terrain and water — diorama islands (D-050, D-057 V2, D-058, D-072)
 
 - **Continuous terrain, hidden grid.** The tile grid is not drawn; a
   subtle grid overlay fades in around the cursor (≈ 8 tiles) only while a
@@ -198,11 +198,18 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   in low-frequency noise zones, ramps of one step per column in beaten
   earth. The cliff band varies along an edge (rock over a dark foot, or
   earth over rock) under a grass lip on its top step; rocks gather at the
-  foot of the walls (the ground scatter's "ledge" site).
-- **Rock:** mountain, cliff and islet tiles carry rock on their level:
-  one height field per island, the tiles' `heights` blended between their
-  centres at eight steps per height (a large island's spine up to 32
-  steps, four tiles), rising three steps per column from a ragged rim
+  foot of the walls (the ground scatter's "ledge" site). D-072 replaced
+  D-058's ridge spine and one-tile rivers: see **Rock** (rim massifs)
+  and **Rivers** (two tiles wide) below.
+- **Rock:** mountain, cliff and islet tiles carry rock on their level.
+  Mountains are compact **rim massifs** (D-072): 2–4 on a large island,
+  1–2 on a medium, 0–1 on a small one, on different sides, one dominant,
+  each a short ridge along the coast whose outer flank drops to the sea
+  as cliff and whose foot runs out gently inland; the interior and the
+  coast between them stay open grass and beach. One height field per
+  island, the tiles' `heights` blended between their centres at eight
+  steps per height (a large island's dominant peak up to 48 steps, six
+  heights; medium 40, small 24), rising three steps per column from a ragged rim
   (noise at column resolution, never outside rock tiles) and roughened by
   low-frequency noise in pairs of steps plus a per-column grain of four
   columns to the tile; the pair lattice shifts half a step from level to
@@ -218,7 +225,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - **Cliff coast:** cliff tiles drop to the sea as a rock face (strata,
   darker toward the foot) without a sand shelf; the foam lies at its
   foot and the shallows start further out.
-- **Rivers** run on their tiles: water at least two columns wide, two
+- **Rivers** run on their tiles (D-072: two tiles wide, three at the
+  estuary, from a massif across the plain to a bay on another side):
+  water at least two columns wide, two
   steps below the level, between banks of sand and pebbles one step down;
   the bends' outer banks step in by half a tile. The surface is the sea's
   material (ripples, glints) a little darker; at far the river beds carry
@@ -226,7 +235,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   bands falls into a foam pool; at level 0 the mouth loses its banks and
   shelf and steps down in small rapids into the shallows. **Bridges** are
   voxel arch models (`decor_bridge_1/2`) over straight road runs of one
-  or two river tiles, at the banks' level, hidden at far.
+  or two river tiles, at the banks' level, hidden at far; a two-tile
+  river takes `decor_bridge_2` (a road crosses at most two river tiles,
+  so the three-tile estuary has no bridge and no `decor_bridge_3`).
 - **Things on terraces:** buildings and fields stand on the highest
   level under their footprint, lower columns filled up to it (a terrace
   fill, `render/terraces.ts`). The fill takes the footprint's ground

@@ -143,13 +143,13 @@ describe("arithmetic of the tables", () => {
     expect(food.alternatives[0]?.providers.length).toBeGreaterThan(0);
     const tiers = needsByTier(idx);
     const market = tiers[0]!.own.find((n) => n.category === "market")!;
-    expect(market.alternatives.map((a) => [a.id, a.share, a.radii])).toEqual([["market", 1, [12, 15, 18, 21]]]);
+    expect(market.alternatives.map((a) => [a.id, a.share, a.radii])).toEqual([["market", 1, [20, 24, 28, 32]]]);
     // Chain needs (D-065): every building of the minimum rank or higher, each covering fully.
     const faith = (tier: number) => tiers[tier]!.own.find((n) => n.chain === "faith")!;
     expect(faith(0).alternatives.map((a) => [a.id, a.share, a.radius])).toEqual([
       ["chapel", 1, 16],
-      ["church", 1, 20],
-      ["cathedral", 1, 28],
+      ["church", 1, 28],
+      ["cathedral", 1, 50],
     ]);
     expect(faith(2)).toMatchObject({ services: true, minRank: 2 });
     expect(faith(2).alternatives.map((a) => a.id)).toEqual(["church", "cathedral"]);
@@ -196,7 +196,7 @@ describe("islands view", () => {
     expect(v.sizeClasses.map((s) => s.id)).toEqual(["large", "medium", "small", "rock", "scenic"]);
     expect(v.sizeClasses.filter((s) => s.scenic).map((s) => s.id)).toEqual(["scenic"]);
     expect(v.sizeClasses.filter((s) => s.home).map((s) => s.id)).toEqual(["large"]);
-    expect(v.sizeClasses[0]).toMatchObject({ size: 192, count: { min: 3, max: 3 }, fertilities: { min: 2, max: 4 }, shape: "1–3 arms, plain 40×40, 1–2 rivers, 2 terraces, 3–6 islets" });
+    expect(v.sizeClasses[0]).toMatchObject({ size: 250, count: { min: 3, max: 3 }, fertilities: { min: 2, max: 4 }, shape: "plain 52×52, 1–2 rivers, 2 terraces, 3–6 islets" });
     expect(v.sizeClasses.find((s) => s.id === "scenic")?.shape).toBeUndefined();
     expect(v.basicOnly).toBe(false);
     expect(v.home).toEqual([]);
@@ -273,7 +273,7 @@ describe("almanac model of the harbour buildings (D-060)", () => {
     expect(depot).toMatchObject({ depotCapacity: 150, levels: [] });
     const playhouse = buildingView(idx, idx.building("playhouse")!);
     expect(playhouse.description).toContain("timber-framed");
-    expect(playhouse).toMatchObject({ width: 11, height: 14, radius: 24 });
+    expect(playhouse).toMatchObject({ width: 11, height: 14, radius: 38 });
     expect(idx.building("theatre")).toBeUndefined();
     expect(buildingView(idx, idx.building("trading_post")!).footprint).toContain("1–2 rows on water");
     const quay = buildingView(idx, idx.building("quay")!);

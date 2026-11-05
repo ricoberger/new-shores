@@ -8,10 +8,13 @@ import (
 )
 
 // plan is the composition of one archipelago before any shape exists:
-// the size class, fertilities and deposit slots of every island.
+// the size class, massifs, fertilities and deposit slots of every island.
 type plan struct {
-	class       *content.SizeClass
-	home        bool
+	class *content.SizeClass
+	home  bool
+	// massifs is the number of rim massifs (D-072 §4); an island without
+	// one has no mountain for deposit slots and gets none.
+	massifs     int
 	fertilities []string
 	// deposits lists the kind of every deposit slot.
 	deposits []string
@@ -33,8 +36,9 @@ var errPlan = errors.New("no resource assignment")
 // islands' slots (addDeposits). Adding a later tier's deposits to the
 // content therefore leaves the earlier composition, shapes and slots of
 // every seed as they were (D-056 C3: the tier-3 clay, salt and coal; C4:
-// the tier-4 quartz, copper and gold).
-func planComposition(r *rng, late func(k int) *rng, c *content.Catalogue) ([]*plan, error) {
+// the tier-4 quartz, copper and gold). The rim massifs per island (D-072)
+// come from their own stream mass.
+func planComposition(r, mass *rng, late func(k int) *rng, c *content.Catalogue) ([]*plan, error) {
 	rules := &c.Islands
 	var out []*plan
 	for _, sc := range rules.SizeClasses {
@@ -57,6 +61,16 @@ func planComposition(r *rng, late func(k int) *rng, c *content.Catalogue) ([]*pl
 	}
 	if err := assignFertilities(r, rules, out); err != nil {
 		return nil, err
+	}
+	// The rim massifs (D-072 §4) on their own stream mass, so that the
+	// composition above stays as before them: an island with slots of the
+	// first mining tier gets at least one (its slots lie on a massif's
+	// foot); the later tiers' slots go to islands with one (addDeposits).
+	for _, p := range out {
+		p.massifs = mass.between(p.class.Shape.Massifs.Min, p.class.Shape.Massifs.Max)
+		if p.massifs == 0 && len(p.deposits) > 0 && !p.class.Rock {
+			p.massifs = 1
+		}
 	}
 	for k, pool := range tiers[1:] {
 		if err := addDeposits(late(k+1), rules, pool, out); err != nil {
@@ -113,8 +127,10 @@ func depositTiers(c *content.Catalogue) [][]content.PoolEntry {
 // within the pool's summed range and the islands' remaining room, split
 // per kind within its range; the home rule's kinds of the pool go to the
 // home candidate, every other slot to a random habitable island (not a
-// rock) with room that may carry the kind. The new slots are appended to
-// each island's slots (sorted among themselves), after the earlier tiers'.
+// rock) with room that may carry the kind — when the drawn island has no
+// massif (D-072 §4), the next candidate with one. The new slots are
+// appended to each island's slots (sorted among themselves), after the
+// earlier tiers'.
 func addDeposits(r *rng, rules *content.IslandRules, pool []content.PoolEntry, islands []*plan) error {
 	room := func(p *plan) int { return p.class.Deposits.Max - len(p.deposits) }
 	capacity := 0
@@ -164,7 +180,18 @@ func addDeposits(r *rng, rules *content.IslandRules, pool []content.PoolEntry, i
 		if len(cands) == 0 {
 			return errPlan
 		}
-		put(cands[r.intn(len(cands))], kind)
+		k := r.intn(len(cands))
+		placed := false
+		for off := range cands {
+			if i := cands[(k+off)%len(cands)]; islands[i].massifs > 0 {
+				put(i, kind)
+				placed = true
+				break
+			}
+		}
+		if !placed {
+			return errPlan
+		}
 	}
 	for i, p := range islands {
 		if len(added[i]) > 1 {

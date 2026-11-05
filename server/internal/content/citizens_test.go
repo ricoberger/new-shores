@@ -81,11 +81,11 @@ func TestLoadCitizensContent(t *testing.T) {
 	if r := c.BuildingByID["road_paved"]; r.Road == nil || r.Road.MsPerTile != 600 || r.Tier != "citizens" {
 		t.Errorf("road_paved = %+v", r)
 	}
-	if tv := c.BuildingByID["tavern"]; tv.Service == nil || tv.Service.RadiusAt(1) != 14 || tv.Upgradable() || tv.PauseCategory != "public" || !tv.RequiresRoad {
+	if tv := c.BuildingByID["tavern"]; tv.Service == nil || tv.Service.RadiusAt(1) != 20 || tv.Upgradable() || tv.PauseCategory != "public" || !tv.RequiresRoad {
 		t.Errorf("tavern = %+v", tv)
 	}
 	// The second tier-2 service (D-056 §3).
-	if sc := c.BuildingByID["school"]; sc.Service == nil || sc.Service.RadiusAt(1) != 16 || sc.Upgradable() || sc.PauseCategory != "public" || !sc.RequiresRoad ||
+	if sc := c.BuildingByID["school"]; sc.Service == nil || sc.Service.RadiusAt(1) != 20 || sc.Upgradable() || sc.PauseCategory != "public" || !sc.RequiresRoad ||
 		sc.Tier != "citizens" || sc.Cost.Gold != 1_000_000 || sc.UpkeepPerMin != 4000 || sc.Width != 6 || sc.Height != 8 {
 		t.Errorf("school = %+v", sc)
 	}
@@ -162,7 +162,7 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 	}{
 		{
 			"cost on the first level",
-			[]string{`"reach": 20, "upkeep_per_min": 0, "berths": 1 }`, `"reach": 20, "upkeep_per_min": 0, "berths": 1, "cost": { "gold": 1 } }`},
+			[]string{`"reach": 24, "upkeep_per_min": 0, "berths": 1 }`, `"reach": 24, "upkeep_per_min": 0, "berths": 1, "cost": { "gold": 1 } }`},
 			[]string{FileBuildings, `building "trading_post"`, "trading_post.levels[0]", "schema violation", "'not' failed"},
 		},
 		{
@@ -178,7 +178,7 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 		},
 		{
 			"deposit without recipe",
-			[]string{`"service": { "chain": "culture", "rank": 1, "radius": 14 }`, `"service": { "chain": "culture", "rank": 1, "radius": 14 },
+			[]string{`"service": { "chain": "culture", "rank": 1, "radius": 20 }`, `"service": { "chain": "culture", "rank": 1, "radius": 20 },
     "requires_deposit": "stone"`},
 			[]string{FileBuildings, `building "tavern"`, "requires_deposit", "recipe"},
 		},
@@ -189,7 +189,7 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 		},
 		{
 			"fertility outside the work area",
-			[]string{`"service": { "chain": "culture", "rank": 1, "radius": 14 }`, `"service": { "chain": "culture", "rank": 1, "radius": 14 },
+			[]string{`"service": { "chain": "culture", "rank": 1, "radius": 20 }`, `"service": { "chain": "culture", "rank": 1, "radius": 20 },
     "fertility": "wheat"`},
 			[]string{FileBuildings, `building "tavern"`, "schema violation"},
 		},

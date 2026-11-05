@@ -72,13 +72,16 @@ relative within the tier; chains as `faith ≥ 2`).
 
 | Tier | Goods categories → acceptable goods | Building needs (radius) |
 |---|---|---|
-| Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | market 0.12: `market` 12 · faith ≥ 1 0.18: `chapel` 16 |
-| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | market 0.12: `market` 15 · faith ≥ 1, education ≥ 1 (`school` 16), culture ≥ 1 (`tavern` 14) 0.06 each · safety 0.1: `city_guard` 16 |
-| Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.09: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | market 0.096: `market` 18 · faith ≥ 2 (`church` 20), education ≥ 1, culture ≥ 2 (`playhouse` 24) 0.048 each · safety 0.08: `city_guard` 16, fire protection 0.08: `fire_station` 16 |
-| Patricians | food 0.14: roast_beef 0.005 \| oysters 0.004 · drink 0.14: wine 0.004 \| grain_spirit 0.003 · clothing 0.14: fine_garments 0.003 \| lace 0.003 · comfort 0.14: candles 0.004 \| spectacles 0.002 · luxury 0.14: jewellery 0.001 \| instruments 0.001 | market 0.04: `market` 21 · faith ≥ 3 (`cathedral` 28), education ≥ 2 (`university` 24), culture ≥ 2 0.02 each · safety/fire protection 0.06 each, health 0.08: `surgery` 20 |
+| Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | market 0.12: `market` 20 · faith ≥ 1 0.18: `chapel` 16 |
+| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | market 0.12: `market` 24 · faith ≥ 1, education ≥ 1 (`school` 20), culture ≥ 1 (`tavern` 20) 0.06 each · safety 0.1: `city_guard` 26 |
+| Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.09: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | market 0.096: `market` 28 · faith ≥ 2 (`church` 28), education ≥ 1, culture ≥ 2 (`playhouse` 38) 0.048 each · safety 0.08: `city_guard` 26, fire protection 0.08: `fire_station` 22 |
+| Patricians | food 0.14: roast_beef 0.005 \| oysters 0.004 · drink 0.14: wine 0.004 \| grain_spirit 0.003 · clothing 0.14: fine_garments 0.003 \| lace 0.003 · comfort 0.14: candles 0.004 \| spectacles 0.002 · luxury 0.14: jewellery 0.001 \| instruments 0.001 | market 0.04: `market` 32 · faith ≥ 3 (`cathedral` 50), education ≥ 2 (`university` 46), culture ≥ 2 0.02 each · safety/fire protection 0.06 each, health 0.08: `surgery` 28 |
 
-The market radius is that of its level (12/15/18/21, level *n* from
-tier *n*, D-065); the table lists the level the tier unlocks.
+The market radius is that of its level (20/24/28/32, level *n* from
+tier *n*, D-065); the table lists the level the tier unlocks. The radii
+are Anno 117's (D-072 §3, on the islands of D-072; before 12/15/18/21
+for the market, tavern 14, school 16, church 20, playhouse 24,
+university 24, cathedral 28, guard and fire 16, surgery 20).
 
 Variety reserve (D-056, IDs reserved, not in the tier plan): fur_coats,
 tableware, confectionery, paintings.
@@ -203,7 +206,7 @@ feature, not a tier gate, and not authored yet. Variety reserve
 (`mineral_quarry`, `studio`).
 
 Infrastructure: `trading_post` lvl 4, `market` and `warehouse` lvl 4 (D-065), `university`,
-`cathedral`, `surgery` (health, radius 20; glass cost, D-062),
+`cathedral`, `surgery` (health, radius 28; glass cost, D-062),
 `galleon` (6 slots), `house_patricians`.
 
 ## 6. Catalogue totals
@@ -259,7 +262,7 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `road_dirt` | 1 | 1×1 | — | road | see text | 0 | — |  |
 | `trading_post` | 1 | 6×6 | 1–2 | Trading Post (D-062) | see text | 0 / 10 / 20 / 30 | — | founding only; collector with reach; levels as below (D-069) |
 | `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 1 / 10 / 15 / 25 | — | collector; reach and throughput per level, four levels (D-065, D-069, below) |
-| `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 / 10 / 20 / 30 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 12; lvl 2 (tier 2) radius 15, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 18, 1000 gold / 15 planks / 30 stone; lvl 4 (tier 4) radius 21, 5000 gold / 15 planks / 45 stone / 15 bricks (D-065) |
+| `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 / 10 / 40 / 60 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 20; lvl 2 (tier 2) radius 24, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 28, 2000 gold / 30 planks / 60 stone; lvl 4 (tier 4) radius 32, 10000 gold / 30 planks / 90 stone / 30 bricks (D-065; radii, and cost and upkeep of levels 3–4 ×2, D-072) |
 | `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 0 | — | R, radius 16; faith rank 1 (D-065) |
 | `lumberjack` | 1 | 3×3 + 24 `tree_plot` | — | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest) |
 | `tree_plot` | 1 | 1×1 field | — | field tile | 1 g | 0 | — | lumberjack only; painted; grass or forest, no fertility (D-059) |
@@ -297,16 +300,16 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `pig_pen` | 2 | 3×4 field | — | pasture module | 20 g / 5 planks | 0 | — | pig_farm only; grass |
 | `tannery` | 2 | 3×4 | — | Tannery | 180 / 6 / 6 | 2 | 8 C | R |
 | `sailmaker` | 2 | 4×8 | — | Ropemaker | 240 / 6 / 9 | 2 | 6 C | R |
-| `tavern` | 2 | 4×6 | — | Tavern | 250 / 15 / 0 | 2 | — | R, radius 14; culture rank 1 (D-065) |
-| `school` | 2 | 6×8 | — | Grammaticus | 1000 / 15 / 30 | 4 | — | R, radius 16 (D-056); education rank 1 (D-065) |
-| `city_guard` | 2 | 4×4 | — | Watch post class | 200 / 10 / 6 | 2 | — | R, safety; radius 16, one level (D-065) |
+| `tavern` | 2 | 4×6 | — | Tavern | 250 / 15 / 0 | 2 | — | R, radius 20 (D-072); culture rank 1 (D-065) |
+| `school` | 2 | 6×8 | — | Grammaticus | 1000 / 15 / 30 | 4 | — | R, radius 20 (D-072); education rank 1 (D-065) |
+| `city_guard` | 2 | 4×4 | — | Watch post class | 200 / 10 / 6 | 2 | — | R, safety; radius 26 (D-072), one level (D-065) |
 | `house_merchants` | 3 | 3×3 | — | Residence | 400 / 5 / 3 / 3 | 0 | — | upgrade only |
-| `church` | 3 | 6×10 | — | Sanctuary | 1500 / 30 / 15 / 0 | 6 | — | R, radius 20; faith rank 2 (D-065) |
-| `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 30 / 60 / 30 | 15 | — | R, radius 24 (tier 3 since D-056); culture rank 2 (D-065) |
-| `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, fire protection; radius 16, one level (D-065) |
+| `church` | 3 | 6×10 | — | Sanctuary | 3000 / 60 / 30 / 0 | 12 | — | R, radius 28; faith rank 2 (D-065); cost and upkeep ×2 (D-072) |
+| `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 60 / 120 / 60 | 30 | — | R, radius 38 (tier 3 since D-056); culture rank 2 (D-065); materials and upkeep ×2, gold kept (D-072: the Merchants game waits for its gold) |
+| `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, fire protection; radius 22 (D-072), one level (D-065) |
 | `trading_pier` | 3 | 6×9 | 5–6 | Pier class (ours) | 250 / 20 / 10 | 0 | — | R, never auto-paused; +2 berths for the island (D-060); no levels; Merchants since D-069 §5 |
 | `depot` | 3 | 4×11 | 7–9 | Depot class (ours) | 280 / 20 / 10 | 0 | — | R, never auto-paused; +150 capacity per good, no levels; any number (D-062); Merchants since D-069 §5 |
-| `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 4 | — | R, radius 20, health; one level, glass cost (D-062) |
+| `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 4 | — | R, radius 28 (D-072), health; one level, glass cost (D-062) |
 | `harbourmaster_office` | 3 | 5×5 | (reserve) | Repair Crane class | 1000 / 60 / 45 / 0 | 6 | — | world map, expeditions, contracts |
 | `butcher` | 3 | 4×5 | — | Victualler class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
 | `pastry_kitchen` | 3 | 4×5 | — | Bakery class | 320 / 5 / 9 / 3 | 4 | 8 M | R |
@@ -334,8 +337,8 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `brickworks` | 3 | 4×5 | — | Tiler | 90 / 9 / 0 / 0 | 3 | 8 C | R |
 | `coal_mine` | 3 | 3×8 on a coal slot | — | Iron Mine class | 180 / 6 / 6 / 0 | 2 | 10 C | R |
 | `house_patricians` | 4 | 3×3 | — | Residence | 1000 / 5 / 3 / 3 / 3 | 0 | — | upgrade only |
-| `university` | 4 | 12×12 | — | Library | 50000 / 45 / 45 / 60 / 0 | 45 | — | R, radius 24; education rank 2 (D-065) |
-| `cathedral` | 4 | 12×16 | — | Temple | 60000 / 15 / 60 / 60 / 30 | 30 | — | R, radius 28 (D-056); faith rank 3 (D-065) |
+| `university` | 4 | 12×12 | — | Library | 100000 / 90 / 90 / 120 / 0 | 90 | — | R, radius 46; education rank 2 (D-065); cost and upkeep ×2 (D-072) |
+| `cathedral` | 4 | 12×16 | — | Temple | 120000 / 30 / 120 / 120 / 60 | 60 | — | R, radius 50 (D-072); faith rank 3 (D-065); cost and upkeep ×2 (D-072) |
 | `cattle_farm` | 4 | 4×5 + 5 `cattle_pasture` | — | Pig Farm class, large | 410 / 5 / 9 / 6 / 0 | 4 | 8 S | R, grass |
 | `slaughterhouse` | 4 | 4×4 | — | Fish Gutter class | 390 / 6 / 6 / 3 / 3 | 8 | 8 P | R |
 | `oyster_beds` | 4 | 6×12 | 3–4 | Oyster Bed | 480 / 12 / 9 / 6 / 0 | 3 | 6 S | R |
@@ -374,16 +377,20 @@ needs tier *n*, D-065, extended to the Trading Post):
 
 | Collector | Level | Capacity | T | Reach | Upkeep | Berths | Upgrade cost |
 |---|---|---|---|---|---|---|---|
-| Trading Post | 1 | 300 | 20 | 20 | 0 | 1 | founding (200 gold / 15 planks) |
-| Trading Post | 2 (Citizens) | 500 | 40 | 24 | 10 | 2 | 300 gold / 20 planks / 10 stone |
-| Trading Post | 3 (Merchants) | 800 | 60 | 28 | 20 | 3 | 600 gold / 30 planks / 20 stone |
-| Trading Post | 4 (Patricians) | 1 200 | 80 | 32 | 30 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
-| Warehouse | 1 | — | 20 | 14 | 1 | — | placement (50 gold / 6 planks) |
-| Warehouse | 2 (Citizens) | — | 35 | 17 | 10 | — | 150 gold / 10 planks / 5 stone |
-| Warehouse | 3 (Merchants) | — | 50 | 20 | 15 | — | 300 gold / 15 planks / 10 stone |
-| Warehouse | 4 (Patricians) | — | 65 | 23 | 25 | — | 600 gold / 20 planks / 20 stone |
+| Trading Post | 1 | 300 | 20 | 24 | 0 | 1 | founding (200 gold / 15 planks) |
+| Trading Post | 2 (Citizens) | 500 | 40 | 28 | 10 | 2 | 300 gold / 20 planks / 10 stone |
+| Trading Post | 3 (Merchants) | 800 | 60 | 32 | 20 | 3 | 600 gold / 30 planks / 20 stone |
+| Trading Post | 4 (Patricians) | 1 200 | 80 | 36 | 30 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
+| Warehouse | 1 | — | 20 | 18 | 1 | — | placement (50 gold / 6 planks) |
+| Warehouse | 2 (Citizens) | — | 35 | 21 | 10 | — | 150 gold / 10 planks / 5 stone |
+| Warehouse | 3 (Merchants) | — | 50 | 24 | 15 | — | 300 gold / 15 planks / 10 stone |
+| Warehouse | 4 (Patricians) | — | 65 | 27 | 25 | — | 600 gold / 20 planks / 20 stone |
 
-Market upkeep per level 0 / 10 / 20 / 30. D-069 §3 named 5 for the
+Reach grew by 4 tiles per level with D-072 §3 (D-069: Trading Post 20 /
+24 / 28 / 32, warehouse 14 / 17 / 20 / 23).
+
+Market upkeep per level 0 / 10 / 40 / 60 (D-072 doubled levels 3–4 from
+20 / 30). D-069 §3 named 5 for the
 level 1 of market and warehouse; the plan replay tuned them: a market
 with any upkeep placed before the first houses holds gold at zero for
 good (it cannot be paused and roads cost gold), so its level 1 stays
@@ -433,16 +440,17 @@ and short hops, the galleon large and slow for bulk. Ship positions and legs fol
 
 | Property | Value |
 |---|---|
-| Habitable islands per archipelago | 12: 3 large (≈ 192×192), 5 medium (≈ 112×112), 4 small (≈ 64×64) |
+| Habitable islands per archipelago | 12: 3 large (≈ 250×250), 5 medium (≈ 163×163), 4 small (≈ 106×106) (D-072) |
 | Resource rocks | 0–2 (≈ 16×16, mountain + coast; Trading Post and mines only) |
 | Skerries | 4–8 per archipelago (class `scenic`, 4–12 tiles of rock with a grass or sand top): scenery only — no sites, fertilities, deposits or name, not settleable, not a destination; land for routing, minimap and far view |
-| Shape per class | arms 1–3 (small 1–2); plain ≥ 40 / 24 / 14 tiles square; rivers 1–2 / 0–1 / 0; terrace levels 2 / 2 / 1; islets 3–6 / 2–5 / 2–4 (large / medium / small; rocks and skerries none) |
+| Shape per class | rim massifs 2–4 / 1–2 / 0–1 (10–19 % of the land, rock height up to 6 / 5 / 3; D-072); plain ≥ 52 / 32 / 19 tiles square; rivers 1–2 / 0–1 / 0; terrace levels 2 / 2 / 1; islets 3–6 / 2–5 / 2–4 (large / medium / small; rocks and skerries none) |
 | Fertilities per habitable island | 2–4 from the pool (wheat, apple, hemp 3–5 times per archipelago; hops, woad, grapes 2–5 times; provisional) |
 | Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
 | Shallows | water tiles of an island's grid (not river) within 3 tiles (Chebyshev) of its own land, islets excluded; derived from the tiles, the quay's ground (D-060, MECHANICS §3) |
-| Spacing | ≥ 50 tiles between islands, nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
-| Buildable area | 91 000 tiles (coast, grass, forest) per archipelago ± 10 % (≈ 48 % of the 189 696-tile land extents, the share the shape rules give: ≈ 17.7 k per large island, D-054; provisional) |
+| Spacing | ≥ 55 tiles between islands (50 before D-072: the nearest neighbour of the dev seed fell under a minute at the brig's speed), nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
+| Buildable area | 185 000 tiles (coast, grass, forest) per archipelago ± 10 % (D-072; ≈ 51 % of the 365 289-tile land extents, the share the shape rules give; provisional) |
+| Anno 117 sizes (D-072) | buildable mean over seeds 1–50: large 31 725 (Anno 117: 31 573), medium 13 614 (13 369), small 6 011 (5 860) tiles; ≈ 2 640 / 1 130 / 500 houses at 12 tiles per house; with the rim massifs (D-072 §4) 13 % of a large or medium island is rock, and a quarter of the small islands have no massif |
 | Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
 
 Guarantees per tier are specified in MECHANICS §10. No gating (D-051).
@@ -540,7 +548,7 @@ future decision. A new translatable field must be added to
 | `ship_handling_seconds_per_unit` | berth time per unit unloaded or loaded (provisional 0.2) | §9.2 |
 | `away_summary_minutes` | minimum absence before a "while you were away" summary is produced (15) | §12b |
 | `trial_resume_upkeep_minutes` | gold reserve for a trial resume of an unpaid building; must be > `auto_resume_upkeep_minutes` (30) | §7 |
-| `camera.max_half_extent` | zoom-out cap of the camera, vertical half extent in tiles (120); client view only, no rule reads it; the client never caps below its far-LOD reach | render |
+| `camera.max_half_extent` | zoom-out cap of the camera, vertical half extent in tiles (80, D-072; was 120); client view only, no rule reads it; the client never caps below its far-LOD reach | render |
 
 `version` is the `content_version` embedded in every saved world.
 
@@ -561,7 +569,7 @@ Every building has `id`, `name`, `region` (must equal the region id),
 called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min` and
 `pause_category`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **13**, content **old_coast-0.18.0** (D-069): no migration while
+World schema **13**, content **old_coast-0.19.0** (D-072; 0.18.0 D-069): no migration while
 undeployed; recreate local databases with `make down VOLUMES=1 && make up`.
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.
@@ -629,21 +637,23 @@ tier 4: grain_distillery, glass_smelter, copper_smelter, gold_smelter).
 ```json
 {
   "size_classes": [
-    { "id": "large", "name": "Large", "size": 192, "count": { "min": 3, "max": 3 },
+    { "id": "large", "name": "Large", "size": 250, "count": { "min": 3, "max": 3 },
       "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 },
-      "shape": { "arms": { "min": 1, "max": 3 }, "plain": 40, "rivers": { "min": 1, "max": 2 },
+      "shape": { "massifs": { "min": 2, "max": 4 }, "plain": 52, "rivers": { "min": 1, "max": 2 },
                  "levels": 2, "islets": { "min": 3, "max": 6 } } },
     { "id": "rock", "size": 16, "rock": true, "…": "…" },
     { "id": "scenic", "name": "Skerry", "size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "…": "…" }
   ],
-  "spacing": { "min": 50, "nearest_max": 120, "strait_min": 24, "void_max": 150 },
+  "spacing": { "min": 55, "nearest_max": 120, "strait_min": 24, "void_max": 150 },
   "fertilities": "…", "deposits": "…", "buildable_area": "…", "home": "…"
 }
 ```
 
-`shape` (D-058) is required per class: `arms` ≤ 3, `rivers` ≤ 2,
-`levels` ≤ 2, `islets` ≤ 8, `plain` ≤ size / 3; a rock class has all
-zeros. A `scenic` class (skerries) is no rock, has no fertilities,
+`shape` (D-058, D-072) is required per class: `massifs` (rim massifs,
+D-072) ≤ 4, `rivers` ≤ 2, `levels` ≤ 2, `islets` ≤ 8, `plain` ≤ size /
+3; a rock class has all zeros. An island with deposit slots of the
+first mining tier has at least one massif; one drawn without a massif
+gets no slots of the later tiers either. A `scenic` class (skerries) is no rock, has no fertilities,
 deposits or shape (all zeros) and a `size` of 2–8: its skerries have
 `size` … ¾ · size² tiles; it can never be the home class. `spacing`:
 `min` and `nearest_max` apply between habitable islands and rocks
@@ -753,6 +763,45 @@ and building/island choices are the only pacing levers. The final Patrician
 measurement is conservative, not the earliest crossing. Merchants lose the
 health gate but these layout repairs cost about six minutes versus the
 old 223/258/291 replay. The checklist below retains older balancing history.
+
+### D-072 reference results (sim minutes, seed 1053001)
+
+Content `old_coast-0.19.0` on the D-072 archipelago (Anno 117 island
+sizes, rim massifs, rivers two tiles wide; Anno 117 service radii and
+collector reach, §7; camera cap 80):
+
+| Game | Milestones | Targets | D-069 | D-072 | Margins |
+|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 48 / 12 / 85 / 128 | 49 / 11 / 86 / 130 | 11 / 79 / 14 / 20 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 32 / 68 (8, 111) | 32 / 70 (8, 114) | 13 / 15; 17 earlier than without claims |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 220 / 263 / 397 | 220 / 264 / 412 | 20 / 6 / 8 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 808 / 847 / 1078 | 745 / 782 / 1082 | 155 / 178 / 718 |
+
+No milestone comes more than 25 % early that was not already early
+under D-069 (the Citizens unlock is population-only since D-069, the
+Patricians' final check is a ceiling), so no cost rose beyond D-072 §3.
+
+Plan changes for D-072 (generator and authoring levers):
+
+- The generator: Trading Post sites prefer connected room
+  (`tradingPostRoom`), a chain plot shared with another quarter is
+  skipped instead of failing, and the plans name no coordinates but
+  the citizens home Trading Post (`[122,198,180]`: the step-3 terrain
+  moved the coast under the old site).
+- Citizens: the manual shipment to island 2 carries 45 planks (was
+  40); home-3 lists its `school` among its civic plots — with the chain
+  reservation alone the houses east of the one school stayed out of its
+  radius 20 and the 16th Citizen → Merchant upgrade there waited on
+  education.
+- Merchants: unchanged; the playhouse keeps 15 000 gold (§7): at 30 000
+  the categories came at minute 513, at 22 500 at 461.
+- Patricians: the chain keys follow the generator (home-3 keeps its
+  school and shares home-1's playhouse, church and tavern; home-4 gets
+  school, tavern, playhouse and church); home-3's 33rd–36th houses
+  stand in home-5; a second quarry at home and on island 2 (the
+  doubled stone of playhouse and university); a leather works and a
+  tailor at home and three pig farms on island 2 more (coats and
+  sausages ran short in the final wait).
 
 ### D-069 reference results (sim minutes, seed 1053001)
 

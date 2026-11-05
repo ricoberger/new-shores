@@ -1,6 +1,6 @@
 {
   "name": "trading_post_tier_gate",
-  "content_version": "old_coast-0.18.0",
+  "content_version": "old_coast-0.19.0",
   "boundary_count": 0,
   "totals": {
     "main": {
@@ -139,7 +139,7 @@
       "seed": 0,
       "roll": 0,
       "rerollable": false,
-      "generator_version": 2,
+      "generator_version": 5,
       "bounds": {
         "x": 0,
         "y": 0,

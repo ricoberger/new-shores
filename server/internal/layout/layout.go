@@ -146,17 +146,26 @@ func CoversForest(is *sim.Island, x, y, w, h int) bool {
 	return false
 }
 
+// tradingPostRoom caps the connected free land a Trading Post site's
+// score counts (D-072: on the large islands a site with free land right
+// behind it may still sit on a strip between the coast, a river and a
+// massif).
+const tradingPostRoom = 6000
+
 // TradingPostSite returns the island's Trading Post site with the most
-// free land within ten tiles behind it (the first on ties).
+// connected free land behind it (up to tradingPostRoom tiles, without
+// crossing a river), then the most free land within ten tiles behind it
+// (the first on ties).
 func (p *Planner) TradingPostSite(island string) (archipelago.Rect, bool) {
 	is := p.W.Island(island)
 	def := archipelago.TradingPost(p.C)
 	if is == nil || def == nil {
 		return archipelago.Rect{}, false
 	}
-	best, bestScore := archipelago.Rect{}, -1
+	best, bestRoom, bestScore := archipelago.Rect{}, -1, -1
 	v := p.View(is)
-	for _, s := range archipelago.Sites(is, p.C, def) {
+	seen := make([]int, is.Width*is.Height)
+	for i, s := range archipelago.Sites(is, p.C, def) {
 		cx, cy := s.X+s.W/2, s.Y+s.H/2
 		dx, dy := Inland(s.Rotation)
 		cx, cy = cx+dx*6, cy+dy*6
@@ -168,11 +177,37 @@ func (p *Planner) TradingPostSite(island string) (archipelago.Rect, bool) {
 				}
 			}
 		}
-		if score > bestScore {
-			best, bestScore = s, score
+		room := v.room(cx, cy, i+1, seen)
+		if room > bestRoom || (room == bestRoom && score > bestScore) {
+			best, bestRoom, bestScore = s, room, score
 		}
 	}
 	return best, bestScore >= 0
+}
+
+// room counts the free tiles connected to (x, y) by land (4-neighbours),
+// up to tradingPostRoom; seen marks the tiles visited with mark.
+func (v *View) room(x, y, mark int, seen []int) int {
+	is := v.is
+	if !v.Free(x, y) {
+		return 0
+	}
+	queue := []int{y*is.Width + x}
+	seen[queue[0]] = mark
+	for k := 0; k < len(queue) && len(queue) < tradingPostRoom; k++ {
+		px, py := queue[k]%is.Width, queue[k]/is.Width
+		for _, d := range [4][2]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
+			nx, ny := px+d[0], py+d[1]
+			if !is.InBounds(nx, ny) {
+				continue
+			}
+			if j := ny*is.Width + nx; seen[j] != mark && v.Free(nx, ny) {
+				seen[j] = mark
+				queue = append(queue, j)
+			}
+		}
+	}
+	return min(len(queue), tradingPostRoom)
 }
 
 // Inland is the direction from a water-edge building's water rows to its

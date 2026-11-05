@@ -51,12 +51,12 @@
           "fertilities": { "$ref": "#/$defs/range", "description": "Fertility tags per island." },
           "deposits": { "$ref": "#/$defs/range", "description": "Deposit slots per island." },
           "shape": {
-            "description": "Shape parameters (D-058); a resource rock uses zeros.",
+            "description": "Shape parameters (D-058, D-072); a resource rock uses zeros.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["arms", "plain", "rivers", "levels", "islets"],
+            "required": ["massifs", "plain", "rivers", "levels", "islets"],
             "properties": {
-              "arms": { "$ref": "#/$defs/range", "description": "Arms of the skeleton besides the trunk (0-3)." },
+              "massifs": { "$ref": "#/$defs/range", "description": "Massifs around the rim (D-072; 0-4; the first one dominant)." },
               "plain": { "description": "Side in tiles of the guaranteed contiguous plain of grass/forest (0: none; at most size/3).", "type": "integer", "minimum": 0, "maximum": 128 },
               "rivers": { "$ref": "#/$defs/range", "description": "Rivers per island (0-2)." },
               "levels": { "description": "Highest terrace level of the land (0-2; visual only).", "type": "integer", "minimum": 0, "maximum": 2 },

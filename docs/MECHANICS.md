@@ -515,7 +515,7 @@ covers 0.6 and both cover it fully. A need is either:
   without evaluating the distance rule.
 - **Market (D-065):** every tier has a `market` category served by the
   market alone (share 1.0). The market has four levels with radius
-  12/15/18/21, raised in place with `upgrade_building`; level *n* needs
+  20/24/28/32 (D-072), raised in place with `upgrade_building`; level *n* needs
   tier *n* unlocked (Settlers place level 1; Citizens, Merchants and
   Patricians unlock levels 2–4) and the level's cost.
 - **Chain need (D-065):** `{category, weight, chain, min_rank}`. The
@@ -539,8 +539,9 @@ covers 0.6 and both cover it fully. A need is either:
   again with its own weight. They are required categories and
   count in the upgrade gate (§6.1). No new rule: a missing civic building
   lowers coverage, tax and growth; there are no fires, disease or crime
-  events. City guard and fire station have one radius-16 level and no
-  upgrade; the surgery has one radius-20 level and costs glass.
+  events. City guard and fire station have one level (radius 26 and 22,
+  D-072) and no upgrade; the surgery has one radius-28 level and costs
+  glass.
 - **Display groups:** every category names a display group
   (`need_categories[].group`): `goods` for food, drink, clothing, comfort
   and luxury, `public` for market, faith, education, culture, safety,
@@ -732,8 +733,9 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
   next to land nearest the other end; a founding voyage (`sail_ship` with
   the Trading Post's `site`): that site's harbour — to the arrival
   island's, around land: integer A* on a 4-tile sea grid (a cell with
-  any land is blocked; an end in such a cell reaches the open grid over
-  water tiles), then string pulling with a tile-exact line test that
+  any land is blocked, and so is a sea cell the open sea cannot reach —
+  a bay whose mouth is narrower than a cell, D-072; an end in such a
+  cell reaches the open grid over water tiles), then string pulling with a tile-exact line test that
   keeps 1 tile of water from land (no way around: the straight line). The leg stores the polyline (`path`, shown
   to the client) and its ETA is the sum of the segments' distances in
   the formula above; route loop times use the same paths.
@@ -826,12 +828,13 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
 
 - Each archipelago is generated from a **seed stored on the world**
   (D-053) by a pure function of seed and content: **12 habitable islands**
-  (3 large ≈ 192×192, 5 medium ≈ 112×112, 4 small ≈ 64×64 extents) plus
+  (3 large ≈ 250×250, 5 medium ≈ 163×163, 4 small ≈ 106×106 extents;
+  Anno 117 buildable areas, D-072) plus
   0–2 resource rocks (≈ 16×16, mountain and coast only) and 4–8
   **skerries** (below). Each island gets fertilities (2–4 from the pool;
   rocks none), typed deposit slots (0–4) and a harbour area proportional
   to its coast; each habitable island has ≥ 2 valid Trading Post sites
-  and a shipyard site. Islands are ≥ 50 tiles apart (grid to grid),
+  and a shipyard site. Islands are ≥ 55 tiles apart (grid to grid),
   nearest neighbour ≤ 120, every strait (land to land, skerries
   included) ≥ 24 tiles of water, and no sea point inside the hull of the
   land lies more than 150 tiles from land (a layout with more open sea is
@@ -840,27 +843,40 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
   40 s or more). The archipelago may be **re-rolled** until the first
   founding (`reroll_archipelago`); a settled island may be **renamed** by
   its owner (`rename_island`).
-- **Shapes (D-058):** a habitable island grows from a skeleton (a trunk
-  with 1–3 arms) through a distance field and warped noise; large and
+- **Shapes (D-058, D-072):** a habitable island grows from a skeleton (a
+  trunk with 1–3 arms, small 1–2) through a distance field and warped
+  noise; large and
   medium islands keep at least one bay ≥ 15 % of their span deep and one
   peninsula ≥ 10 % beyond the body. Each keeps **one contiguous plain** on
-  one terrace level (large ≥ 40×40, medium ≥ 24×24, small ≥ 14×14 grass)
+  one terrace level (large ≥ 52×52, medium ≥ 32×32, small ≥ 19×19 grass)
   that the Trading Post and shipyard sites reach by land or bridges.
-  - **Mountains** form a massif along a ridge spine (15–20 % of the land
-    on large and medium islands, ≈ 10 % on small); where the massif or a
-    higher terrace meets the sea the coast is **cliff** (10–25 % of the
-    shore; no harbour buildings — reserved beach sites keep the harbour
-    guarantee). Mountain and cliff tiles are unbuildable (D-036).
-  - **Rivers** (large 1–2, medium 0–1, small none) run from the
-    mountains to a bay, 1 tile wide and 2–3 at the estuary; river tiles
-    are unbuildable water inside the land. A **road on a river tile is a
+  - **Mountains** (D-072) form compact **rim massifs**: large 2–4,
+    medium 1–2, small 0–1 (`shape.massifs`), on different sides of the
+    island, the first one dominant; together 10–19 % of the land (pockets
+    cut off by them included). Each stands on a short spine parallel to
+    the coast, set back from it: its outer flank meets the sea as
+    **cliff**, its foot runs out gently inland (rock height 1 at the
+    foot up to 6 / 5 / 3 on large / medium / small islands); no massif
+    reaches into the interior, which stays one connected plain, and the
+    coast between the massifs is beach (cliff at most 25 % of the shore;
+    no harbour buildings — reserved beach sites keep the harbour
+    guarantee). Deposit slots spread over the massifs (the k-th slot on
+    the k-th largest, round robin); an island drawn without a massif
+    gets no deposit slots. Mountain and cliff tiles are unbuildable
+    (D-036).
+  - **Rivers** (large 1–2, medium 0–1, small none; D-072) rise high on
+    a massif and cross the island to a bay on another side (at least a
+    right angle from the source, seen from the land's centroid), **2
+    tiles wide** and 3 along the last 6–10 tiles (the estuary); river
+    tiles are unbuildable water inside the land. A **road on a river tile is a
     bridge**: a straight crossing of at most 2 river tiles with buildable
     land at both ends and no road beside it (`terrain` otherwise).
     Fishing stays sea-only.
   - **Islets** (2–15 tiles, rock with a grass top or bare) lie inside
     an island's grid as unbuildable decor.
-  - **Terraces are visual only:** every land tile has a level 0–2 (coast
-    low, inland higher, rivers stepping down, the plain on one level) and
+  - **Terraces are visual only:** every land tile has a level 0–2 (the
+    beach at 0, inland higher, rivers stepping down, the plain on one
+    level) and
     rock tiles a rock height. No tile loses buildability and no placement
     rule reads them; the client draws plinths, ramps and waterfalls.
 - **Shallows** (D-060): an island's water tiles (not river) within 3

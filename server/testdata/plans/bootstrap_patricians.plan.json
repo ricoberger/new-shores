@@ -485,12 +485,7 @@
     {
       "found": {
         "ship": 2,
-        "island": "isle-06",
-        "at": [
-          59,
-          107,
-          180
-        ]
+        "island": "isle-06"
       }
     },
     {
@@ -774,18 +769,6 @@
       }
     },
     {
-      "civic": {
-        "quarter": "home-3",
-        "type": "school-2"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-3",
-        "type": "tavern"
-      }
-    },
-    {
       "upgrade": {
         "quarter": "home-3",
         "from": "house_settlers",
@@ -796,18 +779,6 @@
       "civic": {
         "quarter": "home-3",
         "type": "playhouse"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-3",
-        "type": "church"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-3",
-        "type": "church-2"
       }
     },
     {
@@ -1105,8 +1076,9 @@
       }
     },
     {
+      "note": "D-072: the 33rd to 36th house of home-3 stand in home-5 (the chain plots of this terrain take home-3's last house land).",
       "houses": {
-        "quarter": "home-3",
+        "quarter": "home-5",
         "count": 1
       }
     },
@@ -1119,7 +1091,7 @@
     },
     {
       "houses": {
-        "quarter": "home-3",
+        "quarter": "home-5",
         "count": 1
       }
     },
@@ -1132,7 +1104,7 @@
     },
     {
       "houses": {
-        "quarter": "home-3",
+        "quarter": "home-5",
         "count": 1
       }
     },
@@ -1152,7 +1124,7 @@
     },
     {
       "houses": {
-        "quarter": "home-3",
+        "quarter": "home-5",
         "count": 1
       }
     },
@@ -1731,6 +1703,21 @@
       }
     },
     {
+      "note": "D-072: the doubled stone of the playhouse, university and cathedral needs a second quarry at home and on isle-02.",
+      "build": {
+        "island": "isle-01",
+        "type": "quarry",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "quarry",
+        "count": 1
+      }
+    },
+    {
       "step": {
         "assign_ship": {
           "ship": 4,
@@ -2241,13 +2228,25 @@
     {
       "civic": {
         "quarter": "home-4",
-        "type": "school-2"
+        "type": "school"
       }
     },
     {
       "civic": {
         "quarter": "home-4",
-        "type": "church-2"
+        "type": "tavern"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "playhouse"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "church"
       }
     },
     {
@@ -2485,11 +2484,7 @@
       "build": {
         "island": "isle-02",
         "type": "warehouse",
-        "count": 1,
-        "at": [
-          169,
-          52
-        ]
+        "count": 1
       }
     },
     {
@@ -3150,6 +3145,28 @@
       "upgrade": {
         "quarter": "home-4",
         "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "note": "D-072: coats and sausages ran short in the final wait (the tailors and butchers starve for pigs): a seventh leather works, a tenth tailor and three more pig farms on isle-02.",
+      "build": {
+        "island": "isle-02",
+        "type": "pig_farm",
+        "count": 3
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "leather_works",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
         "count": 1
       }
     },

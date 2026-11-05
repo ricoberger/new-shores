@@ -13,15 +13,10 @@ const islandPad = 10
 
 // Shape tuning of habitable islands (D-058).
 const (
-	// ridgeMinPct and ridgeMaxPct bound the mountain (and cliff) share of
-	// the land of islands of at least ridgeLargeSize; smaller ones use the
-	// ridgeSmall bounds. ridgeFlankPct is the chance of a flank spine.
-	ridgeMinPct      = 15
-	ridgeMaxPct      = 20
-	ridgeSmallMinPct = 9
-	ridgeSmallMaxPct = 11
-	ridgeLargeSize   = 96
-	ridgeFlankPct    = 55
+	// largeSize is the size from which an island counts as large for its
+	// outline (bay and peninsula), arms and large islets (the large and
+	// medium classes).
+	largeSize = 140
 	// pocketMaxPct bounds the buildable pockets cut off by the massif that
 	// turn to mountain, percent of the land.
 	pocketMaxPct = 10
@@ -30,17 +25,17 @@ const (
 	// rows, content: shipyard).
 	harbourSide  = 8
 	harbourWater = 4
-	// shareSlack is the tolerance (percentage points) of the mountain
-	// share around the ridge share.
-	shareSlack = 3
 	// isletGap is the minimum Chebyshev distance from an islet tile to the
 	// main land: four water tiles between them, so that islets never
 	// block the water rows of harbour sites (shipyard: 4).
 	isletGap = 5
-	// cliffMinPct and cliffMaxPct bound the cliff share of the coast;
-	// level2MinPct and level2MaxPct the level-2 share of the land.
-	cliffMinPct  = 10
+	// cliffMaxPct bounds the cliff share of the shore (the massifs' outer
+	// flanks, D-072 §4; the coast between them is beach); level1MinPct
+	// and level1MaxPct bound the share of the land on level 1 or 2,
+	// level2MinPct and level2MaxPct the level-2 share.
 	cliffMaxPct  = 25
+	level1MinPct = 15
+	level1MaxPct = 35
 	level2MinPct = 0
 	level2MaxPct = 20
 	// outlineMinPct and outlineMaxPct bound the land share of the extent
@@ -61,12 +56,12 @@ const (
 	habLandMaxPct = 68
 )
 
-// habitable builds a habitable island (D-058 part 1, round 2): skeleton
-// land mass, harbour stretches and coast detail, coast ring, massif with
-// mountains and cliffs, terrace levels with cliff coast, rivers with
-// estuaries, the plain on one level, forest patches, the share checks,
-// islets and the deposit slots.
-func habitable(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scratch) *grid {
+// habitable builds a habitable island (D-058 part 1, round 2; D-072 §4):
+// skeleton land mass, harbour stretches and coast detail, coast ring,
+// rim massifs with mountains and cliffs, terrace levels behind a beach,
+// rivers with estuaries, the plain on one level, forest patches, the
+// share checks, islets and the deposit slots.
+func habitable(r *rng, sc *content.SizeClass, massifs int, deposits []string, gap int, s *scratch) *grid {
 	size, sh := sc.Size, sc.Shape
 	// The skeleton fills the extent of size tiles; the bones may run on
 	// past it by up to reach tiles on every side.
@@ -74,7 +69,11 @@ func habitable(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scr
 	n := size + 2*islandPad + 2*reach
 	g := newGrid(n, s)
 	g.pad = islandPad
-	bones := skeleton(r, r.between(sh.Arms.Min, sh.Arms.Max))
+	arms := armsSmall
+	if size >= largeSize {
+		arms = armsLarge
+	}
+	bones := skeleton(r, r.between(1, arms))
 	warp := max(1, size*12/100)
 	fit(bones, size, islandPad+reach, size*8/100)
 	bays := g.carveBays(r, bones, size)
@@ -139,7 +138,7 @@ func habitable(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scr
 		}
 		return nil
 	}
-	if size >= ridgeLargeSize && !g.outlineOK() {
+	if size >= largeSize && !g.outlineOK() {
 		return nil
 	}
 	dist := g.waterDistance(4)
@@ -150,8 +149,8 @@ func habitable(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scr
 	}
 	sea := g.seaField()
 	g.lvl, g.hgt = make([]int, len(g.t)), make([]int, len(g.t))
-	if !g.ridge(r, bones, size, land) {
-		g.s.reject = "ridge"
+	if massifs > 0 && !g.massifs(r, massifs, size, land, sea) {
+		g.s.reject = "massifs"
 		return nil
 	}
 	if !g.fillPockets(land * pocketMaxPct / 100) {
@@ -177,7 +176,7 @@ func habitable(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scr
 		return nil
 	}
 	g.riverLevels(rivers, sh.Levels)
-	if why := g.shares(size); why != "" {
+	if why := g.shares(); why != "" {
 		g.s.reject = why
 		return nil
 	}
@@ -345,214 +344,6 @@ func isqrt(v int) int {
 		y = (x + v/x) / 2
 	}
 	return x
-}
-
-// ridgeShare returns the mountain share of the land (percent bounds) of a
-// size class: large and medium islands carry massifs of 15-20 %, small
-// ones about 10 % (D-058 round 2).
-func ridgeShare(size int) (int, int) {
-	if size >= ridgeLargeSize {
-		return ridgeMinPct, ridgeMaxPct
-	}
-	return ridgeSmallMinPct, ridgeSmallMaxPct
-}
-
-// ridge draws the ridge spine and turns the land around it into a massif
-// (D-058 part 2, round 2). The spine is either a flank spine — the whole
-// trunk shifted to one side, so that one flank of the island is rock and
-// the plain lies on the other — or a centre spine from near the centre
-// along a trunk half past its tip into the sea, branched with an arm of
-// that half. Spurs branch off both. The massif's half-width varies along
-// the spine with low-frequency noise (1-5 tiles, more on large islands),
-// grows at branch points, and its edge is ragged (fine noise on the
-// threshold, short spurs of one or two tiles); a binary search on the
-// width scale gives the target share of the land. Coast tiles in the
-// massif become cliff; heights fall from 4 on the spine to 1 at the foot.
-func (g *grid) ridge(r *rng, bones []*bone, size, land int) bool {
-	n := g.n
-	type pt struct{ x, y int } // tile units x16
-	var branches [][]pt
-	var joints []pt
-	jitter := func(x, y, rad int) (int, int) {
-		j := rad / 4
-		return x + r.between(-j, j), y + r.between(-j, j)
-	}
-	spur := func(from pt, d, length int) []pt {
-		dx, dy := dir32(d)
-		l := size * 16 * length / 100
-		mid := pt{from.x + dx*l/2048 + r.between(-24, 24), from.y + dy*l/2048 + r.between(-24, 24)}
-		return []pt{from, mid, {from.x + dx*l/1024, from.y + dy*l/1024}}
-	}
-	spurs := r.between(1, 2)
-	if size < ridgeLargeSize {
-		spurs = r.intn(2)
-	}
-	if r.intn(100) < ridgeFlankPct {
-		// The flank spine: tip of half 1 to tip of half 0, shifted
-		// sideways by 45-75 % of the trunk's radius.
-		h0, h1 := bones[0], bones[1]
-		ax, ay := h0.x[len(h0.x)-1]-h1.x[len(h1.x)-1], h0.y[len(h0.y)-1]-h1.y[len(h1.y)-1]
-		l := max(1, isqrt(ax*ax+ay*ay))
-		side := 1 - 2*r.intn(2)
-		nx, ny := -ay*side, ax*side
-		off := r.between(45, 75)
-		var spine []pt
-		add := func(b *bone, i int) {
-			x, y := b.x[i]+nx*b.r[i]*off/100/l, b.y[i]+ny*b.r[i]*off/100/l
-			if i > 0 && i < len(b.x)-1 {
-				x, y = jitter(x, y, b.r[i])
-			}
-			spine = append(spine, pt{x, y})
-		}
-		for i := len(h1.x) - 1; i >= 1; i-- {
-			add(h1, i)
-		}
-		for i := range h0.x {
-			add(h0, i)
-		}
-		// Each end runs on past the tip by up to a radius (often into
-		// the sea: cliffs).
-		k := len(spine) - 1
-		for _, e := range [2][2]int{{0, 1}, {k, k - 1}} {
-			a, b := spine[e[0]], spine[e[1]]
-			f := r.between(0, 100)
-			ex, ey := (a.x-b.x)*f/100, (a.y-b.y)*f/100
-			if e[0] == 0 {
-				spine = append([]pt{{a.x + ex, a.y + ey}}, spine...)
-			} else {
-				spine = append(spine, pt{a.x + ex, a.y + ey})
-			}
-		}
-		branches = append(branches, spine)
-		// Spurs run outwards (away from the plain side).
-		base := angle32(nx, ny)
-		for range spurs {
-			m := r.between(1, len(spine)-2)
-			branches = append(branches, spur(spine[m], base+r.between(-5, 5), r.between(10, 18)))
-			joints = append(joints, spine[m])
-		}
-	} else {
-		half := r.intn(2)
-		trunk := bones[half]
-		var spine []pt
-		for i := r.between(0, 1); i < len(trunk.x); i++ {
-			x, y := trunk.x[i], trunk.y[i]
-			if i > 0 && i < len(trunk.x)-1 {
-				x, y = jitter(x, y, trunk.r[i])
-			}
-			spine = append(spine, pt{x, y})
-		}
-		// Past the tip into the sea: the ridge meets the coast as cliffs.
-		k := len(trunk.x) - 1
-		ex, ey := trunk.x[k]-trunk.x[k-1], trunk.y[k]-trunk.y[k-1]
-		spine = append(spine, pt{trunk.x[k] + ex*2, trunk.y[k] + ey*2})
-		branches = append(branches, spine)
-		joints = append(joints, spine[0])
-		arm := slices.IndexFunc(bones, func(b *bone) bool { return b.arm && b.half == half })
-		if arm >= 0 {
-			b := bones[arm]
-			// The branch stops short of the arm's tip: a ridge from sea
-			// to sea would cut the island in two.
-			var br []pt
-			for i := range len(b.x) - 1 {
-				x, y := b.x[i], b.y[i]
-				if i > 0 {
-					x, y = jitter(x, y, b.r[i])
-				}
-				br = append(br, pt{x, y})
-			}
-			branches = append(branches, br)
-			joints = append(joints, br[0])
-		}
-		for range spurs {
-			m := r.between(1, len(spine)-2)
-			branches = append(branches, spur(spine[m], r.intn(32), r.between(10, 20)))
-			joints = append(joints, spine[m])
-		}
-	}
-	dr := make([]int, n*n)
-	for i := range dr {
-		dr[i] = chamferInf
-	}
-	for _, b := range branches {
-		for i := 1; i < len(b); i++ {
-			stamp(dr, n, b[i-1].x, b[i-1].y, b[i].x, b[i].y, 0, 0)
-		}
-	}
-	// Branch points are broad: the field starts below zero there.
-	for _, j := range joints {
-		if x, y := j.x>>4, j.y>>4; g.in(x, y) {
-			dr[y*n+x] = min(dr[y*n+x], -3*r.between(1, max(1, size/40)))
-		}
-	}
-	chamfer(dr, n)
-	lo, hi := ridgeShare(size)
-	target := land * r.between(lo, hi) / 100
-	maxW := 3 * max(5, size/16) // half-width, thirds of a tile
-	low := newFBM(r, n, max(4, size/5), 75, 2)
-	rag := newNoise(r, n, 2, 4)
-	wid := make([]int, len(g.t))
-	for i := range wid {
-		wid[i] = min(max(100+low.at(i%n, i/n), 20), 180)
-	}
-	thr := func(i, scale int) int {
-		return min(max(scale*wid[i]/100, 3), maxW) + rag.at(i%n, i/n)
-	}
-	band := func(scale int) int {
-		count := 0
-		for i, t := range g.t {
-			if t != tWater && dr[i] <= thr(i, scale) && !g.harbour[i] {
-				count++
-			}
-		}
-		return count
-	}
-	a, b := 3, 3*size
-	for a < b {
-		mid := (a + b) / 2
-		if band(mid) >= target {
-			b = mid
-		} else {
-			a = mid + 1
-		}
-	}
-	count := 0
-	for i, t := range g.t {
-		w := max(3, thr(i, a))
-		if t == tWater || dr[i] > w || g.harbour[i] {
-			continue
-		}
-		if t == tCoast {
-			g.t[i] = tCliff
-		} else {
-			g.t[i] = tMountain
-		}
-		g.hgt[i] = min(4, max(1, 1+3*(w-dr[i])/w))
-		count++
-	}
-	// Short spurs of one or two tiles off the foot.
-	var feet []int
-	for i := range g.t {
-		if g.edgeMountain(i) {
-			feet = append(feet, i)
-		}
-	}
-	for range land / 300 {
-		if len(feet) == 0 {
-			break
-		}
-		i := feet[r.intn(len(feet))]
-		d := dirs4()[r.intn(4)]
-		x, y := i%n, i/n
-		for k := 1; k <= r.between(1, 2); k++ {
-			if t := g.at(x+d[0]*k, y+d[1]*k); (t != tGrass && t != tForest) || g.harbour[(y+d[1]*k)*n+x+d[0]*k] {
-				break
-			}
-			g.t[(y+d[1]*k)*n+x+d[0]*k] = tMountain
-			g.hgt[(y+d[1]*k)*n+x+d[0]*k] = 1
-		}
-	}
-	return count > 0
 }
 
 // reservePlain picks a random side x side square of grass on one level
@@ -723,15 +514,13 @@ func (g *grid) forests(r *rng, land int) bool {
 }
 
 // plateaus sets the terrace level of every land tile (D-058 part 4,
-// round 2): broad irregular plateaus from value noise with large cells
-// (about a third of the island) plus a gentle rise with the distance to
-// the sea, cut at two thresholds. The first threshold is chosen so that
-// cliff coast (coast tiles at level 1 or 2, with the ridge's cliffs)
-// makes up cliffPct of the coast: levels and coast are one shape. The
-// second gives level 2 a random share of the land (some islands stay
-// mostly flat, some get a high flank). Level regions smaller than an
-// island-dependent minimum join their neighbours (few edges). Coast at
-// level 1 or 2 becomes cliff (no beach).
+// round 2; D-072 §4): broad irregular plateaus from value noise with
+// large cells (about a third of the island) plus a gentle rise with the
+// distance to the sea, cut at two thresholds that give levels 1 and 2 a
+// random share of the land (some islands stay mostly flat, some get a
+// high flank; level 2 at most half of it). Level regions smaller than an island-dependent minimum
+// join their neighbours (few edges). The beach stays at level 0: the
+// only cliffs are the massifs' outer flanks.
 func (g *grid) plateaus(r *rng, size, top int, sea []int) {
 	n := g.n
 	big := newNoise(r, n, max(6, size/3), 1000)
@@ -740,8 +529,7 @@ func (g *grid) plateaus(r *rng, size, top int, sea []int) {
 	ramp := max(3, size/8) * 3
 	p := make([]int, len(g.t))
 	land := func(t byte) bool { return t != tWater && t != tRiver && t != tIslet }
-	var beach, all []int
-	cliffs, coast := 0, 0
+	var all []int
 	for i, t := range g.t {
 		g.lvl[i] = 0
 		if !land(t) {
@@ -750,143 +538,103 @@ func (g *grid) plateaus(r *rng, size, top int, sea []int) {
 		x, y := i%n, i/n
 		p[i] = big.smooth(x, y) + mid.smooth(x, y) + fine.smooth(x, y) + 400*min(sea[i], ramp)/ramp
 		all = append(all, p[i])
-		switch t {
-		case tCoast:
-			beach = append(beach, p[i])
-			coast++
-		case tCliff:
-			cliffs++
-			coast++
-		}
 	}
 	if top == 0 || len(all) == 0 {
 		return
 	}
-	desc := func(v []int) { slices.Sort(v); slices.Reverse(v) }
-	desc(beach)
-	desc(all)
-	share := r.between(cliffMinPct, cliffMaxPct)
+	slices.Sort(all)
+	slices.Reverse(all)
+	k1 := len(all) * r.between(level1MinPct, level1MaxPct) / 100
 	k2 := 0
 	if top >= 2 {
-		k2 = len(all) * r.between(level2MinPct, level2MaxPct) / 100
+		k2 = min(k1/2, len(all)*r.between(level2MinPct, level2MaxPct)/100)
 	}
-	beachAt := func(i int) bool { return g.t[i] == tCoast && (g.harbour == nil || !g.harbour[i]) }
-	// levelAt sets the levels for the first threshold at the want-th
-	// highest beach value and returns the cliff share of the shore
-	// (percent) it gives.
-	levelAt := func(want int) int {
-		t1 := all[0] + 1
-		if want > 0 && len(beach) > 0 {
-			t1 = beach[min(want, len(beach))-1]
-		}
-		t2 := t1 + 1<<20
-		if k2 > 0 {
-			t2 = max(t1+1, all[k2-1])
-		}
-		for i, t := range g.t {
-			if !land(t) {
-				continue
-			}
-			switch {
-			case p[i] >= t2:
-				g.lvl[i] = 2
-			case p[i] >= t1:
-				g.lvl[i] = 1
-			default:
-				g.lvl[i] = 0
-			}
-		}
-		// Small level regions join the level most common around them.
-		minArea := max(8, size*size/250)
-		comp := make([]int, len(g.t))
-		for range 3 {
-			clear(comp)
-			changed := false
-			id := 0
-			for s := range g.t {
-				if !land(g.t[s]) || comp[s] != 0 {
-					continue
-				}
-				id++
-				l := g.lvl[s]
-				tiles := []int{s}
-				comp[s] = id
-				var around [content.MaxLevel + 1]int
-				for k := 0; k < len(tiles); k++ {
-					x, y := tiles[k]%n, tiles[k]/n
-					for _, d := range dirs4() {
-						if !g.in(x+d[0], y+d[1]) {
-							continue
-						}
-						j := (y+d[1])*n + x + d[0]
-						if !land(g.t[j]) {
-							continue
-						}
-						if g.lvl[j] != l {
-							around[g.lvl[j]]++
-						} else if comp[j] == 0 {
-							comp[j] = id
-							tiles = append(tiles, j)
-						}
-					}
-				}
-				if len(tiles) >= minArea {
-					continue
-				}
-				best, most := -1, 0
-				for lv, c := range around {
-					if c > most {
-						best, most = lv, c
-					}
-				}
-				if best >= 0 {
-					for _, i := range tiles {
-						g.lvl[i] = best
-					}
-					changed = true
-				}
-			}
-			if !changed {
-				break
-			}
-		}
-		cl, shore := 0, 0
-		for i, t := range g.t {
-			if (t == tCoast || t == tCliff) && g.touches4(i, tWater) {
-				shore++
-				if t == tCliff || (beachAt(i) && g.lvl[i] > 0) {
-					cl++
-				}
-			}
-		}
-		return 100 * cl / max(1, shore)
+	t1 := all[0] + 1
+	if k1 > 0 {
+		t1 = all[k1-1]
 	}
-	// The first threshold follows the wanted cliff share: start from the
-	// beach count, correct by the measured share (harbour stretches and
-	// small regions change it) up to four times.
-	want := coast*share/100 - cliffs
-	for range 4 {
-		got := levelAt(want)
-		if got >= cliffMinPct && got <= cliffMaxPct && abs(got-share) <= 3 {
-			break
-		}
-		want = max(0, want+(share-got)*coast/100)
+	t2 := t1 + 1<<20
+	if k2 > 0 {
+		t2 = max(t1+1, all[k2-1])
 	}
 	for i, t := range g.t {
+		if !land(t) {
+			continue
+		}
 		switch {
-		case t == tCoast && g.harbour != nil && g.harbour[i]:
+		case p[i] >= t2:
+			g.lvl[i] = 2
+		case p[i] >= t1:
+			g.lvl[i] = 1
+		}
+	}
+	// Small level regions join the level most common around them.
+	minArea := max(8, size*size/250)
+	comp := make([]int, len(g.t))
+	for range 3 {
+		clear(comp)
+		changed := false
+		id := 0
+		for s := range g.t {
+			if !land(g.t[s]) || comp[s] != 0 {
+				continue
+			}
+			id++
+			l := g.lvl[s]
+			tiles := []int{s}
+			comp[s] = id
+			var around [content.MaxLevel + 1]int
+			for k := 0; k < len(tiles); k++ {
+				x, y := tiles[k]%n, tiles[k]/n
+				for _, d := range dirs4() {
+					if !g.in(x+d[0], y+d[1]) {
+						continue
+					}
+					j := (y+d[1])*n + x + d[0]
+					if !land(g.t[j]) {
+						continue
+					}
+					if g.lvl[j] != l {
+						around[g.lvl[j]]++
+					} else if comp[j] == 0 {
+						comp[j] = id
+						tiles = append(tiles, j)
+					}
+				}
+			}
+			if len(tiles) >= minArea {
+				continue
+			}
+			best, most := -1, 0
+			for lv, c := range around {
+				if c > most {
+					best, most = lv, c
+				}
+			}
+			if best >= 0 {
+				for _, i := range tiles {
+					g.lvl[i] = best
+				}
+				changed = true
+			}
+		}
+		if !changed {
+			break
+		}
+	}
+	for i, t := range g.t {
+		if t == tCoast {
 			g.lvl[i] = 0
-		case t == tCoast && g.lvl[i] > 0:
-			g.t[i] = tCliff
 		}
 	}
 }
 
-// shares checks the round-2 shares (D-058): the cliff share of the shore
-// within cliffMinPct..cliffMaxPct and the mountain (and cliff) share of
-// the land within a few points of the class's ridge share. It returns the
-// failed rule or "".
-func (g *grid) shares(size int) string {
+// shares checks the shares of D-058 round 2 and D-072 §4: the cliff
+// share of the shore at most cliffMaxPct, and on an island with massifs
+// the mountain (and cliff) share of the land within massifCheckMinPct..
+// massifCheckMaxPct and the massifs still apart. It returns the failed
+// rule or "".
+func (g *grid) shares() string {
 	cl, shore, rock, land := 0, 0, 0, 0
 	for i, t := range g.t {
 		switch t {
@@ -903,12 +651,17 @@ func (g *grid) shares(size int) string {
 			}
 		}
 	}
-	if c := 100 * cl / max(1, shore); c < cliffMinPct || c > cliffMaxPct {
+	if c := 100 * cl / max(1, shore); c > cliffMaxPct {
 		return "cliff share"
 	}
-	lo, hi := ridgeShare(size)
-	if m := 100 * rock / max(1, land); m < lo-shareSlack || m > hi+shareSlack {
+	if g.massifCount == 0 {
+		return ""
+	}
+	if m := 100 * rock / max(1, land); m < massifCheckMinPct || m > massifCheckMaxPct {
 		return "mountain share"
+	}
+	if g.countMassifs() != g.massifCount {
+		return "massifs joined"
 	}
 	return ""
 }
@@ -916,7 +669,7 @@ func (g *grid) shares(size int) string {
 // harbourSites reserves harbour stretches before the coast gets its
 // detail: up to max(3, size/24) spread rectangles of the shipyard's size
 // (8 x 8 land behind 4 water rows, every orientation) on the plain land
-// mass. Their tiles (grown by one) get no notch, no cliff, no ridge and
+// mass. Their tiles (grown by one) get no notch, no cliff, no massif and
 // no river, so that the Trading Post and shipyard sites the verification
 // requires remain (a shipyard rectangle holds a Trading Post's too).
 func (g *grid) harbourSites(r *rng, size int) []bool {
@@ -1155,7 +908,7 @@ func (g *grid) islets(r *rng, size, count, least int) bool {
 	// core) on large and medium islands, the rest small rocks and sand
 	// bars.
 	large := 0
-	if size >= ridgeLargeSize {
+	if size >= largeSize {
 		large = r.between(1, 2)
 	}
 	for k := range count {

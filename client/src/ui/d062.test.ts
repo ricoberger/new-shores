@@ -41,9 +41,9 @@ describe("D-062 / D-063 cards", () => {
     expect(strip(idle)).toContain("3 / 3 free");
     expect(strip(idle)).not.toContain("waiting");
   });
-  it("shows surgery's single radius-20 service, without a size row", () => {
+  it("shows surgery's single radius-28 service, without a size row", () => {
     const html = card("surgery");
-    expect(strip(html)).toContain("20");
+    expect(strip(html)).toContain("28");
     expect(html).not.toContain("info-size");
     expect(html).not.toContain("service-upgrade-button");
     expect(content.buildings.find((b) => b.id === "surgery")?.tier).toBe("patricians");
