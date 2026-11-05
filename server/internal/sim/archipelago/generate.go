@@ -41,8 +41,9 @@ type Archipelago struct {
 // in the package comment. 2: round islands replaced by D-058 outlines; 3: D-072 Anno 117 sizes;
 // 4: D-072 rim massifs; 5: D-072 rivers two tiles wide; 6: D-072 part 2
 // deposit slots with reserved footprints, 16 tiles apart; 7: D-073 no resource
-// rocks, 6–12 skerries of 5–18 tiles.
-const GeneratorVersion = 7
+// rocks, 6–12 skerries of 5–18 tiles; 8: D-072 river banks never below the
+// river.
+const GeneratorVersion = 8
 
 // MaxSeed bounds world seeds to 53 bits, so that they survive a JSON
 // number in the client (D-053 display) unchanged.

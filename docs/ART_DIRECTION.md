@@ -242,7 +242,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   levels below its banks (about a fifth of the crossings on the dev
   seed) the raised models `decor_bridge_<n>_up1/up2` carry it on piers
   in the water, and a bank one level higher ramps its road down to the
-  deck like a terrace ramp.
+  deck like a terrace ramp. The generator never lets a bank lie below
+  the river (generator version 8): along a river both banks are at least
+  as high as its water, so the road never steps up onto a bridge.
 - **Things on terraces:** buildings and fields stand on the highest
   level under their footprint, lower columns filled up to it (a terrace
   fill, `render/terraces.ts`). The fill takes the footprint's ground

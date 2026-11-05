@@ -558,3 +558,45 @@ func checkTerrainRoundTrip(t *testing.T, c *content.Catalogue, a *Archipelago) {
 		t.Errorf("seed %d: the terrain does not round-trip", a.Seed)
 	}
 }
+
+// TestRiverBanksNeverBelowRiver: along every river both banks are at least
+// as high as the river tile (rivers step down towards the mouth and the
+// banks follow), over seeds 1–50. Verify enforces it; this restates it on
+// the generated archipelagos.
+func TestRiverBanksNeverBelowRiver(t *testing.T) {
+	c := catalogue(t)
+	last := uint64(50)
+	if testing.Short() {
+		last = 5
+	}
+	for seed := uint64(1); seed <= last; seed++ {
+		t.Run(fmt.Sprint(seed), func(t *testing.T) {
+			t.Parallel()
+			a, err := Generate(seed, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, is := range a.Islands {
+				w := is.Width
+				for i, tile := range is.Tiles {
+					if tile.Terrain != content.TerrainRiver {
+						continue
+					}
+					for _, d := range dirs4() {
+						x, y := i%w+d[0], i/w+d[1]
+						if !is.InBounds(x, y) {
+							continue
+						}
+						b := is.Tile(x, y)
+						if b.Terrain == content.TerrainRiver || b.Terrain == content.TerrainWater || b.Terrain == content.TerrainIslet {
+							continue
+						}
+						if b.Level < tile.Level {
+							t.Errorf("seed %d %s: bank (%d,%d) level %d below river (%d,%d) level %d", seed, is.ID, x, y, b.Level, i%w, i/w, tile.Level)
+						}
+					}
+				}
+			}
+		})
+	}
+}

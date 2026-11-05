@@ -246,6 +246,34 @@ func verifyShape(is *sim.Island, sc *content.SizeClass) error {
 			return fmt.Errorf("%w: river at (%d,%d) does not reach the sea", ErrShape, i%w, i/w)
 		}
 	}
+	return verifyBanks(is)
+}
+
+// verifyBanks checks that no bank lies below its river: every land tile
+// next to a river tile is at least as high as that tile, so that the road
+// meets a bridge at its own level instead of stepping up onto it.
+func verifyBanks(is *sim.Island) error {
+	w := is.Width
+	for i, t := range is.Tiles {
+		if t.Terrain != content.TerrainRiver {
+			continue
+		}
+		x, y := i%w, i/w
+		for _, d := range dirs4() {
+			nx, ny := x+d[0], y+d[1]
+			if !is.InBounds(nx, ny) {
+				continue
+			}
+			b := is.Tiles[ny*w+nx]
+			switch b.Terrain {
+			case content.TerrainRiver, content.TerrainWater, content.TerrainIslet:
+				continue
+			}
+			if b.Level < t.Level {
+				return fmt.Errorf("%w: bank at (%d,%d) is at level %d, below the river's %d at (%d,%d)", ErrShape, nx, ny, b.Level, t.Level, x, y)
+			}
+		}
+	}
 	return nil
 }
 
