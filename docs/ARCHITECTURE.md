@@ -481,7 +481,7 @@ content `smoke`/`boat` flags, determinism), `make model-sheet RECIPE=`
 renders a sheet in about a second.
 
 **Far budget (D-048, D-057 §5).** At the zoom cap (`max_half_extent`
-120) the far LOD stays within 250 k triangles and 40 draw calls (target
+80 since D-072) the far LOD stays within 250 k triangles and 40 draw calls (target
 30) on desktop and phone. The asset budgets above bound a model; the
 client bounds the far view: fields are painted into the lite ground
 (`render/farfields.ts`), an island's far trees are thinned to

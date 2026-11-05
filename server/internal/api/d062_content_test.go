@@ -22,14 +22,14 @@ func TestD062ContentAndTranslation(t *testing.T) {
 		if lang == "de" {
 			want = "Schauspielhaus"
 		}
-		if b.Name != want || b.Description == "" || b.Width != 11 || b.Height != 14 || b.Service.Radius != 24 {
+		if b.Name != want || b.Description == "" || b.Width != 11 || b.Height != 14 || b.Service.Radius != 38 {
 			t.Fatalf("%s playhouse %+v", lang, b)
 		}
 		if lang == "de" && b.Description == c.BuildingByID["playhouse"].Description {
 			t.Fatal("description not translated")
 		}
 		surgery := byID["surgery"]
-		if surgery.Tier != "patricians" || surgery.Service.Radius != 20 || len(surgery.Service.Levels) != 1 || surgery.Cost.Materials["glass"] != 5000 {
+		if surgery.Tier != "patricians" || surgery.Service.Radius != 28 || len(surgery.Service.Levels) != 1 || surgery.Cost.Materials["glass"] != 5000 {
 			t.Fatal("surgery mismatch")
 		}
 		tp := byID["trading_post"]

@@ -38,8 +38,8 @@ UI shows the same numbers the server uses.
   (no timers): near → mid above 30, mid → near below 27, → far above 54,
   far → mid below 47 (far begins where a 2×2 footprint is ≈ 12 px tall on
   a phone). The **maximum zoom-out is a content constant** (`region.json`
-  `camera.max_half_extent`, 120 tiles — one large island with sea around
-  it; PR #26, following Anno): the archipelago overview is the minimap,
+  `camera.max_half_extent`, 80 tiles since D-072 (was 120) — one large
+  island with sea around it; PR #26, following Anno): the archipelago overview is the minimap,
   not the camera; a new world opens on the ship at the cap and the
   founding hint points at the minimap. *Near:* full models, roads,
   fields, carts, status icons, construction hulls, foam. *Mid:* full

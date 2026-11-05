@@ -515,7 +515,7 @@ covers 0.6 and both cover it fully. A need is either:
   without evaluating the distance rule.
 - **Market (D-065):** every tier has a `market` category served by the
   market alone (share 1.0). The market has four levels with radius
-  12/15/18/21, raised in place with `upgrade_building`; level *n* needs
+  20/24/28/32 (D-072), raised in place with `upgrade_building`; level *n* needs
   tier *n* unlocked (Settlers place level 1; Citizens, Merchants and
   Patricians unlock levels 2–4) and the level's cost.
 - **Chain need (D-065):** `{category, weight, chain, min_rank}`. The
@@ -539,8 +539,9 @@ covers 0.6 and both cover it fully. A need is either:
   again with its own weight. They are required categories and
   count in the upgrade gate (§6.1). No new rule: a missing civic building
   lowers coverage, tax and growth; there are no fires, disease or crime
-  events. City guard and fire station have one radius-16 level and no
-  upgrade; the surgery has one radius-20 level and costs glass.
+  events. City guard and fire station have one level (radius 26 and 22,
+  D-072) and no upgrade; the surgery has one radius-28 level and costs
+  glass.
 - **Display groups:** every category names a display group
   (`need_categories[].group`): `goods` for food, drink, clothing, comfort
   and luxury, `public` for market, faith, education, culture, safety,

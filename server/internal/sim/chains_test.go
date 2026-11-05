@@ -165,7 +165,7 @@ func TestLevelTierGates(t *testing.T) {
 		value func(*content.Building, int) int
 		want  []int
 	}{
-		{market, "market", func(d *content.Building, l int) int { return d.Service.RadiusAt(l) }, []int{12, 15, 18, 21}},
+		{market, "market", func(d *content.Building, l int) int { return d.Service.RadiusAt(l) }, []int{20, 24, 28, 32}},
 		{warehouse, "warehouse", func(d *content.Building, l int) int { return int(d.ThroughputAt(l) / 1000) }, []int{20, 35, 50, 65}},
 	} {
 		def := c.BuildingByID[tc.typ]
@@ -195,10 +195,10 @@ func TestLevelTierGates(t *testing.T) {
 	}
 
 	w.UnlockedTiers = []string{"citizens", "merchants", "patricians"}
-	for _, id := range []int64{guard, fire} {
+	for id, r := range map[int64]int{guard: 26, fire: 22} {
 		b := w.Islands[0].Building(id)
 		def := c.BuildingByID[b.Type]
-		if def.Service == nil || len(def.Service.Levels) != 1 || def.Service.RadiusAt(1) != 16 || def.Service.Chain != "" {
+		if def.Service == nil || len(def.Service.Levels) != 1 || def.Service.RadiusAt(1) != r || def.Service.Chain != "" {
 			t.Errorf("%s service %+v", b.Type, def.Service)
 		}
 		expectApplyErr(t, w, c, UpgradeBuilding{IslandID: "main", BuildingID: id}, ErrUpgradeUnavailable)

@@ -25,9 +25,9 @@ func TestLoadServiceChains(t *testing.T) {
 		rank   int
 		radius int
 	}{
-		"chapel": {"faith", 1, 16}, "church": {"faith", 2, 20}, "cathedral": {"faith", 3, 28},
-		"school": {"education", 1, 16}, "university": {"education", 2, 24},
-		"tavern": {"culture", 1, 14}, "playhouse": {"culture", 2, 24},
+		"chapel": {"faith", 1, 16}, "church": {"faith", 2, 28}, "cathedral": {"faith", 3, 50},
+		"school": {"education", 1, 20}, "university": {"education", 2, 46},
+		"tavern": {"culture", 1, 20}, "playhouse": {"culture", 2, 38},
 	}
 	for id, w := range want {
 		s := c.BuildingByID[id].Service
@@ -95,27 +95,27 @@ func TestLoadRejectsInvalidChains(t *testing.T) {
 	}{
 		{
 			"duplicate rank", FileBuildings,
-			[]string{chain("faith", 2, 20), chain("faith", 1, 20)},
+			[]string{chain("faith", 2, 28), chain("faith", 1, 28)},
 			[]string{FileBuildings, `building "church"`, "rank 1 of chain \"faith\" is already taken"},
 		},
 		{
 			"rank gap", FileBuildings,
-			[]string{chain("faith", 3, 28), chain("faith", 4, 28)},
+			[]string{chain("faith", 3, 50), chain("faith", 4, 50)},
 			[]string{FileBuildings, `chain "faith"`, "contiguous from 1: rank 3 is missing"},
 		},
 		{
 			"chain starts at 2", FileBuildings,
-			[]string{chain("culture", 1, 14), chain("culture", 3, 14)},
+			[]string{chain("culture", 1, 20), chain("culture", 3, 20)},
 			[]string{FileBuildings, `chain "culture"`, "rank 1 is missing"},
 		},
 		{
 			"rank without chain", FileBuildings,
-			[]string{chain("culture", 1, 14), `"service": { "rank": 1, "radius": 14 }`},
+			[]string{chain("culture", 1, 20), `"service": { "rank": 1, "radius": 20 }`},
 			[]string{FileBuildings, "schema violation"},
 		},
 		{
 			"chain with levels", FileBuildings,
-			[]string{chain("culture", 1, 14), `"service": { "chain": "culture", "rank": 1, "levels": [{ "radius": 14 }] }`},
+			[]string{chain("culture", 1, 20), `"service": { "chain": "culture", "rank": 1, "levels": [{ "radius": 20 }] }`},
 			[]string{FileBuildings, "schema violation"},
 		},
 		{

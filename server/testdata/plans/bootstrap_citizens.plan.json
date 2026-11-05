@@ -112,7 +112,8 @@
         "chapel",
         "city_guard",
         "fire_station",
-        "surgery"
+        "surgery",
+        "school"
       ],
       "houses": 36,
       "serves": {

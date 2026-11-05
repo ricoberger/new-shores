@@ -320,8 +320,8 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 	}
 	// The full services ladder (CONTENT §2): radius per public building, by tier.
 	ladder := map[string]string{
-		"market": "settlers:12", "chapel": "settlers:16", "tavern": "citizens:14", "school": "citizens:16",
-		"church": "merchants:20", "playhouse": "merchants:24", "university": "patricians:24", "cathedral": "patricians:28",
+		"market": "settlers:20", "chapel": "settlers:16", "tavern": "citizens:20", "school": "citizens:20",
+		"church": "merchants:28", "playhouse": "merchants:38", "university": "patricians:46", "cathedral": "patricians:50",
 	}
 	for id, w := range ladder {
 		b := c.BuildingByID[id]
@@ -330,17 +330,17 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 		}
 	}
 	for id, w := range map[string]string{
-		"university": "50000000 [{bricks 60000} {planks 45000} {stone 45000}] 45000",
-		"cathedral":  "60000000 [{bricks 60000} {glass 30000} {planks 15000} {stone 60000}] 30000",
+		"university": "100000000 [{bricks 120000} {planks 90000} {stone 90000}] 90000",
+		"cathedral":  "120000000 [{bricks 120000} {glass 60000} {planks 30000} {stone 120000}] 60000",
 	} {
 		b := c.BuildingByID[id]
 		if b.Upgradable() || b.PauseCategory != "public" || fmt.Sprint(b.Cost.Gold, b.Cost.Materials, b.UpkeepPerMin) != w {
 			t.Errorf("%s = %+v", id, b)
 		}
 	}
-	// The market's level 4 is the Patricians' (radius 21, D-065); the
+	// The market's level 4 is the Patricians' (radius 32, D-065, D-072); the
 	// trading post's level 4 holds 1200 with 4 berths (CONTENT §7).
-	if m := c.BuildingByID["market"]; m.LevelCount() != 4 || m.Service.RadiusAt(4) != 21 || m.LevelTier(4) != "patricians" {
+	if m := c.BuildingByID["market"]; m.LevelCount() != 4 || m.Service.RadiusAt(4) != 32 || m.LevelTier(4) != "patricians" {
 		t.Errorf("market level 4 = %d %s", m.Service.RadiusAt(4), m.LevelTier(4))
 	}
 	if tp := c.BuildingByID["trading_post"]; tp.LevelCount() != 4 || fmt.Sprint(tp.LevelCost(4).Gold, tp.LevelCost(4).Materials) != "1200000 [{planks 40000} {stone 30000} {tools 10000}]" {

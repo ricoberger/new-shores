@@ -173,24 +173,24 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 		t.Errorf("patricians unlock %v", tr.Unlock.Buildings)
 	}
 	// The services ladder (CONTENT §2): radius per public building, by tier.
-	ladder := map[string]string{"market": "settlers:12", "chapel": "settlers:16", "tavern": "citizens:14", "school": "citizens:16", "church": "merchants:20", "playhouse": "merchants:24"}
+	ladder := map[string]string{"market": "settlers:20", "chapel": "settlers:16", "tavern": "citizens:20", "school": "citizens:20", "church": "merchants:28", "playhouse": "merchants:38"}
 	for id, w := range ladder {
 		b := c.BuildingByID[id]
 		if b == nil || b.Service == nil || fmt.Sprintf("%s:%d", b.Tier, b.Service.RadiusAt(1)) != w || !b.RequiresRoad {
 			t.Errorf("%s service = %+v, want %s", id, b, w)
 		}
 	}
-	for id, cost := range map[string]string{"church": "1500000 [{planks 30000} {stone 15000}]", "playhouse": "15000000 [{bricks 30000} {planks 30000} {stone 60000}]"} {
+	for id, cost := range map[string]string{"church": "3000000 [{planks 60000} {stone 30000}]", "playhouse": "15000000 [{bricks 60000} {planks 60000} {stone 120000}]"} {
 		b := c.BuildingByID[id]
 		if b.Upgradable() || b.PauseCategory != "public" || fmt.Sprint(b.Cost.Gold, b.Cost.Materials) != cost {
 			t.Errorf("%s = %+v", id, b)
 		}
 	}
-	if up := map[string]Qty{"church": 6000, "playhouse": 15000}; c.BuildingByID["church"].UpkeepPerMin != up["church"] || c.BuildingByID["playhouse"].UpkeepPerMin != up["playhouse"] {
+	if up := map[string]Qty{"church": 12000, "playhouse": 30000}; c.BuildingByID["church"].UpkeepPerMin != up["church"] || c.BuildingByID["playhouse"].UpkeepPerMin != up["playhouse"] {
 		t.Error("church/playhouse upkeep")
 	}
-	// The market's level 3 is the Merchants' (radius 18, D-065).
-	if m := c.BuildingByID["market"]; m.Service.RadiusAt(3) != 18 || m.LevelTier(3) != "merchants" {
+	// The market's level 3 is the Merchants' (radius 28, D-065, D-072).
+	if m := c.BuildingByID["market"]; m.Service.RadiusAt(3) != 28 || m.LevelTier(3) != "merchants" {
 		t.Errorf("market level 3 = %d %s", m.Service.RadiusAt(3), m.LevelTier(3))
 	}
 	// The brig is the Merchants' ship, built at the shipyard.

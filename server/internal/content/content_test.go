@@ -39,10 +39,10 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.18.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.19.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
-	if c.Region.Camera.MaxHalfExtent != 120 {
+	if c.Region.Camera.MaxHalfExtent != 80 {
 		t.Errorf("camera = %+v", c.Region.Camera)
 	}
 
@@ -282,7 +282,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Error("fisher recipe/water-edge mismatch")
 	}
 	tp := c.BuildingByID["trading_post"]
-	if tp.TradingPost == nil || waterRange(tp) != (WaterRows{Min: 1, Max: 2}) || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 20_000, Reach: 20, Berths: 1}) {
+	if tp.TradingPost == nil || waterRange(tp) != (WaterRows{Min: 1, Max: 2}) || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 20_000, Reach: 24, Berths: 1}) {
 		t.Errorf("trading post = %+v", tp.TradingPost)
 	}
 	var berths []int
@@ -293,34 +293,34 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("trading post berths = %v", berths)
 	}
 	wh := c.BuildingByID["warehouse"]
-	if wh.Warehouse == nil || waterRange(wh).Max != 0 || wh.Coastal || wh.Tier != "settlers" || wh.Warehouse.Levels[0] != (WarehouseLevel{ThroughputPerMin: 20_000, Reach: 14, UpkeepPerMin: 1_000}) ||
+	if wh.Warehouse == nil || waterRange(wh).Max != 0 || wh.Coastal || wh.Tier != "settlers" || wh.Warehouse.Levels[0] != (WarehouseLevel{ThroughputPerMin: 20_000, Reach: 18, UpkeepPerMin: 1_000}) ||
 		len(wh.Warehouse.Levels) != 4 || wh.Warehouse.Levels[3].ThroughputPerMin != 65_000 {
 		t.Errorf("warehouse = %+v", wh.Warehouse)
 	}
-	// D-069: warehouse throughput 20 / 35 / 50 / 65, reach 14 / 17 / 20 /
-	// 23, upkeep 1 / 10 / 15 / 25 (level 1 tuned, CONTENT §7), levels 2-4 gated on Citizens /
+	// D-069: warehouse throughput 20 / 35 / 50 / 65, reach 18 / 21 / 24 /
+	// 27 (D-072), upkeep 1 / 10 / 15 / 25 (level 1 tuned, CONTENT §7), levels 2-4 gated on Citizens /
 	// Merchants / Patricians (D-065); Trading Post throughput 20 / 40 / 60
-	// / 80, reach 20 / 24 / 28 / 32, upkeep 0 / 10 / 20 / 30; market
-	// upkeep 0 / 10 / 20 / 30 (level 1 free: CONTENT §7).
+	// / 80, reach 24 / 28 / 32 / 36 (D-072), upkeep 0 / 10 / 20 / 30; market
+	// upkeep 0 / 10 / 40 / 60 (level 1 free: CONTENT §7; levels 3-4 ×2, D-072).
 	var whLevels, tpLevels, mkLevels []string
 	for i, l := range wh.Warehouse.Levels {
 		whLevels = append(whLevels, fmt.Sprintf("%d/%d/%d:%s", l.ThroughputPerMin/1000, wh.ReachAt(i+1), wh.UpkeepAt(i+1)/1000, wh.LevelTier(i+1)))
 	}
-	if got := strings.Join(whLevels, " "); got != "20/14/1: 35/17/10:citizens 50/20/15:merchants 65/23/25:patricians" {
+	if got := strings.Join(whLevels, " "); got != "20/18/1: 35/21/10:citizens 50/24/15:merchants 65/27/25:patricians" {
 		t.Errorf("warehouse levels = %s", got)
 	}
 	for i, l := range tp.TradingPost.Levels {
 		tpLevels = append(tpLevels, fmt.Sprintf("%d/%d/%d:%s", l.ThroughputPerMin/1000, tp.ReachAt(i+1), tp.UpkeepAt(i+1)/1000, tp.LevelTier(i+1)))
 	}
 	// The Trading Post's levels 2-4 have the warehouse's tier gate (D-065 extended).
-	if got := strings.Join(tpLevels, " "); got != "20/20/0: 40/24/10:citizens 60/28/20:merchants 80/32/30:patricians" {
+	if got := strings.Join(tpLevels, " "); got != "20/24/0: 40/28/10:citizens 60/32/20:merchants 80/36/30:patricians" {
 		t.Errorf("trading post levels = %s", got)
 	}
 	mk := c.BuildingByID["market"]
 	for i := range mk.Service.Levels {
 		mkLevels = append(mkLevels, fmt.Sprint(mk.UpkeepAt(i+1)/1000))
 	}
-	if got := strings.Join(mkLevels, " "); got != "0 10 20 30" || c.BuildingByID["chapel"].UpkeepAt(1) != 0 {
+	if got := strings.Join(mkLevels, " "); got != "0 10 40 60" || c.BuildingByID["chapel"].UpkeepAt(1) != 0 {
 		t.Errorf("market upkeep = %s", got)
 	}
 	// D-069 §5: the trading pier and the depot arrive with the Merchants.
@@ -333,8 +333,8 @@ func TestLoadOldCoast(t *testing.T) {
 	if c.BuildingByID["chapel"].Service.RadiusAt(1) != 16 || c.BuildingByID["chapel"].Upgradable() {
 		t.Error("chapel service")
 	}
-	// Market levels (D-065): radius 12 / 15 / 18 / 21; level n needs tier n
-	// (positional); level 4 costs bricks (C3).
+	// Market levels (D-065, D-072): radius 20 / 24 / 28 / 32; level n needs
+	// tier n (positional); level 4 costs bricks (C3).
 	market := c.BuildingByID["market"]
 	var levels []string
 	for i, l := range market.Service.Levels {
@@ -344,7 +344,7 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 		levels = append(levels, fmt.Sprintf("%d:%s:%s", l.Radius, market.LevelTier(i+1), cost))
 	}
-	if got := strings.Join(levels, " "); market.Name != "Market" || got != "12::- 15:citizens:400000 [{planks 10000} {stone 10000}] 18:merchants:1000000 [{planks 15000} {stone 30000}] 21:patricians:5000000 [{bricks 15000} {planks 15000} {stone 45000}]" {
+	if got := strings.Join(levels, " "); market.Name != "Market" || got != "20::- 24:citizens:400000 [{planks 10000} {stone 10000}] 28:merchants:2000000 [{planks 30000} {stone 60000}] 32:patricians:10000000 [{bricks 30000} {planks 30000} {stone 90000}]" {
 		t.Errorf("market %q levels = %s", market.Name, got)
 	}
 	for id, amount := range map[string]Qty{"lumberjack": 4000, "sawmill": 4000, "fisher": 4000, "sheep_farm": 4000, "weaver_wool": 6000} {
@@ -728,13 +728,13 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			"region missing camera", FileRegion,
 			[]string{`,
   "camera": {
-    "max_half_extent": 120
+    "max_half_extent": 80
   }`, ""},
 			[]string{FileRegion, "schema violation"},
 		},
 		{
 			"region zero camera extent", FileRegion,
-			[]string{`"max_half_extent": 120`, `"max_half_extent": 0`},
+			[]string{`"max_half_extent": 80`, `"max_half_extent": 0`},
 			[]string{FileRegion, "schema violation"},
 		},
 		{
@@ -780,46 +780,46 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"service level tier is not authored", FileBuildings,
-			[]string{`{ "radius": 15, "upkeep_per_min": 10, "cost"`, `{ "radius": 15, "upkeep_per_min": 10, "tier": "merchants", "cost"`},
+			[]string{`{ "radius": 24, "upkeep_per_min": 10, "cost"`, `{ "radius": 24, "upkeep_per_min": 10, "tier": "merchants", "cost"`},
 			[]string{FileBuildings, `building "market"`, "schema violation"},
 		},
 		{
 			"service levels beyond the tiers", FileBuildings,
-			[]string{`{ "radius": 21, "upkeep_per_min": 30, "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } }`, `{ "radius": 21, "upkeep_per_min": 30, "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } },
-        { "radius": 24, "cost": { "gold": 9000 } }`},
+			[]string{`{ "radius": 32, "upkeep_per_min": 60, "cost": { "gold": 10000, "planks": 30, "stone": 90, "bricks": 30 } }`, `{ "radius": 32, "upkeep_per_min": 60, "cost": { "gold": 10000, "planks": 30, "stone": 90, "bricks": 30 } },
+        { "radius": 36, "cost": { "gold": 20000 } }`},
 			[]string{FileBuildings, `building "market"`, "service.levels[4]", "only 4 tiers"},
 		},
 		{
 			"collector reach shrinks", FileBuildings,
 			[]string{`"throughput_per_min": 35,
-          "reach": 17,`, `"throughput_per_min": 35,
-          "reach": 12,`},
+          "reach": 21,`, `"throughput_per_min": 35,
+          "reach": 16,`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[1].reach", "previous level"},
 		},
 		{
 			"collector reach on some levels only", FileBuildings,
 			[]string{`"throughput_per_min": 35,
-          "reach": 17,`, `"throughput_per_min": 35,`},
+          "reach": 21,`, `"throughput_per_min": 35,`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels", "every level or on none"},
 		},
 		{
 			"collector reach zero", FileBuildings,
-			[]string{`"reach": 14,`, `"reach": 0,`},
+			[]string{`"reach": 18,`, `"reach": 0,`},
 			[]string{FileBuildings, `building "warehouse"`, "schema violation"},
 		},
 		{
 			"level upkeep differs from the building's", FileBuildings,
-			[]string{`{ "throughput_per_min": 20, "reach": 14, "upkeep_per_min": 1 }`, `{ "throughput_per_min": 20, "reach": 14, "upkeep_per_min": 4 }`},
+			[]string{`{ "throughput_per_min": 20, "reach": 18, "upkeep_per_min": 1 }`, `{ "throughput_per_min": 20, "reach": 18, "upkeep_per_min": 4 }`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[0].upkeep_per_min", "level 1"},
 		},
 		{
 			"service level radius shrinks", FileBuildings,
-			[]string{`{ "radius": 15, "upkeep_per_min": 10, "cost"`, `{ "radius": 10, "upkeep_per_min": 10, "cost"`},
+			[]string{`{ "radius": 24, "upkeep_per_min": 10, "cost"`, `{ "radius": 16, "upkeep_per_min": 10, "cost"`},
 			[]string{FileBuildings, `building "market"`, "service.levels[1].radius", "previous level"},
 		},
 		{
 			"service upgrade level without cost", FileBuildings,
-			[]string{`{ "radius": 15, "upkeep_per_min": 10, "cost": { "gold": 400, "planks": 10, "stone": 10 } }`, `{ "radius": 15, "upkeep_per_min": 10 }`},
+			[]string{`{ "radius": 24, "upkeep_per_min": 10, "cost": { "gold": 400, "planks": 10, "stone": 10 } }`, `{ "radius": 24, "upkeep_per_min": 10 }`},
 			[]string{FileBuildings, `building "market"`, "schema violation"},
 		},
 		{
@@ -1283,9 +1283,9 @@ func TestRetiredIDsAreNotReused(t *testing.T) {
 	if m := c.BuildingByID["market"]; m == nil || m.Name != "Market" || m.Service == nil || len(m.Service.Levels) != 4 {
 		t.Errorf("market = %+v", m)
 	}
-	for _, id := range []string{"city_guard", "fire_station"} {
-		if b := c.BuildingByID[id]; b.Upgradable() || len(b.Service.Levels) != 1 || b.Service.RadiusAt(1) != 16 {
-			t.Errorf("%s = %+v, want one radius 16 and no upgrade (D-065)", id, b.Service)
+	for id, r := range map[string]int{"city_guard": 26, "fire_station": 22} {
+		if b := c.BuildingByID[id]; b.Upgradable() || len(b.Service.Levels) != 1 || b.Service.RadiusAt(1) != r {
+			t.Errorf("%s = %+v, want one radius %d and no upgrade (D-065, D-072)", id, b.Service, r)
 		}
 	}
 }

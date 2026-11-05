@@ -769,18 +769,6 @@
       }
     },
     {
-      "civic": {
-        "quarter": "home-3",
-        "type": "school-2"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-3",
-        "type": "tavern"
-      }
-    },
-    {
       "upgrade": {
         "quarter": "home-3",
         "from": "house_settlers",
@@ -791,12 +779,6 @@
       "civic": {
         "quarter": "home-3",
         "type": "playhouse"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-3",
-        "type": "church"
       }
     },
     {
@@ -1721,6 +1703,21 @@
       }
     },
     {
+      "note": "D-072: the doubled stone of the playhouse, university and cathedral needs a second quarry at home and on isle-02.",
+      "build": {
+        "island": "isle-01",
+        "type": "quarry",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "quarry",
+        "count": 1
+      }
+    },
+    {
       "step": {
         "assign_ship": {
           "ship": 4,
@@ -2237,7 +2234,7 @@
     {
       "civic": {
         "quarter": "home-4",
-        "type": "school-2"
+        "type": "tavern"
       }
     },
     {
@@ -3152,11 +3149,11 @@
       }
     },
     {
-      "note": "D-072: coats ran short in the final wait (the tailors starve for leather): a seventh leather works, a tenth tailor and another pig farm on isle-02.",
+      "note": "D-072: coats and sausages ran short in the final wait (the tailors and butchers starve for pigs): a seventh leather works, a tenth tailor and three more pig farms on isle-02.",
       "build": {
         "island": "isle-02",
         "type": "pig_farm",
-        "count": 1
+        "count": 3
       }
     },
     {
