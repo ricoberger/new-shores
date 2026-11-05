@@ -117,7 +117,7 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - The **world map** (other players, offers, expeditions) remains a 2D HTML
   screen (UI.md §5); it is not part of the 3D scene.
 
-## 4. Terrain and water — diorama islands (D-050, D-057 V2, D-058)
+## 4. Terrain and water — diorama islands (D-050, D-057 V2, D-058, D-072)
 
 - **Continuous terrain, hidden grid.** The tile grid is not drawn; a
   subtle grid overlay fades in around the cursor (≈ 8 tiles) only while a
@@ -198,7 +198,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   in low-frequency noise zones, ramps of one step per column in beaten
   earth. The cliff band varies along an edge (rock over a dark foot, or
   earth over rock) under a grass lip on its top step; rocks gather at the
-  foot of the walls (the ground scatter's "ledge" site).
+  foot of the walls (the ground scatter's "ledge" site). D-072 replaced
+  D-058's ridge spine and one-tile rivers: see **Rock** (rim massifs)
+  and **Rivers** (two tiles wide) below.
 - **Rock:** mountain, cliff and islet tiles carry rock on their level.
   Mountains are compact **rim massifs** (D-072): 2–4 on a large island,
   1–2 on a medium, 0–1 on a small one, on different sides, one dominant,
