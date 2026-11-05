@@ -752,7 +752,8 @@ reference games use fixed seeds.
 1. **Composition is fixed, the layout is random.** 12 habitable islands:
    3 large (≈ 48×48), 5 medium (≈ 32×32), 4 small (≈ 20×20); plus 0–2
    **resource rocks** (≈ 10×10, mountain and coast only, room for a
-   Trading Post and mines) that do not count toward the 12. Every
+   Trading Post and mines) that do not count toward the 12. *(Rocks
+   removed by D-073; they never generated.)* Every
    fertility and deposit of the region's pool appears within a fixed
    count range; total buildable area within ±10 % of a target; one
    **home candidate** (large; forest, grass, stone and wheat or apple;
@@ -2351,3 +2352,34 @@ in the road). Almanac shape text lists massifs. Far budget at cap 80:
 `GET /world` rebuilds per request (island tile data is 47 % larger
 compressed); resource rocks never generate because no rock has room
 for a Trading Post site (pre-existing).
+
+## D-073 No resource rocks; skerries stay scenery
+
+- **Status:** accepted (2026-11-05); supersedes the resource-rock clause
+  of D-053 §1 and D-053's `rock` size class.
+- **Context:** D-053 promised 0–2 resource rocks (≈ 16 tiles, mountain
+  and coast only, a Trading Post site and 2–4 deposit slots) as mining
+  outposts. They have never generated: no 16-tile rock fits a Trading
+  Post site, and since D-072 part 2 also the deposit footprints. The
+  deposit-coverage guarantee is met by the habitable islands alone, so
+  no player or plan has missed them. The owner wants small rocky
+  islets in the sea for the look — which the `scenic` skerries
+  (4–12 tiles, no sites, fertilities, deposits or name) already are —
+  and nothing on them to found, mine or build.
+- **Decision:** remove the `rock` class and its rules (`rockMinable`,
+  rock sites, rock slot spacing); the archipelago is the 12 habitable
+  islands plus skerries. Skerries stay unbuildable, unselectable
+  scenery with no deposits; their count range may rise (4–8 → 6–12)
+  and their size range widen (up to ≈ 16 tiles) for variety, with a
+  rock, grass or sand top as today. Spacing rules unchanged.
+- **Why:** a mechanic that cannot generate is dead weight in the
+  generator and the content format; the gameplay value (extra deposit
+  sites) is not needed, and the visual value is already delivered by
+  skerries.
+- **Consequences:** `islands.json` loses the `rock` class (schema and
+  validation), generator and verify code shrink, seed goldens and
+  scenarios regenerate, CONTENT §9 and the almanac Islands table drop
+  the rock row, D-053 gets an inline pointer. Plans must still hold.
+- **Rejected:** a larger rock class (size 24) or a rock-only site rule
+  — keeps a feature nobody asked for; mining outposts can return as a
+  region-2 island type if a design needs them.

@@ -126,8 +126,8 @@ in the sync after a task unless the task says otherwise; nobody adds the
      on the D-072 world → polish 6** (balance pass on radii / upkeep /
      thin tier-1/2 gold margin, build-menu nits). Server follow-ups:
      cache the sea-route grid `GET /world` rebuilds per request;
-     resource rocks never generate (no Trading Post site fits a
-     16-tile rock); far view hides bridges (≈ 2 px road gap), three dev-
+     resource rocks never generated → removed (D-073; skerries stay,
+     a few more and up to ≈ 16 tiles); far view hides bridges (≈ 2 px road gap), three dev-
      seed crossings keep a one-level step onto the bridge. Open small items — art: playhouse /
      university / cathedral / shipyard / depot / trading pier still at
      8 voxels/tile (folder room: 0.47 MiB — needs a variant dropped or
