@@ -506,7 +506,9 @@ when loaded models swap in), so tiles streaming in never demote anybody;
 only a view change (or a payload that grows the fixed cost by more than
 the hysteresis) can.
 `client/src/render/farbudget.test.ts` enforces it on the `make shots`
-fixtures settled, patricians, played and seafaring (display and tiles
+fixtures settled, patricians, played and seafaring and on `largest` (the
+settled fixture on seed 31, whose home island is the largest of seeds
+1–70 on generator version 6: 41 508 land tiles) (display and tiles
 captured from the dev server into `client/src/render/testdata/farbudget`,
 regenerated with its `capture.ts`): it builds the islands as the
 renderer does with the committed models, runs the renderer's allocation
