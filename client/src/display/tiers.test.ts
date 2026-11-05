@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
-import { depositText, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, populationTotals, tierUnlocked, unlockToasts } from "./tiers";
+import { depositText, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, populationTotals, tierUnlocked, unlockedTiers, unlockToasts } from "./tiers";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -90,6 +90,7 @@ describe("unlock toasts (D-056)", () => {
   it("toasts a tier that turned unlocked with its build-menu buildings", () => {
     // wheat_farm is listed; house_citizens is upgrade-only.
     expect(unlockToasts(state(false), state(true), content)).toEqual(["Citizens unlocked — 1 new building"]);
+    expect(unlockedTiers(state(false), state(true), content)).toEqual([{ tier: "citizens", text: "Citizens unlocked — 1 new building" }]);
   });
 
   it("is silent on the first load, without a change and for a tier unknown before", () => {

@@ -31,7 +31,7 @@ func TestD062FoundingSite(t *testing.T) {
 	}
 	for _, is := range w.Islands {
 		sc := c.Islands.SizeClassByID[is.SizeClass]
-		if sc == nil || sc.Scenic || sc.Rock {
+		if sc == nil || sc.Scenic {
 			continue
 		}
 		sites := archipelago.Sites(is, c, def)

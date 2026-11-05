@@ -42,7 +42,7 @@ func TestRerollArchipelagoOverHTTP(t *testing.T) {
 	if a := before.Archipelago; a.Seed != devworld.DevSeed || a.Roll != 0 || !a.Rerollable || a.Bounds.Width <= 0 || a.Bounds.Height <= 0 {
 		t.Fatalf("archipelago %+v", a)
 	}
-	if home.SizeClass == "" || home.Rock || home.Name == "" {
+	if home.SizeClass == "" || home.Name == "" {
 		t.Fatalf("home island %+v", home)
 	}
 	rev := islandRevisionOf(t, ts, home.ID)

@@ -5,18 +5,18 @@ export interface DashPoint {
 }
 
 /**
- * Splits a closed polyline into dashes: `on` tiles drawn, `off` tiles
+ * Splits a closed (or, with `closed` false, an open) polyline into dashes: `on` tiles drawn, `off` tiles
  * left out, the phase carried around corners so every dash has its full
  * length (a dash may bend at a corner: it is returned as several pieces).
  * Returns the drawn pieces as [from, to] pairs in order. Pure geometry for
  * the route editor's draft ribbon.
  */
-export function dashPieces(pts: readonly DashPoint[], on: number, off: number): [DashPoint, DashPoint][] {
+export function dashPieces(pts: readonly DashPoint[], on: number, off: number, closed = true): [DashPoint, DashPoint][] {
   if (!(on > 0) || !(off >= 0) || pts.length < 2) return [];
   const period = on + off;
   const out: [DashPoint, DashPoint][] = [];
   let s = 0; // arc length at the start of the segment
-  for (let i = 0; i < pts.length; i++) {
+  for (let i = 0; i < (closed ? pts.length : pts.length - 1); i++) {
     const a = pts[i] as DashPoint;
     const b = pts[(i + 1) % pts.length] as DashPoint;
     const len = Math.hypot(b.x - a.x, b.y - a.y);

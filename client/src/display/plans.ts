@@ -32,6 +32,18 @@ export function planAsBuilding(p: PlanDisplay, chain: boolean): BuildingDisplay 
   };
 }
 
+/**
+ * The footprints the renderer marks (the translucent hover plate) for a
+ * selection of plans: every tile of a selected planned road segment, but
+ * nothing for a selected planned building — the plate would show as a pale
+ * square under its translucent model; its card and gold outline say it is
+ * selected.
+ */
+export function selectedPlanMarks(segment: PlannedRoadDisplay | undefined): BuildingDisplay[] {
+  if (!segment) return [];
+  return segment.tiles.map((t) => ({ id: 0, type: segment.type, x: t.x, y: t.y, rotation: 0, status: "ok" }) as BuildingDisplay);
+}
+
 /** The planned road tiles of an island. */
 export function plannedRoadTiles(is: Pick<IslandDisplay, "planned_roads">): TilePos[] {
   return (is.planned_roads ?? []).flatMap((r) => r.tiles.map(({ x, y }) => ({ x, y })));

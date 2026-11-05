@@ -50,6 +50,15 @@ func planComposition(r, mass *rng, late func(k int) *rng, c *content.Catalogue) 
 			out = append(out, &plan{class: sc})
 		}
 	}
+	// Seed stability (D-073): the removed resource-rock class drew its count
+	// here, and every attempt with a rock failed later, so the accepted
+	// archipelagos are those that drew none. Keep that one draw and skip
+	// the attempts as before: every seed keeps the habitable islands the
+	// generator has always given it (the reference-game plans, the dev
+	// seed's goldens and a player's re-roll depend on them).
+	if r.intn(3) != 0 {
+		return nil, errPlan
+	}
 	home := slices.IndexFunc(out, func(p *plan) bool { return p.class.ID == rules.Home.SizeClass })
 	if home < 0 {
 		return nil, errPlan
@@ -68,7 +77,7 @@ func planComposition(r, mass *rng, late func(k int) *rng, c *content.Catalogue) 
 	// foot); the later tiers' slots go to islands with one (addDeposits).
 	for _, p := range out {
 		p.massifs = mass.between(p.class.Shape.Massifs.Min, p.class.Shape.Massifs.Max)
-		if p.massifs == 0 && len(p.deposits) > 0 && !p.class.Rock {
+		if p.massifs == 0 && len(p.deposits) > 0 {
 			p.massifs = 1
 		}
 	}
@@ -126,8 +135,7 @@ func depositTiers(c *content.Catalogue) [][]content.PoolEntry {
 // addDeposits assigns the deposit kinds of a later tier (pool): a total
 // within the pool's summed range and the islands' remaining room, split
 // per kind within its range; the home rule's kinds of the pool go to the
-// home candidate, every other slot to a random habitable island (not a
-// rock) with room that may carry the kind — when the drawn island has no
+// home candidate, every other slot to a random habitable island with room that may carry the kind — when the drawn island has no
 // massif (D-072 §4), the next candidate with one. The new slots are
 // appended to each island's slots (sorted among themselves), after the
 // earlier tiers'.
@@ -135,9 +143,7 @@ func addDeposits(r *rng, rules *content.IslandRules, pool []content.PoolEntry, i
 	room := func(p *plan) int { return p.class.Deposits.Max - len(p.deposits) }
 	capacity := 0
 	for _, p := range islands {
-		if !p.class.Rock {
-			capacity += max(0, room(p))
-		}
+		capacity += max(0, room(p))
 	}
 	pr := poolRanges(pool)
 	n, ok := total(r, []content.Range{{Min: 0, Max: capacity}}, pr)
@@ -172,7 +178,7 @@ func addDeposits(r *rng, rules *content.IslandRules, pool []content.PoolEntry, i
 	for _, kind := range bag {
 		var cands []int
 		for i, p := range islands {
-			if p.class.Rock || room(p) < 1 || (p.home && slices.Contains(rules.Home.DepositsNone, kind)) {
+			if room(p) < 1 || (p.home && slices.Contains(rules.Home.DepositsNone, kind)) {
 				continue
 			}
 			cands = append(cands, i)

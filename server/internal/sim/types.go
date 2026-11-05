@@ -64,6 +64,9 @@ const (
 
 // World is the complete simulation state of one player.
 type World struct {
+	// seaGrid is the sea grid lent by the API layer for the duration of a
+	// display (SetSeaGrid); never serialised or part of the world's state.
+	seaGrid *seaGrid
 	Islands []*Island `json:"islands"`
 	// Seed is the archipelago seed of a generated world (D-053), 0 for a
 	// hand-made one (scenarios). ArchipelagoRoll counts the re-rolls

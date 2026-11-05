@@ -270,6 +270,14 @@ export function stageMatrix(k: number, entry: ModelEntry, def: ContentBuilding, 
     .multiply(Matrix.Translation(p.cx, base, p.cz));
 }
 
+/** One building model in view: its content ID, voxels per tile, the triangles of all its instances and their count. */
+export interface ModelStat {
+  id: string;
+  voxelsPerTile: number;
+  triangles: number;
+  count: number;
+}
+
 export class BuildingLayer {
   private readonly templates = new Map<string, Mesh>();
   private readonly material: StandardMaterial;
@@ -689,6 +697,33 @@ export class BuildingLayer {
     const out = [...this.templates.values()].filter((m) => m.isVisible);
     for (const c of this.current().values()) if (c.mesh) out.push(c.mesh);
     return out;
+  }
+
+  /**
+   * The building models in view per content ID (dev stats, ?stats=1): the file drawn at the current
+   * detail (loaded ones only), its voxels per tile and triangles, summed over the buildings whose chunk is shown.
+   */
+  modelStats(): ModelStat[] {
+    const out = new Map<string, ModelStat>();
+    if (!this.last || !this.registry) return [];
+    const detail = this.drawn();
+    for (const b of this.last.buildings) {
+      const def = this.last.defs.get(b.type);
+      if (!def || def.category === "roads") continue;
+      const entry = this.registry.entry(b.type);
+      const main = entry ? modelFileFor(entry, b) : undefined;
+      if (!entry || !main) continue;
+      const file = atDetail(main, detail);
+      if (!this.registry.peek(file)) continue;
+      const p = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
+      const chunk = chunkAt(p.cx, -p.cz);
+      if (!this.chunkShown(detail === "lite" ? liteGroupOf(chunk) : chunk)) continue;
+      const m = out.get(b.type) ?? { id: b.type, voxelsPerTile: fileVpt(entry, file), triangles: 0, count: 0 };
+      m.triangles += file.triangles;
+      m.count++;
+      out.set(b.type, m);
+    }
+    return [...out.values()];
   }
 
   /** Content IDs drawn with a placeholder in the last update. */

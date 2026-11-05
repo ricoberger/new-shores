@@ -40,8 +40,10 @@ type Archipelago struct {
 // GeneratorVersion identifies the island generator's output; see the rule
 // in the package comment. 2: round islands replaced by D-058 outlines; 3: D-072 Anno 117 sizes;
 // 4: D-072 rim massifs; 5: D-072 rivers two tiles wide; 6: D-072 part 2
-// deposit slots with reserved footprints, 16 tiles apart.
-const GeneratorVersion = 6
+// deposit slots with reserved footprints, 16 tiles apart; 7: D-073 no resource
+// rocks, 6–12 skerries of 5–18 tiles; 8: D-072 river banks never below the
+// river.
+const GeneratorVersion = 8
 
 // MaxSeed bounds world seeds to 53 bits, so that they survive a JSON
 // number in the client (D-053 display) unchanged.
@@ -105,19 +107,7 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 	plans = append(append([]*plan{plans[home]}, plans[:home]...), plans[home+1:]...)
 
 	a := &Archipelago{Seed: seed, Home: IslandID(0), Islands: make([]*sim.Island, len(plans))}
-	// The resource rocks first: their slots fail most often (D-072: the
-	// small islands without a massif carry none), and a failed rock
-	// should not cost the large islands' shapes. Every island keeps its
-	// own stream, so the order changes no result.
-	order := make([]int, 0, len(plans))
-	for _, rock := range []bool{true, false} {
-		for i, p := range plans {
-			if p.class.Rock == rock {
-				order = append(order, i)
-			}
-		}
-	}
-	for _, i := range order {
+	for i := range plans {
 		is, err := buildIsland(derive(sub, 100+uint64(i)), plans[i], c) // #nosec G115 -- i >= 0
 		if err != nil {
 			return nil, err

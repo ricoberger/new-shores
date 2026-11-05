@@ -17,27 +17,25 @@ func TestLoadIslands(t *testing.T) {
 	want := map[string]struct {
 		size     int
 		count    Range
-		rock     bool
 		deposits Range
 	}{
-		"large":  {250, Range{3, 3}, false, Range{0, 4}},
-		"medium": {163, Range{5, 5}, false, Range{0, 4}},
-		"small":  {106, Range{4, 4}, false, Range{0, 4}},
-		"rock":   {16, Range{0, 2}, true, Range{2, 4}},
-		"scenic": {4, Range{4, 8}, false, Range{0, 0}},
+		"large":  {250, Range{3, 3}, Range{0, 4}},
+		"medium": {163, Range{5, 5}, Range{0, 4}},
+		"small":  {106, Range{4, 4}, Range{0, 4}},
+		"scenic": {5, Range{6, 12}, Range{0, 0}},
 	}
 	if len(r.SizeClasses) != len(want) {
 		t.Fatalf("size classes = %d, want %d", len(r.SizeClasses), len(want))
 	}
 	for _, sc := range r.SizeClasses {
 		w, ok := want[sc.ID]
-		if !ok || sc.Size != w.size || sc.Count != w.count || sc.Rock != w.rock || sc.Deposits != w.deposits {
+		if !ok || sc.Size != w.size || sc.Count != w.count || sc.Deposits != w.deposits {
 			t.Errorf("size class %+v, want %+v", sc, w)
 		}
 		if sc.Scenic != (sc.ID == "scenic") {
 			t.Errorf("%s scenic = %v", sc.ID, sc.Scenic)
 		}
-		if !sc.Rock && !sc.Scenic && sc.Fertilities != (Range{2, 4}) {
+		if !sc.Scenic && sc.Fertilities != (Range{2, 4}) {
 			t.Errorf("%s fertilities = %+v, want 2-4", sc.ID, sc.Fertilities)
 		}
 	}
@@ -45,7 +43,6 @@ func TestLoadIslands(t *testing.T) {
 		"large":  {Massifs: Range{2, 4}, Plain: 52, Rivers: Range{1, 2}, Levels: 2, Islets: Range{3, 6}},
 		"medium": {Massifs: Range{1, 2}, Plain: 32, Rivers: Range{0, 1}, Levels: 2, Islets: Range{2, 5}},
 		"small":  {Massifs: Range{0, 1}, Plain: 19, Rivers: Range{0, 0}, Levels: 1, Islets: Range{2, 4}},
-		"rock":   {},
 		"scenic": {},
 	}
 	for _, sc := range r.SizeClasses {
@@ -117,11 +114,6 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 			[]string{FileIslands, "fertilities[0].count.min", "only 12 can carry"},
 		},
 		{
-			"rock with fertility", FileIslands,
-			[]string{`"rock": true, "count": { "min": 0, "max": 2 }, "fertilities": { "min": 0, "max": 0 }`, `"rock": true, "count": { "min": 0, "max": 2 }, "fertilities": { "min": 0, "max": 1 }`},
-			[]string{FileIslands, `size class "rock"`, "no fertility"},
-		},
-		{
 			"building deposit not in pool", FileIslands,
 			[]string{`{ "id": "iron", "count": { "min": 2, "max": 4 } }`, `{ "id": "peat", "count": { "min": 2, "max": 4 } }`},
 			[]string{FileBuildings, `building "iron_mine"`, `deposit "iron" is not in the deposit pool`},
@@ -132,8 +124,8 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 			[]string{FileBuildings, `building "hemp_farm"`, `fertility "hemp" is not in the fertility pool`},
 		},
 		{
-			"home on a rock", FileIslands,
-			[]string{`"size_class": "large"`, `"size_class": "rock"`},
+			"home on a skerry", FileIslands,
+			[]string{`"size_class": "large"`, `"size_class": "scenic"`},
 			[]string{FileIslands, "home.size_class"},
 		},
 		{
@@ -153,17 +145,17 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 		},
 		{
 			"skerry with deposits", FileIslands,
-			[]string{`"scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }`, `"scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 1 }`},
+			[]string{`"scenic": true, "count": { "min": 6, "max": 12 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }`, `"scenic": true, "count": { "min": 6, "max": 12 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 1 }`},
 			[]string{FileIslands, `size class "scenic"`, "no fertilities or deposits"},
 		},
 		{
 			"skerry too large", FileIslands,
-			[]string{`"size": 4, "scenic": true`, `"size": 9, "scenic": true`},
+			[]string{`"size": 5, "scenic": true`, `"size": 9, "scenic": true`},
 			[]string{FileIslands, `size class "scenic"`, "size", "[2, 8]"},
 		},
 		{
 			"skerry with levels", FileIslands,
-			[]string{`"size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }, "shape": { "massifs": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 0`, `"size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }, "shape": { "massifs": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 1`},
+			[]string{`"size": 5, "scenic": true, "count": { "min": 6, "max": 12 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }, "shape": { "massifs": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 0`, `"size": 5, "scenic": true, "count": { "min": 6, "max": 12 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }, "shape": { "massifs": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 1`},
 			[]string{FileIslands, `size class "scenic"`, "shape", "no massifs"},
 		},
 		{
@@ -177,9 +169,9 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 			[]string{FileIslands, "spacing", "void_max"},
 		},
 		{
-			"rock with massifs", FileIslands,
+			"skerry with massifs", FileIslands,
 			[]string{`"shape": { "massifs": { "min": 0, "max": 0 }, "plain": 0`, `"shape": { "massifs": { "min": 0, "max": 1 }, "plain": 0`},
-			[]string{FileIslands, `size class "rock"`, "shape", "no massifs"},
+			[]string{FileIslands, `size class "scenic"`, "shape", "no massifs"},
 		},
 		{
 			"plain larger than a third of the size", FileIslands,
@@ -208,8 +200,8 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 		},
 		{
 			"too few names", FileIslands,
-			[]string{`"count": { "min": 0, "max": 2 }`, `"count": { "min": 0, "max": 40 }`},
-			[]string{FileIslandNames, "names for up to 52 islands"},
+			[]string{`"count": { "min": 4, "max": 4 }`, `"count": { "min": 4, "max": 60 }`},
+			[]string{FileIslandNames, "names for up to 68 islands"},
 		},
 		{
 			"name not trimmed", FileIslandNames,

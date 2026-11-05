@@ -142,7 +142,7 @@ describe("HUD components", () => {
     });
 
     it("shows the size class and the rename pencil of a settled island (D-053)", () => {
-      const classes = { ...tbContent, size_classes: [{ id: "medium", name: "Medium", rock: false }, { id: "rock", name: "Resource rock", rock: true }] };
+      const classes = { ...tbContent, size_classes: [{ id: "medium", name: "Medium" }] };
       const card = (is: typeof island) =>
         renderToStaticMarkup(
           createElement(IslandCard, {
@@ -154,14 +154,13 @@ describe("HUD components", () => {
             onRename: () => Promise.resolve(true),
           }),
         );
-      const medium = card({ ...island, size_class: "medium", rock: false, settled: true });
+      const medium = card({ ...island, size_class: "medium", settled: true });
       expect(text(medium)).toContain("Medium island");
       expect(medium).toMatch(/<button[^>]*aria-label="Rename the island"[^>]*data-testid="island-rename"/);
-      const rock = card({ ...island, size_class: "rock", rock: true, settled: false });
-      expect(text(rock)).toContain("Resource rock");
-      expect(text(rock)).not.toContain("Resource rock island");
-      expect(rock).not.toContain('data-testid="island-rename"');
-      expect(card({ ...island, size_class: "", rock: false })).not.toContain('data-testid="island-card-kind"');
+      const unsettled = card({ ...island, size_class: "medium", settled: false });
+      expect(text(unsettled)).toContain("Medium island");
+      expect(unsettled).not.toContain('data-testid="island-rename"');
+      expect(card({ ...island, size_class: "" })).not.toContain('data-testid="island-card-kind"');
       const bar = renderToStaticMarkup(
         createElement(TopBar, { ...props, content: classes, model: { ...model, islands: [{ ...island, size_class: "medium" }, ...model.islands.slice(1)] } } as never),
       );

@@ -617,7 +617,7 @@ func (f *fixture) nearestWithDeposit(from, kind string) string {
 	best, bestGap := "", -1
 	for _, is := range f.w.Islands {
 		sc := f.c.Islands.SizeClassByID[is.SizeClass]
-		if is.ID == from || sc == nil || sc.Rock || archipelago.DepositCounts(is)[kind] == 0 {
+		if is.ID == from || sc == nil || archipelago.DepositCounts(is)[kind] == 0 {
 			continue
 		}
 		if g := archipelago.Gap2(src, is); bestGap < 0 || g < bestGap {
@@ -734,7 +734,7 @@ func (f *fixture) neighbour(id string) string {
 	best, bestGap := "", -1
 	for _, is := range f.w.Islands {
 		sc := f.c.Islands.SizeClassByID[is.SizeClass]
-		if is.ID == id || sc == nil || sc.Rock || sc.Scenic {
+		if is.ID == id || sc == nil || sc.Scenic {
 			continue
 		}
 		if g := archipelago.Gap2(from, is); bestGap < 0 || g < bestGap {

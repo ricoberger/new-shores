@@ -188,7 +188,7 @@ func TestDevSeedTierFourDeposits(t *testing.T) {
 
 // TestGoldSlotGuaranteed: every archipelago has exactly one gold slot
 // (D-056 §8: at least one; CONTENT §7: exactly one), never on the home
-// island nor on a resource rock, over 200 seeds.
+// island, over 200 seeds.
 func TestGoldSlotGuaranteed(t *testing.T) {
 	if testing.Short() {
 		t.Skip("200 archipelagos")
@@ -212,7 +212,7 @@ func goldSlot(t *testing.T, c *content.Catalogue, seed uint64) {
 	for _, is := range a.Islands {
 		n := DepositCounts(is)["gold"]
 		gold += n
-		if n > 0 && (is.ID == a.Home || c.Islands.SizeClassByID[is.SizeClass].Rock) {
+		if n > 0 && is.ID == a.Home {
 			t.Errorf("seed %d: gold on %s (%s)", seed, is.ID, is.SizeClass)
 		}
 	}

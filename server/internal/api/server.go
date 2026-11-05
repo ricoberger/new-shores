@@ -137,6 +137,8 @@ type Server struct {
 	// content holds the encoded content payload per shipped language.
 	content map[string][]byte
 	routes  map[string]map[string]route
+	// seaGrids caches the sea-route grid per archipelago (seagrid.go).
+	seaGrids seaGridCache
 }
 
 // access is the session requirement of a route.
@@ -578,6 +580,10 @@ func tileDigit(v int) byte { return '0' + byte(min(max(v, 0), 9)) } // #nosec G1
 // display is sim.Display plus the generator version, which the sim
 // cannot know (package archipelago imports it).
 func (s *Server) display(w *sim.World, now time.Time) (sim.DisplayState, error) {
+	if g := s.seaGrids.get(w, archipelago.GeneratorVersion); g != nil {
+		w.SetSeaGrid(g)
+		defer w.SetSeaGrid(nil)
+	}
 	ds, err := sim.Display(w, s.cfg.Catalogue, now)
 	ds.Archipelago.GeneratorVersion = archipelago.GeneratorVersion
 	return ds, err

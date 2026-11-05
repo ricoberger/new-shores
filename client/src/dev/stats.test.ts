@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCount, readHeapBytes, statsLines, statsRequested } from "./stats";
+import { formatCount, modelLines, readHeapBytes, statsLines, statsRequested } from "./stats";
 
 describe("fps badge helpers", () => {
   it("reads ?stats=1", () => {
@@ -25,5 +25,24 @@ describe("fps badge helpers", () => {
   it("reads the heap when the browser exposes it", () => {
     expect(readHeapBytes({ memory: { usedJSHeapSize: 5 } } as unknown as Performance)).toBe(5);
     expect(readHeapBytes({} as Performance)).toBeNull();
+  });
+});
+
+describe("model rows", () => {
+  const rows = Array.from({ length: 12 }, (_, i) => ({ id: `m${i}`, voxelsPerTile: i % 2 ? 12 : 8, triangles: 1000 * (i + 1), count: i + 1 }));
+
+  it("lists the ten models with the most triangles, the biggest first", () => {
+    const lines = modelLines(rows);
+    expect(lines).toHaveLength(10);
+    expect(lines[0]).toBe("m11 12 vpt  12.0k tris (12 × 1.0k)");
+    expect(lines[9]).toBe("m2 8 vpt  3.0k tris (3 × 1.0k)");
+  });
+
+  it("adds them to the badge after the fixed lines, and nothing without models", () => {
+    const base = { fps: 60, frameMs: 16.7, p95Ms: 18.2, drawCalls: 31, triangles: 612_000, heapBytes: null, lod: "near", detail: "lite", queue: 0, maxMs: 20, life: null };
+    expect(statsLines(base)).toHaveLength(6);
+    const lines = statsLines({ ...base, models: rows });
+    expect(lines.slice(6, 8)).toEqual(["models by tris:", "m11 12 vpt  12.0k tris (12 × 1.0k)"]);
+    expect(lines).toHaveLength(6 + 1 + 10);
   });
 });

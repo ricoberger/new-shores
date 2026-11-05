@@ -47,6 +47,7 @@ import { FootprintMarks, type Mark } from "./fields";
 import { islandBerths } from "./harbour";
 import { PlacementGhost } from "./ghost";
 import { GridOverlay } from "./grid";
+import type { ModelStat } from "./buildings";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type AssetsStatus, buildingAnchor, type Detail, ModelRegistry, shipFarTriangles } from "./models";
@@ -57,7 +58,7 @@ import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
 import { PaintPreview, type PaintMark } from "./paint";
 import { planRoadDrag } from "../display/roaddrag";
-import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag, plansUnder, roadsUnder } from "../display/plans";
+import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, selectedPlanMarks, planningRoadDrag, plansUnder, roadsUnder } from "../display/plans";
 import { PlanLayer, type PlanRoadTile, type PlanSpec } from "./plans";
 import { t } from "../i18n";
 
@@ -591,6 +592,21 @@ export class GameRenderer {
     for (const d of this.details.values()) if (d.building()) queue += d.pendingChunks().length + (d.headPending() ? 1 : 0);
     // No level before the camera is placed on the world.
     return { drawCalls: this.drawCalls, triangles: Math.round(this.scene.getActiveIndices() / 3), lod: this.placedInitially ? this.lod : null, detail: this.detail, queue };
+  }
+
+  /** The building models in view over all islands (dev stats, ?stats=1), one entry per content ID. */
+  modelStats(): ModelStat[] {
+    const out = new Map<string, ModelStat>();
+    for (const d of this.details.values()) {
+      for (const m of d.modelStats()) {
+        const sum = out.get(m.id);
+        if (sum) {
+          sum.triangles += m.triangles;
+          sum.count += m.count;
+        } else out.set(m.id, { ...m });
+      }
+    }
+    return [...out.values()];
   }
 
   /** Frame time statistics over the frames of the last windowMs. */
@@ -1671,12 +1687,10 @@ export class GameRenderer {
       const hover = this.hoverBuilding === null ? undefined : this.findBuilding(this.hoverBuilding);
       if (hover) add(hover.island, hover.b, "hover");
       if (pick) add(pick.island, pick.b, "hover");
-      // A selected plan, or every tile of a selected planned road segment (D-071 §4).
-      const plan = this.findPlan();
-      if (plan) add(plan.island, planAsBuilding(plan.plan, false), "hover");
+      // A selected planned road segment marks its tiles; a selected planned building no plate (display/plans.ts selectedPlanMarks).
       const roadIsland = sp && "x" in sp ? this.displayIsland(sp.island) : undefined;
       const segment = roadIsland && sp && "x" in sp ? plannedRoadAt(roadIsland, sp.x, sp.y) : undefined;
-      if (roadIsland && segment) for (const t of segment.tiles) add(roadIsland, { id: 0, type: segment.type, x: t.x, y: t.y, rotation: 0, status: "ok" } as BuildingDisplay, "hover");
+      if (roadIsland) for (const b of selectedPlanMarks(segment)) add(roadIsland, b, "hover");
     }
     this.marks.set(marks);
   }

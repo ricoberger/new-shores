@@ -111,17 +111,11 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 				buildable++
 			}
 		}
-		if !sc.Rock {
-			checkShape(t, c, seed, is, sc)
-		}
+		checkShape(t, c, seed, is, sc)
 		if seed <= slotFitSeeds {
 			checkSlotFit(t, c, seed, is, sc)
 		}
-		if sc.Rock {
-			if len(Sites(is, c, tp)) == 0 {
-				fail("rock %s has no Trading Post site", is.ID)
-			}
-		} else if !hasDisjoint(Sites(is, c, tp), 2) {
+		if !hasDisjoint(Sites(is, c, tp), 2) {
 			fail("%s has fewer than two disjoint Trading Post sites", is.ID)
 		}
 		if is.X < 0 || is.Y < 0 {
@@ -410,8 +404,7 @@ func checkPool(t *testing.T, seed uint64, what string, pool []content.PoolEntry,
 const slotFitSeeds = 50
 
 // checkSlotFit restates the D-072 part 2 slot rule (MECHANICS §2): the
-// slots of a habitable island lie >= 16 tiles apart (Chebyshev; a rock
-// the footprint's longest side), and every slot admits a footprint of the
+// slots of an island lie >= 16 tiles apart (Chebyshev), and every slot admits a footprint of the
 // largest building requiring its kind (either rotation) on mountain
 // tiles only, covering a tile of the slot and no other slot's tile, with
 // a buildable 4-neighbour, valid by the sim's placement check, such that
@@ -426,9 +419,6 @@ func checkSlotFit(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Islan
 		}
 	}
 	gap := 2 * side
-	if sc.Rock {
-		gap = side
-	}
 	for i, a := range slots {
 		for _, b := range slots[i+1:] {
 			for _, p := range a.tiles {
@@ -566,5 +556,47 @@ func checkTerrainRoundTrip(t *testing.T, c *content.Catalogue, a *Archipelago) {
 	want, _ := sim.Encode(w, c.Region.Version)
 	if again, _ := sim.Encode(got, c.Region.Version); !bytes.Equal(again, want) {
 		t.Errorf("seed %d: the terrain does not round-trip", a.Seed)
+	}
+}
+
+// TestRiverBanksNeverBelowRiver: along every river both banks are at least
+// as high as the river tile (rivers step down towards the mouth and the
+// banks follow), over seeds 1–50. Verify enforces it; this restates it on
+// the generated archipelagos.
+func TestRiverBanksNeverBelowRiver(t *testing.T) {
+	c := catalogue(t)
+	last := uint64(50)
+	if testing.Short() {
+		last = 5
+	}
+	for seed := uint64(1); seed <= last; seed++ {
+		t.Run(fmt.Sprint(seed), func(t *testing.T) {
+			t.Parallel()
+			a, err := Generate(seed, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, is := range a.Islands {
+				w := is.Width
+				for i, tile := range is.Tiles {
+					if tile.Terrain != content.TerrainRiver {
+						continue
+					}
+					for _, d := range dirs4() {
+						x, y := i%w+d[0], i/w+d[1]
+						if !is.InBounds(x, y) {
+							continue
+						}
+						b := is.Tile(x, y)
+						if b.Terrain == content.TerrainRiver || b.Terrain == content.TerrainWater || b.Terrain == content.TerrainIslet {
+							continue
+						}
+						if b.Level < tile.Level {
+							t.Errorf("seed %d %s: bank (%d,%d) level %d below river (%d,%d) level %d", seed, is.ID, x, y, b.Level, i%w, i/w, tile.Level)
+						}
+					}
+				}
+			}
+		})
 	}
 }

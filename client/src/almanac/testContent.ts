@@ -161,7 +161,6 @@ export function loadContent(dir: string): Content {
     size_classes: (read(d, "islands.json").size_classes as Raw[]).map((s) => ({
       id: s.id,
       name: s.name,
-      rock: !!s.rock,
       scenic: !!s.scenic,
       size: s.size,
       count: s.count,

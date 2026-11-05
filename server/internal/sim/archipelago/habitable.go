@@ -747,26 +747,37 @@ func (g *grid) harbourSites(r *rng, size int) []bool {
 }
 
 // riverLevels steps every river down from the source to the mouth: a
-// river tile lies no higher than the previous one and its lowest land
-// neighbour; estuary tiles take the level of their main tile.
+// river tile lies no higher than the previous one and no higher than any
+// land tile beside it, so that both banks of the river, including those
+// beyond its second and third column, are at least as high as the water
+// (a road meets the bridge at its own level); the tiles widening a main
+// tile (rv.side) take its level.
 func (g *grid) riverLevels(rivers []river, top int) {
 	n := g.n
 	land := func(t byte) bool { return t != tWater && t != tRiver && t != tIslet }
 	for _, rv := range rivers {
-		at := make([]int, len(rv.main))
-		prev := top
+		cols := make([][]int, len(rv.main))
 		for m, i := range rv.main {
-			x, y := i%n, i/n
-			l := prev
-			for _, d := range dirs4() {
-				if g.in(x+d[0], y+d[1]) && land(g.at(x+d[0], y+d[1])) {
-					l = min(l, g.lvl[(y+d[1])*n+x+d[0]])
-				}
-			}
-			g.lvl[i], prev, at[m] = l, l, l
+			cols[m] = append(cols[m], i)
 		}
 		for k, i := range rv.side {
-			g.lvl[i] = at[rv.of[k]]
+			cols[rv.of[k]] = append(cols[rv.of[k]], i)
+		}
+		prev := top
+		for m, col := range cols {
+			l := prev
+			for _, i := range col {
+				x, y := i%n, i/n
+				for _, d := range dirs4() {
+					if g.in(x+d[0], y+d[1]) && land(g.at(x+d[0], y+d[1])) {
+						l = min(l, g.lvl[(y+d[1])*n+x+d[0]])
+					}
+				}
+			}
+			prev = l
+			for _, i := range cols[m] {
+				g.lvl[i] = l
+			}
 		}
 	}
 }

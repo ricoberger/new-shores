@@ -1774,6 +1774,16 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.getByTestId("build-tab-settlers").click();
     },
   },
+  "build-menu-public": {
+    fixture: "settled",
+    device: ["desktop"],
+    run: async (page) => {
+      await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+      await page.getByTestId("build-tab-settlers").click();
+      await page.getByTestId("build-group-public").scrollIntoViewIfNeeded();
+    },
+  },
   "build-menu-locked": {
     fixture: "settled",
     device: ["desktop", "phone"],

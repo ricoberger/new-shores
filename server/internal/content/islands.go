@@ -34,8 +34,6 @@ type SizeClass struct {
 	Name string
 	// Size is the land extent in tiles (the island is about Size x Size).
 	Size int
-	// Rock marks resource rocks: mountain and coast only, no fertility.
-	Rock bool
 	// Scenic marks skerries (D-058): rock with a grass or sand top of Size
 	// to ¾·Size² tiles, without sites, fertilities or deposits, not
 	// settleable and without a name; land for sea routing only. They do
@@ -139,7 +137,6 @@ type rawIslands struct {
 		ID          string   `json:"id"`
 		Name        string   `json:"name"`
 		Size        int      `json:"size"`
-		Rock        bool     `json:"rock"`
 		Scenic      bool     `json:"scenic"`
 		Count       rawRange `json:"count"`
 		Fertilities rawRange `json:"fertilities"`
@@ -184,7 +181,7 @@ func decodeIslands(col *collector, raw rawIslands, names []string) (IslandRules,
 			continue
 		}
 		c := &SizeClass{
-			ID: sc.ID, Name: sc.Name, Size: sc.Size, Rock: sc.Rock, Scenic: sc.Scenic,
+			ID: sc.ID, Name: sc.Name, Size: sc.Size, Scenic: sc.Scenic,
 			Count:       Range(sc.Count),
 			Fertilities: Range(sc.Fertilities),
 			Deposits:    Range(sc.Deposits),
@@ -298,9 +295,6 @@ func checkIslands(c *Catalogue, col *collector) {
 		order(ent, "count", sc.Count)
 		order(ent, "fertilities", sc.Fertilities)
 		order(ent, "deposits", sc.Deposits)
-		if sc.Rock && sc.Fertilities.Max > 0 {
-			col.add(file, ent, "fertilities", "a resource rock carries no fertility (max must be 0)")
-		}
 		if sc.Scenic {
 			checkScenic(col, ent, sc)
 			continue
@@ -381,8 +375,6 @@ func checkIslands(c *Catalogue, col *collector) {
 		col.add(file, "", "home.size_class", "unknown size class %q", h.SizeClass)
 	case sc.Count.Min < 1:
 		col.add(file, "", "home.size_class", "size class %q must have at least one island (count.min >= 1)", h.SizeClass)
-	case sc.Rock:
-		col.add(file, "", "home.size_class", "the home candidate cannot be a resource rock")
 	case sc.Scenic:
 		col.add(file, "", "home.size_class", "the home candidate cannot be a skerry")
 	case len(h.FertilitiesAny) > 0 && sc.Fertilities.Max < 1:
@@ -428,14 +420,11 @@ const (
 	MaxScenicSize = 8
 )
 
-// checkScenic validates a skerry class (D-058): no resource rock, no
+// checkScenic validates a skerry class (D-058): no
 // fertilities, deposits or shape parameters, a size in [MinScenicSize,
 // MaxScenicSize].
 func checkScenic(col *collector, ent string, sc *SizeClass) {
 	const file = FileIslands
-	if sc.Rock {
-		col.add(file, ent, "scenic", "a skerry is no resource rock")
-	}
 	if sc.Fertilities.Max > 0 || sc.Deposits.Max > 0 {
 		col.add(file, ent, "scenic", "a skerry carries no fertilities or deposits (max must be 0)")
 	}
@@ -449,8 +438,7 @@ func checkScenic(col *collector, ent string, sc *SizeClass) {
 
 // checkShape validates the shape parameters of a size class (D-058): the
 // ranges are ordered and within the limits, the plain fits the class (at
-// most a third of its size) and a resource rock is a plain blob (no
-// massifs, plain, rivers, terraces or islets).
+// most a third of its size).
 func checkShape(col *collector, ent string, sc *SizeClass, order func(ent, field string, rg Range)) {
 	const file = FileIslands
 	s := sc.Shape
@@ -471,8 +459,5 @@ func checkShape(col *collector, ent string, sc *SizeClass, order func(ent, field
 	}
 	if s.Plain < 0 || 3*s.Plain > sc.Size {
 		col.add(file, ent, "shape.plain", "must be in [0, size/3] (%d)", sc.Size/3)
-	}
-	if sc.Rock && (s.Massifs.Max > 0 || s.Plain > 0 || s.Rivers.Max > 0 || s.Levels > 0 || s.Islets.Max > 0) {
-		col.add(file, ent, "shape", "a resource rock has no massifs, plain, rivers, levels or islets")
 	}
 }

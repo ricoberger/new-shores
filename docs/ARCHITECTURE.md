@@ -73,7 +73,7 @@ new-shores/
 │   ├── src/display/            extrapolation + display model
 │   ├── src/render/             Babylon scene, voxel terrain, chunks, instancing, pickers
 │   ├── src/ui/                 React HUD, panels, build menu, world map
-│   ├── src/dev/                dev/E2E-only `?stats=1` fps badge (no dev-state handling, D-066)
+│   ├── src/dev/                dev/E2E-only `?stats=1` fps badge with the top-10 models by triangles (no dev-state handling, D-066)
 │   ├── public/models/          voxel GLBs + manifest.json + thumbs/ (generated, committed)
 │   └── e2e/tools/              `make shots` script (Playwright as a library)
 ├── assets/
@@ -231,8 +231,7 @@ return Display(w, now)
   the D-072 sizes and rim massifs (large 250) the state is ≈ 2.5 kB
   and the terrain ≈ 31 kB gzipped (1.24 MB of encoded rows; D-058
   sizes: 22 kB, 0.68 MB); generation 0.74 s average, 1.2 s worst over
-  seeds 1–50 (D-058 sizes: 1.05 s, 3.0 s; the resource rocks are drawn
-  first, so a failed rock no longer redraws the large islands).
+  seeds 1–50 (D-058 sizes: 1.05 s, 3.0 s).
 
 ### 4.3 Scheduled events worker
 
@@ -318,7 +317,7 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   payload includes `ships`, `routes` (with `loop_ms` and the estimated
   `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,
   `settled`, `position`, `quests`, `away_summary`, `insolvency`,
-  per-island `bounds`, `size_class`, `rock`, fertilities, deposit slots
+  per-island `bounds`, `size_class`, `scenic`, fertilities, deposit slots
   and a 1:4 terrain `mask` (PR #26; tile rows are **not** in the world
   payload); `GET /world/islands/{id}/tiles?v=<seed>-<roll>` → the full
   rows, `ETag` = sha256(seed, roll, island id), `Cache-Control: private,
@@ -328,6 +327,11 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   (D-061: `lang` or `Accept-Language`, an unknown `lang` is 400; the
   payload names `language`, `languages`, `island_names` and carries
   `Content-Language`); `GET /healthz`.
+- The sea-route grid that the display's route and ship paths search
+  (D-058 §5) is built once per archipelago and cached in the API layer
+  (`internal/api/seagrid.go`), keyed by seed, roll, generator version and
+  the roads on water tiles (quays), the only building state it depends on;
+  `internal/sim` stays stateless.
 - Errors: `{error: {code, message}}`; `code` is a stable snake_case
   enumeration listed in the OpenAPI file (one per sim sentinel error plus
   `bad_request`, `not_found`, `method_not_allowed`, `internal`); malformed

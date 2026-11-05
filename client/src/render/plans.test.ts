@@ -56,7 +56,7 @@ describe("plan outlines", () => {
 });
 
 describe("PlanLayer", () => {
-  it("draws plans as untinted ghost models with a gold outline, the box until the model has loaded", async () => {
+  it("draws plans as untinted ghost models with a gold outline and no slab or box under them", async () => {
     const scene = new Scene(engine);
     const reg = registry(scene);
     await reg.loadManifest();
@@ -64,14 +64,14 @@ describe("PlanLayer", () => {
     const spec = { id: 7, def: sawmill, island, x: 4, y: 6, rotation: 90 as const, base: 0 };
     layer.set("a", [spec], []);
     expect(layer.shown()).toBe(1);
-    const box = scene.getMeshByName("plan_box") as Mesh;
-    expect(box.thinInstanceCount).toBe(1);
+    // No box or slab stands in for a model: until it has loaded only the outline shows.
+    expect(scene.getMeshByName("plan_box")).toBeNull();
+    expect(scene.getMeshByName("plan_outline")!.isEnabled()).toBe(true);
     await loaded(reg);
     layer.set("b", [spec, { ...spec, id: 8, x: 10 }], [{ island, x: 0, y: 0, base: 0 }]);
     expect(layer.shown()).toBe(3);
     const model = scene.meshes.find((m) => m.name.startsWith("plan_sawmill")) as Mesh;
     expect(model.thinInstanceCount).toBe(2);
-    expect(box.isVisible).toBe(false);
     const mat = model.material as StandardMaterial;
     // Untinted: the model keeps its colours, translucent.
     expect([mat.diffuseColor.r, mat.diffuseColor.g, mat.diffuseColor.b]).toEqual([1, 1, 1]);

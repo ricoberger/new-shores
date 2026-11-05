@@ -23,6 +23,11 @@ export function needIcon(need: { category?: string; building?: string }, iconKey
   return path(key, "need:_fallback");
 }
 
+/** Icon of a need display group (need_categories[].group): the goods group's is the generic goods crate. */
+export function needGroupIcon(group: string): string {
+  return group === "goods" ? path("good:_fallback", "need:_fallback") : path("need:_fallback", "need:_fallback");
+}
+
 /** Icon of a building status. */
 export function statusIcon(key: StatusKey): string {
   return path(`status:${key}`, "need:_fallback");

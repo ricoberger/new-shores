@@ -40,7 +40,7 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
                   {has("deposits") && <td className={styles.num}>{range(s.deposits)}</td>}
                   {has("shape") && <td>{s.shape ?? "—"}</td>}
                   <td>
-                    {s.rock ? t("almanac.i.rock") : s.scenic ? t("almanac.i.scenic") : ""}
+                    {s.scenic ? t("almanac.i.scenic") : ""}
                     {s.home ? t("almanac.i.home") : ""}
                   </td>
                 </tr>

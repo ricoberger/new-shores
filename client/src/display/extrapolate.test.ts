@@ -146,7 +146,6 @@ describe("extrapolate", () => {
         id: "a",
         name: "",
         size_class: "",
-        rock: false,
         scenic: false,
         settled: true,
         position: { x: 0, y: 0 },

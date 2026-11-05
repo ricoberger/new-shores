@@ -104,7 +104,8 @@ func TestDevSnapshotRoundTrip(t *testing.T) {
 		}
 		t.Fatal("no site for a planned house")
 	})
-	ts.clock.Add(time.Minute)
+	// Short of the first ship arrival (the sea routes decide when it is due), so that no event is applied while the snapshot is taken.
+	ts.clock.Add(20 * time.Second)
 	saved := ts.snapshot()
 	if !bytes.Contains(saved.body, []byte(`"plans"`)) {
 		t.Fatal("the snapshot carries no plans")
@@ -139,7 +140,7 @@ func TestDevSnapshotRoundTrip(t *testing.T) {
 	if err := json.Unmarshal(res.body, &out); err != nil {
 		t.Fatal(err)
 	}
-	if out.Seed != devworld.DevSeed || !out.LastEvaluatedAt.Equal(testStart.Add(time.Minute)) || out.WorldVersion <= versionBefore {
+	if out.Seed != devworld.DevSeed || !out.LastEvaluatedAt.Equal(testStart.Add(20*time.Second)) || out.WorldVersion <= versionBefore {
 		t.Errorf("response %+v (version before %d)", out, versionBefore)
 	}
 	if got := ts.getWorld().Version; got != out.WorldVersion {

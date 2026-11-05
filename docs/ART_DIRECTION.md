@@ -235,14 +235,18 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   bands falls into a foam pool; at level 0 the mouth loses its banks and
   shelf and steps down in small rapids into the shallows. **Bridges** are
   voxel arch models (`decor_bridge_1/2`) over straight road runs of one
-  or two river tiles, hidden at far; a two-tile river takes
+  or two river tiles, hidden at far (where the road's colour is painted
+  across the river columns they span, so the road line stays whole;
+  colour only, the far budget is unchanged); a two-tile river takes
   `decor_bridge_2` (a road crosses at most two river tiles, so the
   three-tile estuary has no bridge and no `decor_bridge_3`). The deck
   stands at the lower bank's level: where the river runs one or two
   levels below its banks (about a fifth of the crossings on the dev
   seed) the raised models `decor_bridge_<n>_up1/up2` carry it on piers
   in the water, and a bank one level higher ramps its road down to the
-  deck like a terrace ramp.
+  deck like a terrace ramp. The generator never lets a bank lie below
+  the river (generator version 8): along a river both banks are at least
+  as high as its water, so the road never steps up onto a bridge.
 - **Things on terraces:** buildings and fields stand on the highest
   level under their footprint, lower columns filled up to it (a terrace
   fill, `render/terraces.ts`). The fill takes the footprint's ground
@@ -350,7 +354,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   pastures; **quay crates** while a ship is handling; **construction
   stages** A→B→C with scaffolding on ≥ 3×3 footprints replacing the
   rise-in. `?life=0` switches it off (A/B), `?stats=1` shows instance and
-  particle counts.
+  particle counts and, below them, the ten building models in view with
+  the most triangles (voxels per tile of the drawn file, triangles in
+  total and per instance) — the per-model density check of the budget.
 - **Rule: every animation encodes a game state.** No smoke = not running,
   no walkers/carts = not connected, starved, full or paused, no boats =
   no fisher, tinted = paused/inactive.

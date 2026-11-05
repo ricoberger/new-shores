@@ -4,7 +4,7 @@ import { t } from "../i18n";
 import { buildCost, buildMenuGroups, buildTierTabs, defaultBuildTier, serviceNeedCategory } from "../display/buildMenu";
 import { perMin, tons, units } from "../display/format";
 import { depositName, fertilityName, fertilityNeed, lockReason } from "../display/tiers";
-import { goodIcon, needIcon, resourceIcon, toolIcon } from "../theme/iconSet";
+import { goodIcon, needGroupIcon, needIcon, resourceIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
 import type { Tool } from "./tools";
@@ -31,6 +31,8 @@ interface Props {
   dense?: boolean;
   /** The tier tab opened first instead of the current one (screenshots, tests). */
   initialTier?: string;
+  /** Switches to a tier's tab each time `seq` changes (an unlock toast was clicked). */
+  openTier?: { tier: string; seq: number };
 }
 
 // i18n-ignore: Roman numerals are the same in every language
@@ -56,8 +58,14 @@ export function tierNumeral(index: number): string {
  */
 const cap = (v: string) => v.charAt(0).toUpperCase() + v.slice(1);
 
-export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, onMoveTool, planning = false, onPlanTool, dense = false, initialTier }: Props) {
+export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, onMoveTool, planning = false, onPlanTool, dense = false, initialTier, openTier }: Props) {
   const [chosen, setChosen] = useState<string | null>(initialTier ?? null);
+  // A new request (an unlock toast was clicked) switches the tab; adjusted while rendering, not in an effect.
+  const [seenSeq, setSeenSeq] = useState<number | undefined>();
+  if (openTier && openTier.seq !== seenSeq) {
+    setSeenSeq(openTier.seq);
+    setChosen(openTier.tier);
+  }
   if (!content) return null;
   const tabs = buildTierTabs(model, content);
   const moving = tool.kind === "movePick" || (tool.kind === "move" && tool.pick === true);
@@ -155,6 +163,9 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                   const fertility = fertilityNeed(b, fertilities);
                   const cost = buildCost(b, model?.gold ?? 0, stock);
                   const needCategory = b.service ? serviceNeedCategory(content, b) : undefined;
+                  const hasFields = (b.fields?.required ?? 0) > 0;
+                  const coastInput = !!b.recipe && (b.water_rows?.max ?? 0) > 0 && b.recipe.inputs.length === 0 && !b.requires_deposit && !hasFields;
+                  const hasInput = coastInput || !!b.requires_deposit || hasFields || (b.recipe?.inputs.length ?? 0) > 0;
                   const fieldDef = b.fields ? content.buildings.find((x) => x.id === b.fields?.type) : undefined;
                   return (
                     <button
@@ -221,17 +232,32 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                                   </span>
                                 ))
                               )}
-                              <span aria-hidden="true">→</span>
+                              {/* A building over water without inputs works on the coast (like a mine on its deposit). */}
+                              {coastInput && (
+                                <span className={styles.withIcon} data-testid={`build-coast-${b.id}`}>
+                                  <Icon path={resourceIcon("coast")} />
+                                  {t("build.inputCoast")}
+                                </span>
+                              )}
+                              {hasInput && <span aria-hidden="true">→</span>}
                               {b.recipe.outputs.map((o) => goodChip(o.good, `out-${o.good}`))}
                             </span>
                           )}
                           {b.service && (
                             <span className={styles.flow}>
-                              {needCategory && (
-                                <span className={styles.withIcon}>
-                                  <Icon path={needIcon({ category: needCategory.id }, needCategory.icon)} />
-                                  {needCategory.name}
+                              {needCategory?.id === "market" ? (
+                                // The Market serves the goods needs: it supplies goods (the goods group's icon) rather than a need of its own.
+                                <span className={styles.withIcon} data-testid={`build-supplies-${b.id}`}>
+                                  <Icon path={needGroupIcon("goods")} />
+                                  {t("build.marketSupplies")}
                                 </span>
+                              ) : (
+                                needCategory && (
+                                  <span className={styles.withIcon}>
+                                    <Icon path={needIcon({ category: needCategory.id }, needCategory.icon)} />
+                                    {needCategory.name}
+                                  </span>
+                                )
                               )}
                             </span>
                           )}

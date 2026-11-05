@@ -125,4 +125,15 @@ describe("yards as ground paint (D-068)", () => {
     expect(tiles[0]!.kind).toBe("dirt");
     expect(yardTiles(display, defs, null)).toEqual([]);
   });
+
+  it("paints no yard for plans (D-071): the yards come from the built buildings only", () => {
+    const e = entry(2, 2, [
+      ["dirt", "dirt"],
+      ["dirt", "dirt"],
+    ]);
+    const registry = { entry: () => e } as unknown as ModelRegistry;
+    const defs = new Map<string, ContentBuilding>([["barn", def(2, 2)]]);
+    const display = { buildings: [], plans: [{ id: 9, type: "barn", x: 4, y: 4, rotation: 0 }] } as never;
+    expect(yardTiles(display, defs, registry)).toEqual([]);
+  });
 });

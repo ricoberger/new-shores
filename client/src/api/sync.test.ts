@@ -17,7 +17,6 @@ function world(version: number, evaluatedAt: string, nextChangeAt: string | null
       id,
       name: "",
       size_class: "large",
-      rock: false,
       scenic: false,
       settled: true,
       position: { x: 0, y: 0 },

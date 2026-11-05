@@ -57,6 +57,15 @@ describe("build menu tabs", () => {
   });
 });
 
+describe("build menu opened by an unlock toast", () => {
+  it("switches to the requested tier's tab", () => {
+    expect(render()).toMatch(/aria-pressed="true"[^>]*data-testid="build-tab-settlers"/);
+    const html = render({ openTier: { tier: "citizens", seq: 1 } });
+    expect(html).toMatch(/aria-pressed="true"[^>]*data-testid="build-tab-citizens"/);
+    expect(html).toMatch(/aria-pressed="false"[^>]*data-testid="build-tab-settlers"/);
+  });
+});
+
 describe("build menu planning toggle (D-071)", () => {
   it("shows the toggle next to Move and Demolish, pressed while planning", () => {
     expect(render()).not.toContain("tool-plan");
@@ -157,7 +166,7 @@ describe("build cards", () => {
     expect(info("wheat_farm")).not.toMatch(/\d+ ×/);
     const settlers = render();
     expect(text(card(settlers, "chapel").match(/data-testid="build-info-chapel"[^>]*>(.*?)<\/button>/)![1]!)).toMatch(/gold\/min·Faith$/);
-    expect(text(card(settlers, "market").match(/data-testid="build-info-market"[^>]*>(.*?)<\/button>/)![1]!)).toMatch(/gold\/min·Market$/);
+    expect(text(card(settlers, "market").match(/data-testid="build-info-market"[^>]*>(.*?)<\/button>/)![1]!)).toMatch(/gold\/min·Supplies goods$/);
   });
 
   it("names the deposit a mine needs in front of its output, on one line", () => {
@@ -166,6 +175,28 @@ describe("build cards", () => {
     expect(text(quarry.match(/data-testid="build-info-quarry"[^>]*>(.*?)<\/button>/)![1]!)).toMatch(/gold\/min·[A-Z]\w+ deposit→/);
     expect(quarry).not.toContain("Must cover");
     expect(quarry).toMatch(/data-testid="build-deposit-quarry"[^>]*><svg/);
+  });
+
+  it("names the coast as the input of a building over water and hides the arrow of a card with no input at all (build.inputCoast)", () => {
+    const fisher = card(render(), "fisher");
+    const info = text(fisher.match(/data-testid="build-info-fisher"[^>]*>(.*?)<\/button>/)![1]!);
+    expect(info).toMatch(/gold\/min·Coast→Fish/);
+    expect(fisher).toMatch(/data-testid="build-coast-fisher"[^>]*><svg/);
+    // No input, deposit, fields or coast: no dangling arrow.
+    const bare = { ...content, buildings: content.buildings.map((b) => (b.id === "fisher" ? { ...b, water_rows: undefined } : b)) };
+    const bareInfo = text(card(render({ content: bare }), "fisher").match(/data-testid="build-info-fisher"[^>]*>(.*?)<\/button>/)![1]!);
+    expect(bareInfo).not.toContain("→");
+    expect(bareInfo).not.toContain("Coast");
+  });
+
+  it("shows the Market's second line as supplying goods with the goods group's icon; other service cards keep their need (build.marketSupplies)", () => {
+    const html = render();
+    const info = (id: string) => text(card(html, id).match(new RegExp(`data-testid="build-info-${id}"[^>]*>(.*?)</button>`))![1]!);
+    expect(info("market")).toContain("Supplies goods");
+    expect(info("market")).not.toMatch(/Market(?! )/);
+    expect(card(html, "market")).toMatch(/data-testid="build-supplies-market"[^>]*><svg/);
+    expect(info("chapel")).toContain("Faith");
+    expect(card(html, "chapel")).not.toContain("build-supplies-");
   });
 
   it("separates a producer's several inputs with commas", () => {

@@ -297,7 +297,8 @@ export class TerrainBuild {
   /** The far view's field patches: the lite texture (created with the first field, dropped with the last) and the far columns' tops. */
   private updatePatches(fields: readonly FieldTile[]): void {
     const f = this.fields.full;
-    if (fields.length === 0) {
+    // The far view's own tops: the field patches and the roads over rivers (bridges are hidden there).
+    if (fields.length === 0 && !f.bridge?.some((v) => v !== 0)) {
       if (this.patchTops) this.farData = null;
       this.patchTops = null;
       if (this.liteMesh) this.liteMesh.material = this.material;

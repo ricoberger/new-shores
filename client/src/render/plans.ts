@@ -1,20 +1,20 @@
 // Plans (D-071 §5, UI.md §3 "Planning"): planned buildings and fields in
 // the ghost material — the building's real model, translucent and
 // untinted (render/ghost.ts without a validity colour) — with a thin gold
-// outline of the footprint, and planned road tiles as translucent ground
-// slabs with the gold outline of the planned road's edge. No construction
+// outline of the footprint (no slab or box under it: while a model loads, or
+// for a content ID without one, only the outline shows), and planned road
+// tiles as translucent ground slabs with the gold outline of the planned
+// road's edge. No construction
 // stage, smoke, status badge or life-layer figure: plans are not in the
 // island's buildings, so no other layer sees them. Drawn on the islands
 // with detail at near and mid LOD only, never in the far mesh or the far
-// road layer. Thin instances per model file (the box of the footprint for
-// content IDs without a model and while a model loads); one mesh for all
+// road layer. Thin instances per model file; one mesh for all
 // outlines and one for all road slabs. Rebuilt only when the key (server
 // state, detailed islands, model loads) changes. Purely visual, never
 // pickable: the scene picks plans by tile (display/plans.ts).
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Matrix, Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector";
-import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
@@ -27,9 +27,8 @@ import { ghostOffset, previewOffset, skyFill } from "./lighting";
 import { modelFileFor, modelMesh, type ModelRegistry, placement, worldData } from "./models";
 import { GHOST, GOLD } from "./palette";
 
-/** Opacity of a planned model, of the box of one without a model, and of a planned road slab. */
+/** Opacity of a planned model and of a planned road slab. */
 const MODEL_ALPHA = 0.6;
-const BOX_ALPHA = 0.4;
 const ROAD_ALPHA = 0.45;
 /** Emissive lift of the planned model (the untinted ghost's, render/ghost.ts LIFT.neutral). */
 const LIFT = 0.12;
@@ -135,7 +134,6 @@ function quads(rects: readonly Band[]): VertexData | null {
 
 export class PlanLayer {
   private readonly modelMaterial: StandardMaterial;
-  private readonly box: Mesh;
   /** Plan meshes per model file path (thin instances; built once). */
   private readonly models = new Map<string, Mesh>();
   private readonly outline: Mesh;
@@ -154,14 +152,6 @@ export class PlanLayer {
     this.modelMaterial.emissiveColor = GHOST.scale(LIFT);
     this.modelMaterial.alpha = MODEL_ALPHA;
     this.modelMaterial.needDepthPrePass = true;
-    this.box = CreateBox("plan_box", { size: 1 }, scene);
-    const bm = ghostOffset(skyFill(new StandardMaterial("plan_box", scene)));
-    bm.diffuseColor = GHOST;
-    bm.alpha = BOX_ALPHA;
-    this.box.material = bm;
-    this.box.isPickable = false;
-    this.box.alwaysSelectAsActiveMesh = true;
-    setInstances(this.box, null);
     this.outline = this.flat("plan_outline", GOLD, 1, true);
     this.roads = this.flat("plan_road", GHOST, ROAD_ALPHA, false);
   }
@@ -209,11 +199,9 @@ export class PlanLayer {
       if (mesh && entry) {
         const pl = placement(entry, p.def, p);
         add(mesh, Matrix.Compose(new Vector3(pl.sx, 1, pl.sz), Quaternion.RotationYawPitchRoll(pl.yaw, 0, 0), new Vector3(p.island.x + pl.cx, p.base + GHOST_LIFT, -p.island.y + pl.cz)));
-      } else {
-        add(this.box, Matrix.Compose(new Vector3(w, 0.6, h), Quaternion.Identity(), new Vector3(p.island.x + p.x + w / 2, p.base + 0.3 + GHOST_LIFT, -(p.island.y + p.y + h / 2))));
       }
     }
-    for (const mesh of [this.box, ...this.models.values()]) {
+    for (const mesh of this.models.values()) {
       const list = byMesh.get(mesh);
       setInstances(mesh, list ? new Float32Array(list) : null);
       mesh.setEnabled(list !== undefined);

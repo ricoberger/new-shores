@@ -385,7 +385,7 @@ func renderIsland(is *sim.Island, c *content.Catalogue) *image.RGBA {
 			outline(img, r.X*s, r.Y*s, (r.X+r.W)*s, (r.Y+r.H)*s, max(1, s/3), hex("#D7263D"))
 		}
 	}
-	if yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil }); yard != nil && !sc.Rock {
+	if yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil }); yard != nil {
 		if sites := Sites(is, c, yard); len(sites) > 0 {
 			r := sites[len(sites)/2]
 			outline(img, r.X*s, r.Y*s, (r.X+r.W)*s, (r.Y+r.H)*s, max(1, s/3), hex("#F08A24"))

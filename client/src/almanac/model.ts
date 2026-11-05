@@ -551,7 +551,6 @@ export interface IslandsView {
   sizeClasses: {
     id: string;
     name: string;
-    rock: boolean;
     scenic: boolean;
     size?: number;
     count?: Range;
@@ -605,7 +604,6 @@ export function islandsView(content: Content): IslandsView {
     return {
       id: s.id,
       name: s.name,
-      rock: s.rock === true,
       scenic: s.scenic === true,
       size: typeof x.size === "number" ? x.size : undefined,
       count: asRange(x.count),

@@ -4,7 +4,7 @@ import type { GameRenderer } from "../render/engine";
 
 const REFRESH_MS = 500;
 
-/** Dev/E2E-only overlay (?stats=1): fps, frame time, the longest frame of the last second and the island build queue, draw calls, triangles, JS heap, LOD, model detail and the life layer's instances and particles. */
+/** Dev/E2E-only overlay (?stats=1): fps, frame time, the longest frame of the last second and the island build queue, draw calls, triangles, JS heap, LOD, model detail and the life layer's instances and particles, and the ten building models in view with the most triangles (voxels per tile from the manifest). */
 export function StatsBadge({ renderer }: { renderer: GameRenderer | null }) {
   const [sample, setSample] = useState<StatsSample | null>(null);
   useEffect(() => {
@@ -24,6 +24,7 @@ export function StatsBadge({ renderer }: { renderer: GameRenderer | null }) {
         queue: r.queue,
         maxMs: f.maxMs,
         life: renderer.lifeStats(),
+        models: renderer.modelStats(),
       });
     };
     read();

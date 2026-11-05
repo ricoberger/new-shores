@@ -89,7 +89,8 @@ UI shows the same numbers the server uses.
   draft are opaque and the other routes translucent. Each leg follows
   the server's voyage around land (`RouteDisplay.paths`, D-058; the
   draft's legs those of the saved routes, else a straight line) from
-  pier anchor to harbour and back. Ships are always drawn.
+  pier anchor to harbour and back. The draft dashes only the legs
+  without a known voyage (the straight ones); legs with one are solid. Ships are always drawn.
 - **Ships** are low-poly instances: with a leg, lerped between the two
   islands' pier anchors by `(now − depart_at) / (arrive_at − depart_at)`
   along the leg's `path` (pier anchor, harbour, waypoints, harbour, pier
@@ -202,8 +203,10 @@ UI shows the same numbers the server uses.
   2. upkeep ("2.0 gold/min"), a dot `·`, then for production `in → out` with
      good icons (several inputs separated by commas; a farm: its field type without a count, "Wheat field →
      Wheat"; a mine or quarry: the deposit it needs, "Quartz deposit →
-     Quartz"), for a public building only the need category it serves
-     ("Faith", no radius). A missing fertility replaces this line with a red "Needs
+     Quartz"; a building over water without inputs, like the fisher: "Coast →
+     Fish"; a card with no input at all shows no arrow), for a public building only the need category it serves
+     ("Faith", no radius); the Market's reads "Supplies goods" with the goods
+     group's icon (it serves the goods needs; `build.marketSupplies`). A missing fertility replaces this line with a red "Needs
      wheat fertility" (not what the island has; the placement ghost's hint
      keeps that).
 - **Panels:** parchment with a 3 px dark-wood border and inset light-wood
@@ -317,10 +320,13 @@ UI shows the same numbers the server uses.
   and road bars start with "Planning ·"). The toggle is a session
   setting; the plans stay on the server across toggling, sessions and
   devices. Turning it off ends a build tool of a locked tier. Plans are
-  drawn in the ghost material — the model translucent and untinted (the
-  footprint box while it loads) — with a thin gold outline of the
-  footprint; planned road tiles are translucent slabs with the gold
-  outline along the planned road's edge (`render/plans.ts`). No
+  drawn in the ghost material — the model translucent and untinted — with
+  a thin gold outline of the footprint, and nothing else: no slab or box
+  under a planned building (while its model loads only the outline shows);
+  planned road tiles are translucent slabs with the gold
+  outline along the planned road's edge (`render/plans.ts`). A plan
+  paints no yard into the ground (D-068): the yard appears once the
+  building stands (only the placing ghost previews it). No
   construction stage, smoke, status badge or life-layer figure, and none
   at the far view (not in the far mesh or the far road layer). Plans
   reserve their tiles in the client hints too (`display/plans.ts`): a
@@ -343,7 +349,9 @@ UI shows the same numbers the server uses.
   tiles"** for its segment (the 4-connected planned tiles of one type):
   type, cost, reason, Build · Demolish. A real farm with planned fields
   shows "N planned fields", their cost and **Build planned fields** on
-  its card. A selected plan carries a hover mark; a selected planned
+  its card. A selected planned road segment carries a hover mark on its tiles, a selected
+  planned building none (the plate would show as a pale square under its
+  translucent model); a selected planned
   Warehouse or Trading Post shows its level-1 reach and a planned
   public building or market its level-1 radius as a **gold ring**.
   Plans never count in the served/served-by hints (`display/served.ts`
@@ -553,7 +561,8 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   desktop look (folder tabs, parchment cards, icon-only Move and Demolish
   buttons pinned at the right of the tab row behind a divider), with ≥ 44 px tabs and cards on touch; short landscape
   phones keep the stacked layout with smaller cards and thumbnails. Hints and banners stack below the top
-  bar; toasts below the top bar.
+  bar; toasts below the top bar. A tier unlock toast is clickable: it
+  opens the build menu on that tier's tab (other toasts only dismiss).
 - **Gestures** (one pointer-event recogniser; input type decides per
   gesture, pen = mouse): one-finger drag pans, draws a road with the road
   tool (ships are not draggable; dragging one pans); pinch pans by its centre
