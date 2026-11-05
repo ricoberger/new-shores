@@ -2316,3 +2316,24 @@ without" and `roads_demolish_rect`. Far budget unchanged (15 draws /
   archipelago-wide far view; paved roads extending the radius by 50 %
   as in Anno 117 (needs road-distance coverage, rejected with D-069 —
   parked as an idea for paved roads).
+
+*As built, part 1 (#71):* `islands.json` sizes 250 / 165 / 110 (plain
+52 / 32 / 19, `shape.massifs` replaces `arms`), buildable target
+185 000; measured over seeds 1–50: buildable 32 061 / 13 962 / 6 162
+(84–91 % of land, mountains 7–13 %), massifs large 2–4, medium 1–2,
+small 0–1, highest rock 6, every island with ≥ 2 disjoint Trading Post
+sites. Rivers 2 wide, 3 at the mouth (`decor_bridge_3` added). Content
+`old_coast-0.19.0`: radii and reach as decided; costs ×2 for church,
+cathedral, university and market levels 3–4; the playhouse kept
+15 000 gold (×2 missed the Merchants 420 target) with materials and
+upkeep doubled. Camera cap 80. Reference games 49 / 11 / 86 / 130 ·
+32 / 70 · 220 / 264 / 412 · 745 / 782 / 1 082 — all targets hold;
+plan changes: isle-02 late pig farms 1 → 3 (sausage shortfall on the
+home island), the citizens plan reserves a school per home quarter.
+Far budget at cap 80: 13 draws / 198 k triangles (desktop-xl) — no LOD
+step needed. Open for part 2: deposit slots must each admit a
+non-overlapping footprint of their building (today only a Chebyshev
+gap of 8 is enforced, so two same-kind slots can compete for one
+mountain foot), same-kind slots on different massifs, spacing 16; the
+almanac's island table shows massifs; cap-80 behaviour of jumps,
+minimap and island framing; first-frame timing on the large island.
