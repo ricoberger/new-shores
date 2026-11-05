@@ -40,7 +40,9 @@ const icon = (good: string) => `<path d="${goodIcon(good)}"`;
 
 describe("upgrade cost lines like the build menu (UI.md §4)", () => {
   it("shows the house upgrade's cost — the next tier's house — in the Upgrade section, goods by icon", () => {
-    const line = costLine(panel(of("house_settlers"), island), "house-upgrade")!;
+    // The D-072 fixture ends with 2 t stone on the home island: stock it for the affordable line.
+    const stocked = { ...island, inventory: { ...island.inventory, stone: { ...island.inventory.stone!, stock: 3_000 } } };
+    const line = costLine(panel(of("house_settlers"), stocked), "house-upgrade")!;
     expect(visible(line)).toBe("150 gold·5\u00a0t·3\u00a0t");
     expect(line.indexOf(icon("planks"))).toBeGreaterThan(-1);
     expect(line.indexOf(icon("stone"))).toBeGreaterThan(line.indexOf(icon("planks")));

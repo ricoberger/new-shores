@@ -2340,9 +2340,10 @@ export interface components {
             fertilities: components["schemas"]["ContentRange"];
             /** @description Deposit slots per island of the class (drawn from the generator's pool). */
             deposits: components["schemas"]["ContentRange"];
-            /** @description Shape parameters of the class (D-058). */
+            /** @description Shape parameters of the class (D-058, D-072). */
             shape: {
-                arms: components["schemas"]["ContentRange"];
+                /** @description Massifs around the rim (D-072). */
+                massifs: components["schemas"]["ContentRange"];
                 /** @description Side of the guaranteed contiguous plain (tiles; 0 none). */
                 plain: number;
                 rivers: components["schemas"]["ContentRange"];
@@ -2353,7 +2354,7 @@ export interface components {
             /** @description The home candidate (D-053) is an island of this class. */
             home: boolean;
         };
-        /** @description An inclusive range of counts (islands, tags, slots, arms, rivers or islets; unscaled integers). */
+        /** @description An inclusive range of counts (islands, tags, slots, massifs, rivers or islets; unscaled integers). */
         ContentRange: {
             /** @description Lowest count (unscaled integer). */
             min: number;

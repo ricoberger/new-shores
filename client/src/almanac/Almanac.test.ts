@@ -21,7 +21,7 @@ describe("almanac rendering", () => {
     // The service ladder (D-065): the chains' ranks and the market's four radii.
     expect(out).toContain("Chain (rank)");
     expect(out).toMatch(/Cathedral<\/a><\/td><td>Patricians<\/td><td>Faith \(3\)<\/td>/);
-    expect(out).toContain("12 / 15 / 18 / 21");
+    expect(out).toContain("20 / 24 / 28 / 32");
   });
 
   it("renders every building once on the buildings page and links goods to their pages", () => {
@@ -66,7 +66,7 @@ describe("almanac rendering", () => {
     expect(quests).toContain("Lay 10 tiles of Dirt road");
     const islands = html({ section: "islands" });
     for (const c of content.size_classes) expect(islands).toContain(c.name);
-    expect(islands).toContain("1–3 arms, plain 40×40, 1–2 rivers, 2 terraces, 3–6 islets");
+    expect(islands).toContain("plain 52×52, 1–2 rivers, 2 terraces, 3–6 islets");
     expect(islands).toContain("The home island is one of these");
     expect(islands).not.toContain("not part of the served content");
   });
