@@ -2322,7 +2322,8 @@ without" and `roads_demolish_rect`. Far budget unchanged (15 draws /
 185 000; measured over seeds 1–50: buildable 32 061 / 13 962 / 6 162
 (84–91 % of land, mountains 7–13 %), massifs large 2–4, medium 1–2,
 small 0–1, highest rock 6, every island with ≥ 2 disjoint Trading Post
-sites. Rivers 2 wide, 3 at the mouth (`decor_bridge_3` added). Content
+sites. Rivers 2 wide, 3 at the mouth (roads cross at most two river
+tiles; the estuary has no bridge). Content
 `old_coast-0.19.0`: radii and reach as decided; costs ×2 for church,
 cathedral, university and market levels 3–4; the playhouse kept
 15 000 gold (×2 missed the Merchants 420 target) with materials and
@@ -2331,9 +2332,22 @@ upkeep doubled. Camera cap 80. Reference games 49 / 11 / 86 / 130 ·
 plan changes: isle-02 late pig farms 1 → 3 (sausage shortfall on the
 home island), the citizens plan reserves a school per home quarter.
 Far budget at cap 80: 13 draws / 198 k triangles (desktop-xl) — no LOD
-step needed. Open for part 2: deposit slots must each admit a
-non-overlapping footprint of their building (today only a Chebyshev
-gap of 8 is enforced, so two same-kind slots can compete for one
-mountain foot), same-kind slots on different massifs, spacing 16; the
-almanac's island table shows massifs; cap-80 behaviour of jumps,
-minimap and island framing; first-frame timing on the large island.
+step needed.
+
+*As built, part 2 (#72):* every deposit slot reserves a footprint of
+its largest building (3 × 8, clay pit 4 × 6) on mountain tiles beside a
+buildable tile, pairwise disjoint; slots ≥ 16 apart (8 on rocks),
+same-kind slots on different massifs — 133 of 600 islands in seeds
+1–50 failed this before, none now; plans fixed, not the rule. Founding
+and island framing stop at the cap and centre an island too big to fit;
+the island name stays visible; far-budget fixture is the home island
+(seed 31). The client requests `/world` and `/content` before the
+engine is set up: first frame +5–9 % against pre-D-072 (budget +25 %).
+Bridges: the deck sits at the lower bank's height on four raised bridge
+models, a higher bank slopes its road down; three crossings on the dev
+seed keep a one-level step, and the far view hides bridges (≈ 2 px gap
+in the road). Almanac shape text lists massifs. Far budget at cap 80:
+14 draws / 205 k. Follow-ups: cache the sea-route grid that
+`GET /world` rebuilds per request (island tile data is 47 % larger
+compressed); resource rocks never generate because no rock has room
+for a Trading Post site (pre-existing).

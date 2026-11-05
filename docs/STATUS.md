@@ -9,9 +9,10 @@ hub upkeep, population-only unlocks, pier / depot at Merchants,
 tier-gated Trading Post levels, route unload limits and keep, deposit
 markers, move tool) and #70 (D-071 planning mode: planned buildings,
 roads and fields built by hand, gold radius rings, Demolish rectangle
-for roads) and #71 (D-072 part 1: Anno 117 island sizes, rim massifs,
-2-tile rivers, Anno 117 service radii and reach, content 0.19.0, camera
-cap 80) merged; next D-072 part 2 (deposit slots, client cap work).
+for roads), #71 and #72 (D-072: Anno 117 island sizes, rim massifs,
+2-tile rivers with raised bridges, Anno 117 service radii and reach,
+content 0.19.0, camera cap 80, usable deposit slots) merged; next the
+owner's playtest on the new world, then polish 6.
 
 ## What exists
 
@@ -99,7 +100,8 @@ in the sync after a task unless the task says otherwise; nobody adds the
      merged; ~~V7.0 pipeline + known render/UI items~~ (#64: per-model
      `voxels_per_tile`, palette v3 with `brick` / `tile-dark` and the
      orange terracotta, lite ships 236/448/544 tris, `wake_width`,
-     largest-island far-budget fixture (seed 16, 23 691 land tiles),
+     largest-island far-budget fixture (seed 16, 23 691 land tiles; the
+     home island of seed 31 since #72),
      `InitialCamera` removed, one-line top bar ≥ 1200 px, unlock toasts,
      quest chains, almanac presets, dashed draft route, German
      proofreading) merged; ~~polish 4~~ (#65: tonnes, "gold", tier-tab
@@ -117,10 +119,16 @@ in the sync after a task unless the task says otherwise; nobody adds the
      `demolish_roads`, gold radius rings, move picks the farm from a
      field, schema 15) merged; ~~D-072 part 1~~ (#71: Anno 117 island
      areas, rim massifs, 2-tile rivers, radii / reach / costs, content
-     0.19.0, cap 80, plans replayed, far 13 / 198 k) merged → **next:
-     D-072 part 2** (deposit-slot fit proof and spread over massifs,
-     cap-80 behaviour of jumps / minimap / island framing, first frame
-     on the large island, bridge check, almanac massifs line). Open small items — art: playhouse /
+     0.19.0, cap 80, plans replayed, far 13 / 198 k) and ~~D-072 part
+     2~~ (#72: deposit slots reserve a usable footprint, cap-80
+     framing, `/world` + `/content` before the engine, raised bridges,
+     almanac massifs; far 14 / 205 k) merged → **next: owner playtest
+     on the D-072 world → polish 6** (balance pass on radii / upkeep /
+     thin tier-1/2 gold margin, build-menu nits). Server follow-ups:
+     cache the sea-route grid `GET /world` rebuilds per request;
+     resource rocks never generate (no Trading Post site fits a
+     16-tile rock); far view hides bridges (≈ 2 px road gap), three dev-
+     seed crossings keep a one-level step onto the bridge. Open small items — art: playhouse /
      university / cathedral / shipyard / depot / trading pier still at
      8 voxels/tile (folder room: 0.47 MiB — needs a variant dropped or
      harder quantisation), beach a touch loud, terracotta share check
@@ -168,10 +176,9 @@ in the sync after a task unless the task says otherwise; nobody adds the
 - Local dev databases older than schema 7 must be recreated (`make down
   VOLUMES=1 && make up`); 7→8 migrates (ship names). D-061 added
   `players.language` to `0001_init.sql` (no migration): recreate the same way.
-- **First frame** ≈ 200 ms cold / 115 ms warm on desktop (PR #30 notes):
-  the world and content requests start only after the engine is set up
-  (~117 ms); fetching them in parallel saves ≈ 35–40 ms — client
-  follow-up. The unused `unsettled` palette role can be removed.
+- **First frame**: the world and content requests start before the
+  engine is set up since #72 (+5–9 % against pre-D-072 on the larger
+  islands). The unused `unsettled` palette role can be removed.
 
 ## How to run
 
