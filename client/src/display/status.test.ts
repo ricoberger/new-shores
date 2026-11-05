@@ -3,7 +3,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, Content, DisplayState } from "../api/client";
-import { fieldsPlural, statusText } from "./status";
+import { statusIcon, toolIcon } from "../theme/iconSet";
+import { fieldsPlural, STATUS_STYLES, statusText } from "./status";
 
 const content = {
   region: { id: "r", name: "R", version: "v", rules: {} },
@@ -112,5 +113,13 @@ describe("field statuses (D-049)", () => {
   it("names the field type of a farm in the plural", () => {
     expect(fieldsPlural(fieldContent, "sheep_farm")).toBe("pastures");
     expect(fieldsPlural(fieldContent, "lumberjack")).toBe("fields");
+  });
+});
+
+describe("status icons", () => {
+  it("shows an unpaid building with the top bar's gold icon, every status with an icon of its own; the glyph is only the text fallback", () => {
+    expect(statusIcon("paused_unpaid")).toBe(toolIcon("gold"));
+    expect(statusIcon("paused_unpaid")).not.toBe(statusIcon("paused_player"));
+    for (const key of Object.keys(STATUS_STYLES) as (keyof typeof STATUS_STYLES)[]) expect(statusIcon(key), key).toBeTruthy();
   });
 });
