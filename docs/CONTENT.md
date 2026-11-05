@@ -443,7 +443,7 @@ and short hops, the galleon large and slow for bulk. Ship positions and legs fol
 | Shallows | water tiles of an island's grid (not river) within 3 tiles (Chebyshev) of its own land, islets excluded; derived from the tiles, the quay's ground (D-060, MECHANICS §3) |
 | Spacing | ≥ 55 tiles between islands (50 before D-072: the nearest neighbour of the dev seed fell under a minute at the brig's speed), nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
 | Buildable area | 185 000 tiles (coast, grass, forest) per archipelago ± 10 % (D-072; ≈ 51 % of the 365 289-tile land extents, the share the shape rules give; provisional) |
-| Anno 117 sizes (D-072) | buildable mean over seeds 1–50: large 32 045 (Anno 117: 31 573), medium 13 658 (13 369), small 6 011 (5 860) tiles; ≈ 2 670 / 1 140 / 500 houses at 12 tiles per house; with the rim massifs (D-072 §4) 13 % of a large or medium island is rock, and a quarter of the small islands have no massif |
+| Anno 117 sizes (D-072) | buildable mean over seeds 1–50: large 31 725 (Anno 117: 31 573), medium 13 614 (13 369), small 6 011 (5 860) tiles; ≈ 2 640 / 1 130 / 500 houses at 12 tiles per house; with the rim massifs (D-072 §4) 13 % of a large or medium island is rock, and a quarter of the small islands have no massif |
 | Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
 
 Guarantees per tier are specified in MECHANICS §10. No gating (D-051).

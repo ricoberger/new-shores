@@ -2,10 +2,11 @@ package archipelago
 
 import "slices"
 
-// Rivers (D-058 part 3): from a source high on a massif downhill to a
-// mouth in a concave stretch of beach, one tile wide, widening to an
-// estuary; river tiles are water inside the land that a road crosses as
-// a bridge.
+// Rivers (D-058 part 3, D-072 §5): from a source high on a massif
+// downhill across the island to a mouth in a concave stretch of beach on
+// another side, two tiles wide, three at the estuary; river tiles are
+// water inside the land that a road crosses as a bridge (straight over
+// at most two tiles).
 
 // riverMinPct is the minimum length of a river, percent of the island's
 // span (the longer side of its bounding box).
@@ -21,21 +22,31 @@ type river struct {
 	side, of []int
 }
 
-// rivers draws up to count rivers (D-058 part 3, round 2): from a source
-// high on the massif along the cheapest noisy downhill path to a concave
-// beach at least 40 % of the island's span long, smoothed and given a
-// gentle low-frequency meander; the last 6-10 tiles widen to an estuary
-// of two to three tiles and the mouth opens into a small bay.
+// rivers draws up to count rivers (D-058 part 3, round 2; D-072): from a
+// source high on a massif along the cheapest noisy downhill path to a
+// concave beach on another side of the island (seen from the land's
+// centroid, at least a right angle from the source) at least 40 % of the
+// island's span long, smoothed and given a gentle low-frequency meander,
+// two tiles wide; the last 6-10 tiles widen to an estuary of three and
+// the mouth opens into a small bay.
 func (g *grid) rivers(r *rng, count, size int, dist, sea []int) []river {
 	if count == 0 {
 		return nil
 	}
 	n := g.n
 	x0, y0, x1, y1 := n, n, 0, 0
+	cx, cy, cn := 0, 0, 0
 	for i, t := range g.t {
 		if t != tWater {
 			x0, y0, x1, y1 = min(x0, i%n), min(y0, i/n), max(x1, i%n), max(y1, i/n)
+			cx, cy, cn = cx+i%n, cy+i/n, cn+1
 		}
+	}
+	cx, cy = cx/max(1, cn), cy/max(1, cn)
+	// otherSide: the mouth lies at least a right angle from the source,
+	// seen from the land's centroid.
+	otherSide := func(source, mouth int) bool {
+		return (source%n-cx)*(mouth%n-cx)+(source/n-cy)*(mouth/n-cy) <= 0
 	}
 	span := max(x1-x0, y1-y0) + 1
 	minLen := span * riverMinPct / 100
@@ -95,7 +106,7 @@ func (g *grid) rivers(r *rng, count, size int, dist, sea []int) []river {
 				for _, o := range out {
 					apart = apart && cheb(i, o.main[0], n) >= size/4 && cheb(i, o.main[len(o.main)-1], n) >= size/4
 				}
-				if inBay[i] && cost[i] >= 0 && !near[i] && apart && cheb(i, source, n) >= minLen*3/4 {
+				if inBay[i] && cost[i] >= 0 && !near[i] && apart && cheb(i, source, n) >= minLen*3/4 && otherSide(source, i) {
 					bays = append(bays, i)
 				}
 			}
@@ -161,34 +172,74 @@ func (g *grid) pathLen(path []int) int {
 	return l2 / 16
 }
 
-// estuary widens the last 6-10 tiles of a river to two tiles (the last
-// half of them to three), turns them into river tiles and opens the mouth
-// into a small bay: a disc of radius 2-3 around the mouth becomes sea,
-// the land around it beach (cliff beside mountains).
+// estuary widens a river to two tiles (D-072 §5: a tile beside every
+// main tile on one side of its course) and its last 6-10 tiles to three
+// (both sides), turns them into river tiles and opens the mouth into a
+// small bay: a disc of radius 2-3 around the mouth becomes sea, the land
+// around it beach (cliff beside mountains).
 func (g *grid) estuary(r *rng, rv river) river {
 	n := g.n
 	k := len(rv.main)
 	l := min(r.between(6, 10), k-2)
-	free := func(j int) bool {
-		t := g.t[j]
-		return (t == tGrass || t == tCoast || t == tForest) && !slices.Contains(rv.main, j) && !slices.Contains(rv.side, j)
+	at := make(map[int]int, 2*k) // river tile -> main index
+	for m, i := range rv.main {
+		at[i] = m
+	}
+	// free: a tile beside main tile m may join the river when it is land
+	// the river may take (the beach only at the estuary, mountains not
+	// there) and touches no river tile more than two main tiles away (the
+	// channel must not join a neighbouring bend).
+	free := func(j, m int, mouth bool) bool {
+		if g.harbour[j] {
+			return false
+		}
+		switch t := g.t[j]; {
+		case t == tGrass || t == tForest:
+		case t == tCoast && mouth, t == tMountain && !mouth:
+		default:
+			return false
+		}
+		if _, on := at[j]; on {
+			return false
+		}
+		x, y := j%n, j/n
+		for _, d := range dirs4() {
+			if !g.in(x+d[0], y+d[1]) {
+				continue
+			}
+			if o, on := at[(y+d[1])*n+x+d[0]]; on && abs(o-m) > 2 {
+				return false
+			}
+		}
+		return true
 	}
 	sideA := r.intn(2)
-	for m := k - l; m < k; m++ {
-		a, b := rv.main[m-1], rv.main[m]
+	for m := range k {
+		// The local course over seven tiles, its normal snapped to a
+		// 4-neighbour: a straight stretch keeps one offset, so the two
+		// tiles form one band.
+		a, b := rv.main[max(0, m-3)], rv.main[min(k-1, m+3)]
 		fx, fy := b%n-a%n, b/n-a/n
+		mouth := m >= k-l
 		for s := range 2 {
-			if s != sideA && m < k-l/2 {
+			if s != sideA && !mouth {
 				continue
 			}
 			px, py := -fy, fx
 			if s == 1 {
 				px, py = fy, -fx
 			}
-			x, y := b%n+px, b/n+py
-			if g.in(x, y) && free(y*n+x) {
-				rv.side = append(rv.side, y*n+x)
+			if abs(px) >= abs(py) {
+				px, py = sign(px), 0
+			} else {
+				px, py = 0, sign(py)
+			}
+			x, y := rv.main[m]%n+px, rv.main[m]/n+py
+			if (px != 0 || py != 0) && g.in(x, y) && free(y*n+x, m, mouth) {
+				j := y*n + x
+				rv.side = append(rv.side, j)
 				rv.of = append(rv.of, m)
+				at[j] = m
 			}
 		}
 	}
@@ -510,4 +561,14 @@ func (h *minHeap) pop() (int, int) {
 		k = m
 	}
 	return c, i
+}
+
+func sign(v int) int {
+	switch {
+	case v > 0:
+		return 1
+	case v < 0:
+		return -1
+	}
+	return 0
 }

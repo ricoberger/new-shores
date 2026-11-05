@@ -795,7 +795,7 @@
     },
     {
       "civic": {
-        "quarter": "home-4",
+        "quarter": "home-3",
         "type": "church"
       }
     },
@@ -1094,8 +1094,9 @@
       }
     },
     {
+      "note": "D-072: the 33rd to 36th house of home-3 stand in home-5 (the chain plots of this terrain take home-3's last house land).",
       "houses": {
-        "quarter": "home-3",
+        "quarter": "home-5",
         "count": 1
       }
     },
@@ -1108,7 +1109,7 @@
     },
     {
       "houses": {
-        "quarter": "home-3",
+        "quarter": "home-5",
         "count": 1
       }
     },
@@ -1121,7 +1122,7 @@
     },
     {
       "houses": {
-        "quarter": "home-3",
+        "quarter": "home-5",
         "count": 1
       }
     },
@@ -1141,7 +1142,7 @@
     },
     {
       "houses": {
-        "quarter": "home-3",
+        "quarter": "home-5",
         "count": 1
       }
     },
@@ -2243,6 +2244,12 @@
       "civic": {
         "quarter": "home-4",
         "type": "playhouse"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "church"
       }
     },
     {

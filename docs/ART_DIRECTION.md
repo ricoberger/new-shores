@@ -223,7 +223,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - **Cliff coast:** cliff tiles drop to the sea as a rock face (strata,
   darker toward the foot) without a sand shelf; the foam lies at its
   foot and the shallows start further out.
-- **Rivers** run on their tiles: water at least two columns wide, two
+- **Rivers** run on their tiles (D-072: two tiles wide, three at the
+  estuary, from a massif across the plain to a bay on another side):
+  water at least two columns wide, two
   steps below the level, between banks of sand and pebbles one step down;
   the bends' outer banks step in by half a tile. The surface is the sea's
   material (ripples, glints) a little darker; at far the river beds carry
@@ -231,7 +233,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   bands falls into a foam pool; at level 0 the mouth loses its banks and
   shelf and steps down in small rapids into the shallows. **Bridges** are
   voxel arch models (`decor_bridge_1/2`) over straight road runs of one
-  or two river tiles, at the banks' level, hidden at far.
+  or two river tiles, at the banks' level, hidden at far; a two-tile
+  river takes `decor_bridge_2` (a road crosses at most two river tiles,
+  so the three-tile estuary has no bridge and no `decor_bridge_3`).
 - **Things on terraces:** buildings and fields stand on the highest
   level under their footprint, lower columns filled up to it (a terrace
   fill, `render/terraces.ts`). The fill takes the footprint's ground

@@ -863,9 +863,11 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
     the k-th largest, round robin); an island drawn without a massif
     gets no deposit slots. Mountain and cliff tiles are unbuildable
     (D-036).
-  - **Rivers** (large 1–2, medium 0–1, small none) run from the
-    mountains to a bay, 1 tile wide and 2–3 at the estuary; river tiles
-    are unbuildable water inside the land. A **road on a river tile is a
+  - **Rivers** (large 1–2, medium 0–1, small none; D-072) rise high on
+    a massif and cross the island to a bay on another side (at least a
+    right angle from the source, seen from the land's centroid), **2
+    tiles wide** and 3 along the last 6–10 tiles (the estuary); river
+    tiles are unbuildable water inside the land. A **road on a river tile is a
     bridge**: a straight crossing of at most 2 river tiles with buildable
     land at both ends and no road beside it (`terrain` otherwise).
     Fishing stays sea-only.
