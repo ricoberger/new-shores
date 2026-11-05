@@ -61,7 +61,7 @@ const (
 // rim massifs with mountains and cliffs, terrace levels behind a beach,
 // rivers with estuaries, the plain on one level, forest patches, the
 // share checks, islets and the deposit slots.
-func habitable(r *rng, sc *content.SizeClass, massifs int, deposits []string, gap int, s *scratch) *grid {
+func habitable(r *rng, sc *content.SizeClass, massifs int, deposits []string, sr slotRules, s *scratch) *grid {
 	size, sh := sc.Size, sc.Shape
 	// The skeleton fills the extent of size tiles; the bones may run on
 	// past it by up to reach tiles on every side.
@@ -184,7 +184,7 @@ func habitable(r *rng, sc *content.SizeClass, massifs int, deposits []string, ga
 		g.s.reject = "islets"
 		return nil
 	}
-	if !g.placeSlots(r, deposits, gap) {
+	if !g.placeSlots(r, deposits, sr) {
 		g.s.reject = "slots"
 		return nil
 	}

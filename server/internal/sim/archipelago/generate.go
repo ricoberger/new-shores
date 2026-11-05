@@ -39,8 +39,9 @@ type Archipelago struct {
 
 // GeneratorVersion identifies the island generator's output; see the rule
 // in the package comment. 2: round islands replaced by D-058 outlines; 3: D-072 Anno 117 sizes;
-// 4: D-072 rim massifs; 5: D-072 rivers two tiles wide.
-const GeneratorVersion = 5
+// 4: D-072 rim massifs; 5: D-072 rivers two tiles wide; 6: D-072 part 2
+// deposit slots with reserved footprints, 16 tiles apart.
+const GeneratorVersion = 6
 
 // MaxSeed bounds world seeds to 53 bits, so that they survive a JSON
 // number in the client (D-053 display) unchanged.
@@ -157,10 +158,10 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 // checks.
 func buildIsland(seed uint64, p *plan, c *content.Catalogue) (*sim.Island, error) {
 	s := &scratch{}
-	gap := slotGap(c)
+	sr := newSlotRules(c)
 	for attempt := range maxShapeAttempts {
 		r := newRNG(derive(seed, uint64(attempt))) // #nosec G115 -- attempt >= 0
-		g := shape(r, p.class, p.massifs, p.deposits, gap, s)
+		g := shape(r, p.class, p.massifs, p.deposits, sr, s)
 		if g == nil {
 			continue
 		}
@@ -227,17 +228,31 @@ func (g *grid) island(p *plan) *sim.Island {
 	return is
 }
 
-// slotGap is the minimum Chebyshev distance between the tiles of two
-// deposit slots: the longest footprint side of any deposit building, at
-// least 3 (D-054: quarries and mines are 3x8 strips).
-func slotGap(c *content.Catalogue) int {
-	gap := 3
+// slotRules are the deposit-slot rules derived from the content
+// (MECHANICS §2, CONTENT §9): feet is the footprint (width, height at
+// rotation 0) the generator reserves per deposit kind, the largest of the
+// buildings requiring it (D-054: quarries and mines are 3x8, the clay pit
+// 4x6); side is the longest side of any of them, at least 3; gap is the
+// minimum Chebyshev distance between the tiles of two slots of a
+// habitable island, twice side (16 since D-072 part 2).
+type slotRules struct {
+	feet      map[string][2]int
+	side, gap int
+}
+
+func newSlotRules(c *content.Catalogue) slotRules {
+	sr := slotRules{feet: map[string][2]int{}, side: 3}
 	for _, b := range c.Buildings {
-		if b.RequiresDeposit != "" {
-			gap = max(gap, b.Width, b.Height)
+		if b.RequiresDeposit == "" {
+			continue
+		}
+		sr.side = max(sr.side, b.Width, b.Height)
+		if f, ok := sr.feet[b.RequiresDeposit]; !ok || b.Width*b.Height > f[0]*f[1] {
+			sr.feet[b.RequiresDeposit] = [2]int{b.Width, b.Height}
 		}
 	}
-	return gap
+	sr.gap = 2 * sr.side
+	return sr
 }
 
 // depAt returns the deposit slot of tile i (0: none).

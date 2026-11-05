@@ -196,7 +196,7 @@ describe("islands view", () => {
     expect(v.sizeClasses.map((s) => s.id)).toEqual(["large", "medium", "small", "rock", "scenic"]);
     expect(v.sizeClasses.filter((s) => s.scenic).map((s) => s.id)).toEqual(["scenic"]);
     expect(v.sizeClasses.filter((s) => s.home).map((s) => s.id)).toEqual(["large"]);
-    expect(v.sizeClasses[0]).toMatchObject({ size: 250, count: { min: 3, max: 3 }, fertilities: { min: 2, max: 4 }, shape: "plain 52×52, 1–2 rivers, 2 terraces, 3–6 islets" });
+    expect(v.sizeClasses[0]).toMatchObject({ size: 250, count: { min: 3, max: 3 }, fertilities: { min: 2, max: 4 }, shape: "plain 52×52, 2–4 massifs, 1–2 rivers, 2 terraces, 3–6 islets" });
     expect(v.sizeClasses.find((s) => s.id === "scenic")?.shape).toBeUndefined();
     expect(v.basicOnly).toBe(false);
     expect(v.home).toEqual([]);

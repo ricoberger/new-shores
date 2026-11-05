@@ -157,16 +157,23 @@ describe("ground footprint", () => {
 });
 
 describe("sea extent", () => {
-  for (const [w, h] of [
-    [1280, 800],
-    [360, 640],
+  // The dev bounds without a cap, and a D-072 archipelago (seed 1053001: about 1100 × 980 tiles) at the region's cap 80.
+  const D072 = { minX: 0, minY: 0, maxX: 1100, maxY: 980 };
+  for (const [w, h, B, cap] of [
+    [1280, 800, DEV, null],
+    [360, 640, DEV, null],
+    [1280, 800, D072, 80],
+    [412, 915, D072, 80],
+    [2992, 1700, D072, 80],
   ] as const) {
-    it(`${w} × ${h}: the sea covers the viewport at every clamped target at the maximum zoom at every azimuth`, () => {
+    it(`${w} × ${h}${cap === null ? "" : `, cap ${cap}`}: the sea covers the viewport at every clamped target at the maximum zoom at every azimuth`, () => {
       const aspect = w / h;
-      const m = seaMargin(DEV, aspect);
+      const DEV = B;
+      const m = seaMargin(DEV, aspect, cap);
       const sea = { minX: DEV.minX - m, minY: DEV.minY - m, maxX: DEV.maxX + m, maxY: DEV.maxY + m };
       const t = targetBounds(DEV);
-      const half = zoomRange(DEV, aspect).max;
+      const half = zoomRange(DEV, aspect, cap).max;
+      if (cap !== null) expect(half).toBe(cap);
       for (const x of [t.minX, t.maxX]) {
         for (const y of [t.minY, t.maxY]) {
           for (let rotation = 0; rotation < 4; rotation += 0.125) {
@@ -236,6 +243,33 @@ describe("framing an island for founding (D-058 round 4)", () => {
         // Fitted, not far out: 10 % margin only.
         expect(inside({ ...f, half: f.half / 1.2 })).toBe(false);
       }
+    }
+  });
+
+  it("an island larger than the view at the zoom cap (D-072: 250 tiles at cap 80) is framed at the cap on its centre", () => {
+    const big = { minX: 300, minY: 300, maxX: 550, maxY: 530 };
+    const bounds = { minX: 0, minY: 0, maxX: 1100, maxY: 980 };
+    for (const a of [1280 / 800, 412 / 915, 2992 / 1700]) {
+      const cap = zoomRange(bounds, a, 80).max;
+      expect(cap).toBe(80);
+      // Larger than the view at the cap at the axis-aligned headings on every device.
+      for (const rotation of [0, 1]) expect(frameIslandView({ x: 0, y: 0, half: 18, rotation }, a, big)!.half).toBeGreaterThan(cap);
+      for (const rotation of [0, 0.5, 1, 3.5]) {
+        for (const v of [
+          { x: 900, y: 100, half: 18, rotation },
+          { x: 425, y: 415, half: 80, rotation },
+        ]) {
+          const f = frameIslandView(v, a, big, cap)!;
+          const fit = frameIslandView(v, a, big)!.half;
+          expect(f).toEqual({ x: 425, y: 415, half: Math.min(cap, fit), rotation });
+          // Clamping keeps it: the centre lies within the target bounds and the half at the cap.
+          expect(clampView(f, bounds, a, 80)).toEqual(f);
+        }
+      }
+      // A small island (a skerry, 30 × 20) still fits below the cap.
+      const f = frameIslandView({ x: 900, y: 100, half: 18, rotation: 0 }, a, { minX: 100, minY: 200, maxX: 130, maxY: 220 }, cap)!;
+      expect(f.half).toBeLessThan(cap);
+      expect(f.x).toBe(115);
     }
   });
 });

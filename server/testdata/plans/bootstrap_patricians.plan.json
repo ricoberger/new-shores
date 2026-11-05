@@ -2868,6 +2868,106 @@
       }
     },
     {
+      "note": "D-072 part 2: the deposit-slot rule moved the dev seed's layout and isle-02 lies farther from home (a 27-minute loop): one galleon no longer carries enough cattle and pigs (roast beef and sausages ran short in the final wait): a second galleon on the farm-goods route, a brig with the pigs that pile up on isle-06 and the roast-beef chain right with the farm-goods route (three cattle farms on isle-02 with three more houses for their workers, two slaughterhouses at home), not after the cathedral: built after it, hardly any cattle reached home before the end.",
+      "order_ship": {
+        "island": "isle-01",
+        "ship_type": "galleon"
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 7,
+          "route": 5
+        }
+      }
+    },
+    {
+      "order_ship": {
+        "island": "isle-01",
+        "ship_type": "brig"
+      }
+    },
+    {
+      "step": {
+        "update_route": {
+          "route": 4,
+          "name": "Stone out, pigs home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "load": {
+                "stone": 30
+              },
+              "unload": [
+                "pigs",
+                "milk"
+              ]
+            },
+            {
+              "island": "isle-06",
+              "load": {
+                "pigs": 150,
+                "milk": 30
+              },
+              "unload": [
+                "stone"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 8,
+          "route": 4
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "cattle_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "slaughterhouse",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "cattle_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "cattle_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "slaughterhouse",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 3
+      }
+    },
+    {
       "build": {
         "island": "isle-02",
         "type": "pig_farm",
@@ -3024,13 +3124,6 @@
       }
     },
     {
-      "build": {
-        "island": "isle-02",
-        "type": "cattle_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "isle2-1",
         "count": 1
@@ -3054,13 +3147,6 @@
       "upgrade": {
         "quarter": "home-4",
         "from": "house_citizens",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "slaughterhouse",
         "count": 1
       }
     },
@@ -3093,13 +3179,6 @@
             }
           ]
         }
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "cattle_farm",
-        "count": 1
       }
     },
     {

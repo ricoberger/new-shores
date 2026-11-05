@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Terrain } from "../api/client";
 import { marchingSquares, traceLoops } from "../display/coastline";
 import { EDGE_STONE, FILL_KINDS, fillSide } from "./groundpaint";
-import { BRIDGE_DECK, bridgeRuns, cover, groundY, insideGrid, insideLoops, IslandGround, LEVEL_HEIGHT, LEVEL_STEPS, FILL_KIND, plinthColumns, plinthFill, reliefColumns, reliefOf, RIVER_DROP, ROCK_STEPS, roadRamps, rockField } from "./terraces";
+import { BRIDGE_DECK, BRIDGE_MAX_RISE, bridgeModel, bridgeRuns, cover, groundY, insideGrid, insideLoops, IslandGround, LEVEL_HEIGHT, LEVEL_STEPS, FILL_KIND, plinthColumns, plinthFill, reliefColumns, reliefOf, RIVER_DROP, ROCK_STEPS, roadRamps, rockField } from "./terraces";
 import { EMPTY, islandField, VOXEL_STEP, withRock } from "./voxelterrain";
 
 // The relief (D-058): terrace levels, rock and rivers as voxel columns.
@@ -226,9 +226,11 @@ describe("island ground", () => {
     expect(g.surface(2.0, 0.5)).toBeCloseTo(0);
     expect(g.surface(2.5, 0.5)).toBeCloseTo(LEVEL_HEIGHT / 2);
     expect(g.surface(3.5, 0.5)).toBeCloseTo(LEVEL_HEIGHT);
-    // The river tile is a one-tile bridge along x.
-    expect(g.bridges()).toEqual([{ x: 1, y: 2, len: 1, axis: "x", level: 0 }]);
+    // The river tile is a one-tile bridge along x at the lower bank's level; the bank one level up ramps down to its deck.
+    expect(g.bridges()).toEqual([{ x: 1, y: 2, len: 1, axis: "x", level: 0, rise: 0 }]);
     expect(g.surface(1.5, 2.5)).toBeCloseTo(BRIDGE_DECK);
+    expect(g.rampAt(2, 2)).toBe(1);
+    expect(g.surface(2.0, 2.5)).toBeCloseTo(0);
     // Off the roads: the tile's level.
     expect(g.surface(3.5, 1.5)).toBeCloseTo(LEVEL_HEIGHT);
   });
@@ -236,8 +238,27 @@ describe("island ground", () => {
   it("finds bridge runs along y and of two tiles", () => {
     const r = reliefOf(island(["grg", "grg", "ggg"], ["000", "000", "000"]));
     const runs = bridgeRuns(r, new Set([1, 4, 7]));
-    expect(runs).toEqual([{ x: 1, y: 0, len: 2, axis: "y", level: 0 }]);
+    expect(runs).toEqual([{ x: 1, y: 0, len: 2, axis: "y", level: 0, rise: 0 }]);
     expect(roadRamps(r, new Set([1, 4, 7])).every((d) => d === -1)).toBe(true);
+  });
+
+  it("raises a bridge's deck to the lower bank over a river in a gorge (D-072 rivers; decor_bridge_<n>_up<k>)", () => {
+    // A two-tile river at level 0 between banks at levels 1 and 2 (x 0 and 3), the road along x.
+    const r = reliefOf(island(["grrg"], ["1002"]));
+    const g = new IslandGround();
+    g.setRelief(r);
+    g.setRoads([0, 1, 2, 3].map((x) => ({ x, y: 0 })));
+    expect(g.bridges()).toEqual([{ x: 1, y: 0, len: 2, axis: "x", level: LEVEL_HEIGHT, rise: 1 }]);
+    expect(bridgeModel(2, 1)).toBe("decor_bridge_2_up1");
+    expect(bridgeModel(1, 0)).toBe("decor_bridge_1");
+    // The deck runs on at the lower bank's height; the higher bank ramps down to it, the lower one stays flat.
+    expect(g.surface(2.0, 0.5)).toBeCloseTo(LEVEL_HEIGHT + BRIDGE_DECK);
+    expect(g.rampAt(3, 0)).toBe(1);
+    expect(g.surface(3.0, 0.5)).toBeCloseTo(LEVEL_HEIGHT);
+    expect(g.rampAt(0, 0)).toBe(-1);
+    // Banks two levels up on both sides: the highest model; never above BRIDGE_MAX_RISE.
+    const deep = bridgeRuns(reliefOf(island(["grrg"], ["2002"])), new Set([0, 1, 2, 3]));
+    expect(deep.map((b) => b.rise)).toEqual([BRIDGE_MAX_RISE]);
   });
 
   it("raises plinths under footprints to their base (lower tiles and ramp columns)", () => {

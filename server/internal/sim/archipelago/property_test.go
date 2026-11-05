@@ -114,6 +114,9 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 		if !sc.Rock {
 			checkShape(t, c, seed, is, sc)
 		}
+		if seed <= slotFitSeeds {
+			checkSlotFit(t, c, seed, is, sc)
+		}
 		if sc.Rock {
 			if len(Sites(is, c, tp)) == 0 {
 				fail("rock %s has no Trading Post site", is.ID)
@@ -400,6 +403,110 @@ func checkPool(t *testing.T, seed uint64, what string, pool []content.PoolEntry,
 		if !slices.ContainsFunc(pool, func(e content.PoolEntry) bool { return e.ID == id }) {
 			t.Errorf("seed %d: %s %s is not in the pool", seed, what, id)
 		}
+	}
+}
+
+// slotFitSeeds are the seeds checkSlotFit runs on (D-072 part 2).
+const slotFitSeeds = 50
+
+// checkSlotFit restates the D-072 part 2 slot rule (MECHANICS §2): the
+// slots of a habitable island lie >= 16 tiles apart (Chebyshev; a rock
+// the footprint's longest side), and every slot admits a footprint of the
+// largest building requiring its kind (either rotation) on mountain
+// tiles only, covering a tile of the slot and no other slot's tile, with
+// a buildable 4-neighbour, valid by the sim's placement check, such that
+// the footprints of all slots are pairwise disjoint (exhaustive search).
+func checkSlotFit(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Island, sc *content.SizeClass) {
+	t.Helper()
+	slots := depositSlots(is)
+	side := 0
+	for _, b := range c.Buildings {
+		if b.RequiresDeposit != "" {
+			side = max(side, b.Width, b.Height)
+		}
+	}
+	gap := 2 * side
+	if sc.Rock {
+		gap = side
+	}
+	for i, a := range slots {
+		for _, b := range slots[i+1:] {
+			for _, p := range a.tiles {
+				for _, q := range b.tiles {
+					if d := max(abs(p.X-q.X), abs(p.Y-q.Y)); d < gap {
+						t.Errorf("seed %d: %s slots %s and %s %d tiles apart, want >= %d", seed, is.ID, a.kind, b.kind, d, gap)
+					}
+				}
+			}
+		}
+	}
+	chk := sim.NewSiteChecker(is, c)
+	at := func(x, y int) string {
+		if !is.InBounds(x, y) {
+			return content.TerrainWater
+		}
+		return is.Tile(x, y).Terrain
+	}
+	own := func(x, y int, s DepositSlot) bool {
+		return slices.Contains(s.tiles, sim.Pos{X: x, Y: y})
+	}
+	opts := make([][]Rect, len(slots))
+	for k, s := range slots {
+		var def *content.Building
+		for _, b := range c.Buildings {
+			if b.RequiresDeposit == s.kind && (def == nil || b.Width*b.Height > def.Width*def.Height) {
+				def = b
+			}
+		}
+		if def == nil {
+			t.Errorf("seed %d: %s has a %s slot no building requires", seed, is.ID, s.kind)
+			return
+		}
+		for y := 0; y < is.Height; y++ {
+			for x := 0; x < is.Width; x++ {
+				for _, rot := range [2]int{0, 90} {
+					w, h := def.Width, def.Height
+					if rot == 90 {
+						w, h = h, w
+					}
+					covers, ok, road := false, x+w <= is.Width && y+h <= is.Height, false
+					for ty := y; ty < y+h && ok; ty++ {
+						for tx := x; tx < x+w && ok; tx++ {
+							tile := is.Tile(tx, ty)
+							ok = tile.Terrain == content.TerrainMountain && (tile.Deposit == nil || own(tx, ty, s))
+							covers = covers || own(tx, ty, s)
+						}
+					}
+					if !ok || !covers {
+						continue
+					}
+					for tx := x; tx < x+w; tx++ {
+						road = road || buildableTerrain(at(tx, y-1)) || buildableTerrain(at(tx, y+h))
+					}
+					for ty := y; ty < y+h; ty++ {
+						road = road || buildableTerrain(at(x-1, ty)) || buildableTerrain(at(x+w, ty))
+					}
+					if road && chk.Valid(def, x, y, rot) {
+						opts[k] = append(opts[k], Rect{x, y, w, h, rot})
+					}
+				}
+			}
+		}
+	}
+	var fit func(k int, picked []Rect) bool
+	fit = func(k int, picked []Rect) bool {
+		if k == len(opts) {
+			return true
+		}
+		for _, r := range opts[k] {
+			if !slices.ContainsFunc(picked, r.overlaps) && fit(k+1, append(picked, r)) {
+				return true
+			}
+		}
+		return false
+	}
+	if !fit(0, nil) {
+		t.Errorf("seed %d: %s slots %v admit no disjoint footprints", seed, is.ID, DepositCounts(is))
 	}
 }
 

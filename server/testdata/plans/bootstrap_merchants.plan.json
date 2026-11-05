@@ -275,6 +275,31 @@
       }
     },
     {
+      "civic": {
+        "quarter": "home-1",
+        "type": "fire_station"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "city_guard"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "school"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 3
+      }
+    },
+    {
       "build": {
         "island": "isle-01",
         "type": "dairy_farm",
@@ -300,31 +325,6 @@
         "island": "isle-01",
         "type": "apiary",
         "count": 1
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-1",
-        "type": "fire_station"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-1",
-        "type": "city_guard"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-1",
-        "type": "school"
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-1",
-        "from": "house_citizens",
-        "count": 3
       }
     },
     {

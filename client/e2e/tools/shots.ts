@@ -13,6 +13,7 @@ import { type Browser, chromium, devices, type Page } from "@playwright/test";
 import type { Content, IslandTiles, WorldResponse } from "../../src/api/client.ts";
 import { waterEdgeTiles } from "../../src/display/geometry.ts";
 import { FAR_EXIT_HALF, MID_TO_NEAR_HALF } from "../../src/display/lod.ts";
+import { minimapProjection, toMinimap } from "../../src/display/minimap.ts";
 import { API_PORT, API_SERVER_COMMAND, E2E_TIME_SCALE, WEB_PORT, WEB_SERVER_COMMAND } from "../constants.ts";
 import { type Device, type Fixture, type Preset, parseShotArgs, ShotArgError, type ShotArgs, type View } from "./shots-args.ts";
 
@@ -249,16 +250,12 @@ async function setCamera(page: Page, c: { x?: number; y?: number; half?: number;
   await page.evaluate((v) => window.__newShores!.setCamera(v), c);
 }
 
-async function showArchipelago(page: Page, rotation: number): Promise<void> {
-  const centre = await page.evaluate(() => {
-    const is = window.__newShores!.getServer()!.display.islands;
-    const minX = Math.min(...is.map((i) => i.position.x));
-    const maxX = Math.max(...is.map((i) => i.position.x + i.width));
-    const minY = Math.min(...is.map((i) => i.position.y));
-    const maxY = Math.max(...is.map((i) => i.position.y + i.height));
-    return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
-  });
-  await setCamera(page, { ...centre, half: 100_000, rotation });
+/**
+ * The far view: the zoom cap (D-072: 80, one island in view; the minimap
+ * is the overview) centred on the fixture's island.
+ */
+async function showFar(page: Page, at: { x: number; y: number }, rotation: number): Promise<void> {
+  await setCamera(page, { x: at.x, y: at.y, half: 100_000, rotation });
 }
 
 async function waitLod(page: Page, lod: View): Promise<void> {
@@ -315,7 +312,7 @@ async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: D
       continue;
     }
     if (view === "far" && args.zoom === undefined && args.x === undefined) {
-      await showArchipelago(page, args.rotation);
+      await showFar(page, here, args.rotation);
     } else {
       const t = args.island ? undefined : targets?.[view];
       const half = args.zoom ?? t?.half ?? (view === "far" ? 100_000 : HALF[view]);
@@ -1305,6 +1302,61 @@ function foundingShot(docked: boolean): { fixture: Fixture; device: Device; run:
  * `almanac`, opens that almanac path (no session, no world: the fixture is
  * unused) and shoots the page once its content is shown.
  */
+/**
+ * The fixture's bridges: straight runs of road tiles on river tiles, from
+ * the tiles the API serves; centre in archipelago tiles, the axis the road
+ * crosses along and the buildings anchored within 4 tiles (fewest first:
+ * the least hidden bridge).
+ */
+async function riverBridges(page: Page): Promise<{ island: string; x: number; y: number; len: number; axis: "x" | "y"; near: number }[]> {
+  return page.evaluate(async (port) => {
+    const d = window.__newShores!.getServer()!.display;
+    const out: { island: string; x: number; y: number; len: number; axis: "x" | "y"; near: number }[] = [];
+    for (const is of d.islands) {
+      if (is.roads.length === 0) continue;
+      const r = await fetch(`http://localhost:${port}/api/v1/world/islands/${is.id}/tiles`, { credentials: "include" });
+      const t = (await r.json()) as { width: number; height: number; terrain: string[] };
+      const roads = new Set(is.roads.map((p) => p.y * t.width + p.x));
+      const on = (x: number, y: number) => x >= 0 && y >= 0 && x < t.width && y < t.height && roads.has(y * t.width + x) && t.terrain[y * t.width + x] === "river";
+      const seen = new Set<number>();
+      for (const k of [...roads].sort((a, b) => a - b)) {
+        const x = k % t.width;
+        const y = Math.floor(k / t.width);
+        if (seen.has(k) || !on(x, y)) continue;
+        const along = on(x + 1, y) ? "x" : "y";
+        const [dx, dy] = along === "x" ? [1, 0] : [0, 1];
+        let len = 0;
+        while (on(x + len * dx, y + len * dy)) {
+          seen.add((y + len * dy) * t.width + x + len * dx);
+          len++;
+        }
+        const cx = along === "x" ? x + len / 2 : x + 0.5;
+        const cy = along === "y" ? y + len / 2 : y + 0.5;
+        const near = is.buildings.filter((bd) => Math.abs(bd.x - cx) <= 4 && Math.abs(bd.y - cy) <= 4).length;
+        out.push({ island: is.id, x: is.position.x + cx, y: is.position.y + cy, len, axis: along, near });
+      }
+    }
+    return out.sort((a, b) => a.near - b.near);
+  }, API_PORT);
+}
+
+function riverBridgeShot(half: number, device: Device | readonly Device[]): (typeof PRESET_RUN)[Preset] {
+  return {
+    fixture: "played",
+    device,
+    run: async (page) => {
+      const bridges = await riverBridges(page);
+      const b = bridges[0];
+      if (!b) throw new Error("river-bridge: the fixture has no bridge");
+      console.log(`river-bridge: ${bridges.map((r) => `${r.island} ${r.len} tiles along ${r.axis} at ${r.x}, ${r.y} (${r.near} buildings near)`).join("; ")}`);
+      // Looking along the river, across the road: the arches show from the side.
+      await setCamera(page, { x: b.x, y: b.y, half, rotation: b.axis === "x" ? Math.PI / 2 : 0 });
+      await waitLod(page, half < MID_TO_NEAR_HALF ? "near" : "mid");
+      await settle(page);
+    },
+  };
+}
+
 const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly Device[]; patch?: (w: WorldResponse) => void; almanac?: string; run: (page: Page) => Promise<void> }> = {
   // The almanac's overview page (the opening page of /almanac) on both devices.
   "almanac-overview": {
@@ -1313,6 +1365,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
     almanac: "/almanac",
     run: async (page) => {
       await page.getByTestId("almanac-search").waitFor({ state: "visible" });
+    },
+  },
+  // The almanac's islands table: size classes with their shape (plain, massifs, rivers, terraces, islets; D-072).
+  "almanac-islands": {
+    fixture: "default",
+    device: ["desktop", "phone"],
+    almanac: "/almanac/islands",
+    run: async (page) => {
+      await page.locator("#class-large").waitFor({ state: "visible" });
     },
   },
   // One building page of the almanac (deep link, scrolled to its card): the bakery, with inputs, a chain and a tier.
@@ -1823,6 +1884,42 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await settle(page);
     },
   },
+  // The minimap as the overview at the zoom cap (D-072): the far view on the home island, then a tap on the
+  // minimap at the nearest other island's centre pans there (zoom kept); shot after the jump (desktop and phone).
+  "far-minimap-jump": {
+    fixture: "played",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      const r = await page.evaluate(() => {
+        const d = window.__newShores!.getServer()!.display;
+        const centre = (i: { position: { x: number; y: number }; width: number; height: number }) => ({ x: i.position.x + i.width / 2, y: i.position.y + i.height / 2 });
+        const home = d.islands.find((i) => i.id === "isle-01")!;
+        const h = centre(home);
+        const others = d.islands.filter((i) => i.id !== home.id && !i.scenic).map((i) => ({ id: i.id, ...centre(i) }));
+        others.sort((a, b) => Math.hypot(a.x - h.x, a.y - h.y) - Math.hypot(b.x - h.x, b.y - h.y));
+        const b = d.archipelago.bounds;
+        return { home: h, to: others[0]!, bounds: { minX: b.x, minY: b.y, maxX: b.x + b.width, maxY: b.y + b.height } };
+      });
+      await setCamera(page, { x: r.home.x, y: r.home.y, half: 100_000, rotation: 0 });
+      await waitLod(page, "far");
+      await settle(page);
+      const toggle = page.getByTestId("minimap-toggle");
+      if ((await toggle.count()) > 0 && (await toggle.getAttribute("aria-expanded")) === "false") await toggle.click();
+      const map = page.getByTestId("minimap");
+      await map.waitFor({ state: "visible" });
+      const box = (await map.boundingBox())!;
+      const at = toMinimap(minimapProjection(r.bounds, box.width, box.height), r.to);
+      await map.click({ position: { x: at.x, y: at.y } });
+      await page.waitForFunction((t) => Math.hypot(window.__newShores!.camera().x - t.x, window.__newShores!.camera().y - t.y) < 8, r.to, { timeout: 5_000 });
+      await settle(page);
+      const cam = await page.evaluate(() => window.__newShores!.camera());
+      console.log(`far-minimap-jump: tap at ${at.x.toFixed(1)}, ${at.y.toFixed(1)} px of a ${box.width} × ${box.height} minimap → ${r.to.id}; camera ${cam.x.toFixed(1)}, ${cam.y.toFixed(1)} half ${cam.half.toFixed(1)}`);
+    },
+  },
+  // A road bridge over the 2-tile river (D-072; a road crosses at most two river tiles, MECHANICS §10): near
+  // (desktop and phone) and mid (desktop), the camera on the fixture's first bridge, looking along the river.
+  "river-bridge": riverBridgeShot(10, ["desktop", "phone"]),
+  "river-bridge-mid": riverBridgeShot(36, "desktop"),
   // The island card, opened from an island label at far LOD (desktop).
   // A new world as it opens (D-053): the far zoom over the whole
   // archipelago, the sloop at its centre and the first quest's hint.

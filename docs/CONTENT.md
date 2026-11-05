@@ -445,7 +445,7 @@ and short hops, the galleon large and slow for bulk. Ship positions and legs fol
 | Skerries | 4–8 per archipelago (class `scenic`, 4–12 tiles of rock with a grass or sand top): scenery only — no sites, fertilities, deposits or name, not settleable, not a destination; land for routing, minimap and far view |
 | Shape per class | rim massifs 2–4 / 1–2 / 0–1 (10–19 % of the land, rock height up to 6 / 5 / 3; D-072); plain ≥ 52 / 32 / 19 tiles square; rivers 1–2 / 0–1 / 0; terrace levels 2 / 2 / 1; islets 3–6 / 2–5 / 2–4 (large / medium / small; rocks and skerries none) |
 | Fertilities per habitable island | 2–4 from the pool (wheat, apple, hemp 3–5 times per archipelago; hops, woad, grapes 2–5 times; provisional) |
-| Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
+| Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge, ≥ 16 tiles (Chebyshev) from every other slot of the island (rocks 8); every slot admits its building: the generator reserves a footprint of the largest building requiring the kind (3 × 8, clay pit 4 × 6, either rotation) on mountain tiles covering a slot tile, with a buildable tile beside it for the road, pairwise disjoint with the other slots' (D-072 part 2; generator-only, not stored); two slots of one kind lie on different massifs when the island has two or more; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
 | Shallows | water tiles of an island's grid (not river) within 3 tiles (Chebyshev) of its own land, islets excluded; derived from the tiles, the quay's ground (D-060, MECHANICS §3) |
 | Spacing | ≥ 55 tiles between islands (50 before D-072: the nearest neighbour of the dev seed fell under a minute at the brig's speed), nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
@@ -770,12 +770,16 @@ Content `old_coast-0.19.0` on the D-072 archipelago (Anno 117 island
 sizes, rim massifs, rivers two tiles wide; Anno 117 service radii and
 collector reach, §7; camera cap 80):
 
-| Game | Milestones | Targets | D-069 | D-072 | Margins |
-|---|---|---|---|---|---|
-| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 48 / 12 / 85 / 128 | 49 / 11 / 86 / 130 | 11 / 79 / 14 / 20 |
-| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 32 / 68 (8, 111) | 32 / 70 (8, 114) | 13 / 15; 17 earlier than without claims |
-| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 220 / 263 / 397 | 220 / 264 / 412 | 20 / 6 / 8 |
-| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 808 / 847 / 1078 | 745 / 782 / 1082 | 155 / 178 / 718 |
+| Game | Milestones | Targets | D-069 | D-072 | D-072 slots | Margins |
+|---|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 48 / 12 / 85 / 128 | 49 / 11 / 86 / 130 | 54 / 11 / 86 / 145 | 6 / 79 / 14 / 5 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 32 / 68 (8, 111) | 32 / 70 (8, 114) | 34 / 70 (8, 129) | 11 / 15; 16 earlier than without claims |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 220 / 263 / 397 | 220 / 264 / 412 | 225 / 267 / 413 | 15 / 3 / 7 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 808 / 847 / 1078 | 745 / 782 / 1082 | 763 / 799 / 1116 | 137 / 161 / 684 |
+
+"D-072 slots" is the same content on generator version 6 (§9: every
+deposit slot reserves its building's footprint, slots 16 apart, a
+kind's two slots on two massifs); the margins are against it.
 
 No milestone comes more than 25 % early that was not already early
 under D-069 (the Citizens unlock is population-only since D-069, the
@@ -802,6 +806,21 @@ Plan changes for D-072 (generator and authoring levers):
   doubled stone of playhouse and university); a leather works and a
   tailor at home and three pig farms on island 2 more (coats and
   sausages ran short in the final wait).
+
+Plan changes for the deposit slots (generator version 6; the dev
+seed's islands moved, island 2 lies farther from home):
+
+- Citizens: unchanged (replayed).
+- Merchants: the fire station, city guard, school and the three
+  Citizen → Merchant upgrades come before the dairy farm, cheese
+  dairy, pig farm and apiary (the first Merchant house came at minute
+  273 with the old order, over its 270).
+- Patricians: a second galleon on the farm-goods route, a brig with the
+  pigs that piled up on island 6 (the route loads 150), and the
+  roast-beef chain (three cattle farms on island 2 with three houses
+  for their workers, two slaughterhouses at home) right with the
+  farm-goods route instead of after the cathedral (roast beef and
+  sausages ran out in the final wait).
 
 ### D-069 reference results (sim minutes, seed 1053001)
 

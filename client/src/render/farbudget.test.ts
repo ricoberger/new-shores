@@ -15,7 +15,7 @@ import { IslandDetail } from "./island";
 import { type ModelData, type ModelManifest, ModelRegistry, parseGlb, shipFarDraws, shipFarTriangles } from "./models";
 
 // Far-view budget guard (D-048, D-057 §5; ARCHITECTURE §5a): at the zoom
-// cap (max_half_extent 120) the far LOD must stay within 250 k triangles
+// cap (the region's camera.max_half_extent, 80 since D-072) the far LOD must stay within 250 k triangles
 // and 40 draw calls on desktop, phone and desktop-xl (the owner's
 // 2992 × 1700 window: the widest footprint). For the `make shots` fixtures
 // settled, patricians, played and seafaring (the unsettled start;
@@ -26,8 +26,7 @@ import { type ModelData, type ModelManifest, ModelRegistry, parseGlb, shipFarDra
 // the renderer does (IslandDetail with the committed models, headless),
 // runs the renderer's far terrain allocation (farmesh.ts
 // allocateFarTerrain, MaskLayer) for the camera at the cap over the
-// archipelago's centre (the shots' far view, focused on the home island)
-// at every 45° heading, and checks the triangles drawn per layer:
+// home island's centre (the shots' far view) at every 45° heading, and checks the triangles drawn per layer:
 //
 //   models_lite, far_trees, blob_buildings_far   the home island (fixed)
 //   ships                                        the fleet's lite hulls
@@ -59,7 +58,8 @@ interface Fixture {
 }
 const load = (name: string) => JSON.parse(gunzipSync(readFileSync(join(__dirname, "testdata", "farbudget", `${name}.json.gz`))).toString("utf8")) as Fixture;
 
-const CAP_HALF = 120;
+/** The zoom cap: the shipped region's camera.max_half_extent. */
+const CAP_HALF = (JSON.parse(readFileSync(join(repo, "content", "old_coast", "region.json"), "utf8")) as { camera: { max_half_extent: number } }).camera.max_half_extent;
 /** Desktop 1280 × 800, phone 390 × 844 and desktop-xl 2992 × 1700 (the shots' devices). */
 const DEVICES = { desktop: 1280 / 800, phone: 390 / 844, "desktop-xl": 2992 / 1700 } as const;
 /** D-048's draw calls at far LOD. */
@@ -120,16 +120,9 @@ async function farViews(name: string): Promise<View[]> {
   const scene = new Scene(engine);
   const reg = registry(scene);
   await reg.loadManifest();
-  // The archipelago's centre (shots.ts showArchipelago); the camera there focuses the home island.
-  // `largest`: the camera over the home island, the largest of its size class, in detail.
+  // The home island's centre (shots.ts showFar: one island in view at the cap, D-072).
   const home = fx.islands.find((i) => i.id === HOME) as IslandDisplay;
-  const centre =
-    name === "largest"
-      ? { x: home.position.x + home.width / 2, y: home.position.y + home.height / 2 }
-      : {
-          x: (Math.min(...fx.islands.map((i) => i.position.x)) + Math.max(...fx.islands.map((i) => i.position.x + i.width))) / 2,
-          y: (Math.min(...fx.islands.map((i) => i.position.y)) + Math.max(...fx.islands.map((i) => i.position.y + i.height))) / 2,
-        };
+  const centre = { x: home.position.x + home.width / 2, y: home.position.y + home.height / 2 };
   expect(focusedIsland(fx.islands, centre)).toBe(HOME);
   const views: { device: string; aspect: number; rotation: number; footprint: ArchPoint[]; ids: string[] }[] = [];
   for (const [device, aspect] of Object.entries(DEVICES)) {
@@ -220,12 +213,12 @@ async function farViews(name: string): Promise<View[]> {
 describe("far budget at the zoom cap (D-048)", () => {
   const table: string[] = [];
   afterAll(() => console.log(`far view at the cap, heading 0 (fixture device: draws, triangles, home terrain, islands in relief / outline)\n${table.join("\n")}`));
-  it("largest: the home island is the largest of the large size class captured (23 691 land tiles), larger than the dev seed's", () => {
+  it("largest: the home island is the largest of the large size class captured (41 508 land tiles), larger than the dev seed's", () => {
     const land = (fx: Fixture, id: string) => (fx.tiles[id] as IslandTiles).terrain.filter((t) => t !== "water").length;
     const largest = load("largest");
     const settled = load("settled");
     expect(largest.islands.find((i) => i.id === HOME)?.settled).toBe(true);
-    expect(land(largest, HOME)).toBe(23691);
+    expect(land(largest, HOME)).toBe(41508);
     expect(land(largest, HOME)).toBeGreaterThan(Math.max(...settled.islands.map((i) => land(settled, i.id))));
   });
   for (const name of ["settled", "patricians", "played", "seafaring", "largest"] as const) {

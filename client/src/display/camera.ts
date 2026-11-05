@@ -169,9 +169,11 @@ export function screenAxes(rotation: number): { right: ArchPoint; up: ArchPoint 
  * camera — when the island's rectangle lies wholly in view below the far
  * zoom; else a view centred on the island, at the current rotation, at
  * the half extent that fits the rectangle (10 % margin) so that the player
- * can pick a coast and zoom in to place.
+ * can pick a coast and zoom in to place — at most `maxHalf`, the zoom
+ * range's maximum (the region's cap, D-072): an island larger than the
+ * view at the cap is framed at the cap on its centre, not by its bounds.
  */
-export function frameIslandView(v: CameraView, aspect: number, rect: Rect): CameraView | null {
+export function frameIslandView(v: CameraView, aspect: number, rect: Rect, maxHalf = Infinity): CameraView | null {
   const { right, up } = screenAxes(v.rotation);
   const k = 1 / Math.sin(ELEVATION);
   // Screen offsets (ortho units: u across, w up) of a ground point from a centre.
@@ -197,7 +199,7 @@ export function frameIslandView(v: CameraView, aspect: number, rect: Rect): Came
     const s = screen(p, c);
     half = Math.max(half, Math.abs(s.u) / aspect, Math.abs(s.w));
   }
-  return { x: c.x, y: c.y, half: Math.max(MIN_HALF_HEIGHT, half * 1.1), rotation: v.rotation };
+  return { x: c.x, y: c.y, half: Math.min(Math.max(MIN_HALF_HEIGHT, maxHalf), Math.max(MIN_HALF_HEIGHT, half * 1.1)), rotation: v.rotation };
 }
 
 /**

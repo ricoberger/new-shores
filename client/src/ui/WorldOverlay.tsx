@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { DisplayState } from "../api/client";
 import { islandSummary } from "../display/archipelago";
 import { units } from "../display/format";
-import { declutterLabels, type LabelBox } from "../display/labels";
+import { declutterLabels, labelPosition, type LabelBox } from "../display/labels";
 import { depositCount } from "../display/deposits";
 import { depositName } from "../display/tiers";
 import { resourceIcon } from "../theme/iconSet";
@@ -34,7 +34,8 @@ const LABEL_EDGE_PX = 24;
 /**
  * HTML overlay of the continuous world (D-048), positioned every frame
  * from the camera projection at every LOD: island name labels (far LOD only,
- * hidden when their island centre is off screen; on phones at the zoom
+ * hidden when their island centre is off screen — but the island the camera
+ * is over keeps its label in view, display/labels.ts; on phones at the zoom
  * cap also the smaller island's of two overlapping ones), the hover tooltip (mid/far LOD) and
  * the selected ship's ETA badge. With a mine or quarry as the build tool,
  * the labels of islands with its deposit carry the deposit's icon and
@@ -65,18 +66,18 @@ export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland, d
       const w = root.current?.clientWidth ?? 0;
       const h = root.current?.clientHeight ?? 0;
       const far = renderer.currentLod() === "far";
+      const cam = renderer.cameraView();
       const shown: LabelBox[] = [];
       for (const is of modelRef.current.islands) {
         const el = labels.current.get(is.id);
         if (!el) continue;
-        const p = renderer.archToCanvas({ x: is.position.x + is.width / 2, y: is.position.y + is.height / 2 });
-        const half = el.offsetWidth / 2;
-        const inside =
-          far &&
-          Number.isFinite(p.x) && p.x - half >= LABEL_EDGE_PX && p.x + half <= w - LABEL_EDGE_PX && p.y >= LABEL_EDGE_PX && p.y <= h - LABEL_EDGE_PX;
+        const c = renderer.archToCanvas({ x: is.position.x + is.width / 2, y: is.position.y + is.height / 2 });
+        // The island the camera is over keeps its label in view (at the zoom cap its centre may be out of view).
+        const over = cam.x >= is.position.x && cam.x <= is.position.x + is.width && cam.y >= is.position.y && cam.y <= is.position.y + is.height;
+        const p = far ? labelPosition(c, el.offsetWidth / 2, w, h, LABEL_EDGE_PX, over) : null;
         // Measured while laid out (visibility, not display, hides it).
-        el.style.visibility = inside ? "visible" : "hidden";
-        if (inside) {
+        el.style.visibility = p ? "visible" : "hidden";
+        if (p) {
           el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) translate(-50%, -50%)`;
           shown.push({ id: is.id, x: p.x, y: p.y, width: el.offsetWidth, height: el.offsetHeight, area: is.width * is.height });
         }

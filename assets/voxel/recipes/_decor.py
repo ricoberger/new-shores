@@ -2,9 +2,9 @@
 
 import math
 
-from nsvoxel.grid import hash3, mat, shade_of
-from nsvoxel.terrain import arch_bridge
-from nsvoxel.mats import CROWN, FOREST, ROCK, ROCK_DEEP, ROCK_LIGHT, MOSS, TIMBER, TIMBER_DARK, TIMBER_LIGHT, GRASS_A, GRASS_B, FLOWER, IRON_ORE, STONE, PLANK
+from nsvoxel.grid import VPT, hash3, mat, shade_of
+from nsvoxel.terrain import ABUTMENT, DECK_TOP, PARAPET, WIDTH, arch_bridge
+from nsvoxel.mats import CROWN, FOREST, ROCK, ROCK_DEEP, ROCK_LIGHT, MOSS, TIMBER, TIMBER_DARK, TIMBER_LIGHT, GRASS_A, GRASS_B, FLOWER, IRON_ORE, STONE, STONE_DARK, STONE_LIGHT, PLANK
 
 
 def _v(ctx):
@@ -326,11 +326,58 @@ def fern(seed):
     return b
 
 
-def bridge(tiles):
-    """An arched stone bridge over 1 or 2 river tiles (D-058): x along the road, its base at the river's surface."""
+#: Voxels of one terrace level (client render/terraces.ts LEVEL_STEPS at 8 per tile).
+LEVEL_VOXELS = 4
+
+
+def raised_bridge(v, tiles, rise, seed=0):
+    """
+    The arched bridge with its deck `rise` voxels higher: the river runs
+    in a gorge, its banks one or two terrace levels above its own. Piers
+    at the tile joins stand in the water, one arch per tile springs from
+    them (its crown two voxels under the deck), the
+    abutments reach onto the banks two voxels below their ground; deck,
+    hump and parapets as `arch_bridge`.
+    """
+    span = tiles * VPT
+    half = span // 2
+    y0 = -WIDTH // 2
+    y1 = y0 + WIDTH
+    for x in range(-half - ABUTMENT, half + ABUTMENT):
+        if -half <= x < half:
+            c = (x + half) % VPT
+            # The pier: the first and last column of every tile stand in the water.
+            t = (c + 0.5) / VPT
+            under = 0 if c in (0, VPT - 1) else round((rise + 1) * (1 - (2 * t - 1) ** 2) ** 0.5)
+        else:
+            under = 1 + rise  # on the bank, as the low bridge's abutments
+        hump = 1 if tiles > 1 and abs(x + 0.5) < VPT * 0.6 else 0
+        top = DECK_TOP + rise + hump
+        for y in range(y0, y1):
+            edge = y in (y0, y1 - 1)
+            for z in range(under, top):
+                shade = hash3(x, y, z, seed + 5)
+                m = STONE_DARK if (z == under and under > 0) or z == 0 else (STONE_LIGHT if shade < 0.18 and z >= rise else STONE)  # plain piers: the triangle budget
+                v.set(x, y, z, m)
+            if edge:
+                for z in range(top, top + PARAPET):
+                    v.set(x, y, z, STONE_LIGHT)
+            elif -half <= x < half:
+                v.set(x, y, top - 1, PLANK)
+    return v
+
+
+def bridge(tiles, levels=0):
+    """
+    An arched stone bridge over 1 or 2 river tiles (D-058): x along the
+    road, its base at the river's surface; `levels` raises the deck by
+    terrace levels to banks above the river's own (render/terraces.ts).
+    """
 
     def b(ctx):
-        return arch_bridge(_v(ctx), tiles, seed=tiles)
+        if levels == 0:
+            return arch_bridge(_v(ctx), tiles, seed=tiles)
+        return raised_bridge(_v(ctx), tiles, levels * LEVEL_VOXELS, seed=tiles)
 
     return b
 
@@ -387,5 +434,9 @@ RECIPES = {
     "decor_outcrop_stone": {"build": outcrop(mat("stone", 1.1))},
     "decor_bridge_1": {"build": bridge(1)},
     "decor_bridge_2": {"build": bridge(2)},
+    "decor_bridge_1_up1": {"build": bridge(1, 1)},
+    "decor_bridge_1_up2": {"build": bridge(1, 2)},
+    "decor_bridge_2_up1": {"build": bridge(2, 1)},
+    "decor_bridge_2_up2": {"build": bridge(2, 2)},
 }
 

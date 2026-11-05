@@ -66,7 +66,7 @@ describe("almanac rendering", () => {
     expect(quests).toContain("Lay 10 tiles of Dirt road");
     const islands = html({ section: "islands" });
     for (const c of content.size_classes) expect(islands).toContain(c.name);
-    expect(islands).toContain("plain 52×52, 1–2 rivers, 2 terraces, 3–6 islets");
+    expect(islands).toContain("plain 52×52, 2–4 massifs, 1–2 rivers, 2 terraces, 3–6 islets");
     expect(islands).toContain("The home island is one of these");
     expect(islands).not.toContain("not part of the served content");
   });

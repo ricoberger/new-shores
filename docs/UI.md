@@ -18,7 +18,8 @@ UI shows the same numbers the server uses.
 - **Camera.** Zoom is the vertical orthographic half-extent in tiles:
   min 7 (a 2×2 footprint ≈ ⅓ of a 360 px phone width), default 18, max =
   whole archipelago fits (the fit uses the bounds' diagonal, so it does
-  not change while turning). **Rotation is free** (D-051, as built):
+  not change while turning), capped by the region's
+  `camera.max_half_extent` (80, below). **Rotation is free** (D-051, as built):
   right-drag (45° per 120 px; the right button no longer pans, the middle
   button does), two-finger twist about the fingers after a 12° dead zone
   (with a ghost tool the twist rotates the ghost instead), `Q`/`E` in 45°
@@ -30,7 +31,10 @@ UI shows the same numbers the server uses.
   rotate buttons. Building rotation stays fixed to the world (D-042).
   **Jumps** (island tabs, Enter, founding,
   warnings panel) move the camera in ≤ 350 ms and zoom in to 18 only when
-  the camera is farther out; minimap taps keep the zoom. A gesture in
+  the camera is farther out; island jumps centre the island. Founding
+  frames the whole island, but never beyond the cap: an island larger
+  than the view at the cap (a 250-tile island at 80) is framed at the cap
+  on its centre. Minimap taps keep the zoom. A gesture in
   progress when a jump starts is cancelled without its release action; a
   press begun during a jump is ignored until all fingers lift; wheel and
   pinch are ignored during the jump.
@@ -62,7 +66,9 @@ UI shows the same numbers the server uses.
   corner stays on water at the clamped bounds in all rotations, fading into
   a haze colour toward the edge; the clear colour is the haze.
 - **Labels** are keyboard buttons with the island name and badge, hidden
-  near the canvas edge; pointer taps resolve **ship → label → land**. A
+  near the canvas edge, except that of the island under the camera
+  centre: at the cap a large island's centre is often out of view, so its
+  label moves into view on the side of its centre; pointer taps resolve **ship → label → land**. A
   label tap is an island tap at every LOD: it opens the **island card**
   (a read-only overview: the population of every tier (with the top bar's population icon) and the island's
   resources as icon badges, one per line: fertilities, deposits with their tile counts
@@ -110,7 +116,9 @@ UI shows the same numbers the server uses.
   side)`; collapsible and collapsed by default in phone portrait): north-up
   2D canvas with island outlines (one land colour, settled or not; cached),
   ship dots and the camera's viewport quad (rotates with the camera);
-  tap/click jumps the camera. `role="img"` with a label.
+  tap/click pans the camera there (zoom kept). Since the cap of 80 (D-072)
+  the minimap is the archipelago overview: the far view shows about one
+  island, the minimap all of them. `role="img"` with a label.
 - The HUD's world-map button opens the 2D world-map screen as an overlay
   (later).
 
@@ -638,8 +646,9 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   shares as percent). Unknown or missing fields render nothing.
   `questText.ts` words every objective kind of MECHANICS §12a. The
   Islands page shows each size class's size, count, per-island
-  fertility and deposit ranges, shape and the home class (served since
-  D-059's fixture step); content the payload does not carry (the
+  fertility and deposit ranges, shape (plain, massifs, rivers, terraces,
+  islets; D-072) and the home class (served since D-059's fixture
+  step); content the payload does not carry (the
   archipelago-wide pools, the home guarantees, the schema version) is
   read defensively and shown only when present. Building pages show a
   depot's level table, a pier's berths and the quay's site (shallows).
