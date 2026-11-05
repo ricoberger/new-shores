@@ -352,7 +352,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   pastures; **quay crates** while a ship is handling; **construction
   stages** A→B→C with scaffolding on ≥ 3×3 footprints replacing the
   rise-in. `?life=0` switches it off (A/B), `?stats=1` shows instance and
-  particle counts.
+  particle counts and, below them, the ten building models in view with
+  the most triangles (voxels per tile of the drawn file, triangles in
+  total and per instance) — the per-model density check of the budget.
 - **Rule: every animation encodes a game state.** No smoke = not running,
   no walkers/carts = not connected, starved, full or paused, no boats =
   no fisher, tinted = paused/inactive.

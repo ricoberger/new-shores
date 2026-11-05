@@ -73,7 +73,7 @@ new-shores/
 │   ├── src/display/            extrapolation + display model
 │   ├── src/render/             Babylon scene, voxel terrain, chunks, instancing, pickers
 │   ├── src/ui/                 React HUD, panels, build menu, world map
-│   ├── src/dev/                dev/E2E-only `?stats=1` fps badge (no dev-state handling, D-066)
+│   ├── src/dev/                dev/E2E-only `?stats=1` fps badge with the top-10 models by triangles (no dev-state handling, D-066)
 │   ├── public/models/          voxel GLBs + manifest.json + thumbs/ (generated, committed)
 │   └── e2e/tools/              `make shots` script (Playwright as a library)
 ├── assets/

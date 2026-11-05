@@ -28,7 +28,7 @@ import type { Lod } from "../display/lod";
 import { IslandLife } from "../display/lifeplan";
 import { blockedTiles, islandSeed, layerKeys, type Placed, type ScatterInput, type ScatterKind, scatterGround, scatterTrees } from "../display/scatter";
 import { byChunk, chunkAt, type ChunkRect, islandChunks } from "../display/chunks";
-import { BuildingLayer } from "./buildings";
+import { BuildingLayer, type ModelStat } from "./buildings";
 import { Chunked } from "./chunked";
 import { FieldDecor, fieldDecorMaterial, FieldTiles } from "./fields";
 import { ConstructionLayer } from "./harbour";
@@ -716,6 +716,11 @@ export class IslandDetail {
   /** Buildings drawn with the other detail's model until the wanted one has loaded (shown). */
   bridged(): number {
     return this.shown ? this.buildings.bridged() : 0;
+  }
+
+  /** The building models in view (shown islands only; dev stats). */
+  modelStats(): ModelStat[] {
+    return this.shown ? this.buildings.modelStats() : [];
   }
 
   /** Whether a voxel building or field model is drawn (shown). */

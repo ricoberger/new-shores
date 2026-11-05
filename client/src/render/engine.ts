@@ -47,6 +47,7 @@ import { FootprintMarks, type Mark } from "./fields";
 import { islandBerths } from "./harbour";
 import { PlacementGhost } from "./ghost";
 import { GridOverlay } from "./grid";
+import type { ModelStat } from "./buildings";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type AssetsStatus, buildingAnchor, type Detail, ModelRegistry, shipFarTriangles } from "./models";
@@ -591,6 +592,21 @@ export class GameRenderer {
     for (const d of this.details.values()) if (d.building()) queue += d.pendingChunks().length + (d.headPending() ? 1 : 0);
     // No level before the camera is placed on the world.
     return { drawCalls: this.drawCalls, triangles: Math.round(this.scene.getActiveIndices() / 3), lod: this.placedInitially ? this.lod : null, detail: this.detail, queue };
+  }
+
+  /** The building models in view over all islands (dev stats, ?stats=1), one entry per content ID. */
+  modelStats(): ModelStat[] {
+    const out = new Map<string, ModelStat>();
+    for (const d of this.details.values()) {
+      for (const m of d.modelStats()) {
+        const sum = out.get(m.id);
+        if (sum) {
+          sum.triangles += m.triangles;
+          sum.count += m.count;
+        } else out.set(m.id, { ...m });
+      }
+    }
+    return [...out.values()];
   }
 
   /** Frame time statistics over the frames of the last windowMs. */
