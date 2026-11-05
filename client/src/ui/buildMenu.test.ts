@@ -57,6 +57,15 @@ describe("build menu tabs", () => {
   });
 });
 
+describe("build menu opened by an unlock toast", () => {
+  it("switches to the requested tier's tab", () => {
+    expect(render()).toMatch(/aria-pressed="true"[^>]*data-testid="build-tab-settlers"/);
+    const html = render({ openTier: { tier: "citizens", seq: 1 } });
+    expect(html).toMatch(/aria-pressed="true"[^>]*data-testid="build-tab-citizens"/);
+    expect(html).toMatch(/aria-pressed="false"[^>]*data-testid="build-tab-settlers"/);
+  });
+});
+
 describe("build menu planning toggle (D-071)", () => {
   it("shows the toggle next to Move and Demolish, pressed while planning", () => {
     expect(render()).not.toContain("tool-plan");

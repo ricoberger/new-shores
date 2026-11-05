@@ -112,13 +112,18 @@ export function depositText(kind: string): string {
  * first load), so a returning player is not greeted with old unlocks.
  */
 export function unlockToasts(prev: DisplayState | null, next: DisplayState | null, content: Content | null): string[] {
+  return unlockedTiers(prev, next, content).map((u) => u.text);
+}
+
+/** The tiers that turned unlocked between two models with their toast text (`unlockToasts`' texts), in tier order. */
+export function unlockedTiers(prev: DisplayState | null, next: DisplayState | null, content: Content | null): { tier: string; text: string }[] {
   if (!prev || !next || !content) return [];
-  const out: string[] = [];
+  const out: { tier: string; text: string }[] = [];
   for (const t of next.tiers) {
     if (!t.unlocked || tierUnlocked(prev, t.id) || !prev.tiers.some((p) => p.id === t.id)) continue;
     const name = content.tiers.find((x) => x.id === t.id)?.name ?? t.id;
     const n = content.buildings.filter((b) => b.tier === t.id && listedInBuildMenu(b, content)).length;
-    out.push(unlockText(name, n));
+    out.push({ tier: t.id, text: unlockText(name, n) });
   }
   return out;
 }

@@ -555,7 +555,8 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   desktop look (folder tabs, parchment cards, icon-only Move and Demolish
   buttons pinned at the right of the tab row behind a divider), with ≥ 44 px tabs and cards on touch; short landscape
   phones keep the stacked layout with smaller cards and thumbnails. Hints and banners stack below the top
-  bar; toasts below the top bar.
+  bar; toasts below the top bar. A tier unlock toast is clickable: it
+  opens the build menu on that tier's tab (other toasts only dismiss).
 - **Gestures** (one pointer-event recogniser; input type decides per
   gesture, pen = mouse): one-finger drag pans, draws a road with the road
   tool (ships are not draggable; dragging one pans); pinch pans by its centre

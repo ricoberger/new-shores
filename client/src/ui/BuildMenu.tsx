@@ -31,6 +31,8 @@ interface Props {
   dense?: boolean;
   /** The tier tab opened first instead of the current one (screenshots, tests). */
   initialTier?: string;
+  /** Switches to a tier's tab each time `seq` changes (an unlock toast was clicked). */
+  openTier?: { tier: string; seq: number };
 }
 
 // i18n-ignore: Roman numerals are the same in every language
@@ -56,8 +58,14 @@ export function tierNumeral(index: number): string {
  */
 const cap = (v: string) => v.charAt(0).toUpperCase() + v.slice(1);
 
-export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, onMoveTool, planning = false, onPlanTool, dense = false, initialTier }: Props) {
+export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, onMoveTool, planning = false, onPlanTool, dense = false, initialTier, openTier }: Props) {
   const [chosen, setChosen] = useState<string | null>(initialTier ?? null);
+  // A new request (an unlock toast was clicked) switches the tab; adjusted while rendering, not in an effect.
+  const [seenSeq, setSeenSeq] = useState<number | undefined>();
+  if (openTier && openTier.seq !== seenSeq) {
+    setSeenSeq(openTier.seq);
+    setChosen(openTier.tier);
+  }
   if (!content) return null;
   const tabs = buildTierTabs(model, content);
   const moving = tool.kind === "movePick" || (tool.kind === "move" && tool.pick === true);

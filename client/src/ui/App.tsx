@@ -60,7 +60,7 @@ import { TopBar } from "./TopBar";
 import { warningEntries, WarningsPanel } from "./WarningsPanel";
 import { SideDock, type DockPanel } from "./SideDock";
 import { claimableCount } from "../display/quests";
-import { unlockToasts } from "../display/tiers";
+import { unlockedTiers } from "../display/tiers";
 import { isQuayType, offShallows, SHALLOWS_REACH } from "../display/quay";
 import { WorldOverlay } from "./WorldOverlay";
 import { highlightedDeposit } from "../display/deposits";
@@ -219,6 +219,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const [renderer, setRenderer] = useState<GameRenderer | null>(null);
   const rendererRef = useRef<GameRenderer | null>(null);
   const toastId = useRef(0);
+  const buildTierSeq = useRef(0);
+  const [buildTier, setBuildTier] = useState<{ tier: string; seq: number } | undefined>();
   // The camera's focused island, LOD and rotation (the renderer reports changes).
   const [cam, setCam] = useState<CameraInfo>({ focus: "", lod: "near", rotation: 0 });
 
@@ -249,9 +251,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const selectedShip = selectedShipId === null ? undefined : model?.ships.find((s) => s.id === selectedShipId);
   const warehouseType = content?.buildings.find((b) => b.trading_post)?.id ?? "";
 
-  const toast = useCallback((text: string, kind?: Toast["kind"]) => {
+  const toast = useCallback((text: string, kind?: Toast["kind"], tier?: string) => {
     const id = ++toastId.current;
-    setToasts((ts) => [...ts, kind ? { id, text, kind } : { id, text }]);
+    setToasts((ts) => [...ts, kind ? { id, text, kind, ...(tier ? { tier } : {}) } : { id, text }]);
     setTimeout(() => setToasts((ts) => ts.filter((tl) => tl.id !== id)), toastDuration(kind));
   }, []);
 
@@ -491,7 +493,15 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     const next = !buildOpen;
     setBuildOpen(next);
     saveBuildOpen(next);
+    if (!next) setBuildTier(undefined);
     if (!next) setTool((tl) => (tl.kind === "build" || tl.kind === "road" || tl.kind === "demolish" || tl.kind === "movePick" || (tl.kind === "move" && tl.pick) ? NO_TOOL : tl));
+  };
+
+  /** A click on a tier unlock toast: the build menu, open on that tier's tab. */
+  const openBuildTier = (tier: string) => {
+    setBuildOpen(true);
+    saveBuildOpen(true);
+    setBuildTier({ tier, seq: ++buildTierSeq.current });
   };
 
   const rotateTool = (steps: number) =>
@@ -660,7 +670,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   // world models of this session.
   const prevModel = useRef(model);
   useEffect(() => {
-    for (const text of unlockToasts(prevModel.current, model, content)) toast(text, "unlock");
+    for (const u of unlockedTiers(prevModel.current, model, content)) toast(u.text, "unlock", u.tier);
     prevModel.current = model;
   }, [model, content, toast]);
 
@@ -1229,6 +1239,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
                 planning={planning}
                 onPlanTool={togglePlanning}
                 dense={layout.mode === "phone-landscape"}
+                openTier={buildTier}
               />
             )
           )}
@@ -1245,7 +1256,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       </div>
       {!phone && toolHint}
       {!phone && unreachable}
-      <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((tl) => tl.id !== id))} phone={phone} />
+      <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((tl) => tl.id !== id))} onOpenTier={openBuildTier} phone={phone} />
       {confirm && <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />}
       {awaySummary && content && shouldShowSummary(awaySummary, closedSummaries) && (
         <AwayDialog summary={awaySummary} content={content} islandName={islandName} shipName={(id) => shipName(model?.ships ?? [], id)} onDismiss={() => dismissSummary(awaySummary.id)} />
