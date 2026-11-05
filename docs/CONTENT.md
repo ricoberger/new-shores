@@ -764,6 +764,45 @@ measurement is conservative, not the earliest crossing. Merchants lose the
 health gate but these layout repairs cost about six minutes versus the
 old 223/258/291 replay. The checklist below retains older balancing history.
 
+### D-072 reference results (sim minutes, seed 1053001)
+
+Content `old_coast-0.19.0` on the D-072 archipelago (Anno 117 island
+sizes, rim massifs, rivers two tiles wide; Anno 117 service radii and
+collector reach, §7; camera cap 80):
+
+| Game | Milestones | Targets | D-069 | D-072 | Margins |
+|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 48 / 12 / 85 / 128 | 49 / 11 / 86 / 130 | 11 / 79 / 14 / 20 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 32 / 68 (8, 111) | 32 / 70 (8, 114) | 13 / 15; 17 earlier than without claims |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 220 / 263 / 397 | 220 / 264 / 412 | 20 / 6 / 8 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 808 / 847 / 1078 | 745 / 782 / 1082 | 155 / 178 / 718 |
+
+No milestone comes more than 25 % early that was not already early
+under D-069 (the Citizens unlock is population-only since D-069, the
+Patricians' final check is a ceiling), so no cost rose beyond D-072 §3.
+
+Plan changes for D-072 (generator and authoring levers):
+
+- The generator: Trading Post sites prefer connected room
+  (`tradingPostRoom`), a chain plot shared with another quarter is
+  skipped instead of failing, and the plans name no coordinates but
+  the citizens home Trading Post (`[122,198,180]`: the step-3 terrain
+  moved the coast under the old site).
+- Citizens: the manual shipment to island 2 carries 45 planks (was
+  40); home-3 lists its `school` among its civic plots — with the chain
+  reservation alone the houses east of the one school stayed out of its
+  radius 20 and the 16th Citizen → Merchant upgrade there waited on
+  education.
+- Merchants: unchanged; the playhouse keeps 15 000 gold (§7): at 30 000
+  the categories came at minute 513, at 22 500 at 461.
+- Patricians: the chain keys follow the generator (home-3 keeps its
+  school and shares home-1's playhouse, church and tavern; home-4 gets
+  school, tavern, playhouse and church); home-3's 33rd–36th houses
+  stand in home-5; a second quarry at home and on island 2 (the
+  doubled stone of playhouse and university); a leather works and a
+  tailor at home and three pig farms on island 2 more (coats and
+  sausages ran short in the final wait).
+
 ### D-069 reference results (sim minutes, seed 1053001)
 
 Content `old_coast-0.18.0` (collector reach and throughput, hub upkeep
