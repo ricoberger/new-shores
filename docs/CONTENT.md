@@ -433,17 +433,17 @@ and short hops, the galleon large and slow for bulk. Ship positions and legs fol
 
 | Property | Value |
 |---|---|
-| Habitable islands per archipelago | 12: 3 large (≈ 254×254), 5 medium (≈ 165×165), 4 small (≈ 106×106) (D-072) |
+| Habitable islands per archipelago | 12: 3 large (≈ 250×250), 5 medium (≈ 163×163), 4 small (≈ 106×106) (D-072) |
 | Resource rocks | 0–2 (≈ 16×16, mountain + coast; Trading Post and mines only) |
 | Skerries | 4–8 per archipelago (class `scenic`, 4–12 tiles of rock with a grass or sand top): scenery only — no sites, fertilities, deposits or name, not settleable, not a destination; land for routing, minimap and far view |
-| Shape per class | arms 1–3 (small 1–2); plain ≥ 52 / 32 / 19 tiles square; rivers 1–2 / 0–1 / 0; terrace levels 2 / 2 / 1; islets 3–6 / 2–5 / 2–4 (large / medium / small; rocks and skerries none) |
+| Shape per class | rim massifs 2–4 / 1–2 / 0–1 (10–19 % of the land, rock height up to 6 / 5 / 3; D-072); plain ≥ 52 / 32 / 19 tiles square; rivers 1–2 / 0–1 / 0; terrace levels 2 / 2 / 1; islets 3–6 / 2–5 / 2–4 (large / medium / small; rocks and skerries none) |
 | Fertilities per habitable island | 2–4 from the pool (wheat, apple, hemp 3–5 times per archipelago; hops, woad, grapes 2–5 times; provisional) |
 | Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
 | Shallows | water tiles of an island's grid (not river) within 3 tiles (Chebyshev) of its own land, islets excluded; derived from the tiles, the quay's ground (D-060, MECHANICS §3) |
-| Spacing | ≥ 50 tiles between islands, nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
-| Buildable area | 185 000 tiles (coast, grass, forest) per archipelago ± 10 % (D-072; ≈ 49 % of the 374 617-tile land extents, the share the shape rules give; provisional) |
-| Anno 117 sizes (D-072) | buildable mean over seeds 1–50: large 31 826 (Anno 117: 31 573), medium 13 330 (13 369), small 5 933 (5 860) tiles; ≈ 2 650 / 1 110 / 490 houses at 12 tiles per house |
+| Spacing | ≥ 55 tiles between islands (50 before D-072: the nearest neighbour of the dev seed fell under a minute at the brig's speed), nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
+| Buildable area | 185 000 tiles (coast, grass, forest) per archipelago ± 10 % (D-072; ≈ 51 % of the 365 289-tile land extents, the share the shape rules give; provisional) |
+| Anno 117 sizes (D-072) | buildable mean over seeds 1–50: large 32 045 (Anno 117: 31 573), medium 13 658 (13 369), small 6 011 (5 860) tiles; ≈ 2 670 / 1 140 / 500 houses at 12 tiles per house; with the rim massifs (D-072 §4) 13 % of a large or medium island is rock, and a quarter of the small islands have no massif |
 | Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
 
 Guarantees per tier are specified in MECHANICS §10. No gating (D-051).
@@ -630,21 +630,23 @@ tier 4: grain_distillery, glass_smelter, copper_smelter, gold_smelter).
 ```json
 {
   "size_classes": [
-    { "id": "large", "name": "Large", "size": 254, "count": { "min": 3, "max": 3 },
+    { "id": "large", "name": "Large", "size": 250, "count": { "min": 3, "max": 3 },
       "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 },
-      "shape": { "arms": { "min": 1, "max": 3 }, "plain": 52, "rivers": { "min": 1, "max": 2 },
+      "shape": { "massifs": { "min": 2, "max": 4 }, "plain": 52, "rivers": { "min": 1, "max": 2 },
                  "levels": 2, "islets": { "min": 3, "max": 6 } } },
     { "id": "rock", "size": 16, "rock": true, "…": "…" },
     { "id": "scenic", "name": "Skerry", "size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "…": "…" }
   ],
-  "spacing": { "min": 50, "nearest_max": 120, "strait_min": 24, "void_max": 150 },
+  "spacing": { "min": 55, "nearest_max": 120, "strait_min": 24, "void_max": 150 },
   "fertilities": "…", "deposits": "…", "buildable_area": "…", "home": "…"
 }
 ```
 
-`shape` (D-058) is required per class: `arms` ≤ 3, `rivers` ≤ 2,
-`levels` ≤ 2, `islets` ≤ 8, `plain` ≤ size / 3; a rock class has all
-zeros. A `scenic` class (skerries) is no rock, has no fertilities,
+`shape` (D-058, D-072) is required per class: `massifs` (rim massifs,
+D-072) ≤ 4, `rivers` ≤ 2, `levels` ≤ 2, `islets` ≤ 8, `plain` ≤ size /
+3; a rock class has all zeros. An island with deposit slots of the
+first mining tier has at least one massif; one drawn without a massif
+gets no slots of the later tiers either. A `scenic` class (skerries) is no rock, has no fertilities,
 deposits or shape (all zeros) and a `size` of 2–8: its skerries have
 `size` … ¾ · size² tiles; it can never be the home class. `spacing`:
 `min` and `nearest_max` apply between habitable islands and rocks

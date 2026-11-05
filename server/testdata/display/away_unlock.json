@@ -33,7 +33,7 @@
       "seed": 0,
       "roll": 0,
       "rerollable": false,
-      "generator_version": 3,
+      "generator_version": 4,
       "bounds": {
         "x": 0,
         "y": 0,
@@ -1569,7 +1569,7 @@
           "seed": 0,
           "roll": 0,
           "rerollable": false,
-          "generator_version": 3,
+          "generator_version": 4,
           "bounds": {
             "x": 0,
             "y": 0,
@@ -3105,7 +3105,7 @@
           "seed": 0,
           "roll": 0,
           "rerollable": false,
-          "generator_version": 3,
+          "generator_version": 4,
           "bounds": {
             "x": 0,
             "y": 0,
@@ -4641,7 +4641,7 @@
           "seed": 0,
           "roll": 0,
           "rerollable": false,
-          "generator_version": 3,
+          "generator_version": 4,
           "bounds": {
             "x": 0,
             "y": 0,
@@ -6177,7 +6177,7 @@
           "seed": 0,
           "roll": 0,
           "rerollable": false,
-          "generator_version": 3,
+          "generator_version": 4,
           "bounds": {
             "x": 0,
             "y": 0,
@@ -7713,7 +7713,7 @@
           "seed": 0,
           "roll": 0,
           "rerollable": false,
-          "generator_version": 3,
+          "generator_version": 4,
           "bounds": {
             "x": 0,
             "y": 0,

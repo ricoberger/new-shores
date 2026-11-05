@@ -89,6 +89,45 @@ func TestSeaRouteEnclosed(t *testing.T) {
 	}
 }
 
+// TestSeaRouteLagoon (D-072): a leg ending in a bay whose mouth is
+// narrower than a sea cell leaves it over its water tiles and goes
+// around the land instead of crossing it.
+func TestSeaRouteLagoon(t *testing.T) {
+	// A ring of land with a one-tile gap in its east side at row 6.
+	rows := []string{
+		"............",
+		".~~~~~~~~~~.",
+		".~~~~~~~~~~.",
+		".~~~~~~~~~~.",
+		".~~~~~~~~~~.",
+		".~~~~~~~~~~.",
+		".~~~~~~~~~~~",
+		".~~~~~~~~~~.",
+		".~~~~~~~~~~.",
+		".~~~~~~~~~~.",
+		".~~~~~~~~~~.",
+		"............",
+	}
+	bay := islandFromRows("b", rows...)
+	bay.X, bay.Y = 40, 40
+	a, b := Pos{0, 46}, Pos{45, 46}
+	path := SeaRoute([]*Island{bay}, a, b)
+	if len(path) == 0 {
+		t.Fatal("no waypoints into the bay")
+	}
+	full := append(append([]Pos{a}, path...), b)
+	g := newSeaGrid([]*Island{bay}, a, b)
+	for i := 1; i < len(full); i++ {
+		p, q := full[i-1], full[i]
+		n := max(absInt(q.X-p.X), absInt(q.Y-p.Y))
+		for s := 0; s <= n; s++ {
+			if x, y := p.X+divRound((q.X-p.X)*s, n), p.Y+divRound((q.Y-p.Y)*s, n); g.landAt(x, y) {
+				t.Fatalf("segment %v-%v crosses land at (%d,%d) (path %v)", p, q, x, y, full)
+			}
+		}
+	}
+}
+
 // TestLegEnds: a leg runs from the harbour in front of a Trading Post's
 // water edge; an island without one is reached at its shore nearest the
 // other end.

@@ -183,6 +183,9 @@ type islandStats struct {
 	// bay and pen are the deepest bay and the longest peninsula, percent
 	// of the span (outlineOf).
 	bay, pen int
+	// massifs counts the rim massifs (D-072 §4: mountain and cliff
+	// components reaching massifPeak), peak is the highest rock.
+	massifs, peak int
 }
 
 func statsOf(is *sim.Island) islandStats {
@@ -250,7 +253,35 @@ func statsOf(is *sim.Island) islandStats {
 	for _, comp := range islandComponents(is, content.TerrainIslet) {
 		s.isletMax = max(s.isletMax, len(comp))
 	}
+	for _, comp := range componentsOf(is, func(t sim.Tile) bool {
+		return t.Terrain == content.TerrainMountain || t.Terrain == content.TerrainCliff
+	}) {
+		top := 0
+		for _, i := range comp {
+			top = max(top, is.Tiles[i].Height)
+		}
+		s.peak = max(s.peak, top)
+		if top >= massifPeak {
+			s.massifs++
+		}
+	}
 	return s
+}
+
+// tradingPostSites counts the disjoint Trading Post sites (greedy, in
+// Sites order) that reach the plain.
+func tradingPostSites(is *sim.Island, c *content.Catalogue, plain int) int {
+	reach, ok := plainReach(is, plain)
+	if !ok {
+		return 0
+	}
+	var picked []Rect
+	for _, r := range Sites(is, c, TradingPost(c)) {
+		if reach(r) && !slices.ContainsFunc(picked, r.overlaps) {
+			picked = append(picked, r)
+		}
+	}
+	return len(picked)
 }
 
 func countComponents(is *sim.Island, terrain string) int {
@@ -475,6 +506,8 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 		shoreSum, reachMin, isletMax       int
 		bays, pens                         []int
 		level2                             map[int]int // level-2 share of land, by tens of percent
+		massifs                            map[int]int
+		peak, tpMin, tpSum                 int
 	}
 	per := map[string]*agg{}
 	archAttempts := map[int]int{}
@@ -515,7 +548,7 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 			g := per[is.SizeClass]
 			if g == nil {
 				g = &agg{plainMin: 1 << 30, rivers: map[int]int{}, islets: map[int]int{}, buildable: map[int]int{}, coast: map[int]int{},
-					mtnMin: 100, shoreMin: 100, reachMin: -1, level2: map[int]int{}}
+					mtnMin: 100, shoreMin: 100, reachMin: -1, level2: map[int]int{}, massifs: map[int]int{}, tpMin: 1 << 30}
 				per[is.SizeClass] = g
 			}
 			st := statsOf(is)
@@ -540,6 +573,10 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 			g.isletMax = max(g.isletMax, st.isletMax)
 			g.bays, g.pens = append(g.bays, st.bay), append(g.pens, st.pen)
 			g.level2[10*st.levels[2]/max(1, st.levels[0]+st.levels[1]+st.levels[2])*10]++
+			g.massifs[st.massifs]++
+			g.peak = max(g.peak, st.peak)
+			tp := tradingPostSites(is, c, c.Islands.SizeClassByID[is.SizeClass].Shape.Plain)
+			g.tpMin, g.tpSum = min(g.tpMin, tp), g.tpSum+tp
 		}
 	}
 	// Shape retries: rerun buildIsland's loop for the plans of seed 1..min(n, 50).
@@ -547,7 +584,7 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 	for seed := uint64(1); seed <= uint64(min(n, 50)); seed++ {
 		sub := derive(seed, 0)
 		late := func(k int) *rng { return newRNG(derive(sub, 3+uint64(k))) }
-		plans, err := planComposition(newRNG(derive(sub, 1)), late, c)
+		plans, err := planComposition(newRNG(derive(sub, 1)), newRNG(derive(sub, 65)), late, c)
 		if err != nil {
 			continue
 		}
@@ -558,7 +595,7 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 			gap := slotGap(c)
 			for attempt := range maxShapeAttempts {
 				r := newRNG(derive(derive(sub, 100+uint64(i)), uint64(attempt)))
-				g := shape(r, p.class, p.deposits, gap, s)
+				g := shape(r, p.class, p.massifs, p.deposits, gap, s)
 				if g != nil && verifyIsland(g.island(p), c) == nil {
 					shapeTries[p.class.ID] = append(shapeTries[p.class.ID], attempt+1)
 					break
@@ -603,6 +640,8 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 		slices.Sort(g.pens)
 		q := func(v []int) string { return fmt.Sprintf("%d/%d/%d", v[0], v[len(v)/2], v[len(v)-1]) }
 		t.Logf("%-6s deepest bay %s%% of span (min/median/max) | longest peninsula %s%%", sc.ID, q(g.bays), q(g.pens))
+		t.Logf("%-6s massifs histogram %v | highest rock %d | disjoint Trading Post sites reaching the plain min %d mean %d",
+			sc.ID, g.massifs, g.peak, g.tpMin, g.tpSum/g.islands)
 	}
 }
 
@@ -627,7 +666,7 @@ func TestShapeAttempts(t *testing.T) {
 	_ = os.MkdirAll(out, 0o750)
 	sub := derive(seed, 0)
 	late := func(k int) *rng { return newRNG(derive(sub, 3+uint64(k))) }
-	plans, err := planComposition(newRNG(derive(sub, 1)), late, c)
+	plans, err := planComposition(newRNG(derive(sub, 1)), newRNG(derive(sub, 65)), late, c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -643,7 +682,7 @@ func TestShapeAttempts(t *testing.T) {
 		for attempt := range n {
 			r := newRNG(derive(derive(sub, 100+uint64(i)), uint64(attempt)))
 			s.reject = ""
-			g := shape(r, p.class, p.deposits, slotGap(c), s)
+			g := shape(r, p.class, p.massifs, p.deposits, slotGap(c), s)
 			why := s.reject
 			if g != nil {
 				is := g.island(p)

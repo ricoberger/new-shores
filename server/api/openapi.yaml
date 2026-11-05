@@ -3420,11 +3420,13 @@ components:
         shape:
           type: object
           additionalProperties: false
-          required: [arms, plain, rivers, levels, islets]
-          description: Shape parameters of the class (D-058).
+          required: [massifs, plain, rivers, levels, islets]
+          description: Shape parameters of the class (D-058, D-072).
           properties:
-            arms:
-              $ref: "#/components/schemas/ContentRange"
+            massifs:
+              allOf:
+                - $ref: "#/components/schemas/ContentRange"
+              description: Massifs around the rim (D-072).
             plain:
               type: integer
               description: Side of the guaranteed contiguous plain (tiles; 0 none).
@@ -3442,7 +3444,7 @@ components:
       type: object
       additionalProperties: false
       required: [min, max]
-      description: An inclusive range of counts (islands, tags, slots, arms, rivers or islets; unscaled integers).
+      description: An inclusive range of counts (islands, tags, slots, massifs, rivers or islets; unscaled integers).
       properties:
         min:
           type: integer

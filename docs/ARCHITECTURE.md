@@ -228,10 +228,11 @@ return Display(w, now)
   with the state; at the final sizes (large 192) the state is ≈ 2.2 kB
   and the terrain ≈ 6.9 kB gzipped per world (≈ 2.8 MB decoded in
   memory); generation 65 ms average, 275 ms worst over 200 seeds. At
-  the D-072 sizes (large 254) the state is ≈ 2.5 kB and the terrain
-  ≈ 34 kB gzipped (1.25 MB of encoded rows; D-058 sizes: 22 kB,
-  0.68 MB); generation 1.9 s average, 5.6 s worst over seeds 1–50
-  (D-058 sizes: 1.05 s, 3.0 s).
+  the D-072 sizes and rim massifs (large 250) the state is ≈ 2.5 kB
+  and the terrain ≈ 31 kB gzipped (1.24 MB of encoded rows; D-058
+  sizes: 22 kB, 0.68 MB); generation 0.74 s average, 1.2 s worst over
+  seeds 1–50 (D-058 sizes: 1.05 s, 3.0 s; the resource rocks are drawn
+  first, so a failed rock no longer redraws the large islands).
 
 ### 4.3 Scheduled events worker
 

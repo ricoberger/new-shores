@@ -199,10 +199,15 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   earth. The cliff band varies along an edge (rock over a dark foot, or
   earth over rock) under a grass lip on its top step; rocks gather at the
   foot of the walls (the ground scatter's "ledge" site).
-- **Rock:** mountain, cliff and islet tiles carry rock on their level:
-  one height field per island, the tiles' `heights` blended between their
-  centres at eight steps per height (a large island's spine up to 32
-  steps, four tiles), rising three steps per column from a ragged rim
+- **Rock:** mountain, cliff and islet tiles carry rock on their level.
+  Mountains are compact **rim massifs** (D-072): 2–4 on a large island,
+  1–2 on a medium, 0–1 on a small one, on different sides, one dominant,
+  each a short ridge along the coast whose outer flank drops to the sea
+  as cliff and whose foot runs out gently inland; the interior and the
+  coast between them stay open grass and beach. One height field per
+  island, the tiles' `heights` blended between their centres at eight
+  steps per height (a large island's dominant peak up to 48 steps, six
+  heights; medium 40, small 24), rising three steps per column from a ragged rim
   (noise at column resolution, never outside rock tiles) and roughened by
   low-frequency noise in pairs of steps plus a per-column grain of four
   columns to the tile; the pair lattice shifts half a step from level to

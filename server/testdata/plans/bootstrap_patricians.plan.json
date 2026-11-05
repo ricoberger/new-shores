@@ -777,12 +777,6 @@
     {
       "civic": {
         "quarter": "home-3",
-        "type": "school-3"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-3",
         "type": "tavern"
       }
     },
@@ -801,13 +795,7 @@
     },
     {
       "civic": {
-        "quarter": "home-3",
-        "type": "playhouse-2"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-3",
+        "quarter": "home-4",
         "type": "church"
       }
     },
@@ -2242,7 +2230,19 @@
     {
       "civic": {
         "quarter": "home-4",
+        "type": "school"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
         "type": "school-2"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-4",
+        "type": "playhouse"
       }
     },
     {
@@ -3141,6 +3141,28 @@
       "upgrade": {
         "quarter": "home-4",
         "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "note": "D-072: coats ran short in the final wait (the tailors starve for leather): a seventh leather works, a tenth tailor and another pig farm on isle-02.",
+      "build": {
+        "island": "isle-02",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "leather_works",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tailor",
         "count": 1
       }
     },

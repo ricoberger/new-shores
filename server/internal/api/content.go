@@ -74,13 +74,13 @@ type rangeJSON struct {
 	Max int `json:"max"`
 }
 
-// shapeJSON are the shape parameters of a size class (D-058).
+// shapeJSON are the shape parameters of a size class (D-058, D-072).
 type shapeJSON struct {
-	Arms   rangeJSON `json:"arms"`
-	Plain  int       `json:"plain"`
-	Rivers rangeJSON `json:"rivers"`
-	Levels int       `json:"levels"`
-	Islets rangeJSON `json:"islets"`
+	Massifs rangeJSON `json:"massifs"`
+	Plain   int       `json:"plain"`
+	Rivers  rangeJSON `json:"rivers"`
+	Levels  int       `json:"levels"`
+	Islets  rangeJSON `json:"islets"`
 }
 
 func newRangeJSON(r content.Range) rangeJSON { return rangeJSON{Min: r.Min, Max: r.Max} }
@@ -452,7 +452,7 @@ func newContentPayload(c *content.Catalogue, lang string) contentPayload {
 			ID: sc.ID, Name: tx.name("islands", sc.ID, sc.Name), Rock: sc.Rock, Scenic: sc.Scenic, Size: sc.Size,
 			Count: newRangeJSON(sc.Count), Fertilities: newRangeJSON(sc.Fertilities), Deposits: newRangeJSON(sc.Deposits),
 			Shape: shapeJSON{
-				Arms: newRangeJSON(sc.Shape.Arms), Plain: sc.Shape.Plain, Rivers: newRangeJSON(sc.Shape.Rivers),
+				Massifs: newRangeJSON(sc.Shape.Massifs), Plain: sc.Shape.Plain, Rivers: newRangeJSON(sc.Shape.Rivers),
 				Levels: sc.Shape.Levels, Islets: newRangeJSON(sc.Shape.Islets),
 			},
 			Home: sc.ID == c.Islands.Home.SizeClass,

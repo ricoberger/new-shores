@@ -2,7 +2,7 @@ package archipelago
 
 import "slices"
 
-// Rivers (D-058 part 3): from a source on the ridge spine downhill to a
+// Rivers (D-058 part 3): from a source high on a massif downhill to a
 // mouth in a concave stretch of beach, one tile wide, widening to an
 // estuary; river tiles are water inside the land that a road crosses as
 // a bridge.
