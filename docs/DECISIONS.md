@@ -2425,8 +2425,9 @@ display fixtures regenerated; plans hold.
      model stays (a cart model — N carts per level, trip time by road —
      is the recorded alternative if the cap still feels abstract).
   4. **Start**: 2 000 gold (was 1 000); the founding stock is planks
-     only (150), the 10 sails come from the tier-2 shipyard quest; the
-     intro quest text names planks only.
+     only, **100 t** (the sloop's two 50-t slots — 150 never fit), the
+     10 sails come from the tier-2 shipyard quest; the intro quest text
+     names planks only.
   5. **Group move** (accepted scope, scheduled after the balance pass
      and polish 7): the Move tool drags a rectangle; every building,
      field, plot, road tile and plan inside moves by one offset in one
