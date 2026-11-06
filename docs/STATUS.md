@@ -132,7 +132,16 @@ in the sync after a task unless the task says otherwise; nobody adds the
      selected plan) merged → **next: owner playtest on the D-072 world
      → polish 7** (balance pass on radii / upkeep / thin tier-1/2 gold
      margin — hub level-1 upkeep had to stay 0 / 1 for the plans to
-     pass — plus the playtest findings). Open small items — art:
+     pass — plus the playtest findings). Playtest 1 (Citizens) sorted:
+     **D-074** (houses fill with satisfaction, residents stay on
+     upgrade, collectors 8/16/32/64 · 6/12/24/48, start 2 000 gold and
+     planks only, lone 3×3 windmill; group move later) → sim session
+     with plan replay; polish 7: one deposit marker per slot (a slot is
+     two tiles), ghost material + gold wireframe on a house after
+     upgrade (bug), mesh-first picking (roof click selects the building
+     behind), gold footprint outline on the placing ghost, phone top
+     bar (materials on line 1, first three + "…"); art: denser forests
+     (2–3 trunks per tree plot) with the mill. Open small items — art:
      playhouse / university / cathedral / shipyard / depot / trading
      pier still at 8 voxels/tile (folder room: 0.47 MiB — needs a
      variant dropped or harder quantisation), beach a touch loud,

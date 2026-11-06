@@ -2389,3 +2389,67 @@ removed; skerries `size` 5 (5–18 tiles), count 6–12. One rock draw was
 kept in the island plan so seeds and the reference plans stay
 byte-identical; it goes with the next plan replay. Seed goldens and
 display fixtures regenerated; plans hold.
+
+## D-074 Houses fill with satisfaction, residents stay on upgrade, smaller collectors, start stock, group move, lone windmill
+
+- **Status:** accepted (2026-11-06); amends D-013 / D-056 (growth),
+  MECHANICS §6.1 (upgrade), D-069 (collector throughput), D-051 (start
+  stock), D-054 (mill footprint).
+- **Context:** the owner's first playtest on the D-072 world
+  (Citizens, snapshot `1053001-20261105-220625`): a Citizen house
+  reached 15 / 15 at 54 % satisfaction with no tier-2 good at all,
+  because the cumulative tier-1 needs plus three public buildings pass
+  the 0.5 growth threshold; an upgraded 8 / 8 Settler house restarted
+  at 5 / 15; 24 producers (≈ 28 t/min) never loaded the Trading Post
+  and two level-1 warehouses (60 t/min), so collector levels were
+  irrelevant before Merchants; the opening spends the 1 000 start gold
+  to zero and waits for taxes; the founding sloop carries 10 sails
+  that the tier-2 shipyard quest grants again; moving a production
+  block means moving every building by hand; the 4 × 6 mill with its
+  annex reads poorly.
+- **Decision:**
+  1. **Capacity follows satisfaction.** A house's target residents are
+     `floor + (max − floor) × satisfaction` (rounded down, never below
+     `floor`); residents grow towards the target at `growth_per_min ×
+     satisfaction` and decline towards it at `decline_per_min ×
+     (1 − satisfaction)` when above. `growth_satisfaction_threshold` is
+     removed. The upgrade gate (at `max`, every required need served)
+     is unchanged.
+  2. **Residents stay on upgrade**: the house keeps
+     `min(residents, new max)`; the growth accumulator resets; from
+     there it follows the new tier's target (which may be below the
+     kept count — then it declines gently, never below the floor).
+  3. **Collector throughput** per level: Trading Post 8 / 16 / 32 / 64,
+     Warehouse 6 / 12 / 24 / 48 t/min (was 20 / 40 / 60 / 80 and
+     20 / 35 / 50 / 65). Reach, upkeep and capacity unchanged. The cap
+     model stays (a cart model — N carts per level, trip time by road —
+     is the recorded alternative if the cap still feels abstract).
+  4. **Start**: 2 000 gold (was 1 000); the founding stock is planks
+     only (150), the 10 sails come from the tier-2 shipyard quest; the
+     intro quest text names planks only.
+  5. **Group move** (accepted scope, scheduled after the balance pass
+     and polish 7): the Move tool drags a rectangle; every building,
+     field, plot, road tile and plan inside moves by one offset in one
+     server transaction (`move_group`: every footprint valid at its
+     new site, fields with their farm, roads re-laid, all or nothing,
+     free like a single move).
+  6. **Mill**: a lone windmill on 3 × 3 (Anno 1404's tower mill; no
+     miller's house), cost and recipe unchanged; new V7 recipe.
+- **Why:** 1–2 make a house's size the readable mirror of its supply,
+  as in Anno — a full house means a supplied house — and stop the
+  cliff at an arbitrary threshold; 3 makes collector levels a tier-1/2
+  decision (one level-1 warehouse per block of ≈ 5 producers); 4 removes
+  the dead wait after the opening and a double grant; 5 is layout
+  quality of life the planning mode does not cover; 6 is look.
+- **Consequences:** sim rules (growth target, upgrade), region.json
+  constants, `buildings.json` collector levels and mill footprint,
+  `start.json`, quest text (EN + DE), content version bump, golden
+  fixtures (growth, upgrade), all four reference plans replayed against
+  the D-067 targets — never relaxed; MECHANICS §5 / §6.1 / §12, CONTENT
+  §7 and tables, the almanac's house and collector pages, mill model
+  (`make assets`), UI.md house card (target shown as "→ n / max"
+  already exists). Group move is a later session (command, openapi,
+  rectangle UI, group ghost).
+- **Rejected:** raising the growth threshold instead of removing it;
+  restarting at the floor on upgrade; the cart model now; cutting
+  tier-1 upkeep instead of raising the start gold.
