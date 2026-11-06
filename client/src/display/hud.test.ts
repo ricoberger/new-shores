@@ -66,7 +66,7 @@ describe("top-bar aggregates", () => {
     const needs = { needs: [{ id: "settlers_market_small", name: "Market" }], buildings: [{ id: "market_small", name: "Small market" }] } as unknown as Content;
     expect(worstNeedText(settlers!.worst, (n) => needLabel(needs, n))).toBe("Worst unmet need: Market 36 % (out of range)");
     expect(worstNeedText(settlers!.worst, (n) => needLabel(null, n))).toBe("Worst unmet need: market_small 36 % (out of range)");
-    expect(citizens).toMatchObject({ employed: 22_000, total: 40_000, satisfactionPermille: 1000, worst: null });
+    expect(citizens).toMatchObject({ employed: 22_000, total: 52_000, satisfactionPermille: 1000, worst: null });
     expect(worstNeedText(null, (n) => n.id)).toBe("All needs met");
   });
 

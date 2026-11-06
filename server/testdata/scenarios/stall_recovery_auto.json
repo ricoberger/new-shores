@@ -1,6 +1,6 @@
 {
   "name": "stall_recovery_auto",
-  "description": "Stall recovery (golden x, automatic): the tier-1 opening of the reference game from the starting stock on the dev start island. At minute 0 the player builds the market, a shipyard, the wood chain, the wool chain (the sheep farm stands without fields: pastures cost 15 gold each and the opening has no gold to spare, D-051 part 4) and a fisher on the far east coast (760 of 800 gold); the five settler houses (the remaining planks) follow at minute 6 with 4 gold left. Upkeep 6 gold/min against 0.6 gold/min of floor taxes (market only, no food yet) empties the treasury at 6:44, before the fisher's first catch (60 s on the road) lands: the cascade pauses every pausable building. Nothing that still runs has upkeep, so gold grows again; the landed fish lifts satisfaction to 0.8, the houses grow and the auto-resume chain restarts on its own. No command after the opening.",
+  "description": "Stall recovery (golden x, automatic): the tier-1 opening of the reference game from the starting stock on the dev start island. At minute 0 the player builds the market, a warehouse, the wood chain, the wool chain with its four pastures and a fisher on the far east coast; since D-074 a house only fills when fully supplied, so the wool chain must run and the shipyard of the pre-D-074 opening gave way to the pastures and the warehouse (no upkeep either). The five settler houses (the remaining planks) follow at minute 17 with 2 gold left. Upkeep 6 gold/min against 0.6 gold/min of floor taxes (market only, no food yet) empties the treasury at 17:22, before the fisher's first catch lands: the cascade pauses every pausable building. Nothing that still runs has upkeep, so gold grows again; the auto-resume chain restarts on its own, the fish and the garments fill the houses. No command after the opening.",
   "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
@@ -152,9 +152,9 @@
     },
     {
       "place": {
-        "type": "shipyard",
-        "x": 5,
-        "y": 34,
+        "type": "warehouse",
+        "x": 20,
+        "y": 5,
         "rotation": 0
       }
     },
@@ -206,6 +206,21 @@
       }
     },
     {
+      "fields": {
+        "farm": [
+          14,
+          21
+        ],
+        "rect": [
+          8,
+          22,
+          30,
+          32
+        ],
+        "count": 4
+      }
+    },
+    {
       "place": {
         "type": "weaver_wool",
         "x": 26,
@@ -215,7 +230,7 @@
     },
     {
       "advance": {
-        "duration": "6m"
+        "duration": "17m"
       }
     },
     {

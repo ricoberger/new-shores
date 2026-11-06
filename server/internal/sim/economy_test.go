@@ -358,7 +358,9 @@ func TestUpgradeHouse(t *testing.T) {
 	planks := w.Islands[0].Inventory.Stock["planks"]
 	mustApply(t, w, c, cmd)
 	b := w.Islands[0].Building(h)
-	if b.Type != "house_citizens" || b.House.Residents != 5_000 || b.House.Growth != 0 || b.X != 9 || b.Y != 2 {
+	// Residents stay on upgrade (D-074 §2): 8 of the Settlers' 8, within
+	// the Citizens' 5–15; the accumulator resets.
+	if b.Type != "house_citizens" || b.House.Residents != 8_000 || b.House.Growth != 0 || b.X != 9 || b.Y != 2 {
 		t.Errorf("upgraded = %+v %+v", b, b.House)
 	}
 	if w.Gold != 800_000 || w.Islands[0].Inventory.Stock["planks"] != planks-15_000 {

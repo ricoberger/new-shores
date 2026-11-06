@@ -80,3 +80,17 @@ export function percent(permille: number): string {
 export function seconds(ms: number): string {
   return `${decimal(ms / 1000, 1)} s`;
 }
+
+/**
+ * The house card's residents line (D-074): the growth direction, the
+ * residents and — while the house grows or declines — the target the
+ * server reports, then the tier's maximum: "↑ 8 → 10 / 15", "→ 10 / 15".
+ */
+export function residentsLine(b: { residents?: number; residents_max?: number; residents_target?: number; growth_rate_per_min?: number }): string {
+  const rate = b.growth_rate_per_min ?? 0;
+  const arrow = rate > 0 ? "↑" : rate < 0 ? "↓" : "→";
+  const residents = b.residents ?? 0;
+  const target = b.residents_target;
+  const towards = target !== undefined && units(target) !== units(residents) ? ` → ${units(target)}` : "";
+  return `${arrow} ${units(residents)}${towards} / ${units(b.residents_max ?? 0)}`;
+}

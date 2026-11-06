@@ -1,7 +1,7 @@
 {
   "name": "offline_12h_stalled",
   "content_version": "old_coast-0.9.0",
-  "boundary_count": 28,
+  "boundary_count": 31,
   "totals": {
     "main": {
       "fish": {
@@ -17,18 +17,18 @@
         "granted": 140000
       },
       "wood": {
-        "produced": 458431,
+        "produced": 579000,
         "consumed": 279000,
         "lost": 0
       },
       "wool": {
-        "produced": 114568,
-        "consumed": 114381,
+        "produced": 166590,
+        "consumed": 166331,
         "lost": 0
       },
       "wool_garments": {
-        "produced": 114381,
-        "consumed": 57521,
+        "produced": 166331,
+        "consumed": 86082,
         "lost": 0
       }
     }
@@ -38,8 +38,8 @@
       "island_id": "main",
       "building_id": 2,
       "type": "fisher",
-      "status": "paused",
-      "reason": "Paused: insufficient gold"
+      "status": "not_connected",
+      "reason": "No road to a warehouse"
     },
     {
       "island_id": "main",
@@ -72,91 +72,54 @@
   ],
   "pause_events": [
     {
-      "at": "2026-01-01T05:15:10.865Z",
+      "at": "2026-01-01T05:34:48.761Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 3,
       "type": "weaver_wool"
     },
     {
-      "at": "2026-01-01T05:15:10.865Z",
+      "at": "2026-01-01T05:34:48.761Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 4,
       "type": "lumberjack"
     },
     {
-      "at": "2026-01-01T05:15:10.865Z",
+      "at": "2026-01-01T05:34:48.761Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 7,
       "type": "sheep_farm"
     },
     {
-      "at": "2026-01-01T05:15:10.865Z",
+      "at": "2026-01-01T05:34:48.761Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 6,
       "type": "sawmill"
     },
     {
-      "at": "2026-01-01T05:15:10.865Z",
+      "at": "2026-01-01T05:34:48.761Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 2,
       "type": "fisher"
     },
     {
-      "at": "2026-01-01T06:02:03.360Z",
+      "at": "2026-01-01T06:06:03.757Z",
       "action": "auto_resume",
       "island_id": "main",
       "building_id": 2,
       "type": "fisher",
       "trial": true
-    },
-    {
-      "at": "2026-01-01T07:25:23.361Z",
-      "action": "auto_pause",
-      "island_id": "main",
-      "building_id": 2,
-      "type": "fisher"
-    },
-    {
-      "at": "2026-01-01T08:12:15.861Z",
-      "action": "auto_resume",
-      "island_id": "main",
-      "building_id": 2,
-      "type": "fisher",
-      "trial": true
-    },
-    {
-      "at": "2026-01-01T09:35:35.861Z",
-      "action": "auto_pause",
-      "island_id": "main",
-      "building_id": 2,
-      "type": "fisher"
-    },
-    {
-      "at": "2026-01-01T10:22:28.361Z",
-      "action": "auto_resume",
-      "island_id": "main",
-      "building_id": 2,
-      "type": "fisher",
-      "trial": true
-    },
-    {
-      "at": "2026-01-01T11:45:48.361Z",
-      "action": "auto_pause",
-      "island_id": "main",
-      "building_id": 2,
-      "type": "fisher"
     }
   ],
   "snapshots": [
     {
       "step": 17,
       "at": "2026-01-01T12:00:00.000Z",
-      "boundaries": 28,
+      "boundaries": 31,
       "inventory": {
         "main": {
           "planks": {
@@ -164,26 +127,27 @@
             "in_transit": 0
           },
           "wood": {
-            "stock": 179431,
+            "stock": 300000,
             "in_transit": 0
           },
           "wool": {
-            "stock": 188,
+            "stock": 258,
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 56859,
+            "stock": 80249,
             "in_transit": 0
           }
         }
       },
       "statuses": {
-        "paused": 5
+        "not_connected": 1,
+        "paused": 4
       },
-      "gold": 9084,
-      "balance_rate_per_min": 640,
+      "gold": 15842,
+      "balance_rate_per_min": -40,
       "population": {
-        "settlers": 16000
+        "settlers": 24000
       },
       "unlocked_tiers": [
         "settlers"
@@ -232,11 +196,11 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T12:00:00.000Z",
-    "next_change_at": "2026-01-01T12:32:40.861Z",
-    "gold": 9084,
-    "balance_rate_per_min": 640,
-    "tax_rate_per_min": 640,
-    "upkeep_rate_per_min": 0,
+    "next_change_at": "2026-01-01T18:36:03.775Z",
+    "gold": 15842,
+    "balance_rate_per_min": -40,
+    "tax_rate_per_min": 960,
+    "upkeep_rate_per_min": 1000,
     "tiers": [
       {
         "id": "settlers",
@@ -249,7 +213,7 @@
         "unlocked": false,
         "population": {
           "settlers": {
-            "have": 16000,
+            "have": 24000,
             "need": 120000
           }
         },
@@ -391,24 +355,24 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 179431,
+            "stock": 300000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
             "in_transit_rate_per_min": 0
           },
           "wool": {
-            "stock": 188,
+            "stock": 258,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 56859,
+            "stock": 80249,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": -80,
+            "rate_per_min": -120,
             "in_transit_rate_per_min": 0
           }
         },
@@ -583,9 +547,9 @@
             "x": 6,
             "y": 1,
             "rotation": 0,
-            "paused": true,
-            "paused_reason": "unpaid",
-            "status": "paused",
+            "paused": false,
+            "paused_reason": "",
+            "status": "not_connected",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
@@ -631,7 +595,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 380,
+            "cycle_progress_permille": 331,
             "transfer_delay_ms": 28000,
             "assigned_warehouse_id": 1,
             "road_distance": 18,
@@ -659,7 +623,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 430,
+            "cycle_progress_permille": 999,
             "transfer_delay_ms": 34000,
             "assigned_warehouse_id": 1,
             "road_distance": 24,
@@ -739,7 +703,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 568,
+            "cycle_progress_permille": 589,
             "transfer_delay_ms": 31000,
             "assigned_warehouse_id": 1,
             "road_distance": 21,
@@ -816,13 +780,14 @@
               "available": false,
               "reason": "tier_locked"
             },
-            "residents": 2000,
+            "residents": 3000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 3000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 200,
-            "tax_rate_per_min": 80,
+            "tax_rate_per_min": 120,
             "needs": [
               {
                 "id": "settlers_food",
@@ -841,7 +806,7 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 80
+                  "wool_garments": 120
                 }
               },
               {
@@ -868,13 +833,14 @@
               "available": false,
               "reason": "tier_locked"
             },
-            "residents": 2000,
+            "residents": 3000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 3000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 200,
-            "tax_rate_per_min": 80,
+            "tax_rate_per_min": 120,
             "needs": [
               {
                 "id": "settlers_food",
@@ -893,7 +859,7 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 80
+                  "wool_garments": 120
                 }
               },
               {
@@ -920,13 +886,14 @@
               "available": false,
               "reason": "tier_locked"
             },
-            "residents": 2000,
+            "residents": 3000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 3000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 200,
-            "tax_rate_per_min": 80,
+            "tax_rate_per_min": 120,
             "needs": [
               {
                 "id": "settlers_food",
@@ -945,7 +912,7 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 80
+                  "wool_garments": 120
                 }
               },
               {
@@ -972,13 +939,14 @@
               "available": false,
               "reason": "tier_locked"
             },
-            "residents": 2000,
+            "residents": 3000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 3000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 200,
-            "tax_rate_per_min": 80,
+            "tax_rate_per_min": 120,
             "needs": [
               {
                 "id": "settlers_food",
@@ -997,7 +965,7 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 80
+                  "wool_garments": 120
                 }
               },
               {
@@ -1024,13 +992,14 @@
               "available": false,
               "reason": "tier_locked"
             },
-            "residents": 2000,
+            "residents": 3000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 3000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 200,
-            "tax_rate_per_min": 80,
+            "tax_rate_per_min": 120,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1049,7 +1018,7 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 80
+                  "wool_garments": 120
                 }
               },
               {
@@ -1076,13 +1045,14 @@
               "available": false,
               "reason": "tier_locked"
             },
-            "residents": 2000,
+            "residents": 3000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 3000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 200,
-            "tax_rate_per_min": 80,
+            "tax_rate_per_min": 120,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1101,7 +1071,7 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 80
+                  "wool_garments": 120
                 }
               },
               {
@@ -1128,13 +1098,14 @@
               "available": false,
               "reason": "tier_locked"
             },
-            "residents": 2000,
+            "residents": 3000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 3000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 200,
-            "tax_rate_per_min": 80,
+            "tax_rate_per_min": 120,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1153,7 +1124,7 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 80
+                  "wool_garments": 120
                 }
               },
               {
@@ -1180,13 +1151,14 @@
               "available": false,
               "reason": "tier_locked"
             },
-            "residents": 2000,
+            "residents": 3000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 3000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 200,
-            "tax_rate_per_min": 80,
+            "tax_rate_per_min": 120,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1205,7 +1177,7 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "wool_garments": 80
+                  "wool_garments": 120
                 }
               },
               {
@@ -1220,13 +1192,13 @@
         ],
         "workforce": {
           "settlers": {
-            "available": 16000,
-            "required": 0,
+            "available": 24000,
+            "required": 4000,
             "factor_permille": 1000
           }
         },
         "population": {
-          "settlers": 16000
+          "settlers": 24000
         },
         "capacity_source": {
           "building_id": 1,
@@ -1242,10 +1214,10 @@
     "ships": [],
     "routes": [],
     "insolvency": {
-      "unpaid_buildings": 5,
+      "unpaid_buildings": 4,
       "unpaid_ships": 0,
-      "unpaid_upkeep_per_min": 6000,
-      "balance_if_resumed_per_min": -5360
+      "unpaid_upkeep_per_min": 5000,
+      "balance_if_resumed_per_min": -5040
     },
     "quests": {
       "active": [

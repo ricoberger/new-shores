@@ -1139,7 +1139,9 @@ func upgradeHouse(w *World, c *content.Catalogue, cmd UpgradeHouse, l *Ledger) e
 	// Validation complete: mutate.
 	chargeCost(w, is, nextDef.Cost, 1, l)
 	b.Type = nextDef.ID
-	b.House = &HouseState{Residents: next.ResidentsFloor}
+	// Residents stay (D-074 §2): min(residents, new max), never below the
+	// new floor; the accumulator resets.
+	b.House = &HouseState{Residents: max(min(b.House.Residents, next.ResidentsMax), next.ResidentsFloor)}
 	afterChange(is, c)
 	return nil
 }

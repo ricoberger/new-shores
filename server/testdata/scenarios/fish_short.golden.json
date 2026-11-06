@@ -1,7 +1,7 @@
 {
   "name": "fish_short",
   "content_version": "old_coast-0.9.0",
-  "boundary_count": 340,
+  "boundary_count": 292,
   "totals": {
     "main": {
       "fish": {
@@ -20,8 +20,9 @@
       },
       "wool_garments": {
         "produced": 0,
-        "consumed": 0,
-        "lost": 0
+        "consumed": 150000,
+        "lost": 0,
+        "granted": 150000
       }
     }
   },
@@ -35,11 +36,15 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 21750,
+            "stock": 20490,
             "in_transit": 350
           },
           "planks": {
             "stock": 4000,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 142920,
             "in_transit": 0
           }
         }
@@ -47,8 +52,8 @@
       "statuses": {
         "ok": 1
       },
-      "gold": 2686400,
-      "balance_rate_per_min": 29720,
+      "gold": 2763200,
+      "balance_rate_per_min": 37400,
       "population": {
         "settlers": 192000
       },
@@ -57,7 +62,7 @@
       ]
     },
     {
-      "step": 32,
+      "step": 30,
       "at": "2026-01-01T01:10:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -67,7 +72,11 @@
             "in_transit": 350
           },
           "planks": {
-            "stock": 18000,
+            "stock": 4000,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 85320,
             "in_transit": 0
           }
         }
@@ -75,8 +84,8 @@
       "statuses": {
         "ok": 1
       },
-      "gold": 3743899,
-      "balance_rate_per_min": 14000,
+      "gold": 4960099,
+      "balance_rate_per_min": 33200,
       "population": {
         "settlers": 192000
       },
@@ -85,9 +94,9 @@
       ]
     },
     {
-      "step": 33,
+      "step": 31,
       "at": "2026-01-01T02:10:00.000Z",
-      "boundaries": 73,
+      "boundaries": 24,
       "inventory": {
         "main": {
           "fish": {
@@ -95,7 +104,11 @@
             "in_transit": 350
           },
           "planks": {
-            "stock": 18000,
+            "stock": 4000,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 34071,
             "in_transit": 0
           }
         }
@@ -103,8 +116,8 @@
       "statuses": {
         "ok": 1
       },
-      "gold": 4582765,
-      "balance_rate_per_min": 13976,
+      "gold": 6823801,
+      "balance_rate_per_min": 30776,
       "population": {
         "settlers": 168000
       },
@@ -114,8 +127,8 @@
     },
     {
       "step": 35,
-      "at": "2026-01-01T04:10:00.000Z",
-      "boundaries": 121,
+      "at": "2026-01-01T10:10:00.000Z",
+      "boundaries": 122,
       "inventory": {
         "main": {
           "planks": {
@@ -125,7 +138,7 @@
         }
       },
       "statuses": {},
-      "gold": 4586265,
+      "gold": 7099872,
       "balance_rate_per_min": 0,
       "population": {
         "settlers": 48000
@@ -136,7 +149,7 @@
     },
     {
       "step": 36,
-      "at": "2026-01-02T04:10:00.000Z",
+      "at": "2026-01-02T10:10:00.000Z",
       "boundaries": 0,
       "inventory": {
         "main": {
@@ -147,7 +160,7 @@
         }
       },
       "statuses": {},
-      "gold": 4586265,
+      "gold": 7099872,
       "balance_rate_per_min": 0,
       "population": {
         "settlers": 48000
@@ -168,9 +181,9 @@
     }
   ],
   "final": {
-    "evaluated_at": "2026-01-02T04:10:00.000Z",
+    "evaluated_at": "2026-01-02T10:10:00.000Z",
     "next_change_at": null,
-    "gold": 4586265,
+    "gold": 7099872,
     "balance_rate_per_min": 0,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 0,
@@ -602,6 +615,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -654,6 +668,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -706,6 +721,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -758,6 +774,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -810,6 +827,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -862,6 +880,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -914,6 +933,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -966,6 +986,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1018,6 +1039,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1070,6 +1092,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1122,6 +1145,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1174,6 +1198,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1226,6 +1251,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1278,6 +1304,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1330,6 +1357,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1382,6 +1410,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1434,6 +1463,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1486,6 +1516,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1538,6 +1569,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1590,6 +1622,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1642,6 +1675,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1694,6 +1728,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1746,6 +1781,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,
@@ -1798,6 +1834,7 @@
             "residents": 2000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 0,

@@ -1,12 +1,12 @@
 {
   "name": "bootstrap_settlers",
   "content_version": "old_coast-0.9.0",
-  "boundary_count": 96,
+  "boundary_count": 98,
   "totals": {
     "main": {
       "fish": {
         "produced": 255000,
-        "consumed": 176713,
+        "consumed": 150891,
         "lost": 0
       },
       "planks": {
@@ -34,7 +34,7 @@
       },
       "wool_garments": {
         "produced": 39644,
-        "consumed": 35400,
+        "consumed": 35175,
         "lost": 0
       }
     }
@@ -71,11 +71,11 @@
     {
       "step": 18,
       "at": "2026-01-01T00:11:00.000Z",
-      "boundaries": 51,
+      "boundaries": 35,
       "inventory": {
         "main": {
           "fish": {
-            "stock": 10499,
+            "stock": 10934,
             "in_transit": 350
           },
           "planks": {
@@ -95,10 +95,10 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 399634,
-      "balance_rate_per_min": 5240,
+      "gold": 392680,
+      "balance_rate_per_min": 2680,
       "population": {
-        "settlers": 64000
+        "settlers": 48000
       },
       "unlocked_tiers": [
         "settlers"
@@ -130,7 +130,7 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 27699,
+            "stock": 31334,
             "in_transit": 350
           },
           "planks": {
@@ -150,10 +150,10 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 504434,
-      "balance_rate_per_min": 5240,
+      "gold": 446280,
+      "balance_rate_per_min": 2680,
       "population": {
-        "settlers": 64000
+        "settlers": 48000
       },
       "unlocked_tiers": [
         "settlers"
@@ -181,11 +181,11 @@
     {
       "step": 23,
       "at": "2026-01-01T00:51:00.000Z",
-      "boundaries": 18,
+      "boundaries": 12,
       "inventory": {
         "main": {
           "fish": {
-            "stock": 40887,
+            "stock": 48509,
             "in_transit": 350
           },
           "planks": {
@@ -205,10 +205,10 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 673434,
-      "balance_rate_per_min": 9080,
+      "gold": 551480,
+      "balance_rate_per_min": 5560,
       "population": {
-        "settlers": 88000
+        "settlers": 66000
       },
       "unlocked_tiers": [
         "settlers"
@@ -236,11 +236,11 @@
     {
       "step": 28,
       "at": "2026-01-01T01:21:00.000Z",
-      "boundaries": 24,
+      "boundaries": 16,
       "inventory": {
         "main": {
           "fish": {
-            "stock": 50937,
+            "stock": 67009,
             "in_transit": 350
           },
           "planks": {
@@ -260,10 +260,10 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 1082634,
-      "balance_rate_per_min": 14200,
+      "gold": 825480,
+      "balance_rate_per_min": 9400,
       "population": {
-        "settlers": 120000
+        "settlers": 90000
       },
       "unlocked_tiers": [
         "settlers"
@@ -295,7 +295,7 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 59937,
+            "stock": 85009,
             "in_transit": 350
           },
           "planks": {
@@ -315,14 +315,13 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 1233634,
-      "balance_rate_per_min": 14200,
+      "gold": 832480,
+      "balance_rate_per_min": 9400,
       "population": {
-        "settlers": 120000
+        "settlers": 90000
       },
       "unlocked_tiers": [
-        "settlers",
-        "citizens"
+        "settlers"
       ],
       "ships": [
         {
@@ -347,11 +346,11 @@
     {
       "step": 34,
       "at": "2026-01-01T02:51:00.000Z",
-      "boundaries": 2,
+      "boundaries": 34,
       "inventory": {
         "main": {
           "fish": {
-            "stock": 77937,
+            "stock": 103759,
             "in_transit": 350
           },
           "planks": {
@@ -371,7 +370,7 @@
             "in_transit": 356
           },
           "wool_garments": {
-            "stock": 3933,
+            "stock": 4158,
             "in_transit": 311
           }
         }
@@ -379,7 +378,7 @@
       "statuses": {
         "ok": 5
       },
-      "gold": 2068834,
+      "gold": 1653880,
       "balance_rate_per_min": 17000,
       "population": {
         "settlers": 120000
@@ -454,13 +453,13 @@
     },
     {
       "id": "intro_settlers_120",
-      "completed_at": "2026-01-01T01:51:00.000Z"
+      "completed_at": "2026-01-01T01:54:00.000Z"
     }
   ],
   "final": {
     "evaluated_at": "2026-01-01T02:51:00.000Z",
     "next_change_at": "2026-01-01T03:13:40.000Z",
-    "gold": 2068834,
+    "gold": 1653880,
     "balance_rate_per_min": 17000,
     "tax_rate_per_min": 24000,
     "upkeep_rate_per_min": 7000,
@@ -541,7 +540,7 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 77937,
+            "stock": 103759,
             "capacity": 300000,
             "in_transit": 350,
             "rate_per_min": 300,
@@ -632,7 +631,7 @@
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 3933,
+            "stock": 4158,
             "capacity": 300000,
             "in_transit": 311,
             "rate_per_min": 66,
@@ -995,6 +994,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1050,6 +1050,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1105,6 +1106,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1160,6 +1162,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1215,6 +1218,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1270,6 +1274,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1325,6 +1330,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1380,6 +1386,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1435,6 +1442,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1490,6 +1498,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1545,6 +1554,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1600,6 +1610,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1655,6 +1666,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1710,6 +1722,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1765,6 +1778,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -2066,7 +2080,7 @@
         },
         {
           "id": "intro_settlers_120",
-          "completed_at": "2026-01-01T01:51:00.000Z",
+          "completed_at": "2026-01-01T01:54:00.000Z",
           "claimed": false
         }
       ]

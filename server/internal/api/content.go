@@ -154,7 +154,6 @@ type rulesJSON struct {
 	CoarseStepMs               int64 `json:"coarse_step_ms"`
 	GrowthPerMin               int64 `json:"growth_per_min"`
 	DeclinePerMin              int64 `json:"decline_per_min"`
-	GrowthThresholdPpm         int64 `json:"growth_satisfaction_threshold"`
 	AutoResumeUpkeepDurationMs int64 `json:"auto_resume_upkeep_ms"`
 	ShipHandlingBaseMs         int64 `json:"ship_handling_base_ms"`
 	ShipHandlingMsPerUnit      int64 `json:"ship_handling_ms_per_unit"`
@@ -435,7 +434,6 @@ func newContentPayload(c *content.Catalogue, lang string) contentPayload {
 				TransferBaseMs: r.TransferBaseMs, UnconnectedBuffer: r.UnconnectedBuffer,
 				IterationCap: r.IterationCap, CoarseStepMs: r.CoarseStepMs,
 				GrowthPerMin: r.GrowthPerMin, DeclinePerMin: r.DeclinePerMin,
-				GrowthThresholdPpm:         r.GrowthThreshold,
 				AutoResumeUpkeepDurationMs: r.AutoResumeMs,
 				ShipHandlingBaseMs:         r.ShipHandlingBaseMs, ShipHandlingMsPerUnit: r.ShipHandlingMsPerUnit,
 				ShipSpeedMilliTilesPerMin: r.ShipSpeedMilliTilesPerMin,

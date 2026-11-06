@@ -162,7 +162,7 @@ export const en = {
   "almanac.o.toolsMove": "Move picks up a building and places it elsewhere for free. Clicking a field picks its farm, because fields always follow their farm.",
   "almanac.o.toolsDemolish": "Demolish removes a clicked building, field, road or plan. Drag a rectangle to clear the fields, plans and roads in it at once; buildings in it stay. Each road tile gives back half its materials, rounded down per tile, and plans are free to remove.",
   "almanac.o.toolsRings": "Rings show coverage: a Warehouse or Trading Post has a yellow ring for its reach, and a public building or the market has a gold ring for its service radius. The ring appears while you place one and when you select one, and is hidden when you zoom out to the far view.",
-  "almanac.o.asksLead": "A need is a category with one or more alternatives. A category is covered by the sum of the shares of the alternatives that are supplied, at most 100 %: one of two alternatives covers 60 %, both cover it fully. Satisfaction is the weighted mean of the categories.",
+  "almanac.o.asksLead": "A need is a category with one or more alternatives. A category is covered by the sum of the shares of the alternatives that are supplied, at most 100 %: one of two alternatives covers 60 %, both cover it fully. Satisfaction is the weighted mean of the categories. A house fills with its satisfaction: it holds its minimum plus that share of the rest, so a Citizen house at 60 % holds 5 + 6 = 11 of 15 residents and only a fully supplied house is full.",
   "almanac.o.noNeeds": "No needs.",
   "almanac.o.category": "Category",
   "almanac.o.weight": "Weight",

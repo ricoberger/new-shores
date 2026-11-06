@@ -2,10 +2,10 @@
   "scenario": "offline_12h_route",
   "base": {
     "evaluated_at": "2026-01-01T12:04:45.000Z",
-    "next_change_at": "2026-01-01T12:05:53.054Z",
-    "gold": 16036503,
-    "balance_rate_per_min": -4400,
-    "tax_rate_per_min": 1600,
+    "next_change_at": "2026-01-01T12:05:53.068Z",
+    "gold": 15610633,
+    "balance_rate_per_min": -5000,
+    "tax_rate_per_min": 1000,
     "upkeep_rate_per_min": 6000,
     "tiers": [
       {
@@ -19,7 +19,7 @@
         "unlocked": false,
         "population": {
           "settlers": {
-            "have": 16000,
+            "have": 10000,
             "need": 120000
           }
         },
@@ -560,9 +560,9 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 299965,
+            "stock": 299978,
             "capacity": 300000,
-            "in_transit": 35,
+            "in_transit": 22,
             "rate_per_min": 0,
             "in_transit_rate_per_min": 0
           },
@@ -778,13 +778,14 @@
               "available": false,
               "reason": "tier_locked"
             },
-            "residents": 8000,
+            "residents": 5000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 5000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 800,
+            "tax_rate_per_min": 500,
             "needs": [
               {
                 "id": "settlers_food",
@@ -793,7 +794,7 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "fish": 160
+                  "fish": 100
                 }
               },
               {
@@ -830,13 +831,14 @@
               "available": false,
               "reason": "tier_locked"
             },
-            "residents": 8000,
+            "residents": 5000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 5000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 800,
+            "tax_rate_per_min": 500,
             "needs": [
               {
                 "id": "settlers_food",
@@ -845,7 +847,7 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok",
                 "goods": {
-                  "fish": 160
+                  "fish": 100
                 }
               },
               {
@@ -884,15 +886,15 @@
             "rates": {
               "inputs": {},
               "outputs": {
-                "fish": 160
+                "fish": 100
               }
             },
             "cycle_seconds": 40,
-            "cycle_progress_permille": 325,
+            "cycle_progress_permille": 738,
             "transfer_delay_ms": 13000,
             "assigned_warehouse_id": 8,
             "road_distance": 3,
-            "cycle_rate_permille_per_min": 160,
+            "cycle_rate_permille_per_min": 100,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -902,13 +904,13 @@
         ],
         "workforce": {
           "settlers": {
-            "available": 16000,
+            "available": 10000,
             "required": 4000,
             "factor_permille": 1000
           }
         },
         "population": {
-          "settlers": 16000
+          "settlers": 10000
         },
         "capacity_source": {
           "building_id": 8,
@@ -945,8 +947,8 @@
           "from_island_id": "start",
           "from_position": null,
           "to_island_id": "island2",
-          "depart_at": "2026-01-01T12:03:42.773Z",
-          "arrive_at": "2026-01-01T12:05:53.054Z",
+          "depart_at": "2026-01-01T12:03:42.787Z",
+          "arrive_at": "2026-01-01T12:05:53.068Z",
           "path": [
             {
               "x": 3,
@@ -1094,7 +1096,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": -4400
+      "balance_if_resumed_per_min": -5000
     },
     "quests": {
       "active": [
@@ -1142,10 +1144,10 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T12:04:45.250Z",
-        "next_change_at": "2026-01-01T12:05:53.054Z",
-        "gold": 16036485,
-        "balance_rate_per_min": -4400,
-        "tax_rate_per_min": 1600,
+        "next_change_at": "2026-01-01T12:05:53.068Z",
+        "gold": 15610612,
+        "balance_rate_per_min": -5000,
+        "tax_rate_per_min": 1000,
         "upkeep_rate_per_min": 6000,
         "tiers": [
           {
@@ -1159,7 +1161,7 @@
             "unlocked": false,
             "population": {
               "settlers": {
-                "have": 16000,
+                "have": 10000,
                 "need": 120000
               }
             },
@@ -1700,9 +1702,9 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 299965,
+                "stock": 299978,
                 "capacity": 300000,
-                "in_transit": 35,
+                "in_transit": 22,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
@@ -1918,13 +1920,14 @@
                   "available": false,
                   "reason": "tier_locked"
                 },
-                "residents": 8000,
+                "residents": 5000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 800,
+                "tax_rate_per_min": 500,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -1933,7 +1936,7 @@
                     "fulfilment_permille": 1000,
                     "reason": "ok",
                     "goods": {
-                      "fish": 160
+                      "fish": 100
                     }
                   },
                   {
@@ -1970,13 +1973,14 @@
                   "available": false,
                   "reason": "tier_locked"
                 },
-                "residents": 8000,
+                "residents": 5000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 800,
+                "tax_rate_per_min": 500,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -1985,7 +1989,7 @@
                     "fulfilment_permille": 1000,
                     "reason": "ok",
                     "goods": {
-                      "fish": 160
+                      "fish": 100
                     }
                   },
                   {
@@ -2024,15 +2028,15 @@
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "fish": 160
+                    "fish": 100
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 325,
+                "cycle_progress_permille": 738,
                 "transfer_delay_ms": 13000,
                 "assigned_warehouse_id": 8,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 160,
+                "cycle_rate_permille_per_min": 100,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -2042,13 +2046,13 @@
             ],
             "workforce": {
               "settlers": {
-                "available": 16000,
+                "available": 10000,
                 "required": 4000,
                 "factor_permille": 1000
               }
             },
             "population": {
-              "settlers": 16000
+              "settlers": 10000
             },
             "capacity_source": {
               "building_id": 8,
@@ -2085,8 +2089,8 @@
               "from_island_id": "start",
               "from_position": null,
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T12:03:42.773Z",
-              "arrive_at": "2026-01-01T12:05:53.054Z",
+              "depart_at": "2026-01-01T12:03:42.787Z",
+              "arrive_at": "2026-01-01T12:05:53.068Z",
               "path": [
                 {
                   "x": 3,
@@ -2234,7 +2238,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -4400
+          "balance_if_resumed_per_min": -5000
         },
         "quests": {
           "active": [
@@ -2282,10 +2286,10 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T12:04:46.000Z",
-        "next_change_at": "2026-01-01T12:05:53.054Z",
-        "gold": 16036430,
-        "balance_rate_per_min": -4400,
-        "tax_rate_per_min": 1600,
+        "next_change_at": "2026-01-01T12:05:53.068Z",
+        "gold": 15610550,
+        "balance_rate_per_min": -5000,
+        "tax_rate_per_min": 1000,
         "upkeep_rate_per_min": 6000,
         "tiers": [
           {
@@ -2299,7 +2303,7 @@
             "unlocked": false,
             "population": {
               "settlers": {
-                "have": 16000,
+                "have": 10000,
                 "need": 120000
               }
             },
@@ -2840,9 +2844,9 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 299965,
+                "stock": 299978,
                 "capacity": 300000,
-                "in_transit": 35,
+                "in_transit": 22,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
@@ -3058,13 +3062,14 @@
                   "available": false,
                   "reason": "tier_locked"
                 },
-                "residents": 8000,
+                "residents": 5000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 800,
+                "tax_rate_per_min": 500,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -3073,7 +3078,7 @@
                     "fulfilment_permille": 1000,
                     "reason": "ok",
                     "goods": {
-                      "fish": 160
+                      "fish": 100
                     }
                   },
                   {
@@ -3110,13 +3115,14 @@
                   "available": false,
                   "reason": "tier_locked"
                 },
-                "residents": 8000,
+                "residents": 5000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 800,
+                "tax_rate_per_min": 500,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -3125,7 +3131,7 @@
                     "fulfilment_permille": 1000,
                     "reason": "ok",
                     "goods": {
-                      "fish": 160
+                      "fish": 100
                     }
                   },
                   {
@@ -3164,15 +3170,15 @@
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "fish": 160
+                    "fish": 100
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 327,
+                "cycle_progress_permille": 739,
                 "transfer_delay_ms": 13000,
                 "assigned_warehouse_id": 8,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 160,
+                "cycle_rate_permille_per_min": 100,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -3182,13 +3188,13 @@
             ],
             "workforce": {
               "settlers": {
-                "available": 16000,
+                "available": 10000,
                 "required": 4000,
                 "factor_permille": 1000
               }
             },
             "population": {
-              "settlers": 16000
+              "settlers": 10000
             },
             "capacity_source": {
               "building_id": 8,
@@ -3225,8 +3231,8 @@
               "from_island_id": "start",
               "from_position": null,
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T12:03:42.773Z",
-              "arrive_at": "2026-01-01T12:05:53.054Z",
+              "depart_at": "2026-01-01T12:03:42.787Z",
+              "arrive_at": "2026-01-01T12:05:53.068Z",
               "path": [
                 {
                   "x": 3,
@@ -3374,7 +3380,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -4400
+          "balance_if_resumed_per_min": -5000
         },
         "quests": {
           "active": [
@@ -3422,10 +3428,10 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T12:04:50.000Z",
-        "next_change_at": "2026-01-01T12:05:53.054Z",
-        "gold": 16036136,
-        "balance_rate_per_min": -4400,
-        "tax_rate_per_min": 1600,
+        "next_change_at": "2026-01-01T12:05:53.068Z",
+        "gold": 15610216,
+        "balance_rate_per_min": -5000,
+        "tax_rate_per_min": 1000,
         "upkeep_rate_per_min": 6000,
         "tiers": [
           {
@@ -3439,7 +3445,7 @@
             "unlocked": false,
             "population": {
               "settlers": {
-                "have": 16000,
+                "have": 10000,
                 "need": 120000
               }
             },
@@ -3980,9 +3986,9 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 299965,
+                "stock": 299978,
                 "capacity": 300000,
-                "in_transit": 35,
+                "in_transit": 22,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
@@ -4198,13 +4204,14 @@
                   "available": false,
                   "reason": "tier_locked"
                 },
-                "residents": 8000,
+                "residents": 5000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 800,
+                "tax_rate_per_min": 500,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -4213,7 +4220,7 @@
                     "fulfilment_permille": 1000,
                     "reason": "ok",
                     "goods": {
-                      "fish": 160
+                      "fish": 100
                     }
                   },
                   {
@@ -4250,13 +4257,14 @@
                   "available": false,
                   "reason": "tier_locked"
                 },
-                "residents": 8000,
+                "residents": 5000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 800,
+                "tax_rate_per_min": 500,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -4265,7 +4273,7 @@
                     "fulfilment_permille": 1000,
                     "reason": "ok",
                     "goods": {
-                      "fish": 160
+                      "fish": 100
                     }
                   },
                   {
@@ -4304,15 +4312,15 @@
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "fish": 160
+                    "fish": 100
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 338,
+                "cycle_progress_permille": 746,
                 "transfer_delay_ms": 13000,
                 "assigned_warehouse_id": 8,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 160,
+                "cycle_rate_permille_per_min": 100,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -4322,13 +4330,13 @@
             ],
             "workforce": {
               "settlers": {
-                "available": 16000,
+                "available": 10000,
                 "required": 4000,
                 "factor_permille": 1000
               }
             },
             "population": {
-              "settlers": 16000
+              "settlers": 10000
             },
             "capacity_source": {
               "building_id": 8,
@@ -4365,8 +4373,8 @@
               "from_island_id": "start",
               "from_position": null,
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T12:03:42.773Z",
-              "arrive_at": "2026-01-01T12:05:53.054Z",
+              "depart_at": "2026-01-01T12:03:42.787Z",
+              "arrive_at": "2026-01-01T12:05:53.068Z",
               "path": [
                 {
                   "x": 3,
@@ -4514,7 +4522,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -4400
+          "balance_if_resumed_per_min": -5000
         },
         "quests": {
           "active": [
@@ -4562,10 +4570,10 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T12:05:15.000Z",
-        "next_change_at": "2026-01-01T12:05:53.054Z",
-        "gold": 16034303,
-        "balance_rate_per_min": -4400,
-        "tax_rate_per_min": 1600,
+        "next_change_at": "2026-01-01T12:05:53.068Z",
+        "gold": 15608133,
+        "balance_rate_per_min": -5000,
+        "tax_rate_per_min": 1000,
         "upkeep_rate_per_min": 6000,
         "tiers": [
           {
@@ -4579,7 +4587,7 @@
             "unlocked": false,
             "population": {
               "settlers": {
-                "have": 16000,
+                "have": 10000,
                 "need": 120000
               }
             },
@@ -5120,9 +5128,9 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 299965,
+                "stock": 299978,
                 "capacity": 300000,
-                "in_transit": 35,
+                "in_transit": 22,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
@@ -5338,13 +5346,14 @@
                   "available": false,
                   "reason": "tier_locked"
                 },
-                "residents": 8000,
+                "residents": 5000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 800,
+                "tax_rate_per_min": 500,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -5353,7 +5362,7 @@
                     "fulfilment_permille": 1000,
                     "reason": "ok",
                     "goods": {
-                      "fish": 160
+                      "fish": 100
                     }
                   },
                   {
@@ -5390,13 +5399,14 @@
                   "available": false,
                   "reason": "tier_locked"
                 },
-                "residents": 8000,
+                "residents": 5000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 800,
+                "tax_rate_per_min": 500,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -5405,7 +5415,7 @@
                     "fulfilment_permille": 1000,
                     "reason": "ok",
                     "goods": {
-                      "fish": 160
+                      "fish": 100
                     }
                   },
                   {
@@ -5444,15 +5454,15 @@
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "fish": 160
+                    "fish": 100
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 405,
+                "cycle_progress_permille": 788,
                 "transfer_delay_ms": 13000,
                 "assigned_warehouse_id": 8,
                 "road_distance": 3,
-                "cycle_rate_permille_per_min": 160,
+                "cycle_rate_permille_per_min": 100,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -5462,13 +5472,13 @@
             ],
             "workforce": {
               "settlers": {
-                "available": 16000,
+                "available": 10000,
                 "required": 4000,
                 "factor_permille": 1000
               }
             },
             "population": {
-              "settlers": 16000
+              "settlers": 10000
             },
             "capacity_source": {
               "building_id": 8,
@@ -5505,8 +5515,8 @@
               "from_island_id": "start",
               "from_position": null,
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T12:03:42.773Z",
-              "arrive_at": "2026-01-01T12:05:53.054Z",
+              "depart_at": "2026-01-01T12:03:42.787Z",
+              "arrive_at": "2026-01-01T12:05:53.068Z",
               "path": [
                 {
                   "x": 3,
@@ -5654,7 +5664,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -4400
+          "balance_if_resumed_per_min": -5000
         },
         "quests": {
           "active": [

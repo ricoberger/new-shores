@@ -39,9 +39,6 @@ func checkReferences(c *Catalogue) error {
 	if rules.DeclinePerMin <= 0 {
 		col.add(FileRegion, rent, "rules.decline_per_min", "must be > 0")
 	}
-	if rules.GrowthThreshold < 0 || rules.GrowthThreshold > WeightScale {
-		col.add(FileRegion, rent, "rules.growth_satisfaction_threshold", "must be in [0, 1]")
-	}
 	// The reserve is the hysteresis between insolvency pauses and
 	// auto-resumes; without it a building can be paused and resumed every
 	// millisecond (MECHANICS §7).

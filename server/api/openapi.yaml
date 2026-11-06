@@ -3158,6 +3158,10 @@ components:
           type: integer
           format: int64
           description: Maximum residents of the tier (milli-residents).
+        residents_target:
+          type: integer
+          format: int64
+          description: Residents the house grows or declines towards at its current satisfaction, floor + (max − floor) × satisfaction rounded down to a whole resident (milli-residents, D-074).
         growth_progress_permille:
           type: integer
           format: int64
@@ -3598,7 +3602,7 @@ components:
       type: object
       additionalProperties: false
       required:
-        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, auto_resume_upkeep_ms, ship_handling_base_ms, ship_handling_ms_per_unit, ship_speed_milli_tiles_per_min, away_summary_ms, trial_resume_upkeep_ms]
+        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, auto_resume_upkeep_ms, ship_handling_base_ms, ship_handling_ms_per_unit, ship_speed_milli_tiles_per_min, away_summary_ms, trial_resume_upkeep_ms]
       properties:
         transfer_base_ms:
           type: integer
@@ -3622,11 +3626,7 @@ components:
         decline_per_min:
           type: integer
           format: int64
-          description: House decline factor (milli-residents per minute).
-        growth_satisfaction_threshold:
-          type: integer
-          format: int64
-          description: Satisfaction from which houses grow (ppm).
+          description: House decline factor (milli-residents per minute; decline = factor × (1 − satisfaction) above the target).
         auto_resume_upkeep_ms:
           type: integer
           format: int64

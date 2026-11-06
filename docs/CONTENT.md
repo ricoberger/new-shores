@@ -522,7 +522,6 @@ future decision. A new translatable field must be added to
     "coarse_step_seconds": 60,
     "growth_per_min": 1,
     "decline_per_min": 0.5,
-    "growth_satisfaction_threshold": 0.5,
     "optional_tax_bonus": 0.25,
     "auto_resume_upkeep_minutes": 5,
     "ship_speed_tiles_per_min": 60,
@@ -539,7 +538,7 @@ future decision. A new translatable field must be added to
 | `transfer_base_seconds` | fixed part of the producer → warehouse delay | MECHANICS §3 |
 | `unconnected_buffer_units` | output buffer of an unconnected producer | §3 |
 | `iteration_cap`, `coarse_step_seconds` | boundary cap and coarse fallback | §1.1 |
-| `growth_per_min`, `decline_per_min`, `growth_satisfaction_threshold` | house growth and decline | §6.1 |
+| `growth_per_min`, `decline_per_min` | house growth (× satisfaction, below the target) and decline (× (1 − satisfaction), above it); the target is `floor + (max − floor) × satisfaction` (D-074, no threshold) | §6.1 |
 | `optional_tax_bonus` | tax bonus at full optional-need fulfilment | §6.2 |
 | `auto_resume_upkeep_minutes` | gold reserve before an auto-paused building resumes; **strictly > 0** (0 is rejected: it removes the pause/resume hysteresis) | §7 |
 | `ship_speed_tiles_per_min` | archipelago tiles per minute at ship speed 1.0 (provisional 60) | §9.1 |

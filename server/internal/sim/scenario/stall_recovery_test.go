@@ -2,6 +2,7 @@ package scenario
 
 import (
 	"encoding/json"
+	"math"
 	"testing"
 	"time"
 
@@ -135,7 +136,9 @@ func TestStallRecoveryAuto(t *testing.T) {
 	// Fully stalled: right after the cascade gold is zero, every pausable
 	// building is unpaid, the balance is >= 0 and gold grows from the floor
 	// taxes until the first auto-resume.
-	at := s.Start.Add(time.Duration(cascade * float64(time.Minute)))
+	// Report timestamps have millisecond resolution: round the float minutes
+	// back to the cascade's millisecond, never a hair before it.
+	at := s.Start.Add(time.Duration(math.Round(cascade*float64(time.Minute)/float64(time.Millisecond))) * time.Millisecond)
 	w, err := RunSteps(s, c, end)
 	if err != nil {
 		t.Fatal(err)
@@ -188,7 +191,7 @@ func TestStallRecoveryAuto(t *testing.T) {
 
 // TestStallRecoveryManual checks golden (x), manual shortcut: the same
 // world up to the fully stalled state; once the first catch has landed the
-// player resumes the unpaid fisher and demolishes the unpaid weaver. The
+// player resumes the unpaid fisher and demolishes the unpaid lumberjack. The
 // town recovers within 60 minutes of that action and no later than without
 // it.
 func TestStallRecoveryManual(t *testing.T) {
@@ -229,7 +232,7 @@ func TestStallRecoveryManual(t *testing.T) {
 	if actionAt <= cascade {
 		t.Fatalf("manual action at minute %.2f, before the cascade at %.2f", actionAt, cascade)
 	}
-	// The resumed fisher stays running, the weaver is gone; the rest
+	// The resumed fisher stays running, the lumberjack is gone; the rest
 	// resumes automatically.
 	open, recovered := 0, -1.0
 	for _, e := range rep.PauseEvents {
@@ -386,8 +389,8 @@ func TestStallRecoveryOffline24h(t *testing.T) {
 			buildings++
 		}
 	}
-	if fields != 1 {
-		t.Errorf("%d fields, want the lumberjack's tree plot", fields)
+	if fields != 5 {
+		t.Errorf("%d fields, want the lumberjack's tree plot and the four pastures", fields)
 	}
 	for _, st := range s.Steps {
 		if st.Place != nil {

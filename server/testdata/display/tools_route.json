@@ -3,9 +3,9 @@
   "base": {
     "evaluated_at": "2026-01-01T00:45:00.000Z",
     "next_change_at": "2026-01-01T00:45:49.418Z",
-    "gold": 8596199,
-    "balance_rate_per_min": 6160,
-    "tax_rate_per_min": 20160,
+    "gold": 8544000,
+    "balance_rate_per_min": 10000,
+    "tax_rate_per_min": 24000,
     "upkeep_rate_per_min": 14000,
     "tiers": [
       {
@@ -84,7 +84,7 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 149870,
+            "stock": 149150,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": -1200,
@@ -126,7 +126,7 @@
             "in_transit_rate_per_min": 0
           },
           "planks": {
-            "stock": 100000,
+            "stock": 85000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -175,7 +175,7 @@
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 74935,
+            "stock": 74575,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": -600,
@@ -628,6 +628,18 @@
           },
           {
             "id": 4,
+            "type": "market_small",
+            "x": 29,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000
+          },
+          {
+            "id": 5,
             "type": "house_settlers",
             "x": 6,
             "y": 2,
@@ -643,60 +655,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
-            "growth_progress_permille": 0,
-            "growth_rate_per_min": 0,
-            "satisfaction_permille": 1000,
-            "tax_rate_per_min": 1600,
-            "needs": [
-              {
-                "id": "settlers_food",
-                "kind": "required",
-                "category": "food",
-                "fulfilment_permille": 1000,
-                "reason": "ok",
-                "goods": {
-                  "fish": 1200
-                }
-              },
-              {
-                "id": "settlers_clothing",
-                "kind": "required",
-                "category": "clothing",
-                "fulfilment_permille": 1000,
-                "reason": "ok",
-                "goods": {
-                  "wool_garments": 600
-                }
-              },
-              {
-                "id": "settlers_market_small",
-                "kind": "required",
-                "building": "market_small",
-                "fulfilment_permille": 1000,
-                "reason": "ok"
-              }
-            ],
-            "served_by": [
-              2
-            ]
-          },
-          {
-            "id": 5,
-            "type": "house_settlers",
-            "x": 8,
-            "y": 2,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "upgrade": {
-              "available": true
-            },
-            "residents": 8000,
-            "residents_floor": 2000,
-            "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -737,7 +696,7 @@
           {
             "id": 6,
             "type": "house_settlers",
-            "x": 10,
+            "x": 8,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -751,6 +710,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -791,7 +751,7 @@
           {
             "id": 7,
             "type": "house_settlers",
-            "x": 12,
+            "x": 10,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -805,6 +765,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -845,7 +806,7 @@
           {
             "id": 8,
             "type": "house_settlers",
-            "x": 14,
+            "x": 12,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -859,6 +820,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -899,7 +861,7 @@
           {
             "id": 9,
             "type": "house_settlers",
-            "x": 16,
+            "x": 14,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -913,6 +875,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -953,7 +916,7 @@
           {
             "id": 10,
             "type": "house_settlers",
-            "x": 18,
+            "x": 16,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -967,6 +930,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1007,7 +971,7 @@
           {
             "id": 11,
             "type": "house_settlers",
-            "x": 20,
+            "x": 18,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -1016,16 +980,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1051,13 +1015,72 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              2,
+              4
             ]
           },
           {
             "id": 12,
+            "type": "house_settlers",
+            "x": 20,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "residents_target": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "goods": {
+                  "fish": 1200
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "goods": {
+                  "wool_garments": 600
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              }
+            ],
+            "served_by": [
+              4
+            ]
+          },
+          {
+            "id": 13,
             "type": "house_settlers",
             "x": 22,
             "y": 2,
@@ -1068,16 +1091,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1103,13 +1126,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 13,
+            "id": 14,
             "type": "house_settlers",
             "x": 24,
             "y": 2,
@@ -1120,16 +1146,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1155,13 +1181,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 14,
+            "id": 15,
             "type": "house_settlers",
             "x": 26,
             "y": 2,
@@ -1172,16 +1201,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1207,13 +1236,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 15,
+            "id": 16,
             "type": "house_settlers",
             "x": 28,
             "y": 2,
@@ -1224,16 +1256,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1259,13 +1291,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 16,
+            "id": 17,
             "type": "house_settlers",
             "x": 30,
             "y": 2,
@@ -1276,16 +1311,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1311,13 +1346,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 17,
+            "id": 18,
             "type": "house_settlers",
             "x": 32,
             "y": 2,
@@ -1328,16 +1366,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1363,13 +1401,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 18,
+            "id": 19,
             "type": "house_settlers",
             "x": 34,
             "y": 2,
@@ -1380,16 +1421,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1415,13 +1456,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 19,
+            "id": 20,
             "type": "shipyard",
             "x": 20,
             "y": 13,
@@ -1434,7 +1478,7 @@
             "ship_order": null
           },
           {
-            "id": 21,
+            "id": 22,
             "type": "lumberjack",
             "x": 32,
             "y": 5,
@@ -1466,12 +1510,12 @@
               "required": 1,
               "max": 2,
               "ids": [
-                22
+                23
               ]
             }
           },
           {
-            "id": 22,
+            "id": 23,
             "type": "tree_plot",
             "x": 34,
             "y": 5,
@@ -1481,11 +1525,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 21,
+            "farm_id": 22,
             "active": true
           },
           {
-            "id": 23,
+            "id": 24,
             "type": "charcoal_burner",
             "x": 16,
             "y": 11,
@@ -1516,7 +1560,7 @@
             }
           },
           {
-            "id": 24,
+            "id": 25,
             "type": "iron_mine",
             "x": 11,
             "y": 7,
@@ -1545,7 +1589,7 @@
             }
           },
           {
-            "id": 25,
+            "id": 26,
             "type": "smelter",
             "x": 26,
             "y": 11,
@@ -1577,7 +1621,7 @@
             }
           },
           {
-            "id": 26,
+            "id": 27,
             "type": "toolmaker",
             "x": 29,
             "y": 11,
@@ -1802,7 +1846,7 @@
         "roads": [],
         "buildings": [
           {
-            "id": 20,
+            "id": 21,
             "type": "trading_post",
             "x": 1,
             "y": 0,
@@ -1827,7 +1871,7 @@
         "workforce": {},
         "population": {},
         "capacity_source": {
-          "building_id": 20,
+          "building_id": 21,
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
@@ -1969,7 +2013,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 6160
+      "balance_if_resumed_per_min": 10000
     },
     "quests": {
       "active": [
@@ -2019,9 +2063,9 @@
       "display": {
         "evaluated_at": "2026-01-01T00:45:00.250Z",
         "next_change_at": "2026-01-01T00:45:49.418Z",
-        "gold": 8596225,
-        "balance_rate_per_min": 6160,
-        "tax_rate_per_min": 20160,
+        "gold": 8544041,
+        "balance_rate_per_min": 10000,
+        "tax_rate_per_min": 24000,
         "upkeep_rate_per_min": 14000,
         "tiers": [
           {
@@ -2100,7 +2144,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 149865,
+                "stock": 149145,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -1200,
@@ -2142,7 +2186,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 100000,
+                "stock": 85000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -2191,7 +2235,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 74933,
+                "stock": 74573,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -600,
@@ -2644,6 +2688,18 @@
               },
               {
                 "id": 4,
+                "type": "market_small",
+                "x": 29,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000
+              },
+              {
+                "id": 5,
                 "type": "house_settlers",
                 "x": 6,
                 "y": 2,
@@ -2659,60 +2715,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
-                "growth_progress_permille": 0,
-                "growth_rate_per_min": 0,
-                "satisfaction_permille": 1000,
-                "tax_rate_per_min": 1600,
-                "needs": [
-                  {
-                    "id": "settlers_food",
-                    "kind": "required",
-                    "category": "food",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok",
-                    "goods": {
-                      "fish": 1200
-                    }
-                  },
-                  {
-                    "id": "settlers_clothing",
-                    "kind": "required",
-                    "category": "clothing",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok",
-                    "goods": {
-                      "wool_garments": 600
-                    }
-                  },
-                  {
-                    "id": "settlers_market_small",
-                    "kind": "required",
-                    "building": "market_small",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok"
-                  }
-                ],
-                "served_by": [
-                  2
-                ]
-              },
-              {
-                "id": 5,
-                "type": "house_settlers",
-                "x": 8,
-                "y": 2,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "upgrade": {
-                  "available": true
-                },
-                "residents": 8000,
-                "residents_floor": 2000,
-                "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -2753,7 +2756,7 @@
               {
                 "id": 6,
                 "type": "house_settlers",
-                "x": 10,
+                "x": 8,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -2767,6 +2770,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -2807,7 +2811,7 @@
               {
                 "id": 7,
                 "type": "house_settlers",
-                "x": 12,
+                "x": 10,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -2821,6 +2825,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -2861,7 +2866,7 @@
               {
                 "id": 8,
                 "type": "house_settlers",
-                "x": 14,
+                "x": 12,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -2875,6 +2880,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -2915,7 +2921,7 @@
               {
                 "id": 9,
                 "type": "house_settlers",
-                "x": 16,
+                "x": 14,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -2929,6 +2935,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -2969,7 +2976,7 @@
               {
                 "id": 10,
                 "type": "house_settlers",
-                "x": 18,
+                "x": 16,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -2983,6 +2990,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -3023,7 +3031,7 @@
               {
                 "id": 11,
                 "type": "house_settlers",
-                "x": 20,
+                "x": 18,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -3032,16 +3040,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -3067,13 +3075,72 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  2,
+                  4
                 ]
               },
               {
                 "id": 12,
+                "type": "house_settlers",
+                "x": 20,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "residents_target": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  4
+                ]
+              },
+              {
+                "id": 13,
                 "type": "house_settlers",
                 "x": 22,
                 "y": 2,
@@ -3084,16 +3151,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -3119,13 +3186,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 13,
+                "id": 14,
                 "type": "house_settlers",
                 "x": 24,
                 "y": 2,
@@ -3136,16 +3206,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -3171,13 +3241,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 14,
+                "id": 15,
                 "type": "house_settlers",
                 "x": 26,
                 "y": 2,
@@ -3188,16 +3261,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -3223,13 +3296,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 15,
+                "id": 16,
                 "type": "house_settlers",
                 "x": 28,
                 "y": 2,
@@ -3240,16 +3316,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -3275,13 +3351,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 16,
+                "id": 17,
                 "type": "house_settlers",
                 "x": 30,
                 "y": 2,
@@ -3292,16 +3371,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -3327,13 +3406,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 17,
+                "id": 18,
                 "type": "house_settlers",
                 "x": 32,
                 "y": 2,
@@ -3344,16 +3426,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -3379,13 +3461,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 18,
+                "id": 19,
                 "type": "house_settlers",
                 "x": 34,
                 "y": 2,
@@ -3396,16 +3481,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -3431,13 +3516,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 19,
+                "id": 20,
                 "type": "shipyard",
                 "x": 20,
                 "y": 13,
@@ -3450,7 +3538,7 @@
                 "ship_order": null
               },
               {
-                "id": 21,
+                "id": 22,
                 "type": "lumberjack",
                 "x": 32,
                 "y": 5,
@@ -3482,12 +3570,12 @@
                   "required": 1,
                   "max": 2,
                   "ids": [
-                    22
+                    23
                   ]
                 }
               },
               {
-                "id": 22,
+                "id": 23,
                 "type": "tree_plot",
                 "x": 34,
                 "y": 5,
@@ -3497,11 +3585,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 21,
+                "farm_id": 22,
                 "active": true
               },
               {
-                "id": 23,
+                "id": 24,
                 "type": "charcoal_burner",
                 "x": 16,
                 "y": 11,
@@ -3532,7 +3620,7 @@
                 }
               },
               {
-                "id": 24,
+                "id": 25,
                 "type": "iron_mine",
                 "x": 11,
                 "y": 7,
@@ -3561,7 +3649,7 @@
                 }
               },
               {
-                "id": 25,
+                "id": 26,
                 "type": "smelter",
                 "x": 26,
                 "y": 11,
@@ -3593,7 +3681,7 @@
                 }
               },
               {
-                "id": 26,
+                "id": 27,
                 "type": "toolmaker",
                 "x": 29,
                 "y": 11,
@@ -3818,7 +3906,7 @@
             "roads": [],
             "buildings": [
               {
-                "id": 20,
+                "id": 21,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -3843,7 +3931,7 @@
             "workforce": {},
             "population": {},
             "capacity_source": {
-              "building_id": 20,
+              "building_id": 21,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
@@ -3985,7 +4073,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 6160
+          "balance_if_resumed_per_min": 10000
         },
         "quests": {
           "active": [
@@ -4035,9 +4123,9 @@
       "display": {
         "evaluated_at": "2026-01-01T00:45:01.000Z",
         "next_change_at": "2026-01-01T00:45:49.418Z",
-        "gold": 8596302,
-        "balance_rate_per_min": 6160,
-        "tax_rate_per_min": 20160,
+        "gold": 8544166,
+        "balance_rate_per_min": 10000,
+        "tax_rate_per_min": 24000,
         "upkeep_rate_per_min": 14000,
         "tiers": [
           {
@@ -4116,7 +4204,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 149850,
+                "stock": 149130,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -1200,
@@ -4158,7 +4246,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 100000,
+                "stock": 85000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -4207,7 +4295,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 74925,
+                "stock": 74565,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -600,
@@ -4660,6 +4748,18 @@
               },
               {
                 "id": 4,
+                "type": "market_small",
+                "x": 29,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000
+              },
+              {
+                "id": 5,
                 "type": "house_settlers",
                 "x": 6,
                 "y": 2,
@@ -4675,60 +4775,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
-                "growth_progress_permille": 0,
-                "growth_rate_per_min": 0,
-                "satisfaction_permille": 1000,
-                "tax_rate_per_min": 1600,
-                "needs": [
-                  {
-                    "id": "settlers_food",
-                    "kind": "required",
-                    "category": "food",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok",
-                    "goods": {
-                      "fish": 1200
-                    }
-                  },
-                  {
-                    "id": "settlers_clothing",
-                    "kind": "required",
-                    "category": "clothing",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok",
-                    "goods": {
-                      "wool_garments": 600
-                    }
-                  },
-                  {
-                    "id": "settlers_market_small",
-                    "kind": "required",
-                    "building": "market_small",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok"
-                  }
-                ],
-                "served_by": [
-                  2
-                ]
-              },
-              {
-                "id": 5,
-                "type": "house_settlers",
-                "x": 8,
-                "y": 2,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "upgrade": {
-                  "available": true
-                },
-                "residents": 8000,
-                "residents_floor": 2000,
-                "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -4769,7 +4816,7 @@
               {
                 "id": 6,
                 "type": "house_settlers",
-                "x": 10,
+                "x": 8,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -4783,6 +4830,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -4823,7 +4871,7 @@
               {
                 "id": 7,
                 "type": "house_settlers",
-                "x": 12,
+                "x": 10,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -4837,6 +4885,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -4877,7 +4926,7 @@
               {
                 "id": 8,
                 "type": "house_settlers",
-                "x": 14,
+                "x": 12,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -4891,6 +4940,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -4931,7 +4981,7 @@
               {
                 "id": 9,
                 "type": "house_settlers",
-                "x": 16,
+                "x": 14,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -4945,6 +4995,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -4985,7 +5036,7 @@
               {
                 "id": 10,
                 "type": "house_settlers",
-                "x": 18,
+                "x": 16,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -4999,6 +5050,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -5039,7 +5091,7 @@
               {
                 "id": 11,
                 "type": "house_settlers",
-                "x": 20,
+                "x": 18,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -5048,16 +5100,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -5083,13 +5135,72 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  2,
+                  4
                 ]
               },
               {
                 "id": 12,
+                "type": "house_settlers",
+                "x": 20,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "residents_target": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  4
+                ]
+              },
+              {
+                "id": 13,
                 "type": "house_settlers",
                 "x": 22,
                 "y": 2,
@@ -5100,16 +5211,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -5135,13 +5246,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 13,
+                "id": 14,
                 "type": "house_settlers",
                 "x": 24,
                 "y": 2,
@@ -5152,16 +5266,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -5187,13 +5301,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 14,
+                "id": 15,
                 "type": "house_settlers",
                 "x": 26,
                 "y": 2,
@@ -5204,16 +5321,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -5239,13 +5356,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 15,
+                "id": 16,
                 "type": "house_settlers",
                 "x": 28,
                 "y": 2,
@@ -5256,16 +5376,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -5291,13 +5411,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 16,
+                "id": 17,
                 "type": "house_settlers",
                 "x": 30,
                 "y": 2,
@@ -5308,16 +5431,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -5343,13 +5466,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 17,
+                "id": 18,
                 "type": "house_settlers",
                 "x": 32,
                 "y": 2,
@@ -5360,16 +5486,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -5395,13 +5521,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 18,
+                "id": 19,
                 "type": "house_settlers",
                 "x": 34,
                 "y": 2,
@@ -5412,16 +5541,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -5447,13 +5576,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 19,
+                "id": 20,
                 "type": "shipyard",
                 "x": 20,
                 "y": 13,
@@ -5466,7 +5598,7 @@
                 "ship_order": null
               },
               {
-                "id": 21,
+                "id": 22,
                 "type": "lumberjack",
                 "x": 32,
                 "y": 5,
@@ -5498,12 +5630,12 @@
                   "required": 1,
                   "max": 2,
                   "ids": [
-                    22
+                    23
                   ]
                 }
               },
               {
-                "id": 22,
+                "id": 23,
                 "type": "tree_plot",
                 "x": 34,
                 "y": 5,
@@ -5513,11 +5645,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 21,
+                "farm_id": 22,
                 "active": true
               },
               {
-                "id": 23,
+                "id": 24,
                 "type": "charcoal_burner",
                 "x": 16,
                 "y": 11,
@@ -5548,7 +5680,7 @@
                 }
               },
               {
-                "id": 24,
+                "id": 25,
                 "type": "iron_mine",
                 "x": 11,
                 "y": 7,
@@ -5577,7 +5709,7 @@
                 }
               },
               {
-                "id": 25,
+                "id": 26,
                 "type": "smelter",
                 "x": 26,
                 "y": 11,
@@ -5609,7 +5741,7 @@
                 }
               },
               {
-                "id": 26,
+                "id": 27,
                 "type": "toolmaker",
                 "x": 29,
                 "y": 11,
@@ -5834,7 +5966,7 @@
             "roads": [],
             "buildings": [
               {
-                "id": 20,
+                "id": 21,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -5859,7 +5991,7 @@
             "workforce": {},
             "population": {},
             "capacity_source": {
-              "building_id": 20,
+              "building_id": 21,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
@@ -6001,7 +6133,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 6160
+          "balance_if_resumed_per_min": 10000
         },
         "quests": {
           "active": [
@@ -6051,9 +6183,9 @@
       "display": {
         "evaluated_at": "2026-01-01T00:45:05.000Z",
         "next_change_at": "2026-01-01T00:45:49.418Z",
-        "gold": 8596713,
-        "balance_rate_per_min": 6160,
-        "tax_rate_per_min": 20160,
+        "gold": 8544833,
+        "balance_rate_per_min": 10000,
+        "tax_rate_per_min": 24000,
         "upkeep_rate_per_min": 14000,
         "tiers": [
           {
@@ -6132,7 +6264,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 149770,
+                "stock": 149050,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -1200,
@@ -6174,7 +6306,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 100000,
+                "stock": 85000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -6223,7 +6355,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 74885,
+                "stock": 74525,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -600,
@@ -6676,6 +6808,18 @@
               },
               {
                 "id": 4,
+                "type": "market_small",
+                "x": 29,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000
+              },
+              {
+                "id": 5,
                 "type": "house_settlers",
                 "x": 6,
                 "y": 2,
@@ -6691,60 +6835,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
-                "growth_progress_permille": 0,
-                "growth_rate_per_min": 0,
-                "satisfaction_permille": 1000,
-                "tax_rate_per_min": 1600,
-                "needs": [
-                  {
-                    "id": "settlers_food",
-                    "kind": "required",
-                    "category": "food",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok",
-                    "goods": {
-                      "fish": 1200
-                    }
-                  },
-                  {
-                    "id": "settlers_clothing",
-                    "kind": "required",
-                    "category": "clothing",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok",
-                    "goods": {
-                      "wool_garments": 600
-                    }
-                  },
-                  {
-                    "id": "settlers_market_small",
-                    "kind": "required",
-                    "building": "market_small",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok"
-                  }
-                ],
-                "served_by": [
-                  2
-                ]
-              },
-              {
-                "id": 5,
-                "type": "house_settlers",
-                "x": 8,
-                "y": 2,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "upgrade": {
-                  "available": true
-                },
-                "residents": 8000,
-                "residents_floor": 2000,
-                "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -6785,7 +6876,7 @@
               {
                 "id": 6,
                 "type": "house_settlers",
-                "x": 10,
+                "x": 8,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -6799,6 +6890,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -6839,7 +6931,7 @@
               {
                 "id": 7,
                 "type": "house_settlers",
-                "x": 12,
+                "x": 10,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -6853,6 +6945,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -6893,7 +6986,7 @@
               {
                 "id": 8,
                 "type": "house_settlers",
-                "x": 14,
+                "x": 12,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -6907,6 +7000,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -6947,7 +7041,7 @@
               {
                 "id": 9,
                 "type": "house_settlers",
-                "x": 16,
+                "x": 14,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -6961,6 +7055,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -7001,7 +7096,7 @@
               {
                 "id": 10,
                 "type": "house_settlers",
-                "x": 18,
+                "x": 16,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -7015,6 +7110,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -7055,7 +7151,7 @@
               {
                 "id": 11,
                 "type": "house_settlers",
-                "x": 20,
+                "x": 18,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -7064,16 +7160,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -7099,13 +7195,72 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  2,
+                  4
                 ]
               },
               {
                 "id": 12,
+                "type": "house_settlers",
+                "x": 20,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "residents_target": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  4
+                ]
+              },
+              {
+                "id": 13,
                 "type": "house_settlers",
                 "x": 22,
                 "y": 2,
@@ -7116,16 +7271,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -7151,13 +7306,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 13,
+                "id": 14,
                 "type": "house_settlers",
                 "x": 24,
                 "y": 2,
@@ -7168,16 +7326,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -7203,13 +7361,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 14,
+                "id": 15,
                 "type": "house_settlers",
                 "x": 26,
                 "y": 2,
@@ -7220,16 +7381,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -7255,13 +7416,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 15,
+                "id": 16,
                 "type": "house_settlers",
                 "x": 28,
                 "y": 2,
@@ -7272,16 +7436,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -7307,13 +7471,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 16,
+                "id": 17,
                 "type": "house_settlers",
                 "x": 30,
                 "y": 2,
@@ -7324,16 +7491,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -7359,13 +7526,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 17,
+                "id": 18,
                 "type": "house_settlers",
                 "x": 32,
                 "y": 2,
@@ -7376,16 +7546,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -7411,13 +7581,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 18,
+                "id": 19,
                 "type": "house_settlers",
                 "x": 34,
                 "y": 2,
@@ -7428,16 +7601,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -7463,13 +7636,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 19,
+                "id": 20,
                 "type": "shipyard",
                 "x": 20,
                 "y": 13,
@@ -7482,7 +7658,7 @@
                 "ship_order": null
               },
               {
-                "id": 21,
+                "id": 22,
                 "type": "lumberjack",
                 "x": 32,
                 "y": 5,
@@ -7514,12 +7690,12 @@
                   "required": 1,
                   "max": 2,
                   "ids": [
-                    22
+                    23
                   ]
                 }
               },
               {
-                "id": 22,
+                "id": 23,
                 "type": "tree_plot",
                 "x": 34,
                 "y": 5,
@@ -7529,11 +7705,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 21,
+                "farm_id": 22,
                 "active": true
               },
               {
-                "id": 23,
+                "id": 24,
                 "type": "charcoal_burner",
                 "x": 16,
                 "y": 11,
@@ -7564,7 +7740,7 @@
                 }
               },
               {
-                "id": 24,
+                "id": 25,
                 "type": "iron_mine",
                 "x": 11,
                 "y": 7,
@@ -7593,7 +7769,7 @@
                 }
               },
               {
-                "id": 25,
+                "id": 26,
                 "type": "smelter",
                 "x": 26,
                 "y": 11,
@@ -7625,7 +7801,7 @@
                 }
               },
               {
-                "id": 26,
+                "id": 27,
                 "type": "toolmaker",
                 "x": 29,
                 "y": 11,
@@ -7850,7 +8026,7 @@
             "roads": [],
             "buildings": [
               {
-                "id": 20,
+                "id": 21,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -7875,7 +8051,7 @@
             "workforce": {},
             "population": {},
             "capacity_source": {
-              "building_id": 20,
+              "building_id": 21,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
@@ -8017,7 +8193,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 6160
+          "balance_if_resumed_per_min": 10000
         },
         "quests": {
           "active": [
@@ -8067,9 +8243,9 @@
       "display": {
         "evaluated_at": "2026-01-01T00:45:30.000Z",
         "next_change_at": "2026-01-01T00:45:49.418Z",
-        "gold": 8599279,
-        "balance_rate_per_min": 6160,
-        "tax_rate_per_min": 20160,
+        "gold": 8549000,
+        "balance_rate_per_min": 10000,
+        "tax_rate_per_min": 24000,
         "upkeep_rate_per_min": 14000,
         "tiers": [
           {
@@ -8148,7 +8324,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 149270,
+                "stock": 148550,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -1200,
@@ -8190,7 +8366,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 100000,
+                "stock": 85000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -8239,7 +8415,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 74635,
+                "stock": 74275,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -600,
@@ -8692,6 +8868,18 @@
               },
               {
                 "id": 4,
+                "type": "market_small",
+                "x": 29,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000
+              },
+              {
+                "id": 5,
                 "type": "house_settlers",
                 "x": 6,
                 "y": 2,
@@ -8707,60 +8895,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
-                "growth_progress_permille": 0,
-                "growth_rate_per_min": 0,
-                "satisfaction_permille": 1000,
-                "tax_rate_per_min": 1600,
-                "needs": [
-                  {
-                    "id": "settlers_food",
-                    "kind": "required",
-                    "category": "food",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok",
-                    "goods": {
-                      "fish": 1200
-                    }
-                  },
-                  {
-                    "id": "settlers_clothing",
-                    "kind": "required",
-                    "category": "clothing",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok",
-                    "goods": {
-                      "wool_garments": 600
-                    }
-                  },
-                  {
-                    "id": "settlers_market_small",
-                    "kind": "required",
-                    "building": "market_small",
-                    "fulfilment_permille": 1000,
-                    "reason": "ok"
-                  }
-                ],
-                "served_by": [
-                  2
-                ]
-              },
-              {
-                "id": 5,
-                "type": "house_settlers",
-                "x": 8,
-                "y": 2,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "upgrade": {
-                  "available": true
-                },
-                "residents": 8000,
-                "residents_floor": 2000,
-                "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -8801,7 +8936,7 @@
               {
                 "id": 6,
                 "type": "house_settlers",
-                "x": 10,
+                "x": 8,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -8815,6 +8950,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -8855,7 +8991,7 @@
               {
                 "id": 7,
                 "type": "house_settlers",
-                "x": 12,
+                "x": 10,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -8869,6 +9005,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -8909,7 +9046,7 @@
               {
                 "id": 8,
                 "type": "house_settlers",
-                "x": 14,
+                "x": 12,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -8923,6 +9060,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -8963,7 +9101,7 @@
               {
                 "id": 9,
                 "type": "house_settlers",
-                "x": 16,
+                "x": 14,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -8977,6 +9115,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -9017,7 +9156,7 @@
               {
                 "id": 10,
                 "type": "house_settlers",
-                "x": 18,
+                "x": 16,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -9031,6 +9170,7 @@
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
@@ -9071,7 +9211,7 @@
               {
                 "id": 11,
                 "type": "house_settlers",
-                "x": 20,
+                "x": 18,
                 "y": 2,
                 "rotation": 0,
                 "paused": false,
@@ -9080,16 +9220,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -9115,13 +9255,72 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  2,
+                  4
                 ]
               },
               {
                 "id": 12,
+                "type": "house_settlers",
+                "x": 20,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "residents_target": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  4
+                ]
+              },
+              {
+                "id": 13,
                 "type": "house_settlers",
                 "x": 22,
                 "y": 2,
@@ -9132,16 +9331,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -9167,13 +9366,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 13,
+                "id": 14,
                 "type": "house_settlers",
                 "x": 24,
                 "y": 2,
@@ -9184,16 +9386,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -9219,13 +9421,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 14,
+                "id": 15,
                 "type": "house_settlers",
                 "x": 26,
                 "y": 2,
@@ -9236,16 +9441,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -9271,13 +9476,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 15,
+                "id": 16,
                 "type": "house_settlers",
                 "x": 28,
                 "y": 2,
@@ -9288,16 +9496,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -9323,13 +9531,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 16,
+                "id": 17,
                 "type": "house_settlers",
                 "x": 30,
                 "y": 2,
@@ -9340,16 +9551,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -9375,13 +9586,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 17,
+                "id": 18,
                 "type": "house_settlers",
                 "x": 32,
                 "y": 2,
@@ -9392,16 +9606,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -9427,13 +9641,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 18,
+                "id": 19,
                 "type": "house_settlers",
                 "x": 34,
                 "y": 2,
@@ -9444,16 +9661,16 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "upgrade": {
-                  "available": false,
-                  "reason": "needs_below_threshold:settlers_market_small:60"
+                  "available": true
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
+                "residents_target": 8000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
-                "satisfaction_permille": 700,
-                "tax_rate_per_min": 1120,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -9479,13 +9696,16 @@
                     "id": "settlers_market_small",
                     "kind": "required",
                     "building": "market_small",
-                    "fulfilment_permille": 0,
-                    "reason": "out_of_range"
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
                   }
+                ],
+                "served_by": [
+                  4
                 ]
               },
               {
-                "id": 19,
+                "id": 20,
                 "type": "shipyard",
                 "x": 20,
                 "y": 13,
@@ -9498,7 +9718,7 @@
                 "ship_order": null
               },
               {
-                "id": 21,
+                "id": 22,
                 "type": "lumberjack",
                 "x": 32,
                 "y": 5,
@@ -9530,12 +9750,12 @@
                   "required": 1,
                   "max": 2,
                   "ids": [
-                    22
+                    23
                   ]
                 }
               },
               {
-                "id": 22,
+                "id": 23,
                 "type": "tree_plot",
                 "x": 34,
                 "y": 5,
@@ -9545,11 +9765,11 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "farm_id": 21,
+                "farm_id": 22,
                 "active": true
               },
               {
-                "id": 23,
+                "id": 24,
                 "type": "charcoal_burner",
                 "x": 16,
                 "y": 11,
@@ -9580,7 +9800,7 @@
                 }
               },
               {
-                "id": 24,
+                "id": 25,
                 "type": "iron_mine",
                 "x": 11,
                 "y": 7,
@@ -9609,7 +9829,7 @@
                 }
               },
               {
-                "id": 25,
+                "id": 26,
                 "type": "smelter",
                 "x": 26,
                 "y": 11,
@@ -9641,7 +9861,7 @@
                 }
               },
               {
-                "id": 26,
+                "id": 27,
                 "type": "toolmaker",
                 "x": 29,
                 "y": 11,
@@ -9866,7 +10086,7 @@
             "roads": [],
             "buildings": [
               {
-                "id": 20,
+                "id": 21,
                 "type": "trading_post",
                 "x": 1,
                 "y": 0,
@@ -9891,7 +10111,7 @@
             "workforce": {},
             "population": {},
             "capacity_source": {
-              "building_id": 20,
+              "building_id": 21,
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
@@ -10033,7 +10253,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 6160
+          "balance_if_resumed_per_min": 10000
         },
         "quests": {
           "active": [

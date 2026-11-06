@@ -98,7 +98,7 @@ describe("HUD components", () => {
       expect(text(html)).toContain("18 / 88");
       expect(text(html)).toContain("81 %");
       expect(text(html)).toContain("Worst unmet need: Small market 36 % (out of range)");
-      expect(text(html)).toContain("22 / 40");
+      expect(text(html)).toContain("22 / 52");
     });
 
     it("marks a tier short of workers in the population details and turns the number red", () => {
@@ -294,7 +294,7 @@ describe("HUD components", () => {
     const html = renderToStaticMarkup(createElement(InsolvencyBanner, { model: fixture("away_summary_12h"), onOpenWarnings: () => {} }));
     expect(html).toContain('data-testid="insolvency-banner"');
     expect(text(html)).toContain(
-      "Your city cannot afford its upkeep: −4.5 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
+      "Your city cannot afford its upkeep: −4.3 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
     );
   });
 
@@ -324,7 +324,7 @@ describe("HUD components", () => {
     expect(html).toContain('data-testid="away-good-start-planks"');
     expect(text(html)).toContain("Planks158\u00a0t0\u00a0t0\u00a0t300/300\u00a0tWood");
     expect(text(html)).not.toContain("at capacity");
-    expect(text(html)).toContain("OverviewGold: 258 → 26 (−232)Settlers: 32 → 8startGood");
+    expect(text(html)).toContain("OverviewGold: 229 → 8 (−220)Settlers: 24 → 12startGood");
     expect(text(html)).toContain("Ships arrived (1)Ship #1: 1 arrival (island2)");
     // Each island's name is a section heading (no "Islands" heading above them).
     expect(html).toMatch(/<div class="[^"]*sectionTitle[^"]*" data-testid="away-island-start">start<\/div>/);

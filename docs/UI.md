@@ -402,7 +402,7 @@ UI shows the same numbers the server uses.
 
 **House**
 
-- A "Residents" heading, then two rows like the producer Details: "Residents  ↑ current / max" (the arrow is the growth direction) and "Satisfaction  %"; no bars.
+- A "Residents" heading, then two rows like the producer Details: "Residents  ↑ current → target / max" (the arrow is the growth direction; the target is the server's `residents_target`, D-074 — at the target the line reads "→ 10 / 15") and "Satisfaction  %"; no bars.
 - No "Needs" heading: **Goods** and **Public buildings** are section headings
   like Residents. In Goods each category appears once as a heading row (icon
   and name), also with a single need. Its needs, one per tier the house

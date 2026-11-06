@@ -6,7 +6,7 @@
     "main": {
       "fish": {
         "produced": 90000,
-        "consumed": 36499,
+        "consumed": 36532,
         "lost": 0
       },
       "planks": {
@@ -23,7 +23,7 @@
       },
       "wool_garments": {
         "produced": 39656,
-        "consumed": 18189,
+        "consumed": 18206,
         "lost": 0
       }
     }
@@ -86,7 +86,7 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 5710,
+            "stock": 5688,
             "in_transit": 350
           },
           "planks": {
@@ -98,7 +98,7 @@
             "in_transit": 344
           },
           "wool_garments": {
-            "stock": 2018,
+            "stock": 2007,
             "in_transit": 311
           }
         }
@@ -106,7 +106,7 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 608544,
+      "gold": 608992,
       "balance_rate_per_min": 6600,
       "population": {
         "settlers": 48000
@@ -134,7 +134,7 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 10151,
+            "stock": 10118,
             "in_transit": 350
           },
           "planks": {
@@ -146,7 +146,7 @@
             "in_transit": 344
           },
           "wool_garments": {
-            "stock": 3822,
+            "stock": 3805,
             "in_transit": 311
           }
         }
@@ -154,7 +154,7 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 654717,
+      "gold": 655389,
       "balance_rate_per_min": 9800,
       "population": {
         "settlers": 64000
@@ -182,7 +182,7 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 18751,
+            "stock": 18718,
             "in_transit": 350
           },
           "planks": {
@@ -194,7 +194,7 @@
             "in_transit": 344
           },
           "wool_garments": {
-            "stock": 7288,
+            "stock": 7272,
             "in_transit": 311
           }
         }
@@ -202,7 +202,7 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 752717,
+      "gold": 753389,
       "balance_rate_per_min": 9800,
       "population": {
         "settlers": 64000
@@ -230,7 +230,7 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 53151,
+            "stock": 53118,
             "in_transit": 350
           },
           "planks": {
@@ -242,7 +242,7 @@
             "in_transit": 344
           },
           "wool_garments": {
-            "stock": 21155,
+            "stock": 21138,
             "in_transit": 311
           }
         }
@@ -250,7 +250,7 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 1144717,
+      "gold": 1145389,
       "balance_rate_per_min": 9800,
       "population": {
         "settlers": 64000
@@ -284,8 +284,8 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T01:00:00.000Z",
-    "next_change_at": "2026-01-01T05:46:37.581Z",
-    "gold": 1144717,
+    "next_change_at": "2026-01-01T05:46:39.925Z",
+    "gold": 1145389,
     "balance_rate_per_min": 9800,
     "tax_rate_per_min": 12800,
     "upkeep_rate_per_min": 3000,
@@ -366,7 +366,7 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 53151,
+            "stock": 53118,
             "capacity": 300000,
             "in_transit": 350,
             "rate_per_min": 860,
@@ -457,7 +457,7 @@
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 21155,
+            "stock": 21138,
             "capacity": 300000,
             "in_transit": 311,
             "rate_per_min": 346,
@@ -815,6 +815,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -870,6 +871,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -925,6 +927,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -980,6 +983,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1035,6 +1039,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1090,6 +1095,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1145,6 +1151,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1200,6 +1207,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,

@@ -188,10 +188,9 @@ type Rules struct {
 	// milli-residents per minute (MECHANICS §6.1).
 	GrowthPerMin Qty
 	// DeclinePerMin is the decline rate factor in milli-residents per minute:
-	// decline = DeclinePerMin x (threshold - satisfaction).
+	// decline = DeclinePerMin x (1 - satisfaction) above the target
+	// (D-074).
 	DeclinePerMin Qty
-	// GrowthThreshold is the satisfaction (ppm) from which houses grow.
-	GrowthThreshold int64
 	// AutoResumeMs is the gold reserve, in milliseconds of a building's
 	// upkeep, required before an unpaid building is auto-resumed.
 	AutoResumeMs int64

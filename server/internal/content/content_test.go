@@ -35,7 +35,7 @@ func TestLoadOldCoast(t *testing.T) {
 	if rules.TransferBaseMs != 10_000 || rules.UnconnectedBuffer != 5_000 || rules.IterationCap != 10_000 || rules.CoarseStepMs != 60_000 {
 		t.Errorf("rules = %+v", rules)
 	}
-	if rules.GrowthPerMin != 1_000 || rules.DeclinePerMin != 500 || rules.GrowthThreshold != 500_000 || rules.AutoResumeMs != 300_000 {
+	if rules.GrowthPerMin != 1_000 || rules.DeclinePerMin != 500 || rules.AutoResumeMs != 300_000 {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
@@ -506,11 +506,6 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			"negative start gold", FileStart,
 			[]string{`"gold": 1000`, `"gold": -1`},
 			[]string{FileStart, "schema violation"},
-		},
-		{
-			"region threshold above 1", FileRegion,
-			[]string{`"growth_satisfaction_threshold": 0.5`, `"growth_satisfaction_threshold": 1.5`},
-			[]string{FileRegion, "schema violation"},
 		},
 		{
 			"region missing growth", FileRegion,

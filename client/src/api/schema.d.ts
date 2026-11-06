@@ -2186,6 +2186,11 @@ export interface components {
             residents_max?: number;
             /**
              * Format: int64
+             * @description Residents the house grows or declines towards at its current satisfaction, floor + (max − floor) × satisfaction rounded down to a whole resident (milli-residents, D-074).
+             */
+            residents_target?: number;
+            /**
+             * Format: int64
              * @description Growth accumulator towards the next resident (permille of one resident, −999…999).
              */
             growth_progress_permille?: number;
@@ -2485,14 +2490,9 @@ export interface components {
             growth_per_min: number;
             /**
              * Format: int64
-             * @description House decline factor (milli-residents per minute).
+             * @description House decline factor (milli-residents per minute; decline = factor × (1 − satisfaction) above the target).
              */
             decline_per_min: number;
-            /**
-             * Format: int64
-             * @description Satisfaction from which houses grow (ppm).
-             */
-            growth_satisfaction_threshold: number;
             /**
              * Format: int64
              * @description Gold reserve for auto-resume, as a duration of the building's or ship's upkeep (ms).

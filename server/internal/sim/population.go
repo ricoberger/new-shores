@@ -325,6 +325,9 @@ type houseCalc struct {
 	tax int64
 	// growth is the accumulator rate in ResidentSub units per ms (signed).
 	growth int64
+	// target is the residents count (milli) the house grows or declines
+	// towards at its satisfaction (D-074).
+	target Qty
 	needs  []needResult
 	// connected is false for a house without a road path to a warehouse.
 	connected bool
@@ -398,8 +401,9 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 		h.tax = mulDivAny(tax, h.satisfaction, ppm)
 		r.tax += h.tax
 
-		h.growth = growthRate(rules, h.satisfaction)
 		hs := b.House
+		h.target = targetResidents(tier, h.satisfaction)
+		h.growth = growthRate(rules, h.satisfaction, hs.Residents, h.target)
 		switch {
 		case h.growth > 0 && hs.Residents >= tier.ResidentsMax && hs.Growth >= 0:
 			h.growth = 0
@@ -419,17 +423,31 @@ func hasRequired(needs []needResult) bool {
 	return false
 }
 
-// growthRate returns the accumulator rate in ResidentSub units per ms:
-// growth_per_min x satisfaction when satisfaction >= threshold, else
-// -decline_per_min x (threshold - satisfaction). Magnitudes round down.
-func growthRate(rules content.Rules, satisfaction int64) int64 {
+// targetResidents is the residents count (milli) a house of the tier
+// settles at with the given satisfaction (ppm, D-074 §1): floor + (max −
+// floor) × satisfaction, rounded down to a whole resident, never below the
+// floor.
+func targetResidents(tier *content.Tier, satisfaction int64) Qty {
+	add := mulDivAny(tier.ResidentsMax-tier.ResidentsFloor, satisfaction, ppm)
+	add -= add % content.MilliPerUnit
+	return tier.ResidentsFloor + max(add, 0)
+}
+
+// growthRate returns the accumulator rate in ResidentSub units per ms
+// (D-074 §1): growth_per_min x satisfaction while the residents are below
+// the target, -decline_per_min x (1 - satisfaction) while above it, 0 at
+// the target (the accumulator keeps its value). Magnitudes round down.
+func growthRate(rules content.Rules, satisfaction int64, residents, target Qty) int64 {
 	// 1 milli-resident per minute = ResidentSub / 1000 / msPerMinute = 1000
 	// units per ms.
 	const unitsPerMilliPerMin = ResidentSub / content.MilliPerUnit / msPerMinute
-	if satisfaction >= rules.GrowthThreshold {
+	switch {
+	case residents < target:
 		return mulDivAny(rules.GrowthPerMin*unitsPerMilliPerMin, satisfaction, ppm)
+	case residents > target:
+		return -mulDivAny(rules.DeclinePerMin*unitsPerMilliPerMin, ppm-satisfaction, ppm)
 	}
-	return -mulDivAny(rules.DeclinePerMin*unitsPerMilliPerMin, rules.GrowthThreshold-satisfaction, ppm)
+	return 0
 }
 
 // serviceIndex lists the buildings of an island by type and by chain, in

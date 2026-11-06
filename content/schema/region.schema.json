@@ -24,7 +24,6 @@
         "coarse_step_seconds",
         "growth_per_min",
         "decline_per_min",
-        "growth_satisfaction_threshold",
         "auto_resume_upkeep_minutes",
         "ship_handling_base_seconds",
         "ship_handling_seconds_per_unit",
@@ -43,11 +42,10 @@
           "exclusiveMinimum": 0
         },
         "decline_per_min": {
-          "description": "Residents per minute lost per unit of satisfaction below the threshold.",
+          "description": "Residents per minute a house above its target loses at satisfaction 0; the decline is decline_per_min x (1 - satisfaction) (MECHANICS §6.1, D-074).",
           "type": "number",
           "exclusiveMinimum": 0
         },
-        "growth_satisfaction_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
         "auto_resume_upkeep_minutes": {
           "description": "Gold reserve, in minutes of a building's upkeep, required before an unpaid building is auto-resumed (MECHANICS §7). Strictly positive: the reserve is the hysteresis that prevents pause/resume flapping.",
           "type": "number",
