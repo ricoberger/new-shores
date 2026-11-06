@@ -282,7 +282,7 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `toolmaker` | 2 | 4×4 | — | Weaponsmith | 230 / 5 / 9 | 4 | 8 S | R |
 | `wheat_farm` | 2 | 3×4 + 140 `wheat_field` | — | Wheat Farm | 150 / 9 / 3 | 2 | 6 S | R, wheat fertility |
 | `wheat_field` | 2 | 1×1 field | — | field tile | 3 g | 0 | — | wheat_farm only; painted |
-| `mill` | 2 | 4×6 | — | Grain Mill | 180 / 6 / 6 | 2 | 4 C | R (no river slot: plain land) |
+| `mill` | 2 | 3×3 | — | Grain Mill | 180 / 6 / 6 | 2 | 4 C | R (no river slot: plain land); a lone windmill, no miller's house and no chimney (D-074 §6; 4×6 before content 0.20.0) |
 | `bakery` | 2 | 4×5 | — | Bakery | 230 / 5 / 9 | 4 | 6 C | R |
 | `dairy_farm` | 2 | 4×5 + 5 `cattle_pasture` | — | Pig Farm class, large | 170 / 5 / 6 | 2 | 6 S | R, grass |
 | `cattle_pasture` | 2 | 4×7 field | — | pasture module | 30 g / 5 planks | 0 | — | dairy_farm and cattle_farm; grass |
@@ -609,7 +609,7 @@ building's); level 1 must equal the building's top-level
 (D-046) — except the hubs, collectors and public buildings with levels,
 whose levels carry upkeep (D-069 §3).
 | `shipyard` | `ships[]` (ship IDs it can build) | shipyard |
-| `smoke` | boolean, absent false — display only: the model carries chimney/smoke anchors and the client draws smoke | producers whose model has a chimney: every shipped producer except hop_farm, woad_farm, leather_works, tailor, printing_press, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, fashion_house, thread_spinner, lace_maker, quartz_quarry, copper_mine, gold_mine and luthier |
+| `smoke` | boolean, absent false — display only: the model carries chimney/smoke anchors and the client draws smoke | producers whose model has a chimney: every shipped producer except hop_farm, woad_farm, leather_works, tailor, printing_press, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, fashion_house, thread_spinner, lace_maker, quartz_quarry, copper_mine, gold_mine, luthier and mill (the lone windmill, D-074 §6) |
 | `boat` | boolean, absent false — display only: the client rows a boat out from the model's boat anchor and back; needs `water_rows` | water-edge producers (fisher, oyster_beds) |
 
 ```json
