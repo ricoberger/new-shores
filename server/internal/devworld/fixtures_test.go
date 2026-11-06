@@ -53,7 +53,7 @@ func TestFixtures(t *testing.T) {
 					t.Errorf("default: home island not founded from the start ship: ships %+v", w.Ships)
 				}
 			case FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants, FixturePatricians:
-				for typ, n := range map[string]int{"lumberjack": 1, "tree_plot": 24, "sawmill": 1, "house_settlers": 4, "sheep_farm": 1, "pasture": 3} {
+				for typ, n := range map[string]int{"lumberjack": 1, "tree_plot": 48, "sawmill": 1, "house_settlers": 4, "sheep_farm": 1, "pasture": 3} {
 					if got := count(w, home, typ); got != n {
 						t.Errorf("%s: %d %s, want %d", home, got, typ, n)
 					}
@@ -249,7 +249,7 @@ func checkPatricians(t *testing.T, c *content.Catalogue, w *sim.World) {
 	}
 	f := &fixture{c: c, w: w}
 	quartz := f.nearestWithDeposit(home, patriciansDeposit)
-	for typ, want := range map[string]int{"trading_post": 1, "quartz_quarry": 1, "lumberjack": 1, "tree_plot": 24, "charcoal_burner": 1, "glass_smelter": 1} {
+	for typ, want := range map[string]int{"trading_post": 1, "quartz_quarry": 1, "lumberjack": 1, "tree_plot": 48, "charcoal_burner": 1, "glass_smelter": 1} {
 		if quartz == "" || n[quartz][typ] != want {
 			t.Errorf("quartz island %q: %v", quartz, n[quartz])
 		}

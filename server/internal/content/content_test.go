@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.19.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.20.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 80 {
@@ -179,10 +179,9 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("intro_settlers_120 objectives %+v", q.Objectives)
 	}
 
-	// The start ship carries the starting stock (D-051): planks and sails
-	// fit its slots; gold and planks cover the Trading Post plus the old
-	// 800 gold / 130 planks of the first settlement.
-	if c.Start.Gold != 1_000_000 || len(c.Start.Goods) != 2 || c.Start.Goods[0] != (GoodAmount{"planks", 150_000}) || c.Start.Goods[1] != (GoodAmount{"sails", 10_000}) {
+	// The start ship carries the starting stock (D-051): 2000 gold and 100
+	// planks, no sails (D-074).
+	if c.Start.Gold != 2_000_000 || len(c.Start.Goods) != 1 || c.Start.Goods[0] != (GoodAmount{"planks", 100_000}) {
 		t.Errorf("start = %+v", c.Start)
 	}
 	if g := c.GoodByID["sails"]; g == nil || g.Type != "construction" {
@@ -275,14 +274,14 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("lumberjack recipe = %+v", lj.Recipe)
 	}
 	// D-059: the lumberjack plants tree plots like a farm (no work area).
-	if lj.WorkArea != nil || lj.Fields == nil || lj.Fields.Type != "tree_plot" || lj.Fields.Required != 24 || lj.Fields.Max != 24 {
+	if lj.WorkArea != nil || lj.Fields == nil || lj.Fields.Type != "tree_plot" || lj.Fields.Required != 48 || lj.Fields.Max != 48 {
 		t.Errorf("lumberjack work area = %+v, fields = %+v", lj.WorkArea, lj.Fields)
 	}
 	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || waterRange(f).Max != 3 || f.Coastal || !f.Boat || !f.Smoke {
 		t.Error("fisher recipe/water-edge mismatch")
 	}
 	tp := c.BuildingByID["trading_post"]
-	if tp.TradingPost == nil || waterRange(tp) != (WaterRows{Min: 1, Max: 2}) || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 20_000, Reach: 24, Berths: 1}) {
+	if tp.TradingPost == nil || waterRange(tp) != (WaterRows{Min: 1, Max: 2}) || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 8_000, Reach: 24, Berths: 1}) {
 		t.Errorf("trading post = %+v", tp.TradingPost)
 	}
 	var berths []int
@@ -293,27 +292,27 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("trading post berths = %v", berths)
 	}
 	wh := c.BuildingByID["warehouse"]
-	if wh.Warehouse == nil || waterRange(wh).Max != 0 || wh.Coastal || wh.Tier != "settlers" || wh.Warehouse.Levels[0] != (WarehouseLevel{ThroughputPerMin: 20_000, Reach: 18, UpkeepPerMin: 1_000}) ||
-		len(wh.Warehouse.Levels) != 4 || wh.Warehouse.Levels[3].ThroughputPerMin != 65_000 {
+	if wh.Warehouse == nil || waterRange(wh).Max != 0 || wh.Coastal || wh.Tier != "settlers" || wh.Warehouse.Levels[0] != (WarehouseLevel{ThroughputPerMin: 6_000, Reach: 18, UpkeepPerMin: 1_000}) ||
+		len(wh.Warehouse.Levels) != 4 || wh.Warehouse.Levels[3].ThroughputPerMin != 48_000 {
 		t.Errorf("warehouse = %+v", wh.Warehouse)
 	}
-	// D-069: warehouse throughput 20 / 35 / 50 / 65, reach 18 / 21 / 24 /
+	// D-069: warehouse throughput 6 / 12 / 24 / 48 (D-074), reach 18 / 21 / 24 /
 	// 27 (D-072), upkeep 1 / 10 / 15 / 25 (level 1 tuned, CONTENT §7), levels 2-4 gated on Citizens /
-	// Merchants / Patricians (D-065); Trading Post throughput 20 / 40 / 60
-	// / 80, reach 24 / 28 / 32 / 36 (D-072), upkeep 0 / 10 / 20 / 30; market
+	// Merchants / Patricians (D-065); Trading Post throughput 8 / 16 / 32
+	// / 64 (D-074), reach 24 / 28 / 32 / 36 (D-072), upkeep 0 / 10 / 20 / 30; market
 	// upkeep 0 / 10 / 40 / 60 (level 1 free: CONTENT §7; levels 3-4 ×2, D-072).
 	var whLevels, tpLevels, mkLevels []string
 	for i, l := range wh.Warehouse.Levels {
 		whLevels = append(whLevels, fmt.Sprintf("%d/%d/%d:%s", l.ThroughputPerMin/1000, wh.ReachAt(i+1), wh.UpkeepAt(i+1)/1000, wh.LevelTier(i+1)))
 	}
-	if got := strings.Join(whLevels, " "); got != "20/18/1: 35/21/10:citizens 50/24/15:merchants 65/27/25:patricians" {
+	if got := strings.Join(whLevels, " "); got != "6/18/1: 12/21/10:citizens 24/24/15:merchants 48/27/25:patricians" {
 		t.Errorf("warehouse levels = %s", got)
 	}
 	for i, l := range tp.TradingPost.Levels {
 		tpLevels = append(tpLevels, fmt.Sprintf("%d/%d/%d:%s", l.ThroughputPerMin/1000, tp.ReachAt(i+1), tp.UpkeepAt(i+1)/1000, tp.LevelTier(i+1)))
 	}
 	// The Trading Post's levels 2-4 have the warehouse's tier gate (D-065 extended).
-	if got := strings.Join(tpLevels, " "); got != "20/24/0: 40/28/10:citizens 60/32/20:merchants 80/36/30:patricians" {
+	if got := strings.Join(tpLevels, " "); got != "8/24/0: 16/28/10:citizens 32/32/20:merchants 64/36/30:patricians" {
 		t.Errorf("trading post levels = %s", got)
 	}
 	mk := c.BuildingByID["market"]
@@ -499,12 +498,12 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"unknown good in start", FileStart,
-			[]string{`"sails": 10`, `"sails": 10, "caviar": 5`},
+			[]string{`"planks": 100`, `"planks": 100, "caviar": 5`},
 			[]string{FileStart, "goods.caviar", `unknown good "caviar"`},
 		},
 		{
 			"negative start gold", FileStart,
-			[]string{`"gold": 1000`, `"gold": -1`},
+			[]string{`"gold": 2000`, `"gold": -1`},
 			[]string{FileStart, "schema violation"},
 		},
 		{
@@ -786,15 +785,15 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"collector reach shrinks", FileBuildings,
-			[]string{`"throughput_per_min": 35,
-          "reach": 21,`, `"throughput_per_min": 35,
+			[]string{`"throughput_per_min": 12,
+          "reach": 21,`, `"throughput_per_min": 12,
           "reach": 16,`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[1].reach", "previous level"},
 		},
 		{
 			"collector reach on some levels only", FileBuildings,
-			[]string{`"throughput_per_min": 35,
-          "reach": 21,`, `"throughput_per_min": 35,`},
+			[]string{`"throughput_per_min": 12,
+          "reach": 21,`, `"throughput_per_min": 12,`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels", "every level or on none"},
 		},
 		{
@@ -804,7 +803,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"level upkeep differs from the building's", FileBuildings,
-			[]string{`{ "throughput_per_min": 20, "reach": 18, "upkeep_per_min": 1 }`, `{ "throughput_per_min": 20, "reach": 18, "upkeep_per_min": 4 }`},
+			[]string{`{ "throughput_per_min": 6, "reach": 18, "upkeep_per_min": 1 }`, `{ "throughput_per_min": 6, "reach": 18, "upkeep_per_min": 4 }`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[0].upkeep_per_min", "level 1"},
 		},
 		{

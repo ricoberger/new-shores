@@ -545,7 +545,7 @@
             "throughput_factor_permille": 1000,
             "level": 2,
             "capacity": 500000,
-            "throughput_per_min": 40000,
+            "throughput_per_min": 16000,
             "load_permille": 0,
             "berths": {
               "total": 2,
@@ -1153,7 +1153,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "capacity": 500000,
-                "throughput_per_min": 40000,
+                "throughput_per_min": 16000,
                 "load_permille": 0,
                 "berths": {
                   "total": 2,
@@ -1761,7 +1761,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "capacity": 500000,
-                "throughput_per_min": 40000,
+                "throughput_per_min": 16000,
                 "load_permille": 0,
                 "berths": {
                   "total": 2,
@@ -2369,7 +2369,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "capacity": 500000,
-                "throughput_per_min": 40000,
+                "throughput_per_min": 16000,
                 "load_permille": 0,
                 "berths": {
                   "total": 2,
@@ -2977,7 +2977,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "capacity": 500000,
-                "throughput_per_min": 40000,
+                "throughput_per_min": 16000,
                 "load_permille": 0,
                 "berths": {
                   "total": 2,
@@ -3585,7 +3585,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "capacity": 500000,
-                "throughput_per_min": 40000,
+                "throughput_per_min": 16000,
                 "load_permille": 0,
                 "berths": {
                   "total": 2,

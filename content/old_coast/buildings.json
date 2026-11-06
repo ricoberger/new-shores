@@ -39,10 +39,10 @@
     "pause_category": "never",
     "trading_post": {
       "levels": [
-        { "capacity": 300, "throughput_per_min": 20, "reach": 24, "upkeep_per_min": 0, "berths": 1 },
+        { "capacity": 300, "throughput_per_min": 8, "reach": 24, "upkeep_per_min": 0, "berths": 1 },
         {
           "capacity": 500,
-          "throughput_per_min": 40,
+          "throughput_per_min": 16,
           "reach": 28,
           "upkeep_per_min": 10,
           "berths": 2,
@@ -51,7 +51,7 @@
         },
         {
           "capacity": 800,
-          "throughput_per_min": 60,
+          "throughput_per_min": 32,
           "reach": 32,
           "upkeep_per_min": 20,
           "berths": 3,
@@ -60,7 +60,7 @@
         },
         {
           "capacity": 1200,
-          "throughput_per_min": 80,
+          "throughput_per_min": 64,
           "reach": 36,
           "upkeep_per_min": 30,
           "berths": 4,
@@ -83,23 +83,23 @@
     "pause_category": "never",
     "warehouse": {
       "levels": [
-        { "throughput_per_min": 20, "reach": 18, "upkeep_per_min": 1 },
+        { "throughput_per_min": 6, "reach": 18, "upkeep_per_min": 1 },
         {
-          "throughput_per_min": 35,
+          "throughput_per_min": 12,
           "reach": 21,
           "upkeep_per_min": 10,
           "tier": "citizens",
           "cost": { "gold": 150, "planks": 10, "stone": 5 }
         },
         {
-          "throughput_per_min": 50,
+          "throughput_per_min": 24,
           "reach": 24,
           "upkeep_per_min": 15,
           "tier": "merchants",
           "cost": { "gold": 300, "planks": 15, "stone": 10 }
         },
         {
-          "throughput_per_min": 65,
+          "throughput_per_min": 48,
           "reach": 27,
           "upkeep_per_min": 25,
           "tier": "patricians",
@@ -159,7 +159,7 @@
       "outputs": [{ "good": "wood", "amount": 1 }],
       "cycle_seconds": 30
     },
-    "fields": { "type": "tree_plot", "required": 24, "max": 24 }
+    "fields": { "type": "tree_plot", "required": 48, "max": 48 }
   },
   {
     "id": "tree_plot",
