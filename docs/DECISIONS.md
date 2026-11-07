@@ -2454,3 +2454,17 @@ display fixtures regenerated; plans hold.
 - **Rejected:** raising the growth threshold instead of removing it;
   restarting at the floor on upgrade; the cart model now; cutting
   tier-1 upkeep instead of raising the start gold.
+
+*As built (#74):* sim as decided; the **upgrade gate** reads "at its
+target residents" (not `max`): under §1 a house with one alternative
+per category never reaches `max`, and D-056 §4 promises that one
+alternative is enough to progress — the second half of the gate (every
+required need ≥ 0.6) is unchanged. No schema bump. Forests: 48 tree
+plots (the owner's 64 stays an option after the next playtest). Mill
+recipe: tier-2 tower on a rubble base with lattice sails. Reference
+games 53 / 27 / 80 / 135 · 23 / 44 · 230 / 265 / 405 · 719 / 838 /
+1 188 — all targets hold, `growth_per_min` untouched; the Citizens
+unlock moved from minute 11 to 27 (houses no longer fill on tier-1
+goods alone). Found on the way: the auto-pause rule can strand a town
+when the paused building is the only producer of an unmet need (the
+resume rule never fires while the balance falls) — decision pending.
