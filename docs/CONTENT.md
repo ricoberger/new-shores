@@ -769,6 +769,67 @@ measurement is conservative, not the earliest crossing. Merchants lose the
 health gate but these layout repairs cost about six minutes versus the
 old 223/258/291 replay. The checklist below retains older balancing history.
 
+### D-074 reference results (sim minutes, seed 1053001)
+
+Content `old_coast-0.20.0` (houses fill with satisfaction, residents
+stay on upgrade, collectors 8 / 16 / 32 / 64 and 6 / 12 / 24 / 48 t/min,
+start 2 000 gold and 100 planks, 48 tree plots, lone windmill):
+
+| Game | Milestones | Targets | D-072 | D-074 | Margins |
+|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 54 / 11 / 86 / 145 | 53 / 27 / 80 / 135 | 7 / 63 / 20 / 15 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 34 / 70 (8, 129) | 23 / 44 (7, 99) | 22 / 41; 30 / 36 earlier than without claims |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 225 / 267 / 413 | 230 / 265 / 405 | 10 / 5 / 15 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 763 / 799 / 1116 | 719 / 838 / 1188 | 181 / 122 / 612 |
+
+`growth_per_min` stays 1. The Citizens unlock comes later (population
+counts residents, and a house now fills only as far as its
+satisfaction allows); every other early milestone comes earlier, mostly
+from the doubled start gold. A Citizen house with one alternative per
+category settles at about 13 / 15 and a Merchant house at about 20 / 25,
+so the upgrade gate counts a house as full at its target residents
+(MECHANICS §6.1) and the Patrician unlock (1 200 merchants) needs about
+sixty Merchant houses instead of 48.
+
+Generator changes for D-074:
+
+- A `claim` action claims one quest (waiting until it is completed);
+  the games without quest claims claim `citizens_shipyard` only — its
+  10 sails are the first built sloop's, the start stock has none.
+- A collector upgrade for reach is skipped while its materials are
+  neither in stock nor produced on the island (the opening has no
+  stone); a warehouse is placed instead.
+- A producer the sim assigns to another collector than the predicted
+  one (nearest by road, not by distance) gets a warehouse next to it
+  when that collector is over its throughput, else (`reach_upgrade`) an
+  upgrade.
+
+Plan changes for D-074:
+
+- Citizens: the shipyard, the claim and the sloop moved to the
+  Merchants plan; the second and third weaver stand by their sheep
+  farms (the level-1 Trading Post carries five producers; it ends at
+  94 % load, nothing throttled).
+- Merchants: route 1 brings stone home (the opening has none to
+  spare); Citizen upgrades alternate with the need chains (a house
+  grows with each chain); the shipyard, the shipyard claim and the
+  sloop come after home-2's Citizen upgrades; the sloop brings the first
+  three bricks by hand (route 1's round trip was too slow for the
+  first Merchant house); no sheep farm and weaver for home-2, no
+  explicit warehouse (their gold is the first Merchant house's).
+- Patricians: home-2's civic plots and houses and the second home
+  quarry are built in the Merchants game now; a sheep farm and weaver
+  for isle2-1; two lumberjacks and four sawmills more (planks were the
+  wait from minute 550); a new quarter home-6 (market, chapel,
+  tavern, school, city guard, fire station; 24 houses, serves 12
+  Merchant houses; the plan repeats the chains because serves needs
+  them) for settlers and twelve more Merchant houses, upgraded before
+  the winepress waits for the unlock; two mills and two bakeries
+  (Citizen food); hemp on "Island goods" until the brigs are ordered
+  and two hemp farms more (no start sails); 18 warehouse upgrades at
+  home; five breweries, five wheat farms and a hops-only brig more;
+  three apiaries and two meaderies more; two butchers more.
+
 ### D-072 reference results (sim minutes, seed 1053001)
 
 Content `old_coast-0.19.0` on the D-072 archipelago (Anno 117 island

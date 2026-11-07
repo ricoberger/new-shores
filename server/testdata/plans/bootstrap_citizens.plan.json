@@ -251,14 +251,15 @@
     {
       "build": {
         "island": "isle-01",
-        "type": "fisher",
+        "type": "sheep_farm",
         "count": 1
       }
     },
     {
-      "houses": {
-        "quarter": "home-1",
-        "count": 7
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1
       }
     },
     {
@@ -267,6 +268,52 @@
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "manual_shipment": {
+          "ship": 1,
+          "to": "isle-02",
+          "cargo": {
+            "planks": 50
+          }
+        }
+      }
+    },
+    {
+      "found": {
+        "ship": 1,
+        "island": "isle-02"
+      }
+    },
+    {
+      "note": "Ship 1 sails home to load the route's first cargo.",
+      "step": {
+        "sail_ship": {
+          "ship": 1,
+          "to": "isle-01"
+        }
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-1",
+        "count": 7
       }
     },
     {
@@ -282,65 +329,14 @@
       }
     },
     {
-      "build": {
-        "island": "isle-01",
-        "type": "sawmill",
-        "count": 1
-      }
-    },
-    {
-      "step": {
-        "manual_shipment": {
-          "ship": 1,
-          "to": "isle-02",
-          "cargo": {
-            "planks": 45
-          }
-        }
-      }
-    },
-    {
       "houses": {
         "quarter": "home-1",
         "count": 3
       }
     },
     {
-      "found": {
-        "ship": 1,
-        "island": "isle-02"
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "shipyard",
-        "count": 1
-      }
-    },
-    {
-      "order_ship": {
-        "island": "isle-01",
-        "ship_type": "sloop"
-      }
-    },
-    {
       "houses": {
         "quarter": "home-1",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "weaver_wool",
         "count": 1
       }
     },
@@ -362,8 +358,13 @@
       "build": {
         "island": "isle-01",
         "type": "weaver_wool",
-        "count": 1
-      }
+        "count": 1,
+        "at": [
+          110,
+          180
+        ]
+      },
+      "note": "D-074: by the second sheep farm, not by the Trading Post (8 t/min at level 1 carries five producers)."
     },
     {
       "build": {
@@ -376,8 +377,13 @@
       "build": {
         "island": "isle-01",
         "type": "weaver_wool",
-        "count": 1
-      }
+        "count": 1,
+        "at": [
+          105,
+          172
+        ]
+      },
+      "note": "D-074: by the third sheep farm, away from the Trading Post too."
     },
     {
       "build": {
@@ -391,6 +397,80 @@
         "quarter": "home-1",
         "from": "house_settlers",
         "count": 1
+      }
+    },
+    {
+      "note": "Ship 1 carries the iron chain's planks and stone in one load.",
+      "step": {
+        "manual_shipment": {
+          "ship": 1,
+          "to": "isle-02",
+          "cargo": {
+            "planks": 50,
+            "stone": 27
+          }
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 8
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "charcoal_burner",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "iron_mine",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "smelter",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "toolmaker",
+        "count": 1
+      }
+    },
+    {
+      "note": "Ship 1 waits at island 2 for the first tools.",
+      "step": {
+        "manual_shipment": {
+          "ship": 1,
+          "to": "isle-01",
+          "cargo": {
+            "tools": 2
+          }
+        }
       }
     },
     {
@@ -428,55 +508,6 @@
           "ship": 1,
           "route": 1
         }
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "fisher",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "isle2-1",
-        "count": 5
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "lumberjack",
-        "count": 1,
-        "near": "forest"
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "charcoal_burner",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "iron_mine",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "smelter",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "toolmaker",
-        "count": 1
       }
     },
     {

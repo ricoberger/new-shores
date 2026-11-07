@@ -347,6 +347,11 @@ func (g *gen) action(a Action) error {
 			return fmt.Errorf("no shipyard on %s", a.OrderShip.Island)
 		}
 		return g.do(scenario.Step{OrderShip: &scenario.OrderShipStep{Island: a.OrderShip.Island, X: b.X, Y: b.Y, ShipType: a.OrderShip.ShipType}}, "order "+a.OrderShip.ShipType)
+	case a.Claim != nil:
+		if st, ok := g.world().Quests[a.Claim.Quest]; ok && st.Claimed {
+			return nil
+		}
+		return g.do(scenario.Step{ClaimQuest: &scenario.ClaimStep{Quest: a.Claim.Quest, Island: a.Claim.Island}}, "claim "+a.Claim.Quest)
 	case a.Step != nil:
 		if a.Step.Stock != nil || a.Step.Pause != nil || a.Step.Resume != nil || a.Step.Demolish != nil || a.Step.DemolishRd != nil || a.Step.Advance != nil {
 			return errors.New("a plan step must not grant stock, pause, resume, demolish or advance")
@@ -479,6 +484,7 @@ func retryable(err error) bool {
 	for _, e := range []error{
 		errLowGold, sim.ErrInsufficientGold, sim.ErrInsufficientMaterials, sim.ErrTierLocked, sim.ErrHouseNotFull,
 		sim.ErrNeedsUnmet, sim.ErrShipNotIdle, sim.ErrShipNotFound, sim.ErrShipyardBusy, sim.ErrCargoInsufficient,
+		sim.ErrQuestNotCompleted,
 	} {
 		if errors.Is(err, e) {
 			return true
@@ -795,8 +801,23 @@ func (g *gen) build(b *Build) error {
 			}
 			collected = ok
 		}
-		if _, err := g.place(b.Island, b.Type, s, path, fields); err != nil || collected {
+		var predicted int64
+		if w, h := layout.Dims(def, s.Rot); g.collectors != "" {
+			if col := g.collectorFor(g.world().Island(b.Island), s.X, s.Y, w, h); col != nil {
+				predicted = col.ID
+			}
+		}
+		id, err := g.place(b.Island, b.Type, s, path, fields)
+		if err != nil {
 			return err
+		}
+		if g.collectors != "" && def.Recipe != nil {
+			if err := g.relieve(b.Island, def, s, id, predicted); err != nil {
+				return err
+			}
+		}
+		if collected {
+			return nil
 		}
 		return g.collectAfter(b.Island, def, s)
 	}
