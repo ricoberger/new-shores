@@ -287,6 +287,8 @@ export class BuildingLayer {
   private readonly selection: Mesh;
   /** The selected building drawn as a model: tinted instead of framed. */
   private selectedId: number | null = null;
+  /** The selected building and its definition (the frame follows it when its drawing changes, e.g. an upgrade's model loads). */
+  private selected: { b: BuildingDisplay; def: ContentBuilding } | null = null;
   /** The selected building and the farm and fields of its chain: tinted green. */
   private tinted: ReadonlySet<number> = NONE;
   /** The island chunks in view (null: all). */
@@ -510,6 +512,14 @@ export class BuildingLayer {
     this.drawChunks(byChunk);
     this.risingItems = rising;
     if (rising.length === 0) for (const inst of this.risingMeshes.values()) inst.resize(0);
+    // The selected building may have changed its drawing (an upgraded house's model loaded, a placeholder
+    // became a model): the frame follows the current payload's building.
+    if (this.selected) {
+      const cur = buildings.find((x) => x.id === this.selected!.b.id);
+      const def = cur ? defs.get(cur.type) : undefined;
+      this.selected = cur && def ? { b: cur, def } : null;
+      this.placeFrame();
+    }
   }
 
   private drawChunks(byDetail: Map<Detail, Map<string, Item[]>>): void {
@@ -741,6 +751,11 @@ export class BuildingLayer {
     return this.modelIds;
   }
 
+  /** Whether the selection frame is drawn (a selected placeholder; tests). */
+  framed(): boolean {
+    return this.selection.isEnabled();
+  }
+
   /** Model chunks drawn at the current detail (tests). */
   chunkCount(): number {
     return this.current().size;
@@ -752,15 +767,23 @@ export class BuildingLayer {
     const key = (ids: ReadonlySet<number>) => [...ids].sort((x, y) => x - y).join(",");
     // A chain without a selection (the ghost's would-serve houses) is tinted too.
     const tinted = id === null && chain.length === 0 ? NONE : new Set(id === null ? chain : [id, ...chain]);
+    this.selected = b && def ? { b, def } : null;
     if (id !== this.selectedId || key(tinted) !== key(this.tinted)) {
       this.selectedId = id;
       this.tinted = tinted;
       this.refresh();
     }
-    if (!b || !def || this.modelIds.has(b.id)) {
+    this.placeFrame();
+  }
+
+  /** The selection frame around the selected building drawn as a placeholder; none for a model (tinted instead). */
+  private placeFrame(): void {
+    const sel = this.selected;
+    if (!sel || this.modelIds.has(sel.b.id)) {
       this.selection.setEnabled(false);
       return;
     }
+    const { b, def } = sel;
     const entry = this.registry?.entry(b.type);
     if (entry && entry.kind !== "ship") {
       const p = placement(entry, def, b);

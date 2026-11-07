@@ -76,6 +76,13 @@ func TestBootstrapMerchants(t *testing.T) {
 	prefix := merchantsPrefix(t)
 	rep := runScenario(t, name)
 	checkNoPermanentInsolvency(t, rep)
+	// The only claim is the shipyard quest: its sails let the first built
+	// sloop sail, since the start stock carries none (D-074 §4).
+	for _, q := range rep.Quests {
+		if q.ClaimedAt != "" && q.ID != "citizens_shipyard" {
+			t.Errorf("quest %s claimed in the reference game", q.ID)
+		}
+	}
 
 	unlocked := -1.0
 	for _, snap := range rep.Snapshots {

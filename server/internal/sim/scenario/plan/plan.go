@@ -131,6 +131,11 @@ type Action struct {
 	UpgradeTradingPost *IslandRef `json:"upgrade_trading_post,omitempty"`
 	// OrderShip orders a ship at the island's shipyard.
 	OrderShip *OrderShip `json:"order_ship,omitempty"`
+	// Claim claims one quest as soon as it is completed (D-074: the
+	// shipyard quest's sails are the only sails before a sailmaker); a
+	// no-op when the quest is already claimed (a plan that claims every
+	// quest).
+	Claim *Claim `json:"claim,omitempty"`
 	// Step is a scenario step run as is (ships, shipments, routes).
 	Step *scenario.Step `json:"step,omitempty"`
 	// Wait advances by a duration (at least a minute).
@@ -180,6 +185,12 @@ type Upgrade struct {
 
 // IslandRef names an island.
 type IslandRef struct {
+	Island string `json:"island"`
+}
+
+// Claim names a quest and the island that receives its reward goods.
+type Claim struct {
+	Quest  string `json:"quest"`
 	Island string `json:"island"`
 }
 

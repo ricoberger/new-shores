@@ -71,7 +71,7 @@ UI shows the same numbers the server uses.
   label moves into view on the side of its centre; pointer taps resolve **ship → label → land**. A
   label tap is an island tap at every LOD: it opens the **island card**
   (a read-only overview: the population of every tier (with the top bar's population icon) and the island's
-  resources as icon badges, one per line: fertilities, deposits with their tile counts
+  resources as icon badges, one per line: fertilities, deposits with their slot counts (a slot is two adjacent deposit tiles)
   and the free coast; no actions, ships or warnings). Founding is started
   from the ship panel's "Found settlement" or the unsettled-island panel's
   "Found settlement here" when a ship carries the Trading Post cost: the
@@ -154,6 +154,12 @@ UI shows the same numbers the server uses.
   the menu icon (account: register, install, credits, log out). There are
   no island tabs — islands are reached via the island name, the island
   card, the minimap and the lists.
+- **Phone top bar** (polish 7; touch layouts under 1200 px): the
+  materials stay on the first line after gold and residents — the first
+  three with their stocks, then a "…" button that toggles the full list
+  (it may wrap; the open state is not stored, the popup is unchanged);
+  the island stays on the second line in portrait, where the account
+  menu shows its icon only. Desktop is unchanged.
 - **Side dock:** icon buttons stacked down the left edge, vertically
   centred between the top bar and the screen's bottom edge (it does not move when the build bar shows or hides), with no backing panel: Build menu, Warnings, Quests, Ships,
   Routes. The first toggles the build menu at the bottom (closed by
@@ -235,7 +241,11 @@ UI shows the same numbers the server uses.
   snapped to the grid (the old box only while the model loads); rotation
   via `R` / two-finger twist / the placement bar. Validity tint: light
   (ok), yellow (ok but no road adjacent), red (the server would reject it;
-  e.g. missing deposit or fertility) with the reason as a tooltip. A new
+  e.g. missing deposit or fertility) with the reason as a tooltip. A
+  building ghost (build, move and found tools; not fields, roads keep
+  their own preview) also outlines its footprint with the plans' thin
+  gold band (`render/outline.ts`), whatever its tint, so the tiles it
+  takes read under a tall or translucent model. A new
   house may come out as a different variant than the ghost showed (variant
   by building ID; follow-up: a server-side preview hint).
 - **Water-edge ghosts (D-062):** each rotated footprint column follows
@@ -374,13 +384,13 @@ UI shows the same numbers the server uses.
   `requires_deposit`) is the build tool, the tiles of its deposit kind are
   tinted in the selection yellow on every island drawn in detail (near
   and mid zoom; drawn over the rock and outcrops so they are never
-  hidden; tiles under a building are left out) with a floating
-  **deposit marker** above every cluster of those tiles (8-connected; the
-  build menu's deposit icon on a parchment badge with an ink rim, status-
-  badge style, facing the camera over the cluster's tile nearest its
-  centre, drawn over the scene), and at far zoom the
-  label of every island with that deposit carries the deposit's icon and
-  tile count. Both go away when the tool closes. Display only (D-027):
+  hidden; a slot with a building on either tile is taken and left out)
+  with one floating **deposit marker** per free slot (a slot is two
+  4-adjacent deposit tiles, MECHANICS §2; the build menu's deposit icon
+  on a parchment badge with an ink rim, status-badge style, facing the
+  camera centred between the slot's two tiles, drawn over the scene),
+  and at far zoom the label of every island with that deposit carries
+  the deposit's icon and slot count. Both go away when the tool closes. Display only (D-027):
   the deposits come from the payload (`display/deposits.ts`).
 
 ## 4. Info panel content
@@ -402,7 +412,7 @@ UI shows the same numbers the server uses.
 
 **House**
 
-- A "Residents" heading, then two rows like the producer Details: "Residents  ↑ current / max" (the arrow is the growth direction) and "Satisfaction  %"; no bars.
+- A "Residents" heading, then two rows like the producer Details: "Residents  ↑ current → target / max" (the arrow is the growth direction; the target is the server's `residents_target`, D-074 — at the target the line reads "→ 10 / 15") and "Satisfaction  %"; no bars.
 - No "Needs" heading: **Goods** and **Public buildings** are section headings
   like Residents. In Goods each category appears once as a heading row (icon
   and name), also with a single need. Its needs, one per tier the house
@@ -556,8 +566,8 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   Tab trapped, focus returned to the opener on close. Wider landscape
   phones get a narrow side panel; if it would be shorter than ≈ 240 px the
   hint bar hides and the insolvency banner is limited to one line.
-- Compact top bar: see §2 (icons and numbers, island on a second row in
-  portrait; popups open on tap). Build menu: the
+- Compact top bar: see §2 (icons and numbers, the first three materials
+  and "…", island on a second row in portrait; popups open on tap). Build menu: the
   desktop look (folder tabs, parchment cards, icon-only Move and Demolish
   buttons pinned at the right of the tab row behind a divider), with ≥ 44 px tabs and cards on touch; short landscape
   phones keep the stacked layout with smaller cards and thumbnails. Hints and banners stack below the top
@@ -635,6 +645,17 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   dense synthetic fixture ran at 27 draw calls (36 with the life layer;
   `?life=0` disables it); `?stats=1` on `make dev FIXTURE=played` (dev builds only)
   shows live instance and particle counts.
+- **Picking is mesh-first** (polish 7): a tap or long press at near and
+  mid LOD selects the building, field or plan whose model the view ray
+  meets first — one box per building at its model's rotated bounds on its
+  ground (the selection frame's and shadow blob's box; the models are
+  merged per chunk, so no per-triangle ranges) — and only without such a
+  hit the building or plan whose footprint holds the ground tile under
+  the pointer. A roof thus selects its own house, not the one behind it
+  whose footprint the ray reaches on the ground. Touch adds 0.2 tiles of
+  tolerance around each box. Ships (screen radius) and far labels keep
+  their own picks; tools still act on the ground tile
+  (`display/raypick.ts`).
 
 ## 9. The Almanac (public reference)
 

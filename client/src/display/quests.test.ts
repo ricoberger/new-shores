@@ -97,13 +97,13 @@ describe("away summary", () => {
     expect(v.from).toBe("1 Jan, 00:30");
     expect(v.to).toBe("12:30");
     expect(v.duration).toBe("12 h 0 min");
-    expect(v.gold).toEqual({ before: "258", after: "26", change: "−232" });
-    expect(v.population).toEqual([{ tier: "settlers", name: "Settlers", before: "32", after: "8" }]);
+    expect(v.gold).toEqual({ before: "229", after: "8", change: "−220" });
+    expect(v.population).toEqual([{ tier: "settlers", name: "Settlers", before: "24", after: "12" }]);
     expect(v.islands.map((is) => is.name)).toEqual(["Start"]);
     const planks = v.islands[0]!.goods.find((g) => g.good === "planks")!;
     expect(planks).toMatchObject({ name: "Planks", produced: "158\u00a0t", stock: "300/300\u00a0t" });
-    expect(v.islands[0]!.goods.find((g) => g.good === "fish")).toMatchObject({ consumed: "31\u00a0t", stock: "0/300\u00a0t" });
-    expect(v.paused).toBe(8);
+    expect(v.islands[0]!.goods.find((g) => g.good === "fish")).toMatchObject({ consumed: "33\u00a0t", stock: "0/300\u00a0t" });
+    expect(v.paused).toBe(7);
     expect(v.stillPaused).toEqual(["Lumberjack #3 (Start)", "Lumberjack #4 (Start)", "Sawmill #5 (Start)"]);
     expect(v.shipsArrived).toBe(1);
     expect(v.arrivals).toEqual(["Ship #1: 1 arrival (island2)"]);
@@ -155,7 +155,7 @@ describe("insolvency banner", () => {
     const model = fixture("away_summary_12h");
     expect(model.insolvency.unpaid_buildings).toBe(3);
     expect(insolvencyBanner(model)).toBe(
-      "Your city cannot afford its upkeep: −4.5 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
+      "Your city cannot afford its upkeep: −4.3 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
     );
   });
 

@@ -22,7 +22,7 @@
     "start": {
       "fish": {
         "produced": 0,
-        "consumed": 15420,
+        "consumed": 16050,
         "lost": 0,
         "granted": 200000
       },
@@ -30,7 +30,7 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 260000,
+        "spent": 275000,
         "granted": 390000,
         "loaded": 50000
       },
@@ -56,7 +56,7 @@
       },
       "wool_garments": {
         "produced": 0,
-        "consumed": 7710,
+        "consumed": 8025,
         "lost": 0,
         "granted": 100000
       }
@@ -65,7 +65,7 @@
   "bottlenecks": [
     {
       "island_id": "island2",
-      "building_id": 39,
+      "building_id": 40,
       "type": "hemp_farm",
       "status": "not_connected",
       "reason": "No road to a warehouse"
@@ -74,80 +74,80 @@
   "pause_events": [],
   "expected_errors": [
     {
-      "step": 22,
+      "step": 23,
       "error": "upgrade_only",
       "message": "house can only be reached by upgrade: house_citizens (upgrade a full house of the previous tier)"
     },
     {
-      "step": 23,
+      "step": 24,
       "error": "no_deposit",
       "message": "no deposit under the footprint: iron_mine at (17,7) must cover a iron deposit"
     },
     {
-      "step": 24,
+      "step": 25,
       "error": "no_deposit",
       "message": "no deposit under the footprint: quarry at (19,6) must cover a stone deposit"
     },
     {
-      "step": 25,
+      "step": 26,
       "error": "terrain",
       "message": "terrain not buildable: (17,8) is mountain"
     },
     {
-      "step": 29,
+      "step": 30,
       "error": "field_not_adjacent",
-      "message": "field is not adjacent to its farm or an active field: wheat_field at (36,10) touches neither wheat_farm 20 nor one of its active fields"
+      "message": "field is not adjacent to its farm or an active field: wheat_field at (36,10) touches neither wheat_farm 21 nor one of its active fields"
     },
     {
-      "step": 30,
+      "step": 31,
       "error": "terrain",
       "message": "terrain not buildable: wheat_field at (22,8) cannot stand on mountain"
     },
     {
-      "step": 31,
+      "step": 32,
       "error": "occupied",
       "message": "tile occupied: (24,4)"
     },
     {
-      "step": 32,
+      "step": 33,
       "error": "field_type_mismatch",
       "message": "building type is not a field: \"wheat_farm\" is not a field"
     },
     {
-      "step": 33,
+      "step": 34,
       "error": "field_wrong_farm",
-      "message": "field belongs to another farm type: pasture belongs to sheep_farm, not wheat_farm 20"
+      "message": "field belongs to another farm type: pasture belongs to sheep_farm, not wheat_farm 21"
     },
     {
-      "step": 34,
+      "step": 35,
       "error": "field_needs_farm",
       "message": "fields are placed from their farm: wheat_field is placed from its wheat_farm (place_field)"
     },
     {
-      "step": 36,
+      "step": 37,
       "error": "field_max_reached",
-      "message": "farm has the maximum number of fields: wheat_farm 20 has 16 of 16 fields"
+      "message": "farm has the maximum number of fields: wheat_farm 21 has 16 of 16 fields"
     },
     {
-      "step": 43,
+      "step": 44,
       "error": "no_fertility",
       "message": "island lacks fertility: wheat_farm needs wheat (island \"island2\" has hemp)"
     }
   ],
   "snapshots": [
     {
-      "step": 20,
+      "step": 21,
       "at": "2026-01-01T00:10:00.000Z",
       "boundaries": 91,
       "inventory": {
         "island2": {},
         "start": {
           "fish": {
-            "stock": 191780,
+            "stock": 191150,
             "in_transit": 0
           },
           "planks": {
-            "stock": 110000,
+            "stock": 95000,
             "in_transit": 0
           },
           "sails": {
@@ -159,14 +159,14 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 95890,
+            "stock": 95575,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 9823399,
-      "balance_rate_per_min": 20640,
+      "gold": 9632000,
+      "balance_rate_per_min": 24000,
       "population": {
         "settlers": 120000
       },
@@ -176,18 +176,18 @@
       ]
     },
     {
-      "step": 39,
+      "step": 40,
       "at": "2026-01-01T00:12:00.000Z",
       "boundaries": 3,
       "inventory": {
         "island2": {},
         "start": {
           "fish": {
-            "stock": 189380,
+            "stock": 188750,
             "in_transit": 0
           },
           "planks": {
-            "stock": 130000,
+            "stock": 115000,
             "in_transit": 0
           },
           "stone": {
@@ -199,7 +199,7 @@
             "in_transit": 517
           },
           "wool_garments": {
-            "stock": 94690,
+            "stock": 94375,
             "in_transit": 0
           }
         }
@@ -207,8 +207,8 @@
       "statuses": {
         "ok": 2
       },
-      "gold": 9149679,
-      "balance_rate_per_min": 14640,
+      "gold": 8965000,
+      "balance_rate_per_min": 18000,
       "population": {
         "settlers": 120000
       },
@@ -226,7 +226,7 @@
       "farms": [
         {
           "island": "start",
-          "id": 20,
+          "id": 21,
           "type": "wheat_farm",
           "active": 16,
           "required": 16,
@@ -237,18 +237,18 @@
       ]
     },
     {
-      "step": 41,
+      "step": 42,
       "at": "2026-01-01T00:15:00.000Z",
       "boundaries": 1,
       "inventory": {
         "island2": {},
         "start": {
           "fish": {
-            "stock": 185780,
+            "stock": 185150,
             "in_transit": 0
           },
           "planks": {
-            "stock": 80000,
+            "stock": 65000,
             "in_transit": 0
           },
           "stone": {
@@ -260,7 +260,7 @@
             "in_transit": 517
           },
           "wool_garments": {
-            "stock": 92890,
+            "stock": 92575,
             "in_transit": 0
           }
         }
@@ -268,8 +268,8 @@
       "statuses": {
         "ok": 2
       },
-      "gold": 9193599,
-      "balance_rate_per_min": 14640,
+      "gold": 9019000,
+      "balance_rate_per_min": 18000,
       "population": {
         "settlers": 120000
       },
@@ -291,7 +291,7 @@
       "farms": [
         {
           "island": "start",
-          "id": 20,
+          "id": 21,
           "type": "wheat_farm",
           "active": 16,
           "required": 16,
@@ -302,7 +302,7 @@
       ]
     },
     {
-      "step": 46,
+      "step": 47,
       "at": "2026-01-01T00:16:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -318,11 +318,11 @@
         },
         "start": {
           "fish": {
-            "stock": 184580,
+            "stock": 183950,
             "in_transit": 0
           },
           "planks": {
-            "stock": 80000,
+            "stock": 65000,
             "in_transit": 0
           },
           "stone": {
@@ -334,7 +334,7 @@
             "in_transit": 517
           },
           "wool_garments": {
-            "stock": 92290,
+            "stock": 91975,
             "in_transit": 0
           }
         }
@@ -343,8 +343,8 @@
         "not_connected": 1,
         "ok": 2
       },
-      "gold": 8725239,
-      "balance_rate_per_min": 11640,
+      "gold": 8554000,
+      "balance_rate_per_min": 15000,
       "population": {
         "settlers": 120000
       },
@@ -362,7 +362,7 @@
       "farms": [
         {
           "island": "start",
-          "id": 20,
+          "id": 21,
           "type": "wheat_farm",
           "active": 16,
           "required": 16,
@@ -372,7 +372,7 @@
         },
         {
           "island": "island2",
-          "id": 39,
+          "id": 40,
           "type": "hemp_farm",
           "active": 16,
           "required": 16,
@@ -395,10 +395,10 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:16:00.000Z",
-    "next_change_at": "2026-01-01T02:49:49.000Z",
-    "gold": 8725239,
-    "balance_rate_per_min": 11640,
-    "tax_rate_per_min": 20640,
+    "next_change_at": "2026-01-01T02:49:17.500Z",
+    "gold": 8554000,
+    "balance_rate_per_min": 15000,
+    "tax_rate_per_min": 24000,
     "upkeep_rate_per_min": 9000,
     "tiers": [
       {
@@ -477,7 +477,7 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 184580,
+            "stock": 183950,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": -1200,
@@ -519,7 +519,7 @@
             "in_transit_rate_per_min": 0
           },
           "planks": {
-            "stock": 80000,
+            "stock": 65000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -568,7 +568,7 @@
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 92290,
+            "stock": 91975,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": -600,
@@ -981,6 +981,18 @@
           },
           {
             "id": 4,
+            "type": "market_small",
+            "x": 34,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000
+          },
+          {
+            "id": 5,
             "type": "house_settlers",
             "x": 6,
             "y": 2,
@@ -996,60 +1008,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
-            "growth_progress_permille": 0,
-            "growth_rate_per_min": 0,
-            "satisfaction_permille": 1000,
-            "tax_rate_per_min": 1600,
-            "needs": [
-              {
-                "id": "settlers_food",
-                "kind": "required",
-                "category": "food",
-                "fulfilment_permille": 1000,
-                "reason": "ok",
-                "goods": {
-                  "fish": 1200
-                }
-              },
-              {
-                "id": "settlers_clothing",
-                "kind": "required",
-                "category": "clothing",
-                "fulfilment_permille": 1000,
-                "reason": "ok",
-                "goods": {
-                  "wool_garments": 600
-                }
-              },
-              {
-                "id": "settlers_market_small",
-                "kind": "required",
-                "building": "market_small",
-                "fulfilment_permille": 1000,
-                "reason": "ok"
-              }
-            ],
-            "served_by": [
-              2
-            ]
-          },
-          {
-            "id": 5,
-            "type": "house_settlers",
-            "x": 8,
-            "y": 2,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "upgrade": {
-              "available": true
-            },
-            "residents": 8000,
-            "residents_floor": 2000,
-            "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1090,7 +1049,7 @@
           {
             "id": 6,
             "type": "house_settlers",
-            "x": 10,
+            "x": 8,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -1104,6 +1063,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1144,7 +1104,7 @@
           {
             "id": 7,
             "type": "house_settlers",
-            "x": 12,
+            "x": 10,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -1158,6 +1118,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1198,7 +1159,7 @@
           {
             "id": 8,
             "type": "house_settlers",
-            "x": 14,
+            "x": 12,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -1212,6 +1173,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1252,7 +1214,7 @@
           {
             "id": 9,
             "type": "house_settlers",
-            "x": 16,
+            "x": 14,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -1266,6 +1228,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1306,7 +1269,7 @@
           {
             "id": 10,
             "type": "house_settlers",
-            "x": 18,
+            "x": 16,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -1320,6 +1283,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1360,7 +1324,7 @@
           {
             "id": 11,
             "type": "house_settlers",
-            "x": 20,
+            "x": 18,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -1374,6 +1338,7 @@
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
@@ -1414,7 +1379,7 @@
           {
             "id": 12,
             "type": "house_settlers",
-            "x": 22,
+            "x": 20,
             "y": 2,
             "rotation": 0,
             "paused": false,
@@ -1423,16 +1388,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1458,13 +1423,71 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
             "id": 13,
+            "type": "house_settlers",
+            "x": 22,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "residents_target": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "goods": {
+                  "fish": 1200
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "goods": {
+                  "wool_garments": 600
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              }
+            ],
+            "served_by": [
+              4
+            ]
+          },
+          {
+            "id": 14,
             "type": "house_settlers",
             "x": 24,
             "y": 2,
@@ -1475,16 +1498,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1510,13 +1533,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 14,
+            "id": 15,
             "type": "house_settlers",
             "x": 26,
             "y": 2,
@@ -1527,16 +1553,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1562,13 +1588,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 15,
+            "id": 16,
             "type": "house_settlers",
             "x": 28,
             "y": 2,
@@ -1579,16 +1608,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1614,13 +1643,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 16,
+            "id": 17,
             "type": "house_settlers",
             "x": 30,
             "y": 2,
@@ -1631,16 +1663,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1666,13 +1698,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 17,
+            "id": 18,
             "type": "house_settlers",
             "x": 32,
             "y": 2,
@@ -1683,16 +1718,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1718,13 +1753,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 18,
+            "id": 19,
             "type": "house_settlers",
             "x": 34,
             "y": 2,
@@ -1735,16 +1773,16 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "upgrade": {
-              "available": false,
-              "reason": "needs_below_threshold:settlers_market_small:60"
+              "available": true
             },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
+            "residents_target": 8000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 700,
-            "tax_rate_per_min": 1120,
+            "satisfaction_permille": 1000,
+            "tax_rate_per_min": 1600,
             "needs": [
               {
                 "id": "settlers_food",
@@ -1770,13 +1808,16 @@
                 "id": "settlers_market_small",
                 "kind": "required",
                 "building": "market_small",
-                "fulfilment_permille": 0,
-                "reason": "out_of_range"
+                "fulfilment_permille": 1000,
+                "reason": "ok"
               }
+            ],
+            "served_by": [
+              4
             ]
           },
           {
-            "id": 19,
+            "id": 20,
             "type": "quarry",
             "x": 16,
             "y": 7,
@@ -1805,7 +1846,7 @@
             }
           },
           {
-            "id": 20,
+            "id": 21,
             "type": "wheat_farm",
             "x": 24,
             "y": 5,
@@ -1837,7 +1878,6 @@
               "required": 16,
               "max": 16,
               "ids": [
-                21,
                 22,
                 23,
                 24,
@@ -1852,12 +1892,13 @@
                 33,
                 34,
                 35,
-                36
+                36,
+                37
               ]
             }
           },
           {
-            "id": 21,
+            "id": 22,
             "type": "wheat_field",
             "x": 23,
             "y": 5,
@@ -1867,26 +1908,26 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
-            "active": true
-          },
-          {
-            "id": 22,
-            "type": "wheat_field",
-            "x": 27,
-            "y": 5,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
             "id": 23,
             "type": "wheat_field",
+            "x": 27,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 21,
+            "active": true
+          },
+          {
+            "id": 24,
+            "type": "wheat_field",
             "x": 28,
             "y": 5,
             "rotation": 0,
@@ -1895,26 +1936,26 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
-            "active": true
-          },
-          {
-            "id": 24,
-            "type": "wheat_field",
-            "x": 23,
-            "y": 6,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
             "id": 25,
             "type": "wheat_field",
+            "x": 23,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 21,
+            "active": true
+          },
+          {
+            "id": 26,
+            "type": "wheat_field",
             "x": 27,
             "y": 6,
             "rotation": 0,
@@ -1923,11 +1964,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 26,
+            "id": 27,
             "type": "wheat_field",
             "x": 28,
             "y": 6,
@@ -1937,11 +1978,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 27,
+            "id": 28,
             "type": "wheat_field",
             "x": 23,
             "y": 7,
@@ -1951,11 +1992,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 28,
+            "id": 29,
             "type": "wheat_field",
             "x": 27,
             "y": 7,
@@ -1965,11 +2006,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 29,
+            "id": 30,
             "type": "wheat_field",
             "x": 28,
             "y": 7,
@@ -1979,11 +2020,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 30,
+            "id": 31,
             "type": "wheat_field",
             "x": 23,
             "y": 8,
@@ -1993,11 +2034,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 31,
+            "id": 32,
             "type": "wheat_field",
             "x": 24,
             "y": 8,
@@ -2007,11 +2048,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 32,
+            "id": 33,
             "type": "wheat_field",
             "x": 25,
             "y": 8,
@@ -2021,11 +2062,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 33,
+            "id": 34,
             "type": "wheat_field",
             "x": 26,
             "y": 8,
@@ -2035,11 +2076,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 34,
+            "id": 35,
             "type": "wheat_field",
             "x": 27,
             "y": 8,
@@ -2049,11 +2090,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 35,
+            "id": 36,
             "type": "wheat_field",
             "x": 28,
             "y": 8,
@@ -2063,11 +2104,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 36,
+            "id": 37,
             "type": "wheat_field",
             "x": 22,
             "y": 5,
@@ -2077,11 +2118,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 20,
+            "farm_id": 21,
             "active": true
           },
           {
-            "id": 37,
+            "id": 38,
             "type": "shipyard",
             "x": 30,
             "y": 9,
@@ -2281,7 +2322,7 @@
         "roads": [],
         "buildings": [
           {
-            "id": 38,
+            "id": 39,
             "type": "trading_post",
             "x": 1,
             "y": 0,
@@ -2303,7 +2344,7 @@
             }
           },
           {
-            "id": 39,
+            "id": 40,
             "type": "hemp_farm",
             "x": 15,
             "y": 6,
@@ -2340,7 +2381,6 @@
               "required": 16,
               "max": 16,
               "ids": [
-                40,
                 41,
                 42,
                 43,
@@ -2355,12 +2395,13 @@
                 52,
                 53,
                 54,
-                55
+                55,
+                56
               ]
             }
           },
           {
-            "id": 40,
+            "id": 41,
             "type": "hemp_field",
             "x": 15,
             "y": 5,
@@ -2370,26 +2411,26 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
-            "active": true
-          },
-          {
-            "id": 41,
-            "type": "hemp_field",
-            "x": 16,
-            "y": 5,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
             "id": 42,
             "type": "hemp_field",
+            "x": 16,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 40,
+            "active": true
+          },
+          {
+            "id": 43,
+            "type": "hemp_field",
             "x": 17,
             "y": 5,
             "rotation": 0,
@@ -2398,11 +2439,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
-            "id": 43,
+            "id": 44,
             "type": "hemp_field",
             "x": 18,
             "y": 5,
@@ -2412,26 +2453,26 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
-            "active": true
-          },
-          {
-            "id": 44,
-            "type": "hemp_field",
-            "x": 14,
-            "y": 6,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
             "id": 45,
             "type": "hemp_field",
+            "x": 14,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 40,
+            "active": true
+          },
+          {
+            "id": 46,
+            "type": "hemp_field",
             "x": 18,
             "y": 6,
             "rotation": 0,
@@ -2440,26 +2481,26 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
-            "active": true
-          },
-          {
-            "id": 46,
-            "type": "hemp_field",
-            "x": 14,
-            "y": 7,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
             "id": 47,
             "type": "hemp_field",
+            "x": 14,
+            "y": 7,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 40,
+            "active": true
+          },
+          {
+            "id": 48,
+            "type": "hemp_field",
             "x": 18,
             "y": 7,
             "rotation": 0,
@@ -2468,11 +2509,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
-            "id": 48,
+            "id": 49,
             "type": "hemp_field",
             "x": 14,
             "y": 8,
@@ -2482,11 +2523,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
-            "id": 49,
+            "id": 50,
             "type": "hemp_field",
             "x": 18,
             "y": 8,
@@ -2496,11 +2537,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
-            "id": 50,
+            "id": 51,
             "type": "hemp_field",
             "x": 15,
             "y": 4,
@@ -2510,11 +2551,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
-            "id": 51,
+            "id": 52,
             "type": "hemp_field",
             "x": 16,
             "y": 4,
@@ -2524,11 +2565,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
-            "id": 52,
+            "id": 53,
             "type": "hemp_field",
             "x": 17,
             "y": 4,
@@ -2538,11 +2579,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
-            "id": 53,
+            "id": 54,
             "type": "hemp_field",
             "x": 18,
             "y": 4,
@@ -2552,11 +2593,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
-            "id": 54,
+            "id": 55,
             "type": "hemp_field",
             "x": 14,
             "y": 5,
@@ -2566,11 +2607,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           },
           {
-            "id": 55,
+            "id": 56,
             "type": "hemp_field",
             "x": 13,
             "y": 7,
@@ -2580,7 +2621,7 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 39,
+            "farm_id": 40,
             "active": true
           }
         ],
@@ -2593,7 +2634,7 @@
         },
         "population": {},
         "capacity_source": {
-          "building_id": 38,
+          "building_id": 39,
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
@@ -2662,7 +2703,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 11640
+      "balance_if_resumed_per_min": 15000
     },
     "quests": {
       "active": [

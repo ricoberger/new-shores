@@ -463,11 +463,12 @@ func foodNeed(t *testing.T, h sim.BuildingDisplay) sim.NeedDisplay {
 	return sim.NeedDisplay{}
 }
 
-// TestFishShort checks scenario (g): with the markets gone, a fisher that
-// covers only part of the fish demand leaves food fulfilment between 0 and 1
-// and satisfaction below 0.5, so residents decline; without the fisher
-// fulfilment is 0 and residents decline to their floor and stay there;
-// nothing but the demolished buildings disappears (D-009).
+// TestFishShort checks scenario (g): a fisher that covers only part of the
+// fish demand of full houses leaves food fulfilment between 0 and 1 and
+// satisfaction below 1, so residents decline towards their target (D-074);
+// without the fisher, the markets and (later) the garments fulfilment is 0
+// and residents decline to their floor and stay there; nothing but the
+// demolished buildings disappears (D-009).
 func TestFishShort(t *testing.T) {
 	rep := runScenario(t, "fish_short")
 	pops := make([]int64, len(rep.Snapshots))
@@ -495,7 +496,7 @@ func TestFishShort(t *testing.T) {
 		if food.FulfilmentPermille <= 0 || food.FulfilmentPermille >= 1000 || food.Reason != sim.NeedShortSupply || food.Goods["fish"] <= 0 {
 			t.Errorf("phase 1 house %d food = %+v", h.ID, food)
 		}
-		if *h.SatisfactionPermille >= 500 || *h.GrowthRatePerMin >= 0 {
+		if *h.SatisfactionPermille >= 1000 || *h.GrowthRatePerMin >= 0 || *h.ResidentsTarget >= *h.Residents {
 			t.Errorf("phase 1 house %d: satisfaction %d growth %d", h.ID, *h.SatisfactionPermille, *h.GrowthRatePerMin)
 		}
 	}
@@ -503,7 +504,8 @@ func TestFishShort(t *testing.T) {
 		t.Errorf("no decline during partial supply: %d -> %d", pops[1], pops[2])
 	}
 
-	// Phase 2: no fish at all; residents at the floor and staying there.
+	// Phase 2: no fish, market or garments; residents at the floor and
+	// staying there.
 	n := len(rep.Snapshots)
 	if pops[n-2] != 48_000 || pops[n-1] != 48_000 {
 		t.Errorf("phase 2 population %d -> %d, want the floor 48000", pops[n-2], pops[n-1])
@@ -611,13 +613,14 @@ func TestWorkforceShort(t *testing.T) {
 }
 
 // TestOffline12hStalled checks scenario (j): one 12-hour Advance with a
-// stalled food need keeps houses at their floor, gold at >= 0 and every good
-// within capacity, without coarse mode and within the 50 ms budget.
+// stalled food need keeps houses at their low D-074 target (garments only:
+// satisfaction 0.2, 3 of 8), gold at >= 0 and every good within capacity,
+// without coarse mode and within the 50 ms budget.
 func TestOffline12hStalled(t *testing.T) {
 	rep := runScenario(t, "offline_12h_stalled")
 	for _, h := range houses(rep) {
-		if *h.Residents != *h.ResidentsFloor {
-			t.Errorf("house %d residents %d", h.ID, *h.Residents)
+		if *h.Residents != *h.ResidentsTarget || *h.Residents >= *h.ResidentsMax || *h.GrowthRatePerMin != 0 {
+			t.Errorf("house %d residents %d target %d rate %d", h.ID, *h.Residents, *h.ResidentsTarget, *h.GrowthRatePerMin)
 		}
 	}
 	checkGoldNonNegative(t, rep)

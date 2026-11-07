@@ -5,6 +5,8 @@
 // rotation. A depth pre-pass keeps the translucent model clean (only its
 // front surface shows). Fields use their model too. Content IDs without a
 // model, and models still loading, keep the box ghost of the footprint.
+// A building ghost also outlines its footprint in gold (the plans' outline,
+// render/outline.ts), whatever its validity colour; fields have none.
 // Roads have their own preview. Purely visual, never pickable.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
@@ -16,7 +18,8 @@ import type { ContentBuilding } from "../api/client";
 import type { ArchPoint } from "../display/ships";
 import { type Rotation, rotatedFootprint, type WaterEdgeTile } from "../display/geometry";
 import { ghostOffset, previewOffset, skyFill } from "./lighting";
-import { GHOST, GHOST_INVALID } from "./palette";
+import { GHOST, GHOST_INVALID, GOLD } from "./palette";
+import { outlineQuads, rectOutline } from "./outline";
 import { type ModelEntry, modelFileFor, modelMesh, type ModelRegistry, placement, worldData } from "./models";
 import { LEVEL_HEIGHT, LEVEL_STEPS } from "./terraces";
 import { EDGE_STONE, fillSide } from "./groundpaint";
@@ -143,6 +146,9 @@ export class PlacementGhost {
   private plinth: Mesh | null = null;
   private plinthKey = "";
   private waterKey = "";
+  /** The gold footprint outline of a building ghost and the key of what it was built for. */
+  private readonly outline: Mesh;
+  private outlineKey = "";
 
   constructor(
     private readonly scene: Scene,
@@ -167,6 +173,16 @@ export class PlacementGhost {
     this.water.material = wm;
     this.water.isPickable = false;
     this.water.setEnabled(false);
+    this.outline = new Mesh("ghost_outline", scene);
+    const om = previewOffset(new StandardMaterial("ghost_outline", scene));
+    om.disableLighting = true;
+    om.emissiveColor = GOLD;
+    om.diffuseColor = Color3.Black();
+    om.specularColor = Color3.Black();
+    this.outline.material = om;
+    this.outline.isPickable = false;
+    this.outline.alwaysSelectAsActiveMesh = true;
+    this.outline.setEnabled(false);
   }
 
   /** Shows the ghost of a building at a tile, tinted by a validity colour. */
@@ -196,7 +212,31 @@ export class PlacementGhost {
       this.box.position.set(spec.island.x + spec.x + w / 2, (spec.base ?? 0) + 0.3 + GHOST_LIFT, -(spec.island.y + spec.y + h / 2));
     }
     this.shown.setEnabled(true);
+    this.showOutline(spec);
     this.showWaterTiles(spec, color);
+  }
+
+  /** The gold footprint outline of a building ghost (none for fields), rebuilt only when the footprint moves. */
+  private showOutline(spec: GhostSpec): void {
+    if (spec.def.field) {
+      this.outline.setEnabled(false);
+      return;
+    }
+    const [w, h] = rotatedFootprint(spec.def.width, spec.def.height, spec.rotation);
+    const base = spec.base ?? 0;
+    const key = `${spec.island.x},${spec.island.y},${spec.x},${spec.y},${w},${h},${base}`;
+    if (key !== this.outlineKey) {
+      const vd = outlineQuads(rectOutline(spec.island.x + spec.x, spec.island.y + spec.y, w, h, base + GHOST_LIFT));
+      if (!vd) return;
+      vd.applyToMesh(this.outline);
+      this.outlineKey = key;
+    }
+    this.outline.setEnabled(true);
+  }
+
+  /** Whether the gold footprint outline is drawn (tests). */
+  outlined(): boolean {
+    return this.outline.isEnabled();
   }
 
   /** One vertex-coloured mesh for all footprint tiles, rebuilt only when the hint changes. */
@@ -272,6 +312,7 @@ export class PlacementGhost {
 
   hide(): void {
     this.plinth?.setEnabled(false);
+    this.outline.setEnabled(false);
     this.shown?.setEnabled(false);
     this.shown = null;
     this.water.setEnabled(false);

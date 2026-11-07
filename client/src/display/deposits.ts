@@ -13,64 +13,67 @@ export function highlightedDeposit(tool: Tool, defs: ReadonlyMap<string, Pick<Co
   return defs.get(tool.buildingType)?.requires_deposit || null;
 }
 
-/** An island's tiles of a deposit kind that no building covers (a mine on them hides the tint under its model). */
+/**
+ * A deposit slot (MECHANICS §2: two 4-adjacent deposit tiles of one kind; slots stand at least 16 tiles apart, so
+ * every 4-connected group of a kind's tiles is one slot): its tiles and the point its marker floats over, the mean of
+ * its tile centres minus ½ (tile coordinates: between the two tiles of a pair).
+ */
+export interface DepositSlot {
+  kind: string;
+  tiles: { x: number; y: number }[];
+  x: number;
+  y: number;
+}
+
+/** The deposit slots among tiles (4-connected groups of one kind), ordered by their first tile (row, then column). */
+export function depositSlots(deposits: readonly DepositDisplay[]): DepositSlot[] {
+  const left = new Map(deposits.map((d) => [`${d.x},${d.y}`, d]));
+  const out: DepositSlot[] = [];
+  for (const start of [...deposits].sort((a, b) => a.y - b.y || a.x - b.x)) {
+    if (!left.delete(`${start.x},${start.y}`)) continue;
+    const tiles = [{ x: start.x, y: start.y }];
+    for (let i = 0; i < tiles.length; i++) {
+      const m = tiles[i]!;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+        const k = `${m.x + dx},${m.y + dy}`;
+        if (left.get(k)?.kind !== start.kind) continue;
+        left.delete(k);
+        tiles.push({ x: m.x + dx, y: m.y + dy });
+      }
+    }
+    const x = tiles.reduce((s, t) => s + t.x, 0) / tiles.length;
+    const y = tiles.reduce((s, t) => s + t.y, 0) / tiles.length;
+    out.push({ kind: start.kind, tiles, x, y });
+  }
+  return out;
+}
+
+/**
+ * An island's free slots of a deposit kind: a slot with a building on any of its tiles is taken (a mine or quarry
+ * occupies one slot, MECHANICS §2), so neither its tint nor its marker shows.
+ */
+export function freeDepositSlots(
+  island: { deposits: readonly DepositDisplay[]; buildings?: readonly BuildingDisplay[] },
+  kind: string,
+  defs: ReadonlyMap<string, Pick<ContentBuilding, "width" | "height">>,
+): DepositSlot[] {
+  const slots = depositSlots(island.deposits.filter((d) => d.kind === kind));
+  if (slots.length === 0 || !island.buildings?.length) return slots;
+  const blocked = blockedTiles(island.buildings, [], defs);
+  return slots.filter((s) => !s.tiles.some((t) => blocked.has(`${t.x},${t.y}`)));
+}
+
+/** An island's tiles of a deposit kind in its free slots (the tint; a taken slot's tiles hide under or beside its mine). */
 export function depositTiles(
   island: { deposits: readonly DepositDisplay[]; buildings?: readonly BuildingDisplay[] },
   kind: string,
   defs: ReadonlyMap<string, Pick<ContentBuilding, "width" | "height">>,
 ): DepositDisplay[] {
-  const of = island.deposits.filter((d) => d.kind === kind);
-  if (of.length === 0 || !island.buildings?.length) return of;
-  const blocked = blockedTiles(island.buildings, [], defs);
-  return of.filter((d) => !blocked.has(`${d.x},${d.y}`));
+  return freeDepositSlots(island, kind, defs).flatMap((s) => s.tiles.map((t) => ({ ...t, kind })));
 }
 
-/** How many tiles of a deposit kind an island has (the far label's count; 0: no icon). */
+/** How many slots of a deposit kind an island has (the far label's count; 0: no icon). */
 export function depositCount(island: { deposits: readonly DepositDisplay[] }, kind: string | null): number {
   if (!kind) return 0;
-  let n = 0;
-  for (const d of island.deposits) if (d.kind === kind) n++;
-  return n;
-}
-
-/** A cluster of deposit tiles: the tile its marker floats over (the one nearest the cluster's centre) and its size. */
-export interface DepositCluster {
-  x: number;
-  y: number;
-  tiles: number;
-}
-
-/**
- * The clusters of deposit tiles (8-connected) with the tile each marker stands over (UI.md §3 deposit markers):
- * the cluster's tile nearest its mean, ties by row then column, so a marker always floats over its deposit.
- * Ordered by that tile (row, then column).
- */
-export function depositClusters(tiles: readonly { x: number; y: number }[]): DepositCluster[] {
-  const left = new Set(tiles.map((t) => `${t.x},${t.y}`));
-  const out: DepositCluster[] = [];
-  for (const start of tiles) {
-    if (!left.delete(`${start.x},${start.y}`)) continue;
-    const members = [start];
-    for (let i = 0; i < members.length; i++) {
-      const m = members[i]!;
-      for (let dy = -1; dy <= 1; dy++)
-        for (let dx = -1; dx <= 1; dx++) {
-          const k = `${m.x + dx},${m.y + dy}`;
-          if (left.delete(k)) members.push({ x: m.x + dx, y: m.y + dy });
-        }
-    }
-    const mx = members.reduce((s, m) => s + m.x, 0) / members.length;
-    const my = members.reduce((s, m) => s + m.y, 0) / members.length;
-    let best = members[0]!;
-    let bestD = Infinity;
-    for (const m of members) {
-      const d = (m.x - mx) ** 2 + (m.y - my) ** 2;
-      if (d < bestD || (d === bestD && (m.y < best.y || (m.y === best.y && m.x < best.x)))) {
-        best = m;
-        bestD = d;
-      }
-    }
-    out.push({ x: best.x, y: best.y, tiles: members.length });
-  }
-  return out.sort((a, b) => a.y - b.y || a.x - b.x);
+  return depositSlots(island.deposits.filter((d) => d.kind === kind)).length;
 }

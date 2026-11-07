@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { setLanguage } from "../i18n";
-import { percent, perMin, signedTons, speedFactor, tons, tonsPerMin, tonsRatio, units } from "./format";
+import { percent, perMin, residentsLine, signedTons, speedFactor, tons, tonsPerMin, tonsRatio, units } from "./format";
 
 describe("format", () => {
+  it("shows the house's residents towards the server's target (D-074)", () => {
+    expect(residentsLine({ residents: 10_000, residents_max: 15_000, residents_target: 10_000, growth_rate_per_min: 0 })).toBe("→ 10 / 15");
+    expect(residentsLine({ residents: 8_000, residents_max: 15_000, residents_target: 10_000, growth_rate_per_min: 585 })).toBe("↑ 8 → 10 / 15");
+    expect(residentsLine({ residents: 15_000, residents_max: 15_000, residents_target: 8_000, growth_rate_per_min: -350 })).toBe("↓ 15 → 8 / 15");
+    expect(residentsLine({ residents: 3_000, residents_max: 8_000, growth_rate_per_min: 1000 })).toBe("↑ 3 / 8");
+  });
+
   it("shows whole units, never raw milli values", () => {
     expect(units(500_000)).toBe("500");
     expect(units(499_999.6)).toBe("499");

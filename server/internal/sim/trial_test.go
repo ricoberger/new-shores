@@ -8,15 +8,18 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// trialTown: five settler houses at their floor with only a market in
-// range (taxes 5 x 0.12 = 0.6 gold/min), a fisher (1 gold/min) and a
+// trialTown: five settler houses with only a market in range, at their
+// D-074 target of 3 residents (satisfaction 0.3: 2 + 6 x 0.3 rounded down;
+// taxes 5 x 3 x 0.2 x 0.3 = 0.9 gold/min), a fisher (1 gold/min) and a
 // sawmill (2 gold/min) paused for insolvency, nothing in stock and no gold:
 // rule (b) fails for both, so only the trial reserve can restart them.
 func trialTown(t *testing.T, connectFisher bool) (*content.Catalogue, *World, int64, int64) {
 	t.Helper()
 	c := withoutQuests(catalogue(t))
 	w := newTown(t, c, 0)
-	placeHouses(t, w, c, 5)
+	for _, h := range placeHouses(t, w, c, 5) {
+		house(w, h).Residents = 3_000
+	}
 	placeFree(t, w, c, "market_small", 17, 1, 0)
 	sawmill := placeFree(t, w, c, "sawmill", 24, 2, 0)
 	if !connectFisher {
@@ -44,11 +47,11 @@ func trialTown(t *testing.T, connectFisher bool) (*content.Catalogue, *World, in
 func TestTrialResume(t *testing.T) {
 	c, w, fisher, sawmill := trialTown(t, true)
 	ds := display(t, w, c)
-	if ds.BalanceRatePerMin != 600 || ds.Gold != 0 {
+	if ds.BalanceRatePerMin != 900 || ds.Gold != 0 {
 		t.Fatalf("stalled: balance %d gold %d", ds.BalanceRatePerMin, ds.Gold)
 	}
-	// 30 gold at 0.6 gold/min: 50 minutes after the stall at t0.
-	trialAt := t0.Add(50 * time.Minute)
+	// 30 gold at 0.9 gold/min: 33 min 20 s after the stall at t0.
+	trialAt := t0.Add(33*time.Minute + 20*time.Second)
 	if ds.NextChangeAt == nil || *ds.NextChangeAt != trialAt.Format(timeLayout) {
 		t.Fatalf("next_change_at %v, want the trial reserve at %s", *ds.NextChangeAt, trialAt.Format(timeLayout))
 	}
@@ -125,7 +128,7 @@ func TestTrialResumeFailsAndRepeats(t *testing.T) {
 			if b.BuildingID != fisher {
 				t.Errorf("trial of %d, want the fisher", b.BuildingID)
 			}
-			if trials > 0 && b.At.Sub(last) < 50*time.Minute {
+			if trials > 0 && b.At.Sub(last) < 33*time.Minute {
 				t.Errorf("trial %s only %s after the previous one", b.At, b.At.Sub(last))
 			}
 			trials++
@@ -134,8 +137,8 @@ func TestTrialResumeFailsAndRepeats(t *testing.T) {
 			repauses++
 		}
 	}
-	// Trial window: 30 gold at 0.6 gold/min = 50 minutes.
-	window := time.Duration(c.Region.Rules.TrialResumeMs*1_000/600) * time.Millisecond
+	// Trial window: 30 gold at 0.9 gold/min = 33 min 20 s.
+	window := time.Duration(c.Region.Rules.TrialResumeMs*1_000/900) * time.Millisecond
 	bound := int((24*time.Hour + window - 1) / window)
 	t.Logf("24 h: %d trial resumes (bound %d, window %s), %d re-pauses", trials, bound, window, repauses)
 	if trials < 2 || trials > bound || repauses < trials-1 {

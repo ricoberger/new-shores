@@ -2,7 +2,7 @@
   {
     "id": "intro_home_island",
     "title": "Choose your home island",
-    "text": "Welcome to the Old Coast, governor. Your sloop carries the company's planks and sails, and its gold is yours to spend. Every island is open to you: look at their fertilities and deposits, sail to the one you want as your home and found a Trading Post there. Its pier stands on the water; it stores the island's goods and receives your ships.",
+    "text": "Welcome to the Old Coast, governor. Your sloop carries the company's planks, and its gold is yours to spend. Every island is open to you: look at their fertilities and deposits, sail to the one you want as your home and found a Trading Post there. Its pier stands on the water; it stores the island's goods and receives your ships.",
     "objectives": [
       { "kind": "island_settled", "count": 1 }
     ],

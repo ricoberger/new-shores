@@ -47,7 +47,7 @@ export function ResourceBadges({ resources, prefix, short = false, only, stacked
       {show("fertilities") && resources.fertilities.map((f) => badge(`f-${f}`, `${prefix}-fertility-${f}`, resourceIcon("fertility", f), t("resource.fertility", { name: cap(fertilityName(f)) })))}
       {show("deposits") &&
         resources.deposits.map((d) =>
-        badge(`d-${d.kind}`, `${prefix}-deposit-${d.kind}`, resourceIcon("deposit", d.kind), t("resource.deposit", { name: cap(depositName(d.kind)), count: d.tiles }), String(d.tiles)),
+        badge(`d-${d.kind}`, `${prefix}-deposit-${d.kind}`, resourceIcon("deposit", d.kind), t("resource.deposit", { name: cap(depositName(d.kind)), count: d.slots }), String(d.slots)),
       )}
       {show("coast") && badge("coast", `${prefix}-coast`, resourceIcon("coast"), t("resource.coast", { free: resources.coast.free, count: resources.coast.tiles }), String(resources.coast.free))}
       {!only && resources.fertilities.length === 0 && resources.deposits.length === 0 && !short && (

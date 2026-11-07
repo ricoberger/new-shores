@@ -90,7 +90,7 @@ tableware, confectionery, paintings.
 
 | Material | Tier | Chain | Slot / resource |
 |---|---|---|---|
-| `planks` | Settlers | `lumberjack` (24 `tree_plot`s, D-059) → `sawmill` | open land for the plots |
+| `planks` | Settlers | `lumberjack` (48 `tree_plot`s, D-059; 24 before 0.20.0) → `sawmill` | open land for the plots |
 | `stone` | Citizens | `quarry` | stone slot |
 | `tools` | Citizens | `iron_mine` (iron slot) + `charcoal` → `smelter` → `toolmaker` | iron slot; also ships |
 | `bricks` | Merchants | `clay_pit` (clay slot) + `charcoal` → `brickworks` | clay slot (shared with tableware) |
@@ -130,7 +130,7 @@ provisional.
 
 | Good | Chain | Ratio |
 |---|---|---|
-| planks | `lumberjack` (24 tree plots → wood, 30 s) [4 S], `sawmill` (wood → planks, 30 s) [4 S] | 1 : 1 |
+| planks | `lumberjack` (48 tree plots → wood, 30 s) [4 S], `sawmill` (wood → planks, 30 s) [4 S] | 1 : 1 |
 | fish | `fisher` (harbour slot → fish, 40 s) [4 S] | — |
 | wool_garments | `sheep_farm` (grass → wool, 90 s) [4 S], `weaver_wool` (wool → wool_garments, 90 s) [6 S] | 1 : 1 |
 
@@ -264,7 +264,7 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 1 / 10 / 15 / 25 | — | collector; reach and throughput per level, four levels (D-065, D-069, below) |
 | `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 / 10 / 40 / 60 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 20; lvl 2 (tier 2) radius 24, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 28, 2000 gold / 30 planks / 60 stone; lvl 4 (tier 4) radius 32, 10000 gold / 30 planks / 90 stone / 30 bricks (D-065; radii, and cost and upkeep of levels 3–4 ×2, D-072) |
 | `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 0 | — | R, radius 16; faith rank 1 (D-065) |
-| `lumberjack` | 1 | 3×3 + 24 `tree_plot` | — | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest) |
+| `lumberjack` | 1 | 3×3 + 48 `tree_plot` | — | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest; 24 plots before content 0.20.0 — a forest of 48 reads as a wood, polish 7) |
 | `tree_plot` | 1 | 1×1 field | — | field tile | 1 g | 0 | — | lumberjack only; painted; grass or forest, no fertility (D-059) |
 | `sawmill` | 1 | 4×6 | — | Sawmill | 120 / 9 | 2 | 4 S | R |
 | `fisher` | 1 | 3×8 | 2–3 | Fishing Hut | 60 / 6 | 2 | 4 S | R |
@@ -282,7 +282,7 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `toolmaker` | 2 | 4×4 | — | Weaponsmith | 230 / 5 / 9 | 4 | 8 S | R |
 | `wheat_farm` | 2 | 3×4 + 140 `wheat_field` | — | Wheat Farm | 150 / 9 / 3 | 2 | 6 S | R, wheat fertility |
 | `wheat_field` | 2 | 1×1 field | — | field tile | 3 g | 0 | — | wheat_farm only; painted |
-| `mill` | 2 | 4×6 | — | Grain Mill | 180 / 6 / 6 | 2 | 4 C | R (no river slot: plain land) |
+| `mill` | 2 | 3×3 | — | Grain Mill | 180 / 6 / 6 | 2 | 4 C | R (no river slot: plain land); a lone windmill, no miller's house and no chimney (D-074 §6; 4×6 before content 0.20.0) |
 | `bakery` | 2 | 4×5 | — | Bakery | 230 / 5 / 9 | 4 | 6 C | R |
 | `dairy_farm` | 2 | 4×5 + 5 `cattle_pasture` | — | Pig Farm class, large | 170 / 5 / 6 | 2 | 6 S | R, grass |
 | `cattle_pasture` | 2 | 4×7 field | — | pasture module | 30 g / 5 planks | 0 | — | dairy_farm and cattle_farm; grass |
@@ -370,24 +370,27 @@ Roads: `road_dirt` 1 gold; `road_paved` 3 gold / 1 stone; `quay` 5 gold /
 2 stone on the shallows (D-060, MECHANICS §3). Trading Post
 founding cost 200 gold / 15 planks (start stock, D-051) — the levels below.
 
-Collector levels (D-069, provisional; T = throughput per minute, reach in
+Collector levels (D-069, throughput D-074 §3; T = throughput per minute, reach in
 tiles from the nearest footprint tile like a service radius, upkeep in
 gold/min; level *n* of the Trading Post, the warehouse and the market
 needs tier *n*, D-065, extended to the Trading Post):
 
 | Collector | Level | Capacity | T | Reach | Upkeep | Berths | Upgrade cost |
 |---|---|---|---|---|---|---|---|
-| Trading Post | 1 | 300 | 20 | 24 | 0 | 1 | founding (200 gold / 15 planks) |
-| Trading Post | 2 (Citizens) | 500 | 40 | 28 | 10 | 2 | 300 gold / 20 planks / 10 stone |
-| Trading Post | 3 (Merchants) | 800 | 60 | 32 | 20 | 3 | 600 gold / 30 planks / 20 stone |
-| Trading Post | 4 (Patricians) | 1 200 | 80 | 36 | 30 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
-| Warehouse | 1 | — | 20 | 18 | 1 | — | placement (50 gold / 6 planks) |
-| Warehouse | 2 (Citizens) | — | 35 | 21 | 10 | — | 150 gold / 10 planks / 5 stone |
-| Warehouse | 3 (Merchants) | — | 50 | 24 | 15 | — | 300 gold / 15 planks / 10 stone |
-| Warehouse | 4 (Patricians) | — | 65 | 27 | 25 | — | 600 gold / 20 planks / 20 stone |
+| Trading Post | 1 | 300 | 8 | 24 | 0 | 1 | founding (200 gold / 15 planks) |
+| Trading Post | 2 (Citizens) | 500 | 16 | 28 | 10 | 2 | 300 gold / 20 planks / 10 stone |
+| Trading Post | 3 (Merchants) | 800 | 32 | 32 | 20 | 3 | 600 gold / 30 planks / 20 stone |
+| Trading Post | 4 (Patricians) | 1 200 | 64 | 36 | 30 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
+| Warehouse | 1 | — | 6 | 18 | 1 | — | placement (50 gold / 6 planks) |
+| Warehouse | 2 (Citizens) | — | 12 | 21 | 10 | — | 150 gold / 10 planks / 5 stone |
+| Warehouse | 3 (Merchants) | — | 24 | 24 | 15 | — | 300 gold / 15 planks / 10 stone |
+| Warehouse | 4 (Patricians) | — | 48 | 27 | 25 | — | 600 gold / 20 planks / 20 stone |
 
 Reach grew by 4 tiles per level with D-072 §3 (D-069: Trading Post 20 /
-24 / 28 / 32, warehouse 14 / 17 / 20 / 23).
+24 / 28 / 32, warehouse 14 / 17 / 20 / 23). Throughput fell with D-074 §3
+(content 0.20.0; was Trading Post 20 / 40 / 60 / 80, warehouse 20 / 35 /
+50 / 65): one level-1 warehouse serves a block of ≈ 5 producers, so the
+collector levels become a tier-1/2 decision.
 
 Market upkeep per level 0 / 10 / 40 / 60 (D-072 doubled levels 3–4 from
 20 / 30). D-069 §3 named 5 for the
@@ -423,8 +426,10 @@ at Citizens.
 | `galleon` | 4 | 6 × 60 | 0.85 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
 
 \*The sails for the first built sloop are the reward of the tier-2
-"Build a shipyard" quest (D-056); the start ship is a sloop and carries
-the founding stock (planks and sails fit its two slots, D-051).
+"Build a shipyard" quest (D-056) — the only source of sails before a
+sailmaker (D-074 §4: the founding stock no longer carries any); the start
+ship is a sloop and carries the founding stock, 100 planks in its two
+50-t slots (D-051).
 
 Ships live in `ships.json` (`{ id, name, tier, slots, slot_size, speed,
 build_seconds, cost, upkeep_per_min, length_tiles? }`, schema under
@@ -522,7 +527,6 @@ future decision. A new translatable field must be added to
     "coarse_step_seconds": 60,
     "growth_per_min": 1,
     "decline_per_min": 0.5,
-    "growth_satisfaction_threshold": 0.5,
     "optional_tax_bonus": 0.25,
     "auto_resume_upkeep_minutes": 5,
     "ship_speed_tiles_per_min": 60,
@@ -539,7 +543,7 @@ future decision. A new translatable field must be added to
 | `transfer_base_seconds` | fixed part of the producer → warehouse delay | MECHANICS §3 |
 | `unconnected_buffer_units` | output buffer of an unconnected producer | §3 |
 | `iteration_cap`, `coarse_step_seconds` | boundary cap and coarse fallback | §1.1 |
-| `growth_per_min`, `decline_per_min`, `growth_satisfaction_threshold` | house growth and decline | §6.1 |
+| `growth_per_min`, `decline_per_min` | house growth (× satisfaction, below the target) and decline (× (1 − satisfaction), above it); the target is `floor + (max − floor) × satisfaction` (D-074, no threshold) | §6.1 |
 | `optional_tax_bonus` | tax bonus at full optional-need fulfilment | §6.2 |
 | `auto_resume_upkeep_minutes` | gold reserve before an auto-paused building resumes; **strictly > 0** (0 is rejected: it removes the pause/resume hysteresis) | §7 |
 | `ship_speed_tiles_per_min` | archipelago tiles per minute at ship speed 1.0 (provisional 60) | §9.1 |
@@ -554,10 +558,13 @@ future decision. A new translatable field must be added to
 ### start.json — starting stock
 
 ```json
-{ "gold": 1000, "goods": { "planks": 150, "sails": 10 } }
+{ "gold": 2000, "goods": { "planks": 100 } }
 ```
 
-Aboard the start sloop and on the balance from the first moment; the
+D-074 §4 (content 0.20.0; was 1 000 gold, 150 planks and 10 sails —
+150 t never fit the sloop's two 50-t slots, and the sails came again
+from the shipyard quest). Aboard the start sloop and on the balance from
+the first moment; the
 Trading Post is paid from it when the player founds (MECHANICS §8). Goods must exist in `goods.json`.
 
 ### buildings.json — capability blocks instead of a type enum
@@ -568,7 +575,7 @@ Every building has `id`, `name`, `region` (must equal the region id),
 called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min` and
 `pause_category`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **13**, content **old_coast-0.19.0** (D-072; 0.18.0 D-069): no migration while
+World schema **15**, content **old_coast-0.20.0** (D-074; 0.19.0 D-072; 0.18.0 D-069): no migration while
 undeployed; recreate local databases with `make down VOLUMES=1 && make up`.
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.
@@ -602,7 +609,7 @@ building's); level 1 must equal the building's top-level
 (D-046) — except the hubs, collectors and public buildings with levels,
 whose levels carry upkeep (D-069 §3).
 | `shipyard` | `ships[]` (ship IDs it can build) | shipyard |
-| `smoke` | boolean, absent false — display only: the model carries chimney/smoke anchors and the client draws smoke | producers whose model has a chimney: every shipped producer except hop_farm, woad_farm, leather_works, tailor, printing_press, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, fashion_house, thread_spinner, lace_maker, quartz_quarry, copper_mine, gold_mine and luthier |
+| `smoke` | boolean, absent false — display only: the model carries chimney/smoke anchors and the client draws smoke | producers whose model has a chimney: every shipped producer except hop_farm, woad_farm, leather_works, tailor, printing_press, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, fashion_house, thread_spinner, lace_maker, quartz_quarry, copper_mine, gold_mine, luthier and mill (the lone windmill, D-074 §6) |
 | `boat` | boolean, absent false — display only: the client rows a boat out from the model's boat anchor and back; needs `water_rows` | water-edge producers (fisher, oyster_beds) |
 
 ```json
@@ -761,6 +768,67 @@ and building/island choices are the only pacing levers. The final Patrician
 measurement is conservative, not the earliest crossing. Merchants lose the
 health gate but these layout repairs cost about six minutes versus the
 old 223/258/291 replay. The checklist below retains older balancing history.
+
+### D-074 reference results (sim minutes, seed 1053001)
+
+Content `old_coast-0.20.0` (houses fill with satisfaction, residents
+stay on upgrade, collectors 8 / 16 / 32 / 64 and 6 / 12 / 24 / 48 t/min,
+start 2 000 gold and 100 planks, 48 tree plots, lone windmill):
+
+| Game | Milestones | Targets | D-072 | D-074 | Margins |
+|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 54 / 11 / 86 / 145 | 53 / 27 / 80 / 135 | 7 / 63 / 20 / 15 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 34 / 70 (8, 129) | 23 / 44 (7, 99) | 22 / 41; 30 / 36 earlier than without claims |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 225 / 267 / 413 | 230 / 265 / 405 | 10 / 5 / 15 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 763 / 799 / 1116 | 719 / 838 / 1188 | 181 / 122 / 612 |
+
+`growth_per_min` stays 1. The Citizens unlock comes later (population
+counts residents, and a house now fills only as far as its
+satisfaction allows); every other early milestone comes earlier, mostly
+from the doubled start gold. A Citizen house with one alternative per
+category settles at about 13 / 15 and a Merchant house at about 20 / 25,
+so the upgrade gate counts a house as full at its target residents
+(MECHANICS §6.1) and the Patrician unlock (1 200 merchants) needs about
+sixty Merchant houses instead of 48.
+
+Generator changes for D-074:
+
+- A `claim` action claims one quest (waiting until it is completed);
+  the games without quest claims claim `citizens_shipyard` only — its
+  10 sails are the first built sloop's, the start stock has none.
+- A collector upgrade for reach is skipped while its materials are
+  neither in stock nor produced on the island (the opening has no
+  stone); a warehouse is placed instead.
+- A producer the sim assigns to another collector than the predicted
+  one (nearest by road, not by distance) gets a warehouse next to it
+  when that collector is over its throughput, else (`reach_upgrade`) an
+  upgrade.
+
+Plan changes for D-074:
+
+- Citizens: the shipyard, the claim and the sloop moved to the
+  Merchants plan; the second and third weaver stand by their sheep
+  farms (the level-1 Trading Post carries five producers; it ends at
+  94 % load, nothing throttled).
+- Merchants: route 1 brings stone home (the opening has none to
+  spare); Citizen upgrades alternate with the need chains (a house
+  grows with each chain); the shipyard, the shipyard claim and the
+  sloop come after home-2's Citizen upgrades; the sloop brings the first
+  three bricks by hand (route 1's round trip was too slow for the
+  first Merchant house); no sheep farm and weaver for home-2, no
+  explicit warehouse (their gold is the first Merchant house's).
+- Patricians: home-2's civic plots and houses and the second home
+  quarry are built in the Merchants game now; a sheep farm and weaver
+  for isle2-1; two lumberjacks and four sawmills more (planks were the
+  wait from minute 550); a new quarter home-6 (market, chapel,
+  tavern, school, city guard, fire station; 24 houses, serves 12
+  Merchant houses; the plan repeats the chains because serves needs
+  them) for settlers and twelve more Merchant houses, upgraded before
+  the winepress waits for the unlock; two mills and two bakeries
+  (Citizen food); hemp on "Island goods" until the brigs are ordered
+  and two hemp farms more (no start sails); 18 warehouse upgrades at
+  home; five breweries, five wheat farms and a hops-only brig more;
+  three apiaries and two meaderies more; two butchers more.
 
 ### D-072 reference results (sim minutes, seed 1053001)
 
@@ -973,16 +1041,19 @@ within target.
   and Settler houses earn 15 % less than before D-056 until the chapel
   stands (market alone covers 0.6 of the services category) — absorbed
   by the margins.
-- Warehouse throughput at each level must cover a "typical" island at that
-  tier with one warehouse ≈ 80 % load.
+- Collector throughput (D-074 §3): a level-1 warehouse (6 t/min) serves a
+  block of ≈ 5 tier-1 producers (≈ 1.2 t/min each), the level-1 Trading
+  Post (8 t/min) about seven; a tier-2 island needs either more
+  warehouses or a level-2 collector.
 - Tax income at each tier's unlock population must cover upkeep of the
   balanced chain set with ≥ 20 % margin.
 - Charcoal demand of a balanced Merchant economy must exceed one island's
   forest capacity so coal or a second forest island becomes relevant.
-- Starting stock (`start.json`: 1 000 gold, 150 planks, 10 sails; the
-  goods aboard the start sloop, 800 gold and 135 planks left after founding
-  the Trading Post for 200 gold / 15 planks) must allow: 8 settler houses + fisher +
-  lumberjack + sawmill + market + ~40 road tiles, and cover the early
-  deficit for ≥ 15 min of upkeep (currently ≈ 54 min: 270 gold left at
-  5 gold/min of upkeep).
+- Starting stock (`start.json`: 2 000 gold, 100 planks — D-074 §4; the
+  goods aboard the start sloop, 1 800 gold and 85 planks left after
+  founding the Trading Post for 200 gold / 15 planks) must allow: 8
+  settler houses + fisher + lumberjack + sawmill + market + ~40 road
+  tiles, and cover the early deficit for ≥ 15 min of upkeep without
+  spending the gold to zero and waiting for taxes (the D-074 playtest
+  finding).
 - Verify with headless scenarios before touching any client code.

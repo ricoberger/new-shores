@@ -1,7 +1,7 @@
 // Deposit markers (UI.md §3): while a mine or quarry is the build tool, a
 // floating badge with the deposit's icon (the build menu's, theme/iconSet
-// resourceIcon) above every cluster of its deposit tiles
-// (display/deposits.ts depositClusters), in addition to the tile tint of
+// resourceIcon) above every free slot of its deposit, centred between the
+// slot's two tiles (display/deposits.ts freeDepositSlots), in addition to the tile tint of
 // the deposit highlight. Status-badge style: a parchment disc with an ink
 // rim and the icon in ink, turned towards the camera like the status icons
 // (the facing is baked into the thin-instance matrices). Drawn after the
@@ -20,7 +20,7 @@ import { ICON_VIEWBOX } from "../theme/icons";
 import { UI } from "../theme/palette";
 import { setInstances } from "./instances";
 
-/** A marker: the scene's x, z of the tile it floats over and the ground under it (tiles). */
+/** A marker: the scene's x, z of the point it floats over and the ground under it (tiles). */
 export interface DepositMarker {
   cx: number;
   cz: number;

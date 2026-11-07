@@ -33,7 +33,7 @@ import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
 import { type ArchPoint, dockPoints, type ModelAnchor, seaPoint, shipLengthRatio } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
-import { depositClusters, depositTiles, highlightedDeposit } from "../display/deposits";
+import { freeDepositSlots, highlightedDeposit } from "../display/deposits";
 import { DepositHighlight, type DepositMark } from "./deposithighlight";
 import { ReachRing } from "./reachring";
 import { DepositMarkers, type DepositMarker } from "./depositmarkers";
@@ -52,6 +52,7 @@ import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type AssetsStatus, buildingAnchor, type Detail, ModelRegistry, shipFarTriangles } from "./models";
 import { type Point, PointerInput, type PointerKind } from "./picking";
+import { type PickBox, pickNearest } from "../display/raypick";
 import { JumpLatch } from "./latch";
 import { LIFE_CLASSES, LifeLayer } from "./life";
 import { setSwayTime } from "./sway";
@@ -70,6 +71,8 @@ import { t } from "../i18n";
 export const MAX_RENDER_DPR = 1.5;
 /** Pick radius of ships (CSS pixels). */
 const SHIP_PICK_PX = 18;
+/** A touch's tolerance around a model's pick box (tiles): a finger is coarser than the mouse pointer. */
+const TOUCH_PICK_PAD = 0.2;
 /** Right-drag rotation: quarter turns per CSS pixel of horizontal movement (45° per 120 px). */
 const DRAG_TURN_PER_PX = 0.5 / 120;
 const LABEL_Y = 0.4;
@@ -1327,6 +1330,21 @@ export class GameRenderer {
     return { island: id, x: Math.floor(g.x - pl.position.x), y: Math.floor(g.y - pl.position.y) };
   }
 
+  /**
+   * Mesh-first picking (UI.md §3 Selection): the building, field or plan whose model the view ray meets first on
+   * an island drawn in detail (near and mid LOD), or null (the ground tile decides). A touch gets a tolerance.
+   */
+  private modelUnder(p: Point, kind: PointerKind): { island: string; kind: "building" | "plan"; id: number } | null {
+    if (this.lod === "far") return null;
+    const ray = this.rig.ray(p.x, p.y);
+    const boxes: PickBox<{ island: string; kind: "building" | "plan"; id: number }>[] = [];
+    for (const [island, d] of this.details) {
+      if (this.displayIsland(island)?.scenic) continue;
+      for (const b of d.pickBoxes()) boxes.push({ ...b, item: { island, ...b.item } });
+    }
+    return pickNearest(ray, boxes, kind === "touch" ? TOUCH_PICK_PAD : 0) ?? null;
+  }
+
   /** The tile under a render-pixel position in the local coordinates of a given island (also outside its rectangle). */
   private tileOn(island: string, p: Point): TilePos | null {
     const g = this.groundPoint(p);
@@ -1444,6 +1462,12 @@ export class GameRenderer {
       if (id) this.events.inspectIsland(id);
       return;
     }
+    const hit = this.modelUnder(p, "touch");
+    if (hit) {
+      if (hit.kind === "plan") this.events.tapPlan(hit.island, hit.id);
+      else this.events.inspectBuilding(hit.id);
+      return;
+    }
     const tl = this.tileAt(p);
     const is = tl ? this.displayIsland(tl.island) : undefined;
     const b = tl && is ? buildingAt(is.buildings, this.defs, tl.x, tl.y) : undefined;
@@ -1484,6 +1508,13 @@ export class GameRenderer {
       const label = this.labelUnder(p);
       if (label) {
         this.events.tapIsland(label);
+        return;
+      }
+      // A model under the pointer wins over the ground tile behind it (mesh-first picking).
+      const hit = this.modelUnder(p, kind);
+      if (hit) {
+        if (hit.kind === "plan") this.events.tapPlan(hit.island, hit.id);
+        else this.events.tapIsland(hit.island, hit.id);
         return;
       }
       const id = this.islandUnder(p);
@@ -2024,10 +2055,12 @@ export class GameRenderer {
       const is = this.displayIsland(id);
       const pl = this.arch.placement(id);
       if (!is || !pl || !kind) continue;
-      const tiles = depositTiles(is, kind, this.defs);
-      for (const t of tiles) marks.push({ cx: pl.position.x + t.x + 0.5, cz: -(pl.position.y + t.y + 0.5), base: d.reliefAt(t.x, t.y) });
-      // A floating badge over every cluster (UI.md §3 deposit markers).
-      for (const c of depositClusters(tiles)) markers.push({ cx: pl.position.x + c.x + 0.5, cz: -(pl.position.y + c.y + 0.5), base: d.reliefAt(c.x, c.y) });
+      for (const slot of freeDepositSlots(is, kind, this.defs)) {
+        for (const t of slot.tiles) marks.push({ cx: pl.position.x + t.x + 0.5, cz: -(pl.position.y + t.y + 0.5), base: d.reliefAt(t.x, t.y) });
+        // One floating badge per slot, centred between its tiles (UI.md §3 deposit markers).
+        const base = Math.max(...slot.tiles.map((t) => d.reliefAt(t.x, t.y)));
+        markers.push({ cx: pl.position.x + slot.x + 0.5, cz: -(pl.position.y + slot.y + 0.5), base });
+      }
     }
     this.depositHighlight.set(marks);
     this.depositMarkers.set(kind, markers);
@@ -2128,7 +2161,7 @@ export class GameRenderer {
     return !this.reachRing.shown() ? "none" : this.reachRing.gold() ? "gold" : "reach";
   }
 
-  /** How many deposit markers float over the highlighted clusters (tests and shots). */
+  /** How many deposit markers float over the highlighted slots (tests and shots). */
   depositMarkerCount(): number {
     return this.depositMarkers.shown();
   }

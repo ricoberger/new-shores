@@ -90,6 +90,47 @@
   border-left: 0;
 }
 
+/* A portrait phone keeps gold, residents and the first three materials
+   (then "…") on the first line beside the account button: tighter chips. */
+.topBarPortrait .hudLeft {
+  column-gap: 4px;
+}
+
+.topBarPortrait .hudGroup {
+  gap: 2px;
+}
+
+.topBarPortrait .hudStat {
+  gap: 5px;
+  padding: 2px 4px;
+}
+
+.topBarPortrait .hudMaterial {
+  gap: 2px;
+}
+
+/* The materials wrap within their chip when the full list is open on a phone. */
+.hudMaterialsFew {
+  min-width: 0;
+}
+
+.hudMaterialsFew .hudStat {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+/* The "…" toggle of the materials on phones (all of them / the first three). */
+.hudMore {
+  align-self: center;
+  padding: 2px 6px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.hudMore[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--ns-ui-parchment-light) 18%, transparent);
+}
+
 .hudMiddle {
   grid-area: middle;
   display: flex;

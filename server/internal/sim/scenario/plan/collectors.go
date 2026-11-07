@@ -188,6 +188,47 @@ func (g *gen) collectAfter(island string, def *content.Building, s layout.Site) 
 	return err
 }
 
+// relieve gives a placed producer a warehouse of its own when the sim
+// assigned it another collector (nearest by road) than the one
+// collectorFor predicted (predicted: its ID, the generator's stand-in)
+// and that collector now carries more than its throughput: the new
+// warehouse, next to the producer, takes over the producers nearer to it.
+func (g *gen) relieve(island string, def *content.Building, s layout.Site, id, predicted int64) error {
+	is := g.world().Island(island)
+	b := is.Building(id)
+	if b == nil || b.AssignedWarehouseID == 0 || b.AssignedWarehouseID == predicted {
+		return nil
+	}
+	col := is.Building(b.AssignedWarehouseID)
+	if col == nil {
+		return nil
+	}
+	cdef := g.c.BuildingByID[col.Type]
+	if g.collectorLoads(is)[col.ID]*100 <= int64(cdef.ThroughputAt(col.Level))*loadSlack {
+		return nil
+	}
+	w, h := layout.Dims(def, s.Rot)
+	// Next to the producer, so that the road to it is shorter than the
+	// one to the overloaded collector.
+	near := func(d *content.Building, ws layout.Site) bool {
+		ww, wh := layout.Dims(d, ws.Rot)
+		return rectDist2(ws.X, ws.Y, ww, wh, s.X, s.Y, w, h) <= relieveDist*relieveDist
+	}
+	g.logf("collector: %s at (%d,%d) overloads %s %d", def.ID, s.X, s.Y, col.Type, col.ID)
+	placed, err := g.placeCollector(island, def, s, nil, nil, near)
+	if err != nil || placed {
+		return err
+	}
+	if g.collectors == collectorsUpgrade {
+		_, err = g.reachByUpgrade(island, s, w, h)
+	}
+	return err
+}
+
+// relieveDist (tiles) is the farthest a relieving warehouse stands from
+// the producer it relieves.
+const relieveDist = 6
+
 // reachByUpgrade upgrades the nearest collector whose next level (its
 // tier unlocked) reaches the footprint at s and reports whether it did.
 func (g *gen) reachByUpgrade(island string, s layout.Site, w, h int) (bool, error) {
@@ -211,6 +252,9 @@ func (g *gen) reachByUpgrade(island string, s layout.Site, w, h int) (bool, erro
 		if r := def.ReachAt(next); r <= 0 || d > r*r {
 			continue
 		}
+		if !g.obtainable(is, def.LevelCost(next)) {
+			continue
+		}
 		if best == nil || d < bestD {
 			best, bestDef, bestD = b, def, d
 		}
@@ -225,6 +269,33 @@ func (g *gen) reachByUpgrade(island string, s layout.Site, w, h int) (bool, erro
 	}
 	g.logf("collector: upgrade %s at (%d,%d) to level %d for reach", bestDef.ID, best.X, best.Y, max(best.Level, 1)+1)
 	return true, g.do(st, "upgrade "+bestDef.ID+" for reach")
+}
+
+// obtainable reports whether the island can pay a cost's materials in
+// time: each is in stock or produced there (D-074: the opening has no
+// stone, so a level-2 collector waits for a quarry; a warehouse is placed
+// instead of waiting).
+func (g *gen) obtainable(is *sim.Island, cost *content.Cost) bool {
+	if cost == nil {
+		return true
+	}
+	for _, m := range cost.Materials {
+		if is.Inventory.Stock[m.Good] > 0 {
+			continue
+		}
+		made := false
+		for _, b := range is.Buildings {
+			if bd := g.c.BuildingByID[b.Type]; bd != nil && bd.Recipe != nil {
+				for _, o := range bd.Recipe.Outputs {
+					made = made || o.Good == m.Good
+				}
+			}
+		}
+		if !made {
+			return false
+		}
+	}
+	return true
 }
 
 // placeCollector places a warehouse as near as possible to a producer's

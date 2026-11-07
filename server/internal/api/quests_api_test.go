@@ -388,8 +388,9 @@ func TestAwaySummaryOfReturningUpgrade(t *testing.T) {
 	if v.AwaySummary == nil {
 		t.Fatal("no summary")
 	}
-	if p := v.AwaySummary.Population["citizens"]; p.Before != 0 || p.After != 5_000 {
-		t.Errorf("citizens %+v, want 0 -> 5000", p)
+	// The full Settler house keeps its 8 residents as Citizens (D-074).
+	if p := v.AwaySummary.Population["citizens"]; p.Before != 0 || p.After != 8_000 {
+		t.Errorf("citizens %+v, want 0 -> 8000", p)
 	}
 	if p := v.AwaySummary.Population["settlers"]; p.Before != settlers || p.After >= p.Before {
 		t.Errorf("settlers %+v, want before %d and fewer after", p, settlers)

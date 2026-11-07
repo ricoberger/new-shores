@@ -152,9 +152,9 @@
     },
     {
       "place": {
-        "type": "shipyard",
-        "x": 5,
-        "y": 34,
+        "type": "warehouse",
+        "x": 20,
+        "y": 5,
         "rotation": 0
       }
     },
@@ -206,6 +206,21 @@
       }
     },
     {
+      "fields": {
+        "farm": [
+          14,
+          21
+        ],
+        "rect": [
+          8,
+          22,
+          30,
+          32
+        ],
+        "count": 4
+      }
+    },
+    {
       "place": {
         "type": "weaver_wool",
         "x": 26,
@@ -215,7 +230,7 @@
     },
     {
       "advance": {
-        "duration": "6m50s"
+        "duration": "17m30s"
       }
     },
     {

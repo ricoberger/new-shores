@@ -33,6 +33,7 @@ function registry(scene: Scene): ModelRegistry {
 const defs = new Map<string, ContentBuilding>(
   [
     ["house_settlers", 2, 2, "houses"],
+    ["house_citizens", 2, 2, "houses"],
     ["sawmill", 2, 2, "production"],
     ["temple", 2, 2, "public"],
     ["market", 3, 3, "public"],
@@ -68,6 +69,31 @@ describe("BuildingLayer with models", () => {
     layer.setDetails(["full"]);
     layer.setDetail("full");
     expect(layer.chunkCount()).toBe(1);
+    scene.dispose();
+  });
+
+  it("drops the selection frame of an upgraded house once its new model loads (no frame over the model)", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const layer = new BuildingLayer(scene, null, reg);
+    const settlers = b(1, "house_settlers", 0);
+    layer.update([settlers], defs);
+    await loaded(reg);
+    layer.refresh();
+    layer.select(settlers, defs.get("house_settlers"));
+    expect(layer.framed()).toBe(false);
+    // The upgrade: same ID, the next tier's type, whose model is not loaded yet: a framed placeholder.
+    const citizens = b(1, "house_citizens", 0);
+    layer.update([citizens], defs);
+    layer.select(citizens, defs.get("house_citizens"));
+    expect([...layer.placeholders()]).toEqual(["house_citizens"]);
+    expect(layer.framed()).toBe(true);
+    // The model arrives (a refresh without a new selection): tinted model, no frame left over it.
+    await loaded(reg);
+    layer.refresh();
+    expect([...layer.modelled()]).toEqual([1]);
+    expect(layer.framed()).toBe(false);
     scene.dispose();
   });
 

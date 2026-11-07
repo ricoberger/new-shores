@@ -1,0 +1,134 @@
+{
+  "name": "house_upgrade_keeps_residents",
+  "description": "D-074 §2: a Settler house with fish, garments, a market and a chapel grows to 8 / 8 at satisfaction 1; upgraded to Citizens it keeps its 8 residents (not the Citizens' floor of 5) and, with a tavern added (satisfaction 0.544: the carried Settler goods, market, faith and culture), grows to its target of 10 and holds there.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~c~~c..................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "gold": 5000,
+    "stock": {
+      "planks": 150,
+      "stone": 100
+    },
+    "unlocked_tiers": [
+      "citizens"
+    ]
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          6
+        ],
+        "to": [
+          42,
+          6
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "market",
+        "x": 13,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "chapel",
+        "x": 19,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "stock": {
+        "good": "fish",
+        "amount": "20"
+      }
+    },
+    {
+      "stock": {
+        "good": "wool_garments",
+        "amount": "20"
+      }
+    },
+    {
+      "advance": {
+        "duration": "6m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 9,
+        "y": 7
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "tavern",
+        "x": 30,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "4m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "30m"
+      }
+    }
+  ]
+}

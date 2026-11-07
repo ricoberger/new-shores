@@ -239,7 +239,6 @@ type rawRegion struct {
 		CoarseStepSeconds      json.Number `json:"coarse_step_seconds"`
 		GrowthPerMin           json.Number `json:"growth_per_min"`
 		DeclinePerMin          json.Number `json:"decline_per_min"`
-		GrowthThreshold        json.Number `json:"growth_satisfaction_threshold"`
 		AutoResumeMinutes      json.Number `json:"auto_resume_upkeep_minutes"`
 		ShipHandlingBase       json.Number `json:"ship_handling_base_seconds"`
 		ShipHandlingPerUnit    json.Number `json:"ship_handling_seconds_per_unit"`
@@ -562,8 +561,6 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			CoarseStepMs:      col.fixed(FileRegion, ent, "rules.coarse_step_seconds", region.Rules.CoarseStepSeconds, 3),
 			GrowthPerMin:      col.fixed(FileRegion, ent, "rules.growth_per_min", region.Rules.GrowthPerMin, 3),
 			DeclinePerMin:     col.fixed(FileRegion, ent, "rules.decline_per_min", region.Rules.DeclinePerMin, 3),
-			// Ratios have at most 3 decimal places and are kept in ppm.
-			GrowthThreshold: col.fixed(FileRegion, ent, "rules.growth_satisfaction_threshold", region.Rules.GrowthThreshold, 3) * 1000,
 			// Minutes with 3 decimal places are milli-minutes; x60 gives ms.
 			AutoResumeMs:          col.fixed(FileRegion, ent, "rules.auto_resume_upkeep_minutes", region.Rules.AutoResumeMinutes, 3) * 60,
 			TrialResumeMs:         col.fixed(FileRegion, ent, "rules.trial_resume_upkeep_minutes", region.Rules.TrialResumeMinutes, 3) * 60,

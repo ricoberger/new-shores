@@ -142,7 +142,7 @@ func TestLoadCitizensContent(t *testing.T) {
 	}
 
 	tp := c.BuildingByID["trading_post"].TradingPost
-	if len(tp.Levels) != 4 || tp.Levels[0].Cost != nil || tp.Levels[1].Capacity != 500_000 || tp.Levels[1].ThroughputPerMin != 40_000 ||
+	if len(tp.Levels) != 4 || tp.Levels[0].Cost != nil || tp.Levels[1].Capacity != 500_000 || tp.Levels[1].ThroughputPerMin != 16_000 ||
 		tp.Levels[1].Berths != 2 || tp.Levels[1].Cost == nil {
 		t.Fatalf("trading post levels = %+v", tp.Levels)
 	}

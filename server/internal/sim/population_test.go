@@ -120,7 +120,8 @@ func countKind(bs []Boundary, kind string) int {
 
 // TestResidentsStepAndClamp: at satisfaction 1 a house gains one resident
 // per minute (one residents boundary each), stops at max, declines at
-// decline_per_min x (threshold - satisfaction) and never leaves floor.
+// decline_per_min x (1 - satisfaction) towards its target (D-074) and never
+// leaves floor.
 func TestResidentsStepAndClamp(t *testing.T) {
 	c := catalogue(t)
 	w := newTown(t, c, 100_000)
@@ -146,18 +147,18 @@ func TestResidentsStepAndClamp(t *testing.T) {
 		t.Errorf("full house: rate %d satisfaction %d tax %d", *b.GrowthRatePerMin, *b.SatisfactionPermille, *b.TaxRatePerMin)
 	}
 
-	// Without the market satisfaction is 0.7 (still growing, but at max
-	// nothing happens); without fish and garments it is 0: decline 0.5 x
-	// 0.5 = 0.25 residents/min, one resident every 4 minutes.
+	// Without the market, fish and garments satisfaction is 0: the target
+	// is the floor and the house declines at 0.5 x (1 - 0) = 0.5
+	// residents/min, one resident every 2 minutes.
 	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: market})
 	w.Islands[0].Inventory.setFine("fish", 0)
 	w.Islands[0].Inventory.setFine("wool_garments", 0)
 	ds = display(t, w, c)
-	if b := buildingDisplay(t, ds, h); *b.SatisfactionPermille != 0 || *b.GrowthRatePerMin != -250 {
+	if b := buildingDisplay(t, ds, h); *b.SatisfactionPermille != 0 || *b.GrowthRatePerMin != -500 || *b.ResidentsTarget != 2000 {
 		t.Fatalf("starving house: satisfaction %d rate %d", *b.SatisfactionPermille, *b.GrowthRatePerMin)
 	}
 	bs = mustAdvance(t, w, c, 4*time.Minute)
-	if hs := house(w, h); hs.Residents != 7000 || hs.Growth != 0 || countKind(bs, BoundaryResidents) != 1 {
+	if hs := house(w, h); hs.Residents != 6000 || hs.Growth != 0 || countKind(bs, BoundaryResidents) != 2 {
 		t.Fatalf("after 4 min decline: %+v %v", hs, bs)
 	}
 	// Decline stops at floor; a long advance adds no boundaries afterwards.

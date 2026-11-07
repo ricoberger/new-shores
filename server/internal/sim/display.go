@@ -501,6 +501,7 @@ type BuildingDisplay struct {
 	Residents              *Qty          `json:"residents,omitempty"`
 	ResidentsFloor         *Qty          `json:"residents_floor,omitempty"`
 	ResidentsMax           *Qty          `json:"residents_max,omitempty"`
+	ResidentsTarget        *Qty          `json:"residents_target,omitempty"`
 	GrowthProgressPermille *int64        `json:"growth_progress_permille,omitempty"`
 	GrowthRatePerMin       *Qty          `json:"growth_rate_per_min,omitempty"`
 	SatisfactionPermille   *int64        `json:"satisfaction_permille,omitempty"`
@@ -903,11 +904,8 @@ const (
 // upgradeDisplay evaluates the upgrade gate (checkHouseUpgrade) of a house
 // of the settled display world.
 func upgradeDisplay(w *World, c *content.Catalogue, is *Island, h *houseCalc) *UpgradeDisplay {
-	var unmet *content.Need
-	_, _, err := checkHouseUpgrade(w, c, is, h.b, func() *content.Need {
-		unmet = unmetNeed(h)
-		return unmet
-	})
+	unmet := unmetNeed(h)
+	_, _, err := checkHouseUpgrade(w, c, is, h.b, func() *houseCalc { return h })
 	switch {
 	case err == nil:
 		return &UpgradeDisplay{Available: true}
@@ -974,6 +972,7 @@ func displayHouse(bd *BuildingDisplay, h *houseCalc) {
 	bd.Residents = ptr(hs.Residents)
 	bd.ResidentsFloor = ptr(h.tier.ResidentsFloor)
 	bd.ResidentsMax = ptr(h.tier.ResidentsMax)
+	bd.ResidentsTarget = ptr(h.target)
 	bd.GrowthProgressPermille = ptr(hs.Growth * 1000 / ResidentSub)
 	// 1 milli-resident per minute = 1000 accumulator units per ms.
 	bd.GrowthRatePerMin = ptr(h.growth / 1000)

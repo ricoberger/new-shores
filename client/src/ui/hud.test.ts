@@ -21,7 +21,7 @@ import { RoutesPanel } from "./RoutesPanel";
 import { units } from "../display/format";
 import { tierRows } from "../display/hud";
 import { SideDock } from "./SideDock";
-import { GoldDetails, PopulationDetails, TopBar } from "./TopBar";
+import { GoldDetails, MATERIALS_SHOWN, MaterialStocks, PopulationDetails, TopBar } from "./TopBar";
 import { warningEntries, WarningsPanel } from "./WarningsPanel";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
@@ -98,7 +98,7 @@ describe("HUD components", () => {
       expect(text(html)).toContain("18 / 88");
       expect(text(html)).toContain("81 %");
       expect(text(html)).toContain("Worst unmet need: Small market 36 % (out of range)");
-      expect(text(html)).toContain("22 / 40");
+      expect(text(html)).toContain("22 / 52");
     });
 
     it("marks a tier short of workers in the population details and turns the number red", () => {
@@ -131,7 +131,7 @@ describe("HUD components", () => {
         );
       const html = card(statics);
       expect(html).toContain('data-testid="island-card-fertility-wheat"');
-      expect(text(html)).toContain("Iron deposit (1 tile)");
+      expect(text(html)).toContain("Iron deposit (1 slot)");
       expect(text(html)).toContain("Free coast: 1 of 1 tiles");
       expect(text(card({ ...statics, fertilities: [], deposits: [] }))).toContain("No fertility or deposit");
       expect(text(card(undefined))).toContain("ResourcesLoading…");
@@ -208,6 +208,36 @@ describe("HUD components", () => {
     it("keeps the same stats on a phone, with the island on its own row", () => {
       const html = renderToStaticMarkup(createElement(TopBar, { ...props, compact: "portrait" } as never));
       for (const id of ["hud-gold-chip", "hud-population-chip", "hud-materials-chip", "hud-island-name"]) expect(html).toContain(`data-testid="${id}"`);
+    });
+
+    it("shows the first three materials and a \"…\" toggle on phones, all of them when expanded, and every one on desktop", () => {
+      const goods = ["planks", "tools", "bricks", "glass", "stone"];
+      const stocks = (limit: number | null, expanded: boolean) =>
+        renderToStaticMarkup(createElement(MaterialStocks, { goods, island, islandName: "Isle", goodName: (g: string) => g, limit, expanded, onToggle: () => {} }));
+      const shown = (html: string) => [...html.matchAll(/data-testid="hud-material-([a-z_]+)"/g)].map((m) => m[1]);
+      expect(MATERIALS_SHOWN).toBe(3);
+      const collapsed = stocks(MATERIALS_SHOWN, false);
+      expect(shown(collapsed)).toEqual(["planks", "tools", "bricks"]);
+      expect(collapsed).toMatch(/<button[^>]*aria-expanded="false"[^>]*aria-label="Show all construction materials"[^>]*data-testid="hud-materials-more">…<\/button>/);
+      const expanded = stocks(MATERIALS_SHOWN, true);
+      expect(shown(expanded)).toEqual(goods);
+      expect(expanded).toMatch(/<button[^>]*aria-expanded="true"[^>]*aria-label="Show fewer construction materials"[^>]*data-testid="hud-materials-more">…<\/button>/);
+      // Desktop (no limit) and a phone with no more than three materials: all of them, no toggle.
+      expect(shown(stocks(null, false))).toEqual(goods);
+      expect(stocks(null, false)).not.toContain("hud-materials-more");
+      const few = renderToStaticMarkup(createElement(MaterialStocks, { goods: goods.slice(0, 3), island, islandName: "Isle", goodName: (g: string) => g, limit: 3, expanded: false, onToggle: () => {} }));
+      expect(few).not.toContain("hud-materials-more");
+      // The top bar passes the limit only with fewMaterials (phones under 1200 px).
+      const more = {
+        ...tbContent,
+        buildings: [...tbContent.buildings, { id: "hall", name: "Hall", width: 2, height: 2, cost: { gold: 0, materials: { tools: 1, bricks: 1, glass: 1 } } }],
+      } as unknown as Content;
+      const bar = (fewMaterials: boolean) => renderToStaticMarkup(createElement(TopBar, { ...props, content: more, compact: "portrait", fewMaterials } as never));
+      const all = shown(bar(false)).length;
+      expect(all).toBeGreaterThan(MATERIALS_SHOWN);
+      expect(shown(bar(true))).toHaveLength(MATERIALS_SHOWN);
+      expect(bar(true)).toContain('data-testid="hud-materials-more"');
+      expect(bar(false)).not.toContain('data-testid="hud-materials-more"');
     });
   });
 
@@ -294,7 +324,7 @@ describe("HUD components", () => {
     const html = renderToStaticMarkup(createElement(InsolvencyBanner, { model: fixture("away_summary_12h"), onOpenWarnings: () => {} }));
     expect(html).toContain('data-testid="insolvency-banner"');
     expect(text(html)).toContain(
-      "Your city cannot afford its upkeep: −4.5 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
+      "Your city cannot afford its upkeep: −4.3 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
     );
   });
 
@@ -324,7 +354,7 @@ describe("HUD components", () => {
     expect(html).toContain('data-testid="away-good-start-planks"');
     expect(text(html)).toContain("Planks158\u00a0t0\u00a0t0\u00a0t300/300\u00a0tWood");
     expect(text(html)).not.toContain("at capacity");
-    expect(text(html)).toContain("OverviewGold: 258 → 26 (−232)Settlers: 32 → 8startGood");
+    expect(text(html)).toContain("OverviewGold: 229 → 8 (−220)Settlers: 24 → 12startGood");
     expect(text(html)).toContain("Ships arrived (1)Ship #1: 1 arrival (island2)");
     // Each island's name is a section heading (no "Islands" heading above them).
     expect(html).toMatch(/<div class="[^"]*sectionTitle[^"]*" data-testid="away-island-start">start<\/div>/);

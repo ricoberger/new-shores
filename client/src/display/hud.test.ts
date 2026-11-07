@@ -37,7 +37,7 @@ describe("top-bar aggregates", () => {
     expect(constructionGoods(content)).toEqual(["planks", "stone", "tools"]);
   });
 
-  it("counts fertilities, deposits and the free coast (coast tiles without a building or road)", () => {
+  it("counts fertilities, deposit slots and the free coast (coast tiles without a building or road)", () => {
     // 4 × 3: coast on the top row and at (0, 1); a warehouse-sized house covers (1, 0) and (2, 0); a road on (3, 0).
     const statics = {
       id: "a",
@@ -51,7 +51,7 @@ describe("top-bar aggregates", () => {
       ],
     } as unknown as Island;
     const r = islandResources(statics, { buildings: [{ id: 1, type: "house_settlers", x: 1, y: 0, rotation: 0 }] as never, roads: [{ x: 3, y: 0, type: "road_dirt" }] }, defs);
-    expect(r).toEqual({ fertilities: ["wheat"], deposits: [{ kind: "stone", tiles: 2 }], coast: { tiles: 5, free: 2 } });
+    expect(r).toEqual({ fertilities: ["wheat"], deposits: [{ kind: "stone", slots: 1 }], coast: { tiles: 5, free: 2 } });
     expect(islandResources(statics, undefined, defs).coast).toEqual({ tiles: 5, free: 5 });
   });
 
@@ -66,7 +66,7 @@ describe("top-bar aggregates", () => {
     const needs = { needs: [{ id: "settlers_market_small", name: "Market" }], buildings: [{ id: "market_small", name: "Small market" }] } as unknown as Content;
     expect(worstNeedText(settlers!.worst, (n) => needLabel(needs, n))).toBe("Worst unmet need: Market 36 % (out of range)");
     expect(worstNeedText(settlers!.worst, (n) => needLabel(null, n))).toBe("Worst unmet need: market_small 36 % (out of range)");
-    expect(citizens).toMatchObject({ employed: 22_000, total: 40_000, satisfactionPermille: 1000, worst: null });
+    expect(citizens).toMatchObject({ employed: 22_000, total: 52_000, satisfactionPermille: 1000, worst: null });
     expect(worstNeedText(null, (n) => n.id)).toBe("All needs met");
   });
 

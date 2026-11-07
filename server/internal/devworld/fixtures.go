@@ -265,6 +265,9 @@ func settle(f *fixture) {
 	if f.err != nil {
 		return
 	}
+	// The start stock carries no sails (D-074): the sloop's cost is
+	// granted, like the brig's and the galleon's.
+	f.grant(home, &f.c.ShipByID["sloop"].Cost)
 	f.apply(sim.OrderShip{IslandID: home, BuildingID: yard, ShipType: "sloop"})
 	f.advance(2*time.Minute + 10*time.Second)
 	if f.err == nil && (len(f.w.Ships) != 2 || f.w.Ships[1].State != sim.ShipIdle) {
@@ -276,6 +279,9 @@ func settle(f *fixture) {
 	}
 	ship := f.w.Ships[len(f.w.Ships)-1].ID
 	second := f.neighbour(home)
+	// The founding planks are granted too: 100 start planks (D-074) do not
+	// cover the town and the second Trading Post.
+	f.grant(home, &content.Cost{Materials: []content.GoodAmount{{Good: "planks", Amount: 60_000}}})
 	f.apply(sim.ManualShipment{ShipID: ship, ToIslandID: second, Cargo: []sim.CargoAmount{{Good: "planks", Amount: 60_000}}})
 	f.arrive(ship)
 	if f.err != nil {

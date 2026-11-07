@@ -245,7 +245,7 @@ func TestShippedFields(t *testing.T) {
 	wants := map[string]want{
 		"sheep_farm": {"pasture", "settlers", "", 3, 3, 3, 15_000, 1},
 		// D-059: tree plots on grass or forest, no fertility.
-		"lumberjack": {"tree_plot", "settlers", "", 24, 1, 1, 1_000, 0}, "wheat_farm": {"wheat_field", "citizens", "wheat", 140, 1, 1, 3_000, 0},
+		"lumberjack": {"tree_plot", "settlers", "", 48, 1, 1, 1_000, 0}, "wheat_farm": {"wheat_field", "citizens", "wheat", 140, 1, 1, 3_000, 0},
 		"orchard": {"orchard_plot", "citizens", "apple", 160, 1, 1, 1_000, 0}, "hemp_farm": {"hemp_field", "citizens", "hemp", 60, 1, 1, 2_000, 0},
 		// D-056 tier-2 alternatives: pasture modules (CONTENT §7).
 		"dairy_farm": {"cattle_pasture", "citizens", "", 5, 4, 7, 30_000, 5}, "pig_farm": {"pig_pen", "citizens", "", 5, 3, 4, 20_000, 5},

@@ -11,32 +11,139 @@
   "continues": "bootstrap_citizens.plan.json",
   "actions": [
     {
+      "note": "D-074: the opening has no stone to spare; the second island's stone comes home for the Citizen upgrades and the need chains.",
       "step": {
         "update_route": {
           "route": 1,
-          "name": "Planks out, tools home",
+          "name": "Goods out, tools and stone home",
           "stops": [
             {
               "island": "isle-01",
               "load": {
-                "planks": 50
+                "planks": 20,
+                "wool_garments": 10
               },
               "unload": [
-                "tools"
+                "tools",
+                "stone"
               ]
             },
             {
               "island": "isle-02",
               "load": {
-                "tools": 50
+                "tools": 50,
+                "stone": 50
               },
               "unload": [
                 "planks",
-                "stone"
+                "wool_garments"
               ]
             }
           ]
         }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "quarry",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-2",
+        "type": "market"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-2",
+        "type": "chapel"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-2",
+        "count": 16
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "fisher",
+        "count": 1
+      },
+      "note": "D-074: the fisher only; home-2's wool comes from the Citizens game's three weavers (a sheep farm and a weaver here cost the gold the first Merchant house needs by 270)."
+    },
+    {
+      "note": "D-074 §1: a house holds what its supply allows, so each need chain grows every Citizen house; the upgrades and the chains alternate.",
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 5
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "city_guard"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "dairy_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cheese_dairy",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 5
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tannery",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_settlers",
+        "count": 5
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
+        "count": 1
       }
     },
     {
@@ -49,13 +156,71 @@
       "upgrade": {
         "quarter": "home-1",
         "from": "house_settlers",
-        "count": 21
+        "count": 6
       }
     },
     {
-      "note": "D-069: level 2 costs 10 gold/min upkeep; after the Citizen upgrades so that their taxes carry it.",
-      "upgrade_trading_post": {
+      "build": {
+        "island": "isle-01",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-2",
+        "from": "house_settlers",
+        "count": 11
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "shipyard",
+        "count": 1
+      }
+    },
+    {
+      "note": "D-074 §4: the founding stock carries no sails; the shipyard quest's 10 sails are the first built sloop's — claimed even in the games without quest claims (their only source before a sailmaker), as soon as the intro chain reaches the quest (after the wool chain).",
+      "claim": {
+        "quest": "citizens_shipyard",
         "island": "isle-01"
+      }
+    },
+    {
+      "order_ship": {
+        "island": "isle-01",
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "note": "Ship 2 waits at the brickworks and brings the first bricks by hand; route 1's round trip is too slow for the first Merchant house.",
+      "step": {
+        "sail_ship": {
+          "ship": 2,
+          "to": "isle-02"
+        }
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 6
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "quarry",
+        "count": 1
       }
     },
     {
@@ -71,16 +236,183 @@
       }
     },
     {
-      "houses": {
+      "step": {
+        "update_route": {
+          "route": 1,
+          "name": "Goods out, tools and stone home",
+          "stops": [
+            {
+              "island": "isle-01",
+              "load": {
+                "planks": 20,
+                "wool_garments": 10
+              },
+              "unload": [
+                "tools",
+                "bricks"
+              ]
+            },
+            {
+              "island": "isle-02",
+              "load": {
+                "tools": 50,
+                "bricks": 30
+              },
+              "unload": [
+                "planks",
+                "wool_garments"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "upgrade": {
         "quarter": "isle2-1",
-        "count": 6
+        "from": "house_settlers",
+        "count": 3
       }
     },
     {
       "build": {
         "island": "isle-02",
-        "type": "quarry",
+        "type": "clay_pit",
         "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "brickworks",
+        "count": 1
+      }
+    },
+    {
+      "step": {
+        "manual_shipment": {
+          "ship": 2,
+          "to": "isle-01",
+          "cargo": {
+            "bricks": 3
+          }
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "charcoal_burner",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-02",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "dairy_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cheese_dairy",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "dairy_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "cheese_dairy",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tannery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "school"
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-1",
+        "from": "house_citizens",
+        "count": 3
+      }
+    },
+    {
+      "upgrade_trading_post": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-1",
+        "type": "fire_station"
       }
     },
     {
@@ -118,213 +450,6 @@
           "ship": 2,
           "route": 2
         }
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "dairy_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "cheese_dairy",
-        "count": 1
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "isle2-1",
-        "from": "house_settlers",
-        "count": 3
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "tannery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "apiary",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "meadery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "warehouse",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "lumberjack",
-        "count": 1,
-        "near": "forest"
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "sawmill",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "clay_pit",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "brickworks",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "charcoal_burner",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-02",
-        "type": "lumberjack",
-        "count": 1,
-        "near": "forest"
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "dairy_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "cheese_dairy",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "tannery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "apiary",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "meadery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "apiary",
-        "count": 1
-      }
-    },
-    {
-      "upgrade_trading_post": {
-        "island": "isle-01"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-1",
-        "type": "fire_station"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-1",
-        "type": "city_guard"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-1",
-        "type": "school"
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-1",
-        "from": "house_citizens",
-        "count": 3
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "dairy_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "cheese_dairy",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "isle-01",
-        "type": "apiary",
-        "count": 1
       }
     },
     {
@@ -375,7 +500,10 @@
               "load": {
                 "hops": 50,
                 "tools": 50
-              }
+              },
+              "unload": [
+                "wool_garments"
+              ]
             }
           ]
         }
@@ -406,6 +534,34 @@
       "build": {
         "island": "isle-01",
         "type": "tailor",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "pig_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "tannery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
         "count": 1
       }
     },

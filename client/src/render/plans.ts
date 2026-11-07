@@ -16,7 +16,7 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Matrix, Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
+import type { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
@@ -25,6 +25,7 @@ import { GHOST_LIFT } from "./ghost";
 import { setInstances } from "./instances";
 import { ghostOffset, previewOffset, skyFill } from "./lighting";
 import { modelFileFor, modelMesh, type ModelRegistry, placement, worldData } from "./models";
+import { OUTLINE_INSET, OUTLINE_WIDTH, OUTLINE_Y, type OutlineBand, outlineQuads, rectOutline } from "./outline";
 import { GHOST, GOLD } from "./palette";
 
 /** Opacity of a planned model and of a planned road slab. */
@@ -32,10 +33,6 @@ const MODEL_ALPHA = 0.6;
 const ROAD_ALPHA = 0.45;
 /** Emissive lift of the planned model (the untinted ghost's, render/ghost.ts LIFT.neutral). */
 const LIFT = 0.12;
-/** Outline band width, its inset from the footprint edge and its height above the ground (tiles). */
-export const OUTLINE_WIDTH = 0.14;
-const OUTLINE_INSET = 0.03;
-const OUTLINE_Y = 0.06;
 /** Height of a planned road slab above the ground (tiles). */
 const ROAD_Y = 0.03;
 
@@ -59,44 +56,18 @@ export interface PlanRoadTile {
   base: number;
 }
 
-/** An outline edge piece: a band along one side of a tile rectangle, in scene x/z at height y. */
-interface Band {
-  x0: number;
-  z0: number;
-  x1: number;
-  z1: number;
-  y: number;
-}
-
-/**
- * The bands outlining a rectangle of tiles (scene coordinates: x = tile x,
- * z = −tile y), inset so that the band lies inside the footprint.
- */
-export function rectOutline(x: number, y: number, w: number, h: number, ground: number): Band[] {
-  const i = OUTLINE_INSET;
-  const d = OUTLINE_WIDTH;
-  const yy = ground + OUTLINE_Y;
-  const [l, r, t, b] = [x + i, x + w - i, -(y + i), -(y + h - i)];
-  return [
-    { x0: l, z0: t, x1: r, z1: t - d, y: yy },
-    { x0: l, z0: b + d, x1: r, z1: b, y: yy },
-    { x0: l, z0: t, x1: l + d, z1: b, y: yy },
-    { x0: r - d, z0: t, x1: r, z1: b, y: yy },
-  ];
-}
-
 /**
  * The bands outlining a set of tiles (a planned road): on every tile side
  * that does not border another tile of the set, so a planned road reads as
  * one outlined strip. Tiles are island tiles offset by the island position.
  */
-export function tilesOutline(tiles: readonly PlanRoadTile[]): Band[] {
+export function tilesOutline(tiles: readonly PlanRoadTile[]): OutlineBand[] {
   const key = (t: { island: ArchPoint; x: number; y: number }) => `${t.island.x},${t.island.y},${t.x},${t.y}`;
   const set = new Set(tiles.map(key));
   const has = (t: PlanRoadTile, dx: number, dy: number) => set.has(key({ island: t.island, x: t.x + dx, y: t.y + dy }));
   const i = OUTLINE_INSET;
   const d = OUTLINE_WIDTH;
-  const out: Band[] = [];
+  const out: OutlineBand[] = [];
   for (const t of tiles) {
     const x = t.island.x + t.x;
     const y = t.island.y + t.y;
@@ -111,25 +82,6 @@ export function tilesOutline(tiles: readonly PlanRoadTile[]): Band[] {
     if (!has(t, 1, 0)) out.push({ x0: r - d, z0: tz, x1: r, z1: bz, y: yy });
   }
   return out;
-}
-
-/** Flat quads (two triangles each, both windings) of axis-aligned rectangles: x0 < x1, z0 > z1. */
-function quads(rects: readonly Band[]): VertexData | null {
-  if (rects.length === 0) return null;
-  const positions: number[] = [];
-  const normals: number[] = [];
-  const indices: number[] = [];
-  for (const q of rects) {
-    const at = positions.length / 3;
-    positions.push(q.x0, q.y, q.z0, q.x1, q.y, q.z0, q.x1, q.y, q.z1, q.x0, q.y, q.z1);
-    normals.push(0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0);
-    indices.push(at, at + 1, at + 2, at, at + 2, at + 3, at, at + 2, at + 1, at, at + 3, at + 2);
-  }
-  const vd = new VertexData();
-  vd.positions = positions;
-  vd.normals = normals;
-  vd.indices = indices;
-  return vd;
 }
 
 export class PlanLayer {
@@ -190,7 +142,7 @@ export class PlanLayer {
       if (!list) byMesh.set(mesh, (list = []));
       list.push(...m.asArray());
     };
-    const bands: Band[] = [];
+    const bands: OutlineBand[] = [];
     for (const p of plans) {
       const [w, h] = rotatedFootprint(p.def.width, p.def.height, p.rotation);
       bands.push(...rectOutline(p.island.x + p.x, p.island.y + p.y, w, h, p.base));
@@ -207,10 +159,10 @@ export class PlanLayer {
       mesh.setEnabled(list !== undefined);
     }
     bands.push(...tilesOutline(roads));
-    this.apply(this.outline, quads(bands));
+    this.apply(this.outline, outlineQuads(bands));
     this.apply(
       this.roads,
-      quads(roads.map((t) => ({ x0: t.island.x + t.x, z0: -(t.island.y + t.y), x1: t.island.x + t.x + 1, z1: -(t.island.y + t.y + 1), y: t.base + ROAD_Y }))),
+      outlineQuads(roads.map((t) => ({ x0: t.island.x + t.x, z0: -(t.island.y + t.y), x1: t.island.x + t.x + 1, z1: -(t.island.y + t.y + 1), y: t.base + ROAD_Y }))),
     );
     this.count = plans.length + roads.length;
   }

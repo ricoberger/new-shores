@@ -1,6 +1,6 @@
 import { type ReactNode, useRef } from "react";
 import type { BuildingDisplay, Content, ContentBuilding, DisplayState, IslandDisplay } from "../api/client";
-import { percent, perMin, seconds, speedFactor, tons, tonsPerMin, tonsRatio, units } from "../display/format";
+import { percent, perMin, residentsLine, seconds, speedFactor, tons, tonsPerMin, tonsRatio, units } from "../display/format";
 import { countdownWithUnit, orderTiming } from "../display/ships";
 import { fieldBuildingOf } from "../display/fields";
 import { groupByCategory, groupNeeds, needAlternatives, needCategory, needGoods, needGroupName, needLabel, upgradeReasonText } from "../display/needs";
@@ -739,7 +739,7 @@ export function InfoPanel({
                   <tr>
                     <td>{t("infoPanel.residents")}</td>
                     <td data-testid="house-residents">
-                      {(b.growth_rate_per_min ?? 0) > 0 ? "↑" : (b.growth_rate_per_min ?? 0) < 0 ? "↓" : "→"} {units(b.residents)} / {units(b.residents_max ?? 0)}
+                      {residentsLine(b)}
                     </td>
                   </tr>
                   <tr>

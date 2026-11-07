@@ -1,0 +1,224 @@
+{
+  "name": "house_growth_target",
+  "description": "D-074 §1: a Citizen house settles at floor + (max − floor) × satisfaction, rounded down. At 0.544 (the carried Settler goods, market, chapel and tavern) it holds 10 / 15; with both alternatives of food, drink and clothing, a school and a city guard (satisfaction 1) it fills to 15 / 15; when the Citizen goods and the fish run out (0.354: garments and the five public buildings) it declines to 8 and holds; cut off from the road (satisfaction 0) it declines to the floor of 5 and never below.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~c~~c..................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "gold": 5000,
+    "stock": {
+      "planks": 150,
+      "stone": 100
+    },
+    "unlocked_tiers": [
+      "citizens"
+    ]
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          6
+        ],
+        "to": [
+          42,
+          6
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "market",
+        "x": 13,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "chapel",
+        "x": 19,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "stock": {
+        "good": "fish",
+        "amount": "3"
+      }
+    },
+    {
+      "stock": {
+        "good": "wool_garments",
+        "amount": "30"
+      }
+    },
+    {
+      "advance": {
+        "duration": "6m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 9,
+        "y": 7
+      }
+    },
+    {
+      "place": {
+        "type": "tavern",
+        "x": 30,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "30m"
+      }
+    },
+    {
+      "place": {
+        "type": "school",
+        "x": 23,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "city_guard",
+        "x": 35,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "stock": {
+        "good": "bread",
+        "amount": "1"
+      }
+    },
+    {
+      "stock": {
+        "good": "cheese",
+        "amount": "1"
+      }
+    },
+    {
+      "stock": {
+        "good": "cider",
+        "amount": "1"
+      }
+    },
+    {
+      "stock": {
+        "good": "mead",
+        "amount": "1"
+      }
+    },
+    {
+      "stock": {
+        "good": "linen_garments",
+        "amount": "1"
+      }
+    },
+    {
+      "stock": {
+        "good": "leather_jerkins",
+        "amount": "1"
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "30m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "30m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "30m"
+      }
+    },
+    {
+      "demolish_road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          6
+        ],
+        "to": [
+          42,
+          6
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "12h"
+      }
+    }
+  ]
+}

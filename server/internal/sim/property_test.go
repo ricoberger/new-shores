@@ -1049,8 +1049,15 @@ func TestPropertyTownCompositionMinimalReserve(t *testing.T) {
 // Advances are split at random times and exactly at boundary instants
 // (including pauses); every piece must leave a settled world, the split
 // result must equal a single Advance and coarse mode is never reached.
+// The reserve is 1 s: since D-074 the houses settle at their satisfaction
+// target instead of staying full, so in many cases the town cannot afford
+// both weavers and pauses and resumes one every reserve window (≈ 4 x the
+// reserve); with the 60 ms minimum that is a legitimate cycle of ≈ 250 ms
+// which exceeds the iteration cap over the multi-hour advances, not a
+// millisecond flap. The minimal reserve keeps its coverage in
+// TestPropertyPauseResumeVariety.
 func TestPropertyPauseResumeInterplay(t *testing.T) {
-	c := fishWeaverCatalogue(legacyUpkeep(catalogue(t)), minimalReserveMs)
+	c := fishWeaverCatalogue(legacyUpkeep(catalogue(t)), 1_000)
 	pauses, resumes := 0, 0
 	for seed := range uint64(propertyCases) {
 		p := newPropCase(t, c, 60_000+seed)

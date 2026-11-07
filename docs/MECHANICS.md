@@ -18,7 +18,7 @@ values that live in content data and will be tuned.
      upkeep, growth) from the current state;
   2. find the earliest **boundary** — a buffer becomes empty/full, a stock
      runs empty or reaches capacity, a transfer stream starts or ends, a
-     house reaches a growth threshold, gold would cross zero or reach a
+     house gains or loses a resident, gold would cross zero or reach a
      resume reserve, a ship is built or arrives (§1.3), a quest's stock
      objective is first met, or `toTime`;
   3. advance all quantities linearly to that boundary; apply the boundary's
@@ -449,20 +449,32 @@ cycle:   seconds               at 100 % efficiency
   a boundary, since it changes consumption, taxes and workforce). The
   accumulator resets only at those steps and on upgrade, so splitting an
   advancement never changes it.
-- **Growth rate** = `growth_per_min × satisfaction` when
-  `satisfaction ≥ growth_satisfaction_threshold` (content, provisional 0.5);
-  **decline rate** = `decline_per_min × (threshold − satisfaction)` down to
-  `floor` when below. Provisional constants (region.json): `growth_per_min`
+- **Target (D-074):** a house fills with its satisfaction. Its **target
+  residents** are `floor + (max − floor) × satisfaction`, rounded down to a
+  whole resident (never below `floor`; `max` only at satisfaction 1): a
+  Citizen house (5–15) at 0.54 holds 10, at 0.3 holds 8. There is no
+  growth threshold.
+- **Growth rate** = `growth_per_min × satisfaction` while residents are
+  below the target; **decline rate** = `decline_per_min × (1 −
+  satisfaction)` while above it; 0 at the target (the accumulator keeps
+  its value there). Provisional constants (region.json): `growth_per_min`
   1, `decline_per_min` 0.5 — i.e. +1 resident/min at full satisfaction and
-  −0.25/min at zero satisfaction. The rate is 0 at `max` while growing and
-  at `floor` while declining.
-- **Upgrade** to the next tier is a player action on a house at `max`
-  residents that passes the upgrade gate (§12: every required need of the
+  −0.5/min at zero satisfaction. The display carries the target
+  (`residents_target`); the house card shows "↑ 8 → 10 / 15" while the
+  house moves and "→ 10 / 15" at its target.
+- **Upgrade** to the next tier is a player action on a *full* house —
+  at its target residents (not necessarily `max`: one alternative per
+  category settles a Citizen house at 13 / 15, and the second alternative
+  is never needed to progress, D-056 §4) — that passes the upgrade gate
+  (§12: every required need of the
   *current* tier, carried lower-tier needs included, at coverage ≥ 0.6, as
   evaluated on the settled world at that instant); it costs the next
   tier's house materials and requires the next tier to be unlocked (§12).
-  The upgraded house keeps its ID and position and starts at its new tier's
-  `floor`. Upgrading is the only way inhabitants of a higher tier appear (so
+  The upgraded house keeps its ID and position and **its residents**
+  (D-074 §2): `min(residents, new max)`, never below the new tier's
+  `floor`; the accumulator resets, and from there the house follows the
+  new tier's target (it declines gently when the target is below the kept
+  count). Upgrading is the only way inhabitants of a higher tier appear (so
   the player controls the tier mix). A tier may be *declared* in content
   without a house (residents, tax, unlock conditions only); upgrading into
   it fails with a typed error until its house exists. Houses above the
@@ -945,9 +957,10 @@ content format keeps an optional `buildings` list (a building of each
 type must stand somewhere in the archipelago) for later regions. The client toasts an unlock it sees
 during a session with the number of new buildings.
 
-**House upgrade gate (D-056):** a house upgrades when it is at `max`
-residents, every required need — the tier's own and the carried
-lower-tier ones — has a coverage of at least 0.6 (or its full coverage
+**House upgrade gate (D-056):** a house upgrades when it is full — at
+its target residents (D-074 §1; `max` only at full satisfaction), every
+required need — the tier's own and the carried lower-tier ones — has a
+coverage of at least 0.6 (or its full coverage
 when a category cannot reach 0.6), the next tier is unlocked and its
 house cost is paid. One alternative per category is enough.
 

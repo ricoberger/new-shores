@@ -720,7 +720,10 @@ land buildings).
   near/mid, lite chunks at far, both built once and toggled. Building
   shadows are soft rounded outlines of the model bounds (merged per
   island); trees and ships keep discs. The placement ghost is the full
-  model, translucent, tinted by validity. Loaded through
+  model, translucent, tinted by validity, over the plans' thin gold
+  footprint outline (polish 7; not for fields). Picking uses the same
+  model bounds as the shadows, one box per building (UI.md §8), since
+  the merged chunks keep no per-building ranges. Loaded through
   `@babylonjs/loaders` (glTF only).
 - **Measured (D-057 V1, desktop, `make shots STATS=1`):** far at the cap
   14 draws / 67 k triangles (8 islands) and 19 / 152 k (dense island) —

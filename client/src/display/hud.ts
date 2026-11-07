@@ -10,10 +10,10 @@ import { depositCounts } from "./archipelago";
 import type { NeedRef } from "./needs";
 import { blockedTiles } from "./scatter";
 
-/** An island's resources: fertility tags, deposit kinds with tile counts, and its coast tiles (all, and free of buildings and roads). */
+/** An island's resources: fertility tags, deposit kinds with slot counts, and its coast tiles (all, and free of buildings and roads). */
 export interface IslandResources {
   fertilities: string[];
-  deposits: { kind: string; tiles: number }[];
+  deposits: { kind: string; slots: number }[];
   coast: { tiles: number; free: number };
 }
 

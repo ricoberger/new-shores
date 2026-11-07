@@ -2047,7 +2047,7 @@ export interface components {
             /**
              * @description Present when `available` is false: `no_house` (no house of the
              *     next tier, or one of another footprint), `tier_locked` (the next
-             *     tier is not unlocked), `not_full` (the house is below its maximum
+             *     tier is not unlocked), `not_full` (the house is below its target
              *     residents), `needs_below_threshold:<category>:<percent>` (a required need
              *     of the named category is below the upgrade gate, which is
              *     <percent> as a whole percent: 60, or less for a need whose
@@ -2184,6 +2184,11 @@ export interface components {
              * @description Maximum residents of the tier (milli-residents).
              */
             residents_max?: number;
+            /**
+             * Format: int64
+             * @description Residents the house grows or declines towards at its current satisfaction, floor + (max − floor) × satisfaction rounded down to a whole resident (milli-residents, D-074).
+             */
+            residents_target?: number;
             /**
              * Format: int64
              * @description Growth accumulator towards the next resident (permille of one resident, −999…999).
@@ -2485,14 +2490,9 @@ export interface components {
             growth_per_min: number;
             /**
              * Format: int64
-             * @description House decline factor (milli-residents per minute).
+             * @description House decline factor (milli-residents per minute; decline = factor × (1 − satisfaction) above the target).
              */
             decline_per_min: number;
-            /**
-             * Format: int64
-             * @description Satisfaction from which houses grow (ppm).
-             */
-            growth_satisfaction_threshold: number;
             /**
              * Format: int64
              * @description Gold reserve for auto-resume, as a duration of the building's or ship's upkeep (ms).

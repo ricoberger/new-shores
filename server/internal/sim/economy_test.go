@@ -345,6 +345,24 @@ func TestUpgradeHouse(t *testing.T) {
 	// (D-056 §4), no bread needed.
 	addStock(t, w, c, "wool_garments", 50)
 
+	// Full means at the target of the house's satisfaction (D-074 §1),
+	// not at max: fish alone keeps the Settler house below 8 and it
+	// still passes the gate (the second alternative is never needed to
+	// progress, D-056 §4).
+	tgt := *buildingDisplay(t, display(t, w, c), h).ResidentsTarget
+	if tgt >= 8_000 {
+		t.Fatalf("target %d, want below max", tgt)
+	}
+	house(w, h).Residents = tgt - 1_000
+	expectErr(t, w, c, cmd, ErrHouseNotFull)
+	house(w, h).Residents = tgt
+	probe := w.Clone()
+	probe.Gold = 1_000_000
+	if err := Apply(probe, c, cmd); err != nil {
+		t.Fatalf("upgrade at the target %d: %v", tgt, err)
+	}
+	house(w, h).Residents = 8_000
+
 	big := *c
 	big.BuildingByID = maps.Clone(c.BuildingByID)
 	hc := *c.BuildingByID["house_citizens"]
@@ -358,7 +376,9 @@ func TestUpgradeHouse(t *testing.T) {
 	planks := w.Islands[0].Inventory.Stock["planks"]
 	mustApply(t, w, c, cmd)
 	b := w.Islands[0].Building(h)
-	if b.Type != "house_citizens" || b.House.Residents != 5_000 || b.House.Growth != 0 || b.X != 9 || b.Y != 2 {
+	// Residents stay on upgrade (D-074 §2): 8 of the Settlers' 8, within
+	// the Citizens' 5–15; the accumulator resets.
+	if b.Type != "house_citizens" || b.House.Residents != 8_000 || b.House.Growth != 0 || b.X != 9 || b.Y != 2 {
 		t.Errorf("upgraded = %+v %+v", b, b.House)
 	}
 	if w.Gold != 800_000 || w.Islands[0].Inventory.Stock["planks"] != planks-15_000 {

@@ -2,6 +2,7 @@
 // card (D-027): sums and ratios of server display numbers and lookups of
 // static island data and content — no game rule.
 import type { CargoDisplay, Content, DisplayState, Island, IslandDisplay, ShipDisplay } from "../api/client";
+import { depositSlots } from "./deposits";
 import { cargoTotals } from "./ships";
 
 export interface IslandSummary {
@@ -29,11 +30,11 @@ export function islandSummary(is: IslandDisplay): IslandSummary {
   };
 }
 
-/** Deposit kinds of an island's static data with their tile counts, sorted by kind. */
-export function depositCounts(island: Pick<Island, "deposits"> | undefined): { kind: string; tiles: number }[] {
+/** Deposit kinds of an island's static data with their slot counts (display/deposits.ts depositSlots), sorted by kind. */
+export function depositCounts(island: Pick<Island, "deposits"> | undefined): { kind: string; slots: number }[] {
   const counts = new Map<string, number>();
-  for (const d of island?.deposits ?? []) counts.set(d.kind, (counts.get(d.kind) ?? 0) + 1);
-  return [...counts.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([kind, tiles]) => ({ kind, tiles }));
+  for (const s of depositSlots(island?.deposits ?? [])) counts.set(s.kind, (counts.get(s.kind) ?? 0) + 1);
+  return [...counts.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([kind, slots]) => ({ kind, slots }));
 }
 
 /**

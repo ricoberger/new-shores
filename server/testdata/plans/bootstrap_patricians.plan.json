@@ -10,6 +10,72 @@
   "snapshot_every": 10,
   "continues": "bootstrap_merchants.plan.json",
   "collectors": "reach_upgrade",
+  "chains": {
+    "buildings": {
+      "culture": [
+        "tavern",
+        "playhouse"
+      ],
+      "education": [
+        "school",
+        "university"
+      ],
+      "faith": [
+        "chapel",
+        "church",
+        "cathedral"
+      ]
+    },
+    "min_rank": {
+      "settlers": {
+        "faith": 1
+      },
+      "citizens": {
+        "faith": 1,
+        "education": 1,
+        "culture": 1
+      },
+      "merchants": {
+        "faith": 2,
+        "education": 1,
+        "culture": 2
+      },
+      "patricians": {
+        "faith": 3,
+        "education": 2,
+        "culture": 2
+      }
+    }
+  },
+  "quarters": [
+    {
+      "id": "home-6",
+      "island": "isle-01",
+      "near": [
+        220,
+        100
+      ],
+      "civic": [
+        "market",
+        "chapel",
+        "tavern",
+        "school",
+        "city_guard",
+        "fire_station"
+      ],
+      "houses": 24,
+      "serves": {
+        "merchants": 12
+      },
+      "rings": [
+        {
+          "houses": 12,
+          "civic": 2
+        }
+      ],
+      "note": "D-074: settlers for workforce and twelve Merchant houses; serves needs the chains declared again in this segment."
+    }
+  ],
   "actions": [
     {
       "step": {
@@ -39,10 +105,74 @@
       }
     },
     {
+      "build": {
+        "island": "isle-01",
+        "type": "sheep_farm",
+        "count": 1
+      },
+      "note": "D-074: the Merchants game builds no sheep farm and weaver for home-2 any more; the settlers of isle2-1 need the garments."
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "weaver_wool",
+        "count": 1,
+        "at": [
+          100,
+          165
+        ]
+      }
+    },
+    {
       "upgrade": {
         "quarter": "home-1",
         "from": "house_citizens",
         "count": 5
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      },
+      "note": "D-074: Merchant houses hold about 20 residents at their settled satisfaction (not 25), so the patrician push needs more houses and more planks: two lumberjacks and four sawmills more (the home island's wood ran full)."
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sawmill",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "sawmill",
+        "count": 1
       }
     },
     {
@@ -200,24 +330,6 @@
         "island": "isle-01",
         "type": "weaver_wool",
         "count": 1
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-2",
-        "type": "market"
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-2",
-        "type": "chapel"
-      }
-    },
-    {
-      "houses": {
-        "quarter": "home-2",
-        "count": 16
       }
     },
     {
@@ -561,7 +673,8 @@
         "island": "isle-06",
         "type": "hemp_farm",
         "count": 1
-      }
+      },
+      "note": "D-074: the start stock carries no sails; the brigs and the galleon need hemp beyond the first hemp farm."
     },
     {
       "houses": {
@@ -713,6 +826,54 @@
       "upgrade": {
         "quarter": "home-1",
         "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-6",
+        "type": "market"
+      },
+      "note": "D-074: home-6 adds settlers (the workforce of the home island ran short) and twelve more Merchant houses, the ones 1200 merchants need at about 20 residents each."
+    },
+    {
+      "civic": {
+        "quarter": "home-6",
+        "type": "chapel"
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-6",
+        "count": 20
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "mill",
+        "count": 1
+      },
+      "note": "D-074: bread beside cheese — the citizens' food was short with cheese alone."
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "bakery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "mill",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "bakery",
         "count": 1
       }
     },
@@ -1703,14 +1864,6 @@
       }
     },
     {
-      "note": "D-072: the doubled stone of the playhouse, university and cathedral needs a second quarry at home and on isle-02.",
-      "build": {
-        "island": "isle-01",
-        "type": "quarry",
-        "count": 1
-      }
-    },
-    {
       "build": {
         "island": "isle-02",
         "type": "quarry",
@@ -2069,6 +2222,95 @@
     {
       "houses": {
         "quarter": "home-5",
+        "count": 1
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-6",
+        "type": "tavern"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-6",
+        "type": "city_guard"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-6",
+        "type": "school"
+      }
+    },
+    {
+      "civic": {
+        "quarter": "home-6",
+        "type": "fire_station"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "apiary",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "meadery",
         "count": 1
       }
     },
@@ -2513,7 +2755,8 @@
                 "brass": 30,
                 "glass": 40,
                 "grapes": 50,
-                "thread": 30
+                "thread": 30,
+                "hemp": 30
               },
               "unload": [
                 "stone",
@@ -2536,7 +2779,8 @@
             }
           ]
         }
-      }
+      },
+      "note": "D-074: hemp rides along until the brigs are ordered (no sails in the start stock); the later update drops it so the thread fits the brig's four slots."
     },
     {
       "step": {
@@ -2639,6 +2883,21 @@
       }
     },
     {
+      "upgrade": {
+        "quarter": "home-6",
+        "from": "house_settlers",
+        "count": 12
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-6",
+        "from": "house_citizens",
+        "count": 12
+      },
+      "note": "D-074: the twelve extra Merchant houses of home-6, just before the winepress waits for the unlock."
+    },
+    {
       "build": {
         "island": "isle-01",
         "type": "winepress",
@@ -2664,6 +2923,20 @@
           "ship": 5,
           "route": 3
         }
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "hemp_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-06",
+        "type": "hemp_farm",
+        "count": 1
       }
     },
     {
@@ -2831,6 +3104,112 @@
       }
     },
     {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "wheat_farm",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "brewery",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-6",
+        "count": 4
+      }
+    },
+    {
       "step": {
         "create_route": {
           "name": "Farm goods",
@@ -2919,6 +3298,42 @@
       }
     },
     {
+      "order_ship": {
+        "island": "isle-01",
+        "ship_type": "brig"
+      },
+      "note": "D-074: sixty Merchant houses drink more beer: five more breweries, five wheat farms and a brig for hops alone."
+    },
+    {
+      "step": {
+        "create_route": {
+          "name": "Hops home 2",
+          "stops": [
+            {
+              "island": "isle-02",
+              "load": {
+                "hops": 100
+              }
+            },
+            {
+              "island": "isle-01",
+              "unload": [
+                "hops"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 9,
+          "route": 6
+        }
+      }
+    },
+    {
       "step": {
         "assign_ship": {
           "ship": 8,
@@ -2991,6 +3406,50 @@
       "note": "Level 4 needs Patricians (D-065 extended to the Trading Post): after the first Patrician house.",
       "upgrade_trading_post": {
         "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "island": "isle-01"
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "isle-01",
+        "type": "butcher",
+        "count": 1
       }
     },
     {
