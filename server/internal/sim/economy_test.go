@@ -345,6 +345,24 @@ func TestUpgradeHouse(t *testing.T) {
 	// (D-056 §4), no bread needed.
 	addStock(t, w, c, "wool_garments", 50)
 
+	// Full means at the target of the house's satisfaction (D-074 §1),
+	// not at max: fish alone keeps the Settler house below 8 and it
+	// still passes the gate (the second alternative is never needed to
+	// progress, D-056 §4).
+	tgt := *buildingDisplay(t, display(t, w, c), h).ResidentsTarget
+	if tgt >= 8_000 {
+		t.Fatalf("target %d, want below max", tgt)
+	}
+	house(w, h).Residents = tgt - 1_000
+	expectErr(t, w, c, cmd, ErrHouseNotFull)
+	house(w, h).Residents = tgt
+	probe := w.Clone()
+	probe.Gold = 1_000_000
+	if err := Apply(probe, c, cmd); err != nil {
+		t.Fatalf("upgrade at the target %d: %v", tgt, err)
+	}
+	house(w, h).Residents = 8_000
+
 	big := *c
 	big.BuildingByID = maps.Clone(c.BuildingByID)
 	hc := *c.BuildingByID["house_citizens"]

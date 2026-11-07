@@ -48,7 +48,7 @@ var (
 	ErrTierLocked         = errors.New("tier locked")
 	ErrNotAHouse          = errors.New("building is not a house")
 	ErrUpgradeUnavailable = errors.New("upgrade unavailable")
-	ErrHouseNotFull       = errors.New("house not at maximum residents")
+	ErrHouseNotFull       = errors.New("house not full")
 	ErrNeedsUnmet         = errors.New("needs of the current tier not met")
 	ErrUpgradeOnly        = errors.New("house can only be reached by upgrade")
 )

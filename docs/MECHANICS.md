@@ -462,8 +462,11 @@ cycle:   seconds               at 100 % efficiency
   −0.5/min at zero satisfaction. The display carries the target
   (`residents_target`); the house card shows "↑ 8 → 10 / 15" while the
   house moves and "→ 10 / 15" at its target.
-- **Upgrade** to the next tier is a player action on a house at `max`
-  residents that passes the upgrade gate (§12: every required need of the
+- **Upgrade** to the next tier is a player action on a *full* house —
+  at its target residents (not necessarily `max`: one alternative per
+  category settles a Citizen house at 13 / 15, and the second alternative
+  is never needed to progress, D-056 §4) — that passes the upgrade gate
+  (§12: every required need of the
   *current* tier, carried lower-tier needs included, at coverage ≥ 0.6, as
   evaluated on the settled world at that instant); it costs the next
   tier's house materials and requires the next tier to be unlocked (§12).
@@ -954,9 +957,10 @@ content format keeps an optional `buildings` list (a building of each
 type must stand somewhere in the archipelago) for later regions. The client toasts an unlock it sees
 during a session with the number of new buildings.
 
-**House upgrade gate (D-056):** a house upgrades when it is at `max`
-residents, every required need — the tier's own and the carried
-lower-tier ones — has a coverage of at least 0.6 (or its full coverage
+**House upgrade gate (D-056):** a house upgrades when it is full — at
+its target residents (D-074 §1; `max` only at full satisfaction), every
+required need — the tier's own and the carried lower-tier ones — has a
+coverage of at least 0.6 (or its full coverage
 when a category cannot reach 0.6), the next tier is unlocked and its
 house cost is paid. One alternative per category is enough.
 

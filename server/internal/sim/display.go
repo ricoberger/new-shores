@@ -904,11 +904,8 @@ const (
 // upgradeDisplay evaluates the upgrade gate (checkHouseUpgrade) of a house
 // of the settled display world.
 func upgradeDisplay(w *World, c *content.Catalogue, is *Island, h *houseCalc) *UpgradeDisplay {
-	var unmet *content.Need
-	_, _, err := checkHouseUpgrade(w, c, is, h.b, func() *content.Need {
-		unmet = unmetNeed(h)
-		return unmet
-	})
+	unmet := unmetNeed(h)
+	_, _, err := checkHouseUpgrade(w, c, is, h.b, func() *houseCalc { return h })
 	switch {
 	case err == nil:
 		return &UpgradeDisplay{Available: true}

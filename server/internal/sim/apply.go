@@ -1131,7 +1131,7 @@ func upgradeHouse(w *World, c *content.Catalogue, cmd UpgradeHouse, l *Ledger) e
 	if b == nil {
 		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, cmd.BuildingID, cmd.IslandID)
 	}
-	nextDef, next, err := checkHouseUpgrade(w, c, is, b, func() *content.Need { return unmetRequiredNeed(w, c, is, b.ID) })
+	nextDef, next, err := checkHouseUpgrade(w, c, is, b, func() *houseCalc { return settledHouse(w, c, is, b.ID) })
 	if err != nil {
 		return err
 	}
@@ -1150,12 +1150,18 @@ func upgradeHouse(w *World, c *content.Catalogue, cmd UpgradeHouse, l *Ledger) e
 // returns the house definition and the tier of the next tier, or the first failing
 // condition as a typed error, in this order: a next-tier house exists
 // (ErrUpgradeUnavailable), its tier is unlocked (ErrTierLocked), the house
-// is full (ErrHouseNotFull), no required need is below the gate
-// (ErrNeedsUnmet; unmet returns the failing need, nil when none), the
-// footprints match (ErrUpgradeUnavailable) and the cost is covered
-// (ErrInsufficientGold / ErrInsufficientMaterials). The upgrade command and
-// the display's upgrade block (upgradeDisplay) share it.
-func checkHouseUpgrade(w *World, c *content.Catalogue, is *Island, b *Building, unmet func() *content.Need) (*content.Building, *content.Tier, error) {
+// is full for its supply (ErrHouseNotFull), no required need is below the
+// gate (ErrNeedsUnmet), the footprints match (ErrUpgradeUnavailable) and
+// the cost is covered (ErrInsufficientGold / ErrInsufficientMaterials).
+// calc returns the house's settled calculation (nil when it has none).
+// The upgrade command and the display's upgrade block (upgradeDisplay)
+// share it.
+//
+// Full means at the target residents of the house's satisfaction (D-074
+// §1), not at the tier's max: with one alternative per category a house
+// settles below max, and the second alternative is never needed to
+// progress (D-056 §4).
+func checkHouseUpgrade(w *World, c *content.Catalogue, is *Island, b *Building, calc func() *houseCalc) (*content.Building, *content.Tier, error) {
 	def := c.BuildingByID[b.Type]
 	tier := houseTier(b, c)
 	if def == nil || tier == nil {
@@ -1168,11 +1174,18 @@ func checkHouseUpgrade(w *World, c *content.Catalogue, is *Island, b *Building, 
 	if !TierUnlocked(w, c, next.ID) {
 		return nil, nil, fmt.Errorf("%w: %s", ErrTierLocked, next.ID)
 	}
-	if b.House.Residents < tier.ResidentsMax {
-		return nil, nil, fmt.Errorf("%w: %d of %d milli-residents", ErrHouseNotFull, b.House.Residents, tier.ResidentsMax)
+	h := calc()
+	full := tier.ResidentsMax
+	if h != nil {
+		full = h.target
 	}
-	if need := unmet(); need != nil {
-		return nil, nil, fmt.Errorf("%w: %s", ErrNeedsUnmet, need.ID)
+	if b.House.Residents < full {
+		return nil, nil, fmt.Errorf("%w: %d of %d milli-residents", ErrHouseNotFull, b.House.Residents, full)
+	}
+	if h != nil {
+		if need := unmetNeed(h); need != nil {
+			return nil, nil, fmt.Errorf("%w: %s", ErrNeedsUnmet, need.ID)
+		}
 	}
 	if nextDef.Width != def.Width || nextDef.Height != def.Height {
 		return nil, nil, fmt.Errorf("%w: footprint of %s differs", ErrUpgradeUnavailable, nextDef.ID)
@@ -1284,10 +1297,10 @@ func upgradeLevel(w *World, c *content.Catalogue, is *Island, b *Building, def *
 // of the house must be covered to at least 0.6.
 const upgradeGatePPM = 600_000
 
-// unmetRequiredNeed returns the first required need of the house below the
-// upgrade gate at this instant (nil when all pass); see unmetNeed. It
-// settles a copy of the world, so the world itself is not changed.
-func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) *content.Need {
+// settledHouse returns the calculation of a house at this instant (nil
+// when it has none). It settles a copy of the world, so the world itself
+// is not changed.
+func settledHouse(w *World, c *content.Catalogue, is *Island, id int64) *houseCalc {
 	cw := w.Clone()
 	wr, _ := settleWorld(cw, c, cw.LastEvaluatedAt.UnixMilli())
 	for i, cis := range cw.Islands {
@@ -1296,7 +1309,7 @@ func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) *co
 		}
 		for _, h := range wr.islands[i].houses {
 			if h.b.ID == id {
-				return unmetNeed(h)
+				return h
 			}
 		}
 	}
