@@ -1701,6 +1701,33 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.mouse.move(5, 400);
     },
   },
+  // A house upgraded through its card (the first house whose upgrade is available), still selected, near view.
+  "house-upgraded": {
+    fixture: "played",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => x.upgrade?.available);
+          if (b) return { island: is.id, id: b.id, type: b.type, x: b.x, y: b.y, ox: is.position.x, oy: is.position.y };
+        }
+        throw new Error("no house to upgrade");
+      });
+      await setCamera(page, { x: t.ox + t.x + 1, y: t.oy + t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x + 1, t.y + 1);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-upgrade").click();
+      await page.waitForFunction(
+        (b) => window.__newShores!.getServer()!.display.islands.some((is) => is.buildings.some((x) => x.id === b.id && x.type !== b.type)),
+        t,
+      );
+      await sleep(3000);
+      await settle(page);
+      await page.mouse.move(5, 400);
+      console.log(`house-upgraded: ${t.type} ${t.id} at ${t.x},${t.y}`);
+    },
+  },
   // The build menu of the merchants fixture on its Merchants tab, scrolled to its end, desktop and phone.
   "merchant-build-menu": {
     fixture: "merchants",
