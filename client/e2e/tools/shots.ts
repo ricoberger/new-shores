@@ -1357,6 +1357,20 @@ function riverBridgeShot(half: number, device: Device | readonly Device[]): (typ
   };
 }
 
+/** Centres the camera on the first lumberjack of the focused fixture's islands (forest shots). */
+async function lumberjackView(page: Page, half: number): Promise<void> {
+  const t = await page.evaluate(() => {
+    for (const is of window.__newShores!.getServer()!.display.islands) {
+      const b = is.buildings.find((x) => x.type === "lumberjack");
+      if (b) return { x: is.position.x + b.x + 1, y: is.position.y + b.y + 1 };
+    }
+    throw new Error("no lumberjack");
+  });
+  await setCamera(page, { x: t.x, y: t.y, half, rotation: 0 });
+  await waitLod(page, half < MID_TO_NEAR_HALF ? "near" : "mid");
+  await settle(page);
+}
+
 const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly Device[]; patch?: (w: WorldResponse) => void; almanac?: string; run: (page: Page) => Promise<void> }> = {
   // The almanac's overview page (the opening page of /almanac) on both devices.
   "almanac-overview": {
@@ -2045,6 +2059,9 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.getByTestId("hud-tier-settlers").waitFor({ state: "visible" });
     },
   },
+  // The forest of the first lumberjack of the played fixture (its tree plots), near and mid view, desktop.
+  "forest-near": { fixture: "played", device: "desktop", run: (page) => lumberjackView(page, HALF.near) },
+  "forest-mid": { fixture: "played", device: "desktop", run: (page) => lumberjackView(page, HALF.mid) },
   // A phone's top bar with every construction material: the "…" toggle after the first three, tapped open.
   "top-bar-materials": {
     fixture: "played",
