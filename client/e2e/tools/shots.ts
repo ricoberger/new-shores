@@ -1728,6 +1728,34 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       console.log(`house-upgraded: ${t.type} ${t.id} at ${t.x},${t.y}`);
     },
   },
+  // A click on the roof of a Merchant house (mesh-first picking, UI.md §3 Selection): the point 2 tiles above its
+  // footprint centre, whose ground point lies behind the house; the house itself is selected (tinted), near view.
+  "roof-pick": {
+    fixture: "played",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => x.type === "house_merchants");
+          if (b) return { island: is.id, id: b.id, x: b.x, y: b.y, ox: is.position.x, oy: is.position.y };
+        }
+        throw new Error("no Merchant house");
+      });
+      await setCamera(page, { x: t.ox + t.x + 1, y: t.oy + t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      // Screen pixels per tile along the screen's vertical: a tile step along x and y moves down by half a tile's diagonal.
+      const a = await tileAt(page, t.island, t.x, t.y, true);
+      const c = await tileAt(page, t.island, t.x + 1, t.y + 1, true);
+      const below = await tileAt(page, t.island, t.x + 1, t.y, true);
+      const perTile = Math.hypot(below.x - a.x, below.y - a.y) * Math.SQRT2;
+      // A world height h appears h·cos(30°) tiles higher on screen at the camera's elevation.
+      const roof = { x: c.x, y: c.y - 2 * Math.cos(Math.PI / 6) * perTile };
+      await page.mouse.click(roof.x, roof.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+      console.log(`roof-pick: house_merchants ${t.id} at ${t.x},${t.y}; click at ${Math.round(roof.x)},${Math.round(roof.y)} px (footprint centre ${Math.round(c.x)},${Math.round(c.y)} px)`);
+    },
+  },
   // The build menu of the merchants fixture on its Merchants tab, scrolled to its end, desktop and phone.
   "merchant-build-menu": {
     fixture: "merchants",

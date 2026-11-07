@@ -635,6 +635,17 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   dense synthetic fixture ran at 27 draw calls (36 with the life layer;
   `?life=0` disables it); `?stats=1` on `make dev FIXTURE=played` (dev builds only)
   shows live instance and particle counts.
+- **Picking is mesh-first** (polish 7): a tap or long press at near and
+  mid LOD selects the building, field or plan whose model the view ray
+  meets first — one box per building at its model's rotated bounds on its
+  ground (the selection frame's and shadow blob's box; the models are
+  merged per chunk, so no per-triangle ranges) — and only without such a
+  hit the building or plan whose footprint holds the ground tile under
+  the pointer. A roof thus selects its own house, not the one behind it
+  whose footprint the ray reaches on the ground. Touch adds 0.2 tiles of
+  tolerance around each box. Ships (screen radius) and far labels keep
+  their own picks; tools still act on the ground tile
+  (`display/raypick.ts`).
 
 ## 9. The Almanac (public reference)
 

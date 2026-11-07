@@ -34,6 +34,7 @@ import { FieldDecor, fieldDecorMaterial, FieldTiles } from "./fields";
 import { ConstructionLayer } from "./harbour";
 import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
+import type { PickBox } from "../display/raypick";
 import { buildingAnchor, type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, modelFileFor, placement, statusHeight } from "./models";
 import { OutcropLayer } from "./outcrops";
 import { rotatedFootprint } from "../display/geometry";
@@ -550,6 +551,43 @@ export class IslandDetail {
     if (!d) return this.ground.tile(b.x, b.y);
     const [w, h] = rotatedFootprint(d.width, d.height, b.rotation);
     return this.ground.base(b.x, b.y, w, h);
+  }
+
+  /**
+   * The pick boxes of the island's buildings, fields and plans (world coordinates; render/raypick.ts, UI.md §3
+   * Selection): the model's rotated bounds on its ground, else the footprint (1 tile high, a field without a model
+   * flat). Roads are left to the ground pick. Empty while the island is not drawn in detail.
+   */
+  pickBoxes(): PickBox<{ kind: "building" | "plan"; id: number }>[] {
+    const built = this.builtFrom;
+    if (!built || !this.shown) return [];
+    const ox = this.root.position.x;
+    const oz = this.root.position.z;
+    const out: PickBox<{ kind: "building" | "plan"; id: number }>[] = [];
+    const add = (b: Pick<BuildingDisplay, "id" | "type" | "x" | "y" | "rotation">, kind: "building" | "plan") => {
+      const def = built.defs.get(b.type);
+      if (!def || def.category === "roads") return;
+      const base = this.baseOf(b, def);
+      const entry = this.registry?.entry(b.type);
+      let r: { cx: number; cz: number; w: number; h: number };
+      let height: number;
+      if (entry && entry.kind !== "ship") {
+        const p = placement(entry, def, b);
+        r = p.rect;
+        height = p.height;
+      } else {
+        r = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
+        height = def.field ? 0.05 : 1;
+      }
+      out.push({
+        min: { x: ox + r.cx - r.w / 2, y: base, z: oz + r.cz - r.h / 2 },
+        max: { x: ox + r.cx + r.w / 2, y: base + height, z: oz + r.cz + r.h / 2 },
+        item: { kind, id: b.id },
+      });
+    };
+    for (const b of built.display.buildings) add(b, "building");
+    for (const p of built.display.plans ?? []) add(p, "plan");
+    return out;
   }
 
   /** The payload without the fields drawn as models (the field layers draw the rest). */

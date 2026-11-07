@@ -268,6 +268,18 @@ export class CameraRig {
     return near.add(far.subtract(near).scale(t));
   }
 
+  /** The view ray through a render-pixel position (world coordinates; from the near plane towards the far plane). */
+  ray(px: number, py: number): { origin: Vector3; dir: Vector3 } {
+    const w = this.engine.getRenderWidth();
+    const h = this.engine.getRenderHeight();
+    this.scene.updateTransformMatrix();
+    const view = this.camera.getViewMatrix();
+    const proj = this.camera.getProjectionMatrix();
+    const near = Vector3.Unproject(new Vector3(px, py, 0), w, h, Matrix.IdentityReadOnly, view, proj);
+    const far = Vector3.Unproject(new Vector3(px, py, 1), w, h, Matrix.IdentityReadOnly, view, proj);
+    return { origin: near, dir: far.subtract(near) };
+  }
+
   /** Moves the target so that the ground point under `from` ends under `to`. */
   pan(from: { x: number; y: number }, to: { x: number; y: number }): void {
     if (this.anim) return;
