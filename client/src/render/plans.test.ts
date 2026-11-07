@@ -8,7 +8,8 @@ import { afterAll, describe, expect, it } from "vitest";
 import type { ContentBuilding } from "../api/client";
 import { type ModelData, ModelRegistry, parseGlb } from "./models";
 import { GOLD } from "./palette";
-import { OUTLINE_WIDTH, PlanLayer, rectOutline, tilesOutline } from "./plans";
+import { OUTLINE_WIDTH, rectOutline } from "./outline";
+import { PlanLayer, tilesOutline } from "./plans";
 
 // The plan layer headless (NullEngine) with the committed models, as in ghost.test.ts.
 const MODELS = join(__dirname, "..", "..", "public", "models");

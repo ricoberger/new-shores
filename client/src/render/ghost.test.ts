@@ -9,7 +9,7 @@ import { waterEdgeTiles } from "../display/geometry";
 import { GHOST_LIFT, ghostPlinth, ghostTint, PlacementGhost } from "./ghost";
 import { EDGE_STONE, fillSide } from "./groundpaint";
 import { type ModelData, ModelRegistry, parseGlb } from "./models";
-import { GHOST, GHOST_INVALID, GHOST_NO_ROAD } from "./palette";
+import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, GOLD } from "./palette";
 
 // The placement ghost headless (NullEngine) with the committed models, as
 // in buildings.test.ts: the model once loaded, the box before and without.
@@ -94,6 +94,33 @@ describe("PlacementGhost", () => {
     expect(scene.meshes.filter((m) => m.name === "ghost").at(-1)!.position.y).toBeCloseTo(0.8 + GHOST_LIFT, 4);
     expect(GHOST_LIFT).toBeGreaterThan(0);
     expect(GHOST_LIFT).toBeLessThan(0.03);
+    scene.dispose();
+  });
+
+  it("outlines a building ghost's footprint in gold at any validity colour, but not a field's", () => {
+    const scene = new Scene(engine);
+    const ghost = new PlacementGhost(scene, null);
+    const outline = () => scene.meshes.find((m) => m.name === "ghost_outline")!;
+    ghost.show({ def: sawmill, island: { x: 10, y: 20 }, x: 3, y: 4, rotation: 0, base: 0.5 }, GHOST_INVALID);
+    expect(ghost.outlined()).toBe(true);
+    const mat = outline().material as StandardMaterial;
+    expect(mat.emissiveColor.equals(GOLD)).toBe(true);
+    outline().computeWorldMatrix(true);
+    outline().refreshBoundingInfo({});
+    const box = outline().getBoundingInfo().boundingBox;
+    // Inside the 2 × 2 footprint at archipelago tile (13, 24), just above its base.
+    expect(box.minimumWorld.x).toBeGreaterThanOrEqual(13);
+    expect(box.maximumWorld.x).toBeLessThanOrEqual(15);
+    expect(box.maximumWorld.z).toBeLessThanOrEqual(-24);
+    expect(box.minimumWorld.z).toBeGreaterThanOrEqual(-26);
+    expect(box.minimumWorld.y).toBeGreaterThan(0.5);
+    expect(box.maximumWorld.y).toBeLessThan(0.7);
+    ghost.show({ def: { ...sawmill, id: "tree_plot", width: 1, height: 1, field: { type: "tree_plot", farm: "lumberjack", terrain: ["grass"] } } as unknown as ContentBuilding, island: { x: 0, y: 0 }, x: 0, y: 0, rotation: 0 }, GHOST);
+    expect(ghost.outlined()).toBe(false);
+    ghost.show({ def: sawmill, island: { x: 0, y: 0 }, x: 0, y: 0, rotation: 0 }, GHOST);
+    expect(ghost.outlined()).toBe(true);
+    ghost.hide();
+    expect(ghost.outlined()).toBe(false);
     scene.dispose();
   });
 

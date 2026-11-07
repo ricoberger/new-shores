@@ -235,7 +235,11 @@ UI shows the same numbers the server uses.
   snapped to the grid (the old box only while the model loads); rotation
   via `R` / two-finger twist / the placement bar. Validity tint: light
   (ok), yellow (ok but no road adjacent), red (the server would reject it;
-  e.g. missing deposit or fertility) with the reason as a tooltip. A new
+  e.g. missing deposit or fertility) with the reason as a tooltip. A
+  building ghost (build, move and found tools; not fields, roads keep
+  their own preview) also outlines its footprint with the plans' thin
+  gold band (`render/outline.ts`), whatever its tint, so the tiles it
+  takes read under a tall or translucent model. A new
   house may come out as a different variant than the ghost showed (variant
   by building ID; follow-up: a server-side preview hint).
 - **Water-edge ghosts (D-062):** each rotated footprint column follows
