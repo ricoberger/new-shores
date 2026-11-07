@@ -773,5 +773,7 @@ export const de: Record<keyof typeof en, string> = {
   "topBar.materials": "Baumaterial",
   "topBar.residentsOn": "Bewohner auf {island}",
   "topBar.materialsOn": "Baumaterial auf {island}",
+  "topBar.allMaterials": "Alle Baumaterialien zeigen",
+  "topBar.fewerMaterials": "Weniger Baumaterialien zeigen",
   "topBar.openIsland": "Inselkarte öffnen",
 };

@@ -22,7 +22,12 @@ interface Props {
   account?: ReactNode;
   /** Touch layouts (phones, tablets); portrait phones put the island on a second row. */
   compact?: "portrait" | "landscape" | null;
+  /** Phones (touch layouts under 1200 px): the first MATERIALS_SHOWN materials and a "…" toggle for the rest. */
+  fewMaterials?: boolean;
 }
+
+/** Construction materials a phone's top bar shows before its "…" toggle. */
+export const MATERIALS_SHOWN = 3;
 
 /**
  * A top-bar stat (icon and number only) with a details popup: it opens on
@@ -158,15 +163,72 @@ export function MaterialsDetails({ goods, island, goodName }: { goods: string[];
 }
 
 /**
+ * The materials group of the top bar: the stocks (the chip opens the
+ * details popup) and, when `limit` is set, the first `limit` of them and a
+ * "…" button that toggles the full list (the popup is unchanged).
+ */
+export function MaterialStocks({
+  goods,
+  island,
+  islandName,
+  goodName,
+  limit,
+  expanded,
+  onToggle,
+}: {
+  goods: string[];
+  island: IslandDisplay | undefined;
+  islandName: string;
+  goodName: (id: string) => string;
+  limit: number | null;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const more = limit !== null && goods.length > limit;
+  const shown = more && !expanded ? goods.slice(0, limit) : goods;
+  return (
+    <div className={limit === null ? styles.hudGroup : `${styles.hudGroup} ${styles.hudMaterialsFew}`}>
+      <HudChip
+        testId="hud-materials-chip"
+        label={t("topBar.materialsOn", { island: islandName })}
+        trigger={shown.map((g) => (
+          <span key={g} className={styles.hudMaterial} data-testid={`hud-material-${g}`}>
+            <Icon path={goodIcon(g)} />
+            <span className={styles.value}>{units(island?.inventory[g]?.stock ?? 0)}</span>
+          </span>
+        ))}
+      >
+        <MaterialsDetails goods={goods} island={island} goodName={goodName} />
+      </HudChip>
+      {more && (
+        <button
+          type="button"
+          className={`${styles.hudStat} ${styles.hudMore}`}
+          aria-expanded={expanded}
+          aria-label={expanded ? t("topBar.fewerMaterials") : t("topBar.allMaterials")}
+          title={expanded ? t("topBar.fewerMaterials") : t("topBar.allMaterials")}
+          onClick={onToggle}
+          data-testid="hud-materials-more"
+        >
+          …
+        </button>
+      )}
+    </div>
+  );
+}
+
+/**
  * Top bar (UI.md §2): on the left gold and the residents of the focused
  * island, then its construction-material stocks — icons and numbers only,
  * details in popups; in the middle the focused island (name and resource
  * icons, one button that opens the island card); on the right the account
  * menu. There are no island tabs: islands are reached through the minimap,
  * the island card and the lists. Every number is a server number or a sum
- * of them.
+ * of them. Phones keep the stats on the first line: the first three
+ * materials and "…" for the rest (expanded until tapped again, not stored).
  */
-export function TopBar({ model, content, islandId, statics, onOpenIsland, account, compact = null }: Props) {
+export function TopBar({ model, content, islandId, statics, onOpenIsland, account, compact = null, fewMaterials = false }: Props) {
+  const [allMaterials, setAllMaterials] = useState(false);
   const ready = model !== null;
   useEffect(() => {
     if (ready && performance.getEntriesByName("ns-hud-gold").length === 0) {
@@ -221,20 +283,15 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, accoun
           </HudChip>
         </div>
         {settled && goods.length > 0 && (
-          <div className={styles.hudGroup}>
-            <HudChip
-              testId="hud-materials-chip"
-              label={t("topBar.materialsOn", { island: name })}
-              trigger={goods.map((g) => (
-                <span key={g} className={styles.hudMaterial} data-testid={`hud-material-${g}`}>
-                  <Icon path={goodIcon(g)} />
-                  <span className={styles.value}>{units(island?.inventory[g]?.stock ?? 0)}</span>
-                </span>
-              ))}
-            >
-              <MaterialsDetails goods={goods} island={island} goodName={goodName} />
-            </HudChip>
-          </div>
+          <MaterialStocks
+            goods={goods}
+            island={island}
+            islandName={name}
+            goodName={goodName}
+            limit={fewMaterials ? MATERIALS_SHOWN : null}
+            expanded={allMaterials}
+            onToggle={() => setAllMaterials((v) => !v)}
+          />
         )}
       </div>
       <div className={styles.hudMiddle} data-testid="hud-island" data-island={island?.id ?? ""}>

@@ -2045,6 +2045,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.getByTestId("hud-tier-settlers").waitFor({ state: "visible" });
     },
   },
+  // A phone's top bar with every construction material: the "…" toggle after the first three, tapped open.
+  "top-bar-materials": {
+    fixture: "played",
+    device: "phone",
+    run: async (page) => {
+      await page.getByTestId("hud-materials-more").click();
+      await page.locator('[data-testid="hud-materials-more"][aria-expanded="true"]').waitFor({ state: "visible" });
+    },
+  },
   // A sloop on a leg (desktop), camera centred on ship 2.
   sloop: {
     fixture: "played",

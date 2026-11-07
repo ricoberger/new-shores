@@ -154,6 +154,12 @@ UI shows the same numbers the server uses.
   the menu icon (account: register, install, credits, log out). There are
   no island tabs — islands are reached via the island name, the island
   card, the minimap and the lists.
+- **Phone top bar** (polish 7; touch layouts under 1200 px): the
+  materials stay on the first line after gold and residents — the first
+  three with their stocks, then a "…" button that toggles the full list
+  (it may wrap; the open state is not stored, the popup is unchanged);
+  the island stays on the second line in portrait, where the account
+  menu shows its icon only. Desktop is unchanged.
 - **Side dock:** icon buttons stacked down the left edge, vertically
   centred between the top bar and the screen's bottom edge (it does not move when the build bar shows or hides), with no backing panel: Build menu, Warnings, Quests, Ships,
   Routes. The first toggles the build menu at the bottom (closed by
@@ -560,8 +566,8 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   Tab trapped, focus returned to the opener on close. Wider landscape
   phones get a narrow side panel; if it would be shorter than ≈ 240 px the
   hint bar hides and the insolvency banner is limited to one line.
-- Compact top bar: see §2 (icons and numbers, island on a second row in
-  portrait; popups open on tap). Build menu: the
+- Compact top bar: see §2 (icons and numbers, the first three materials
+  and "…", island on a second row in portrait; popups open on tap). Build menu: the
   desktop look (folder tabs, parchment cards, icon-only Move and Demolish
   buttons pinned at the right of the tab row behind a divider), with ≥ 44 px tabs and cards on touch; short landscape
   phones keep the stacked layout with smaller cards and thumbnails. Hints and banners stack below the top

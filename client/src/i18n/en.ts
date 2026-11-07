@@ -771,5 +771,7 @@ export const en = {
   "topBar.materials": "Construction materials",
   "topBar.residentsOn": "Residents on {island}",
   "topBar.materialsOn": "Construction materials on {island}",
+  "topBar.allMaterials": "Show all construction materials",
+  "topBar.fewerMaterials": "Show fewer construction materials",
   "topBar.openIsland": "Open the island card",
 } as const;

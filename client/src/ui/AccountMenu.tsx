@@ -19,10 +19,12 @@ interface Props {
   /** The guest registered (same world, updated player). */
   onRegistered: (player: Player) => void;
   onLoggedOut: () => void;
+  /** Portrait phones: the icon only (the name stays for screen readers and heads the menu), so the stats keep the first line. */
+  iconOnly?: boolean;
 }
 
 /** HUD account menu (the top bar's right end): icon and name, then "Register" (guests), "Install app", "Credits", "Log out". */
-export function AccountMenu({ player, onRegistered, onLoggedOut }: Props) {
+export function AccountMenu({ player, onRegistered, onLoggedOut, iconOnly = false }: Props) {
   const [open, setOpen] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [credits, setCredits] = useState(false);
@@ -68,7 +70,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut }: Props) {
         data-testid="account-menu"
       >
         <Icon path={toolIcon("account")} />
-        <span className={styles.menuName}>{player.display_name}</span>
+        <span className={iconOnly ? hud.srOnly : styles.menuName}>{player.display_name}</span>
       </button>
       {open && (
         <div className={styles.dropdown} data-testid="account-dropdown">

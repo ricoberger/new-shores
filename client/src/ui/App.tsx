@@ -1180,8 +1180,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             islandId={focusId}
             statics={staticFocused}
             onOpenIsland={() => focusId && dispatch({ type: "selectIsland", id: focusId })}
-            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} />}
+            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} iconOnly={layout.mode === "phone-portrait"} />}
             compact={layout.mode === "phone-portrait" ? "portrait" : compactHud ? "landscape" : null}
+            fewMaterials={compactHud && layout.width < 1200}
           />
           <InsolvencyBanner model={model} onOpenWarnings={() => togglePanel("warnings", true)} compact={phone} oneLine={tightLandscape} />
           {placementBar && isGhostTool(tool) && (
