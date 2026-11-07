@@ -28,10 +28,18 @@ describe("island summary", () => {
     expect(islandSummary(unsettled).fillPercent).toBeNull();
   });
 
-  it("counts deposit tiles by kind", () => {
-    expect(depositCounts({ deposits: [{ x: 0, y: 0, kind: "stone" }, { x: 1, y: 0, kind: "iron" }, { x: 2, y: 0, kind: "stone" }] })).toEqual([
-      { kind: "iron", tiles: 1 },
-      { kind: "stone", tiles: 2 },
+  it("counts deposit slots by kind (4-adjacent pairs of one kind)", () => {
+    const deposits = [
+      { x: 0, y: 0, kind: "stone" },
+      { x: 1, y: 0, kind: "stone" },
+      { x: 5, y: 0, kind: "iron" },
+      { x: 5, y: 1, kind: "iron" },
+      { x: 20, y: 0, kind: "stone" },
+      { x: 20, y: 1, kind: "stone" },
+    ];
+    expect(depositCounts({ deposits })).toEqual([
+      { kind: "iron", slots: 1 },
+      { kind: "stone", slots: 2 },
     ]);
     expect(depositCounts(undefined)).toEqual([]);
   });

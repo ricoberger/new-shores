@@ -655,7 +655,7 @@ export const de: Record<keyof typeof en, string> = {
   "compass.point.west": "Westen",
   "compass.point.north-west": "Nordwesten",
   "resource.fertility": "Boden: {name}",
-  "resource.deposit": "Vorkommen: {name} ({count} {count, one{Feld} other{Felder}})",
+  "resource.deposit": "Vorkommen: {name} ({count} {count, one{Platz} other{Plätze}})",
   "resource.coast": "Freie Küste: {free} von {count} Feldern",
   "resource.none": "Kein Boden, kein Vorkommen",
   "resource.noneShort": "keine",

@@ -131,7 +131,7 @@ describe("HUD components", () => {
         );
       const html = card(statics);
       expect(html).toContain('data-testid="island-card-fertility-wheat"');
-      expect(text(html)).toContain("Iron deposit (1 tile)");
+      expect(text(html)).toContain("Iron deposit (1 slot)");
       expect(text(html)).toContain("Free coast: 1 of 1 tiles");
       expect(text(card({ ...statics, fertilities: [], deposits: [] }))).toContain("No fertility or deposit");
       expect(text(card(undefined))).toContain("ResourcesLoading…");

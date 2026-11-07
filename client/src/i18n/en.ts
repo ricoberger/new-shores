@@ -653,7 +653,7 @@ export const en = {
   "compass.point.west": "west",
   "compass.point.north-west": "north-west",
   "resource.fertility": "{name} fertility",
-  "resource.deposit": "{name} deposit ({count} {count, one{tile} other{tiles}})",
+  "resource.deposit": "{name} deposit ({count} {count, one{slot} other{slots}})",
   "resource.coast": "Free coast: {free} of {count} tiles",
   "resource.none": "No fertility or deposit",
   "resource.noneShort": "none",

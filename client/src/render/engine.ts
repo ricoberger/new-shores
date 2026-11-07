@@ -33,7 +33,7 @@ import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
 import { type ArchPoint, dockPoints, type ModelAnchor, seaPoint, shipLengthRatio } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
-import { depositClusters, depositTiles, highlightedDeposit } from "../display/deposits";
+import { freeDepositSlots, highlightedDeposit } from "../display/deposits";
 import { DepositHighlight, type DepositMark } from "./deposithighlight";
 import { ReachRing } from "./reachring";
 import { DepositMarkers, type DepositMarker } from "./depositmarkers";
@@ -2024,10 +2024,12 @@ export class GameRenderer {
       const is = this.displayIsland(id);
       const pl = this.arch.placement(id);
       if (!is || !pl || !kind) continue;
-      const tiles = depositTiles(is, kind, this.defs);
-      for (const t of tiles) marks.push({ cx: pl.position.x + t.x + 0.5, cz: -(pl.position.y + t.y + 0.5), base: d.reliefAt(t.x, t.y) });
-      // A floating badge over every cluster (UI.md §3 deposit markers).
-      for (const c of depositClusters(tiles)) markers.push({ cx: pl.position.x + c.x + 0.5, cz: -(pl.position.y + c.y + 0.5), base: d.reliefAt(c.x, c.y) });
+      for (const slot of freeDepositSlots(is, kind, this.defs)) {
+        for (const t of slot.tiles) marks.push({ cx: pl.position.x + t.x + 0.5, cz: -(pl.position.y + t.y + 0.5), base: d.reliefAt(t.x, t.y) });
+        // One floating badge per slot, centred between its tiles (UI.md §3 deposit markers).
+        const base = Math.max(...slot.tiles.map((t) => d.reliefAt(t.x, t.y)));
+        markers.push({ cx: pl.position.x + slot.x + 0.5, cz: -(pl.position.y + slot.y + 0.5), base });
+      }
     }
     this.depositHighlight.set(marks);
     this.depositMarkers.set(kind, markers);
@@ -2128,7 +2130,7 @@ export class GameRenderer {
     return !this.reachRing.shown() ? "none" : this.reachRing.gold() ? "gold" : "reach";
   }
 
-  /** How many deposit markers float over the highlighted clusters (tests and shots). */
+  /** How many deposit markers float over the highlighted slots (tests and shots). */
   depositMarkerCount(): number {
     return this.depositMarkers.shown();
   }

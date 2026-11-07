@@ -71,7 +71,7 @@ UI shows the same numbers the server uses.
   label moves into view on the side of its centre; pointer taps resolve **ship → label → land**. A
   label tap is an island tap at every LOD: it opens the **island card**
   (a read-only overview: the population of every tier (with the top bar's population icon) and the island's
-  resources as icon badges, one per line: fertilities, deposits with their tile counts
+  resources as icon badges, one per line: fertilities, deposits with their slot counts (a slot is two adjacent deposit tiles)
   and the free coast; no actions, ships or warnings). Founding is started
   from the ship panel's "Found settlement" or the unsettled-island panel's
   "Found settlement here" when a ship carries the Trading Post cost: the
@@ -374,13 +374,13 @@ UI shows the same numbers the server uses.
   `requires_deposit`) is the build tool, the tiles of its deposit kind are
   tinted in the selection yellow on every island drawn in detail (near
   and mid zoom; drawn over the rock and outcrops so they are never
-  hidden; tiles under a building are left out) with a floating
-  **deposit marker** above every cluster of those tiles (8-connected; the
-  build menu's deposit icon on a parchment badge with an ink rim, status-
-  badge style, facing the camera over the cluster's tile nearest its
-  centre, drawn over the scene), and at far zoom the
-  label of every island with that deposit carries the deposit's icon and
-  tile count. Both go away when the tool closes. Display only (D-027):
+  hidden; a slot with a building on either tile is taken and left out)
+  with one floating **deposit marker** per free slot (a slot is two
+  4-adjacent deposit tiles, MECHANICS §2; the build menu's deposit icon
+  on a parchment badge with an ink rim, status-badge style, facing the
+  camera centred between the slot's two tiles, drawn over the scene),
+  and at far zoom the label of every island with that deposit carries
+  the deposit's icon and slot count. Both go away when the tool closes. Display only (D-027):
   the deposits come from the payload (`display/deposits.ts`).
 
 ## 4. Info panel content

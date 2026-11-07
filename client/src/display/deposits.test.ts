@@ -7,7 +7,7 @@ import type { DisplayState } from "../api/client";
 import { loadContent } from "../almanac/testContent";
 import { WorldOverlay } from "../ui/WorldOverlay";
 import { NO_TOOL } from "../ui/tools";
-import { depositClusters, depositCount, depositTiles, highlightedDeposit } from "./deposits";
+import { depositCount, depositSlots, depositTiles, freeDepositSlots, highlightedDeposit } from "./deposits";
 
 const base = (JSON.parse(readFileSync(join(__dirname, "../../../server/testdata/display/bootstrap_citizens.json"), "utf8")) as { base: DisplayState }).base;
 const content = loadContent("content/old_coast");
@@ -23,19 +23,22 @@ describe("deposit highlight (UI.md §3)", () => {
     expect(highlightedDeposit(NO_TOOL, defs)).toBeNull();
   });
 
-  it("tints the deposit tiles of the kind that no building covers", () => {
+  it("tints the tiles of the kind's free slots: a building on one tile of a slot takes the whole slot", () => {
     const is = island("isle-02");
     expect(depositTiles(is, "clay", defs)).toHaveLength(4);
+    expect(freeDepositSlots(is, "clay", defs)).toHaveLength(2);
     expect(depositTiles(is, "gold", defs)).toEqual([]);
-    const stone = is.deposits.filter((d) => d.kind === "stone");
-    const quarry = defs.get("quarry")!;
-    const covered = { ...is, buildings: [{ ...is.buildings[0]!, type: "quarry", x: stone[0]!.x, y: stone[0]!.y, rotation: 0 as const }] };
-    expect(quarry.width).toBeGreaterThan(0);
-    expect(depositTiles(covered, "stone", defs).some((d) => d.x === stone[0]!.x && d.y === stone[0]!.y)).toBe(false);
+    const [slot] = freeDepositSlots(is, "stone", defs);
+    const tile = slot!.tiles[0]!;
+    const covered = { ...is, buildings: [{ ...is.buildings[0]!, type: "quarry", x: tile.x, y: tile.y, rotation: 0 as const }] };
+    expect(defs.get("quarry")!.width).toBeGreaterThan(0);
+    const left = depositTiles(covered, "stone", defs);
+    expect(slot!.tiles.some((t) => left.some((d) => d.x === t.x && d.y === t.y))).toBe(false);
+    expect(freeDepositSlots(covered, "stone", defs)).toHaveLength(freeDepositSlots(is, "stone", defs).length - 1);
   });
 
-  it("puts the deposit's icon and tile count on the island labels with it, only while the tool is on", () => {
-    expect(depositCount(island("isle-10"), "iron")).toBe(4);
+  it("puts the deposit's icon and slot count on the island labels with it, only while the tool is on", () => {
+    expect(depositCount(island("isle-10"), "iron")).toBe(2);
     expect(depositCount(island("isle-10"), null)).toBe(0);
     const render = (deposit: string | null) =>
       renderToStaticMarkup(createElement(WorldOverlay, { renderer: null, model: base, selectedShip: null, nowMs: 0, onIsland: () => {}, deposit }));
@@ -47,32 +50,34 @@ describe("deposit highlight (UI.md §3)", () => {
   });
 });
 
-describe("depositClusters (deposit markers)", () => {
-  it("groups 8-connected tiles and floats each marker over its tile nearest the cluster's centre", () => {
+describe("depositSlots (deposit markers)", () => {
+  it("groups 4-adjacent tiles of one kind into a slot whose marker point lies between them", () => {
     const tiles = [
-      // A 3×3 block: the centre tile.
-      ...[0, 1, 2].flatMap((y) => [0, 1, 2].map((x) => ({ x: 10 + x, y: 20 + y }))),
-      // A diagonal pair joins into one cluster; the tie goes to the upper row.
-      { x: 30, y: 5 },
-      { x: 31, y: 6 },
-      // A lone tile.
-      { x: 0, y: 40 },
+      { x: 10, y: 20, kind: "stone" },
+      { x: 11, y: 20, kind: "stone" },
+      // A vertical pair.
+      { x: 30, y: 5, kind: "iron" },
+      { x: 30, y: 6, kind: "iron" },
+      // Diagonal neighbours are two slots; so are 4-adjacent tiles of two kinds.
+      { x: 0, y: 40, kind: "clay" },
+      { x: 1, y: 41, kind: "clay" },
+      { x: 2, y: 41, kind: "salt" },
     ];
-    expect(depositClusters(tiles)).toEqual([
-      { x: 30, y: 5, tiles: 2 },
-      { x: 11, y: 21, tiles: 9 },
-      { x: 0, y: 40, tiles: 1 },
+    expect(depositSlots(tiles).map(({ kind, x, y, tiles }) => ({ kind, x, y, n: tiles.length }))).toEqual([
+      { kind: "iron", x: 30, y: 5.5, n: 2 },
+      { kind: "stone", x: 10.5, y: 20, n: 2 },
+      { kind: "clay", x: 0, y: 40, n: 1 },
+      { kind: "clay", x: 1, y: 41, n: 1 },
+      { kind: "salt", x: 2, y: 41, n: 1 },
     ]);
-    expect(depositClusters([])).toEqual([]);
+    expect(depositSlots([])).toEqual([]);
   });
 
-  it("every marker stands on a deposit tile of the reference game", () => {
+  it("every slot of the reference game is a pair of tiles, one marker per slot", () => {
     for (const is of base.islands) {
-      const stone = is.deposits.filter((d) => d.kind === "stone");
-      const keys = new Set(stone.map((d) => `${d.x},${d.y}`));
-      const clusters = depositClusters(stone);
-      expect(clusters.reduce((n, c) => n + c.tiles, 0)).toBe(stone.length);
-      for (const c of clusters) expect(keys.has(`${c.x},${c.y}`)).toBe(true);
+      const slots = depositSlots(is.deposits);
+      expect(slots.reduce((n, s) => n + s.tiles.length, 0)).toBe(is.deposits.length);
+      for (const s of slots) expect(s.tiles).toHaveLength(2);
     }
   });
 });
