@@ -23,7 +23,7 @@ describe("ship panel", () => {
     const html = renderToStaticMarkup(
       createElement(ShipPanel, { ship, model, content, nowMs: 0, onAssign: noop, onOpenRoutes: noop, onUnassign: noop, onSend: noop, onFound: noop, onScrap: noop, onClose: noop } as never),
     );
-    expect(text(html)).toContain("Upkeep 1.0 gold/minSpeed 1.4×Capacity 4 slots of 50\u00a0t each");
+    expect(text(html)).toContain("Maintenance 1.0 gold/minSpeed 1.4×Capacity 4 slots of 50\u00a0t each");
   });
 
   it("is titled with the ship's name, its type below, and renames it in the header like an island (D-055)", () => {

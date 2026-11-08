@@ -148,7 +148,7 @@ describe("tier 4 in the cards (D-056 C4)", () => {
     expect(t.indexOf("HulkOrder")).toBeLessThan(t.indexOf("CarrackOrder"));
     expect(html).toContain('data-testid="shipyard-order-carrack"');
     expect(text(html.match(/data-testid="shipyard-ship-carrack">(.*?)<\/button>/)![0])).toContain("Carrack");
-    expect(t).toContain("6×60\u00a0t cargo·1.0× speed·8.0 gold/min upkeep");
+    expect(t).toContain("6×60\u00a0t cargo·1.0× speed·8.0 gold/min maintenance");
     expect(text(html.match(/data-testid="shipyard-cost-carrack">(.*?)<\/div>/)![1]!)).toBe("6000 gold·120\u00a0tPlanks·40\u00a0tSails·30\u00a0tTools·10:00 min build");
   });
 

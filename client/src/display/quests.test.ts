@@ -155,7 +155,7 @@ describe("insolvency banner", () => {
     const model = fixture("away_summary_12h");
     expect(model.insolvency.unpaid_buildings).toBe(3);
     expect(insolvencyBanner(model)).toBe(
-      "Your city cannot afford its upkeep: −4.3 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
+      "Your city cannot afford its maintenance: −4.3 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
     );
   });
 
@@ -163,7 +163,7 @@ describe("insolvency banner", () => {
     const model = fixture("away_summary_12h");
     const withShip = { ...model, insolvency: { ...model.insolvency, unpaid_ships: 1, balance_if_resumed_per_min: -5_520 } };
     expect(insolvencyBanner(withShip)).toBe(
-      "Your city cannot afford its upkeep: −5.5 gold/min. Paused: 3 buildings, 1 ships. Demolish, resume manually, or grow your tax base.",
+      "Your city cannot afford its maintenance: −5.5 gold/min. Paused: 3 buildings, 1 ships. Demolish, resume manually, or grow your tax base.",
     );
   });
 

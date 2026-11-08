@@ -115,7 +115,7 @@ describe("tier 3 in the cards (D-056)", () => {
     expect(t.indexOf("CogOrder")).toBeLessThan(t.indexOf("HulkOrder"));
     expect(html).toContain('data-testid="shipyard-order-hulk"');
     expect(text(html.match(/data-testid="shipyard-ship-hulk">(.*?)<\/button>/)![0])).toContain("Hulk");
-    expect(t).toContain("4×50\u00a0t cargo·1.0× speed·4.0 gold/min upkeep");
+    expect(t).toContain("4×50\u00a0t cargo·1.0× speed·4.0 gold/min maintenance");
     expect(text(html.match(/data-testid="shipyard-cost-hulk">(.*?)<\/div>/)![1]!)).toBe("1500 gold·60\u00a0tPlanks·20\u00a0tSails·10\u00a0tTools·5:00 min build");
   });
 

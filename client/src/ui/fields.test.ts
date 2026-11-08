@@ -152,7 +152,7 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(text(html)).toContain("4 / 4 placed");
     // The cycle, efficiency, workers and transfer rows sit in a collapsed Details section.
     expect(html).toMatch(/<details[^>]*data-testid="info-details"(?![^>]*\bopen\b)/);
-    expect(text(html)).toContain("Upkeep");
+    expect(text(html)).toContain("Maintenance");
     expect(html).toContain('data-testid="info-upkeep"');
     // No field list and no warning while every field is connected.
     expect(html).not.toContain('data-testid="farm-field-list"');
@@ -205,8 +205,8 @@ describe("fields in the HUD (D-051 part 4)", () => {
     const html = panel(tavern, island, model);
     expect(html).toMatch(/<details[^>]*data-testid="info-details"(?![^>]*\bopen\b)/);
     expect(text(html)).toContain("Radius14 tiles");
-    expect(text(html)).toContain("Upkeep6.0 gold/min");
-    expect(text(panel({ ...tavern, paused: true }, island, model))).toContain("Upkeep0.0 gold/min");
+    expect(text(html)).toContain("Maintenance6.0 gold/min");
+    expect(text(panel({ ...tavern, paused: true }, island, model))).toContain("Maintenance0.0 gold/min");
   });
 
   it("shows a levelled market's level, radius and next level with its tier lock, with Upgrade in the footer (D-056)", () => {

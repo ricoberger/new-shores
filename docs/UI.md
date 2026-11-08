@@ -752,6 +752,11 @@ translation. Two sources, one switch:
   may keep a British word (`build.group.harbour`, `jewellery`; IDs are
   never renamed) and island names stay as they are.
   `i18n/spelling.test.ts` fails on the British spellings it knows.
+- **Maintenance (D-075):** the running cost of buildings and ships reads
+  "Maintenance" (DE "Betriebskosten") wherever a player sees it — cards,
+  ship panel, shipyard list, almanac level table, insolvency banner,
+  away summary; the build menu shows the rate alone (`2.0 gold/min`).
+  Keys, code, API fields and the docs keep `upkeep`.
 - **Adding text:** add the key to `en.ts` and `de.ts` in the same change
   (the German one is required to compile) and use `t()`. The ESLint rule
   `i18n/no-hardcoded-strings` fails on JSX text, prose string literals
