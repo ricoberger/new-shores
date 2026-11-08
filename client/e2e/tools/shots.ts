@@ -46,7 +46,7 @@ const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<R
   settled: { island: "isle-01", town: { mid: 36, shipyard: true } },
   town: { island: "isle-01", town: { mid: 32 } },
   default: { island: "isle-01" }, // the home island founded, nothing built
-  seafaring: { island: "isle-01" }, // a new world: the start sloop at sea, nothing settled
+  seafaring: { island: "isle-01" }, // a new world: the start cog at sea, nothing settled
   citizens: { island: "isle-01", town: { mid: 32 } }, // town plus a bare wheat farm
   merchants: { island: "isle-01", town: { mid: 32 } }, // citizens plus the tier-3 street end and a clay island
   // town plus the full services ladder (university, cathedral), a Patrician house, the roast-beef chain and a quartz island (D-056 C4).
@@ -451,16 +451,16 @@ function labelsSideBySide(w: WorldResponse): void {
   b.name = "Southern Ropewalk Island";
 }
 
-/** The home island's Trading Post at level 4 with four ships at its berths and one in its queue (copies of the start sloop). */
+/** The home island's Trading Post at level 4 with four ships at its berths and one in its queue (copies of the start cog). */
 function fourAtThePier(w: WorldResponse): void {
   const d = w.display;
   const home = d.islands.find((i) => i.buildings.some((b) => b.type === "trading_post"));
   const tp = home?.buildings.find((b) => b.type === "trading_post");
-  const sloop = d.ships[0];
-  if (!home || !tp || !sloop) throw new Error("fourAtThePier: no Trading Post or ship");
+  const cog = d.ships[0];
+  if (!home || !tp || !cog) throw new Error("fourAtThePier: no Trading Post or ship");
   const ids = [901, 902, 903, 904, 905];
   for (const id of ids) {
-    d.ships.push({ ...sloop, id, state: id === 905 ? "waiting_for_berth" : "idle", island_id: home.id, position: null, leg: null, route_id: 0, cargo: [], paused: false });
+    d.ships.push({ ...cog, id, state: id === 905 ? "waiting_for_berth" : "idle", island_id: home.id, position: null, leg: null, route_id: 0, cargo: [], paused: false });
   }
   tp.level = 4;
   tp.berths = { total: 4, busy: 4, ships: ids.slice(0, 4), queue: [905] };
@@ -497,13 +497,13 @@ function awayOvernight(w: WorldResponse): void {
   };
 }
 
-/** The home island's shipyard halfway through a sloop. */
-function sloopOnTheSlip(w: WorldResponse): void {
+/** The home island's shipyard halfway through a cog. */
+function cogOnTheSlip(w: WorldResponse): void {
   const yard = w.display.islands.flatMap((i) => i.buildings).find((b) => b.type === "shipyard");
-  if (!yard) throw new Error("sloopOnTheSlip: no shipyard");
+  if (!yard) throw new Error("cogOnTheSlip: no shipyard");
   // Around the payload's evaluation time (the client's clock follows the server's).
   const now = Date.parse(w.display.evaluated_at);
-  yard.ship_order = { type: "sloop", ordered_at: new Date(now - 60_000).toISOString(), due_at: new Date(now + 60_000).toISOString() };
+  yard.ship_order = { type: "cog", ordered_at: new Date(now - 60_000).toISOString(), due_at: new Date(now + 60_000).toISOString() };
 }
 
 /** The first farm of a type (default the home sheep farm) and its fields (island-local tiles) and the island's position. */
@@ -633,7 +633,7 @@ async function selectBuilding(page: Page, type: string, offset: { x: number; y: 
  * rows next to the Trading Post, whatever the coast looks like). The camera
  * looks at the middle between the pier and the depot. Every ship leaves its route
  * and sails home: idle ships lie at the island's berths, the Trading
- * Post's four first, so the fifth (the galleon) lies at the pier. The page
+ * Post's four first, so the fifth (the carrack) lies at the pier. The page
  * is reloaded afterwards (see below).
  */
 const HARBOUR_ISLAND = "isle-01";
@@ -1513,11 +1513,11 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await selectBuilding(page, "shipyard", { x: 1, y: 1 }, HALF.near);
     },
   },
-  // The shipyard (D-054 size, settled) halfway through a sloop on its slipway, its card open.
+  // The shipyard (D-054 size, settled) halfway through a cog on its slipway, its card open.
   "shipyard-building": {
     fixture: "settled",
     device: "desktop",
-    patch: sloopOnTheSlip,
+    patch: cogOnTheSlip,
     run: (page) => selectBuilding(page, "shipyard", { x: 4, y: 4 }, 12),
   },
   "served-houses": {
@@ -1822,7 +1822,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       });
     },
   },
-  // The played world's harbour (D-060): quay with a fisher on it, trading pier with the galleon, depot (desktop and phone, near).
+  // The played world's harbour (D-060): quay with a fisher on it, trading pier with the carrack, depot (desktop and phone, near).
   harbour: { fixture: "patricians", device: ["desktop", "phone"], run: harbour },
   // The build menu open (phone portrait).
   // The build menu, desktop and phone: the current tier's tab (played fixture, all tiers unlocked), then on the settled fixture (tier I) the first tab and a locked tier opened to look ahead.
@@ -2001,7 +2001,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   "river-bridge-mid": riverBridgeShot(36, "desktop"),
   // The island card, opened from an island label at far LOD (desktop).
   // A new world as it opens (D-053): the far zoom over the whole
-  // archipelago, the sloop at its centre and the first quest's hint.
+  // archipelago, the cog at its centre and the first quest's hint.
   "archipelago-far": {
     fixture: "seafaring",
     device: "desktop",
@@ -2071,8 +2071,8 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.locator('[data-testid="hud-materials-more"][aria-expanded="true"]').waitFor({ state: "visible" });
     },
   },
-  // A sloop on a leg (desktop), camera centred on ship 2.
-  sloop: {
+  // A cog on a leg (desktop), camera centred on ship 2.
+  cog: {
     fixture: "played",
     device: "desktop",
     run: async (page) => {

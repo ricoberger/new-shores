@@ -119,7 +119,7 @@ to the first island and every island-addressing step takes an optional
 and routes by their sequential IDs:
 
 ```json
-{ "order_ship": { "x": 6, "y": 1, "ship_type": "sloop" } },
+{ "order_ship": { "x": 6, "y": 1, "ship_type": "cog" } },
 { "cancel_ship_order": { "x": 6, "y": 1 } },
 { "manual_shipment": { "ship": 1, "to": "island2", "cargo": { "planks": 50 } } },
 { "found_island": { "ship": 1, "island": "island2", "x": 1, "y": 1, "rotation": 0 } },

@@ -178,7 +178,7 @@ func (w *World) Ship(id int64) *Ship {
 }
 
 // DefaultShipName is a ship's name until it is renamed: its content type's
-// name and its ID ("Sloop 2"; the type ID for a type the catalogue lacks).
+// name and its ID ("Cog 2"; the type ID for a type the catalogue lacks).
 func DefaultShipName(c *content.Catalogue, typ string, id int64) string {
 	name := typ
 	if def := c.ShipByID[typ]; def != nil && def.Name != "" {
@@ -1075,7 +1075,7 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 // LaunchShipAtSea adds an idle ship of the given type at a sea position
 // (archipelago tiles) with the given cargo (milli-units per good) and
 // returns it. The founding cargo is exempt from the slot limit (D-056 §9:
-// the 2-slot start sloop carries the whole start stock); slots limit only
+// the 2-slot start cog carries the whole start stock); slots limit only
 // what a player loads. Like PlaceFree it is meant for world creation (the
 // start ship of a new world, D-051), never for player commands.
 func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo map[string]Qty) (*Ship, error) {

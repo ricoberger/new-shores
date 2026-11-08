@@ -27,11 +27,11 @@ func newShipServer(t *testing.T) *shipServer {
 	t.Helper()
 	c := catalogue(t)
 	w := foundedWorld(t, testStart)
-	// The ship flows start from a sloop the shipyard builds (ship 1): the
-	// start sloop of the founded world is left out of this world.
+	// The ship flows start from a cog the shipyard builds (ship 1): the
+	// start cog of the founded world is left out of this world.
 	w.Ships, w.NextShipID = nil, 0
 	// Extra planks (formerly the dev bonus) so that a cargo larger than the
-	// sloop's slots is in stock and fails for the slots, not the stock.
+	// cog's slots is in stock and fails for the slots, not the stock.
 	if err := sim.AddStock(w, c, "start", "planks", 160_000, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -163,9 +163,9 @@ func TestShipCommandsOverHTTP(t *testing.T) {
 
 	ss.fails(t, `{"type":"cancel_ship_order","island_id":"start","building_id":1}`, http.StatusConflict, "not_a_shipyard")
 	ss.fails(t, `{"type":"cancel_ship_order","island_id":"start","building_id":2}`, http.StatusConflict, "no_ship_order")
-	ss.fails(t, `{"type":"order_ship","island_id":"start","building_id":2,"ship_type":"galleon"}`, http.StatusConflict, "unknown_ship_type")
-	ss.ok(t, `{"type":"order_ship","island_id":"start","building_id":2,"ship_type":"sloop"}`)
-	ss.fails(t, `{"type":"order_ship","island_id":"start","building_id":2,"ship_type":"sloop"}`, http.StatusConflict, "shipyard_busy")
+	ss.fails(t, `{"type":"order_ship","island_id":"start","building_id":2,"ship_type":"carrack"}`, http.StatusConflict, "unknown_ship_type")
+	ss.ok(t, `{"type":"order_ship","island_id":"start","building_id":2,"ship_type":"cog"}`)
+	ss.fails(t, `{"type":"order_ship","island_id":"start","building_id":2,"ship_type":"cog"}`, http.StatusConflict, "shipyard_busy")
 	if v := ss.view(t); *v.NextChangeAt != "2026-10-19T12:02:00.000Z" || !strings.Contains(string(v.Islands[0].Buildings[1].ShipOrder), `"due_at":"2026-10-19T12:02:00.000Z"`) {
 		t.Fatalf("order display: %v %s", *v.NextChangeAt, v.Islands[0].Buildings[1].ShipOrder)
 	}

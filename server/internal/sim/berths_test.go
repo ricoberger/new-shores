@@ -15,11 +15,11 @@ func berthWorld(t *testing.T) (*World, *Ship, *Ship) {
 	t.Helper()
 	c := catalogue(t)
 	w := shipWorld(t, c)
-	s1, err := LaunchShipAtSea(w, c, "sloop", Pos{X: -9, Y: -1}, map[string]Qty{"planks": 20_000})
+	s1, err := LaunchShipAtSea(w, c, "cog", Pos{X: -9, Y: -1}, map[string]Qty{"planks": 20_000})
 	if err != nil {
 		t.Fatal(err)
 	}
-	s2, err := LaunchShipAtSea(w, c, "sloop", Pos{X: -10, Y: -1}, map[string]Qty{"planks": 50_000})
+	s2, err := LaunchShipAtSea(w, c, "cog", Pos{X: -10, Y: -1}, map[string]Qty{"planks": 50_000})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +115,7 @@ func TestBerthFIFOAndUpgrade(t *testing.T) {
 	w := shipWorld(t, c)
 	var ships []*Ship
 	for range 3 {
-		s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: -7, Y: -1}, map[string]Qty{"planks": 10_000})
+		s, err := LaunchShipAtSea(w, c, "cog", Pos{X: -7, Y: -1}, map[string]Qty{"planks": 10_000})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -165,7 +165,7 @@ func TestBerthRules(t *testing.T) {
 	})
 	t.Run("no pier at an unsettled island", func(t *testing.T) {
 		w := shipWorld(t, c)
-		s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: 6, Y: 18}, map[string]Qty{"planks": 30_000})
+		s, err := LaunchShipAtSea(w, c, "cog", Pos{X: 6, Y: 18}, map[string]Qty{"planks": 30_000})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -184,13 +184,13 @@ func TestBerthRules(t *testing.T) {
 func TestStartAtSeaFounding(t *testing.T) {
 	c := catalogue(t)
 	w := shipWorld(t, c)
-	s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
+	s, err := LaunchShipAtSea(w, c, "cog", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// The founding cargo is exempt from the slot limit (D-056).
-	if big, err := LaunchShipAtSea(w, c, "sloop", Pos{}, map[string]Qty{"planks": 250_000}); err != nil || len(big.Cargo) != 5 {
-		t.Errorf("five slots of founding cargo on a 4-slot sloop: %v", err)
+	if big, err := LaunchShipAtSea(w, c, "cog", Pos{}, map[string]Qty{"planks": 250_000}); err != nil || len(big.Cargo) != 5 {
+		t.Errorf("five slots of founding cargo on a 4-slot cog: %v", err)
 	}
 	w.Ships, w.NextShipID = w.Ships[:1], 2
 	expectErr(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0}, ErrShipNotIdle)
@@ -234,7 +234,7 @@ func TestStartAtSeaFounding(t *testing.T) {
 func TestIdleShipOffshorePosition(t *testing.T) {
 	c := catalogue(t)
 	w := shipWorld(t, c)
-	s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
+	s, err := LaunchShipAtSea(w, c, "cog", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -272,7 +272,7 @@ func TestIdleShipOffshorePosition(t *testing.T) {
 func TestFoundingVoyagePosition(t *testing.T) {
 	c := catalogue(t)
 	w := shipWorld(t, c)
-	s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
+	s, err := LaunchShipAtSea(w, c, "cog", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -291,7 +291,7 @@ func TestFoundingVoyagePosition(t *testing.T) {
 func TestDemolishLastBerthSourceMoorsShips(t *testing.T) {
 	c := catalogue(t)
 	w := shipWorld(t, c)
-	s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
+	s, err := LaunchShipAtSea(w, c, "cog", Pos{X: 6, Y: 20}, map[string]Qty{"planks": 150_000, "sails": 10_000})
 	if err != nil {
 		t.Fatal(err)
 	}

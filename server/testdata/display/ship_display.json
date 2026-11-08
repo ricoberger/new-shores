@@ -359,7 +359,7 @@
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "ship_order": {
-              "type": "sloop",
+              "type": "cog",
               "ordered_at": "2026-01-01T00:02:00.000Z",
               "due_at": "2026-01-01T00:04:00.000Z"
             }
@@ -541,8 +541,8 @@
     "ships": [
       {
         "id": 1,
-        "type": "sloop",
-        "name": "Sloop 1",
+        "type": "cog",
+        "name": "Cog 1",
         "state": "manual_leg",
         "island_id": "",
         "route_id": 0,
@@ -999,7 +999,7 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "ship_order": {
-                  "type": "sloop",
+                  "type": "cog",
                   "ordered_at": "2026-01-01T00:02:00.000Z",
                   "due_at": "2026-01-01T00:04:00.000Z"
                 }
@@ -1181,8 +1181,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "manual_leg",
             "island_id": "",
             "route_id": 0,
@@ -1639,7 +1639,7 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "ship_order": {
-                  "type": "sloop",
+                  "type": "cog",
                   "ordered_at": "2026-01-01T00:02:00.000Z",
                   "due_at": "2026-01-01T00:04:00.000Z"
                 }
@@ -1821,8 +1821,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "manual_leg",
             "island_id": "",
             "route_id": 0,
@@ -2279,7 +2279,7 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "ship_order": {
-                  "type": "sloop",
+                  "type": "cog",
                   "ordered_at": "2026-01-01T00:02:00.000Z",
                   "due_at": "2026-01-01T00:04:00.000Z"
                 }
@@ -2461,8 +2461,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "manual_leg",
             "island_id": "",
             "route_id": 0,
@@ -2919,7 +2919,7 @@
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
                 "ship_order": {
-                  "type": "sloop",
+                  "type": "cog",
                   "ordered_at": "2026-01-01T00:02:00.000Z",
                   "due_at": "2026-01-01T00:04:00.000Z"
                 }
@@ -3101,8 +3101,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "manual_leg",
             "island_id": "",
             "route_id": 0,

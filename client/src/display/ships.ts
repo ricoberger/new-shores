@@ -210,10 +210,10 @@ const BERTH_FAN = (28 * Math.PI) / 180 / 1.5;
 const QUEUE_PER_ROW = 5;
 const QUEUE_SPACING = 2.5;
 const QUEUE_GAP = 1;
-/** Hull length (tiles, content ships.json `length_tiles`) of the reference ship, the sloop: the ship drawn at the layers' scale and laid on the berth anchors as they are. */
+/** Hull length (tiles, content ships.json `length_tiles`) of the reference ship, the cog: the ship drawn at the layers' scale and laid on the berth anchors as they are. */
 export const REFERENCE_SHIP_LENGTH_MILLI = 2_000;
 
-/** A ship type's length relative to the reference ship (1 for the sloop or without content length). */
+/** A ship type's length relative to the reference ship (1 for the cog or without content length). */
 export function shipLengthRatio(ship: { length_milli_tiles?: number } | undefined): number {
   const l = ship?.length_milli_tiles ?? 0;
   return l > 0 ? l / REFERENCE_SHIP_LENGTH_MILLI : 1;
@@ -229,7 +229,7 @@ export function shipLengthRatio(ship: { length_milli_tiles?: number } | undefine
  * offset from the pier's centre, its stern `stern × ratio` tiles behind its
  * origin. The berths are spaced by ship length: slot i takes the side of
  * berth anchor i + 1 (the middle pair first, then outwards), and each ship
- * takes a width of `anchor spacing × ratio` along the pier, so sloops lie
+ * takes a width of `anchor spacing × ratio` along the pier, so cogs lie
  * exactly on the anchors and longer ships push their neighbours outwards
  * instead of overlapping them. A queued ship waits bow out beyond the
  * longest moored bow: QUEUE_PER_ROW along a row (centre first), further rows

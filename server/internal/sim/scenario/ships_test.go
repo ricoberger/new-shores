@@ -20,7 +20,7 @@ func islandDisplay(t *testing.T, ds sim.DisplayState, id string) sim.IslandDispl
 	return sim.IslandDisplay{}
 }
 
-// TestShipBuilt checks scenario (n): the sloop appears idle at the start
+// TestShipBuilt checks scenario (n): the cog appears idle at the start
 // island exactly at the order's due time, not a millisecond earlier.
 func TestShipBuilt(t *testing.T) {
 	rep := runScenario(t, "ship_built")
@@ -32,7 +32,7 @@ func TestShipBuilt(t *testing.T) {
 		t.Errorf("at due time: %+v", at)
 	}
 	// Upkeep of the ship counts from the build.
-	if before.BalanceRatePerMin-at.BalanceRatePerMin != loadCatalogue(t).ShipByID["sloop"].UpkeepPerMin {
+	if before.BalanceRatePerMin-at.BalanceRatePerMin != loadCatalogue(t).ShipByID["cog"].UpkeepPerMin {
 		t.Errorf("balance %d -> %d", before.BalanceRatePerMin, at.BalanceRatePerMin)
 	}
 	if g := rep.Totals["start"]["sails"]; g.Spent != 10_000 {
@@ -162,7 +162,7 @@ func TestShipInsolvencyScenario(t *testing.T) {
 			pauses = append(pauses, e.Type)
 		}
 	}
-	if want := "weaver_wool,lumberjack,sheep_farm,sawmill,sloop,fisher"; strings.Join(pauses, ",") != want {
+	if want := "weaver_wool,lumberjack,sheep_farm,sawmill,cog,fisher"; strings.Join(pauses, ",") != want {
 		t.Fatalf("pauses %v, want %s", pauses, want)
 	}
 	var paused *ShipSnapshot

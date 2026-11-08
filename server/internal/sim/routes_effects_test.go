@@ -93,7 +93,7 @@ func TestRouteEffectsFormula(t *testing.T) {
 
 // TestRouteEffectsDisplay: fish up to 50 from island b, unloaded at a.
 // per_min is 0 without ships, per_loop × ships × 60 000 / loop_ms with one
-// and two sloops; the hold falls back to the catalogue's smallest ship.
+// and two cogs; the hold falls back to the catalogue's smallest ship.
 func TestRouteEffectsDisplay(t *testing.T) {
 	c := catalogue(t)
 	w, s := routeWorld(t, c)
@@ -117,10 +117,10 @@ func TestRouteEffectsDisplay(t *testing.T) {
 	loopMs := display(t, w, c).Routes[0].LoopMs
 	check("no ship", 0)
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
-	check("one sloop", 50_000*60_000/loopMs)
-	s2 := builtSloop(t, w, c)
+	check("one cog", 50_000*60_000/loopMs)
+	s2 := builtCog(t, w, c)
 	mustApply(t, w, c, AssignShip{ShipID: s2.ID, RouteID: 1})
-	check("two sloops", 2*50_000*60_000/loopMs)
+	check("two cogs", 2*50_000*60_000/loopMs)
 	if got := routePerMin(-50_000, 1, 70_000); got != -42_857 {
 		t.Errorf("routePerMin truncation = %d, want -42857", got)
 	}

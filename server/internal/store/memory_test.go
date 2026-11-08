@@ -118,7 +118,7 @@ func TestMemoryDeliversClampedTime(t *testing.T) {
 func dueWorld(start, due time.Time) *sim.World {
 	w := sim.NewWorld(start)
 	is := sim.NewIsland("a", 1, 1, []sim.Tile{{Terrain: "coast"}})
-	is.Buildings = []*sim.Building{{ID: 1, Type: "shipyard", Order: &sim.ShipOrder{Type: "sloop", OrderedAtMs: start.UnixMilli(), DueAtMs: due.UnixMilli()}}}
+	is.Buildings = []*sim.Building{{ID: 1, Type: "shipyard", Order: &sim.ShipOrder{Type: "cog", OrderedAtMs: start.UnixMilli(), DueAtMs: due.UnixMilli()}}}
 	w.Islands = []*sim.Island{is}
 	return w
 }
@@ -151,7 +151,7 @@ func TestMemoryDueEvents(t *testing.T) {
 	// A second order: one more pending event, the first one not duplicated.
 	_, _ = m.Update(ctx, "w", func(w *sim.World, _ int64, _ time.Time) (bool, error) {
 		w.Islands[0].Buildings = append(w.Islands[0].Buildings, &sim.Building{ID: 2, Type: "shipyard",
-			Order: &sim.ShipOrder{Type: "sloop", DueAtMs: due.Add(time.Minute).UnixMilli()}})
+			Order: &sim.ShipOrder{Type: "cog", DueAtMs: due.Add(time.Minute).UnixMilli()}})
 		return true, nil
 	})
 	select {

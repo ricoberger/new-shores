@@ -91,7 +91,7 @@ func TestDevReset(t *testing.T) {
 	}
 	ts.clock.Add(time.Minute)
 	if len(ts.mem.Pending()) == 0 {
-		t.Fatal("the settled fixture has no pending event (its sloop sails a route)")
+		t.Fatal("the settled fixture has no pending event (its cog sails a route)")
 	}
 	before := ts.getWorld().Version
 
@@ -116,7 +116,7 @@ func TestDevReset(t *testing.T) {
 		t.Errorf("pending events after reset: %+v", p)
 	}
 	d := decodeDisplay(t, w.Display)
-	// The default fixture: the start sloop idle at the founded start island.
+	// The default fixture: the start cog idle at the founded start island.
 	if ships := d["ships"].([]any); d["away_summary"] != nil || len(ships) != 1 || ships[0].(map[string]any)["island_id"] != archipelago.IslandID(0) {
 		t.Errorf("summary %v ships %v after reset", d["away_summary"], d["ships"])
 	}

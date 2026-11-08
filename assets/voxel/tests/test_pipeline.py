@@ -61,8 +61,8 @@ class BudgetTest(unittest.TestCase):
             self.assertEqual(model.budget_of(cid, content_mod.kind_of(CONTENT, cid), CONTENT), config.BUDGET_PER_TILE[cls] * w * h)
         w, h = content_mod.footprint(CONTENT, "chapel")
         self.assertEqual(model.lite_budget_of("chapel", CONTENT), config.LITE_BUDGET_PER_TILE["building"] * w * h)
-        self.assertEqual(model.budget_of("brig", "ship", CONTENT), config.BUDGET_SHIPS["brig"])
-        self.assertEqual(model.budget_of("brig", "ship", CONTENT, ("attachment", "cargo")), config.BUDGET_SHIP_CARGO)
+        self.assertEqual(model.budget_of("hulk", "ship", CONTENT), config.BUDGET_SHIPS["hulk"])
+        self.assertEqual(model.budget_of("hulk", "ship", CONTENT, ("attachment", "cargo")), config.BUDGET_SHIP_CARGO)
         self.assertEqual(model.budget_of("decor_tree_a", "decor", CONTENT), config.BUDGET_DECOR)
         self.assertEqual(model.budget_of("life_stage", "life", CONTENT), config.BUDGET_LIFE_STAGE)
         self.assertEqual(model.budget_of("life_stage_4", "life", CONTENT), config.BUDGET_LIFE_STAGE)
@@ -97,7 +97,7 @@ class DeterminismTest(unittest.TestCase):
     def test_two_parallel_builds_write_the_same_bytes(self):
         recipes = model.recipe_modules()
         chosen = [t for t in build.targets(CONTENT, recipes) if t[0] in (
-            "house_settlers", "fisher", "trading_post", "brig", "wheat_field", "playhouse", "grain_distillery", "decor_tree_a", "life_stage",
+            "house_settlers", "fisher", "trading_post", "hulk", "wheat_field", "playhouse", "grain_distillery", "decor_tree_a", "life_stage",
         )]
         self.assertEqual(len(chosen), 9)
         a, _, pa = build.build_outputs(4, chosen)
@@ -108,7 +108,7 @@ class DeterminismTest(unittest.TestCase):
             self.assertEqual(a[name], b[name], name)
         # Thumbnails for buildings, fields and ships only.
         self.assertIn("thumbs/fisher.png", a)
-        self.assertIn("thumbs/brig.png", a)
+        self.assertIn("thumbs/hulk.png", a)
         self.assertNotIn("thumbs/decor_tree_a.png", a)
 
 
@@ -250,13 +250,13 @@ class ShipLiteTest(unittest.TestCase):
 
     def test_the_wake_width_is_the_stern_beam_or_declared(self):
         recipes = model.recipe_modules()
-        for cid, half in (("sloop", 8), ("brig", 10), ("galleon", 12)):
+        for cid, half in (("cog", 8), ("hulk", 10), ("carrack", 12)):
             _, entry, _ = model.build_id(cid, "ship", recipes[cid], CONTENT)
             # The stern transom is one voxel narrower than the half-beam to each side (_ships.half_beam).
             self.assertAlmostEqual(entry["ship"]["wake_width"], 2 * (half - 1) / recipes[cid]["scale"], places=6)
             self.assertLess(entry["ship"]["wake_width"], 2 * entry["bounds"]["max"][2] + 1e-6)
-        declared = dict(recipes["sloop"], ship=dict(recipes["sloop"]["ship"], wake_width=0.5))
-        _, entry, _ = model.build_id("sloop", "ship", declared, CONTENT)
+        declared = dict(recipes["cog"], ship=dict(recipes["cog"]["ship"], wake_width=0.5))
+        _, entry, _ = model.build_id("cog", "ship", declared, CONTENT)
         self.assertEqual(entry["ship"]["wake_width"], 0.5)
 
     def test_a_lite_ship_over_its_budget_fails_the_build(self):
@@ -271,7 +271,7 @@ class ShipLiteTest(unittest.TestCase):
                             v.set(x, y, z, grid.mat("timber"))
             return v
 
-        _, _, problems = model.build_id("sloop", "ship", dict(recipes["sloop"], lite=dense), CONTENT)
+        _, _, problems = model.build_id("cog", "ship", dict(recipes["cog"], lite=dense), CONTENT)
         self.assertTrue(any(".lite.glb" in p and "over the lite budget" in p for p in problems), problems)
 
 
@@ -286,7 +286,7 @@ class SheetTurnTest(unittest.TestCase):
             out = {}
             for turn in (0, 2, 4):
                 path = os.path.join(d, f"t{turn}.png")
-                build.write_sheet(path, ["well"] if "well" in build._RECIPES else ["sloop"], cell=48, turn=turn)
+                build.write_sheet(path, ["well"] if "well" in build._RECIPES else ["cog"], cell=48, turn=turn)
                 with open(path, "rb") as f:
                     out[turn] = f.read()
             self.assertNotEqual(out[0], out[2])
@@ -319,7 +319,7 @@ class PlaceholderTest(unittest.TestCase):
                     self.assertTrue(any(name.endswith(".lite.glb") for name, *_ in files))
 
     def test_ships_have_no_placeholder(self):
-        recipe, placeholder = build.recipe_for("brig", "ship", {})
+        recipe, placeholder = build.recipe_for("hulk", "ship", {})
         self.assertIsNone(recipe)
         self.assertTrue(placeholder)
 

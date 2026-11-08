@@ -10,6 +10,7 @@
     "cost": { "gold": 0, "planks": 10 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "civic",
     "house": { "tier": "settlers" }
   },
   {
@@ -23,6 +24,7 @@
     "cost": { "gold": 0 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "rural",
     "road": { "seconds_per_tile": 1.0 }
   },
   {
@@ -37,6 +39,7 @@
     "cost": { "gold": 200, "planks": 15 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "harbour",
     "trading_post": {
       "levels": [
         { "capacity": 300, "throughput_per_min": 30, "berths": 1 },
@@ -72,6 +75,7 @@
     "cost": { "gold": 100, "planks": 10 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "harbour",
     "warehouse": {
       "levels": [
         { "throughput_per_min": 30 },
@@ -97,6 +101,7 @@
     "cost": { "gold": 225, "planks": 15 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "civic",
     "service": { "radius": 12 }
   },
   {
@@ -110,6 +115,7 @@
     "cost": { "gold": 275, "planks": 15 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "civic",
     "service": { "radius": 16 }
   },
   {
@@ -123,6 +129,7 @@
     "cost": { "gold": 50, "planks": 5 },
     "upkeep_per_min": 1,
     "pause_category": "intermediate",
+    "look": "rural",
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -142,6 +149,7 @@
     "cost": { "gold": 1 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "rural",
     "field": { "type": "tree_plot", "farm": "lumberjack", "terrain": ["grass", "forest"] }
   },
   {
@@ -155,6 +163,7 @@
     "cost": { "gold": 80, "planks": 8 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "look": "workshop",
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [{ "good": "wood", "amount": 1 }],
@@ -174,6 +183,7 @@
     "cost": { "gold": 60, "planks": 6 },
     "upkeep_per_min": 1,
     "pause_category": "food_basic",
+    "look": "rural",
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -192,6 +202,7 @@
     "cost": { "gold": 50, "planks": 10 },
     "upkeep_per_min": 1,
     "pause_category": "intermediate",
+    "look": "rural",
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -211,6 +222,7 @@
     "cost": { "gold": 15 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "rural",
     "field": { "type": "pasture", "farm": "sheep_farm", "terrain": ["grass"] }
   },
   {
@@ -224,6 +236,7 @@
     "cost": { "gold": 70, "planks": 10 },
     "upkeep_per_min": 1,
     "pause_category": "need_goods",
+    "look": "workshop",
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "wool", "amount": 1 }],
@@ -243,7 +256,8 @@
     "cost": { "gold": 225, "planks": 25 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "shipyard": { "ships": ["sloop"] }
+    "look": "harbour",
+    "shipyard": { "ships": ["cog"] }
   },
   {
     "id": "house_citizens",
@@ -256,6 +270,7 @@
     "cost": { "gold": 150, "planks": 15, "stone": 10 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "civic",
     "house": { "tier": "citizens" }
   },
   {
@@ -269,6 +284,7 @@
     "cost": { "gold": 5, "stone": 1 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "rural",
     "road": { "seconds_per_tile": 0.6 }
   },
   {
@@ -282,6 +298,7 @@
     "cost": { "gold": 600, "planks": 30, "stone": 20 },
     "upkeep_per_min": 6,
     "pause_category": "public",
+    "look": "civic",
     "service": { "radius": 14 }
   },
   {
@@ -295,6 +312,7 @@
     "cost": { "gold": 200, "planks": 15, "stone": 5 },
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
+    "look": "rural",
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [],
@@ -315,6 +333,7 @@
     "cost": { "gold": 5 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "rural",
     "field": { "type": "wheat_field", "farm": "wheat_farm", "terrain": ["grass"], "fertility": "wheat" }
   },
   {
@@ -328,6 +347,7 @@
     "cost": { "gold": 250, "planks": 20, "stone": 10 },
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
+    "look": "workshop",
     "workforce": { "tier": "citizens", "amount": 4 },
     "recipe": {
       "inputs": [{ "good": "wheat", "amount": 1 }],
@@ -346,6 +366,7 @@
     "cost": { "gold": 300, "planks": 15, "stone": 15 },
     "upkeep_per_min": 4,
     "pause_category": "need_goods",
+    "look": "workshop",
     "workforce": { "tier": "citizens", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "flour", "amount": 1 }],
@@ -364,6 +385,7 @@
     "cost": { "gold": 200, "planks": 15, "stone": 5 },
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
+    "look": "rural",
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [],
@@ -384,6 +406,7 @@
     "cost": { "gold": 5 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "rural",
     "field": { "type": "orchard_plot", "farm": "orchard", "terrain": ["grass"], "fertility": "apple" }
   },
   {
@@ -397,6 +420,7 @@
     "cost": { "gold": 300, "planks": 15, "stone": 10 },
     "upkeep_per_min": 4,
     "pause_category": "need_goods",
+    "look": "workshop",
     "workforce": { "tier": "citizens", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "apples", "amount": 1 }],
@@ -415,6 +439,7 @@
     "cost": { "gold": 200, "planks": 15, "stone": 5 },
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
+    "look": "rural",
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [],
@@ -435,6 +460,7 @@
     "cost": { "gold": 5 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "rural",
     "field": { "type": "hemp_field", "farm": "hemp_farm", "terrain": ["grass"], "fertility": "hemp" }
   },
   {
@@ -448,6 +474,7 @@
     "cost": { "gold": 300, "planks": 15, "stone": 10 },
     "upkeep_per_min": 4,
     "pause_category": "need_goods",
+    "look": "workshop",
     "workforce": { "tier": "citizens", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "hemp", "amount": 1 }],
@@ -466,6 +493,7 @@
     "cost": { "gold": 300, "planks": 20, "stone": 5 },
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
+    "look": "workshop",
     "workforce": { "tier": "citizens", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "hemp", "amount": 1 }],
@@ -484,6 +512,7 @@
     "cost": { "gold": 100, "planks": 20 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "look": "rural",
     "requires_deposit": "stone",
     "workforce": { "tier": "settlers", "amount": 8 },
     "recipe": {
@@ -503,6 +532,7 @@
     "cost": { "gold": 200, "planks": 25, "stone": 10 },
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
+    "look": "rural",
     "requires_deposit": "iron",
     "workforce": { "tier": "settlers", "amount": 10 },
     "recipe": {
@@ -522,6 +552,7 @@
     "cost": { "gold": 150, "planks": 10 },
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
+    "look": "rural",
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [{ "good": "wood", "amount": 1 }],
@@ -540,6 +571,7 @@
     "cost": { "gold": 200, "planks": 20, "stone": 20 },
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
+    "look": "workshop",
     "workforce": { "tier": "settlers", "amount": 8 },
     "recipe": {
       "inputs": [{ "good": "iron_ore", "amount": 1 }, { "good": "charcoal", "amount": 1 }],
@@ -558,6 +590,7 @@
     "cost": { "gold": 200, "planks": 15, "stone": 15 },
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
+    "look": "workshop",
     "workforce": { "tier": "settlers", "amount": 8 },
     "recipe": {
       "inputs": [{ "good": "iron", "amount": 1 }],

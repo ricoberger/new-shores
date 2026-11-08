@@ -235,7 +235,7 @@ describe("quest conditions", () => {
   it("formats every condition type of MECHANICS §12a", () => {
     const sample = { type: "road_dirt", good: "planks", tier: "citizens", target: 10000 };
     for (const kind of kinds) {
-      const text = objectiveSentence({ kind, ...sample, ...(kind === "ship_count" ? { type: "sloop", target: 2 } : {}), ...(kind === "building_count" || kind === "island_settled" ? { target: 10 } : {}) }, idx);
+      const text = objectiveSentence({ kind, ...sample, ...(kind === "ship_count" ? { type: "cog", target: 2 } : {}), ...(kind === "building_count" || kind === "island_settled" ? { target: 10 } : {}) }, idx);
       expect(text, kind).not.toMatch(/unknown|undefined|NaN|objective/i);
       expect(text.length).toBeGreaterThan(5);
     }
@@ -246,7 +246,7 @@ describe("quest conditions", () => {
     expect(objectiveSentence({ kind: "population", tier: "settlers", target: 120000 }, idx)).toBe("Reach 120 Settlers");
     expect(objectiveSentence({ kind: "stock", good: "planks", target: 30000 }, idx)).toBe("Have 30\u00a0t Planks in stock");
     expect(objectiveSentence({ kind: "satisfaction", tier: "settlers", target: 600 }, idx)).toBe("Keep Settlers satisfaction at 60 % or more");
-    expect(objectiveSentence({ kind: "ship_count", type: "galleon", target: 1 }, idx)).toBe("Own 1 Galleon");
+    expect(objectiveSentence({ kind: "ship_count", type: "carrack", target: 1 }, idx)).toBe("Own 1 Carrack");
   });
 });
 

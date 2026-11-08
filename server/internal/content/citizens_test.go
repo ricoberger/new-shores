@@ -142,7 +142,7 @@ func TestLoadCitizensContent(t *testing.T) {
 	}
 
 	tp := c.BuildingByID["trading_post"].TradingPost
-	if len(tp.Levels) != 4 || tp.Levels[0].Cost != nil || tp.Levels[1].Capacity != 500_000 || tp.Levels[1].ThroughputPerMin != 16_000 ||
+	if len(tp.Levels) != 4 || tp.Levels[0].Cost != nil || tp.Levels[1].Capacity != 500_000 || tp.Levels[1].ThroughputPerMin != 20_000 ||
 		tp.Levels[1].Berths != 2 || tp.Levels[1].Cost == nil {
 		t.Fatalf("trading post levels = %+v", tp.Levels)
 	}
@@ -218,7 +218,7 @@ func TestSchemaWarehouseLevelCosts(t *testing.T) {
 	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
 	doc := func(levels string) []byte {
 		return []byte(`[{"id": "warehouse", "name": "Warehouse", "region": "old_coast", "tier": "settlers", "footprint": [2, 2],
-			"coastal": false, "requires_road": false, "cost": {"gold": 100}, "upkeep_per_min": 4, "pause_category": "never",
+			"coastal": false, "requires_road": false, "cost": {"gold": 100}, "upkeep_per_min": 4, "pause_category": "never", "look": "harbour",
 			"warehouse": {"levels": ` + levels + `}}]`)
 	}
 	lvl1 := `{"throughput_per_min": 30}`

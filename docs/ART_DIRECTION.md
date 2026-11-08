@@ -157,7 +157,7 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   flecks (`render/wake.ts`, the `life_wake` model as thin instances)
   from its stern: the manifest's `wake` anchor gives the stern and
   `ship.wake_width` the width there, measured by the build at the
-  stern's waterline to ¼ tile (sloop 0.7, brig 0.9, galleon 1.1 tiles;
+  stern's waterline to ¼ tile (cog 0.7, hulk 0.9, carrack 1.1 tiles;
   a recipe may declare it); each arm starts half of it out to the side.
   Without the field the client uses the model's full bounds width.
 - **Far coast lines up with near:** the lite (2 columns per tile) and far
@@ -692,8 +692,8 @@ land buildings).
   (`<id>.lite.glb`; `_ships.py` `lite_hull` / `lite_mast` at a quarter
   of the full grid, `SHIP_LITE_DOWNSAMPLE`: keel, planked side, bulwark,
   stern castle, bowsprit, masts and sail silhouettes, no cargo) under its
-  own budget (`LITE_BUDGET_SHIPS`: sloop
-  300, brig 600, galleon 800; now 236 / 448 / 544 triangles); a plain
+  own budget (`LITE_BUDGET_SHIPS`: cog
+  300, hulk 600, carrack 800; now 236 / 448 / 544 triangles); a plain
   downsample came out over budget and noisy. Ships switch to the lite
   with the buildings, one draw per ship type; the far allocation counts
   the lite triangles. Fields, decor and life props have no lite file.
@@ -705,8 +705,8 @@ land buildings).
   manifest against content and the life classes.
 - **Budgets (D-054 area scaling, re-based for voxels):** triangles per
   footprint tile — buildings 500 (lite 40), houses 540 (lite 45), fields
-  410 — times the footprint area, no floor and no cap; ships sloop 2 800,
-  brig 6 000, galleon 7 600, cargo 300; decor 580; life props 760,
+  410 — times the footprint area, no floor and no cap; ships cog 2 800,
+  hulk 6 000, carrack 7 600, cargo 300; decor 580; life props 760,
   construction stages 2 100. Each is the prototype's densest model of its
   class with ≈ 50 % headroom; a model over its budget fails the build.
   Per-model exceptions live in `config.py` (`BUDGET_OVERRIDE`,
@@ -730,7 +730,7 @@ land buildings).
   inside D-048's ≤ 40 / ≤ 250 k; dense island mid 1.41 M and near with
   life 1.30 M, settled near 262 k. Near/mid are targets; the gate is the
   device run (§8).
-- **Hero pass (later, optional):** church, harbourmaster, theatre, galleon
+- **Hero pass (later, optional):** church, harbourmaster, theatre, carrack
   may get larger budgets (a `config.py` change with its reason); still
   voxels from recipes.
 
@@ -775,7 +775,7 @@ land buildings).
    diorama islands (PR #16, D-050; both replaced by the voxel build in
    D-057 V1)**: kit manifest, recipe schema and
    Blender build with deterministic GLB writer, AO/two-tone bake, all
-   tier 1–2 recipes + fields + sloop from KayKit/Pirate, slab/plateau/
+   tier 1–2 recipes + fields + cog from KayKit/Pirate, slab/plateau/
    scatter islands, real models at every zoom (lite at far), device-
    validated perf floors, dev reset endpoint for fixtures.
 4. **Life layer and dressing — done (PR #21):** everything in

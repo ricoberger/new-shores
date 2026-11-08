@@ -84,7 +84,7 @@ describe("cloth sway", () => {
     // The ships, the cloth makers (wool, linen, sails), the trading post and the trees at least.
     expect(swayingModels).toBeGreaterThanOrEqual(8);
     for (const id of ["weaver_wool", "weaver_linen", "sailmaker", "trading_post"]) expect(manifest.models[id]?.sway?.length, id).toBeGreaterThan(0);
-    expect(manifest.models["brig"]?.sway).toContain("sail");
+    expect(manifest.models["hulk"]?.sway).toContain("sail");
     expect(manifest.decor["decor_tree_a"]?.sway).toEqual(["canopy"]);
   });
 });

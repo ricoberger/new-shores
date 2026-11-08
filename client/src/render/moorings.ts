@@ -71,7 +71,7 @@ export function isFlankAnchor(entry: FlankEntry, name: string): boolean {
 
 /** Gap between ships queued one behind the other along a flank (tiles). */
 const FLANK_GAP = 0.3;
-/** A hull's half-beam relative to its stern distance (sloop: beam 0.4 of length 2 against a stern at 0.5 of the length). */
+/** A hull's half-beam relative to its stern distance (cog: beam 0.4 of length 2 against a stern at 0.5 of the length). */
 const HALF_BEAM = 0.4;
 
 /**

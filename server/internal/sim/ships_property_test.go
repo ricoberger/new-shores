@@ -16,7 +16,7 @@ import (
 
 // shipPropWorld extends a town (island "main") with a settled island
 // "isle" (shipyard, stock) and an unsettled island "wild", and adds idle
-// sloops. With recovery set the town starts insolvent and recovers
+// cogs. With recovery set the town starts insolvent and recovers
 // (recoveryWorld), so that ships are paused and resumed.
 func (p *propCase) shipPropWorld(recovery bool) {
 	switch {
@@ -70,13 +70,13 @@ func (p *propCase) shipPropWorld(recovery bool) {
 	w.NextShipID = 1
 	for range 1 + p.rng.IntN(3) {
 		island := []string{"main", "isle"}[p.rng.IntN(2)]
-		w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: "sloop", State: ShipIdle, IslandID: island})
+		w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: "cog", State: ShipIdle, IslandID: island})
 		w.NextShipID++
 	}
 	// Some worlds have a ship at sea with cargo (the start ship, D-051).
 	if p.rng.IntN(2) == 0 {
 		cargo := map[string]Qty{"planks": Qty(1+p.rng.IntN(150)) * 1000}
-		if _, err := LaunchShipAtSea(w, p.c, "sloop", Pos{X: -20 + p.rng.IntN(60), Y: -20 + p.rng.IntN(60)}, cargo); err != nil {
+		if _, err := LaunchShipAtSea(w, p.c, "cog", Pos{X: -20 + p.rng.IntN(60), Y: -20 + p.rng.IntN(60)}, cargo); err != nil {
 			p.fail("ship at sea: %v", err)
 		}
 		// Ledger: the cargo enters the world like a grant loaded at main.
@@ -139,7 +139,7 @@ func (p *propCase) randomShipCommand() Command {
 	islands := []string{"main", "isle", "wild"}
 	switch r := p.rng.IntN(100); {
 	case r < 8:
-		return OrderShip{IslandID: "isle", BuildingID: p.w.Island("isle").Buildings[1].ID, ShipType: "sloop"}
+		return OrderShip{IslandID: "isle", BuildingID: p.w.Island("isle").Buildings[1].ID, ShipType: "cog"}
 	case r < 11:
 		return CancelShipOrder{IslandID: "isle", BuildingID: p.w.Island("isle").Buildings[1].ID}
 	case r < 25:

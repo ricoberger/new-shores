@@ -88,7 +88,7 @@
       "island_id": "island2",
       "building_id": 0,
       "ship_id": 1,
-      "type": "sloop"
+      "type": "cog"
     },
     {
       "at": "2026-01-01T03:47:19.448Z",
@@ -96,7 +96,7 @@
       "island_id": "island2",
       "building_id": 0,
       "ship_id": 1,
-      "type": "sloop",
+      "type": "cog",
       "trial": true
     },
     {
@@ -105,7 +105,7 @@
       "island_id": "island2",
       "building_id": 0,
       "ship_id": 1,
-      "type": "sloop"
+      "type": "cog"
     },
     {
       "at": "2026-01-01T06:16:08.020Z",
@@ -113,7 +113,7 @@
       "island_id": "island2",
       "building_id": 0,
       "ship_id": 1,
-      "type": "sloop",
+      "type": "cog",
       "trial": true
     },
     {
@@ -122,7 +122,7 @@
       "island_id": "island2",
       "building_id": 0,
       "ship_id": 1,
-      "type": "sloop"
+      "type": "cog"
     },
     {
       "at": "2026-01-01T08:44:56.592Z",
@@ -130,7 +130,7 @@
       "island_id": "island2",
       "building_id": 0,
       "ship_id": 1,
-      "type": "sloop",
+      "type": "cog",
       "trial": true
     },
     {
@@ -139,7 +139,7 @@
       "island_id": "island2",
       "building_id": 0,
       "ship_id": 1,
-      "type": "sloop"
+      "type": "cog"
     },
     {
       "at": "2026-01-01T11:13:45.163Z",
@@ -147,7 +147,7 @@
       "island_id": "island2",
       "building_id": 0,
       "ship_id": 1,
-      "type": "sloop",
+      "type": "cog",
       "trial": true
     }
   ],
@@ -1284,8 +1284,8 @@
     "ships": [
       {
         "id": 1,
-        "type": "sloop",
-        "name": "Sloop 1",
+        "type": "cog",
+        "name": "Cog 1",
         "state": "idle",
         "island_id": "island2",
         "route_id": 0,

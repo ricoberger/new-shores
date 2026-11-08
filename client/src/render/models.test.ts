@@ -224,7 +224,7 @@ describe("loading through the registry", () => {
     }
     expect(found).toBe(true);
     // The quantised positions come back in tiles: the data's bounds are the manifest's (glTF space: z flips with the handedness root, x and y as written).
-    for (const id of ["house_settlers", "sailmaker", "brig"]) {
+    for (const id of ["house_settlers", "sailmaker", "hulk"]) {
       const e = manifest.models[id] as ModelEntry;
       const file = (e.file ?? e.variants?.[0]) as ModelFile;
       const d = await parseGlb(new Uint8Array(readFileSync(join(MODELS, file.path))), scene);
@@ -301,26 +301,26 @@ describe("loading through the registry", () => {
     });
     const reg = new ModelRegistry(scene, { fetch: fetchFn });
     await reg.loadManifest();
-    for (const type of ["sloop", "brig", "galleon"]) {
+    for (const type of ["cog", "hulk", "carrack"]) {
       const e = manifest.models[type] as ModelEntry;
       expect(e.file?.lite?.path, type).toBe(`${type}.lite.glb`);
       expect(shipFile(reg, type, "full")?.path).toBe(`${type}.glb`);
       expect(shipFile(reg, type, "lite")?.path).toBe(`${type}.lite.glb`);
     }
     // Nothing loaded yet: no model at either detail (the placeholder draws).
-    expect(shipModel(reg, "brig", "full")).toBeNull();
-    await vi.waitFor(() => expect(shipModel(reg, "brig", "full")).not.toBeNull());
-    const full = shipModel(reg, "brig", "full")!;
-    expect(full.file.path).toBe("brig.glb");
+    expect(shipModel(reg, "hulk", "full")).toBeNull();
+    await vi.waitFor(() => expect(shipModel(reg, "hulk", "full")).not.toBeNull());
+    const full = shipModel(reg, "hulk", "full")!;
+    expect(full.file.path).toBe("hulk.glb");
     expect(full.cargo).not.toBeNull();
     // The lite file is loading: the full hull bridges, without cargo.
-    const bridged = shipModel(reg, "brig", "lite")!;
-    expect(bridged.file.path).toBe("brig.glb");
+    const bridged = shipModel(reg, "hulk", "lite")!;
+    expect(bridged.file.path).toBe("hulk.glb");
     expect(bridged.cargo).toBeNull();
-    await vi.waitFor(() => expect(shipModel(reg, "brig", "lite")?.file.path).toBe("brig.lite.glb"));
-    const lite = shipModel(reg, "brig", "lite")!;
+    await vi.waitFor(() => expect(shipModel(reg, "hulk", "lite")?.file.path).toBe("hulk.lite.glb"));
+    const lite = shipModel(reg, "hulk", "lite")!;
     expect(lite.cargo).toBeNull();
-    const lb = manifest.models.brig!.file!.lite!;
+    const lb = manifest.models.hulk!.file!.lite!;
     expect(lite.hull.indices.length).toBe(lb.triangles * 3);
     expect(lb.triangles).toBeLessThanOrEqual(600);
     // Scaled to unit length like the full hull (within two lite voxels of 0.2 tiles over the 2.6-tile hull).
@@ -333,7 +333,7 @@ describe("loading through the registry", () => {
     const reg = new ModelRegistry(scene, { fetch: (url: string) => (url.endsWith("manifest.json") ? ok(JSON.stringify(manifest)) : Promise.reject(new Error("no"))) });
     await reg.loadManifest();
     const widths: number[] = [];
-    for (const type of ["sloop", "brig", "galleon"]) {
+    for (const type of ["cog", "hulk", "carrack"]) {
       const e = manifest.models[type] as ModelEntry;
       const ww = e.ship?.wake_width as number;
       expect(ww, type).toBeGreaterThan(0);
@@ -346,10 +346,10 @@ describe("loading through the registry", () => {
     expect(widths[0]).toBeLessThan(widths[1]!);
     expect(widths[1]).toBeLessThan(widths[2]!);
     // Without wake_width: the hull's full width from the bounds.
-    const bare = { ...manifest, models: { sloop: { ...manifest.models.sloop!, ship: { length_tiles: 2, masts: 1, sail_scale: 1 } } } };
+    const bare = { ...manifest, models: { cog: { ...manifest.models.cog!, ship: { length_tiles: 2, masts: 1, sail_scale: 1 } } } };
     const reg2 = new ModelRegistry(scene, { fetch: () => ok(JSON.stringify(bare)) });
     await reg2.loadManifest();
-    expect(shipWakeSpec(reg2, "sloop")!.width).toBeCloseTo((2 * manifest.models.sloop!.bounds.max[2]) / 2, 6);
+    expect(shipWakeSpec(reg2, "cog")!.width).toBeCloseTo((2 * manifest.models.cog!.bounds.max[2]) / 2, 6);
   });
 
   it("builds URLs with the first 8 hex digits of the sha256", () => {

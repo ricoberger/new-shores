@@ -115,7 +115,7 @@ type shipJSONOut struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	// SourceName is the English name where Name is another language's:
-	// the server composes a ship's default name ("Sloop 2") from the
+	// the server composes a ship's default name ("Cog 2") from the
 	// English type name, so clients match it to show the translation.
 	SourceName    string   `json:"source_name,omitempty"`
 	Tier          string   `json:"tier"`

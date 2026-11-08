@@ -92,7 +92,7 @@ func shippingWorld(t *testing.T, created time.Time) *sim.World {
 		t.Fatal(err)
 	}
 	// The dev world has no bonus since the balancing pass: planks for two
-	// shipyards, two sloops and a cargo.
+	// shipyards, two cogs and a cargo.
 	if err := sim.AddStock(w, cat, "start", "planks", 100_000, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func TestCommandSchedulesDueEventInSameCommit(t *testing.T) {
 			if _, err := sim.Advance(w, cat, now); err != nil {
 				return false, err
 			}
-			return true, sim.Apply(w, cat, sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "sloop"})
+			return true, sim.Apply(w, cat, sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "cog"})
 		})
 	}
 
@@ -171,7 +171,7 @@ func TestCommandSchedulesDueEventInSameCommit(t *testing.T) {
 // TestShipEventsWithTwoWorkers (R-68): a world whose route ship arrived
 // and whose shipyard finished an hour ago (offline) is caught up by two
 // concurrent workers: every ship event is processed exactly once at its
-// due_at, each arrival schedules the next one, the second sloop is built
+// due_at, each arrival schedules the next one, the second cog is built
 // once, and the stored world is byte-identical to one Advance straight to
 // the last due_at (late processing equals on-time processing).
 func TestShipEventsWithTwoWorkers(t *testing.T) {
@@ -192,7 +192,7 @@ func TestShipEventsWithTwoWorkers(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	apply(sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "sloop"})
+	apply(sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "cog"})
 	advance(2 * time.Minute)
 	apply(sim.ManualShipment{ShipID: 1, ToIslandID: "island2", Cargo: []sim.CargoAmount{{Good: "planks", Amount: 50_000}}})
 	// The leg runs harbour to shore around land (D-058 §5); then 20 s of handling.
@@ -203,7 +203,7 @@ func TestShipEventsWithTwoWorkers(t *testing.T) {
 		{IslandID: "island2", Unload: []string{"planks"}},
 	}})
 	apply(sim.AssignShip{ShipID: 1, RouteID: 1})
-	apply(sim.OrderShip{IslandID: "start", BuildingID: 3, ShipType: "sloop"})
+	apply(sim.OrderShip{IslandID: "start", BuildingID: 3, ShipType: "cog"})
 	initial := w.Clone()
 	id := testenv.StoreWorld(t, st, w)
 	if due := checkReconciled(t, st, id); len(due) != 2 {
@@ -282,7 +282,7 @@ func TestShipEventsWithTwoWorkers(t *testing.T) {
 
 	var stored []byte
 	_, err = st.Update(context.Background(), id, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
-		// Two built sloops plus the start sloop of the founded world.
+		// Two built cogs plus the start cog of the founded world.
 		if !w.LastEvaluatedAt.Equal(lastDue) || len(w.Ships) != 3 {
 			t.Errorf("stored world at %s with %d ships, want %s and 3", w.LastEvaluatedAt, len(w.Ships), lastDue)
 		}
@@ -309,7 +309,7 @@ func TestRequestStopsAtShipEvent(t *testing.T) {
 	cat := testenv.Catalogue(t)
 	t0 := dbNow(t, st).Add(-10 * time.Minute)
 	w := shippingWorld(t, t0)
-	if err := sim.Apply(w, cat, sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "sloop"}); err != nil {
+	if err := sim.Apply(w, cat, sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "cog"}); err != nil {
 		t.Fatal(err)
 	}
 	id := testenv.StoreWorld(t, st, w)
@@ -344,7 +344,7 @@ func TestStaleShipEventIsNoOp(t *testing.T) {
 	// An order placed and cancelled: its ship_built event is left over
 	// (pending events are never deleted).
 	for _, cmd := range []sim.Command{
-		sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "sloop"},
+		sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "cog"},
 		sim.CancelShipOrder{IslandID: "start", BuildingID: 2},
 	} {
 		if err := sim.Apply(w, cat, cmd); err != nil {

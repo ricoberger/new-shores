@@ -685,7 +685,7 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
 - Building unlocks depend on the player's **global** progress (highest tier
   population reached anywhere), so a new island can immediately use all
   unlocked buildings.
-- **The game starts at sea** (D-051): the player's sloop holds the
+- **The game starts at sea** (D-051): the player's cog holds the
   starting stock; no island is settled, every island can be settled, and
   nothing is gated by tier. Settling an island means sailing there and
   placing the **Trading Post** from the ship (`found_island`): materials
@@ -700,22 +700,22 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
 
 ### 9.1 Ships
 
-- Types (D-056, speeds D-059): *Sloop* (2 slots × 50, speed 1.2, build
-  2 min, tier 2), *Brig* (4 × 50, 1.0, 5 min, tier 3), *Galleon* (6 × 60,
+- Types (D-056, speeds D-059): *Cog* (2 slots × 50, speed 1.2, build
+  2 min, tier 2), *Hulk* (4 × 50, 1.0, 5 min, tier 3), *Carrack* (6 × 60,
   0.85, 10 min, tier 4): small and fast for founding and short hops,
   large and slow for bulk; the ETA uses each ship's speed over the
   routed path length. Later: war ships (D-005). Defined
   in `ships.json`; the shipyard (tier 2, no levels) offers the types
   whose tier is unlocked (`ErrTierLocked` otherwise). The start ship is a
-  sloop; its **founding cargo** (start stock) is exempt from the slot
+  cog; its **founding cargo** (start stock) is exempt from the slot
   limit — slot checks apply only to player loading — and moves to the
   Trading Post at founding (§10).
 - **Length and berth spacing** (display only, D-056 C3): each type has a
-  hull length (`length_tiles`: sloop 2, brig 2.6, galleon 3.2); its
-  ratio to the sloop scales the drawn ship. At a Trading Post or trading
+  hull length (`length_tiles`: cog 2, hulk 2.6, carrack 3.2); its
+  ratio to the cog scales the drawn ship. At a Trading Post or trading
   pier (§9.3) each
   moored ship takes the anchor spacing (1.5 tiles without anchors) ×
-  its ratio along the pier, filling outwards in anchor order, so sloops
+  its ratio along the pier, filling outwards in anchor order, so cogs
   lie exactly on the berth anchors and a longer ship pushes its
   neighbours out instead of overlapping them; ships stay stern-first
   (stern offset × ratio), and the queue waits beyond the longest moored
@@ -730,7 +730,7 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
   `anchored_unpaid`. Insolvency step 4 (§7) applies to **every** ship with
   upkeep, idle ones included: a ship on a leg finishes it, then anchors
   without unloading; it resumes at its arrival stop.
-- **Names** (D-055): a new ship is named "<type name> <id>" ("Sloop 1");
+- **Names** (D-055): a new ship is named "<type name> <id>" ("Cog 1");
   `rename_ship` renames it in any state — trimmed, 1–24 printable runes
   (the island rule), not unique; an empty name restores the default.
 - **Cargo** is stored canonically per good (full slots, then one partial
@@ -768,7 +768,7 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
   the formula above; route loop times use the same paths.
   Constants in `region.json`: `ship_speed_tiles_per_min` (provisional 60)
   and `ship_handling_seconds` (provisional 20). Two islands 120 tiles
-  apart → 100 s per sloop leg (speed 1.2), 2 min per brig leg.
+  apart → 100 s per cog leg (speed 1.2), 2 min per hulk leg.
 - A ship is never in two places: its `island_id` is cleared at departure
   (not a boundary — no rate changes — but included in `next_change_at` so
   the client never shows a ship at an island it has left) and set at

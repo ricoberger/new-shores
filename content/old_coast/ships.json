@@ -1,7 +1,7 @@
 [
   {
-    "id": "sloop",
-    "name": "Sloop",
+    "id": "cog",
+    "name": "Cog",
     "region": "old_coast",
     "tier": "citizens",
     "slots": 2,
@@ -13,8 +13,8 @@
     "length_tiles": 2
   },
   {
-    "id": "brig",
-    "name": "Brig",
+    "id": "hulk",
+    "name": "Hulk",
     "region": "old_coast",
     "tier": "merchants",
     "slots": 4,
@@ -26,8 +26,8 @@
     "length_tiles": 2.6
   },
   {
-    "id": "galleon",
-    "name": "Galleon",
+    "id": "carrack",
+    "name": "Carrack",
     "region": "old_coast",
     "tier": "patricians",
     "slots": 6,

@@ -154,7 +154,7 @@ class V5ShipsTest(unittest.TestCase):
             self.assertEqual(length, self.ships.HULL_LENGTH[cid], cid)
 
     def test_masts_and_anchors(self):
-        for cid, masts in (("sloop", 1), ("brig", 2), ("galleon", 3)):
+        for cid, masts in (("cog", 1), ("hulk", 2), ("carrack", 3)):
             self.assertEqual(self.manifest[cid]["ship"]["masts"], masts, cid)
             self.assertEqual(sorted(self.manifest[cid]["anchors"]), ["status", "wake"], cid)
             v = self.build(cid)

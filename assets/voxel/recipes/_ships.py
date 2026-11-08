@@ -1,16 +1,16 @@
 """
 Ships (bow toward +x, waterline z = 0) at 20 voxels per tile (D-057 §3,
-V5): sloop, brig and galleon from one hull builder.
+V5): cog, hulk and carrack from one hull builder.
 
 The hull: a tarred bottom, planking in courses (alternating shades), a
 dark wale, a painted trim band in the ship's colour, a bulwark with a
-pale rail cap, a deck of planks in courses, gunports on the brig and the
-galleon, a bowsprit with a jib boom and a stem post. Masts 1 / 2 / 3
+pale rail cap, a deck of planks in courses, gunports on the hulk and the
+carrack, a bowsprit with a jib boom and a stem post. Masts 1 / 2 / 3
 carry yards, a top and shrouds down to the rails; square sails and the
 gaff and jib are sway groups ("sail"), the masthead pennants "flag". The
-brig and galleon have a stern cabin with a row (two on the galleon) of
-windows, a stern gallery and lanterns; the galleon a forecastle; the
-sloop a tiller and a lantern on a stern post. Each ship's cargo
+hulk and carrack have a stern cabin with a row (two on the carrack) of
+windows, a stern gallery and lanterns; the carrack a forecastle; the
+cog a tiller and a lantern on a stern post. Each ship's cargo
 attachment shows one prop per cargo slot (2 / 4 / 6) on its free deck,
 clear of masts, cabin and boom. Anchors: `status` (the pipeline's
 default) and `wake` (the stern at the waterline, where the wake starts).
@@ -41,7 +41,7 @@ WALE = shade_of(TIMBER_DARK, 0.9)
 DECK_B = shade_of(PLANK, 0.93)
 
 #: Hull length at the waterline in voxels (length_tiles × SCALE).
-HULL_LENGTH = {"sloop": 40, "brig": 52, "galleon": 64}
+HULL_LENGTH = {"cog": 40, "hulk": 52, "carrack": 64}
 
 
 def half_beam(x, length, beam):
@@ -204,9 +204,9 @@ def jib(v, x0, x1, z0, z1):
         v.set(x, 0, top, ROPE)
 
 
-def sloop(ctx):
+def cog(ctx):
     v = ctx.vox(0, 0)
-    L = HULL_LENGTH["sloop"]
+    L = HULL_LENGTH["cog"]
     h = hull(v, L, 8, OCHRE)
     mast(v, 2, 36, [], 8, yards=False, top_z=30)
     gaff(v, 2, 7, 33, 16)
@@ -220,9 +220,9 @@ def sloop(ctx):
     return v
 
 
-def brig(ctx):
+def hulk(ctx):
     v = ctx.vox(0, 0)
-    L = HULL_LENGTH["brig"]
+    L = HULL_LENGTH["hulk"]
     h = hull(v, L, 10, TERRACOTTA, cabin=8, cabin_h=4, ports=(-14, -6, 2, 10))
     mast(v, 9, 48, [(10, 22, 7), (24, 34, 6), (36, 43, 4)], 10)
     mast(v, -8, 44, [(12, 22, 6), (24, 33, 5), (35, 41, 4)], 10)
@@ -231,9 +231,9 @@ def brig(ctx):
     return v
 
 
-def galleon(ctx):
+def carrack(ctx):
     v = ctx.vox(0, 0)
-    L = HULL_LENGTH["galleon"]
+    L = HULL_LENGTH["carrack"]
     h = hull(v, L, 12, DYE_BLUE, cabin=12, cabin_h=8, ports=(-18, -12, -6, 0, 6, 12), forecastle=7)
     mast(v, 14, 56, [(10, 24, 9), (26, 38, 7), (40, 50, 5)], 10)
     mast(v, -2, 62, [(14, 26, 10), (28, 42, 8), (44, 55, 6)], 12)
@@ -296,9 +296,9 @@ def lite_mast(v, x, top, sails):
     v.set(x - 1, 0, top - 1, FLAG)
 
 
-def sloop_lite(ctx):
+def cog_lite(ctx):
     v = ctx.vox(0, 0)
-    lo, _ = lite_hull(v, HULL_LENGTH["sloop"], 8, OCHRE)
+    lo, _ = lite_hull(v, HULL_LENGTH["cog"], 8, OCHRE)
     v.box(0, 0, 1, 1, 1, 9, TIMBER_DARK)  # the mast
     v.set(-1, 0, 8, FLAG)
     for z in range(2, 8):  # the gaff sail behind the mast, narrowing upward
@@ -309,9 +309,9 @@ def sloop_lite(ctx):
     return v
 
 
-def brig_lite(ctx):
+def hulk_lite(ctx):
     v = ctx.vox(0, 0)
-    lite_hull(v, HULL_LENGTH["brig"], 10, TERRACOTTA, castle=2)
+    lite_hull(v, HULL_LENGTH["hulk"], 10, TERRACOTTA, castle=2)
     lite_mast(v, 2, 12, [(3, 6, 2), (6, 9, 1)])
     lite_mast(v, -2, 11, [(3, 6, 2), (6, 8, 1)])
     for z in range(3, 8):  # the jib
@@ -319,9 +319,9 @@ def brig_lite(ctx):
     return v
 
 
-def galleon_lite(ctx):
+def carrack_lite(ctx):
     v = ctx.vox(0, 0)
-    lite_hull(v, HULL_LENGTH["galleon"], 12, DYE_BLUE, castle=3, forecastle=2)
+    lite_hull(v, HULL_LENGTH["carrack"], 12, DYE_BLUE, castle=3, forecastle=2)
     lite_mast(v, 3, 14, [(3, 6, 2), (7, 10, 2), (10, 13, 1)])
     lite_mast(v, -1, 16, [(4, 7, 3), (7, 11, 2), (11, 14, 1)])
     lite_mast(v, -5, 12, [(5, 7, 1), (7, 10, 1)])
@@ -332,11 +332,11 @@ def galleon_lite(ctx):
 
 # ---------------------------------------------------------------- cargo
 
-#: Deck spots (x, y) of the cargo props per ship, one per cargo slot (2 / 4 / 6), clear of masts, cabins and the sloop's boom.
+#: Deck spots (x, y) of the cargo props per ship, one per cargo slot (2 / 4 / 6), clear of masts, cabins and the cog's boom.
 CARGO_SPOTS = {
-    "sloop": ((6, -4), (6, 1)),
-    "brig": ((-5, -6), (-5, 2), (1, -6), (1, 2)),
-    "galleon": ((-15, -7), (-15, 2), (-10, -3), (2, -7), (2, 2), (7, -3)),
+    "cog": ((6, -4), (6, 1)),
+    "hulk": ((-5, -6), (-5, 2), (1, -6), (1, 2)),
+    "carrack": ((-15, -7), (-15, 2), (-10, -3), (2, -7), (2, 2), (7, -3)),
 }
 
 
@@ -366,7 +366,7 @@ PROPS = (crate, barrels, bale)
 def cargo(ctx):
     """Deck cargo shown while loaded: one prop per slot at the ship's CARGO_SPOTS (crates, barrels, bales in turn)."""
     v = ctx.vox(0, 0)
-    spots = CARGO_SPOTS.get(ctx.cid, CARGO_SPOTS["brig"])
+    spots = CARGO_SPOTS.get(ctx.cid, CARGO_SPOTS["hulk"])
     n = int(ctx.defn.get("slots", len(spots)))
     for i, (x, y) in enumerate(spots[:n]):
         PROPS[i % len(PROPS)](v, x, y)
@@ -374,7 +374,7 @@ def cargo(ctx):
 
 
 RECIPES = {
-    "sloop": {"build": sloop, "lite": sloop_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0}},
-    "brig": {"build": brig, "lite": brig_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.6, "masts": 2, "sail_scale": 1.0}},
-    "galleon": {"build": galleon, "lite": galleon_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 3.2, "masts": 3, "sail_scale": 1.0}},
+    "cog": {"build": cog, "lite": cog_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0}},
+    "hulk": {"build": hulk, "lite": hulk_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.6, "masts": 2, "sail_scale": 1.0}},
+    "carrack": {"build": carrack, "lite": carrack_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 3.2, "masts": 3, "sail_scale": 1.0}},
 }

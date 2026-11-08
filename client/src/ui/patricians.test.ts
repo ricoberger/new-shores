@@ -10,7 +10,7 @@ import { ICON_PATHS } from "../theme/icons";
 import { InfoPanel } from "./InfoPanel";
 import { PopulationDetails } from "./TopBar";
 
-// Tier 4 in the cards (D-056 C4): the galleon in the shipyard, a market at
+// Tier 4 in the cards (D-056 C4): the carrack in the shipyard, a market at
 // its last level 3 and a Patrician house with its own five categories and
 // the three lower tiers' categories, against the shipped content's needs,
 // names and ships.
@@ -55,7 +55,7 @@ const content = {
   needs: shipped<{ id: string; name: string }[]>("needs.json"),
   need_categories: shipped<{ id: string; name: string; icon: string }[]>("need_categories.json"),
   buildings: [
-    def("shipyard", "Shipyard", { tier: "citizens", category: "harbour", width: 8, height: 12, shipyard: { ships: ["sloop", "brig", "galleon"] } }),
+    def("shipyard", "Shipyard", { tier: "citizens", category: "harbour", width: 8, height: 12, shipyard: { ships: ["cog", "hulk", "carrack"] } }),
     def("market", "Market", {
       width: 5,
       height: 6,
@@ -141,15 +141,15 @@ const plain = (id: number, type: string, extra: Partial<BuildingDisplay> = {}) =
   ({ id, type, x: 1, y: 1, rotation: 0, paused: false, paused_reason: "", status: "ok", efficiency_permille: 1000, throughput_factor_permille: 1000, ...extra }) as BuildingDisplay;
 
 describe("tier 4 in the cards (D-056 C4)", () => {
-  it("lists the galleon in the shipyard after the brig, with its cargo, upkeep and costs", () => {
+  it("lists the carrack in the shipyard after the hulk, with its cargo, upkeep and costs", () => {
     const html = panel(plain(9_001, "shipyard"));
     const t = text(html);
-    expect(t.indexOf("SloopOrder")).toBeLessThan(t.indexOf("BrigOrder"));
-    expect(t.indexOf("BrigOrder")).toBeLessThan(t.indexOf("GalleonOrder"));
-    expect(html).toContain('data-testid="shipyard-order-galleon"');
-    expect(text(html.match(/data-testid="shipyard-ship-galleon">(.*?)<\/button>/)![0])).toContain("Galleon");
+    expect(t.indexOf("CogOrder")).toBeLessThan(t.indexOf("HulkOrder"));
+    expect(t.indexOf("HulkOrder")).toBeLessThan(t.indexOf("CarrackOrder"));
+    expect(html).toContain('data-testid="shipyard-order-carrack"');
+    expect(text(html.match(/data-testid="shipyard-ship-carrack">(.*?)<\/button>/)![0])).toContain("Carrack");
     expect(t).toContain("6×60\u00a0t cargo·1.0× speed·8.0 gold/min upkeep");
-    expect(text(html.match(/data-testid="shipyard-cost-galleon">(.*?)<\/div>/)![1]!)).toBe("6000 gold·120\u00a0tPlanks·40\u00a0tSails·30\u00a0tTools·10:00 min build");
+    expect(text(html.match(/data-testid="shipyard-cost-carrack">(.*?)<\/div>/)![1]!)).toBe("6000 gold·120\u00a0tPlanks·40\u00a0tSails·30\u00a0tTools·10:00 min build");
   });
 
   it("shows a market at level 3, its last, with radius 20 and no upgrade", () => {

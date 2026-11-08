@@ -72,7 +72,7 @@ export interface paths {
          *     `sail_ship` and `found_island` (MECHANICS §8, §9).
          *
          *     A new world starts at sea (D-051): no island is settled and the
-         *     start sloop (ship 1) waits at its `position` with the starting
+         *     start cog (ship 1) waits at its `position` with the starting
          *     goods aboard. Settling is `sail_ship` to the chosen island, then
          *     `found_island` once the ship is idle there; nothing else can be
          *     placed on an unsettled island (`island_not_settled`).
@@ -1101,7 +1101,7 @@ export interface components {
              * @description Building ID of the shipyard (unscaled integer identifier, from BuildingDisplay.id).
              */
             building_id: number;
-            /** @description Content ship ID (e.g. sloop). */
+            /** @description Content ship ID (e.g. cog). */
             ship_type: string;
         };
         /** @description Cancel a shipyard's pending order; 50 % of each material is refunded (whole units, clamped to capacity), no gold. */
@@ -2406,7 +2406,7 @@ export interface components {
             name: string;
             /**
              * @description The English name, present when `name` is in another language. A
-             *     ship's default name ("Sloop 2") is composed from the English type
+             *     ship's default name ("Cog 2") is composed from the English type
              *     name when the ship is created; clients replace that prefix with
              *     `name` to show it translated.
              */
@@ -2428,7 +2428,7 @@ export interface components {
              * Format: int64
              * @description Hull length in milli-tiles (display only): the client draws the
              *     ship and spaces the Trading Post's berths by it. Absent: the
-             *     reference length (2 000, the sloop).
+             *     reference length (2 000, the cog).
              */
             length_milli_tiles?: number;
             /**

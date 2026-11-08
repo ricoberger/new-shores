@@ -33,7 +33,7 @@ export const SHIP_UNPAID: readonly [number, number, number, number] = [0.6, 0.68
 
 /**
  * Ship template of unit length (bow along +X), sitting on Y = 0. One per
- * ship type; the type only changes the name today (one type, the sloop).
+ * ship type; the type only changes the name today (one type, the cog).
  */
 export function shipTemplate(scene: Scene, name: string): Mesh {
   const hull = CreateBox(`${name}_hull`, { width: 1, height: 0.22, depth: 0.38, faceColors: [HULL, HULL, HULL, HULL, DECK, HULL] }, scene);

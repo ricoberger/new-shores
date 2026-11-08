@@ -207,16 +207,16 @@ func TestRenameIsland(t *testing.T) {
 	}
 }
 
-// TestStartSloopCarriesFoundingStock (D-056 §9): the start ship is a
-// 2-slot sloop; the founding stock (100 planks, two slots, D-074; the slot
+// TestStartCogCarriesFoundingStock (D-056 §9): the start ship is a
+// 2-slot cog; the founding stock (100 planks, two slots, D-074; the slot
 // limit would not apply to it) lands in the home Trading Post. A player
 // load of more than two slots is rejected.
-func TestStartSloopCarriesFoundingStock(t *testing.T) {
+func TestStartCogCarriesFoundingStock(t *testing.T) {
 	c := catalogue(t)
 	w := newWorld(t, 1053001)
 	s := w.Ships[0]
 	def := c.ShipByID[s.Type]
-	if s.Type != "sloop" || def.Slots != 2 || len(s.Cargo) != 2 {
+	if s.Type != "cog" || def.Slots != 2 || len(s.Cargo) != 2 {
 		t.Fatalf("start ship %s (%d slots) cargo %+v", s.Type, def.Slots, s.Cargo)
 	}
 	aboard := map[string]sim.Qty{}
@@ -243,7 +243,7 @@ func TestStartSloopCarriesFoundingStock(t *testing.T) {
 		{Good: "planks", Amount: 10_000}, {Good: "sails", Amount: 5_000}, {Good: "fish", Amount: 5_000},
 	}}
 	if err := sim.Apply(w, c, cmd); !errors.Is(err, sim.ErrCargoExceedsSlots) {
-		t.Fatalf("three goods on a 2-slot sloop: %v", err)
+		t.Fatalf("three goods on a 2-slot cog: %v", err)
 	}
 	if !bytes.Equal(before, encode(t, w)) {
 		t.Error("world changed on error")

@@ -80,7 +80,7 @@ UI shows the same numbers the server uses.
   heading, D-058); once it is placed the ship sails to that site's
   harbour (`sail_ship` with the `site`), the founding is pending (shown
   on that panel and the ship panel, cancellable, survives a reload) and
-  `found_island` follows on arrival. The world opens on the start sloop at sea with the first quest
+  `found_island` follows on arrival. The world opens on the start cog at sea with the first quest
   ("Choose your home island") as the hint.
   Hover shows a lightweight tooltip only; nothing is hover-only.
 - **Route ribbons** are drawn only for the selected ship's route or while
@@ -459,7 +459,7 @@ UI shows the same numbers the server uses.
 
 **Shipyard**
 
-- Status "Idle" or "Building a Sloop · ready in 1:42 min" (no bar); a pending
+- Status "Idle" or "Building a Cog · ready in 1:42 min" (no bar); a pending
   order adds the second status line "Canceling the order returns 50 % of
   the materials." and **Cancel order** sits in the pinned footer.
 - Always (also while an order runs, then the Order buttons are disabled), with
@@ -488,7 +488,7 @@ UI shows the same numbers the server uses.
 - The title is the ship's name (D-055) with a pencil button; the pencil
   turns the header into a name input with ✓ (rename, saved at once) and ⊗
   (cancel, Escape) icon buttons — the island card's rename pattern; the
-  close button is hidden meanwhile. The ship type ("Sloop") is a small line
+  close button is hidden meanwhile. The ship type ("Cog") is a small line
   below the title, then a "Details" heading (as on the Trading Post and
   Warehouse) above the rest. Everywhere else (Ships list, route editor, toasts,
   dialogs, away summary) a ship is shown by its name only.
@@ -707,7 +707,7 @@ translation. Two sources, one switch:
   `GET /api/v1/content?lang=<code>` (CONTENT §11, "Locale files"); the
   client asks in its current language and fetches again when it changes
   (`GameSync.loadContent`, the almanac's `useEffect`). Island names and
-  ships' default names ("Sloop 2") are stored in English in the world;
+  ships' default names ("Cog 2") are stored in English in the world;
   `display/names.ts` shows them in the language through the served
   `island_names[{source, name}]` and `ships[].source_name`. A name the
   player chose is shown as typed.

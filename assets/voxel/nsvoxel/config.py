@@ -92,17 +92,17 @@ BUDGET_OVERRIDE = {"tree_plot": 450}
 #: Per-model footprint slack in voxels at 8 per tile (default model.FOOTPRINT_SLACK): the tree plot's
 #: crown may overhang the tile by up to half a tile, so neighbouring crowns overlap into a canopy.
 SLACK_OVERRIDE = {"tree_plot": 4}
-#: Ships (no footprint): prototype sloop 1 882, brig 3 948, galleon 5 096
+#: Ships (no footprint): prototype cog 1 882, hulk 3 948, carrack 5 096
 #: triangles, cargo attachments 192, each with ~50 % headroom.
-BUDGET_SHIPS = {"sloop": 2800, "brig": 6000, "galleon": 7600}
+BUDGET_SHIPS = {"cog": 2800, "hulk": 6000, "carrack": 7600}
 BUDGET_SHIP_CARGO = 300
 #: Lite (far LOD) ship models (V7): a recipe's `lite` builder at its scale /
 #: SHIP_LITE_DOWNSAMPLE voxels per tile (20 → 5: at the far ship scale about
 #: 2 voxels per world tile, like the buildings' lite level); hull, masts and
 #: sail silhouettes, no cargo attachment. Budgets from the far-budget
-#: brief (sloop / brig / galleon ≈ 300 / 600 / 800).
+#: brief (cog / hulk / carrack ≈ 300 / 600 / 800).
 SHIP_LITE_DOWNSAMPLE = 4
-LITE_BUDGET_SHIPS = {"sloop": 300, "brig": 600, "galleon": 800}
+LITE_BUDGET_SHIPS = {"cog": 300, "hulk": 600, "carrack": 800}
 #: Decoration (kind "decor": trees, bushes, rocks, crags, tufts, stumps,
 #: outcrops; merged by the hundreds per island chunk): prototype max 384
 #: (decor_tree_a).
@@ -131,7 +131,7 @@ STATUS_ABOVE = 0.25
 #: Content IDs that need a model: tier 1–4 buildings except roads (fields
 #: included) and these ships (D-056 ship ladder); planned IDs always do.
 MODEL_TIERS = ("settlers", "citizens", "merchants", "patricians")
-MODEL_SHIPS = ("sloop", "brig", "galleon")
+MODEL_SHIPS = ("cog", "hulk", "carrack")
 
 #: Positions and normals are rounded to this many decimals before export (stable bytes).
 POSITION_DECIMALS = 5

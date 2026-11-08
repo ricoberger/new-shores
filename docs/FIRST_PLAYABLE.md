@@ -24,7 +24,7 @@ proceeds in the milestones below, each with acceptance criteria.
   → bread; apples → cider; hemp → linen; iron ore + charcoal → iron → tools
   (iron only on island 2 → forced trade route).
 - **Logistics:** dirt + paved roads, warehouse assignment/throughput/capacity,
-  one route with one sloop, manual shipment to found island 2.
+  one route with one cog, manual shipment to found island 2.
 - **Economy:** taxes, upkeep, auto-pause order and resume, manual pause,
   demolish refund, starting stock.
 - **Offline:** lazy catch-up incl. warehouse caps and stall rule; "while you
@@ -114,7 +114,7 @@ login, GLB assets, sound.
 
 ### M4 — Slice complete and measured
 
-- **Part 1 — done (PR #7):** `sloop` and shipyard, `ship_built` /
+- **Part 1 — done (PR #7):** `cog` and shipyard, `ship_built` /
   `ship_arrived` as due moments, looping routes, manual shipments,
   founding island 2 from a ship, two-island dev archipelago (120 tiles
   apart → 2 min legs), island switcher plus Ships/Routes panels (HTML).
@@ -190,13 +190,13 @@ login, GLB assets, sound.
 - **Settling and harbours (D-051 parts 1, 2, 3, 5) — done (PR #19):**
   start at sea and found from the island card, Trading Post with levels
   and berth queues vs inland Warehouse, water-edge fisher/shipyard,
-  per-unit handling, 4-slot sloop, schema 4 (no migration). Need display
+  per-unit handling, 4-slot cog, schema 4 (no migration). Need display
   names (PR #18).
 - **Polish pass — done (PR #17):** footprint shadows, ribbons on
   selection, model ghosts, free camera with compass (D-051 part 6), HUD
   redesign with island resources, materials, employed/total and
   thumbnails (D-051 part 7), KayKit SOURCE-only kits with the KayKit
-  sloop. Open: sloop berth offset, ghost variant hint, need display
+  cog. Open: cog berth offset, ghost variant hint, need display
   names.
 - **Art restyle (D-050) — done (PR #16):** KayKit buildings and nature,
   AO/two-tone bake, diorama islands, real models at every zoom, perf

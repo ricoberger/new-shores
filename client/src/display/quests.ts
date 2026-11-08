@@ -63,7 +63,7 @@ export function objectiveText(o: ObjectiveDisplay, content: Content): string {
     case "tier_unlocked":
       return t("quest.tier_unlocked", { tier });
     case "ship_count":
-      // A ship type (D-056 C4: "Galleon 0/1") or every ship.
+      // A ship type (D-056 C4: "Carrack 0/1") or every ship.
       return o.type ? t("quest.ship_type", { ship: name(content.ships, o.type), progress }) : t("quest.ship_count", { progress });
     case "satisfaction":
       return t("quest.satisfaction", { tier, progress });

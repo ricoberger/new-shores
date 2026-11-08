@@ -107,6 +107,11 @@ func checkReferences(c *Catalogue) error {
 			col.add(FileBuildings, ent, "region", "must be %q, got %q", c.Region.ID, b.Region)
 		}
 		tier(FileBuildings, ent, "tier", b.Tier)
+		switch b.Look {
+		case LookRural, LookWorkshop, LookCivic, LookHarbour:
+		default:
+			col.add(FileBuildings, ent, "look", "must be rural, workshop, civic or harbour, got %q", b.Look)
+		}
 		// A building that is never auto-paused carries no upkeep: its
 		// running cost is folded into its price, so a fully stalled city
 		// (everything pausable paused) never has a negative balance and
