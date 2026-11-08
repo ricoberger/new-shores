@@ -140,12 +140,16 @@ in the sync after a task unless the task says otherwise; nobody adds the
      6/12/24/48, start 2 000 gold / 100 planks, 48 tree plots, lone 3×3
      windmill, one deposit marker per slot, stale selection frame after
      upgrade fixed, mesh-first picking, gold outline on the placing
-     ghost, two-line phone top bar; content 0.20.0) merged → **next:
-     playtest 2** (Citizens → Merchants on D-074), then the small
-     decision list: auto-pause can strand a town when the paused
-     building is the only producer of an unmet need (trial resume never
-     fires on a falling balance — MECHANICS §7), group move (D-074 §5,
-     own session), forest 48 → 64 if woods still feel thin; tooling:
+     ghost, two-line phone top bar; content 0.20.0) merged; playtest 2
+     (Merchants) → **D-075** (low shore for piers, collectors
+     10/20/40/80 · 8/16/32/64 with upkeep 0/6/12/24 · 1/5/10/20, `look`
+     follows the workers, ships cog / hulk / carrack with new models,
+     supply chains pause last) → **next: D-075 session + polish 8**
+     (sea-route fallback never crosses land — founding and unsettled
+     legs sail straight today, Trading Post card overflow pushes the
+     build menu, send a ship without cargo, "Maintenance" wording),
+     then the look re-dress art session; later group move (D-074 §5),
+     forest 48 → 64 if woods still feel thin; tooling:
      the Patricians plan regenerates in ≈ 22 min (test timeout 30 min —
      speed up the generator or split the test). Open small items — art:
      playhouse / university / cathedral / shipyard / depot / trading

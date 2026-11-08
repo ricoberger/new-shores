@@ -2468,3 +2468,67 @@ unlock moved from minute 11 to 27 (houses no longer fill on tier-1
 goods alone). Found on the way: the auto-pause rule can strand a town
 when the paused building is the only producer of an unmet need (the
 resume rule never fires while the balance falls) — decision pending.
+
+## D-075 Low shores for piers, collector ramp, look follows the workers, Hanseatic ships, supply chains pause last
+
+- **Status:** accepted (2026-11-08); amends D-062 (water-edge
+  placement), D-069 / D-074 (collector numbers), D-063 / D-064 (roof
+  ladder), D-051 / D-056 (ship names and IDs), D-008 / MECHANICS §7
+  (auto-pause order).
+- **Context:** the owner's second playtest (Merchants, snapshot
+  `1053001-20261108-175751`): a fisher on a level-1 cliff coast stands
+  on a grass block above the beach; one level-1 warehouse (6 t/min) is
+  full after a single tier-1 block and the level-2 upgrade costs a
+  quarter of a tier-1 town's income; tier-3/4 production buildings wear
+  their unlock tier's roofs although they are plain workshops; the ship
+  ladder sloop / brig / galleon does not fit the Hanseatic Old Coast;
+  and #74 found the auto-pause can strand a town when the paused
+  building is the only producer of an unmet need.
+- **Decision:**
+  1. **Low shore.** A building with `water_rows` needs all its land
+     tiles at terrace level 0 (`ErrNeedsLowShore`; ghost tint, almanac
+     "needs a low shore"). Generator unchanged.
+  2. **Collectors.** Throughput Trading Post 10 / 20 / 40 / 80,
+     Warehouse 8 / 16 / 32 / 64 t/min; upkeep Trading Post
+     0 / 6 / 12 / 24, Warehouse 1 / 5 / 10 / 20 gold/min. Reach,
+     capacity and upgrade costs unchanged.
+  3. **Look follows the workers.** Content field `look` ∈ `rural |
+     workshop | civic | harbour` (no gameplay effect). `rural` (farms,
+     lumberjack, apiary, orchard, hemp, dairy, pig, quarry, mines,
+     charcoal burner) wears the tier-1 look — thatch, timber, low walls
+     — whatever its tier; `workshop` (sawmill, weavers, mill, bakery,
+     cidery, meadery, tannery, sailmaker, smelter, toolmaker and the
+     tier-3/4 workshops) the tier-2 look — terracotta, half-timber,
+     stone plinth; dark tile allowed on tier-4 workshops; size and props
+     tell the tier. `civic` (houses, faith, education, culture,
+     security, market) and `harbour` (trading post, warehouse, shipyard,
+     pier, depot) keep the unlock-tier ladder of D-063 / D-064.
+  4. **Ships.** IDs and names `sloop → cog`, `brig → hulk`,
+     `galleon → carrack` (EN Cog / Hulk / Carrack, DE Kogge / Holk /
+     Kraweel); stats unchanged; new recipes (cog: one square sail, high
+     sides, stern castle; hulk: fore and stern castle; carrack: three
+     masts). Renamed before deployment, so no data migration; the old
+     IDs are retired, never reused. **Region rule for later:** a ship
+     sails at full speed in its home `region` and at × 0.8 elsewhere —
+     implemented with region 2.
+  5. **Supply chains pause last.** In the auto-pause order a building
+     is skipped while it is the island's only running producer of a
+     good that a house on the island consumes below 0.6; the pause
+     falls on the next candidate. The gold floor of D-008 still holds
+     when nothing else is left. Manual resume and the warning stay.
+- **Why:** 1 is the cheaper of two fixes and reads naturally (cliffs are
+  not pier coasts); 2 makes the first collector upgrade a tier-1/2
+  choice; 3 is Anno 1404's rule — production stays humble, the town
+  escalates; 4 fits the setting and renaming is free only now; 5 is
+  deterministic and explainable, unlike trial resumes.
+- **Consequences:** sim (placement check, pause order), content
+  0.21.0 (collectors, `look`, ship IDs), schema for `look`, quests /
+  start / plans / goldens / fixtures / recipes / GLBs / client fixtures
+  renamed, almanac texts, plan replay against D-067 targets (never
+  relaxed), ART_DIRECTION §3 look rule, 12–15 production models
+  re-dressed in an art session, MECHANICS §7 and §9, CONTENT §7 and
+  ship table, UI wording "Maintenance" / "Betriebskosten" for upkeep
+  (code and docs keep `upkeep`).
+- **Rejected:** generator-forced level-0 shores; throughput or upkeep
+  alone; keeping the old ship IDs behind new names; trial resume;
+  leaving the strand to the player.
