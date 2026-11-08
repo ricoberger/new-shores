@@ -18,7 +18,10 @@ import (
 //     (non-paused, upkeep > 0, pause_category != never; every non-paused
 //     ship with upkeep) in the order need_goods < public < intermediate <
 //     ships < food_basic, then building/ship tier descending, upkeep
-//     ascending, ID ascending, until balance >= 0. With no candidate left,
+//     ascending, ID ascending, until balance >= 0. Supply chains pause last
+//     (D-075 §5): a building is skipped while it is its island's only
+//     running producer of a good of a goods need that a connected house on
+//     the island fulfils below 0.6 (supplyGuards). With no candidate left,
 //     gold is held (rate 0) while the condition holds.
 //   - auto-resume (R21): the unpaid building or ship with the highest pause
 //     sequence resumes when (a) gold >= auto_resume_upkeep_minutes x its
@@ -221,7 +224,7 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 		gold := w.goldFine()
 		if wr.balance < 0 && (insolvent || -wr.balance > gold) {
 			insolvent = true
-			if p := pauseCandidate(w, c); p.valid() {
+			if p := pauseCandidate(w, c, wr); p.valid() {
 				w.PauseSeq++
 				if p.s != nil {
 					pauseShip(p.s, w.PauseSeq, now)
@@ -298,9 +301,66 @@ func trialThreshold(c *content.Catalogue, upkeep Qty) int64 {
 	return c.Region.Rules.TrialResumeMs * upkeep
 }
 
+// supplyGuardPPM is the need fulfilment below which a house's goods need
+// guards its island's only running producer from the auto-pause (D-075 §5;
+// the 0.6 of the upgrade gate).
+const supplyGuardPPM = upgradeGatePPM
+
+// supplyGuards returns the buildings of an island the auto-pause skips
+// (D-075 §5): each is the island's only running (not paused) producer of a
+// good of a goods need that a connected house on the island fulfils below
+// 0.6, any alternative of the need counting. Unconnected houses consume
+// nothing and guard nothing. r are the island's settled rates.
+func supplyGuards(is *Island, c *content.Catalogue, r *rates) map[int64]bool {
+	unmet := map[string]bool{}
+	for _, h := range r.houses {
+		if !h.connected {
+			continue
+		}
+		for _, n := range h.needs {
+			if n.goods == nil || n.fulfilment >= supplyGuardPPM {
+				continue
+			}
+			for _, g := range n.need.Goods {
+				unmet[g.Good] = true
+			}
+		}
+	}
+	if len(unmet) == 0 {
+		return nil
+	}
+	// producer per unmet good: its only running producer, or -1 for more
+	// than one.
+	producer := map[string]int64{}
+	for _, b := range is.Buildings {
+		def := c.BuildingByID[b.Type]
+		if def == nil || def.Recipe == nil || b.Paused {
+			continue
+		}
+		for _, o := range def.Recipe.Outputs {
+			if !unmet[o.Good] {
+				continue
+			}
+			if _, seen := producer[o.Good]; seen {
+				producer[o.Good] = -1
+			} else {
+				producer[o.Good] = b.ID
+			}
+		}
+	}
+	guards := map[int64]bool{}
+	for _, id := range producer {
+		if id > 0 {
+			guards[id] = true
+		}
+	}
+	return guards
+}
+
 // pauseCandidate returns the next building or ship to pause for
-// insolvency (invalid target if none).
-func pauseCandidate(w *World, c *content.Catalogue) pauseTarget {
+// insolvency (invalid target if none). wr are the settled rates of the
+// world's islands (supplyGuards).
+func pauseCandidate(w *World, c *content.Catalogue, wr *worldRates) pauseTarget {
 	type cand struct {
 		p    pauseTarget
 		id   int64
@@ -325,10 +385,14 @@ func pauseCandidate(w *World, c *content.Catalogue) pauseTarget {
 		}
 		return 0
 	}
-	for _, is := range w.Islands {
+	for i, is := range w.Islands {
+		var guards map[int64]bool
+		if wr != nil && i < len(wr.islands) && wr.islands[i] != nil {
+			guards = supplyGuards(is, c, wr.islands[i])
+		}
 		for _, b := range is.Buildings {
 			def := c.BuildingByID[b.Type]
-			if def == nil || b.Paused || def.UpkeepAt(b.Level) <= 0 {
+			if def == nil || b.Paused || def.UpkeepAt(b.Level) <= 0 || guards[b.ID] {
 				continue
 			}
 			rank := pauseRank(def.PauseCategory)

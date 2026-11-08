@@ -1,7 +1,7 @@
 {
   "name": "offline_12h_stalled",
   "content_version": "old_coast-0.9.0",
-  "boundary_count": 31,
+  "boundary_count": 29,
   "totals": {
     "main": {
       "fish": {
@@ -98,28 +98,13 @@
       "island_id": "main",
       "building_id": 6,
       "type": "sawmill"
-    },
-    {
-      "at": "2026-01-01T05:34:48.761Z",
-      "action": "auto_pause",
-      "island_id": "main",
-      "building_id": 2,
-      "type": "fisher"
-    },
-    {
-      "at": "2026-01-01T06:06:03.757Z",
-      "action": "auto_resume",
-      "island_id": "main",
-      "building_id": 2,
-      "type": "fisher",
-      "trial": true
     }
   ],
   "snapshots": [
     {
       "step": 17,
       "at": "2026-01-01T12:00:00.000Z",
-      "boundaries": 31,
+      "boundaries": 29,
       "inventory": {
         "main": {
           "planks": {
@@ -144,7 +129,7 @@
         "not_connected": 1,
         "paused": 4
       },
-      "gold": 15842,
+      "gold": 0,
       "balance_rate_per_min": -40,
       "population": {
         "settlers": 24000
@@ -196,8 +181,8 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T12:00:00.000Z",
-    "next_change_at": "2026-01-01T18:36:03.775Z",
-    "gold": 15842,
+    "next_change_at": "2026-01-01T23:08:44.641Z",
+    "gold": 0,
     "balance_rate_per_min": -40,
     "tax_rate_per_min": 960,
     "upkeep_rate_per_min": 1000,

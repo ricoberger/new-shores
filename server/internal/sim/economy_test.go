@@ -156,6 +156,57 @@ func TestAutoPauseCascadeAndHeldGold(t *testing.T) {
 	}
 }
 
+// TestAutoPauseSupplyGuards (D-075 §5): two settler houses get their fish
+// from the running fisher (fulfilment 1) but no wool garments: the weaver
+// is the island's only running producer of a good the houses get below
+// 0.6, so the cascade skips it and pauses the rest in the usual order, the
+// fisher last. Cut off from the road the fisher delivers nothing: then it
+// is guarded too, nothing else is left and gold is held at zero (D-008)
+// while both keep running.
+func TestAutoPauseSupplyGuards(t *testing.T) {
+	c := orderCatalogue(t)
+	for _, cut := range []bool{false, true} {
+		w, fisher, weaver, sawmill, sheep, lumberjack := insolventTown(t, c)
+		if cut {
+			// The road tile (6,3) is the fisher's only connection.
+			mustApply(t, w, c, DemolishRoad{IslandID: "main", Tiles: []Pos{{6, 3}}})
+		}
+		placeHouses(t, w, c, 2)
+		bs := mustAdvance(t, w, c, time.Minute)
+		want := []int64{lumberjack, sawmill, sheep, fisher}
+		if cut {
+			want = want[:3]
+		}
+		if got := pauseEvents(bs, BoundaryAutoPause); !equalIDs(got, want) {
+			t.Fatalf("cut %v: pause order = %v, want %v", cut, got, want)
+		}
+		is := w.Islands[0]
+		if is.Building(weaver).Paused || is.Building(fisher).Paused != !cut {
+			t.Fatalf("cut %v: weaver paused %v, fisher paused %v", cut, is.Building(weaver).Paused, is.Building(fisher).Paused)
+		}
+		ds := display(t, w, c)
+		if cut {
+			if w.Gold != 0 || ds.BalanceRatePerMin >= 0 {
+				t.Errorf("gold %d balance %d, want gold held at zero", w.Gold, ds.BalanceRatePerMin)
+			}
+			bs := mustAdvance(t, w, c, time.Hour)
+			if p := pauseEvents(bs, BoundaryAutoPause); len(p) != 0 || w.Gold != 0 || is.Building(weaver).Paused || is.Building(fisher).Paused {
+				t.Errorf("an hour later: pauses %v, gold %d", p, w.Gold)
+			}
+		}
+		for _, b := range ds.Islands[0].Buildings {
+			if b.Type != "house_settlers" {
+				continue
+			}
+			for _, n := range b.Needs {
+				if n.ID == "settlers_clothing" && n.FulfilmentPermille >= 600 {
+					t.Errorf("house %d clothing %d", b.ID, n.FulfilmentPermille)
+				}
+			}
+		}
+	}
+}
+
 // TestAutoResumeOrderAndHysteresis: unpaid buildings resume in reverse pause
 // order, each once gold reaches 5 minutes of its upkeep and the balance stays
 // >= 0 without it.

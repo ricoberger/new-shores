@@ -636,6 +636,19 @@ then lowest upkeep first so the fewest buildings stop, then lowest ID):
 4. **Ships on routes** (ship anchors at its current stop; cargo stays aboard).
 5. **Tier-1 food** production.
 
+**Supply chains pause last** (D-075 §5): a candidate is skipped while it
+is its island's **only running producer** of a good of a goods need that a
+connected house on the island fulfils **below 0.6** (the upgrade gate;
+any alternative of the need counts). The pause falls on the next
+candidate; a second running producer of the good lifts the guard (the
+cascade pauses one, the last one is guarded), and so does the need
+reaching 0.6. The guard is evaluated on the settled rates of each cascade
+step, so it stays deterministic. With only guarded candidates
+left, D-008's gold floor holds: gold is held at zero and the guarded
+buildings keep running unpaid until taxes cover them. A producer whose
+good already fills the need to 0.6 is not guarded and can still be paused
+(scenarios `supply_chains_pause_last`, `stall_recovery_auto`).
+
 Never auto-paused: houses, warehouses, roads, shipyard, harbourmaster,
 decorations, and the tier-1 market and chapel. **Never-pausable buildings
 carry no upkeep** (D-046): their running cost is folded into their

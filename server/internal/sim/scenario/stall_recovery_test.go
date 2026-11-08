@@ -3,6 +3,7 @@ package scenario
 import (
 	"encoding/json"
 	"math"
+	"slices"
 	"testing"
 	"time"
 
@@ -88,9 +89,11 @@ func checkStallRestrictions(t *testing.T, s *Scenario) {
 
 // TestStallRecoveryAuto checks golden (x), automatic variant: the tier-1
 // opening runs out of gold before the first catch lands; the cascade
-// pauses every pausable building at one instant; fully stalled, the balance
-// is not negative (nothing that runs has upkeep) and gold grows from the
-// floor taxes; the auto-resume chain restarts on its own and within 60
+// pauses every pausable building at one instant but the weaver and the
+// fisher, the only producers of the houses' unmet garments and fish
+// (D-075 §5); the fisher follows once its catch lands; stalled, the
+// weaver's garments lift the taxes and gold grows again; the auto-resume
+// chain restarts on its own and within 60
 // minutes after the cascade nothing is unpaid, the balance is >= 0 and
 // gold strictly increases. No command follows the opening.
 func TestStallRecoveryAuto(t *testing.T) {
@@ -112,33 +115,47 @@ func TestStallRecoveryAuto(t *testing.T) {
 		t.Fatalf("cascade %.2f, first resume %.2f, recovery %.2f", cascade, firstResume, recovered)
 	}
 
-	// The cascade pauses every pausable building at one instant.
-	pausable, pausableUpkeep := 0, int64(0)
+	// The cascade pauses every pausable building at one instant except
+	// the guarded ones (D-075 §5): the weaver and the fisher are the only
+	// producers of the houses' garments and fish, which the houses get
+	// below 0.6. The fisher pauses once its first catch lands (the fish
+	// need is met, its guard lapses); the weaver is never paused, and the
+	// town grows out of the stall on its garments.
+	pausable := 0
 	for _, b := range rep.Final.Islands[0].Buildings {
 		if def := c.BuildingByID[b.Type]; def.PauseCategory != "never" && def.UpkeepPerMin > 0 {
 			pausable++
-			pausableUpkeep += def.UpkeepPerMin
 		}
 	}
-	paused := 0
+	var atCascade, later []string
+	var fisherPause float64 = -1
 	for _, e := range rep.PauseEvents {
-		if e.Action == "auto_pause" {
-			paused++
-			if stallMinutes(t, s, e.At) != cascade {
-				t.Errorf("pause of %s at %s, not at the cascade", e.Type, e.At)
-			}
+		if e.Type == "weaver_wool" {
+			t.Errorf("weaver %s at %s", e.Action, e.At)
+		}
+		if e.Action != "auto_pause" {
+			continue
+		}
+		if m := stallMinutes(t, s, e.At); m == cascade {
+			atCascade = append(atCascade, e.Type)
+		} else {
+			later = append(later, e.Type)
+			fisherPause = m
 		}
 	}
-	if pausable < 5 || paused != pausable {
-		t.Fatalf("%d of %d pausable buildings paused", paused, pausable)
+	if pausable < 5 || len(atCascade) != pausable-2 || slices.Contains(atCascade, "fisher") || !slices.Equal(later, []string{"fisher"}) {
+		t.Fatalf("%d pausable buildings; paused at the cascade %v, later %v", pausable, atCascade, later)
+	}
+	if fisherPause <= cascade || fisherPause >= firstResume {
+		t.Fatalf("fisher paused at minute %.2f, cascade %.2f, first resume %.2f", fisherPause, cascade, firstResume)
 	}
 
-	// Fully stalled: right after the cascade gold is zero, every pausable
-	// building is unpaid, the balance is >= 0 and gold grows from the floor
-	// taxes until the first auto-resume.
+	// Stalled: right after the fisher's pause gold is zero and every
+	// pausable building but the weaver is unpaid; gold grows from the taxes
+	// until the first auto-resume.
 	// Report timestamps have millisecond resolution: round the float minutes
-	// back to the cascade's millisecond, never a hair before it.
-	at := s.Start.Add(time.Duration(math.Round(cascade*float64(time.Minute)/float64(time.Millisecond))) * time.Millisecond)
+	// back to the pause's millisecond, never a hair before it.
+	at := s.Start.Add(time.Duration(math.Round(fisherPause*float64(time.Minute)/float64(time.Millisecond))) * time.Millisecond)
 	w, err := RunSteps(s, c, end)
 	if err != nil {
 		t.Fatal(err)
@@ -150,14 +167,14 @@ func TestStallRecoveryAuto(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	weaver := c.BuildingByID["weaver_wool"].UpkeepPerMin
 	ins := ds.Insolvency
-	if ds.Gold != 0 || ds.BalanceRatePerMin < 0 || ds.TaxRatePerMin <= 0 || ds.UpkeepRatePerMin != 0 || ins.UnpaidBuildings != pausable ||
-		ins.UnpaidShips != 0 || ins.UnpaidUpkeepPerMin != pausableUpkeep || ins.BalanceIfResumedPerMin >= 0 {
-		t.Fatalf("stalled: gold %d balance %d tax %d insolvency %+v", ds.Gold, ds.BalanceRatePerMin, ds.TaxRatePerMin, ins)
+	if ds.Gold != 0 || ds.TaxRatePerMin <= 0 || ds.UpkeepRatePerMin != weaver || ins.UnpaidBuildings != pausable-1 || ins.UnpaidShips != 0 {
+		t.Fatalf("stalled: gold %d balance %d tax %d upkeep %d insolvency %+v", ds.Gold, ds.BalanceRatePerMin, ds.TaxRatePerMin, ds.UpkeepRatePerMin, ins)
 	}
-	t.Logf("fully stalled: balance %d, floor taxes %d, unpaid upkeep %d, balance if resumed %d milli-gold/min",
+	t.Logf("stalled: balance %d, taxes %d, unpaid upkeep %d, balance if resumed %d milli-gold/min",
 		ds.BalanceRatePerMin, ds.TaxRatePerMin, ins.UnpaidUpkeepPerMin, ins.BalanceIfResumedPerMin)
-	mid := at.Add(time.Duration((firstResume - cascade) / 2 * float64(time.Minute)))
+	mid := at.Add(time.Duration((firstResume - fisherPause) / 2 * float64(time.Minute)))
 	if _, err := sim.Advance(w, c, mid); err != nil {
 		t.Fatal(err)
 	}
@@ -193,7 +210,8 @@ func TestStallRecoveryAuto(t *testing.T) {
 // world up to the fully stalled state; once the first catch has landed the
 // player resumes the unpaid fisher and demolishes the unpaid lumberjack. The
 // town recovers within 60 minutes of that action and no later than without
-// it.
+// it. Only the fisher pauses again after the cascade: with fish in stock its
+// guard (D-075 §5) is gone while the balance is still negative.
 func TestStallRecoveryManual(t *testing.T) {
 	auto := loadScenario(t, "stall_recovery_auto")
 	s := loadScenario(t, "stall_recovery_manual")
@@ -232,8 +250,8 @@ func TestStallRecoveryManual(t *testing.T) {
 	if actionAt <= cascade {
 		t.Fatalf("manual action at minute %.2f, before the cascade at %.2f", actionAt, cascade)
 	}
-	// The resumed fisher stays running, the lumberjack is gone; the rest
-	// resumes automatically.
+	// The lumberjack is gone; the fisher and the rest resume
+	// automatically.
 	open, recovered := 0, -1.0
 	for _, e := range rep.PauseEvents {
 		switch e.Action {
@@ -242,7 +260,7 @@ func TestStallRecoveryManual(t *testing.T) {
 		case "auto_resume":
 			open--
 		}
-		if e.Action == "auto_pause" && stallMinutes(t, s, e.At) > cascade {
+		if e.Action == "auto_pause" && stallMinutes(t, s, e.At) > cascade && e.Type != "fisher" {
 			t.Errorf("paused again after the cascade: %+v", e)
 		}
 		// The manual resume and the demolition close two pauses.
