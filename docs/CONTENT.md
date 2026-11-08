@@ -641,7 +641,7 @@ whose levels carry upkeep (D-069 §3).
 
 `look` ∈ `rural`, `workshop`, `civic`, `harbour` (D-075 §3, required, no
 gameplay effect) names who works the building, which sets its art
-(ART_DIRECTION §3): **rural** wears the tier-1 look whatever its tier,
+(ART_DIRECTION §7): **rural** wears the tier-1 look whatever its tier,
 **workshop** the tier-2 look (dark tile allowed on tier-4 workshops),
 **civic** and **harbour** the unlock-tier ladder. Fields, plots and
 roads are `rural` too (no exemption: one rule for every building; they

@@ -648,6 +648,17 @@ land buildings).
   uses `brick` (an accent: level 3 piers and arch rings, level 4 ground
   floor and gable fields; the role was darkened from `#9C4A38` to
   `#7E4A3C`, shadow `#492928`).
+- **Look follows the workers (D-075 §3):** the roof ladder above is the
+  ladder of `civic` and `harbour` buildings only (content `look`). A
+  `rural` building (farms, fields, lumberjack, apiary, orchard, hemp,
+  dairy, pigs, quarry, mines, charcoal burner, fisher, salt pans,
+  oyster beds) wears the tier-1 look — thatch, timber, low walls —
+  whatever its tier; a `workshop` the tier-2 look — terracotta,
+  half-timber, stone plinth, `tile-dark` allowed on tier-4 workshops;
+  size and props tell the tier. The assignment is the `look` table in
+  CONTENT (under buildings.json); re-dressing the 12–15 tier-3/4
+  production models that still wear their unlock tier's roof is an art
+  session's task.
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual
   only, D-042); one material (vertex colours). Every building reads by
