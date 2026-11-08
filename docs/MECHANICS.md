@@ -143,6 +143,17 @@ handlers only.
   still need a coast tile (quay counts). Harbour points remain two tiles
   off the **front row**, not the variable water/land boundary (§9).
   Error codes stay `not_on_water`, `terrain` and `occupied`.
+- **Low shore** (D-075 §1): every land tile of a water-edge building
+  (any `water_rows`, the depot's all-land footprint included) is at
+  terrace level 0 (§10), else `needs_low_shore`; cliffs are not pier
+  coasts. Quay tiles are shallows and need no level. The rule holds for
+  `place_building`, plans (placing, moving and building them), `move_building`,
+  `found_island` and the site of `sail_ship`; it is checked after the
+  water rows (`not_on_water`, `terrain`, `occupied` come first) and
+  before the coast and deposit rules. The archipelago generator is
+  unchanged: its island check (two disjoint Trading Post sites, a
+  shipyard site) runs the same placement check, so every generated
+  island still has low-shore sites.
 - **Work area** = a fertility tag only (`work_area.fertility`, above); there
   is no work radius or terrain rule. The efficiency of a building comes
   from its fields:
@@ -901,11 +912,12 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
     Fishing stays sea-only.
   - **Islets** (2–15 tiles, rock with a grass top or bare) lie inside
     an island's grid as unbuildable decor.
-  - **Terraces are visual only:** every land tile has a level 0–2 (the
-    beach at 0, inland higher, rivers stepping down, the plain on one
-    level) and
-    rock tiles a rock height. No tile loses buildability and no placement
-    rule reads them; the client draws plinths, ramps and waterfalls.
+  - **Terraces are visual** except for one rule: every land tile has a
+    level 0–2 (the beach at 0, inland higher, rivers stepping down, the
+    plain on one level) and rock tiles a rock height. No tile loses
+    buildability; the only placement rule that reads levels is the low
+    shore of water-edge buildings (§2, D-075 §1). The client draws
+    plinths, ramps and waterfalls.
 - **Shallows** (D-060): an island's water tiles (not river) within 3
   tiles (Chebyshev) of its own land — islets are not own land — derived
   from the tiles; the ground of quays (§3). D-036 stands: the shallows

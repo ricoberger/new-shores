@@ -251,7 +251,9 @@ UI shows the same numbers the server uses.
 - **Water-edge ghosts (D-062):** each rotated footprint column follows
   the served `water_rows` bounds. A per-tile overlay marks land where water
   is required, or water/non-buildable terrain where land is required, red;
-  valid tiles keep the normal light/no-road yellow. Quays count as land,
+  so is a land tile above terrace level 0 (D-075 §1, from the statics'
+  `levels`; hint "Needs a low shore — its land tiles must be at sea
+  level, not on a terrace", after the front/land hints); valid tiles keep the normal light/no-road yellow. Quays count as land,
   rivers never as sea. The model keeps its normal tint for a water-edge
   mismatch so one bad tile does not turn the entire building red. This is
   a display hint only: the server validates every placement.

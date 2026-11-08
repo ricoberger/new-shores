@@ -122,7 +122,8 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - **Continuous terrain, hidden grid.** The tile grid is not drawn; a
   subtle grid overlay fades in around the cursor (≈ 8 tiles) only while a
   build/road/field/move tool is active. Ground is flat within a terrace
-  level; the levels are visual only (D-058 §4).
+  level; the levels are visual except that water-edge buildings need a
+  level-0 shore (D-058 §4, D-075 §1).
 - **Voxel ground (D-057 V2):** the island is a column field at 4
   columns per tile, height steps of 1/8 tile, greedy-meshed per 32×32-tile
   chunk with baked corner occlusion (`render/voxelterrain.ts`). The top

@@ -154,7 +154,8 @@ export function waterRows(
 export interface WaterEdgeTile extends TilePos {
   /** Whether this tile is in the column's chosen water prefix. */
   water: boolean;
-  problem: "front" | "land" | null;
+  /** front: land in the water rows; land: water or unbuildable terrain behind them; low: a land tile above terrace level 0 (D-075). */
+  problem: "front" | "land" | "low" | null;
 }
 
 /**
@@ -162,6 +163,8 @@ export interface WaterEdgeTile extends TilePos {
  * A column's contiguous water prefix is clamped to min..max. Non-water in
  * that prefix is red; non-buildable terrain after it is red too. A river
  * never counts as water, nor does water behind an intervening land tile.
+ * With level (the island's terrace levels), a land tile above level 0 is
+ * red too: a water-edge building needs a low shore (D-075 §1).
  * This is a display mirror, not placement authority.
  */
 export function waterEdgeTiles(
@@ -170,6 +173,7 @@ export function waterEdgeTiles(
   x: number,
   y: number,
   rotation: number,
+  level?: (x: number, y: number) => number,
 ): WaterEdgeTile[] {
   const rows = def.water_rows;
   if (!rows) return [];
@@ -196,23 +200,32 @@ export function waterEdgeTiles(
       const t = terrain(p.x, p.y);
       const water = row < k;
       const valid = water ? t === "water" : t === "coast" || t === "grass" || t === "forest" || t === "quay";
-      out.push({ ...p, water, problem: valid ? null : water ? "front" : "land" });
+      const low = !water && valid && t !== "quay" && (level?.(p.x, p.y) ?? 0) > 0;
+      out.push({ ...p, water, problem: !valid ? (water ? "front" : "land") : low ? "low" : null });
     }
   }
   return out;
 }
 
-/** The legacy error precedence for the ghost text: required water first. */
+/** The server's error precedence for the ghost text: required water first, then the land rows, then the low shore. */
 export function waterEdgeHint(
   def: WaterEdgeDef,
   terrain: (x: number, y: number) => string,
   x: number,
   y: number,
   rotation: number,
-): "front" | "land" | null {
-  const tiles = waterEdgeTiles(def, terrain, x, y, rotation);
-  if (tiles.some((p) => p.problem === "front")) return "front";
-  return tiles.some((p) => p.problem === "land") ? "land" : null;
+  level?: (x: number, y: number) => number,
+): "front" | "land" | "low" | null {
+  const tiles = waterEdgeTiles(def, terrain, x, y, rotation, level);
+  for (const problem of ["front", "land", "low"] as const) {
+    if (tiles.some((p) => p.problem === problem)) return problem;
+  }
+  return null;
+}
+
+/** Terrace level lookup of an island's `levels` digits (absent or empty: all 0). */
+export function levelAt(levels: string | undefined, width: number): (x: number, y: number) => number {
+  return (x, y) => (levels ? Number(levels[y * width + x] ?? "0") || 0 : 0);
 }
 
 /** A run of road tiles drawn as one strip: from (x0, y0) to (x1, y1) inclusive, horizontal or vertical. */

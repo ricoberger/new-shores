@@ -609,7 +609,8 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 // checkSite validates a building site, in this order: the footprint is on
 // the island, on buildable terrain (a deposit building may also cover
 // mountain tiles) and free (per occ and roads) except the front rows of a
-// water-edge building, which must be free water tiles; a coastal building touches
+// water-edge building, which must be free water tiles; the land tiles of a
+// water-edge building are at terrace level 0 (a low shore, D-075 §1); a coastal building touches
 // the coast; a deposit building covers at least one tile with a deposit of
 // its kind; and the island has the fertility of a work-area building. A
 // road is never required (D-042). Fields are not sites of this check
@@ -660,6 +661,15 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 		}
 		if occ[i] != 0 || is.roadOrPlan(i) {
 			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
+		}
+	}
+	// Low shore (D-075 §1): a water-edge building stands on level-0 land
+	// only (cliffs are not pier coasts). Quay tiles are shallows.
+	if def.WaterRows != nil {
+		for _, p := range tiles {
+			if l := is.Tile(p.X, p.Y).Level; l != 0 {
+				return fmt.Errorf("%w: %s at (%d,%d): land tile (%d,%d) is at level %d", ErrNeedsLowShore, def.ID, x, y, p.X, p.Y, l)
+			}
 		}
 	}
 	if def.Coastal {

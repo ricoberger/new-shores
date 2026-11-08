@@ -279,6 +279,15 @@ describe("almanac model of the harbour buildings (D-060)", () => {
     const quay = buildingView(idx, idx.building("quay")!);
     expect(quay).toMatchObject({ shallows: true, roadSecondsPerTile: 0.6 });
   });
+
+  it("names the low shore of every water-edge building (D-075)", () => {
+    const low = "Needs a low shore (land tiles at sea level, not on a terrace)";
+    for (const id of ["trading_post", "trading_pier", "fisher", "shipyard", "depot"]) {
+      expect(buildingView(idx, idx.building(id)!).needsSite, id).toContain(low);
+    }
+    expect(buildingView(idx, idx.building("quay")!).needsSite).not.toContain(low);
+    expect(buildingView(idx, idx.building("sawmill")!).needsSite).not.toContain(low);
+  });
 });
 
 describe("almanac model of the collectors (D-069)", () => {

@@ -164,7 +164,8 @@ type Tile struct {
 	// Terrain is one of the content.Terrain* constants.
 	Terrain string `json:"terrain"`
 	// Level is the terrace level (0 coast to content.MaxLevel inland) of a
-	// land tile (D-058 part 4). Visual only: no rule reads it.
+	// land tile (D-058 part 4). One rule reads it: the land tiles of a
+	// water-edge building must be at level 0 (D-075 §1, ErrNeedsLowShore).
 	Level int `json:"level,omitempty"`
 	// Height is the rock height of a mountain tile above its level, in
 	// terrace steps (D-058 part 2; 0 elsewhere). Visual only.

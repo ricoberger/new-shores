@@ -72,6 +72,7 @@ func PlanReasons() []PlanReason {
 		{ErrNotCoastal, "not_coastal"},
 		{ErrNotOnWater, "not_on_water"},
 		{ErrHarbourBlocked, "harbour_blocked"},
+		{ErrNeedsLowShore, "needs_low_shore"},
 		{ErrNoFertility, "no_fertility"},
 		{ErrNoDeposit, "no_deposit"},
 		{ErrInsufficientGold, "insufficient_gold"},

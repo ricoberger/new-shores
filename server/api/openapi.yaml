@@ -810,6 +810,8 @@ components:
         - 409: `occupied`, `terrain` (also a quay off the shallows,
           D-060), `not_coastal`, `not_on_water` (a
           water-edge building's front rows are not on water, D-051),
+          `needs_low_shore` (a water-edge building's land tiles are not
+          all at terrace level 0, D-075),
           `harbour_blocked` (quay tiles, or a Trading Post moved onto
           them, would close the harbour point off from the open sea,
           D-060),
@@ -852,7 +854,7 @@ components:
         `move_building` can fail with 400 `bad_request`, `invalid_command`
         (also for a road or an invalid rotation), `out_of_bounds`; 404
         `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-        `not_coastal`, `not_on_water`, `no_fertility`,
+        `not_coastal`, `not_on_water`, `needs_low_shore`, `no_fertility`,
         `no_deposit`. Moving a farm keeps its fields (they may become
         inactive); a field cannot be moved (`invalid_command`). Moving is
         free: it never fails for gold, materials or tier. Placement never
@@ -931,6 +933,7 @@ components:
         - terrain
         - not_coastal
         - not_on_water
+        - needs_low_shore
         - harbour_blocked
         - no_fertility
         - no_deposit
@@ -1933,7 +1936,7 @@ components:
         point instead of the island's shore (D-058); the site is validated
         like `found_island`'s (`island_already_settled`, `invalid_command`,
         `unknown_building`, `tier_locked`, `out_of_bounds`, `not_on_water`,
-        `terrain`, ...). Errors: `ship_not_found`, `ship_not_idle`,
+        `needs_low_shore`, `terrain`, ...). Errors: `ship_not_found`, `ship_not_idle`,
         `route_invalid` (unknown destination or the ship's own island).
       required: [type, ship_id, to_island_id]
       properties:
@@ -1972,7 +1975,8 @@ components:
         Trading Post's materials from its cargo (gold from the world) and
         the Trading Post (`building_type` with a `trading_post` block) is
         placed with its front rows over the water (`not_on_water`
-        otherwise); the remaining cargo is unloaded (up to capacity). The
+        otherwise) and its land tiles on a low shore (`needs_low_shore`
+        otherwise, D-075); the remaining cargo is unloaded (up to capacity). The
         Trading Post is never placed by `place_building`.
       required: [type, ship_id, island_id, building_type, x, y, rotation]
       properties:

@@ -441,6 +441,8 @@ export interface components {
          *     - 409: `occupied`, `terrain` (also a quay off the shallows,
          *       D-060), `not_coastal`, `not_on_water` (a
          *       water-edge building's front rows are not on water, D-051),
+         *       `needs_low_shore` (a water-edge building's land tiles are not
+         *       all at terrace level 0, D-075),
          *       `harbour_blocked` (quay tiles, or a Trading Post moved onto
          *       them, would close the harbour point off from the open sea,
          *       D-060),
@@ -483,7 +485,7 @@ export interface components {
          *     `move_building` can fail with 400 `bad_request`, `invalid_command`
          *     (also for a road or an invalid rotation), `out_of_bounds`; 404
          *     `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-         *     `not_coastal`, `not_on_water`, `no_fertility`,
+         *     `not_coastal`, `not_on_water`, `needs_low_shore`, `no_fertility`,
          *     `no_deposit`. Moving a farm keeps its fields (they may become
          *     inactive); a field cannot be moved (`invalid_command`). Moving is
          *     free: it never fails for gold, materials or tier. Placement never
@@ -550,7 +552,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -1300,7 +1302,7 @@ export interface components {
          *     point instead of the island's shore (D-058); the site is validated
          *     like `found_island`'s (`island_already_settled`, `invalid_command`,
          *     `unknown_building`, `tier_locked`, `out_of_bounds`, `not_on_water`,
-         *     `terrain`, ...). Errors: `ship_not_found`, `ship_not_idle`,
+         *     `needs_low_shore`, `terrain`, ...). Errors: `ship_not_found`, `ship_not_idle`,
          *     `route_invalid` (unknown destination or the ship's own island).
          */
         SailShipCommand: {
@@ -1334,7 +1336,8 @@ export interface components {
          *     Trading Post's materials from its cargo (gold from the world) and
          *     the Trading Post (`building_type` with a `trading_post` block) is
          *     placed with its front rows over the water (`not_on_water`
-         *     otherwise); the remaining cargo is unloaded (up to capacity). The
+         *     otherwise) and its land tiles on a low shore (`needs_low_shore`
+         *     otherwise, D-075); the remaining cargo is unloaded (up to capacity). The
          *     Trading Post is never placed by `place_building`.
          */
         FoundIslandCommand: {

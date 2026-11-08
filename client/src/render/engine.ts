@@ -27,7 +27,7 @@ import { allocateFarTerrain, type MaskIsland, MaskLayer, reliefOrder } from "./f
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { freeShallows, isQuayType, withQuays } from "../display/quay";
-import { buildingAt, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
+import { buildingAt, levelAt, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
@@ -1792,7 +1792,7 @@ export class GameRenderer {
     if (l?.statics && def.water_rows) {
       const st = l.statics;
       const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
-      waterTiles = waterEdgeTiles(def, withQuays(terrain, l.roads), tl.x, tl.y, tool.rotation);
+      waterTiles = waterEdgeTiles(def, withQuays(terrain, l.roads), tl.x, tl.y, tool.rotation, levelAt(st.levels, st.width));
     }
     let waterHint = false;
     if (fertility && !fertility.present) {
@@ -1800,7 +1800,7 @@ export class GameRenderer {
     } else if (missingDepositHint(def, l?.deposits ?? new Map(), tl.x, tl.y, tool.rotation)) {
       hint = depositText(def.requires_deposit ?? "");
     } else if (def.water_rows) {
-      const edge = waterTiles.some((p) => p.problem === "front") ? "front" : waterTiles.some((p) => p.problem === "land") ? "land" : null;
+      const edge = (["front", "land", "low"] as const).find((problem) => waterTiles.some((p) => p.problem === problem)) ?? null;
       if (edge) {
         hint = waterEdgeText(edge, def.water_rows);
         waterHint = true;
