@@ -18,8 +18,10 @@ interface Props {
 
 /**
  * Manual shipment: destination and amounts (whole units) chosen from the
- * ship's island inventory. The slot count is a display bound only; the
- * server validates stock and slots.
+ * ship's island inventory. Send needs only a destination: an empty ship may
+ * sail (to fetch goods or found a settlement). The slot count is a display
+ * bound only (over the slots it turns to a warning); the server validates
+ * stock and slots.
  */
 export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClose }: Props) {
   const here = model.islands.find((i) => i.id === ship.island_id);
@@ -96,7 +98,7 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
           <button
             type="button"
             className={styles.button}
-            disabled={to === "" || (cargo.length === 0 && ship.cargo.length === 0)}
+            disabled={to === ""}
             onClick={() => {
               onClose();
               onSend(to, cargo);

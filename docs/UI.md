@@ -110,6 +110,9 @@ UI shows the same numbers the server uses.
   shows its route and ETA.
 - **Manual shipment:** only through the ship panel's "Send…" dialog; the
   destination is chosen in its dropdown (no drag and drop, no map pick).
+  Send needs only a destination — an empty ship may sail (the server
+  accepts a shipment without cargo); the slot line warns over the ship's
+  slots and the server validates stock and slots.
 - **Focused island** = the island under the camera centre, else the
   nearest; it drives the build-menu stock display, the highlighted tab and
   the unsettled-island panel, never a command.
