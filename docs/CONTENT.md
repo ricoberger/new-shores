@@ -796,6 +796,30 @@ measurement is conservative, not the earliest crossing. Merchants lose the
 health gate but these layout repairs cost about six minutes versus the
 old 223/258/291 replay. The checklist below retains older balancing history.
 
+### D-075 reference results (sim minutes, seed 1053001)
+
+Content `old_coast-0.21.0` (collectors 10 / 20 / 40 / 80 and 8 / 16 /
+32 / 64 t/min with lower upkeep, `look`, cog / hulk / carrack), the
+low-shore rule for water-edge buildings and supply chains paused last:
+
+| Game | Milestones | Targets | D-074 | D-075 | Margins |
+|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 53 / 27 / 80 / 135 | 50 / 25 / 71 / 124 | 10 / 65 / 29 / 26 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 23 / 44 (7, 99) | 21 / 38 (6, 91) | 24 / 47; 29 / 33 earlier than without claims |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 230 / 265 / 405 | 215 / 250 / 387 | 25 / 20 / 33 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 719 / 838 / 1188 | 721 / 868 / 1180 | 179 / 92 / 620 |
+
+`growth_per_min` stays 1. The plans are the D-074 plans with the ships
+renamed: no step changed; the regenerated games differ only through
+the content and the rules. Every milestone up to the Merchant
+categories comes earlier: the level-1 collectors carry 25 % (Trading
+Post) and 33 % (warehouse) more and the level-2 upgrades cost about
+half the upkeep. The Patrician unlock and first house come 2 and 30
+minutes later, still with the widest margins. The low-shore rule (D-075 §1) changes no reference
+game: none places a trading pier or a depot, and the fishers, salt pans
+and shipyard of the plans all stand on level-0 shores. The supply-chain
+guard (D-075 §5) never fires: no reference game runs out of gold.
+
 ### D-074 reference results (sim minutes, seed 1053001)
 
 Content `old_coast-0.20.0` (houses fill with satisfaction, residents
