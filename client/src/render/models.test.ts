@@ -345,11 +345,12 @@ describe("loading through the registry", () => {
     }
     expect(widths[0]).toBeLessThan(widths[1]!);
     expect(widths[1]).toBeLessThan(widths[2]!);
-    // Without wake_width: the hull's full width from the bounds.
+    // Without wake_width: the hull's full width from the bounds (the wider side, mirrored).
     const bare = { ...manifest, models: { cog: { ...manifest.models.cog!, ship: { length_tiles: 2, masts: 1, sail_scale: 1 } } } };
     const reg2 = new ModelRegistry(scene, { fetch: () => ok(JSON.stringify(bare)) });
     await reg2.loadManifest();
-    expect(shipWakeSpec(reg2, "cog")!.width).toBeCloseTo((2 * manifest.models.cog!.bounds.max[2]) / 2, 6);
+    const b = manifest.models.cog!.bounds;
+    expect(shipWakeSpec(reg2, "cog")!.width).toBeCloseTo((2 * Math.max(-b.min[2], b.max[2])) / 2, 6);
   });
 
   it("builds URLs with the first 8 hex digits of the sha256", () => {

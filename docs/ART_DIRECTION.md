@@ -571,13 +571,25 @@ land buildings).
   cloths), `H.lantern` (a lantern post with a brass cage) and
   `H.cupola` (a roof lantern with glazed sides, hipped roof and pennant).
   Their tests are `HelperTest` in `tests/test_d062.py`.
-- **Ships:** `recipes/_ships.py` builds all hulls with one `hull()`
-  (plank courses, wale, trim band, rail, deck courses, gunports,
-  bowsprit, stern cabin with windows, gallery and lanterns, forecastle)
-  and `mast()` (yards, top, shrouds, pennant); sails are sway group
-  `sail`, pennants `flag`. The cargo attachment places one prop per
-  cargo slot at the ship's `CARGO_SPOTS`; anchors are `status` and
-  `wake` (stern, waterline).
+- **Ships (D-075 §4, the Hanseatic ladder):** `recipes/_ships.py`
+  builds all hulls with one `hull()` (plank courses, wale, trim band,
+  rail, `sides` raised bulwark strakes, deck courses, gunports,
+  bowsprit, stern cabin with windows, gallery and lanterns),
+  `castle()` (a raised deck on plank walls with a painted rail; a row
+  of windows optional), `mast()` (square sails, yards, top, shrouds
+  unless `rigging=False`, pennant) and `lateen()`. The **cog** (length
+  2 tiles, 2 720 triangles): high sides, one mast with one square sail
+  and no shrouds, a stern castle with a lantern. The **hulk** (2.6
+  tiles, 5 450): fore and stern castles (windows aft, two lanterns),
+  two masts with square sails and a jib. The **carrack** (3.2 tiles,
+  7 430): a high two-storey forecastle with windows, the stern cabin
+  with two rows of windows, square sails on the fore- and mainmast, a
+  lateen on the mizzen, a jib. Sails (square, lateen, jib) are sway
+  group `sail`, pennants `flag`, so the life layer is unchanged. The
+  cargo attachment places one prop per cargo slot at the ship's
+  `CARGO_SPOTS` (clear of masts and castles); anchors are `status` and
+  `wake` (stern, waterline). Budgets are unchanged; the cog's shrouds
+  were the price of its sides and castle.
 - **Anchors:** everything `model.required_anchors` lists (cart, boat,
   berths, slip, pasture gate and animals, chimney/smoke) plus a door on
   buildings; the build fails without them.
@@ -692,9 +704,10 @@ land buildings).
   of its voxels are). **Ships (V7):** an authored lite per ship
   (`<id>.lite.glb`; `_ships.py` `lite_hull` / `lite_mast` at a quarter
   of the full grid, `SHIP_LITE_DOWNSAMPLE`: keel, planked side, bulwark,
-  stern castle, bowsprit, masts and sail silhouettes, no cargo) under its
+  stern castle, forecastle, bowsprit, masts and sail silhouettes — the
+  cog's one square sail, the carrack's lateen — no cargo) under its
   own budget (`LITE_BUDGET_SHIPS`: cog
-  300, hulk 600, carrack 800; now 236 / 448 / 544 triangles); a plain
+  300, hulk 600, carrack 800; now 224 / 416 / 506 triangles); a plain
   downsample came out over budget and noisy. Ships switch to the lite
   with the buildings, one draw per ship type; the far allocation counts
   the lite triangles. Fields, decor and life props have no lite file.
@@ -714,7 +727,7 @@ land buildings).
   `SLACK_OVERRIDE`) and must be justified in the recipe docstring — so
   far only `tree_plot` (450, slack 4: the forest trees at forest scale,
   D-068 as built). The committed GLBs are 23.35 MiB after the V7 rework
-  (#66) of a **24 MiB folder limit**; what remains per triangle is
+  (#66) of a **24 MiB folder limit** (23.33 MiB with the D-075 ships); what remains per triangle is
   indices and AO/normal-split vertices.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at
