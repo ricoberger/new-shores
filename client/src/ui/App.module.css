@@ -26,7 +26,9 @@
   inset: 0;
   pointer-events: none;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  /* minmax(0, 1fr): a tall side panel never grows the map row and pushes
+     the build menu below the viewport; the panel scrolls inside its box. */
+  grid-template-rows: auto minmax(0, 1fr) auto;
   /* minmax(0, …): wide rows (top bar, build bar) never push the grid
      beyond the viewport when a side panel takes its column. */
   grid-template-columns: minmax(0, 1fr) auto;
@@ -92,6 +94,21 @@
   grid-area: right;
   margin: 8px;
   align-self: start;
+  /* At most the map row: the detail panel shrinks and its body scrolls. */
+  min-height: 0;
+  max-height: calc(100% - 16px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* The resume bar keeps its height; the panel (last) gives way. */
+.right > * {
+  flex: 0 0 auto;
+}
+
+.right > :last-child {
+  min-height: 0;
+  flex: 0 1 auto;
 }
 
 .bottom {

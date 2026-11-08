@@ -411,6 +411,11 @@ UI shows the same numbers the server uses.
   below its maximum (equal to the requirement); the field count is the
   farm's efficiency in Details.
 - Buttons: pause/resume, move, demolish, pinned in a footer below a divider (only the content above scrolls).
+- The card never grows the layout: on the desktop it takes at most the
+  map row between the top bar and the build menu (the overlay's middle
+  row is `minmax(0, 1fr)`) and a long body — the Trading Post's
+  inventory — scrolls inside its own box, so the open build menu stays
+  whole at the bottom.
 
 **House**
 

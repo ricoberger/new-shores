@@ -1495,12 +1495,17 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.mouse.move(5, 400);
     },
   },
-  // The Trading Post at level 4 (D-054 size, settled) with four ships at its berths and one queued, its card open.
+  // The Trading Post at level 4 (D-054 size, settled) with four ships at its berths and one queued, its card open
+  // next to the open build menu: the card's long inventory scrolls inside its own box, the build menu stays at the bottom.
   "trading-post-card": {
     fixture: "settled",
     device: "desktop",
     patch: fourAtThePier,
-    run: (page) => selectBuilding(page, "trading_post", { x: 1, y: -3 }, 12),
+    run: async (page) => {
+      await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+      await selectBuilding(page, "trading_post", { x: 1, y: -3 }, 12);
+    },
   },
   "shipyard-idle": {
     fixture: "played",
