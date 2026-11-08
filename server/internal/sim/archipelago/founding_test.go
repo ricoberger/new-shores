@@ -125,3 +125,54 @@ func TestSailShipSite(t *testing.T) {
 		t.Fatal("site at sea accepted")
 	}
 }
+
+// TestLagoonHarbourLegs (polish 8): seed 1053001, roll 2 (the owner's
+// second playtest) — isle-03's Trading Post site (77, 41) at 180° has its
+// harbour in a bay whose mouth lies more than approachReach tiles out;
+// the founding voyage from the start position and a manual shipment from
+// the founded island to every other island sailed the straight line
+// across isle-01 / isle-03. Both now go round by water.
+func TestLagoonHarbourLegs(t *testing.T) {
+	c := catalogue(t)
+	w := newWorld(t, 1053001)
+	for range 2 {
+		cmd, err := Reroll(w, c)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := sim.Apply(w, c, cmd); err != nil {
+			t.Fatal(err)
+		}
+	}
+	site := sim.FoundingSite{BuildingType: "trading_post", X: 77, Y: 41, Rotation: 180}
+	if err := sim.Apply(w, c, sim.SailShip{ShipID: 1, ToIslandID: "isle-03", Site: &site}); err != nil {
+		t.Fatal(err)
+	}
+	s := w.Ship(1)
+	if len(s.Leg.Path) <= 2 {
+		t.Errorf("founding voyage sails straight: %v", s.Leg.Path)
+	}
+	if fx, fy, bad := pathLand(w.Islands, s.Leg.Path); bad {
+		t.Errorf("founding voyage %v crosses land at (%.2f,%.2f)", s.Leg.Path, fx, fy)
+	}
+	if _, err := sim.Advance(w, c, time.UnixMilli(s.Leg.ArriveAtMs)); err != nil {
+		t.Fatal(err)
+	}
+	if err := sim.Apply(w, c, sim.FoundIsland{ShipID: 1, IslandID: "isle-03", BuildingType: site.BuildingType, X: site.X, Y: site.Y, Rotation: site.Rotation}); err != nil {
+		t.Fatal(err)
+	}
+	base := w.Clone()
+	for _, to := range base.Islands[:12] {
+		if to.ID == "isle-03" {
+			continue
+		}
+		w := base.Clone()
+		if err := sim.Apply(w, c, sim.ManualShipment{ShipID: 1, ToIslandID: to.ID, Cargo: []sim.CargoAmount{{Good: "planks", Amount: 1000}}}); err != nil {
+			t.Fatalf("shipment to %s: %v", to.ID, err)
+		}
+		path := w.Ship(1).Leg.Path
+		if fx, fy, bad := pathLand(w.Islands, path); bad {
+			t.Errorf("shipment to %s: %v crosses land at (%.2f,%.2f)", to.ID, path, fx, fy)
+		}
+	}
+}

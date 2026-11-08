@@ -191,34 +191,6 @@ func (g *seaGrid) centre(k int) Pos {
 	return Pos{g.x0 + (k%g.nx)*seaCell + seaCell/2, g.y0 + (k/g.nx)*seaCell + seaCell/2}
 }
 
-// nearestSea is the sea cell nearest to a tile: its own cell when that is
-// sea, else the closest sea cell centre (ties: the lowest index).
-func (g *seaGrid) nearestSea(p Pos) int {
-	k := g.cellOf(p.X, p.Y)
-	if !g.land[k] {
-		return k
-	}
-	ci, cj := k%g.nx, k/g.nx
-	for r := 1; r < max(g.nx, g.ny); r++ {
-		best, bestD := -1, 0
-		for j := max(cj-r, 0); j <= min(cj+r, g.ny-1); j++ {
-			for i := max(ci-r, 0); i <= min(ci+r, g.nx-1); i++ {
-				if max(absInt(i-ci), absInt(j-cj)) != r || g.land[j*g.nx+i] {
-					continue
-				}
-				c := g.centre(j*g.nx + i)
-				if d := sq(c.X-p.X) + sq(c.Y-p.Y); best < 0 || d < bestD {
-					best, bestD = j*g.nx+i, d
-				}
-			}
-		}
-		if best >= 0 {
-			return best
-		}
-	}
-	return k
-}
-
 // landAt reports whether an archipelago tile is land (not water) on any
 // island; only the islands of land cells are looked at.
 func (g *seaGrid) landAt(x, y int) bool {
@@ -238,8 +210,21 @@ func (g *seaGrid) landAt(x, y int) bool {
 // clear reports whether the segment a–b keeps seaClearance tiles from
 // land, tile by tile; the tiles within seaClearance of its end points
 // need only be water themselves (a harbour in a narrow bay, a shore point
-// next to land).
+// next to land) — every tile the segment passes there (lineTiles), so it
+// never cuts the corner of a land tile beside an end point.
 func (g *seaGrid) clear(a, b Pos) bool {
+	near := true
+	lineTiles(a, b, func(x, y int) {
+		if !near || (x == a.X && y == a.Y) || (x == b.X && y == b.Y) {
+			return
+		}
+		if (max(absInt(x-a.X), absInt(y-a.Y)) <= seaClearance || max(absInt(x-b.X), absInt(y-b.Y)) <= seaClearance) && g.landAt(x, y) {
+			near = false
+		}
+	})
+	if !near {
+		return false
+	}
 	dx, dy := b.X-a.X, b.Y-a.Y
 	n := max(absInt(dx), absInt(dy))
 	for s := 0; s <= n; s++ {
@@ -262,6 +247,41 @@ func (g *seaGrid) clear(a, b Pos) bool {
 		}
 	}
 	return true
+}
+
+// lineTiles calls f for every tile the segment between the centres of
+// tiles a and b passes through, in order (integer supercover); a segment
+// through a tile corner also touches the two tiles beside the corner.
+func lineTiles(a, b Pos, f func(x, y int)) {
+	x, y := a.X, a.Y
+	dx, dy := b.X-a.X, b.Y-a.Y
+	sx, sy := 1, 1
+	if dx < 0 {
+		sx, dx = -1, -dx
+	}
+	if dy < 0 {
+		sy, dy = -1, -dy
+	}
+	f(x, y)
+	// The next x boundary lies at t = (2i+1)/(2dx), the next y boundary at
+	// (2j+1)/(2dy): compare (2i+1)·dy with (2j+1)·dx.
+	for i, j := 0, 0; i < dx || j < dy; {
+		tx, ty := (2*i+1)*dy, (2*j+1)*dx
+		switch {
+		case j >= dy || (i < dx && tx < ty):
+			x += sx
+			i++
+		case i >= dx || ty < tx:
+			y += sy
+			j++
+		default:
+			f(x+sx, y)
+			f(x, y+sy)
+			x, y = x+sx, y+sy
+			i, j = i+1, j+1
+		}
+		f(x, y)
+	}
 }
 
 // search is an A* over the sea cells from s to t (8 neighbours, no
@@ -337,18 +357,39 @@ func SeaRoute(islands []*Island, a, b Pos) []Pos {
 	return seaRoute(newSeaGrid(islands, a, b), a, b)
 }
 
-// seaRoute is SeaRoute over a built grid.
+// seaRoute is SeaRoute over a built grid. The straight line is returned
+// (nil) only when it is clear; otherwise the leg goes over the sea grid
+// (each end walking over water tiles to the nearest open cell) or, when
+// an end reaches no open cell (a closed lagoon), along the coast over
+// water tiles. Nil for a crossing leg only when the ends share no water
+// at all, which the leg ends rule out (harbours are routable, shores and
+// sea positions lie on water connected to the open sea).
 func seaRoute(g *seaGrid, a, b Pos) []Pos {
 	if g.clear(a, b) {
 		return nil
 	}
+	if pts := g.cellRoute(a, b); pts != nil {
+		return g.pull(pts)
+	}
+	if pts := g.coastRoute(a, b); pts != nil {
+		return g.pull(pts)
+	}
+	return nil
+}
+
+// cellRoute is the unpulled polyline from a to b over the sea grid: a,
+// the water tiles from a to its first open cell, the searched cell
+// centres, the water tiles from b's first open cell back to b, and b;
+// nil when an end reaches no open cell over water.
+func (g *seaGrid) cellRoute(a, b Pos) []Pos {
 	// An end in a cell with land reaches the open grid through the water
 	// tiles (approach), never across land to the nearest sea cell.
-	inA, inB := g.approach(a), g.approach(b)
-	if (len(inA) == 0 && g.lagoon[g.cellOf(a.X, a.Y)]) || (len(inB) == 0 && g.lagoon[g.cellOf(b.X, b.Y)]) {
-		return nil // a closed lagoon: no way out over water
+	inA, okA := g.approachOpen(a)
+	inB, okB := g.approachOpen(b)
+	if !okA || !okB {
+		return nil
 	}
-	s, t := g.nearestSea(a), g.nearestSea(b)
+	s, t := g.cellOf(a.X, a.Y), g.cellOf(b.X, b.Y)
 	if len(inA) > 0 {
 		last := inA[len(inA)-1]
 		s = g.cellOf(last.X, last.Y)
@@ -370,8 +411,13 @@ func seaRoute(g *seaGrid, a, b Pos) []Pos {
 	for i := len(inB) - 1; i >= 0; i-- {
 		pts = append(pts, inB[i])
 	}
-	pts = append(pts, b)
-	// String pulling: from each kept point jump to the farthest point in sight.
+	return append(pts, b)
+}
+
+// pull is the string pulling of a polyline (first and last point
+// excluded from the result): from each kept point it jumps to the
+// farthest point in sight.
+func (g *seaGrid) pull(pts []Pos) []Pos {
 	var out []Pos
 	for i := 0; i < len(pts)-1; {
 		next := i + 1
@@ -389,38 +435,48 @@ func seaRoute(g *seaGrid, a, b Pos) []Pos {
 	return out
 }
 
-// approachReach bounds the water-tile search of approach (tiles,
-// Chebyshev from the end point).
+// approachReach bounds the first water-tile search of approach (tiles,
+// Chebyshev from the end point); approachOpen widens it to the grid.
 const approachReach = 6 * seaCell
+
+// approachOpen is the way over water tiles from an end point to its
+// first open cell (approach): within approachReach first, then — a bay
+// whose narrow mouth lies farther out — anywhere on the grid. ok is
+// false when the point's cell is land and no open cell is reachable over
+// water (a closed lagoon).
+func (g *seaGrid) approachOpen(p Pos) ([]Pos, bool) {
+	if !g.land[g.cellOf(p.X, p.Y)] {
+		return nil, true
+	}
+	if in := g.approach(p, approachReach); in != nil {
+		return in, true
+	}
+	reach := max(g.nx, g.ny) * seaCell
+	in := g.approach(p, reach)
+	return in, in != nil
+}
 
 // approach is the shortest way (8 neighbours, no corner cutting) over
 // water tiles from an end point (excluded) to the first tile in a sea
 // cell (included); nil when the point's own cell is sea or no such tile
-// lies within approachReach. Ties break on the neighbour order (dy, then
-// dx ascending).
-func (g *seaGrid) approach(p Pos) []Pos {
+// lies within reach (tiles, Chebyshev). Ties break on the neighbour
+// order (dy, then dx ascending).
+func (g *seaGrid) approach(p Pos, reach int) []Pos {
 	if !g.land[g.cellOf(p.X, p.Y)] {
 		return nil
 	}
-	side := 2*approachReach + 1
-	from := make([]int, side*side)
-	for i := range from {
-		from[i] = -1
-	}
-	idx := func(x, y int) int { return (y-p.Y+approachReach)*side + x - p.X + approachReach }
+	from := map[Pos]Pos{p: p}
 	water := func(x, y int) bool {
-		return absInt(x-p.X) <= approachReach && absInt(y-p.Y) <= approachReach && !g.landAt(x, y)
+		return absInt(x-p.X) <= reach && absInt(y-p.Y) <= reach && g.inside(x, y) && !g.landAt(x, y)
 	}
-	start := idx(p.X, p.Y)
-	from[start] = start
 	queue := []Pos{p}
 	for len(queue) > 0 {
 		q := queue[0]
 		queue = queue[1:]
 		if q != p && !g.land[g.cellOf(q.X, q.Y)] {
 			var out []Pos
-			for k := idx(q.X, q.Y); k != start; k = from[k] {
-				out = append(out, Pos{p.X + k%side - approachReach, p.Y + k/side - approachReach})
+			for k := q; k != p; k = from[k] {
+				out = append(out, k)
 			}
 			for i, j := 0, len(out)-1; i < j; i, j = i+1, j-1 {
 				out[i], out[j] = out[j], out[i]
@@ -429,15 +485,83 @@ func (g *seaGrid) approach(p Pos) []Pos {
 		}
 		for dy := -1; dy <= 1; dy++ {
 			for dx := -1; dx <= 1; dx++ {
-				nx, ny := q.X+dx, q.Y+dy
-				if (dx == 0 && dy == 0) || !water(nx, ny) || from[idx(nx, ny)] >= 0 {
+				n := Pos{q.X + dx, q.Y + dy}
+				if _, seen := from[n]; (dx == 0 && dy == 0) || seen || !water(n.X, n.Y) {
 					continue
 				}
 				if dx != 0 && dy != 0 && (!water(q.X+dx, q.Y) || !water(q.X, q.Y+dy)) {
 					continue
 				}
-				from[idx(nx, ny)] = idx(q.X, q.Y)
-				queue = append(queue, Pos{nx, ny})
+				from[n] = q
+				queue = append(queue, n)
+			}
+		}
+	}
+	return nil
+}
+
+// inside reports whether an archipelago tile lies on the grid.
+func (g *seaGrid) inside(x, y int) bool {
+	return x >= g.x0 && y >= g.y0 && x < g.x0+g.nx*seaCell && y < g.y0+g.ny*seaCell
+}
+
+// coastRoute is the unpulled polyline from a to b over water tiles (an
+// A* on the tiles of the grid, 8 neighbours, no corner cutting): the way
+// along the coast when an end reaches no open cell; nil when b is not
+// reachable over water. Ties break on the smaller remaining estimate,
+// then the smaller tile index.
+func (g *seaGrid) coastRoute(a, b Pos) []Pos {
+	w := g.nx * seaCell
+	idx := func(p Pos) int { return (p.Y-g.y0)*w + p.X - g.x0 }
+	at := func(k int) Pos { return Pos{g.x0 + k%w, g.y0 + k/w} }
+	water := func(x, y int) bool { return g.inside(x, y) && !g.landAt(x, y) }
+	if !g.inside(a.X, a.Y) || !g.inside(b.X, b.Y) {
+		return nil
+	}
+	est := func(p Pos) int {
+		dx, dy := absInt(p.X-b.X), absInt(p.Y-b.Y)
+		return stepStraight*max(dx, dy) + (stepDiagonal-stepStraight)*min(dx, dy)
+	}
+	cost := map[int]int{idx(a): 0}
+	from := map[int]int{idx(a): -1}
+	h := &cellHeap{}
+	h.push(cellItem{f: est(a), h: est(a), k: idx(a)})
+	for h.len() > 0 {
+		it := h.pop()
+		k := it.k
+		if it.f-it.h != cost[k] {
+			continue // stale entry
+		}
+		q := at(k)
+		if q == b {
+			var out []Pos
+			for c := k; c >= 0; c = from[c] {
+				out = append(out, at(c))
+			}
+			for i, j := 0, len(out)-1; i < j; i, j = i+1, j-1 {
+				out[i], out[j] = out[j], out[i]
+			}
+			return out
+		}
+		for dy := -1; dy <= 1; dy++ {
+			for dx := -1; dx <= 1; dx++ {
+				n := Pos{q.X + dx, q.Y + dy}
+				if (dx == 0 && dy == 0) || (!water(n.X, n.Y) && n != b) {
+					continue
+				}
+				step := stepStraight
+				if dx != 0 && dy != 0 {
+					if !water(q.X+dx, q.Y) || !water(q.X, q.Y+dy) {
+						continue
+					}
+					step = stepDiagonal
+				}
+				nk := idx(n)
+				if c, seen := cost[nk]; !seen || cost[k]+step < c {
+					cost[nk], from[nk] = cost[k]+step, k
+					e := est(n)
+					h.push(cellItem{f: cost[k] + step + e, h: e, k: nk})
+				}
 			}
 		}
 	}
@@ -531,7 +655,8 @@ func HarbourAt(is *Island, def *content.Building, x, y, rotation int) Pos {
 
 // shore is the water tile of an island's grid next to its land that is
 // nearest to a point (ties: the first in row order), or the island's
-// centre when it has none.
+// centre when it has none. Only water that ships reach from the open sea
+// counts (seaWater): never a closed pool or a tile behind quays.
 func shore(is *Island, toward Pos) Pos {
 	best, bestD := Pos{is.X + is.Width/2, is.Y + is.Height/2}, -1
 	if len(is.Tiles) != is.Width*is.Height {
@@ -540,9 +665,10 @@ func shore(is *Island, toward Pos) Pos {
 	land := func(x, y int) bool {
 		return x >= 0 && y >= 0 && x < is.Width && y < is.Height && is.Tiles[y*is.Width+x].Terrain != content.TerrainWater
 	}
+	sea := seaWater(is)
 	for y := range is.Height {
 		for x := range is.Width {
-			if land(x, y) || !land(x-1, y) && !land(x+1, y) && !land(x, y-1) && !land(x, y+1) {
+			if land(x, y) || !sea[y*is.Width+x] || !land(x-1, y) && !land(x+1, y) && !land(x, y-1) && !land(x, y+1) {
 				continue
 			}
 			p := Pos{is.X + x, is.Y + y}
@@ -552,6 +678,34 @@ func shore(is *Island, toward Pos) Pos {
 		}
 	}
 	return best
+}
+
+// seaWater marks the island's tiles that ships reach from the edge of its
+// grid (seaReachable for every tile at once): water, not land for ships
+// (seaLand), 4-connected to the edge.
+func seaWater(is *Island) []bool {
+	open := make([]bool, is.Width*is.Height)
+	var queue []Pos
+	for y := range is.Height {
+		for x := range is.Width {
+			if (x == 0 || y == 0 || x == is.Width-1 || y == is.Height-1) && !seaLand(is, x, y) {
+				open[is.index(x, y)] = true
+				queue = append(queue, Pos{x, y})
+			}
+		}
+	}
+	for len(queue) > 0 {
+		q := queue[0]
+		queue = queue[1:]
+		for _, nb := range neighbours() {
+			nx, ny := q.X+nb.X, q.Y+nb.Y
+			if is.InBounds(nx, ny) && !open[is.index(nx, ny)] && !seaLand(is, nx, ny) {
+				open[is.index(nx, ny)] = true
+				queue = append(queue, Pos{nx, ny})
+			}
+		}
+	}
+	return open
 }
 
 // Ends are the end points of a leg between two islands: each island's

@@ -744,14 +744,26 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
 - **Sea routing (D-058 §5):** a leg runs from the departure island's
   harbour — 2 tiles out from the middle of its Trading Post's water edge,
   or the nearest open water tile (no land within 1 tile, outside the
-  footprint) when that one is not; an island without one: its water tile
+  footprint) when that one is not; an island without one: its sea-reachable water tile
   next to land nearest the other end; a founding voyage (`sail_ship` with
   the Trading Post's `site`): that site's harbour — to the arrival
   island's, around land: integer A* on a 4-tile sea grid (a cell with
   any land is blocked, and so is a sea cell the open sea cannot reach —
   a bay whose mouth is narrower than a cell, D-072; an end in such a
-  cell reaches the open grid over water tiles), then string pulling with a tile-exact line test that
-  keeps 1 tile of water from land (no way around: the straight line). The leg stores the polyline (`path`, shown
+  cell walks over water tiles to the nearest open cell, first within 24
+  tiles, then anywhere on the grid — a long bay or channel), then string
+  pulling with a tile-exact line test that keeps 1 tile of water from
+  land (within 1 tile of an end point every tile the segment passes,
+  corners included, must be water). When an end reaches no open cell
+  over water (two ends in the same closed lagoon) the leg follows the
+  coast: an A* over the water tiles, pulled the same way. The straight
+  line is kept only when it is clear, or when the ends share no water
+  at all — which the end points rule out: harbours are routable (§3),
+  a shore point is a water tile the open sea reaches (never a closed
+  pool or a tile behind quays), sea positions are former leg ends
+  (polish 8; property test over the archipelagos of seeds 1–50: every
+  island pair and every founding voyage to an island's best site touch
+  no land tile). The leg stores the polyline (`path`, shown
   to the client) and its ETA is the sum of the segments' distances in
   the formula above; route loop times use the same paths.
   Constants in `region.json`: `ship_speed_tiles_per_min` (provisional 60)

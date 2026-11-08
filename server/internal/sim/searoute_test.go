@@ -68,8 +68,10 @@ func TestSeaRouteAroundLand(t *testing.T) {
 	t.Logf("path %v", full)
 }
 
-// TestSeaRouteEnclosed: without a way around (a ring of land), the leg
-// stays straight.
+// TestSeaRouteEnclosed: when the ends share no water (one inside a closed
+// ring of land) there is no way at all and the leg stays straight; the
+// leg ends rule this out in play (harbours are routable, shores lie on
+// water the open sea reaches).
 func TestSeaRouteEnclosed(t *testing.T) {
 	ring := islandFromRows("r",
 		"..........",
@@ -125,6 +127,84 @@ func TestSeaRouteLagoon(t *testing.T) {
 				t.Fatalf("segment %v-%v crosses land at (%d,%d) (path %v)", p, q, x, y, full)
 			}
 		}
+	}
+}
+
+// tileClear fails the test when a polyline's segments pass a land tile
+// of the grid (lineTiles, tile-exact).
+func tileClear(t *testing.T, g *seaGrid, full []Pos) {
+	t.Helper()
+	for i := 1; i < len(full); i++ {
+		lineTiles(full[i-1], full[i], func(x, y int) {
+			if g.landAt(x, y) {
+				t.Fatalf("segment %v-%v touches land at (%d,%d) (path %v)", full[i-1], full[i], x, y, full)
+			}
+		})
+	}
+}
+
+// TestSeaRouteLongChannel (polish 8): a harbour at the end of a channel
+// one tile wide and longer than approachReach walks out over the water
+// tiles to the nearest open cell instead of sailing the straight line
+// across land.
+func TestSeaRouteLongChannel(t *testing.T) {
+	// A 12-wide block of land, 40 rows, with a channel down column 5 from
+	// the south edge to row 2.
+	var rows []string
+	for y := range 40 {
+		r := []byte("............")
+		if y >= 2 {
+			r[5] = '~'
+		}
+		rows = append(rows, string(r))
+	}
+	is := islandFromRows("c", rows...)
+	is.X, is.Y = 40, 40
+	a, b := Pos{45, 43}, Pos{46, 0}
+	path := SeaRoute([]*Island{is}, a, b)
+	if len(path) == 0 {
+		t.Fatal("straight out of the channel")
+	}
+	tileClear(t, newSeaGrid([]*Island{is}, a, b), append(append([]Pos{a}, path...), b))
+}
+
+// TestSeaRouteClosedLagoon (polish 8): two ends in the same closed
+// lagoon (no open cell reachable over water) with a spit of land between
+// them follow the coast round the spit.
+func TestSeaRouteClosedLagoon(t *testing.T) {
+	var rows []string
+	for y := range 20 {
+		r := []byte("....................")
+		if y > 0 && y < 19 {
+			for x := 1; x < 19; x++ {
+				r[x] = '~'
+			}
+		}
+		if y < 15 {
+			r[10] = '.'
+		}
+		rows = append(rows, string(r))
+	}
+	is := islandFromRows("l", rows...)
+	a, b := Pos{4, 4}, Pos{15, 4}
+	path := SeaRoute([]*Island{is}, a, b)
+	if len(path) == 0 {
+		t.Fatal("straight across the spit")
+	}
+	tileClear(t, newSeaGrid([]*Island{is}, a, b), append(append([]Pos{a}, path...), b))
+}
+
+// TestLineTiles: the supercover of a segment, corners included.
+func TestLineTiles(t *testing.T) {
+	var got []Pos
+	lineTiles(Pos{0, 0}, Pos{2, 1}, func(x, y int) { got = append(got, Pos{x, y}) })
+	if want := []Pos{{0, 0}, {1, 0}, {1, 1}, {2, 1}}; !slices.Equal(got, want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+	got = got[:0]
+	lineTiles(Pos{3, 3}, Pos{1, 1}, func(x, y int) { got = append(got, Pos{x, y}) })
+	if want := []Pos{{3, 3}, {2, 3}, {3, 2}, {2, 2}, {1, 2}, {2, 1}, {1, 1}}; !slices.Equal(got, want) {
+		t.Fatalf("diagonal: got %v, want %v", got, want)
 	}
 }
 

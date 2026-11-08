@@ -105,8 +105,8 @@ UI shows the same numbers the server uses.
   sit out to sea past the moored
   bows; idle ships take the island's harbour berths; the shipyard's hull
   under construction stands on its `slip` anchor and the finished ship
-  appears at the harbour; `anchored_unpaid` ships greyed. Legs and ribbons are straight lines and may cross land
-  (dressing task). Route ribbons carry direction arrows; the selected ship
+  appears at the harbour; `anchored_unpaid` ships greyed. Legs and ribbons follow the
+  server's `path`, which never crosses land (MECHANICS §9.1). Route ribbons carry direction arrows; the selected ship
   shows its route and ETA.
 - **Manual shipment:** only through the ship panel's "Send…" dialog; the
   destination is chosen in its dropdown (no drag and drop, no map pick).
