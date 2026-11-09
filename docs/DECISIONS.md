@@ -2532,3 +2532,24 @@ resume rule never fires while the balance falls) — decision pending.
 - **Rejected:** generator-forced level-0 shores; throughput or upkeep
   alone; keeping the old ship IDs behind new names; trial resume;
   leaving the strand to the player.
+
+*As built (#75):* §1–§4 as decided (`look` also on fields, plots and
+roads as `rural`; quay `harbour`; fisher, salt pans, oyster beds
+`rural`; a content test keeps the retired ship IDs out of the repo).
+The sea-route bug was a lagoon harbour beyond `approachReach` on seed
+1053001 roll 2 (straight-line fallback); now every end walks to a
+reachable open cell and a property test over seeds 1–50 checks every
+leg. **§5 as built, after three refinements in review:** the guard
+protects the island's last running producer of *every* good a house
+there consumes, met or not; it is **transitive** over the recipe inputs
+(the last producer of each input is guarded too); a producer **loses**
+the guard while an input is cut off — no producer of it on the island,
+running or paused, and no stock, counting goods in transit (R31) — and
+the **resume order skips** such a producer until an input producer or
+stock exists again; stock from routes keeps the guard while it lasts.
+If nothing pausable is left, gold holds at zero (D-009). Almanac chapter
+"When gold runs out" (EN/DE). The low-shore rule lives in MECHANICS §2,
+the `look` rule in ART_DIRECTION §7. Reference games 50 / 25 / 71 /
+124 · 21 / 38 · 215 / 250 / 387 · 721 / 868 / 1 180, no plan changed.
+Test fixtures only: recovery property towns seed wood/wool stock, tax
+bonus × 1.6, advances split into ≤ 12 pieces.
