@@ -109,6 +109,7 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
       <p>{t("almanac.o.goldPause")}</p>
       <p data-testid="almanac-supply-chains">{t("almanac.o.goldChains")}</p>
       {resumeMinutes !== null && <p>{t("almanac.o.goldResume", { minutes: num(resumeMinutes) })}</p>}
+      <p data-testid="almanac-resume-queue">{t("almanac.o.goldQueue")}</p>
 
       <h3>{t("almanac.o.asks")}</h3>
       <p className={styles.lead}>

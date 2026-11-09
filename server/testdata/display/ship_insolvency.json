@@ -1,12 +1,12 @@
 {
   "scenario": "ship_insolvency",
   "base": {
-    "evaluated_at": "2026-01-01T01:16:20.000Z",
-    "next_change_at": "2026-01-01T01:30:40.342Z",
-    "gold": 20249,
-    "balance_rate_per_min": 680,
+    "evaluated_at": "2026-01-01T01:41:20.000Z",
+    "next_change_at": "2026-01-01T03:04:25.342Z",
+    "gold": 26588,
+    "balance_rate_per_min": -320,
     "tax_rate_per_min": 1680,
-    "upkeep_rate_per_min": 1000,
+    "upkeep_rate_per_min": 2000,
     "tiers": [
       {
         "id": "settlers",
@@ -84,7 +84,7 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 111526,
+            "stock": 108526,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": -120,
@@ -126,7 +126,7 @@
             "in_transit_rate_per_min": 0
           },
           "planks": {
-            "stock": 124001,
+            "stock": 174001,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -161,7 +161,7 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 206,
+            "stock": 50206,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -175,7 +175,7 @@
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 67346,
+            "stock": 65846,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": -60,
@@ -716,30 +716,18 @@
         "id": 1,
         "type": "cog",
         "name": "Cog 1",
-        "state": "anchored_unpaid",
-        "island_id": "island2",
+        "state": "idle",
+        "island_id": "start",
         "route_id": 0,
         "stop_index": 0,
         "leg": null,
-        "cargo": [
-          {
-            "good": "planks",
-            "amount": 50000
-          },
-          {
-            "good": "wood",
-            "amount": 50000
-          }
-        ],
+        "cargo": [],
         "slots": 4,
         "slot_size": 50000,
-        "upkeep_per_min": 0,
-        "paused": true,
-        "paused_reason": "unpaid",
-        "position": {
-          "x": 37,
-          "y": 48
-        },
+        "upkeep_per_min": 1000,
+        "paused": false,
+        "paused_reason": "",
+        "position": null,
         "queued_at": null,
         "berth_until": null
       }
@@ -747,8 +735,8 @@
     "routes": [],
     "insolvency": {
       "unpaid_buildings": 1,
-      "unpaid_ships": 1,
-      "unpaid_upkeep_per_min": 2000,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 1000,
       "balance_if_resumed_per_min": -1320
     },
     "quests": {
@@ -790,18 +778,18 @@
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T00:46:20.000Z"
+    "last_seen_at": "2026-01-01T01:36:20.000Z"
   },
   "samples": [
     {
       "offset_ms": 250,
       "display": {
-        "evaluated_at": "2026-01-01T01:16:20.250Z",
-        "next_change_at": "2026-01-01T01:30:40.342Z",
-        "gold": 20252,
-        "balance_rate_per_min": 680,
+        "evaluated_at": "2026-01-01T01:41:20.250Z",
+        "next_change_at": "2026-01-01T03:04:25.342Z",
+        "gold": 26587,
+        "balance_rate_per_min": -320,
         "tax_rate_per_min": 1680,
-        "upkeep_rate_per_min": 1000,
+        "upkeep_rate_per_min": 2000,
         "tiers": [
           {
             "id": "settlers",
@@ -879,7 +867,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 111525,
+                "stock": 108525,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -120,
@@ -921,7 +909,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124001,
+                "stock": 174001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -956,7 +944,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 206,
+                "stock": 50206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -970,7 +958,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 67346,
+                "stock": 65846,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -60,
@@ -1511,30 +1499,18 @@
             "id": 1,
             "type": "cog",
             "name": "Cog 1",
-            "state": "anchored_unpaid",
-            "island_id": "island2",
+            "state": "idle",
+            "island_id": "start",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
-            "cargo": [
-              {
-                "good": "planks",
-                "amount": 50000
-              },
-              {
-                "good": "wood",
-                "amount": 50000
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
-            "upkeep_per_min": 0,
-            "paused": true,
-            "paused_reason": "unpaid",
-            "position": {
-              "x": 37,
-              "y": 48
-            },
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -1542,8 +1518,8 @@
         "routes": [],
         "insolvency": {
           "unpaid_buildings": 1,
-          "unpaid_ships": 1,
-          "unpaid_upkeep_per_min": 2000,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 1000,
           "balance_if_resumed_per_min": -1320
         },
         "quests": {
@@ -1585,18 +1561,18 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:46:20.000Z"
+        "last_seen_at": "2026-01-01T01:36:20.000Z"
       }
     },
     {
       "offset_ms": 1000,
       "display": {
-        "evaluated_at": "2026-01-01T01:16:21.000Z",
-        "next_change_at": "2026-01-01T01:30:40.342Z",
-        "gold": 20260,
-        "balance_rate_per_min": 680,
+        "evaluated_at": "2026-01-01T01:41:21.000Z",
+        "next_change_at": "2026-01-01T03:04:25.342Z",
+        "gold": 26583,
+        "balance_rate_per_min": -320,
         "tax_rate_per_min": 1680,
-        "upkeep_rate_per_min": 1000,
+        "upkeep_rate_per_min": 2000,
         "tiers": [
           {
             "id": "settlers",
@@ -1674,7 +1650,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 111524,
+                "stock": 108524,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -120,
@@ -1716,7 +1692,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124001,
+                "stock": 174001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -1751,7 +1727,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 206,
+                "stock": 50206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -1765,7 +1741,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 67345,
+                "stock": 65845,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -60,
@@ -2306,30 +2282,18 @@
             "id": 1,
             "type": "cog",
             "name": "Cog 1",
-            "state": "anchored_unpaid",
-            "island_id": "island2",
+            "state": "idle",
+            "island_id": "start",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
-            "cargo": [
-              {
-                "good": "planks",
-                "amount": 50000
-              },
-              {
-                "good": "wood",
-                "amount": 50000
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
-            "upkeep_per_min": 0,
-            "paused": true,
-            "paused_reason": "unpaid",
-            "position": {
-              "x": 37,
-              "y": 48
-            },
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -2337,8 +2301,8 @@
         "routes": [],
         "insolvency": {
           "unpaid_buildings": 1,
-          "unpaid_ships": 1,
-          "unpaid_upkeep_per_min": 2000,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 1000,
           "balance_if_resumed_per_min": -1320
         },
         "quests": {
@@ -2380,18 +2344,18 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:46:20.000Z"
+        "last_seen_at": "2026-01-01T01:36:20.000Z"
       }
     },
     {
       "offset_ms": 5000,
       "display": {
-        "evaluated_at": "2026-01-01T01:16:25.000Z",
-        "next_change_at": "2026-01-01T01:30:40.342Z",
-        "gold": 20306,
-        "balance_rate_per_min": 680,
+        "evaluated_at": "2026-01-01T01:41:25.000Z",
+        "next_change_at": "2026-01-01T03:04:25.342Z",
+        "gold": 26561,
+        "balance_rate_per_min": -320,
         "tax_rate_per_min": 1680,
-        "upkeep_rate_per_min": 1000,
+        "upkeep_rate_per_min": 2000,
         "tiers": [
           {
             "id": "settlers",
@@ -2469,7 +2433,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 111516,
+                "stock": 108516,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -120,
@@ -2511,7 +2475,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124001,
+                "stock": 174001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -2546,7 +2510,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 206,
+                "stock": 50206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -2560,7 +2524,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 67341,
+                "stock": 65841,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -60,
@@ -3101,30 +3065,18 @@
             "id": 1,
             "type": "cog",
             "name": "Cog 1",
-            "state": "anchored_unpaid",
-            "island_id": "island2",
+            "state": "idle",
+            "island_id": "start",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
-            "cargo": [
-              {
-                "good": "planks",
-                "amount": 50000
-              },
-              {
-                "good": "wood",
-                "amount": 50000
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
-            "upkeep_per_min": 0,
-            "paused": true,
-            "paused_reason": "unpaid",
-            "position": {
-              "x": 37,
-              "y": 48
-            },
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -3132,8 +3084,8 @@
         "routes": [],
         "insolvency": {
           "unpaid_buildings": 1,
-          "unpaid_ships": 1,
-          "unpaid_upkeep_per_min": 2000,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 1000,
           "balance_if_resumed_per_min": -1320
         },
         "quests": {
@@ -3175,18 +3127,18 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:46:20.000Z"
+        "last_seen_at": "2026-01-01T01:36:20.000Z"
       }
     },
     {
       "offset_ms": 30000,
       "display": {
-        "evaluated_at": "2026-01-01T01:16:50.000Z",
-        "next_change_at": "2026-01-01T01:30:40.342Z",
-        "gold": 20589,
-        "balance_rate_per_min": 680,
+        "evaluated_at": "2026-01-01T01:41:50.000Z",
+        "next_change_at": "2026-01-01T03:04:25.342Z",
+        "gold": 26428,
+        "balance_rate_per_min": -320,
         "tax_rate_per_min": 1680,
-        "upkeep_rate_per_min": 1000,
+        "upkeep_rate_per_min": 2000,
         "tiers": [
           {
             "id": "settlers",
@@ -3264,7 +3216,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 111466,
+                "stock": 108466,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -120,
@@ -3306,7 +3258,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124001,
+                "stock": 174001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -3341,7 +3293,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 206,
+                "stock": 50206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -3355,7 +3307,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 67316,
+                "stock": 65816,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -60,
@@ -3896,30 +3848,18 @@
             "id": 1,
             "type": "cog",
             "name": "Cog 1",
-            "state": "anchored_unpaid",
-            "island_id": "island2",
+            "state": "idle",
+            "island_id": "start",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
-            "cargo": [
-              {
-                "good": "planks",
-                "amount": 50000
-              },
-              {
-                "good": "wood",
-                "amount": 50000
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
-            "upkeep_per_min": 0,
-            "paused": true,
-            "paused_reason": "unpaid",
-            "position": {
-              "x": 37,
-              "y": 48
-            },
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -3927,8 +3867,8 @@
         "routes": [],
         "insolvency": {
           "unpaid_buildings": 1,
-          "unpaid_ships": 1,
-          "unpaid_upkeep_per_min": 2000,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 1000,
           "balance_if_resumed_per_min": -1320
         },
         "quests": {
@@ -3970,18 +3910,18 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:46:20.000Z"
+        "last_seen_at": "2026-01-01T01:36:20.000Z"
       }
     },
     {
       "offset_ms": 300000,
       "display": {
-        "evaluated_at": "2026-01-01T01:21:20.000Z",
-        "next_change_at": "2026-01-01T01:30:40.342Z",
-        "gold": 23649,
-        "balance_rate_per_min": 680,
+        "evaluated_at": "2026-01-01T01:46:20.000Z",
+        "next_change_at": "2026-01-01T03:04:25.342Z",
+        "gold": 24988,
+        "balance_rate_per_min": -320,
         "tax_rate_per_min": 1680,
-        "upkeep_rate_per_min": 1000,
+        "upkeep_rate_per_min": 2000,
         "tiers": [
           {
             "id": "settlers",
@@ -4059,7 +3999,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 110926,
+                "stock": 107926,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -120,
@@ -4101,7 +4041,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124001,
+                "stock": 174001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -4136,7 +4076,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 206,
+                "stock": 50206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -4150,7 +4090,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 67046,
+                "stock": 65546,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -60,
@@ -4691,30 +4631,18 @@
             "id": 1,
             "type": "cog",
             "name": "Cog 1",
-            "state": "anchored_unpaid",
-            "island_id": "island2",
+            "state": "idle",
+            "island_id": "start",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
-            "cargo": [
-              {
-                "good": "planks",
-                "amount": 50000
-              },
-              {
-                "good": "wood",
-                "amount": 50000
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
-            "upkeep_per_min": 0,
-            "paused": true,
-            "paused_reason": "unpaid",
-            "position": {
-              "x": 37,
-              "y": 48
-            },
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -4722,8 +4650,8 @@
         "routes": [],
         "insolvency": {
           "unpaid_buildings": 1,
-          "unpaid_ships": 1,
-          "unpaid_upkeep_per_min": 2000,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 1000,
           "balance_if_resumed_per_min": -1320
         },
         "quests": {
@@ -4765,7 +4693,7 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:46:20.000Z"
+        "last_seen_at": "2026-01-01T01:36:20.000Z"
       }
     }
   ]

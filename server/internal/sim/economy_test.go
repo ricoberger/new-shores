@@ -319,6 +319,75 @@ func TestSupplyGuardCutOffInput(t *testing.T) {
 	}
 }
 
+// TestResumeSkipsCutOffProducer (D-075 §5): the resume queue (last paused
+// first) skips the weaver while its wool is cut off — no wool producer on
+// the island, running or paused, no stock and none in transit — and
+// offers the sawmill paused before it. The weaver is a candidate again
+// once wool arrives in stock, is on its way into the stock, or a sheep
+// farm stands on the island, even a paused one.
+func TestResumeSkipsCutOffProducer(t *testing.T) {
+	c := orderCatalogue(t)
+	w := newTown(t, c, 0)
+	for _, h := range placeHouses(t, w, c, 8) {
+		house(w, h).Residents = 8_000
+	}
+	addStock(t, w, c, "fish", 200)
+	weaver := placeFree(t, w, c, "weaver_wool", 21, 2, 0)
+	sawmill := placeFree(t, w, c, "sawmill", 24, 2, 0)
+	addStock(t, w, c, "wood", 50)
+	is := w.Islands[0]
+	now := w.LastEvaluatedAt.UnixMilli()
+	for i, id := range []int64{sawmill, weaver} {
+		b := is.Building(id)
+		b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = true, PausedReasonUnpaid, int64(i+1), now-1
+	}
+	w.PauseSeq = 2
+	want := func(step string, id int64) {
+		t.Helper()
+		if p := resumeCandidate(w, c, now); p.b == nil || p.b.ID != id {
+			t.Fatalf("%s: candidate %+v, want building %d", step, p.b, id)
+		}
+	}
+	want("cut off", sawmill)
+
+	addStock(t, w, c, "wool", 10)
+	want("wool in stock", weaver)
+	is.Inventory.Stock["wool"] = 0
+	want("stock used up", sawmill)
+
+	// Wool on its way into the stock (a transit segment not yet over);
+	// once it is over, the input is cut off again.
+	is.Building(sawmill).Transit = []TransitSegment{{Good: "wool", FromMs: now - 1, ToMs: now + 60_000, RateSub: 1}}
+	want("wool in transit", weaver)
+	is.Building(sawmill).Transit[0].ToMs = now
+	want("transit over", sawmill)
+	is.Building(sawmill).Transit = nil
+
+	sheep := placeFree(t, w, c, "sheep_farm", 24, 5, 180)
+	b := is.Building(sheep)
+	b.Paused, b.PausedReason = true, PausedReasonPlayer
+	want("paused sheep farm", weaver)
+
+	// Through Advance, with gold and full houses that pay for both: in a
+	// copy without the sheep farm the weaver is skipped and only the
+	// sawmill resumes; with the sheep farm the weaver (paused last)
+	// resumes first.
+	cut := w.Clone()
+	cis := cut.Islands[0]
+	cis.Buildings = slices.DeleteFunc(cis.Buildings, func(b *Building) bool { return b.ID == sheep })
+	for _, x := range []*World{w, cut} {
+		x.Gold = 1_000_000
+	}
+	bs := mustAdvance(t, cut, c, time.Millisecond)
+	if got := pauseEvents(bs, BoundaryAutoResume); !equalIDs(got, []int64{sawmill}) || !cis.Building(weaver).Paused {
+		t.Errorf("cut off: resumes %v, weaver paused %v: %+v", got, cis.Building(weaver).Paused, bs)
+	}
+	bs = mustAdvance(t, w, c, time.Millisecond)
+	if got := pauseEvents(bs, BoundaryAutoResume); len(got) == 0 || got[0] != weaver {
+		t.Errorf("with a sheep farm: resumes %v", got)
+	}
+}
+
 // TestPublicBuildingPauseHysteresis: a paused public building fulfils no
 // building need, so pausing it lowers taxes. Resuming it raises them again;
 // the resume condition (gold >= 5 min of upkeep and balance - upkeep >= 0)

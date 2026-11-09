@@ -50,8 +50,9 @@ func trialTown(t *testing.T, connectFisher bool) (*content.Catalogue, *World, in
 // resumed when gold reaches trial_resume_upkeep_minutes x its upkeep, at
 // exactly that millisecond, as an auto_resume boundary with Trial set after
 // a gold_trial_reserve boundary; the town then recovers (fish lifts the
-// taxes, the sawmill follows by (a) + (b)). Splits around the trial give
-// the same world.
+// taxes). The sawmill has no wood on the island (no lumberjack, no stock):
+// its input is cut off, so the resume queue skips it (D-075 §5) and it
+// stays unpaid. Splits around the trial give the same world.
 func TestTrialResume(t *testing.T) {
 	c, w, fisher, sawmill := trialTown(t, true)
 	ds := display(t, w, c)
@@ -89,10 +90,10 @@ func TestTrialResume(t *testing.T) {
 			t.Errorf("the sawmill needed a trial: %+v", b)
 		}
 	}
-	if trials != 1 || w.Islands[0].Building(sawmill).Paused || w.Islands[0].Building(fisher).Paused {
+	if trials != 1 || !w.Islands[0].Building(sawmill).Paused || w.Islands[0].Building(fisher).Paused {
 		t.Fatalf("trials %d, sawmill paused %v, fisher paused %v", trials, w.Islands[0].Building(sawmill).Paused, w.Islands[0].Building(fisher).Paused)
 	}
-	if ds := display(t, w, c); ds.BalanceRatePerMin < 0 || ds.Insolvency.UnpaidBuildings != 0 {
+	if ds := display(t, w, c); ds.BalanceRatePerMin < 0 || ds.Insolvency.UnpaidBuildings != 1 {
 		t.Errorf("after recovery: balance %d insolvency %+v", ds.BalanceRatePerMin, ds.Insolvency)
 	}
 
@@ -172,8 +173,8 @@ func trialCatalogue(t *testing.T) *content.Catalogue {
 
 // trialWorld is a small town that stalls: one to five houses at their
 // floor, a market, producers with upkeep, little or no need goods (so that
-// rule (b) often fails) and little gold; the fisher is sometimes without
-// a road (its trials cannot help).
+// rule (b) often fails), some wood and wool and little gold; the fisher
+// is sometimes without a road (its trials cannot help).
 func (p *propCase) trialWorld() *World {
 	p.l = NewLedger()
 	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
@@ -211,6 +212,14 @@ func (p *propCase) trialWorld() *World {
 			free("house_settlers", x, 5, 180)
 		}
 	}
+	// Wood and wool in stock for the sawmills and the weaver: without a
+	// producer and stock their input is cut off and the resume queue skips
+	// them (D-075 §5), so they would never trial-resume.
+	for _, g := range []string{"wood", "wool"} {
+		if err := AddStock(w, p.c, "main", g, Qty(1+p.rng.IntN(200))*1000, p.l); err != nil {
+			p.fail("trial stock: %v", err)
+		}
+	}
 	if p.rng.IntN(2) == 0 {
 		if err := AddStock(w, p.c, "main", "fish", Qty(p.rng.IntN(3))*1000, p.l); err != nil {
 			p.fail("trial stock: %v", err)
@@ -229,7 +238,9 @@ func TestPropertyTrialComposition(t *testing.T) {
 	kinds, splitKinds := map[string]int{}, map[string]int{}
 	for seed := range uint64(propertyCases) {
 		p := newPropCase(t, c, 140_000+seed)
-		p.maxPieces = 8
+		// More pieces than elsewhere: the stock adds transfer and
+		// stock-empty boundaries that compete for the split points.
+		p.maxPieces = 12
 		p.w = p.trialWorld()
 		p.checkInvariants("initial")
 		for range 3 + p.rng.IntN(3) {

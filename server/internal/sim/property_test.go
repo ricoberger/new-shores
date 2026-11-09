@@ -956,6 +956,14 @@ func (p *propCase) recoveryWorld() *World {
 			}
 		}
 	}
+	// The producers' inputs in stock: there is no lumberjack, and without
+	// stock a producer's input is cut off and the resume queue skips it
+	// (D-075 §5).
+	for _, g := range []string{"wood", "wool"} {
+		if err := AddStock(w, p.c, "main", g, Qty(50+p.rng.IntN(200))*1000, p.l); err != nil {
+			p.fail("recovery stock: %v", err)
+		}
+	}
 	w.Gold = Qty(p.rng.IntN(40_000))
 	return w
 }

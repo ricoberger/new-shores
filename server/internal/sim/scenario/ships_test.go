@@ -157,25 +157,31 @@ func TestFoundIsland(t *testing.T) {
 // gold is held at zero (D-008). After the player demolishes the sheep
 // farm the weaver uses up the wool in stock, its input is cut off and it
 // loses its guard: the cascade pauses it, the balance turns positive and
-// gold grows. The cog stays anchored_unpaid with identical cargo:
-// resuming it (1 gold/min) would turn the balance negative again, so it
-// needs a trial reserve, and the weaver, paused last, is first in the
-// resume queue (MECHANICS §7).
+// gold grows. The resume queue skips the weaver (cut off), so the cog
+// gets the trial resume with identical cargo; the player sails it home
+// and its cargo is unloaded into the start island's stock.
 func TestShipInsolvencyScenario(t *testing.T) {
 	rep := runScenario(t, "ship_insolvency")
-	var pauses []string
+	var pauses, resumes []string
 	for _, e := range rep.PauseEvents {
 		if e.Action == "auto_pause" {
 			pauses = append(pauses, e.Type)
 		} else {
-			t.Errorf("%s resumed at %s", e.Type, e.At)
+			resumes = append(resumes, e.Type)
+			if e.Type == "cog" && !e.Trial {
+				t.Errorf("cog resumed at %s without a trial", e.At)
+			}
 		}
 	}
 	if want := "lumberjack,sawmill,cog,weaver_wool"; strings.Join(pauses, ",") != want {
 		t.Fatalf("pauses %v, want %s", pauses, want)
 	}
-	weaverAt := rep.PauseEvents[3].At
+	if want := "cog"; strings.Join(resumes, ",") != want {
+		t.Fatalf("resumes %v, want %s (the weaver is cut off)", resumes, want)
+	}
+	weaverAt, resumeAt := rep.PauseEvents[3].At, rep.PauseEvents[4].At
 	var paused *ShipSnapshot
+	var resumed, home *Snapshot
 	for i := range rep.Snapshots {
 		s := &rep.Snapshots[i]
 		for j := range s.Ships {
@@ -184,32 +190,44 @@ func TestShipInsolvencyScenario(t *testing.T) {
 			}
 		}
 		// Held at zero from the cascade until the weaver's pause, growing
-		// afterwards.
+		// afterwards until the trial.
 		switch {
 		case paused != nil && s.At < weaverAt && (s.Gold != 0 || s.BalanceRatePerMin >= 0):
 			t.Errorf("%s: gold %d balance %d, want held at zero", s.At, s.Gold, s.BalanceRatePerMin)
-		case s.At > weaverAt && (s.Gold <= 0 || s.BalanceRatePerMin <= 0):
+		case s.At > weaverAt && s.At < resumeAt && (s.Gold <= 0 || s.BalanceRatePerMin <= 0):
 			t.Errorf("%s: gold %d balance %d, want gold growing", s.At, s.Gold, s.BalanceRatePerMin)
+		}
+		if s.At > resumeAt && resumed == nil {
+			resumed = s
+		}
+		if len(s.Ships) > 0 && s.Ships[0].IslandID == "start" && s.At > resumeAt {
+			home = s
 		}
 	}
 	if paused == nil || paused.State != sim.ShipAnchoredUnpaid || paused.IslandID != "island2" {
 		t.Fatalf("paused %+v", paused)
 	}
-	final := rep.Final.Ships[0]
-	cargo := map[string]int64{}
-	for _, sl := range final.Cargo {
-		cargo[sl.Good] += sl.Amount
+	if resumed == nil || home == nil {
+		t.Fatalf("no snapshot after the resume (%v) or at home (%v)", resumed != nil, home != nil)
 	}
-	if !final.Paused || final.State != sim.ShipAnchoredUnpaid || len(cargo) != len(paused.Cargo) {
-		t.Fatalf("final ship %+v", final)
+	// Resumed idle at island 2 with the cargo it was paused with.
+	ship := resumed.Ships[0]
+	if ship.Paused || ship.State != sim.ShipIdle || ship.IslandID != "island2" || len(ship.Cargo) != len(paused.Cargo) {
+		t.Fatalf("resumed ship %+v", ship)
 	}
 	for g, a := range paused.Cargo {
-		if cargo[g] != a || a != 50_000 {
-			t.Errorf("cargo %s %d at the end, %d when paused", g, cargo[g], a)
+		if ship.Cargo[g] != a || a != 50_000 {
+			t.Errorf("cargo %s %d after the resume, %d when paused", g, ship.Cargo[g], a)
 		}
 	}
-	if rep.Final.Gold <= 0 || rep.Final.BalanceRatePerMin <= 0 {
-		t.Errorf("final gold %d balance %d", rep.Final.Gold, rep.Final.BalanceRatePerMin)
+	// Sailed home: the cargo is in the start island's stock.
+	if sh := home.Ships[0]; sh.Paused || len(sh.Cargo) != 0 {
+		t.Errorf("ship at home %+v", sh)
+	}
+	for g, a := range paused.Cargo {
+		if got := home.Inventory["start"][g].Stock - resumed.Inventory["start"][g].Stock; got != a {
+			t.Errorf("%s unloaded at home: %d, want %d", g, got, a)
+		}
 	}
 	checkGoldNonNegative(t, rep)
 }

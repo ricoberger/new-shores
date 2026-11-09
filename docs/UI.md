@@ -699,7 +699,7 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   The Overview's "When gold runs out" chapter words the auto-pause of
   MECHANICS §7: the order, the transitive supply-chain guard (D-075 §5)
   and when a producer loses it (an input with no producer and no stock),
-  and the resume reserve, whose minutes come from the served rules
+  the resume queue that skips such a producer, and the resume reserve, whose minutes come from the served rules
   (`auto_resume_upkeep_ms`; the line is left out without them).
 - **Look:** the HUD's parchment in a dark-wood frame, Cinzel headings,
   brass accent; left navigation on desktop, sticky tabs on the phone;

@@ -1,6 +1,6 @@
 {
   "name": "ship_insolvency",
-  "description": "(r) A cog waits idle at the unsettled island 2 with 50 planks and 50 wood aboard (nothing can unload there). Upkeep exceeds taxes (two houses at their floor pay less than the upkeep): the cascade skips the weaver and the fisher, the island's last producers of the garments and the fish the houses consume, and the sheep farm that feeds the weaver (D-075 §5, transitive); it pauses the wood chain (lumberjack, sawmill), then the ship (anchored_unpaid, cargo aboard), and gold is held at zero (D-008). The player demolishes the paused sawmill and lumberjack and the running sheep farm. When the last wool in stock is used up the weaver's input is cut off (no producer, no stock): it loses its guard and the cascade pauses it, the balance turns positive and gold grows. The cog stays anchored_unpaid with identical cargo: running it would turn the balance negative again (1 gold/min against +0.68), so it waits for a trial resume, and the weaver, paused last, is first in the resume queue.",
+  "description": "(r) A cog waits idle at the unsettled island 2 with 50 planks and 50 wood aboard (nothing can unload there). Upkeep exceeds taxes (two houses at their floor pay less than the upkeep): the cascade skips the weaver and the fisher, the island's last producers of the garments and the fish the houses consume, and the sheep farm that feeds the weaver (D-075 §5, transitive); it pauses the wood chain (lumberjack, sawmill), then the ship (anchored_unpaid, cargo aboard), and gold is held at zero (D-008). The player demolishes the paused sawmill and lumberjack and the running sheep farm. When the last wool in stock is used up the weaver's input is cut off (no producer, no stock): it loses its guard and the cascade pauses it, the balance turns positive and gold grows. The resume queue skips the weaver (cut off), so the cog gets the trial resume at 1:30:40 with identical cargo; the player sails it home and its 50 planks and 50 wood are unloaded at the start island.",
   "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
@@ -253,6 +253,22 @@
     {
       "advance": {
         "duration": "30m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "20m"
+      }
+    },
+    {
+      "sail_ship": {
+        "ship": 1,
+        "to": "start"
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
       }
     }
   ]

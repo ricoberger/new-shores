@@ -28,6 +28,8 @@ describe("almanac rendering", () => {
     const out = html({ section: "overview" });
     expect(out).toContain('<h3 id="gold">When gold runs out</h3>');
     expect(out).toMatch(/data-testid="almanac-supply-chains">Supply chains pause last: [^<]*even while their need is met[^<]*down the chain[^<]*no producer on the island, running or paused, and none is in stock/);
+    // The resume queue skips a producer that lacks an input.
+    expect(out).toMatch(/data-testid="almanac-resume-queue">The last building or ship paused resumes first, but a producer that lacks an input[^<]*waits/);
     // The resume reserve comes from the served rules; without them the line is left out.
     expect(out).not.toContain("minutes of its maintenance");
     const rules = { ...content.region.rules, auto_resume_upkeep_ms: 300_000 };

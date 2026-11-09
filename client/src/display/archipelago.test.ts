@@ -49,11 +49,13 @@ describe("island summary", () => {
     const ship = d.ships[0]!;
     expect(cargoCoversWarehouse([{ good: "planks", amount: 50_000 }], content)).toBe(true);
     expect(cargoCoversWarehouse([{ good: "planks", amount: 10_000 }], content)).toBe(false);
-    // The fixture's cog ends anchored_unpaid (the town holds at zero gold):
-    // only an idle ship founds.
-    expect(foundingShips({ ...d, ships: [{ ...ship, cargo: [{ good: "planks", amount: 20_000 }] }] }, content, ship.island_id)).toEqual([]);
-    const withCargo = { ...d, ships: [{ ...ship, state: "idle" as const, paused: false, paused_reason: "" as const, cargo: [{ good: "planks", amount: 20_000 }] }] };
-    expect(foundingShips(withCargo, content, ship.island_id).map((s) => s.id)).toEqual([ship.id]);
+    // The fixture's cog ends idle at home (settled): it founds nothing there.
+    const cargo = [{ good: "planks", amount: 20_000 }];
+    expect(foundingShips({ ...d, ships: [{ ...ship, cargo }] }, content, ship.island_id)).toEqual([]);
+    // At the unsettled island 2 only an idle ship founds, not an unpaid one.
+    const at2 = { ...ship, island_id: "island2", cargo };
+    expect(foundingShips({ ...d, ships: [{ ...at2, state: "anchored_unpaid" as const, paused: true, paused_reason: "unpaid" as const }] }, content, "island2")).toEqual([]);
+    expect(foundingShips({ ...d, ships: [{ ...at2, state: "idle" as const }] }, content, "island2").map((s) => s.id)).toEqual([ship.id]);
   });
 });
 

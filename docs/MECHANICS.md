@@ -653,14 +653,17 @@ guards the last, and the walk does not continue through a good with
 two producers. Unconnected houses consume nothing and guard nothing. A
 producer **loses its guard** (and its inputs are not walked) while an
 input is **cut off**: no building on the island produces any accepted
-good of the input slot, running or paused, and the island's stock of
-each is zero. A paused producer of the input keeps the guard (it can
+good of the input slot, running or paused, the island's stock of each
+is zero and none is on its way into the stock (a transit segment not
+yet over). A paused producer of the input keeps the guard (it can
 resume), and so does stock, imported or left over: a weaver without a
 sheep farm stays guarded on shipped-in wool until the stock is empty,
 then the cascade at that instant (a stock-empty boundary) pauses it.
-Cargo aboard a ship does not count. The guard is evaluated on the
-settled rates and stock of each cascade step, so it stays
-deterministic. With only guarded candidates left, D-008's gold floor
+Cargo aboard a ship does not count until it is unloaded (a boundary).
+Stock only rises from zero with an inflow and falls to zero at a stock
+boundary, so the test is constant between boundaries and splitting an
+advancement cannot change it. The guard is evaluated on the settled
+rates and stock of each cascade step, so it stays deterministic. With only guarded candidates left, D-008's gold floor
 holds: gold is held at zero and the guarded buildings keep running
 unpaid until taxes cover them or their inputs run out (D-009, no ruin).
 Scenarios `supply_chains_pause_last`, `supply_chains_met_need`,
@@ -678,7 +681,13 @@ are never paused; when nothing pausable is left their upkeep holds gold
 at zero until taxes cover it (a demolished hub stops its upkeep).
 
 - **Auto-resume**: the candidate is the most recently auto-paused
-  building. It resumes when both hold: (a) gold ≥
+  building or ship, **skipping a producer with a cut-off input** (the
+  test of the supply guard above: no producer of the input on its
+  island, running or paused, no stock, nothing in transit; D-075 §5) —
+  it would only cost upkeep. It is a candidate again once an input
+  producer is built or resumed or stock of the input arrives (the queue
+  is evaluated at every boundary; scenario `ship_insolvency`: the
+  woolless weaver is skipped and the cog gets the trial resume). It resumes when both hold: (a) gold ≥
   `auto_resume_upkeep_minutes` (content, provisional 5; **strictly
   positive** — it is the hysteresis that prevents pause/resume flapping, so
   0 is rejected as invalid content) of its upkeep, and (b) the **full**
