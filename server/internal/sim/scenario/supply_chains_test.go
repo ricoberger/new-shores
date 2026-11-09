@@ -8,9 +8,10 @@ import (
 // TestSupplyChainsPauseLast checks golden supply_chains_pause_last
 // (D-075 §5, the #74 strand case): the insolvency cascade after the
 // settler houses skips the weaver — the island's last running producer of
-// the wool garments the houses consume — and pauses everything else that
-// is pausable but the last fisher: of the two fishers the first is
-// paused, which leaves the second the last producer of fish. The weaver
+// the wool garments the houses consume — and the sheep farm that feeds it
+// (the guard is transitive), and pauses everything else that is pausable
+// but the last fisher: of the two fishers the first is paused, which
+// leaves the second the last producer of fish. The weaver
 // is never paused, the town grows out of it and within 60 minutes after
 // the cascade nothing is unpaid, the balance is >= 0 and gold has not
 // gone negative.
@@ -26,8 +27,8 @@ func TestSupplyChainsPauseLast(t *testing.T) {
 	}
 	var order []string
 	for _, e := range rep.PauseEvents {
-		if e.Type == "weaver_wool" {
-			t.Errorf("weaver %s at %s", e.Action, e.At)
+		if e.Type == "weaver_wool" || e.Type == "sheep_farm" {
+			t.Errorf("%s %s at %s", e.Type, e.Action, e.At)
 		}
 		if e.Action == "auto_pause" {
 			if stallMinutes(t, s, e.At) != cascade {
@@ -36,9 +37,9 @@ func TestSupplyChainsPauseLast(t *testing.T) {
 			order = append(order, e.Type)
 		}
 	}
-	// The auto-pause order without the guarded weaver: intermediate
+	// The auto-pause order without the guarded wool chain: intermediate
 	// (lowest upkeep first, then ID), then tier-1 food (one fisher).
-	want := []string{"lumberjack", "sheep_farm", "sawmill", "fisher"}
+	want := []string{"lumberjack", "sawmill", "fisher"}
 	if len(order) != len(want) {
 		t.Fatalf("paused %v, want %v", order, want)
 	}
@@ -71,10 +72,11 @@ func TestSupplyChainsPauseLast(t *testing.T) {
 // town with wool garments in stock, so the houses' clothing need is met
 // when the treasury runs dry. The weaver is still the island's last
 // running producer of the garments they consume, so the cascade keeps it
-// running and pauses the next candidates instead — the wood chain, the
-// sheep farm and one of the two fishers (the other, now the last, is
-// kept). Before, a met need guarded nothing and the weaver (need goods)
-// paused first.
+// running, and with it the wool chain that feeds it (the sheep farm, the
+// last producer of its wool; the guard is transitive), while the cascade
+// pauses the wood chain and one of the two fishers instead (the other,
+// now the last, is kept). Before, a met need guarded nothing and the
+// weaver (need goods) paused first.
 func TestSupplyChainsMetNeed(t *testing.T) {
 	const name = "supply_chains_met_need"
 	s := loadScenario(t, name)
@@ -87,20 +89,22 @@ func TestSupplyChainsMetNeed(t *testing.T) {
 	}
 	var order []string
 	for _, e := range rep.PauseEvents {
-		if e.Type == "weaver_wool" {
-			t.Errorf("weaver %s at %s", e.Action, e.At)
+		if e.Type == "weaver_wool" || e.Type == "sheep_farm" {
+			t.Errorf("%s %s at %s", e.Type, e.Action, e.At)
 		}
 		if e.Action == "auto_pause" {
 			order = append(order, e.Type)
 		}
 	}
-	want := []string{"lumberjack", "sheep_farm", "sawmill", "fisher"}
+	// The wood chain pauses, the wool chain is kept.
+	want := []string{"lumberjack", "sawmill", "fisher"}
 	if strings.Join(order, ",") != strings.Join(want, ",") {
 		t.Fatalf("paused %v, want %v", order, want)
 	}
 
 	// At the first advance after the cascade the clothing need is met
-	// (>= 0.6) in every house while the weaver runs and one fisher waits.
+	// (>= 0.6) in every house while the wool chain runs, the wood chain
+	// and one fisher wait.
 	c, err := s.LoadContent(repoRoot(t))
 	if err != nil {
 		t.Fatal(err)
@@ -122,9 +126,13 @@ func TestSupplyChainsMetNeed(t *testing.T) {
 		houses, fishers := 0, 0
 		for _, b := range r.Final.Islands[0].Buildings {
 			switch b.Type {
-			case "weaver_wool":
+			case "weaver_wool", "sheep_farm":
 				if b.Paused {
-					t.Errorf("weaver paused at %s", at)
+					t.Errorf("%s paused at %s", b.Type, at)
+				}
+			case "lumberjack", "sawmill":
+				if !b.Paused {
+					t.Errorf("%s running at %s", b.Type, at)
 				}
 			case "fisher":
 				if b.Paused {

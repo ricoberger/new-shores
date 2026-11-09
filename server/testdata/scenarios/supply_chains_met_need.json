@@ -1,6 +1,6 @@
 {
   "name": "supply_chains_met_need",
-  "description": "Supply chains pause last with the need met (D-075 §5, \"would the need fall below 0.6 without it\"): supply_chains_pause_last with 30 t of wool garments in stock, so the clothing need is met when upkeep empties the treasury at 17:57. The weaver is still the island's last running producer of the garments the houses consume, so the cascade keeps it and pauses the wood chain, the sheep farm and one of the two fishers instead; a guard only on unmet needs paused the weaver first. Taxes rise and the auto-resume chain restarts everything; no command after the opening.",
+  "description": "Supply chains pause last with the need met (D-075 §5, \"would the need fall below 0.6 without it\"): supply_chains_pause_last with 30 t of wool garments in stock, so the clothing need is met when upkeep empties the treasury at 17:57. The weaver is still the island's last running producer of the garments the houses consume, and the sheep farm the last producer of its wool, so the cascade keeps the wool chain and pauses the wood chain and one of the two fishers instead; a guard only on unmet needs paused the weaver first. Taxes rise and the auto-resume chain restarts everything; no command after the opening.",
   "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [

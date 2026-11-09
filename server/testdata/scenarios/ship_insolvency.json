@@ -1,6 +1,6 @@
 {
   "name": "ship_insolvency",
-  "description": "(r) A cog waits idle at the unsettled island 2 with 50 planks and 50 wood aboard (nothing can unload there). Upkeep exceeds taxes (two houses at their floor pay less than the fisher's upkeep): the cascade skips the weaver and the fisher, the island's last producers of the garments and the fish the houses consume (D-075 §5), and pauses the intermediate chain (lumberjack, sheep farm, sawmill), then the ship (step 4, anchored_unpaid, cargo aboard); gold is held at zero. The player demolishes the sawmill and the weaver (idle without wool) and builds a third house; the taxes cover the upkeep, the ship resumes idle with identical cargo, and the paused lumberjack and sheep farm are demolished.",
+  "description": "(r) A cog waits idle at the unsettled island 2 with 50 planks and 50 wood aboard (nothing can unload there). Upkeep exceeds taxes (two houses at their floor pay less than the upkeep): the cascade skips the weaver and the fisher, the island's last producers of the garments and the fish the houses consume, and the sheep farm that feeds the weaver (D-075 §5, transitive); it pauses the wood chain (lumberjack, sawmill), then the ship (anchored_unpaid, cargo aboard). The guarded chain costs more than the houses pay, so gold is held at zero (D-008). The player demolishes the paused sawmill and lumberjack and the running sheep farm; the weaver, now without wool, stays guarded as the last producer of garments, so the balance stays negative: the town holds at zero gold without ruin (D-009) and the ship stays anchored_unpaid with identical cargo.",
   "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
@@ -231,20 +231,6 @@
       "demolish": {
         "x": 24,
         "y": 3
-      }
-    },
-    {
-      "demolish": {
-        "x": 21,
-        "y": 3
-      }
-    },
-    {
-      "place": {
-        "type": "house_settlers",
-        "x": 7,
-        "y": 6,
-        "rotation": 0
       }
     },
     {

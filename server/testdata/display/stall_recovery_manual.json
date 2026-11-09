@@ -2,8 +2,8 @@
   "scenario": "stall_recovery_manual",
   "base": {
     "evaluated_at": "2026-01-01T01:17:00.000Z",
-    "next_change_at": "2026-01-01T04:48:36.702Z",
-    "gold": 166709,
+    "next_change_at": "2026-01-01T04:49:18.361Z",
+    "gold": 170050,
     "balance_rate_per_min": 3000,
     "tax_rate_per_min": 8000,
     "upkeep_rate_per_min": 5000,
@@ -84,7 +84,7 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 66177,
+            "stock": 65413,
             "capacity": 300000,
             "in_transit": 1050,
             "rate_per_min": 1100,
@@ -175,7 +175,7 @@
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 25041,
+            "stock": 27319,
             "capacity": 300000,
             "in_transit": 567,
             "rate_per_min": 466,
@@ -880,7 +880,7 @@
               }
             },
             "cycle_seconds": 40,
-            "cycle_progress_permille": 696,
+            "cycle_progress_permille": 148,
             "transfer_delay_ms": 42000,
             "assigned_warehouse_id": 3,
             "road_distance": 32,
@@ -909,7 +909,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 777,
+            "cycle_progress_permille": 621,
             "transfer_delay_ms": 39000,
             "assigned_warehouse_id": 1,
             "road_distance": 29,
@@ -1007,7 +1007,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 344,
+            "cycle_progress_permille": 188,
             "transfer_delay_ms": 51000,
             "assigned_warehouse_id": 1,
             "road_distance": 41,
@@ -1422,8 +1422,8 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T01:17:00.250Z",
-        "next_change_at": "2026-01-01T04:48:36.702Z",
-        "gold": 166721,
+        "next_change_at": "2026-01-01T04:49:18.361Z",
+        "gold": 170062,
         "balance_rate_per_min": 3000,
         "tax_rate_per_min": 8000,
         "upkeep_rate_per_min": 5000,
@@ -1504,7 +1504,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 66182,
+                "stock": 65418,
                 "capacity": 300000,
                 "in_transit": 1050,
                 "rate_per_min": 1100,
@@ -1595,7 +1595,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 25043,
+                "stock": 27321,
                 "capacity": 300000,
                 "in_transit": 567,
                 "rate_per_min": 466,
@@ -2300,7 +2300,7 @@
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 703,
+                "cycle_progress_permille": 154,
                 "transfer_delay_ms": 42000,
                 "assigned_warehouse_id": 3,
                 "road_distance": 32,
@@ -2329,7 +2329,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 780,
+                "cycle_progress_permille": 624,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
@@ -2427,7 +2427,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 347,
+                "cycle_progress_permille": 190,
                 "transfer_delay_ms": 51000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 41,
@@ -2842,8 +2842,8 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T01:17:01.000Z",
-        "next_change_at": "2026-01-01T04:48:36.702Z",
-        "gold": 166759,
+        "next_change_at": "2026-01-01T04:49:18.361Z",
+        "gold": 170100,
         "balance_rate_per_min": 3000,
         "tax_rate_per_min": 8000,
         "upkeep_rate_per_min": 5000,
@@ -2924,7 +2924,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 66195,
+                "stock": 65432,
                 "capacity": 300000,
                 "in_transit": 1050,
                 "rate_per_min": 1100,
@@ -3015,7 +3015,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 25049,
+                "stock": 27327,
                 "capacity": 300000,
                 "in_transit": 567,
                 "rate_per_min": 466,
@@ -3720,7 +3720,7 @@
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 721,
+                "cycle_progress_permille": 173,
                 "transfer_delay_ms": 42000,
                 "assigned_warehouse_id": 3,
                 "road_distance": 32,
@@ -3749,7 +3749,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 789,
+                "cycle_progress_permille": 632,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
@@ -3847,7 +3847,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 355,
+                "cycle_progress_permille": 199,
                 "transfer_delay_ms": 51000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 41,
@@ -4262,8 +4262,8 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T01:17:05.000Z",
-        "next_change_at": "2026-01-01T04:48:36.702Z",
-        "gold": 166959,
+        "next_change_at": "2026-01-01T04:49:18.361Z",
+        "gold": 170300,
         "balance_rate_per_min": 3000,
         "tax_rate_per_min": 8000,
         "upkeep_rate_per_min": 5000,
@@ -4344,7 +4344,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 66269,
+                "stock": 65505,
                 "capacity": 300000,
                 "in_transit": 1050,
                 "rate_per_min": 1100,
@@ -4435,7 +4435,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 25080,
+                "stock": 27358,
                 "capacity": 300000,
                 "in_transit": 567,
                 "rate_per_min": 466,
@@ -5140,7 +5140,7 @@
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 821,
+                "cycle_progress_permille": 273,
                 "transfer_delay_ms": 42000,
                 "assigned_warehouse_id": 3,
                 "road_distance": 32,
@@ -5169,7 +5169,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 833,
+                "cycle_progress_permille": 677,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
@@ -5267,7 +5267,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 400,
+                "cycle_progress_permille": 243,
                 "transfer_delay_ms": 51000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 41,
@@ -5682,8 +5682,8 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T01:17:30.000Z",
-        "next_change_at": "2026-01-01T04:48:36.702Z",
-        "gold": 168209,
+        "next_change_at": "2026-01-01T04:49:18.361Z",
+        "gold": 171550,
         "balance_rate_per_min": 3000,
         "tax_rate_per_min": 8000,
         "upkeep_rate_per_min": 5000,
@@ -5764,7 +5764,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 66727,
+                "stock": 65963,
                 "capacity": 300000,
                 "in_transit": 1050,
                 "rate_per_min": 1100,
@@ -5855,7 +5855,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 25274,
+                "stock": 27552,
                 "capacity": 300000,
                 "in_transit": 567,
                 "rate_per_min": 466,
@@ -6560,7 +6560,7 @@
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 446,
+                "cycle_progress_permille": 898,
                 "transfer_delay_ms": 42000,
                 "assigned_warehouse_id": 3,
                 "road_distance": 32,
@@ -6589,7 +6589,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 111,
+                "cycle_progress_permille": 954,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
@@ -6687,7 +6687,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 677,
+                "cycle_progress_permille": 521,
                 "transfer_delay_ms": 51000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 41,
@@ -7102,8 +7102,8 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T01:22:00.000Z",
-        "next_change_at": "2026-01-01T04:48:36.702Z",
-        "gold": 181709,
+        "next_change_at": "2026-01-01T04:49:18.361Z",
+        "gold": 185050,
         "balance_rate_per_min": 3000,
         "tax_rate_per_min": 8000,
         "upkeep_rate_per_min": 5000,
@@ -7184,7 +7184,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 71677,
+                "stock": 70913,
                 "capacity": 300000,
                 "in_transit": 1050,
                 "rate_per_min": 1100,
@@ -7275,7 +7275,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 27374,
+                "stock": 29652,
                 "capacity": 300000,
                 "in_transit": 567,
                 "rate_per_min": 466,
@@ -7980,7 +7980,7 @@
                   }
                 },
                 "cycle_seconds": 40,
-                "cycle_progress_permille": 196,
+                "cycle_progress_permille": 648,
                 "transfer_delay_ms": 42000,
                 "assigned_warehouse_id": 3,
                 "road_distance": 32,
@@ -8009,7 +8009,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 111,
+                "cycle_progress_permille": 954,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
@@ -8107,7 +8107,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 677,
+                "cycle_progress_permille": 521,
                 "transfer_delay_ms": 51000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 41,

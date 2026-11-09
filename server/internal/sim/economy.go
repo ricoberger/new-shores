@@ -23,8 +23,9 @@ import (
 //     running producer of a good that a connected house on the island
 //     consumes (any alternative of a goods need of its tier), whether the
 //     need is met today or not — without it the need would fall below 0.6
-//     (supplyGuards). With no candidate left, gold is held (rate 0) while
-//     the condition holds.
+//     — and, transitively, while it is the last running producer of an
+//     input of a guarded producer (supplyGuards). With no candidate left,
+//     gold is held (rate 0) while the condition holds.
 //   - auto-resume (R21): the unpaid building or ship with the highest pause
 //     sequence resumes when (a) gold >= auto_resume_upkeep_minutes x its
 //     upkeep and (b) the balance with it running and all rates recomputed
@@ -308,10 +309,20 @@ func trialThreshold(c *content.Catalogue, upkeep Qty) int64 {
 // good that a connected house on the island consumes, any alternative of
 // a goods need counting, whatever the need's fulfilment today: a met need
 // (stock or arrivals at rate) would still fall below 0.6 without its last
-// producer. Unconnected houses consume nothing and guard nothing. r are
-// the island's settled rates.
+// producer. The guard is transitive: the last running producer of every
+// input good of a guarded producer (any accepted alternative) is guarded
+// too, recursively over the recipes (content has no production cycles;
+// the visited set ends the walk regardless). Unconnected houses consume
+// nothing and guard nothing. r are the island's settled rates.
 func supplyGuards(is *Island, c *content.Catalogue, r *rates) map[int64]bool {
-	consumed := map[string]bool{}
+	var queue []string
+	seen := map[string]bool{}
+	add := func(g string) {
+		if !seen[g] {
+			seen[g] = true
+			queue = append(queue, g)
+		}
+	}
 	for _, h := range r.houses {
 		if !h.connected {
 			continue
@@ -321,36 +332,43 @@ func supplyGuards(is *Island, c *content.Catalogue, r *rates) map[int64]bool {
 				continue
 			}
 			for _, g := range n.need.Goods {
-				consumed[g.Good] = true
+				add(g.Good)
 			}
 		}
 	}
-	if len(consumed) == 0 {
+	if len(queue) == 0 {
 		return nil
 	}
-	// producer per consumed good: its only running producer, or -1 for
-	// more than one.
-	producer := map[string]int64{}
+	// producers per good: the island's running producers in building
+	// order.
+	producers := map[string][]*Building{}
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
 		if def == nil || def.Recipe == nil || b.Paused {
 			continue
 		}
 		for _, o := range def.Recipe.Outputs {
-			if !consumed[o.Good] {
-				continue
-			}
-			if _, seen := producer[o.Good]; seen {
-				producer[o.Good] = -1
-			} else {
-				producer[o.Good] = b.ID
-			}
+			producers[o.Good] = append(producers[o.Good], b)
 		}
 	}
 	guards := map[int64]bool{}
-	for _, id := range producer {
-		if id > 0 {
-			guards[id] = true
+	for len(queue) > 0 {
+		g := queue[0]
+		queue = queue[1:]
+		ps := producers[g]
+		if len(ps) != 1 {
+			continue // none, or a second producer lifts the guard
+		}
+		b := ps[0]
+		if guards[b.ID] {
+			continue
+		}
+		guards[b.ID] = true
+		for _, in := range c.BuildingByID[b.Type].Recipe.Inputs {
+			for _, alt := range in.Goods {
+				add(alt)
+			}
+			add(in.Good)
 		}
 	}
 	return guards

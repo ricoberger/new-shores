@@ -11,8 +11,9 @@ import (
 )
 
 // retiredShips matches the ship IDs and names D-075 §4 retired (sloop,
-// brig, galleon → cog, hulk, carrack), never "bright".
-var retiredShips = regexp.MustCompile(`(?i)sloop|galleon|brig([^h]|$)`)
+// brig, galleon → cog, hulk, carrack); "brig" and the German "Brigg" only
+// as a word of their own, never "bright" or the German "übrig".
+var retiredShips = regexp.MustCompile(`(?i)sloop|galleon|(^|[^\p{L}])brigg?([^\p{L}]|$)`)
 
 // retiredAllowed are the files that may still name the retired ships: the
 // decision log and the status page (history, edited by the owner) and

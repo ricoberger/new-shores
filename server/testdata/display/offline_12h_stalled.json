@@ -2,11 +2,11 @@
   "scenario": "offline_12h_stalled",
   "base": {
     "evaluated_at": "2026-01-01T12:00:00.000Z",
-    "next_change_at": "2026-01-01T23:10:53.808Z",
+    "next_change_at": "2026-01-01T13:11:27.956Z",
     "gold": 0,
-    "balance_rate_per_min": -1040,
+    "balance_rate_per_min": -2040,
     "tax_rate_per_min": 960,
-    "upkeep_rate_per_min": 2000,
+    "upkeep_rate_per_min": 3000,
     "tiers": [
       {
         "id": "settlers",
@@ -170,15 +170,15 @@
           "wool": {
             "stock": 0,
             "capacity": 300000,
-            "in_transit": 0,
+            "in_transit": 258,
             "rate_per_min": 0,
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 80508,
+            "stock": 272610,
             "capacity": 300000,
-            "in_transit": 0,
-            "rate_per_min": -120,
+            "in_transit": 233,
+            "rate_per_min": 380,
             "in_transit_rate_per_min": 0
           }
         },
@@ -339,7 +339,7 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 0,
+            "load_permille": 38,
             "berths": {
               "total": 1,
               "busy": 0,
@@ -397,17 +397,18 @@
             ],
             "rates": {
               "inputs": {
-                "wool": 0
+                "wool": 500
               },
               "outputs": {
-                "wool_garments": 0
+                "wool_garments": 500
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 589,
+            "cycle_progress_permille": 924,
             "transfer_delay_ms": 28000,
             "assigned_warehouse_id": 1,
             "road_distance": 18,
+            "cycle_rate_permille_per_min": 500,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -500,22 +501,23 @@
             "x": 24,
             "y": 5,
             "rotation": 180,
-            "paused": true,
-            "paused_reason": "unpaid",
-            "status": "paused",
+            "paused": false,
+            "paused_reason": "",
+            "status": "low_efficiency",
             "efficiency_permille": 750,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wool": 0
+                "wool": 500
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 589,
+            "cycle_progress_permille": 183,
             "transfer_delay_ms": 31000,
             "assigned_warehouse_id": 1,
             "road_distance": 21,
+            "cycle_rate_permille_per_min": 500,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1002,7 +1004,7 @@
         "workforce": {
           "settlers": {
             "available": 24000,
-            "required": 10000,
+            "required": 14000,
             "factor_permille": 1000
           }
         },
@@ -1023,9 +1025,9 @@
     "ships": [],
     "routes": [],
     "insolvency": {
-      "unpaid_buildings": 3,
+      "unpaid_buildings": 2,
       "unpaid_ships": 0,
-      "unpaid_upkeep_per_min": 4000,
+      "unpaid_upkeep_per_min": 3000,
       "balance_if_resumed_per_min": -5040
     },
     "quests": {
@@ -1080,11 +1082,11 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T12:00:00.250Z",
-        "next_change_at": "2026-01-01T23:10:53.808Z",
+        "next_change_at": "2026-01-01T13:11:27.956Z",
         "gold": 0,
-        "balance_rate_per_min": -1040,
+        "balance_rate_per_min": -2040,
         "tax_rate_per_min": 960,
-        "upkeep_rate_per_min": 2000,
+        "upkeep_rate_per_min": 3000,
         "tiers": [
           {
             "id": "settlers",
@@ -1248,15 +1250,15 @@
               "wool": {
                 "stock": 0,
                 "capacity": 300000,
-                "in_transit": 0,
+                "in_transit": 258,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 80507,
+                "stock": 272611,
                 "capacity": 300000,
-                "in_transit": 0,
-                "rate_per_min": -120,
+                "in_transit": 233,
+                "rate_per_min": 380,
                 "in_transit_rate_per_min": 0
               }
             },
@@ -1417,7 +1419,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 0,
+                "load_permille": 38,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -1475,17 +1477,18 @@
                 ],
                 "rates": {
                   "inputs": {
-                    "wool": 0
+                    "wool": 500
                   },
                   "outputs": {
-                    "wool_garments": 0
+                    "wool_garments": 500
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 589,
+                "cycle_progress_permille": 927,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
+                "cycle_rate_permille_per_min": 500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -1578,22 +1581,23 @@
                 "x": 24,
                 "y": 5,
                 "rotation": 180,
-                "paused": true,
-                "paused_reason": "unpaid",
-                "status": "paused",
+                "paused": false,
+                "paused_reason": "",
+                "status": "low_efficiency",
                 "efficiency_permille": 750,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wool": 0
+                    "wool": 500
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 589,
+                "cycle_progress_permille": 185,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
+                "cycle_rate_permille_per_min": 500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -2080,7 +2084,7 @@
             "workforce": {
               "settlers": {
                 "available": 24000,
-                "required": 10000,
+                "required": 14000,
                 "factor_permille": 1000
               }
             },
@@ -2101,9 +2105,9 @@
         "ships": [],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 3,
+          "unpaid_buildings": 2,
           "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 4000,
+          "unpaid_upkeep_per_min": 3000,
           "balance_if_resumed_per_min": -5040
         },
         "quests": {
@@ -2158,11 +2162,11 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T12:00:01.000Z",
-        "next_change_at": "2026-01-01T23:10:53.808Z",
+        "next_change_at": "2026-01-01T13:11:27.956Z",
         "gold": 0,
-        "balance_rate_per_min": -1040,
+        "balance_rate_per_min": -2040,
         "tax_rate_per_min": 960,
-        "upkeep_rate_per_min": 2000,
+        "upkeep_rate_per_min": 3000,
         "tiers": [
           {
             "id": "settlers",
@@ -2326,15 +2330,15 @@
               "wool": {
                 "stock": 0,
                 "capacity": 300000,
-                "in_transit": 0,
+                "in_transit": 258,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 80506,
+                "stock": 272616,
                 "capacity": 300000,
-                "in_transit": 0,
-                "rate_per_min": -120,
+                "in_transit": 233,
+                "rate_per_min": 380,
                 "in_transit_rate_per_min": 0
               }
             },
@@ -2495,7 +2499,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 0,
+                "load_permille": 38,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -2553,17 +2557,18 @@
                 ],
                 "rates": {
                   "inputs": {
-                    "wool": 0
+                    "wool": 500
                   },
                   "outputs": {
-                    "wool_garments": 0
+                    "wool_garments": 500
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 589,
+                "cycle_progress_permille": 933,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
+                "cycle_rate_permille_per_min": 500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -2656,22 +2661,23 @@
                 "x": 24,
                 "y": 5,
                 "rotation": 180,
-                "paused": true,
-                "paused_reason": "unpaid",
-                "status": "paused",
+                "paused": false,
+                "paused_reason": "",
+                "status": "low_efficiency",
                 "efficiency_permille": 750,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wool": 0
+                    "wool": 500
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 589,
+                "cycle_progress_permille": 191,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
+                "cycle_rate_permille_per_min": 500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -3158,7 +3164,7 @@
             "workforce": {
               "settlers": {
                 "available": 24000,
-                "required": 10000,
+                "required": 14000,
                 "factor_permille": 1000
               }
             },
@@ -3179,9 +3185,9 @@
         "ships": [],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 3,
+          "unpaid_buildings": 2,
           "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 4000,
+          "unpaid_upkeep_per_min": 3000,
           "balance_if_resumed_per_min": -5040
         },
         "quests": {
@@ -3236,11 +3242,11 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T12:00:05.000Z",
-        "next_change_at": "2026-01-01T23:10:53.808Z",
+        "next_change_at": "2026-01-01T13:11:27.956Z",
         "gold": 0,
-        "balance_rate_per_min": -1040,
+        "balance_rate_per_min": -2040,
         "tax_rate_per_min": 960,
-        "upkeep_rate_per_min": 2000,
+        "upkeep_rate_per_min": 3000,
         "tiers": [
           {
             "id": "settlers",
@@ -3404,15 +3410,15 @@
               "wool": {
                 "stock": 0,
                 "capacity": 300000,
-                "in_transit": 0,
+                "in_transit": 258,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 80498,
+                "stock": 272641,
                 "capacity": 300000,
-                "in_transit": 0,
-                "rate_per_min": -120,
+                "in_transit": 233,
+                "rate_per_min": 380,
                 "in_transit_rate_per_min": 0
               }
             },
@@ -3573,7 +3579,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 0,
+                "load_permille": 38,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -3631,17 +3637,18 @@
                 ],
                 "rates": {
                   "inputs": {
-                    "wool": 0
+                    "wool": 500
                   },
                   "outputs": {
-                    "wool_garments": 0
+                    "wool_garments": 500
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 589,
+                "cycle_progress_permille": 966,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
+                "cycle_rate_permille_per_min": 500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -3734,22 +3741,23 @@
                 "x": 24,
                 "y": 5,
                 "rotation": 180,
-                "paused": true,
-                "paused_reason": "unpaid",
-                "status": "paused",
+                "paused": false,
+                "paused_reason": "",
+                "status": "low_efficiency",
                 "efficiency_permille": 750,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wool": 0
+                    "wool": 500
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 589,
+                "cycle_progress_permille": 224,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
+                "cycle_rate_permille_per_min": 500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -4236,7 +4244,7 @@
             "workforce": {
               "settlers": {
                 "available": 24000,
-                "required": 10000,
+                "required": 14000,
                 "factor_permille": 1000
               }
             },
@@ -4257,9 +4265,9 @@
         "ships": [],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 3,
+          "unpaid_buildings": 2,
           "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 4000,
+          "unpaid_upkeep_per_min": 3000,
           "balance_if_resumed_per_min": -5040
         },
         "quests": {
@@ -4314,11 +4322,11 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T12:00:30.000Z",
-        "next_change_at": "2026-01-01T23:10:53.808Z",
+        "next_change_at": "2026-01-01T13:11:27.956Z",
         "gold": 0,
-        "balance_rate_per_min": -1040,
+        "balance_rate_per_min": -2040,
         "tax_rate_per_min": 960,
-        "upkeep_rate_per_min": 2000,
+        "upkeep_rate_per_min": 3000,
         "tiers": [
           {
             "id": "settlers",
@@ -4482,15 +4490,15 @@
               "wool": {
                 "stock": 0,
                 "capacity": 300000,
-                "in_transit": 0,
+                "in_transit": 258,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 80448,
+                "stock": 272800,
                 "capacity": 300000,
-                "in_transit": 0,
-                "rate_per_min": -120,
+                "in_transit": 233,
+                "rate_per_min": 380,
                 "in_transit_rate_per_min": 0
               }
             },
@@ -4651,7 +4659,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 0,
+                "load_permille": 38,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -4709,17 +4717,18 @@
                 ],
                 "rates": {
                   "inputs": {
-                    "wool": 0
+                    "wool": 500
                   },
                   "outputs": {
-                    "wool_garments": 0
+                    "wool_garments": 500
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 589,
+                "cycle_progress_permille": 174,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
+                "cycle_rate_permille_per_min": 500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -4812,22 +4821,23 @@
                 "x": 24,
                 "y": 5,
                 "rotation": 180,
-                "paused": true,
-                "paused_reason": "unpaid",
-                "status": "paused",
+                "paused": false,
+                "paused_reason": "",
+                "status": "low_efficiency",
                 "efficiency_permille": 750,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wool": 0
+                    "wool": 500
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 589,
+                "cycle_progress_permille": 433,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
+                "cycle_rate_permille_per_min": 500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -5314,7 +5324,7 @@
             "workforce": {
               "settlers": {
                 "available": 24000,
-                "required": 10000,
+                "required": 14000,
                 "factor_permille": 1000
               }
             },
@@ -5335,9 +5345,9 @@
         "ships": [],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 3,
+          "unpaid_buildings": 2,
           "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 4000,
+          "unpaid_upkeep_per_min": 3000,
           "balance_if_resumed_per_min": -5040
         },
         "quests": {
@@ -5392,11 +5402,11 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T12:05:00.000Z",
-        "next_change_at": "2026-01-01T23:10:53.808Z",
+        "next_change_at": "2026-01-01T13:11:27.956Z",
         "gold": 0,
-        "balance_rate_per_min": -1040,
+        "balance_rate_per_min": -2040,
         "tax_rate_per_min": 960,
-        "upkeep_rate_per_min": 2000,
+        "upkeep_rate_per_min": 3000,
         "tiers": [
           {
             "id": "settlers",
@@ -5560,15 +5570,15 @@
               "wool": {
                 "stock": 0,
                 "capacity": 300000,
-                "in_transit": 0,
+                "in_transit": 258,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 79908,
+                "stock": 274510,
                 "capacity": 300000,
-                "in_transit": 0,
-                "rate_per_min": -120,
+                "in_transit": 233,
+                "rate_per_min": 380,
                 "in_transit_rate_per_min": 0
               }
             },
@@ -5729,7 +5739,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 0,
+                "load_permille": 38,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -5787,17 +5797,18 @@
                 ],
                 "rates": {
                   "inputs": {
-                    "wool": 0
+                    "wool": 500
                   },
                   "outputs": {
-                    "wool_garments": 0
+                    "wool_garments": 500
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 589,
+                "cycle_progress_permille": 424,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
+                "cycle_rate_permille_per_min": 500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -5890,22 +5901,23 @@
                 "x": 24,
                 "y": 5,
                 "rotation": 180,
-                "paused": true,
-                "paused_reason": "unpaid",
-                "status": "paused",
+                "paused": false,
+                "paused_reason": "",
+                "status": "low_efficiency",
                 "efficiency_permille": 750,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wool": 0
+                    "wool": 500
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 589,
+                "cycle_progress_permille": 683,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
+                "cycle_rate_permille_per_min": 500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
@@ -6392,7 +6404,7 @@
             "workforce": {
               "settlers": {
                 "available": 24000,
-                "required": 10000,
+                "required": 14000,
                 "factor_permille": 1000
               }
             },
@@ -6413,9 +6425,9 @@
         "ships": [],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 3,
+          "unpaid_buildings": 2,
           "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 4000,
+          "unpaid_upkeep_per_min": 3000,
           "balance_if_resumed_per_min": -5040
         },
         "quests": {

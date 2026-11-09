@@ -9,6 +9,8 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
   useScrollTo(id, "tier-");
   const tiers = tierViews(idx);
   const needs = needsByTier(idx);
+  const resumeMs = idx.content.region?.rules?.auto_resume_upkeep_ms;
+  const resumeMinutes = typeof resumeMs === "number" && resumeMs > 0 ? resumeMs / 60_000 : null;
   const ladder = needs.flatMap((tier) =>
     tier.servicesAdded.map((b) => {
       const service = idx.building(b)?.service;
@@ -102,6 +104,11 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
       <p>{t("almanac.o.toolsMove")}</p>
       <p>{t("almanac.o.toolsDemolish")}</p>
       <p>{t("almanac.o.toolsRings")}</p>
+
+      <h3 id="gold">{t("almanac.o.gold")}</h3>
+      <p>{t("almanac.o.goldPause")}</p>
+      <p data-testid="almanac-supply-chains">{t("almanac.o.goldChains")}</p>
+      {resumeMinutes !== null && <p>{t("almanac.o.goldResume", { minutes: num(resumeMinutes) })}</p>}
 
       <h3>{t("almanac.o.asks")}</h3>
       <p className={styles.lead}>

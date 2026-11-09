@@ -152,17 +152,24 @@ func TestFoundIsland(t *testing.T) {
 }
 
 // TestShipInsolvencyScenario checks scenario (r): the ship is paused at
-// step 4 (after the intermediate chain; the weaver and the fisher are
-// guarded, D-075 §5) and resumed with identical cargo.
+// step 3 of the cascade (after the wood chain; the weaver, the fisher and
+// the weaver's sheep farm are guarded, D-075 §5) and keeps its cargo. The
+// guarded chain costs more than the two houses pay, so gold is held at
+// zero (D-008) and the town stalls without ruin (D-009): after the
+// player demolishes the sheep farm the weaver stays guarded although it
+// has no wool, the ship stays anchored_unpaid with identical cargo and
+// gold never goes negative.
 func TestShipInsolvencyScenario(t *testing.T) {
 	rep := runScenario(t, "ship_insolvency")
 	var pauses []string
 	for _, e := range rep.PauseEvents {
 		if e.Action == "auto_pause" {
 			pauses = append(pauses, e.Type)
+		} else {
+			t.Errorf("%s resumed at %s, want the stall held", e.Type, e.At)
 		}
 	}
-	if want := "lumberjack,sheep_farm,sawmill,cog"; strings.Join(pauses, ",") != want {
+	if want := "lumberjack,sawmill,cog"; strings.Join(pauses, ",") != want {
 		t.Fatalf("pauses %v, want %s", pauses, want)
 	}
 	var paused *ShipSnapshot
@@ -173,25 +180,26 @@ func TestShipInsolvencyScenario(t *testing.T) {
 			}
 		}
 	}
-	resumed := false
-	for _, e := range rep.PauseEvents {
-		resumed = resumed || (e.Action == "auto_resume" && e.ShipID == 1)
-	}
-	if paused == nil || paused.State != sim.ShipAnchoredUnpaid || paused.IslandID != "island2" || !resumed {
-		t.Fatalf("paused %+v, resumed %v", paused, resumed)
+	if paused == nil || paused.State != sim.ShipAnchoredUnpaid || paused.IslandID != "island2" {
+		t.Fatalf("paused %+v", paused)
 	}
 	final := rep.Final.Ships[0]
 	cargo := map[string]int64{}
 	for _, sl := range final.Cargo {
 		cargo[sl.Good] += sl.Amount
 	}
-	if final.Paused || final.State != sim.ShipIdle || len(cargo) != len(paused.Cargo) {
+	if !final.Paused || final.State != sim.ShipAnchoredUnpaid || len(cargo) != len(paused.Cargo) {
 		t.Fatalf("final ship %+v", final)
 	}
 	for g, a := range paused.Cargo {
 		if cargo[g] != a || a != 50_000 {
-			t.Errorf("cargo %s %d after resume, %d while paused", g, cargo[g], a)
+			t.Errorf("cargo %s %d at the end, %d when paused", g, cargo[g], a)
 		}
+	}
+	// Held at zero: gold 0 from the cascade on, the balance still negative.
+	last := rep.Snapshots[len(rep.Snapshots)-1]
+	if rep.Final.Gold != 0 || last.Gold != 0 || rep.Final.BalanceRatePerMin >= 0 {
+		t.Errorf("final gold %d balance %d, want held at zero", rep.Final.Gold, rep.Final.BalanceRatePerMin)
 	}
 	checkGoldNonNegative(t, rep)
 }

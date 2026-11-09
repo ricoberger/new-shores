@@ -29,15 +29,18 @@ func legacyUpkeep(base *content.Catalogue) *content.Catalogue {
 }
 
 // bonusTax returns base with every tier's tax raised by the largest
-// bonus that D-056 removed (variety x1.1 and optional needs x1.25): the
-// recovery property cases were calibrated with those bonuses on the
-// variety test content and otherwise miss their minimum boundary counts.
+// bonus that D-056 removed (variety x1.1 and optional needs x1.25) and,
+// since the transitive supply guard (D-075 §5), a little more (x1.6 in
+// all): the recovery property cases were calibrated with those bonuses on
+// the variety test content, and a guarded chain (weaver and sheep farm)
+// keeps costing upkeep while gold is held at zero, so without the extra
+// they miss their minimum boundary counts.
 func bonusTax(base *content.Catalogue) *content.Catalogue {
 	c := *base
 	c.Tiers, c.TierByID = nil, map[string]*content.Tier{}
 	for _, t := range base.Tiers {
 		cp := *t
-		cp.TaxPerResidentPerMin = cp.TaxPerResidentPerMin * 1375 / 1000
+		cp.TaxPerResidentPerMin = cp.TaxPerResidentPerMin * 1600 / 1000
 		c.Tiers = append(c.Tiers, &cp)
 		c.TierByID[cp.ID] = &cp
 	}
@@ -159,10 +162,12 @@ func TestAutoPauseCascadeAndHeldGold(t *testing.T) {
 // TestAutoPauseSupplyGuards (D-075 §5): two settler houses get their fish
 // from the running fisher (fulfilment 1) but no wool garments. The fisher
 // and the weaver are the island's last running producers of goods the
-// houses consume — the fisher although the fish need is met today — so
-// the cascade skips both, pauses the rest in the usual order and gold is
-// held at zero (D-008) while both keep running. With a second fisher the
-// first one (lower ID) is paused and the second, now the last, is kept.
+// houses consume — the fisher although the fish need is met today — and
+// the sheep farm is the last producer of the weaver's wool (the guard is
+// transitive), so the cascade skips all three, pauses the wood chain and
+// gold is held at zero (D-008) while they keep running. With a second
+// fisher the first one (lower ID) is paused and the second, now the
+// last, is kept.
 func TestAutoPauseSupplyGuards(t *testing.T) {
 	c := orderCatalogue(t)
 	for _, second := range []bool{false, true} {
@@ -173,7 +178,7 @@ func TestAutoPauseSupplyGuards(t *testing.T) {
 		}
 		placeHouses(t, w, c, 2)
 		bs := mustAdvance(t, w, c, time.Minute)
-		want := []int64{lumberjack, sawmill, sheep}
+		want := []int64{lumberjack, sawmill}
 		if second {
 			want = append(want, fisher)
 		}
@@ -185,8 +190,8 @@ func TestAutoPauseSupplyGuards(t *testing.T) {
 		if second {
 			kept = fisher2
 		}
-		if is.Building(weaver).Paused || is.Building(kept).Paused {
-			t.Fatalf("second fisher %v: weaver paused %v, fisher %d paused %v", second, is.Building(weaver).Paused, kept, is.Building(kept).Paused)
+		if is.Building(weaver).Paused || is.Building(sheep).Paused || is.Building(kept).Paused {
+			t.Fatalf("second fisher %v: weaver paused %v, sheep farm paused %v, fisher %d paused %v", second, is.Building(weaver).Paused, is.Building(sheep).Paused, kept, is.Building(kept).Paused)
 		}
 		ds := display(t, w, c)
 		if !second {

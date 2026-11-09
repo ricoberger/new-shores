@@ -642,16 +642,24 @@ connected house on the island consumes — any alternative of a goods need
 of the house's tier — **whether the need is met today or not**: without
 it the need would fall below 0.6 (the upgrade gate), so a fisher whose
 catch fills the houses is guarded as much as a weaver whose garments are
-not there yet. The pause falls on the next candidate; with a second
-running producer of the good the cascade pauses one (the usual order)
-and guards the last. Unconnected houses consume nothing and guard
-nothing; the guard covers only the producers of the consumed goods, not
-their input chain (a sheep farm can pause while its weaver is guarded).
-The guard is evaluated on the settled rates of each cascade step, so it
-stays deterministic. With only guarded candidates left, D-008's gold
-floor holds: gold is held at zero and the guarded buildings keep running
-unpaid until taxes cover them (scenarios `supply_chains_pause_last`,
-`supply_chains_met_need`, `stall_recovery_auto`).
+not there yet. The guard is **transitive**: the island's last running
+producer of every input good of a guarded producer (any accepted
+alternative) is guarded too, recursively over the recipes — the sheep
+farm of a guarded weaver, the mill and the wheat farm of a guarded
+bakery — so a guarded producer is never starved by the cascade; content has no
+production cycles. The pause falls on the next candidate; with a second
+running producer of a good the cascade pauses one (the usual order) and
+guards the last, and the walk does not continue through a good with
+two producers. Unconnected houses consume nothing and guard nothing. A
+guarded producer stays guarded whatever its inputs: one whose input
+chain the player demolished still runs (and costs) as the last
+producer of its good. The guard is evaluated on the settled rates of
+each cascade step, so it stays deterministic. With only guarded
+candidates left, D-008's gold floor holds: gold is held at zero and the
+guarded buildings keep running unpaid until taxes cover them; if they
+never do, the town holds at zero gold without ruin (D-009; scenario
+`ship_insolvency`). Scenarios `supply_chains_pause_last`,
+`supply_chains_met_need`, `stall_recovery_auto`.
 
 Never auto-paused: houses, warehouses, roads, shipyard, harbourmaster,
 decorations, and the tier-1 market and chapel. **Never-pausable buildings

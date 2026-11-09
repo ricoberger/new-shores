@@ -535,29 +535,32 @@ func TestInsolvency(t *testing.T) {
 			resumes = append(resumes, e.Type)
 		}
 	}
-	// Intermediates by upkeep (lumberjack and sheep farm 1 gold/min by ID,
-	// sawmill 2). The weaver (need goods) and the fisher (tier-1 food) are
-	// the island's last producers of the garments and the fish the houses
-	// consume: they pause last (D-075 §5), so they keep running. The
-	// sawmill is demolished while paused; the rest resume in reverse order.
-	want := []string{"lumberjack", "sheep_farm", "sawmill"}
+	// Intermediates by upkeep (lumberjack 1 gold/min, sawmill 2). The
+	// weaver (need goods) and the fisher (tier-1 food) are the island's
+	// last producers of the garments and the fish the houses consume, and
+	// the sheep farm the last producer of the weaver's wool: they pause
+	// last (D-075 §5, transitive), so they keep running. The player
+	// demolishes the two paused buildings; nothing resumes.
+	want := []string{"lumberjack", "sawmill"}
 	if strings.Join(pauses, ",") != strings.Join(want, ",") {
 		t.Errorf("pauses = %v, want %v", pauses, want)
 	}
-	if want := []string{"sheep_farm", "lumberjack"}; strings.Join(resumes, ",") != strings.Join(want, ",") {
-		t.Errorf("resumes = %v, want %v", resumes, want)
+	if len(resumes) != 0 {
+		t.Errorf("resumes = %v, want none", resumes)
 	}
-	for i := 1; i < 3; i++ {
-		if rep.PauseEvents[i].At != rep.PauseEvents[0].At {
-			t.Errorf("cascade not at one instant: %v", rep.PauseEvents[:3])
-		}
+	if len(rep.PauseEvents) != 2 || rep.PauseEvents[1].At != rep.PauseEvents[0].At {
+		t.Errorf("cascade not at one instant: %v", rep.PauseEvents)
 	}
-	// At 3 minutes the three are paused for insolvency; the guarded weaver
-	// and fisher still cost more than the floor taxes, so gold is held at
-	// zero (D-008) instead of going negative.
+	// At 3 minutes the two are paused for insolvency; the guarded chain
+	// still costs more than the floor taxes, so gold is held at zero
+	// (D-008) instead of going negative. The growing houses pay for it
+	// later and gold grows again.
 	s := rep.Snapshots[1]
-	if s.StatusesCount[sim.StatusPaused] != 3 || s.Gold != 0 || s.BalanceRatePerMin != 0 {
+	if s.StatusesCount[sim.StatusPaused] != 2 || s.Gold != 0 {
 		t.Errorf("snapshot %s: %+v gold %d balance %d", s.At, s.StatusesCount, s.Gold, s.BalanceRatePerMin)
+	}
+	if rep.Final.Gold <= 0 {
+		t.Errorf("final gold %d, want the town grown out of the stall", rep.Final.Gold)
 	}
 	checkGoldNonNegative(t, rep)
 	for _, b := range rep.Final.Islands[0].Buildings {
