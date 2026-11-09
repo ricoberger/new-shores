@@ -152,8 +152,8 @@ func TestFoundIsland(t *testing.T) {
 }
 
 // TestShipInsolvencyScenario checks scenario (r): the ship is paused at
-// step 4 (after the intermediate chain, before tier-1 food) and resumed
-// with identical cargo.
+// step 4 (after the intermediate chain; the weaver and the fisher are
+// guarded, D-075 §5) and resumed with identical cargo.
 func TestShipInsolvencyScenario(t *testing.T) {
 	rep := runScenario(t, "ship_insolvency")
 	var pauses []string
@@ -162,7 +162,7 @@ func TestShipInsolvencyScenario(t *testing.T) {
 			pauses = append(pauses, e.Type)
 		}
 	}
-	if want := "weaver_wool,lumberjack,sheep_farm,sawmill,cog,fisher"; strings.Join(pauses, ",") != want {
+	if want := "lumberjack,sheep_farm,sawmill,cog"; strings.Join(pauses, ",") != want {
 		t.Fatalf("pauses %v, want %s", pauses, want)
 	}
 	var paused *ShipSnapshot

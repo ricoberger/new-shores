@@ -19,10 +19,12 @@ import (
 //     ship with upkeep) in the order need_goods < public < intermediate <
 //     ships < food_basic, then building/ship tier descending, upkeep
 //     ascending, ID ascending, until balance >= 0. Supply chains pause last
-//     (D-075 §5): a building is skipped while it is its island's only
-//     running producer of a good of a goods need that a connected house on
-//     the island fulfils below 0.6 (supplyGuards). With no candidate left,
-//     gold is held (rate 0) while the condition holds.
+//     (D-075 §5): a building is skipped while it is its island's last
+//     running producer of a good that a connected house on the island
+//     consumes (any alternative of a goods need of its tier), whether the
+//     need is met today or not — without it the need would fall below 0.6
+//     (supplyGuards). With no candidate left, gold is held (rate 0) while
+//     the condition holds.
 //   - auto-resume (R21): the unpaid building or ship with the highest pause
 //     sequence resumes when (a) gold >= auto_resume_upkeep_minutes x its
 //     upkeep and (b) the balance with it running and all rates recomputed
@@ -301,36 +303,33 @@ func trialThreshold(c *content.Catalogue, upkeep Qty) int64 {
 	return c.Region.Rules.TrialResumeMs * upkeep
 }
 
-// supplyGuardPPM is the need fulfilment below which a house's goods need
-// guards its island's only running producer from the auto-pause (D-075 §5;
-// the 0.6 of the upgrade gate).
-const supplyGuardPPM = upgradeGatePPM
-
 // supplyGuards returns the buildings of an island the auto-pause skips
-// (D-075 §5): each is the island's only running (not paused) producer of a
-// good of a goods need that a connected house on the island fulfils below
-// 0.6, any alternative of the need counting. Unconnected houses consume
-// nothing and guard nothing. r are the island's settled rates.
+// (D-075 §5): each is the island's last running (not paused) producer of a
+// good that a connected house on the island consumes, any alternative of
+// a goods need counting, whatever the need's fulfilment today: a met need
+// (stock or arrivals at rate) would still fall below 0.6 without its last
+// producer. Unconnected houses consume nothing and guard nothing. r are
+// the island's settled rates.
 func supplyGuards(is *Island, c *content.Catalogue, r *rates) map[int64]bool {
-	unmet := map[string]bool{}
+	consumed := map[string]bool{}
 	for _, h := range r.houses {
 		if !h.connected {
 			continue
 		}
 		for _, n := range h.needs {
-			if n.goods == nil || n.fulfilment >= supplyGuardPPM {
+			if n.goods == nil {
 				continue
 			}
 			for _, g := range n.need.Goods {
-				unmet[g.Good] = true
+				consumed[g.Good] = true
 			}
 		}
 	}
-	if len(unmet) == 0 {
+	if len(consumed) == 0 {
 		return nil
 	}
-	// producer per unmet good: its only running producer, or -1 for more
-	// than one.
+	// producer per consumed good: its only running producer, or -1 for
+	// more than one.
 	producer := map[string]int64{}
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
@@ -338,7 +337,7 @@ func supplyGuards(is *Island, c *content.Catalogue, r *rates) map[int64]bool {
 			continue
 		}
 		for _, o := range def.Recipe.Outputs {
-			if !unmet[o.Good] {
+			if !consumed[o.Good] {
 				continue
 			}
 			if _, seen := producer[o.Good]; seen {

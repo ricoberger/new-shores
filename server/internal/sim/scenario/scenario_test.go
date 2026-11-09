@@ -535,26 +535,28 @@ func TestInsolvency(t *testing.T) {
 			resumes = append(resumes, e.Type)
 		}
 	}
-	// Need goods first, then intermediates by upkeep (lumberjack and sheep
-	// farm 1 gold/min by ID, sawmill 2), then tier-1 food.
-	want := []string{"weaver_wool", "lumberjack", "sheep_farm", "sawmill", "fisher"}
+	// Intermediates by upkeep (lumberjack and sheep farm 1 gold/min by ID,
+	// sawmill 2). The weaver (need goods) and the fisher (tier-1 food) are
+	// the island's last producers of the garments and the fish the houses
+	// consume: they pause last (D-075 §5), so they keep running. The
+	// sawmill is demolished while paused; the rest resume in reverse order.
+	want := []string{"lumberjack", "sheep_farm", "sawmill"}
 	if strings.Join(pauses, ",") != strings.Join(want, ",") {
 		t.Errorf("pauses = %v, want %v", pauses, want)
 	}
-	slices.Reverse(want)
-	if strings.Join(resumes, ",") != strings.Join(want, ",") {
+	if want := []string{"sheep_farm", "lumberjack"}; strings.Join(resumes, ",") != strings.Join(want, ",") {
 		t.Errorf("resumes = %v, want %v", resumes, want)
 	}
-	for i := 1; i < 5; i++ {
+	for i := 1; i < 3; i++ {
 		if rep.PauseEvents[i].At != rep.PauseEvents[0].At {
-			t.Errorf("cascade not at one instant: %v", rep.PauseEvents[:5])
+			t.Errorf("cascade not at one instant: %v", rep.PauseEvents[:3])
 		}
 	}
-	// At 3 minutes all five are paused for insolvency; nothing that still
-	// runs has upkeep, so the balance is not negative and gold grows again
-	// from the floor taxes.
+	// At 3 minutes the three are paused for insolvency; the guarded weaver
+	// and fisher still cost more than the floor taxes, so gold is held at
+	// zero (D-008) instead of going negative.
 	s := rep.Snapshots[1]
-	if s.StatusesCount[sim.StatusPaused] != 5 || s.Gold <= 0 || s.BalanceRatePerMin < 0 {
+	if s.StatusesCount[sim.StatusPaused] != 3 || s.Gold != 0 || s.BalanceRatePerMin != 0 {
 		t.Errorf("snapshot %s: %+v gold %d balance %d", s.At, s.StatusesCount, s.Gold, s.BalanceRatePerMin)
 	}
 	checkGoldNonNegative(t, rep)

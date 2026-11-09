@@ -637,17 +637,21 @@ then lowest upkeep first so the fewest buildings stop, then lowest ID):
 5. **Tier-1 food** production.
 
 **Supply chains pause last** (D-075 §5): a candidate is skipped while it
-is its island's **only running producer** of a good of a goods need that a
-connected house on the island fulfils **below 0.6** (the upgrade gate;
-any alternative of the need counts). The pause falls on the next
-candidate; a second running producer of the good lifts the guard (the
-cascade pauses one, the last one is guarded), and so does the need
-reaching 0.6. The guard is evaluated on the settled rates of each cascade
-step, so it stays deterministic. With only guarded candidates
-left, D-008's gold floor holds: gold is held at zero and the guarded
-buildings keep running unpaid until taxes cover them. A producer whose
-good already fills the need to 0.6 is not guarded and can still be paused
-(scenarios `supply_chains_pause_last`, `stall_recovery_auto`).
+is its island's **last running producer** (not paused) of a good that a
+connected house on the island consumes — any alternative of a goods need
+of the house's tier — **whether the need is met today or not**: without
+it the need would fall below 0.6 (the upgrade gate), so a fisher whose
+catch fills the houses is guarded as much as a weaver whose garments are
+not there yet. The pause falls on the next candidate; with a second
+running producer of the good the cascade pauses one (the usual order)
+and guards the last. Unconnected houses consume nothing and guard
+nothing; the guard covers only the producers of the consumed goods, not
+their input chain (a sheep farm can pause while its weaver is guarded).
+The guard is evaluated on the settled rates of each cascade step, so it
+stays deterministic. With only guarded candidates left, D-008's gold
+floor holds: gold is held at zero and the guarded buildings keep running
+unpaid until taxes cover them (scenarios `supply_chains_pause_last`,
+`supply_chains_met_need`, `stall_recovery_auto`).
 
 Never auto-paused: houses, warehouses, roads, shipyard, harbourmaster,
 decorations, and the tier-1 market and chapel. **Never-pausable buildings

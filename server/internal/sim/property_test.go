@@ -934,6 +934,9 @@ func (p *propCase) recoveryWorld() *World {
 	for _, sp := range []spot{
 		{"fisher", 6, 1, 0}, {"weaver_wool", 21, 2, 0}, {"sawmill", 24, 2, 0}, {"sawmill", 26, 2, 0},
 		{"sheep_farm", 24, 5, 180}, {"chapel", 19, 5, 180}, {"sawmill", 21, 5, 180}, {"bakery", 17, 5, 180},
+		// Second producers of the houses' goods: the last running one is
+		// guarded from the auto-pause (D-075 §5), the others still pause.
+		{"fisher", 10, 0, 0}, {"weaver_wool", 3, 5, 180},
 	} {
 		if p.rng.IntN(4) > 0 {
 			free(sp.typ, sp.x, sp.y, sp.rot)
