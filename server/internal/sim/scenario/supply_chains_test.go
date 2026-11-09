@@ -154,3 +154,62 @@ func TestSupplyChainsMetNeed(t *testing.T) {
 	}
 	checkGoldNonNegative(t, rep)
 }
+
+// TestSupplyGuardImport (D-075 §5, cut-off inputs): the start island has
+// a weaver but no sheep farm; a route brings 60 t of wool from island 2.
+// When upkeep empties the treasury the cascade pauses the wood chain and
+// the cog, but not the weaver: its wool is in stock. Gold is held at zero
+// while the weaver works the stock down; once the island's wool is gone
+// the weaver's input is cut off (no producer, running or paused, and no
+// stock), it loses its guard and the cascade pauses it, the balance turns
+// positive and gold grows again. The fisher, the last producer of fish,
+// is never paused.
+func TestSupplyGuardImport(t *testing.T) {
+	rep := runScenario(t, "supply_guard_import")
+	var order []string
+	weaverAt := ""
+	for _, e := range rep.PauseEvents {
+		if e.Type == "fisher" {
+			t.Errorf("fisher %s at %s", e.Action, e.At)
+		}
+		if e.Action == "auto_pause" {
+			order = append(order, e.Type)
+			if e.Type == "weaver_wool" {
+				weaverAt = e.At
+			}
+		}
+	}
+	if want := "lumberjack,sawmill,cog,weaver_wool"; strings.Join(order, ",") != want {
+		t.Fatalf("paused %v, want %s", order, want)
+	}
+	cascadeAt := rep.PauseEvents[0].At
+	if weaverAt <= cascadeAt {
+		t.Fatalf("weaver paused at %s, cascade at %s", weaverAt, cascadeAt)
+	}
+	held, after := 0, 0
+	for _, s := range rep.Snapshots {
+		wool := s.Inventory["start"]["wool"].Stock
+		switch {
+		case s.At > cascadeAt && s.At < weaverAt:
+			// Guarded on the imported stock: gold held at zero.
+			if wool <= 0 || s.Gold != 0 || s.BalanceRatePerMin >= 0 {
+				t.Errorf("%s: wool %d gold %d balance %d, want the weaver guarded on its stock", s.At, wool, s.Gold, s.BalanceRatePerMin)
+			}
+			held++
+		case s.At > weaverAt:
+			if wool != 0 || s.Gold <= 0 || s.BalanceRatePerMin <= 0 {
+				t.Errorf("%s: wool %d gold %d balance %d, want the weaver paused and gold growing", s.At, wool, s.Gold, s.BalanceRatePerMin)
+			}
+			after++
+		}
+	}
+	if held == 0 || after == 0 {
+		t.Fatalf("snapshots: %d held, %d after the weaver pause", held, after)
+	}
+	for _, b := range rep.Final.Islands[0].Buildings {
+		if b.Type == "sheep_farm" {
+			t.Fatal("the start island has a sheep farm")
+		}
+	}
+	checkGoldNonNegative(t, rep)
+}

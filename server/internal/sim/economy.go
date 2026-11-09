@@ -24,7 +24,9 @@ import (
 //     consumes (any alternative of a goods need of its tier), whether the
 //     need is met today or not — without it the need would fall below 0.6
 //     — and, transitively, while it is the last running producer of an
-//     input of a guarded producer (supplyGuards). With no candidate left,
+//     input of a guarded producer; a producer whose input has no producer
+//     on the island (running or paused) and no stock is not guarded
+//     (supplyGuards). With no candidate left,
 //     gold is held (rate 0) while the condition holds.
 //   - auto-resume (R21): the unpaid building or ship with the highest pause
 //     sequence resumes when (a) gold >= auto_resume_upkeep_minutes x its
@@ -312,8 +314,13 @@ func trialThreshold(c *content.Catalogue, upkeep Qty) int64 {
 // producer. The guard is transitive: the last running producer of every
 // input good of a guarded producer (any accepted alternative) is guarded
 // too, recursively over the recipes (content has no production cycles;
-// the visited set ends the walk regardless). Unconnected houses consume
-// nothing and guard nothing. r are the island's settled rates.
+// the visited set ends the walk regardless). A producer is not guarded
+// (and its inputs are not walked) while one of its input slots is cut
+// off: no building on the island produces any accepted good of the slot,
+// running or paused, and the island's stock of each is zero; a paused
+// producer of an input keeps the guard (it can resume). Unconnected
+// houses consume nothing and guard nothing. r are the island's settled
+// rates.
 func supplyGuards(is *Island, c *content.Catalogue, r *rates) map[int64]bool {
 	var queue []string
 	seen := map[string]bool{}
@@ -342,14 +349,32 @@ func supplyGuards(is *Island, c *content.Catalogue, r *rates) map[int64]bool {
 	// producers per good: the island's running producers in building
 	// order.
 	producers := map[string][]*Building{}
+	// produced marks the goods any building of the island produces,
+	// running or paused.
+	produced := map[string]bool{}
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
-		if def == nil || def.Recipe == nil || b.Paused {
+		if def == nil || def.Recipe == nil {
 			continue
 		}
 		for _, o := range def.Recipe.Outputs {
-			producers[o.Good] = append(producers[o.Good], b)
+			produced[o.Good] = true
+			if !b.Paused {
+				producers[o.Good] = append(producers[o.Good], b)
+			}
 		}
+	}
+	available := func(g string) bool { return produced[g] || is.Inventory.Stock[g] > 0 }
+	cutOff := func(in content.RecipeInput) bool {
+		if available(in.Good) {
+			return false
+		}
+		for _, alt := range in.Goods {
+			if available(alt) {
+				return false
+			}
+		}
+		return true
 	}
 	guards := map[int64]bool{}
 	for len(queue) > 0 {
@@ -360,7 +385,7 @@ func supplyGuards(is *Island, c *content.Catalogue, r *rates) map[int64]bool {
 			continue // none, or a second producer lifts the guard
 		}
 		b := ps[0]
-		if guards[b.ID] {
+		if guards[b.ID] || slices.ContainsFunc(c.BuildingByID[b.Type].Recipe.Inputs, cutOff) {
 			continue
 		}
 		guards[b.ID] = true

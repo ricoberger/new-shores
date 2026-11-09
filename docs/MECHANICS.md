@@ -651,15 +651,20 @@ production cycles. The pause falls on the next candidate; with a second
 running producer of a good the cascade pauses one (the usual order) and
 guards the last, and the walk does not continue through a good with
 two producers. Unconnected houses consume nothing and guard nothing. A
-guarded producer stays guarded whatever its inputs: one whose input
-chain the player demolished still runs (and costs) as the last
-producer of its good. The guard is evaluated on the settled rates of
-each cascade step, so it stays deterministic. With only guarded
-candidates left, D-008's gold floor holds: gold is held at zero and the
-guarded buildings keep running unpaid until taxes cover them; if they
-never do, the town holds at zero gold without ruin (D-009; scenario
-`ship_insolvency`). Scenarios `supply_chains_pause_last`,
-`supply_chains_met_need`, `stall_recovery_auto`.
+producer **loses its guard** (and its inputs are not walked) while an
+input is **cut off**: no building on the island produces any accepted
+good of the input slot, running or paused, and the island's stock of
+each is zero. A paused producer of the input keeps the guard (it can
+resume), and so does stock, imported or left over: a weaver without a
+sheep farm stays guarded on shipped-in wool until the stock is empty,
+then the cascade at that instant (a stock-empty boundary) pauses it.
+Cargo aboard a ship does not count. The guard is evaluated on the
+settled rates and stock of each cascade step, so it stays
+deterministic. With only guarded candidates left, D-008's gold floor
+holds: gold is held at zero and the guarded buildings keep running
+unpaid until taxes cover them or their inputs run out (D-009, no ruin).
+Scenarios `supply_chains_pause_last`, `supply_chains_met_need`,
+`supply_guard_import`, `ship_insolvency`, `stall_recovery_auto`.
 
 Never auto-paused: houses, warehouses, roads, shipyard, harbourmaster,
 decorations, and the tier-1 market and chapel. **Never-pausable buildings

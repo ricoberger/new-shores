@@ -27,7 +27,7 @@ describe("almanac rendering", () => {
   it("explains the auto-pause and the transitive supply-chain guard (D-075 §5)", () => {
     const out = html({ section: "overview" });
     expect(out).toContain('<h3 id="gold">When gold runs out</h3>');
-    expect(out).toMatch(/data-testid="almanac-supply-chains">Supply chains pause last: [^<]*even while their need is met[^<]*down the chain/);
+    expect(out).toMatch(/data-testid="almanac-supply-chains">Supply chains pause last: [^<]*even while their need is met[^<]*down the chain[^<]*no producer on the island, running or paused, and none is in stock/);
     // The resume reserve comes from the served rules; without them the line is left out.
     expect(out).not.toContain("minutes of its maintenance");
     const rules = { ...content.region.rules, auto_resume_upkeep_ms: 300_000 };

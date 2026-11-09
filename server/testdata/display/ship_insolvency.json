@@ -2,11 +2,11 @@
   "scenario": "ship_insolvency",
   "base": {
     "evaluated_at": "2026-01-01T01:16:20.000Z",
-    "next_change_at": "2026-01-01T16:45:42.858Z",
-    "gold": 0,
-    "balance_rate_per_min": -320,
+    "next_change_at": "2026-01-01T01:30:40.342Z",
+    "gold": 20249,
+    "balance_rate_per_min": 680,
     "tax_rate_per_min": 1680,
-    "upkeep_rate_per_min": 2000,
+    "upkeep_rate_per_min": 1000,
     "tiers": [
       {
         "id": "settlers",
@@ -399,14 +399,11 @@
             "x": 21,
             "y": 3,
             "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "input_starved",
+            "paused": true,
+            "paused_reason": "unpaid",
+            "status": "paused",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "status_goods": [
-              "wool"
-            ],
             "rates": {
               "inputs": {
                 "wool": 0
@@ -536,7 +533,7 @@
         "workforce": {
           "settlers": {
             "available": 12000,
-            "required": 10000,
+            "required": 4000,
             "factor_permille": 1000
           }
         },
@@ -749,9 +746,9 @@
     ],
     "routes": [],
     "insolvency": {
-      "unpaid_buildings": 0,
+      "unpaid_buildings": 1,
       "unpaid_ships": 1,
-      "unpaid_upkeep_per_min": 1000,
+      "unpaid_upkeep_per_min": 2000,
       "balance_if_resumed_per_min": -1320
     },
     "quests": {
@@ -800,11 +797,11 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T01:16:20.250Z",
-        "next_change_at": "2026-01-01T16:45:42.858Z",
-        "gold": 0,
-        "balance_rate_per_min": -320,
+        "next_change_at": "2026-01-01T01:30:40.342Z",
+        "gold": 20252,
+        "balance_rate_per_min": 680,
         "tax_rate_per_min": 1680,
-        "upkeep_rate_per_min": 2000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -1197,14 +1194,11 @@
                 "x": 21,
                 "y": 3,
                 "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "input_starved",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wool"
-                ],
                 "rates": {
                   "inputs": {
                     "wool": 0
@@ -1334,7 +1328,7 @@
             "workforce": {
               "settlers": {
                 "available": 12000,
-                "required": 10000,
+                "required": 4000,
                 "factor_permille": 1000
               }
             },
@@ -1547,9 +1541,9 @@
         ],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 0,
+          "unpaid_buildings": 1,
           "unpaid_ships": 1,
-          "unpaid_upkeep_per_min": 1000,
+          "unpaid_upkeep_per_min": 2000,
           "balance_if_resumed_per_min": -1320
         },
         "quests": {
@@ -1598,11 +1592,11 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T01:16:21.000Z",
-        "next_change_at": "2026-01-01T16:45:42.858Z",
-        "gold": 0,
-        "balance_rate_per_min": -320,
+        "next_change_at": "2026-01-01T01:30:40.342Z",
+        "gold": 20260,
+        "balance_rate_per_min": 680,
         "tax_rate_per_min": 1680,
-        "upkeep_rate_per_min": 2000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -1995,14 +1989,11 @@
                 "x": 21,
                 "y": 3,
                 "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "input_starved",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wool"
-                ],
                 "rates": {
                   "inputs": {
                     "wool": 0
@@ -2132,7 +2123,7 @@
             "workforce": {
               "settlers": {
                 "available": 12000,
-                "required": 10000,
+                "required": 4000,
                 "factor_permille": 1000
               }
             },
@@ -2345,9 +2336,9 @@
         ],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 0,
+          "unpaid_buildings": 1,
           "unpaid_ships": 1,
-          "unpaid_upkeep_per_min": 1000,
+          "unpaid_upkeep_per_min": 2000,
           "balance_if_resumed_per_min": -1320
         },
         "quests": {
@@ -2396,11 +2387,11 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T01:16:25.000Z",
-        "next_change_at": "2026-01-01T16:45:42.858Z",
-        "gold": 0,
-        "balance_rate_per_min": -320,
+        "next_change_at": "2026-01-01T01:30:40.342Z",
+        "gold": 20306,
+        "balance_rate_per_min": 680,
         "tax_rate_per_min": 1680,
-        "upkeep_rate_per_min": 2000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -2793,14 +2784,11 @@
                 "x": 21,
                 "y": 3,
                 "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "input_starved",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wool"
-                ],
                 "rates": {
                   "inputs": {
                     "wool": 0
@@ -2930,7 +2918,7 @@
             "workforce": {
               "settlers": {
                 "available": 12000,
-                "required": 10000,
+                "required": 4000,
                 "factor_permille": 1000
               }
             },
@@ -3143,9 +3131,9 @@
         ],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 0,
+          "unpaid_buildings": 1,
           "unpaid_ships": 1,
-          "unpaid_upkeep_per_min": 1000,
+          "unpaid_upkeep_per_min": 2000,
           "balance_if_resumed_per_min": -1320
         },
         "quests": {
@@ -3194,11 +3182,11 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T01:16:50.000Z",
-        "next_change_at": "2026-01-01T16:45:42.858Z",
-        "gold": 0,
-        "balance_rate_per_min": -320,
+        "next_change_at": "2026-01-01T01:30:40.342Z",
+        "gold": 20589,
+        "balance_rate_per_min": 680,
         "tax_rate_per_min": 1680,
-        "upkeep_rate_per_min": 2000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -3591,14 +3579,11 @@
                 "x": 21,
                 "y": 3,
                 "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "input_starved",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wool"
-                ],
                 "rates": {
                   "inputs": {
                     "wool": 0
@@ -3728,7 +3713,7 @@
             "workforce": {
               "settlers": {
                 "available": 12000,
-                "required": 10000,
+                "required": 4000,
                 "factor_permille": 1000
               }
             },
@@ -3941,9 +3926,9 @@
         ],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 0,
+          "unpaid_buildings": 1,
           "unpaid_ships": 1,
-          "unpaid_upkeep_per_min": 1000,
+          "unpaid_upkeep_per_min": 2000,
           "balance_if_resumed_per_min": -1320
         },
         "quests": {
@@ -3992,11 +3977,11 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T01:21:20.000Z",
-        "next_change_at": "2026-01-01T16:45:42.858Z",
-        "gold": 0,
-        "balance_rate_per_min": -320,
+        "next_change_at": "2026-01-01T01:30:40.342Z",
+        "gold": 23649,
+        "balance_rate_per_min": 680,
         "tax_rate_per_min": 1680,
-        "upkeep_rate_per_min": 2000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -4389,14 +4374,11 @@
                 "x": 21,
                 "y": 3,
                 "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "input_starved",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wool"
-                ],
                 "rates": {
                   "inputs": {
                     "wool": 0
@@ -4526,7 +4508,7 @@
             "workforce": {
               "settlers": {
                 "available": 12000,
-                "required": 10000,
+                "required": 4000,
                 "factor_permille": 1000
               }
             },
@@ -4739,9 +4721,9 @@
         ],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 0,
+          "unpaid_buildings": 1,
           "unpaid_ships": 1,
-          "unpaid_upkeep_per_min": 1000,
+          "unpaid_upkeep_per_min": 2000,
           "balance_if_resumed_per_min": -1320
         },
         "quests": {
