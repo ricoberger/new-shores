@@ -235,7 +235,7 @@ describe("quest conditions", () => {
   it("formats every condition type of MECHANICS §12a", () => {
     const sample = { type: "road_dirt", good: "planks", tier: "citizens", target: 10000 };
     for (const kind of kinds) {
-      const text = objectiveSentence({ kind, ...sample, ...(kind === "ship_count" ? { type: "sloop", target: 2 } : {}), ...(kind === "building_count" || kind === "island_settled" ? { target: 10 } : {}) }, idx);
+      const text = objectiveSentence({ kind, ...sample, ...(kind === "ship_count" ? { type: "cog", target: 2 } : {}), ...(kind === "building_count" || kind === "island_settled" ? { target: 10 } : {}) }, idx);
       expect(text, kind).not.toMatch(/unknown|undefined|NaN|objective/i);
       expect(text.length).toBeGreaterThan(5);
     }
@@ -246,7 +246,7 @@ describe("quest conditions", () => {
     expect(objectiveSentence({ kind: "population", tier: "settlers", target: 120000 }, idx)).toBe("Reach 120 Settlers");
     expect(objectiveSentence({ kind: "stock", good: "planks", target: 30000 }, idx)).toBe("Have 30\u00a0t Planks in stock");
     expect(objectiveSentence({ kind: "satisfaction", tier: "settlers", target: 600 }, idx)).toBe("Keep Settlers satisfaction at 60 % or more");
-    expect(objectiveSentence({ kind: "ship_count", type: "galleon", target: 1 }, idx)).toBe("Own 1 Galleon");
+    expect(objectiveSentence({ kind: "ship_count", type: "carrack", target: 1 }, idx)).toBe("Own 1 Carrack");
   });
 });
 
@@ -278,6 +278,15 @@ describe("almanac model of the harbour buildings (D-060)", () => {
     expect(buildingView(idx, idx.building("trading_post")!).footprint).toContain("1–2 rows on water");
     const quay = buildingView(idx, idx.building("quay")!);
     expect(quay).toMatchObject({ shallows: true, roadSecondsPerTile: 0.6 });
+  });
+
+  it("names the low shore of every water-edge building (D-075)", () => {
+    const low = "Needs a low shore (land tiles at sea level, not on a terrace)";
+    for (const id of ["trading_post", "trading_pier", "fisher", "shipyard", "depot"]) {
+      expect(buildingView(idx, idx.building(id)!).needsSite, id).toContain(low);
+    }
+    expect(buildingView(idx, idx.building("quay")!).needsSite).not.toContain(low);
+    expect(buildingView(idx, idx.building("sawmill")!).needsSite).not.toContain(low);
   });
 });
 

@@ -32,7 +32,7 @@ const text = (html: string) => html.replace(/<[^>]+>/g, "");
 describe("quest chains in the quest list", () => {
   it("takes the chain from the ID prefix, like the almanac", () => {
     expect(questChainOf("intro_first_road")).toBe("intro");
-    expect(questChainOf("patricians_galleon")).toBe("patricians");
+    expect(questChainOf("patricians_carrack")).toBe("patricians");
     expect(questChainOf("lonely")).toBe("lonely");
   });
 
@@ -45,12 +45,12 @@ describe("quest chains in the quest list", () => {
       { id: "intro_settlers_120", claimable: true, step: 9 },
       { id: "intro_island2", claimable: false, step: 10 },
     ]);
-    expect(citizens).toMatchObject({ name: "Citizens", total: 5, done: 0, next: "citizens_sloop" });
+    expect(citizens).toMatchObject({ name: "Citizens", total: 5, done: 0, next: "citizens_cog" });
     expect(citizens?.open).toEqual([{ id: "citizens_shipyard", claimable: false, step: 1 }]);
   });
 
   it("lists a chain's last quest without a next one, and quests the content lacks on their own", () => {
-    const last = { ...model, quests: { claimable: [], active: [{ id: "patricians_galleon", objectives: [] }, { id: "event_x", objectives: [] }] } } as unknown as DisplayState;
+    const last = { ...model, quests: { claimable: [], active: [{ id: "patricians_carrack", objectives: [] }, { id: "event_x", objectives: [] }] } } as unknown as DisplayState;
     const chains = questChains(last, content);
     expect(chains.map((c) => [c.id, c.done, c.total, c.next])).toEqual([
       ["patricians", 5, 6, null],

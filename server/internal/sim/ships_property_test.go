@@ -16,7 +16,7 @@ import (
 
 // shipPropWorld extends a town (island "main") with a settled island
 // "isle" (shipyard, stock) and an unsettled island "wild", and adds idle
-// sloops. With recovery set the town starts insolvent and recovers
+// cogs. With recovery set the town starts insolvent and recovers
 // (recoveryWorld), so that ships are paused and resumed.
 func (p *propCase) shipPropWorld(recovery bool) {
 	switch {
@@ -70,13 +70,13 @@ func (p *propCase) shipPropWorld(recovery bool) {
 	w.NextShipID = 1
 	for range 1 + p.rng.IntN(3) {
 		island := []string{"main", "isle"}[p.rng.IntN(2)]
-		w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: "sloop", State: ShipIdle, IslandID: island})
+		w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: "cog", State: ShipIdle, IslandID: island})
 		w.NextShipID++
 	}
 	// Some worlds have a ship at sea with cargo (the start ship, D-051).
 	if p.rng.IntN(2) == 0 {
 		cargo := map[string]Qty{"planks": Qty(1+p.rng.IntN(150)) * 1000}
-		if _, err := LaunchShipAtSea(w, p.c, "sloop", Pos{X: -20 + p.rng.IntN(60), Y: -20 + p.rng.IntN(60)}, cargo); err != nil {
+		if _, err := LaunchShipAtSea(w, p.c, "cog", Pos{X: -20 + p.rng.IntN(60), Y: -20 + p.rng.IntN(60)}, cargo); err != nil {
 			p.fail("ship at sea: %v", err)
 		}
 		// Ledger: the cargo enters the world like a grant loaded at main.
@@ -139,7 +139,7 @@ func (p *propCase) randomShipCommand() Command {
 	islands := []string{"main", "isle", "wild"}
 	switch r := p.rng.IntN(100); {
 	case r < 8:
-		return OrderShip{IslandID: "isle", BuildingID: p.w.Island("isle").Buildings[1].ID, ShipType: "sloop"}
+		return OrderShip{IslandID: "isle", BuildingID: p.w.Island("isle").Buildings[1].ID, ShipType: "cog"}
 	case r < 11:
 		return CancelShipOrder{IslandID: "isle", BuildingID: p.w.Island("isle").Buildings[1].ID}
 	case r < 25:
@@ -236,8 +236,9 @@ func TestPropertyShips(t *testing.T) {
 	}
 	t.Logf("boundaries %v; deliberate splits %v; final ship states %v; berth waits seen %d; ships at sea seen %d", kinds, splitKinds, states, queued, atSea)
 	// Berth queues and ships at sea actually occur (D-051; the voyages
-	// around the overlapping test islands spread the arrivals, D-058 §5).
-	if queued < propertyCases/40 || atSea < propertyCases/10 {
+	// around the overlapping test islands spread the arrivals, D-058 §5;
+	// 5 berth waits before the tile-exact routes of polish 8, 4 since).
+	if queued < propertyCases/50 || atSea < propertyCases/10 {
 		t.Errorf("berth waits seen %d, ships at sea seen %d", queued, atSea)
 	}
 	for _, k := range []string{BoundaryShipBuilt, BoundaryShipArrived, "ship_" + BoundaryAutoPause, "ship_" + BoundaryAutoResume} {

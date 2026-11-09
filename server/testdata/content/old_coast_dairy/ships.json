@@ -1,7 +1,7 @@
 [
   {
-    "id": "sloop",
-    "name": "Sloop",
+    "id": "cog",
+    "name": "Cog",
     "region": "old_coast",
     "tier": "settlers",
     "slots": 2,

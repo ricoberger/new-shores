@@ -93,8 +93,9 @@ export function missingFertilityText(fertility: string, fertilities: readonly st
   return t("tier.missingFertility", { fertility: fertilityName(fertility), have });
 }
 
-/** Ghost hint text of a water-edge site that does not fit (D-051): its front rows on land, or its back rows on water. */
-export function waterEdgeText(problem: "front" | "land", waterRows: { min: number; max: number }): string {
+/** Ghost hint text of a water-edge site that does not fit (D-051): its front rows on land, its back rows on water, or its land on a terrace (D-075). */
+export function waterEdgeText(problem: "front" | "land" | "low", waterRows: { min: number; max: number }): string {
+  if (problem === "low") return t("tier.waterEdge.low");
   return problem === "front" ? t("tier.waterEdge.front", { count: waterRows.min }) : t("tier.waterEdge.land");
 }
 

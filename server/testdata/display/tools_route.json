@@ -1884,8 +1884,8 @@
     "ships": [
       {
         "id": 1,
-        "type": "sloop",
-        "name": "Sloop 1",
+        "type": "cog",
+        "name": "Cog 1",
         "state": "on_route",
         "island_id": "",
         "route_id": 1,
@@ -3944,8 +3944,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
@@ -6004,8 +6004,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
@@ -8064,8 +8064,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
@@ -10124,8 +10124,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,

@@ -24,6 +24,19 @@ describe("almanac rendering", () => {
     expect(out).toContain("20 / 24 / 28 / 32");
   });
 
+  it("explains the auto-pause and the transitive supply-chain guard (D-075 §5)", () => {
+    const out = html({ section: "overview" });
+    expect(out).toContain('<h3 id="gold">When gold runs out</h3>');
+    expect(out).toMatch(/data-testid="almanac-supply-chains">Supply chains pause last: [^<]*even while their need is met[^<]*down the chain[^<]*no producer on the island, running or paused, and none is in stock/);
+    // The resume queue skips a producer that lacks an input.
+    expect(out).toMatch(/data-testid="almanac-resume-queue">The last building or ship paused resumes first, but a producer that lacks an input[^<]*waits/);
+    // The resume reserve comes from the served rules; without them the line is left out.
+    expect(out).not.toContain("minutes of its maintenance");
+    const rules = { ...content.region.rules, auto_resume_upkeep_ms: 300_000 };
+    const withRules = renderToStaticMarkup(createElement(AlmanacView, { content: { ...content, region: { ...content.region, rules } }, route: { section: "overview" } }));
+    expect(withRules).toContain("once you hold 5 minutes of its maintenance in gold");
+  });
+
   it("renders every building once on the buildings page and links goods to their pages", () => {
     const out = html({ section: "buildings" });
     for (const b of content.buildings) expect(out.split(`id="building-${b.id}"`).length - 1, b.id).toBe(1);

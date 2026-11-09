@@ -1,6 +1,6 @@
 {
   "name": "trading_post_tier_gate",
-  "content_version": "old_coast-0.20.0",
+  "content_version": "old_coast-0.21.0",
   "boundary_count": 0,
   "totals": {
     "main": {
@@ -47,8 +47,8 @@
         }
       },
       "statuses": {},
-      "gold": 4690000,
-      "balance_rate_per_min": -10000,
+      "gold": 4694000,
+      "balance_rate_per_min": -6000,
       "population": {},
       "unlocked_tiers": [
         "settlers",
@@ -72,8 +72,8 @@
         }
       },
       "statuses": {},
-      "gold": 4680000,
-      "balance_rate_per_min": -10000,
+      "gold": 4688000,
+      "balance_rate_per_min": -6000,
       "population": {},
       "unlocked_tiers": [
         "settlers",
@@ -89,11 +89,11 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:02:00.000Z",
-    "next_change_at": "2026-01-01T07:50:00.000Z",
-    "gold": 4680000,
-    "balance_rate_per_min": -10000,
+    "next_change_at": "2026-01-01T13:03:20.000Z",
+    "gold": 4688000,
+    "balance_rate_per_min": -6000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 10000,
+    "upkeep_rate_per_min": 6000,
     "tiers": [
       {
         "id": "settlers",
@@ -632,7 +632,7 @@
             "throughput_factor_permille": 1000,
             "level": 2,
             "capacity": 500000,
-            "throughput_per_min": 16000,
+            "throughput_per_min": 20000,
             "load_permille": 0,
             "berths": {
               "total": 2,
@@ -661,7 +661,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": -10000
+      "balance_if_resumed_per_min": -6000
     },
     "quests": {
       "active": [

@@ -6,7 +6,7 @@ import type { DisplayState } from "../api/client";
 import { extrapolate, serverTimeMs } from "./extrapolate";
 import { cargoTotals, countdown, countdownWithUnit, legTiming, orderTiming, shipName, slotsFor } from "./ships";
 
-// Server fixture (TestDisplayFixtures): a sloop on a manual leg and a
+// Server fixture (TestDisplayFixtures): a cog on a manual leg and a
 // pending shipyard order, with server payloads at forward offsets.
 interface Fixture {
   base: DisplayState;
@@ -93,8 +93,8 @@ describe("ship helpers", () => {
 
 describe("shipName (D-055)", () => {
   it("is the server's name of the ship, Ship #<id> for one the model no longer has", () => {
-    expect(fixture.base.ships[0]!.name).toBe("Sloop 1");
-    expect(shipName(fixture.base.ships, 1)).toBe("Sloop 1");
+    expect(fixture.base.ships[0]!.name).toBe("Cog 1");
+    expect(shipName(fixture.base.ships, 1)).toBe("Cog 1");
     expect(shipName([{ id: 3, name: "Gull" }], 3)).toBe("Gull");
     expect(shipName([], 7)).toBe("Ship #7");
   });

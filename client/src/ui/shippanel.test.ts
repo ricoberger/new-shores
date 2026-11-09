@@ -13,28 +13,28 @@ const text = (html: string) => html.replace(/<[^>]+>/g, "");
 
 const content = {
   goods: [],
-  ships: [{ id: "sloop", name: "Sloop", slots: 4, slot_size: 50_000, speed_permille: 1400, build_ms: 1, upkeep_per_min: 1_000, cost: { gold: 0, materials: {} } }],
+  ships: [{ id: "cog", name: "Cog", slots: 4, slot_size: 50_000, speed_permille: 1400, build_ms: 1, upkeep_per_min: 1_000, cost: { gold: 0, materials: {} } }],
 } as unknown as Content;
 
 describe("ship panel", () => {
   it("shows upkeep, speed and capacity of the ship type", () => {
-    const ship = { id: 1, type: "sloop", name: "Sloop 1", state: "idle", island_id: model.islands[0]!.id, route_id: 0, stop_index: 0, leg: null, cargo: [], slots: 4, slot_size: 50_000, upkeep_per_min: 1_000, paused: false, paused_reason: "", position: null, queued_at: null, berth_until: null } as unknown as ShipDisplay;
+    const ship = { id: 1, type: "cog", name: "Cog 1", state: "idle", island_id: model.islands[0]!.id, route_id: 0, stop_index: 0, leg: null, cargo: [], slots: 4, slot_size: 50_000, upkeep_per_min: 1_000, paused: false, paused_reason: "", position: null, queued_at: null, berth_until: null } as unknown as ShipDisplay;
     const noop = () => {};
     const html = renderToStaticMarkup(
       createElement(ShipPanel, { ship, model, content, nowMs: 0, onAssign: noop, onOpenRoutes: noop, onUnassign: noop, onSend: noop, onFound: noop, onScrap: noop, onClose: noop } as never),
     );
-    expect(text(html)).toContain("Upkeep 1.0 gold/minSpeed 1.4×Capacity 4 slots of 50\u00a0t each");
+    expect(text(html)).toContain("Maintenance 1.0 gold/minSpeed 1.4×Capacity 4 slots of 50\u00a0t each");
   });
 
   it("is titled with the ship's name, its type below, and renames it in the header like an island (D-055)", () => {
-    const ship = { id: 2, type: "sloop", name: "Gull", state: "idle", island_id: model.islands[0]!.id, route_id: 0, stop_index: 0, leg: null, cargo: [], slots: 4, slot_size: 50_000, upkeep_per_min: 1_000, paused: false, paused_reason: "", position: null, queued_at: null, berth_until: null } as unknown as ShipDisplay;
+    const ship = { id: 2, type: "cog", name: "Gull", state: "idle", island_id: model.islands[0]!.id, route_id: 0, stop_index: 0, leg: null, cargo: [], slots: 4, slot_size: 50_000, upkeep_per_min: 1_000, paused: false, paused_reason: "", position: null, queued_at: null, berth_until: null } as unknown as ShipDisplay;
     const noop = () => {};
     const props = { ship, model, content, nowMs: 0, onAssign: noop, onOpenRoutes: noop, onUnassign: noop, onSend: noop, onFound: noop, onScrap: noop, onClose: noop, onRename: () => Promise.resolve(true) };
     const html = renderToStaticMarkup(createElement(ShipPanel, props));
     expect(html).toMatch(/data-testid="ship-panel-name">Gull<\/h2>/);
-    expect(html).toMatch(/data-testid="ship-panel-type">Sloop</);
+    expect(html).toMatch(/data-testid="ship-panel-type">Cog</);
     // A "Details" heading between the type line and the state (the building panels' heading).
-    expect(text(html)).toMatch(/^GullSloopDetailsIdle/);
+    expect(text(html)).toMatch(/^GullCogDetailsIdle/);
     // A "Slots" heading over the cargo slots, no divider entry around them.
     expect(html).toMatch(/data-testid="ship-panel-slots-title">Slots<\/div><div class="[^"]*" data-testid="ship-panel-cargo"/);
     expect(html).not.toMatch(/class="[^"]*shipEntry[^"]*"[^>]*data-testid="ship-panel-cargo"/);

@@ -50,7 +50,7 @@ func Sea(c *content.Catalogue, start time.Time) (*sim.World, error) {
 
 // Founded is the test archipelago evaluated at now (truncated to
 // milliseconds) with the start island founded from the start ship over the
-// minute before (Trading Post at StartTPX, StartTPY); the sloop is idle
+// minute before (Trading Post at StartTPX, StartTPY); the cog is idle
 // there and the player was last seen at now.
 func Founded(c *content.Catalogue, now time.Time) (*sim.World, error) {
 	now = now.UTC().Truncate(time.Millisecond)

@@ -14,7 +14,7 @@ import (
 // TestFixtures: every dev fixture builds at now with the player last seen
 // there, holds its layout on the home island (found programmatically on
 // the generated archipelago), and keeps running for an hour of world time
-// without an auto-paused building, also with the shipyard, sloop and
+// without an auto-paused building, also with the shipyard, cog and
 // second island settle adds to town; an unknown name is an error. Other
 // seeds than DevSeed build too (shots of other archipelagos, --seed).
 func TestFixtures(t *testing.T) {
@@ -162,7 +162,7 @@ func checkCitizens(t *testing.T, c *content.Catalogue, w *sim.World) {
 
 // checkMerchants: the merchants fixture's home town (tiers, services up
 // to the church, market level 2, Merchant houses, tier-3 workshops) and
-// the clay island founded by the brig, which sails "Bricks home".
+// the clay island founded by the hulk, which sails "Bricks home".
 func checkMerchants(t *testing.T, c *content.Catalogue, w *sim.World) {
 	t.Helper()
 	if !sim.TierUnlocked(w, c, citizensTier) || !sim.TierUnlocked(w, c, merchantsTier) {
@@ -206,7 +206,7 @@ func checkMerchants(t *testing.T, c *content.Catalogue, w *sim.World) {
 // checkPatricians: the patricians fixture's home town (three tiers, the
 // full services ladder, market level 3, Merchant houses and a Patrician
 // house, the roast-beef chain with its five pastures) and the quartz
-// island founded by the galleon with the glass chain, which sails
+// island founded by the carrack with the glass chain, which sails
 // "Glass home".
 func checkPatricians(t *testing.T, c *content.Catalogue, w *sim.World) {
 	t.Helper()

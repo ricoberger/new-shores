@@ -324,7 +324,7 @@ describe("HUD components", () => {
     const html = renderToStaticMarkup(createElement(InsolvencyBanner, { model: fixture("away_summary_12h"), onOpenWarnings: () => {} }));
     expect(html).toContain('data-testid="insolvency-banner"');
     expect(text(html)).toContain(
-      "Your city cannot afford its upkeep: −4.3 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
+      "Your city cannot afford its maintenance: −4.3 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
     );
   });
 
@@ -554,9 +554,9 @@ describe("HUD components", () => {
     const shipContent = {
       ...content,
       buildings: [
-        { id: "shipyard", name: "Shipyard", tier: "settlers", category: "harbour", width: 2, height: 2, pause_category: "production", shipyard: { ships: ["sloop"] } },
+        { id: "shipyard", name: "Shipyard", tier: "settlers", category: "harbour", width: 2, height: 2, pause_category: "production", shipyard: { ships: ["cog"] } },
       ],
-      ships: [{ id: "sloop", name: "Sloop", slots: 2, slot_size: 50_000, build_ms: 60_000, upkeep_per_min: 1_000, cost: { gold: 900_000, materials: { planks: 40_000, wood: 5_000 } } }],
+      ships: [{ id: "cog", name: "Cog", slots: 2, slot_size: 50_000, build_ms: 60_000, upkeep_per_min: 1_000, cost: { gold: 900_000, materials: { planks: 40_000, wood: 5_000 } } }],
     } as unknown as Content;
     const island = {
       id: "start",
@@ -593,7 +593,7 @@ describe("HUD components", () => {
 
     it("puts an icon next to every good of the shipyard costs, short goods red", () => {
       const html = panel({});
-      const cost = html.match(/data-testid="shipyard-cost-sloop">(.*?)<\/div>/)![1]!;
+      const cost = html.match(/data-testid="shipyard-cost-cog">(.*?)<\/div>/)![1]!;
       expect(text(cost)).toBe("900 gold·40\u00a0tPlanks·5\u00a0tWood·1:00 min build");
       expect(cost).toContain(icon(goodIcon("planks")));
       expect(cost).toContain(icon(goodIcon("wood")));
@@ -634,22 +634,22 @@ describe("HUD components", () => {
     it("lists every ship type with speed, cargo and build time", () => {
       const html = panel({});
       expect(text(html)).not.toContain("Ships");
-      expect(text(html)).toContain("SloopOrder");
-      expect(text(html)).toContain("2×50\u00a0t cargo·1.0× speed·1.0 gold/min upkeep");
+      expect(text(html)).toContain("CogOrder");
+      expect(text(html)).toContain("2×50\u00a0t cargo·1.0× speed·1.0 gold/min maintenance");
       expect(text(html)).toContain("Idle");
     });
 
     it("shows the pending order as the status with Cancel in the footer and the ships list disabled", () => {
-      const html = panel({ ship_order: { type: "sloop", ordered_at: "1970-01-01T00:00:00Z", due_at: "1970-01-01T00:00:42Z" } as BuildingDisplay["ship_order"] });
-      expect(html.match(/data-testid="info-status">(.*?)<\/div>/)![1]).toBe("Building a Sloop · ready in 0:42 min");
+      const html = panel({ ship_order: { type: "cog", ordered_at: "1970-01-01T00:00:00Z", due_at: "1970-01-01T00:00:42Z" } as BuildingDisplay["ship_order"] });
+      expect(html.match(/data-testid="info-status">(.*?)<\/div>/)![1]).toBe("Building a Cog · ready in 0:42 min");
       // The 50 % hint is the second status line.
       expect(html).toMatch(/data-testid="info-status">[^]*?<\/div><div class="[^"]*fix[^"]*">Canceling the order returns 50 % of the materials\.<\/div>/);
       expect(html).toContain('data-testid="shipyard-cancel"');
       // The list stays, its Order buttons are disabled.
-      expect(html).toMatch(/<button[^>]*disabled=""[^>]*data-testid="shipyard-order-sloop"/);
+      expect(html).toMatch(/<button[^>]*disabled=""[^>]*data-testid="shipyard-order-cog"/);
       // Idle: enabled, no hint.
       const idle = panel({});
-      expect(idle).not.toMatch(/disabled=""[^>]*data-testid="shipyard-order-sloop"/);
+      expect(idle).not.toMatch(/disabled=""[^>]*data-testid="shipyard-order-cog"/);
       expect(text(idle)).not.toContain("Canceling");
     });
 

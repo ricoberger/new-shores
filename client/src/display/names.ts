@@ -3,7 +3,7 @@ import type { Content, DisplayState } from "../api/client";
 /**
  * Translated names of what the server stores in English (D-061): the
  * archipelago generator's island names and the default name of a ship
- * ("Sloop 2"). A name the player chose is never touched.
+ * ("Cog 2"). A name the player chose is never touched.
  */
 type NameContent = Pick<Content, "island_names" | "ships">;
 

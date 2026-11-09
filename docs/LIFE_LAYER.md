@@ -92,7 +92,7 @@ Not in scope: weather, day/night (D-048), combat units, horses as traffic.
 Every life prop is a voxel recipe in `assets/voxel/recipes/_life.py`
 (villagers in tier colours, carts with an axle anchor, sheep, cattle,
 pigs, boat, crates, construction stages a/b/c and scaffolding) and
-`_ships.py` (one hull builder: sloop, brig, galleon, cargo). The KayKit
+`_ships.py` (one hull builder: cog, hulk, carrack, cargo). The KayKit
 props named elsewhere in this document are history (PR #38 removed the
 kits); the element table's "model" column reads as "the voxel prop of
 that name". All motion is procedural.

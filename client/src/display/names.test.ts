@@ -4,7 +4,7 @@ import { islandNameOf, localizeNames, shipNameOf } from "./names";
 
 const content = {
   island_names: [{ source: "Greenhaven", name: "Grünhafen" }],
-  ships: [{ id: "sloop", name: "Schaluppe", source_name: "Sloop" }],
+  ships: [{ id: "cog", name: "Kogge", source_name: "Cog" }],
 } as unknown as Content;
 
 describe("names", () => {
@@ -15,20 +15,20 @@ describe("names", () => {
   });
 
   it("translates a ship's default name only", () => {
-    expect(shipNameOf(content, "Sloop 2")).toBe("Schaluppe 2");
-    expect(shipNameOf(content, "Sloop Two")).toBe("Sloop Two");
-    expect(shipNameOf(content, "Sloop 2 of the North")).toBe("Sloop 2 of the North");
+    expect(shipNameOf(content, "Cog 2")).toBe("Kogge 2");
+    expect(shipNameOf(content, "Cog Two")).toBe("Cog Two");
+    expect(shipNameOf(content, "Cog 2 of the North")).toBe("Cog 2 of the North");
     expect(shipNameOf(content, "Black Pearl")).toBe("Black Pearl");
   });
 
   it("returns the same display state when there is nothing to translate", () => {
     const display = { islands: [], ships: [] } as unknown as DisplayState;
-    expect(localizeNames(display, { island_names: [], ships: [{ id: "sloop", name: "Sloop" }] } as unknown as Content)).toBe(display);
+    expect(localizeNames(display, { island_names: [], ships: [{ id: "cog", name: "Cog" }] } as unknown as Content)).toBe(display);
     const mapped = localizeNames(
-      { islands: [{ id: "a", name: "Greenhaven" }], ships: [{ id: 1, name: "Sloop 1" }] } as unknown as DisplayState,
+      { islands: [{ id: "a", name: "Greenhaven" }], ships: [{ id: 1, name: "Cog 1" }] } as unknown as DisplayState,
       content,
     );
     expect(mapped.islands[0]?.name).toBe("Grünhafen");
-    expect(mapped.ships[0]?.name).toBe("Schaluppe 1");
+    expect(mapped.ships[0]?.name).toBe("Kogge 1");
   });
 });

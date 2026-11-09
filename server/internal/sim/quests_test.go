@@ -123,15 +123,15 @@ func TestQuestPredicates(t *testing.T) {
 func TestQuestRouteShipAndIslands(t *testing.T) {
 	c := withQuests(withoutQuests(catalogue(t)),
 		quest("ship", goldReward, content.Objective{Kind: content.ObjectiveShipCount, Min: 1}),
-		quest("sloop", goldReward, content.Objective{Kind: content.ObjectiveShipCount, Ship: "sloop", Min: 1}),
-		quest("galleon", goldReward, content.Objective{Kind: content.ObjectiveShipCount, Ship: "galleon", Min: 1}),
+		quest("cog", goldReward, content.Objective{Kind: content.ObjectiveShipCount, Ship: "cog", Min: 1}),
+		quest("carrack", goldReward, content.Objective{Kind: content.ObjectiveShipCount, Ship: "carrack", Min: 1}),
 		quest("islands", goldReward, content.Objective{Kind: content.ObjectiveIslandSettled, Min: 2}),
 		quest("route", goldReward, content.Objective{Kind: content.ObjectiveRouteExists}),
 	)
 	w := shipWorld(t, c)
-	s := builtSloop(t, w, c)
-	if !QuestCompleted(w, "ship") || !QuestCompleted(w, "sloop") || QuestCompleted(w, "galleon") || QuestCompleted(w, "islands") {
-		t.Fatalf("after the sloop: %v", w.Quests)
+	s := builtCog(t, w, c)
+	if !QuestCompleted(w, "ship") || !QuestCompleted(w, "cog") || QuestCompleted(w, "carrack") || QuestCompleted(w, "islands") {
+		t.Fatalf("after the cog: %v", w.Quests)
 	}
 	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 30_000}}})
 	mustAdvance(t, w, c, time.Minute)

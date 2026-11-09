@@ -13,6 +13,9 @@ import (
 // taxes 5 x 3 x 0.2 x 0.3 = 0.9 gold/min), a fisher (1 gold/min) and a
 // sawmill (2 gold/min) paused for insolvency, nothing in stock and no gold:
 // rule (b) fails for both, so only the trial reserve can restart them.
+// The cascade pauses the sawmill; the fisher, the only producer of the
+// houses' unmet fish, is guarded (D-075 §5), so it is paused here as the
+// cascade would have paused it while fish was still in stock.
 func trialTown(t *testing.T, connectFisher bool) (*content.Catalogue, *World, int64, int64) {
 	t.Helper()
 	c := withoutQuests(catalogue(t))
@@ -27,8 +30,13 @@ func trialTown(t *testing.T, connectFisher bool) (*content.Catalogue, *World, in
 		mustApply(t, w, c, DemolishRoad{IslandID: "main", Tiles: []Pos{{6, 3}}})
 	}
 	fisher := placeFree(t, w, c, "fisher", 6, 1, 0)
-	// No gold: the cascade pauses everything at t0.
+	// No gold: the cascade pauses the sawmill at t0. The fisher is
+	// unpaid from t0 too, paused last (tier-1 food).
+	b := w.Islands[0].Building(fisher)
+	b.Paused, b.PausedReason, b.PausedAtMs = true, PausedReasonUnpaid, w.LastEvaluatedAt.UnixMilli()
 	mustAdvance(t, w, c, time.Millisecond)
+	w.PauseSeq++
+	b.PauseSeq = w.PauseSeq
 	for _, id := range []int64{sawmill, fisher} {
 		if b := w.Islands[0].Building(id); !b.Paused || b.PausedReason != PausedReasonUnpaid {
 			t.Fatalf("building %d not unpaid: %+v", id, b)
@@ -42,8 +50,9 @@ func trialTown(t *testing.T, connectFisher bool) (*content.Catalogue, *World, in
 // resumed when gold reaches trial_resume_upkeep_minutes x its upkeep, at
 // exactly that millisecond, as an auto_resume boundary with Trial set after
 // a gold_trial_reserve boundary; the town then recovers (fish lifts the
-// taxes, the sawmill follows by (a) + (b)). Splits around the trial give
-// the same world.
+// taxes). The sawmill has no wood on the island (no lumberjack, no stock):
+// its input is cut off, so the resume queue skips it (D-075 §5) and it
+// stays unpaid. Splits around the trial give the same world.
 func TestTrialResume(t *testing.T) {
 	c, w, fisher, sawmill := trialTown(t, true)
 	ds := display(t, w, c)
@@ -81,10 +90,10 @@ func TestTrialResume(t *testing.T) {
 			t.Errorf("the sawmill needed a trial: %+v", b)
 		}
 	}
-	if trials != 1 || w.Islands[0].Building(sawmill).Paused || w.Islands[0].Building(fisher).Paused {
+	if trials != 1 || !w.Islands[0].Building(sawmill).Paused || w.Islands[0].Building(fisher).Paused {
 		t.Fatalf("trials %d, sawmill paused %v, fisher paused %v", trials, w.Islands[0].Building(sawmill).Paused, w.Islands[0].Building(fisher).Paused)
 	}
-	if ds := display(t, w, c); ds.BalanceRatePerMin < 0 || ds.Insolvency.UnpaidBuildings != 0 {
+	if ds := display(t, w, c); ds.BalanceRatePerMin < 0 || ds.Insolvency.UnpaidBuildings != 1 {
 		t.Errorf("after recovery: balance %d insolvency %+v", ds.BalanceRatePerMin, ds.Insolvency)
 	}
 
@@ -111,41 +120,45 @@ func TestTrialResume(t *testing.T) {
 	}
 }
 
-// TestTrialResumeFailsAndRepeats: a trial that cannot help (the fisher has
-// no road, so no fish arrives) leaves the balance negative; the gold-zero
-// cascade pauses the fisher again, and the next trial needs the full trial
-// reserve again. Over 24 hours the attempts are bounded by ceil(24 h /
-// trial window), gold never goes negative and nothing is destroyed.
-func TestTrialResumeFailsAndRepeats(t *testing.T) {
-	c, w, fisher, _ := trialTown(t, false)
+// TestTrialResumeGuarded: a trial that cannot help (the fisher has no
+// road, so no fish arrives) leaves the balance negative, but the fisher is
+// the only running producer of the houses' unmet fish, so the gold-zero
+// cascade skips it (D-075 §5) and nothing else is left to pause: D-008's
+// gold floor holds — gold stays at zero, the fisher keeps running and no
+// second trial comes. Over 24 hours gold never goes negative and nothing
+// is destroyed. (Repeated trials of unguarded buildings:
+// TestStallRecoveryNoTransit, TestStallRecoveryOffline24h.)
+func TestTrialResumeGuarded(t *testing.T) {
+	c, w, fisher, sawmill := trialTown(t, false)
 	buildings := len(w.Islands[0].Buildings)
 	bs := mustAdvance(t, w, c, 24*time.Hour)
 	var trials, repauses int
-	var last time.Time
+	var trialAt time.Time
 	for _, b := range bs {
 		switch {
 		case b.Kind == BoundaryAutoResume && b.Trial:
 			if b.BuildingID != fisher {
 				t.Errorf("trial of %d, want the fisher", b.BuildingID)
 			}
-			if trials > 0 && b.At.Sub(last) < 33*time.Minute {
-				t.Errorf("trial %s only %s after the previous one", b.At, b.At.Sub(last))
-			}
 			trials++
-			last = b.At
-		case b.Kind == BoundaryAutoPause && b.BuildingID == fisher:
+			trialAt = b.At
+		case b.Kind == BoundaryAutoPause:
 			repauses++
 		}
 	}
-	// Trial window: 30 gold at 0.9 gold/min = 33 min 20 s.
-	window := time.Duration(c.Region.Rules.TrialResumeMs*1_000/900) * time.Millisecond
-	bound := int((24*time.Hour + window - 1) / window)
-	t.Logf("24 h: %d trial resumes (bound %d, window %s), %d re-pauses", trials, bound, window, repauses)
-	if trials < 2 || trials > bound || repauses < trials-1 {
-		t.Errorf("trials %d (bound %d), re-pauses %d", trials, bound, repauses)
+	if trials != 1 || repauses != 0 {
+		t.Fatalf("trials %d, re-pauses %d in %v", trials, repauses, bs)
 	}
-	if w.Gold < 0 || len(w.Islands[0].Buildings) != buildings {
-		t.Errorf("gold %d, buildings %d", w.Gold, len(w.Islands[0].Buildings))
+	is := w.Islands[0]
+	if is.Building(fisher).Paused || !is.Building(sawmill).Paused {
+		t.Errorf("fisher paused %v, sawmill paused %v", is.Building(fisher).Paused, is.Building(sawmill).Paused)
+	}
+	ds := display(t, w, c)
+	if w.Gold != 0 || ds.BalanceRatePerMin >= 0 || ds.Insolvency.UnpaidBuildings != 1 {
+		t.Errorf("after the trial at %s: gold %d balance %d insolvency %+v", trialAt, w.Gold, ds.BalanceRatePerMin, ds.Insolvency)
+	}
+	if len(is.Buildings) != buildings {
+		t.Errorf("buildings %d, want %d", len(is.Buildings), buildings)
 	}
 }
 
@@ -160,8 +173,8 @@ func trialCatalogue(t *testing.T) *content.Catalogue {
 
 // trialWorld is a small town that stalls: one to five houses at their
 // floor, a market, producers with upkeep, little or no need goods (so that
-// rule (b) often fails) and little gold; the fisher is sometimes without
-// a road (its trials cannot help).
+// rule (b) often fails), some wood and wool and little gold; the fisher
+// is sometimes without a road (its trials cannot help).
 func (p *propCase) trialWorld() *World {
 	p.l = NewLedger()
 	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
@@ -199,6 +212,14 @@ func (p *propCase) trialWorld() *World {
 			free("house_settlers", x, 5, 180)
 		}
 	}
+	// Wood and wool in stock for the sawmills and the weaver: without a
+	// producer and stock their input is cut off and the resume queue skips
+	// them (D-075 §5), so they would never trial-resume.
+	for _, g := range []string{"wood", "wool"} {
+		if err := AddStock(w, p.c, "main", g, Qty(1+p.rng.IntN(200))*1000, p.l); err != nil {
+			p.fail("trial stock: %v", err)
+		}
+	}
 	if p.rng.IntN(2) == 0 {
 		if err := AddStock(w, p.c, "main", "fish", Qty(p.rng.IntN(3))*1000, p.l); err != nil {
 			p.fail("trial stock: %v", err)
@@ -217,7 +238,9 @@ func TestPropertyTrialComposition(t *testing.T) {
 	kinds, splitKinds := map[string]int{}, map[string]int{}
 	for seed := range uint64(propertyCases) {
 		p := newPropCase(t, c, 140_000+seed)
-		p.maxPieces = 8
+		// More pieces than elsewhere: the stock adds transfer and
+		// stock-empty boundaries that compete for the split points.
+		p.maxPieces = 12
 		p.w = p.trialWorld()
 		p.checkInvariants("initial")
 		for range 3 + p.rng.IntN(3) {

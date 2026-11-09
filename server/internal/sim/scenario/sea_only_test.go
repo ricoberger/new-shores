@@ -141,7 +141,7 @@ func TestSeaOnly(t *testing.T) {
 					continue
 				}
 				is.Buildings = []*sim.Building{tp}
-				ship := &sim.Ship{ID: int64(9000 + moored), Type: "sloop", State: sim.ShipIdle, IslandID: is.ID}
+				ship := &sim.Ship{ID: int64(9000 + moored), Type: "cog", State: sim.ShipIdle, IslandID: is.ID}
 				r.w.Ships = append(r.w.Ships, ship)
 				if err := sim.Apply(r.w, c, sim.Demolish{IslandID: is.ID, BuildingID: tp.ID, AcceptSurplusLoss: true}); err != nil {
 					t.Fatalf("demolish the Trading Post of %s: %v", is.ID, err)

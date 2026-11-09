@@ -80,7 +80,7 @@ UI shows the same numbers the server uses.
   heading, D-058); once it is placed the ship sails to that site's
   harbour (`sail_ship` with the `site`), the founding is pending (shown
   on that panel and the ship panel, cancellable, survives a reload) and
-  `found_island` follows on arrival. The world opens on the start sloop at sea with the first quest
+  `found_island` follows on arrival. The world opens on the start cog at sea with the first quest
   ("Choose your home island") as the hint.
   Hover shows a lightweight tooltip only; nothing is hover-only.
 - **Route ribbons** are drawn only for the selected ship's route or while
@@ -105,11 +105,15 @@ UI shows the same numbers the server uses.
   sit out to sea past the moored
   bows; idle ships take the island's harbour berths; the shipyard's hull
   under construction stands on its `slip` anchor and the finished ship
-  appears at the harbour; `anchored_unpaid` ships greyed. Legs and ribbons are straight lines and may cross land
-  (dressing task). Route ribbons carry direction arrows; the selected ship
+  appears at the harbour; `anchored_unpaid` ships greyed. Legs and ribbons follow the
+  server's `path`, which never crosses land (MECHANICS §9.1). Route ribbons carry direction arrows; the selected ship
   shows its route and ETA.
 - **Manual shipment:** only through the ship panel's "Send…" dialog; the
   destination is chosen in its dropdown (no drag and drop, no map pick).
+  Send needs a destination and cargo within the ship's slots — an empty
+  ship may sail (the server accepts a shipment without cargo); over the
+  slots the slot line turns to a warning and Send is disabled. The server
+  still validates stock and slots.
 - **Focused island** = the island under the camera centre, else the
   nearest; it drives the build-menu stock display, the highlighted tab and
   the unsettled-island panel, never a command.
@@ -251,7 +255,9 @@ UI shows the same numbers the server uses.
 - **Water-edge ghosts (D-062):** each rotated footprint column follows
   the served `water_rows` bounds. A per-tile overlay marks land where water
   is required, or water/non-buildable terrain where land is required, red;
-  valid tiles keep the normal light/no-road yellow. Quays count as land,
+  so is a land tile above terrace level 0 (D-075 §1, from the statics'
+  `levels`; hint "Needs a low shore — its land tiles must be at sea
+  level, not on a terrace", after the front/land hints); valid tiles keep the normal light/no-road yellow. Quays count as land,
   rivers never as sea. The model keeps its normal tint for a water-edge
   mismatch so one bad tile does not turn the entire building red. This is
   a display hint only: the server validates every placement.
@@ -409,6 +415,11 @@ UI shows the same numbers the server uses.
   below its maximum (equal to the requirement); the field count is the
   farm's efficiency in Details.
 - Buttons: pause/resume, move, demolish, pinned in a footer below a divider (only the content above scrolls).
+- The card never grows the layout: on the desktop it takes at most the
+  map row between the top bar and the build menu (the overlay's middle
+  row is `minmax(0, 1fr)`) and a long body — the Trading Post's
+  inventory — scrolls inside its own box, so the open build menu stays
+  whole at the bottom.
 
 **House**
 
@@ -459,7 +470,7 @@ UI shows the same numbers the server uses.
 
 **Shipyard**
 
-- Status "Idle" or "Building a Sloop · ready in 1:42 min" (no bar); a pending
+- Status "Idle" or "Building a Cog · ready in 1:42 min" (no bar); a pending
   order adds the second status line "Canceling the order returns 50 % of
   the materials." and **Cancel order** sits in the pinned footer.
 - Always (also while an order runs, then the Order buttons are disabled), with
@@ -488,7 +499,7 @@ UI shows the same numbers the server uses.
 - The title is the ship's name (D-055) with a pencil button; the pencil
   turns the header into a name input with ✓ (rename, saved at once) and ⊗
   (cancel, Escape) icon buttons — the island card's rename pattern; the
-  close button is hidden meanwhile. The ship type ("Sloop") is a small line
+  close button is hidden meanwhile. The ship type ("Cog") is a small line
   below the title, then a "Details" heading (as on the Trading Post and
   Warehouse) above the rest. Everywhere else (Ships list, route editor, toasts,
   dialogs, away summary) a ship is shown by its name only.
@@ -685,6 +696,11 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   The Ships page ends with a Routes chapter that words the route rules
   of MECHANICS §9.2: unload first, then load; "top up to", the optional
   keep on the island and the optional most unloaded per visit (D-070).
+  The Overview's "When gold runs out" chapter words the auto-pause of
+  MECHANICS §7: the order, the transitive supply-chain guard (D-075 §5)
+  and when a producer loses it (an input with no producer and no stock),
+  the resume queue that skips such a producer, and the resume reserve, whose minutes come from the served rules
+  (`auto_resume_upkeep_ms`; the line is left out without them).
 - **Look:** the HUD's parchment in a dark-wood frame, Cinzel headings,
   brass accent; left navigation on desktop, sticky tabs on the phone;
   a search box filters buildings, goods, ships, quests, tiers and island
@@ -707,7 +723,7 @@ translation. Two sources, one switch:
   `GET /api/v1/content?lang=<code>` (CONTENT §11, "Locale files"); the
   client asks in its current language and fetches again when it changes
   (`GameSync.loadContent`, the almanac's `useEffect`). Island names and
-  ships' default names ("Sloop 2") are stored in English in the world;
+  ships' default names ("Cog 2") are stored in English in the world;
   `display/names.ts` shows them in the language through the served
   `island_names[{source, name}]` and `ships[].source_name`. A name the
   player chose is shown as typed.
@@ -742,6 +758,11 @@ translation. Two sources, one switch:
   may keep a British word (`build.group.harbour`, `jewellery`; IDs are
   never renamed) and island names stay as they are.
   `i18n/spelling.test.ts` fails on the British spellings it knows.
+- **Maintenance (D-075):** the running cost of buildings and ships reads
+  "Maintenance" (DE "Betriebskosten") wherever a player sees it — cards,
+  ship panel, shipyard list, almanac level table, insolvency banner,
+  away summary; the build menu shows the rate alone (`2.0 gold/min`).
+  Keys, code, API fields and the docs keep `upkeep`.
 - **Adding text:** add the key to `en.ts` and `de.ts` in the same change
   (the German one is required to compile) and use `t()`. The ESLint rule
   `i18n/no-hardcoded-strings` fails on JSX text, prose string literals

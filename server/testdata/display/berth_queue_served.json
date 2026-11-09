@@ -223,8 +223,8 @@
     "ships": [
       {
         "id": 1,
-        "type": "sloop",
-        "name": "Sloop 1",
+        "type": "cog",
+        "name": "Cog 1",
         "state": "idle",
         "island_id": "harbour",
         "route_id": 0,
@@ -242,8 +242,8 @@
       },
       {
         "id": 2,
-        "type": "sloop",
-        "name": "Sloop 2",
+        "type": "cog",
+        "name": "Cog 2",
         "state": "idle",
         "island_id": "harbour",
         "route_id": 0,
@@ -522,8 +522,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "idle",
             "island_id": "harbour",
             "route_id": 0,
@@ -541,8 +541,8 @@
           },
           {
             "id": 2,
-            "type": "sloop",
-            "name": "Sloop 2",
+            "type": "cog",
+            "name": "Cog 2",
             "state": "idle",
             "island_id": "harbour",
             "route_id": 0,
@@ -821,8 +821,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "idle",
             "island_id": "harbour",
             "route_id": 0,
@@ -840,8 +840,8 @@
           },
           {
             "id": 2,
-            "type": "sloop",
-            "name": "Sloop 2",
+            "type": "cog",
+            "name": "Cog 2",
             "state": "idle",
             "island_id": "harbour",
             "route_id": 0,
@@ -1120,8 +1120,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "idle",
             "island_id": "harbour",
             "route_id": 0,
@@ -1139,8 +1139,8 @@
           },
           {
             "id": 2,
-            "type": "sloop",
-            "name": "Sloop 2",
+            "type": "cog",
+            "name": "Cog 2",
             "state": "idle",
             "island_id": "harbour",
             "route_id": 0,
@@ -1419,8 +1419,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "idle",
             "island_id": "harbour",
             "route_id": 0,
@@ -1438,8 +1438,8 @@
           },
           {
             "id": 2,
-            "type": "sloop",
-            "name": "Sloop 2",
+            "type": "cog",
+            "name": "Cog 2",
             "state": "idle",
             "island_id": "harbour",
             "route_id": 0,
@@ -1718,8 +1718,8 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "idle",
             "island_id": "harbour",
             "route_id": 0,
@@ -1737,8 +1737,8 @@
           },
           {
             "id": 2,
-            "type": "sloop",
-            "name": "Sloop 2",
+            "type": "cog",
+            "name": "Cog 2",
             "state": "idle",
             "island_id": "harbour",
             "route_id": 0,

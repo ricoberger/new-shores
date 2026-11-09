@@ -20,7 +20,7 @@ const content = {
     { id: "house_citizens", width: 2, height: 2, house: { tier: "citizens" }, cost: { gold: 0, materials: { planks: 15_000, stone: 10_000 } } },
     { id: "warehouse", width: 4, height: 3, cost: { gold: 0, materials: { planks: 20_000 } } },
   ],
-  ships: [{ id: "sloop", cost: { gold: 0, materials: { tools: 5_000, planks: 10_000 } } }],
+  ships: [{ id: "cog", cost: { gold: 0, materials: { tools: 5_000, planks: 10_000 } } }],
 } as unknown as Content;
 const defs = new Map(content.buildings.map((b) => [b.id, b as ContentBuilding]));
 

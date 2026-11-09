@@ -2,11 +2,11 @@
   "scenario": "trading_post_tier_gate",
   "base": {
     "evaluated_at": "2026-01-01T00:02:00.000Z",
-    "next_change_at": "2026-01-01T07:50:00.000Z",
-    "gold": 4680000,
-    "balance_rate_per_min": -10000,
+    "next_change_at": "2026-01-01T13:03:20.000Z",
+    "gold": 4688000,
+    "balance_rate_per_min": -6000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 10000,
+    "upkeep_rate_per_min": 6000,
     "tiers": [
       {
         "id": "settlers",
@@ -545,7 +545,7 @@
             "throughput_factor_permille": 1000,
             "level": 2,
             "capacity": 500000,
-            "throughput_per_min": 16000,
+            "throughput_per_min": 20000,
             "load_permille": 0,
             "berths": {
               "total": 2,
@@ -574,7 +574,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": -10000
+      "balance_if_resumed_per_min": -6000
     },
     "quests": {
       "active": [
@@ -610,11 +610,11 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T00:02:00.250Z",
-        "next_change_at": "2026-01-01T07:50:00.000Z",
-        "gold": 4679958,
-        "balance_rate_per_min": -10000,
+        "next_change_at": "2026-01-01T13:03:20.000Z",
+        "gold": 4687975,
+        "balance_rate_per_min": -6000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 10000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -1153,7 +1153,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "capacity": 500000,
-                "throughput_per_min": 16000,
+                "throughput_per_min": 20000,
                 "load_permille": 0,
                 "berths": {
                   "total": 2,
@@ -1182,7 +1182,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -10000
+          "balance_if_resumed_per_min": -6000
         },
         "quests": {
           "active": [
@@ -1218,11 +1218,11 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T00:02:01.000Z",
-        "next_change_at": "2026-01-01T07:50:00.000Z",
-        "gold": 4679833,
-        "balance_rate_per_min": -10000,
+        "next_change_at": "2026-01-01T13:03:20.000Z",
+        "gold": 4687900,
+        "balance_rate_per_min": -6000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 10000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -1761,7 +1761,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "capacity": 500000,
-                "throughput_per_min": 16000,
+                "throughput_per_min": 20000,
                 "load_permille": 0,
                 "berths": {
                   "total": 2,
@@ -1790,7 +1790,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -10000
+          "balance_if_resumed_per_min": -6000
         },
         "quests": {
           "active": [
@@ -1826,11 +1826,11 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T00:02:05.000Z",
-        "next_change_at": "2026-01-01T07:50:00.000Z",
-        "gold": 4679166,
-        "balance_rate_per_min": -10000,
+        "next_change_at": "2026-01-01T13:03:20.000Z",
+        "gold": 4687500,
+        "balance_rate_per_min": -6000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 10000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -2369,7 +2369,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "capacity": 500000,
-                "throughput_per_min": 16000,
+                "throughput_per_min": 20000,
                 "load_permille": 0,
                 "berths": {
                   "total": 2,
@@ -2398,7 +2398,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -10000
+          "balance_if_resumed_per_min": -6000
         },
         "quests": {
           "active": [
@@ -2434,11 +2434,11 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T00:02:30.000Z",
-        "next_change_at": "2026-01-01T07:50:00.000Z",
-        "gold": 4675000,
-        "balance_rate_per_min": -10000,
+        "next_change_at": "2026-01-01T13:03:20.000Z",
+        "gold": 4685000,
+        "balance_rate_per_min": -6000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 10000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -2977,7 +2977,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "capacity": 500000,
-                "throughput_per_min": 16000,
+                "throughput_per_min": 20000,
                 "load_permille": 0,
                 "berths": {
                   "total": 2,
@@ -3006,7 +3006,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -10000
+          "balance_if_resumed_per_min": -6000
         },
         "quests": {
           "active": [
@@ -3042,11 +3042,11 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T00:07:00.000Z",
-        "next_change_at": "2026-01-01T07:50:00.000Z",
-        "gold": 4630000,
-        "balance_rate_per_min": -10000,
+        "next_change_at": "2026-01-01T13:03:20.000Z",
+        "gold": 4658000,
+        "balance_rate_per_min": -6000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 10000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -3585,7 +3585,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 2,
                 "capacity": 500000,
-                "throughput_per_min": 16000,
+                "throughput_per_min": 20000,
                 "load_permille": 0,
                 "berths": {
                   "total": 2,
@@ -3614,7 +3614,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -10000
+          "balance_if_resumed_per_min": -6000
         },
         "quests": {
           "active": [

@@ -265,7 +265,7 @@ func TestAwaySummaryCoversWorkerEvents(t *testing.T) {
 	ss.mustCommand(`{"type":"place_road","island_id":"start","road_type":"road_dirt","tiles":[` + tiles + `{"x":3,"y":34},{"x":4,"y":34}]}`)
 	w := ss.mustCommand(`{"type":"place_building","island_id":"start","building_type":"shipyard","x":5,"y":34,"rotation":180}`)
 	shipyard := buildingIDs(t, w.Display, "shipyard")[0]
-	ordered := ss.mustCommand(fmt.Sprintf(`{"type":"order_ship","island_id":"start","building_id":%d,"ship_type":"sloop"}`, shipyard))
+	ordered := ss.mustCommand(fmt.Sprintf(`{"type":"order_ship","island_id":"start","building_id":%d,"ship_type":"cog"}`, shipyard))
 	cmdAt := questDisplay(t, ordered.Display).LastSeenAt
 
 	// The scheduler builds the ship at +2 min (ship_built) and commits.
@@ -309,8 +309,8 @@ func TestAwaySummaryOfReturningCommand(t *testing.T) {
 		ts := newTestServer(t, 1)
 		start := questDisplay(t, ts.mustCommand(cmdRoad).Display)
 		v := returning(t, ts, `{"type":"place_building","island_id":"start","building_type":"lumberjack","x":35,"y":5,"rotation":180}`)
-		// The lumberjack's price and the start sloop's upkeep over the gap.
-		cost := catalogue(t).BuildingByID["lumberjack"].Cost.Gold + catalogue(t).ShipByID["sloop"].UpkeepPerMin*int64(gap/time.Minute)
+		// The lumberjack's price and the start cog's upkeep over the gap.
+		cost := catalogue(t).BuildingByID["lumberjack"].Cost.Gold + catalogue(t).ShipByID["cog"].UpkeepPerMin*int64(gap/time.Minute)
 		if v.AwaySummary.GoldBefore != start.Gold || v.AwaySummary.GoldAfter != start.Gold-cost || v.Gold != start.Gold-cost {
 			t.Fatalf("gold %d -> %d (display %d), want %d -> %d", v.AwaySummary.GoldBefore, v.AwaySummary.GoldAfter, v.Gold, start.Gold, start.Gold-cost)
 		}

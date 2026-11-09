@@ -136,7 +136,7 @@ provisional.
 
 Infrastructure: `trading_post` lvl 1 (founding), `warehouse` lvl 1,
 `road_dirt`, `market` lvl 1, `chapel`, `house_settlers`. The start
-ship is a sloop; the shipyard unlocks at tier 2 (D-056).
+ship is a cog; the shipyard unlocks at tier 2 (D-056).
 
 ### Tier 2 — Citizens
 
@@ -152,7 +152,7 @@ ship is a sloop; the shipyard unlocks at tier 2 (D-056).
 | ships | sails | `sailmaker` (hemp → sails, 60 s) [6 C] | — |
 
 Infrastructure: `trading_post` lvl 2, `market` and `warehouse` lvl 2 (D-065), `road_paved`, `quay` (D-060), `tavern`, `school`,
-`city_guard`, `shipyard` (sloop, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
+`city_guard`, `shipyard` (cog, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
 The construction chains (quarry, tool chain) are **Settler-staffed** per the
 bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
 must be producible before any Citizen exists. Likewise bricks (tier 3) are
@@ -179,7 +179,7 @@ One recipe per building (D-041): `leather_works` is a separate building from
 
 Infrastructure: `trading_post` lvl 3, `market` and `warehouse` lvl 3 (D-065), `church`,
 `playhouse`, `fire_station` (one level, D-065), `trading_pier`, `depot`
-(D-060; Merchants since D-069 §5), `brig` (4 slots), `house_merchants`;
+(D-060; Merchants since D-069 §5), `hulk` (4 slots), `house_merchants`;
 `harbourmaster_office` (world map, expeditions, contracts) is an ONLINE
 feature, not a tier gate, and not authored yet. Variety reserve
 (D-056): fur_coats (`trapper`, `furrier`), tableware (`potter`;
@@ -207,7 +207,7 @@ feature, not a tier gate, and not authored yet. Variety reserve
 
 Infrastructure: `trading_post` lvl 4, `market` and `warehouse` lvl 4 (D-065), `university`,
 `cathedral`, `surgery` (health, radius 28; glass cost, D-062),
-`galleon` (6 slots), `house_patricians`.
+`carrack` (6 slots), `house_patricians`.
 
 ## 6. Catalogue totals
 
@@ -260,8 +260,8 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 |---|---|---|---|---|---|---|---|---|
 | `house_settlers` | 1 | 3×3 | — | Residence | 0 / 5 | 0 | — | R; all houses 3×3, upgrade in place |
 | `road_dirt` | 1 | 1×1 | — | road | see text | 0 | — |  |
-| `trading_post` | 1 | 6×6 | 1–2 | Trading Post (D-062) | see text | 0 / 10 / 20 / 30 | — | founding only; collector with reach; levels as below (D-069) |
-| `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 1 / 10 / 15 / 25 | — | collector; reach and throughput per level, four levels (D-065, D-069, below) |
+| `trading_post` | 1 | 6×6 | 1–2 | Trading Post (D-062) | see text | 0 / 6 / 12 / 24 | — | founding only; collector with reach; levels as below (D-069) |
+| `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 1 / 5 / 10 / 20 | — | collector; reach and throughput per level, four levels (D-065, D-069, below) |
 | `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 / 10 / 40 / 60 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 20; lvl 2 (tier 2) radius 24, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 28, 2000 gold / 30 planks / 60 stone; lvl 4 (tier 4) radius 32, 10000 gold / 30 planks / 90 stone / 30 bricks (D-065; radii, and cost and upkeep of levels 3–4 ×2, D-072) |
 | `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 0 | — | R, radius 16; faith rank 1 (D-065) |
 | `lumberjack` | 1 | 3×3 + 48 `tree_plot` | — | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest; 24 plots before content 0.20.0 — a forest of 48 reads as a wood, polish 7) |
@@ -377,20 +377,26 @@ needs tier *n*, D-065, extended to the Trading Post):
 
 | Collector | Level | Capacity | T | Reach | Upkeep | Berths | Upgrade cost |
 |---|---|---|---|---|---|---|---|
-| Trading Post | 1 | 300 | 8 | 24 | 0 | 1 | founding (200 gold / 15 planks) |
-| Trading Post | 2 (Citizens) | 500 | 16 | 28 | 10 | 2 | 300 gold / 20 planks / 10 stone |
-| Trading Post | 3 (Merchants) | 800 | 32 | 32 | 20 | 3 | 600 gold / 30 planks / 20 stone |
-| Trading Post | 4 (Patricians) | 1 200 | 64 | 36 | 30 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
-| Warehouse | 1 | — | 6 | 18 | 1 | — | placement (50 gold / 6 planks) |
-| Warehouse | 2 (Citizens) | — | 12 | 21 | 10 | — | 150 gold / 10 planks / 5 stone |
-| Warehouse | 3 (Merchants) | — | 24 | 24 | 15 | — | 300 gold / 15 planks / 10 stone |
-| Warehouse | 4 (Patricians) | — | 48 | 27 | 25 | — | 600 gold / 20 planks / 20 stone |
+| Trading Post | 1 | 300 | 10 | 24 | 0 | 1 | founding (200 gold / 15 planks) |
+| Trading Post | 2 (Citizens) | 500 | 20 | 28 | 6 | 2 | 300 gold / 20 planks / 10 stone |
+| Trading Post | 3 (Merchants) | 800 | 40 | 32 | 12 | 3 | 600 gold / 30 planks / 20 stone |
+| Trading Post | 4 (Patricians) | 1 200 | 80 | 36 | 24 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
+| Warehouse | 1 | — | 8 | 18 | 1 | — | placement (50 gold / 6 planks) |
+| Warehouse | 2 (Citizens) | — | 16 | 21 | 5 | — | 150 gold / 10 planks / 5 stone |
+| Warehouse | 3 (Merchants) | — | 32 | 24 | 10 | — | 300 gold / 15 planks / 10 stone |
+| Warehouse | 4 (Patricians) | — | 64 | 27 | 20 | — | 600 gold / 20 planks / 20 stone |
 
 Reach grew by 4 tiles per level with D-072 §3 (D-069: Trading Post 20 /
 24 / 28 / 32, warehouse 14 / 17 / 20 / 23). Throughput fell with D-074 §3
 (content 0.20.0; was Trading Post 20 / 40 / 60 / 80, warehouse 20 / 35 /
 50 / 65): one level-1 warehouse serves a block of ≈ 5 producers, so the
-collector levels become a tier-1/2 decision.
+collector levels become a tier-1/2 decision. D-075 §2 (content 0.21.0)
+doubles the ramp and cheapens it: throughput Trading Post 10 / 20 / 40 /
+80 (D-074: 8 / 16 / 32 / 64), warehouse 8 / 16 / 32 / 64 (6 / 12 / 24 /
+48); upkeep Trading Post 0 / 6 / 12 / 24 (0 / 10 / 20 / 30), warehouse
+1 / 5 / 10 / 20 (1 / 10 / 15 / 25) — the level-2 upgrade of a warehouse
+is no longer a quarter of a tier-1 town's income. Reach, capacity and
+upgrade costs unchanged.
 
 Market upkeep per level 0 / 10 / 40 / 60 (D-072 doubled levels 3–4 from
 20 / 30). D-069 §3 named 5 for the
@@ -421,24 +427,24 @@ at Citizens.
 
 | ID | Tier | Slots × size | Speed | Build | Cost | Upkeep |
 |---|---|---|---|---|---|---|
-| `sloop` | 2 (start ship from tier 1) | 2 × 50 | 1.2 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
-| `brig` | 3 | 4 × 50 | 1.0 | 5 min | 1 500 gold, 60 planks, 20 sails, 10 tools | 4 |
-| `galleon` | 4 | 6 × 60 | 0.85 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
+| `cog` | 2 (start ship from tier 1) | 2 × 50 | 1.2 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
+| `hulk` | 3 | 4 × 50 | 1.0 | 5 min | 1 500 gold, 60 planks, 20 sails, 10 tools | 4 |
+| `carrack` | 4 | 6 × 60 | 0.85 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
 
-\*The sails for the first built sloop are the reward of the tier-2
+\*The sails for the first built cog are the reward of the tier-2
 "Build a shipyard" quest (D-056) — the only source of sails before a
 sailmaker (D-074 §4: the founding stock no longer carries any); the start
-ship is a sloop and carries the founding stock, 100 planks in its two
+ship is a cog and carries the founding stock, 100 planks in its two
 50-t slots (D-051).
 
 Ships live in `ships.json` (`{ id, name, tier, slots, slot_size, speed,
 build_seconds, cost, upkeep_per_min, length_tiles? }`, schema under
 `content/schema/`); all three are authored. `length_tiles` is the hull
-length at model scale (sloop 2, brig 2.6, galleon 3.2; absent: 2), display
+length at model scale (cog 2, hulk 2.6, carrack 3.2; absent: 2), display
 only: the client draws each ship and spaces the berths of Trading Posts
 and trading piers by it (MECHANICS §9.1). Speeds differ (D-059,
-supersedes D-056's equal speed): the sloop is small and fast for founding
-and short hops, the galleon large and slow for bulk. Ship positions and legs follow MECHANICS
+supersedes D-056's equal speed): the cog is small and fast for founding
+and short hops, the carrack large and slow for bulk. Ship positions and legs follow MECHANICS
 §9; the archipelago seed stores island positions in tile coordinates.
 
 ## 9. Islands (D-036, D-053, D-058)
@@ -452,7 +458,7 @@ and short hops, the galleon large and slow for bulk. Ship positions and legs fol
 | Deposit slots per island | 0–4, typed; a slot is two deposit tiles on a mountain edge, ≥ 16 tiles (Chebyshev) from every other slot of the island; every slot admits its building: the generator reserves a footprint of the largest building requiring the kind (3 × 8, clay pit 4 × 6, either rotation) on mountain tiles covering a slot tile, with a buildable tile beside it for the road, pairwise disjoint with the other slots' (D-072 part 2; generator-only, not stored); two slots of one kind lie on different massifs when the island has two or more; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
 | Shallows | water tiles of an island's grid (not river) within 3 tiles (Chebyshev) of its own land, islets excluded; derived from the tiles, the quay's ground (D-060, MECHANICS §3) |
-| Spacing | ≥ 55 tiles between islands (50 before D-072: the nearest neighbour of the dev seed fell under a minute at the brig's speed), nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
+| Spacing | ≥ 55 tiles between islands (50 before D-072: the nearest neighbour of the dev seed fell under a minute at the hulk's speed), nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
 | Buildable area | 185 000 tiles (coast, grass, forest) per archipelago ± 10 % (D-072; ≈ 51 % of the 365 289-tile land extents, the share the shape rules give; provisional) |
 | Anno 117 sizes (D-072) | buildable mean over seeds 1–50: large 31 725 (Anno 117: 31 573), medium 13 614 (13 369), small 6 011 (5 860) tiles; ≈ 2 640 / 1 130 / 500 houses at 12 tiles per house; with the rim massifs (D-072 §4) 13 % of a large or medium island is rock, and a quarter of the small islands have no massif |
 | Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
@@ -507,7 +513,7 @@ deposit, terrain and category *display* words that the client composes
 itself are client keys, not content. Island names are chosen at world
 creation and stored in English; the content payload lists
 `island_names[{source, name}]` so the client shows the translation until
-the player renames the island (ship default names such as "Sloop 2" are
+the player renames the island (ship default names such as "Cog 2" are
 mapped the same way by the type's `source_name`). Storing the list index or
 ship type in the world instead would be a schema change and is left to a
 future decision. A new translatable field must be added to
@@ -562,8 +568,8 @@ future decision. A new translatable field must be added to
 ```
 
 D-074 §4 (content 0.20.0; was 1 000 gold, 150 planks and 10 sails —
-150 t never fit the sloop's two 50-t slots, and the sails came again
-from the shipyard quest). Aboard the start sloop and on the balance from
+150 t never fit the cog's two 50-t slots, and the sails came again
+from the shipyard quest). Aboard the start cog and on the balance from
 the first moment; the
 Trading Post is paid from it when the player founds (MECHANICS §8). Goods must exist in `goods.json`.
 
@@ -572,10 +578,10 @@ Trading Post is paid from it when the player founds (MECHANICS §8). Goods must 
 Every building has `id`, `name`, `region` (must equal the region id),
 `tier`, `footprint: [width, height]` (rotation 0), `requires_road`, `cost`
 (`{ "gold": n, "<good>": n }`; the key `gold` is reserved, so no good may be
-called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min` and
-`pause_category`. Optional `description` is localized like the name
+called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min`,
+`pause_category` and `look`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **15**, content **old_coast-0.20.0** (D-074; 0.19.0 D-072; 0.18.0 D-069): no migration while
+World schema **15**, content **old_coast-0.21.0** (D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): no migration while
 undeployed; recreate local databases with `make down VOLUMES=1 && make up`.
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.
@@ -628,9 +634,29 @@ whose levels carry upkeep (D-069 §3).
     "outputs": [{ "good": "iron", "amount": 1 }],
     "cycle_seconds": 60
   },
-  "pause_category": "intermediate"
+  "pause_category": "intermediate",
+  "look": "workshop"
 }
 ```
+
+`look` ∈ `rural`, `workshop`, `civic`, `harbour` (D-075 §3, required, no
+gameplay effect) names who works the building, which sets its art
+(ART_DIRECTION §7): **rural** wears the tier-1 look whatever its tier,
+**workshop** the tier-2 look (dark tile allowed on tier-4 workshops),
+**civic** and **harbour** the unlock-tier ladder. Fields, plots and
+roads are `rural` too (no exemption: one rule for every building; they
+have no roof, so the value only documents their place). The shipped
+assignment:
+
+| Look | Buildings |
+|---|---|
+| `rural` | lumberjack, tree_plot, sheep_farm, pasture, fisher, wheat_farm, wheat_field, dairy_farm, cattle_pasture, orchard, orchard_plot, apiary, meadow, hemp_farm, hemp_field, pig_farm, pig_pen, quarry, iron_mine, charcoal_burner, hop_farm, hop_field, woad_farm, woad_field, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, vine_row, quartz_quarry, copper_mine, gold_mine, road_dirt, road_paved |
+| `workshop` | sawmill, weaver_wool, mill, bakery, cheese_dairy, cidery, meadery, weaver_linen, tannery, sailmaker, smelter, toolmaker, butcher, pastry_kitchen, brewery, distillery, leather_works, tailor, dyer_works, dyer, paper_mill, printing_press, rendering_house, soap_maker, salt_works, brickworks, slaughterhouse, oyster_house, cooperage, winepress, malt_house, grain_distillery, fashion_house, thread_spinner, lace_maker, candle_foundry, glass_smelter, copper_smelter, optician, gold_smelter, goldsmith, luthier |
+| `civic` | house_settlers, house_citizens, house_merchants, house_patricians, market, chapel, church, cathedral, school, university, tavern, playhouse, city_guard, fire_station, surgery |
+| `harbour` | trading_post, warehouse, shipyard, quay, trading_pier, depot |
+
+Fisher, salt pans and oyster beds are primary producers on the water
+(`rural`); the quay is a harbour structure although it is a road.
 
 `pause_category` ∈ `need_goods`, `public`, `intermediate`, `food_basic`,
 `never` drives the insolvency order (MECHANICS §7). Buildings accepting
@@ -690,18 +716,18 @@ kinds in MECHANICS §12a (`building_count`, `population`, `stock`,
 `connected`, `route_exists`, `island_settled`, `tier_unlocked`,
 `ship_count`, `satisfaction`). The intro chain is 12 linear quests
 (`intro_home_island` … `intro_citizen_house`; island 2 is founded with
-the start sloop) with rewards of 25–100 gold or 30–45 planks; never
+the start cog) with rewards of 25–100 gold or 30–45 planks; never
 stone, tools or sails (those are taught, not given). The tier-2 chain
 (D-056) is 5 linear quests branching off at `intro_settlers_120`
-(`citizens_shipyard`, `citizens_sloop`, `citizens_tavern`,
+(`citizens_shipyard`, `citizens_cog`, `citizens_tavern`,
 `citizens_school`, `citizens_cheese`) with rewards of 50–100 gold; the
-shipyard quest's 10 sails for the first built sloop are the only sails
+shipyard quest's 10 sails for the first built cog are the only sails
 (§8). The tier-3 chain is 6 quests after `citizens_cheese`
 (`merchants_church` … `merchants_bricks`, 100–200 gold) and the tier-4
 chain 6 after it (`patricians_cathedral`, `patricians_house`,
 `patricians_food`, `patricians_drink`, `patricians_glass` — 30 glass in
-stock — and `patricians_galleon`, 150–250 gold); `ship_count` takes an
-optional ship `type`, so the galleon quest counts galleons.
+stock — and `patricians_carrack`, 150–250 gold); `ship_count` takes an
+optional ship `type`, so the carrack quest counts carracks.
 Quests that reward goods must mention that excess beyond capacity is lost
 (content test).
 
@@ -750,6 +776,7 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
 | `market_small` | Renamed to `market` in D-056 C3 |
 | `theatre` | Retired for D-063; `playhouse` is a new ID, same cost/radius/ladder position. Roman recipe parked for a later southern region. |
 | `settlers_services`, `citizens_services`, `merchants_services`, `patricians_services` | Need IDs retired with the `services` category in D-065 (split into market and the faith/education/culture chains) |
+| the three pre-D-075 ship IDs and the three quest IDs that named them | Renamed to `cog`, `hulk`, `carrack` and `citizens_cog`, `merchants_hulk`, `patricians_carrack` in D-075 §4 (content 0.21.0; the old names are listed in DECISIONS D-075 only — a test keeps them out of every other tracked file) |
 
 ### D-062 reference results (sim minutes, seed 1053001)
 
@@ -768,6 +795,30 @@ and building/island choices are the only pacing levers. The final Patrician
 measurement is conservative, not the earliest crossing. Merchants lose the
 health gate but these layout repairs cost about six minutes versus the
 old 223/258/291 replay. The checklist below retains older balancing history.
+
+### D-075 reference results (sim minutes, seed 1053001)
+
+Content `old_coast-0.21.0` (collectors 10 / 20 / 40 / 80 and 8 / 16 /
+32 / 64 t/min with lower upkeep, `look`, cog / hulk / carrack), the
+low-shore rule for water-edge buildings and supply chains paused last:
+
+| Game | Milestones | Targets | D-074 | D-075 | Margins |
+|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 53 / 27 / 80 / 135 | 50 / 25 / 71 / 124 | 10 / 65 / 29 / 26 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 23 / 44 (7, 99) | 21 / 38 (6, 91) | 24 / 47; 29 / 33 earlier than without claims |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 230 / 265 / 405 | 215 / 250 / 387 | 25 / 20 / 33 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 719 / 838 / 1188 | 721 / 868 / 1180 | 179 / 92 / 620 |
+
+`growth_per_min` stays 1. The plans are the D-074 plans with the ships
+renamed: no step changed; the regenerated games differ only through
+the content and the rules. Every milestone up to the Merchant
+categories comes earlier: the level-1 collectors carry 25 % (Trading
+Post) and 33 % (warehouse) more and the level-2 upgrades cost about
+half the upkeep. The Patrician unlock and first house come 2 and 30
+minutes later, still with the widest margins. The low-shore rule (D-075 §1) changes no reference
+game: none places a trading pier or a depot, and the fishers, salt pans
+and shipyard of the plans all stand on level-0 shores. The supply-chain
+guard (D-075 §5) never fires: no reference game runs out of gold.
 
 ### D-074 reference results (sim minutes, seed 1053001)
 
@@ -795,7 +846,7 @@ Generator changes for D-074:
 
 - A `claim` action claims one quest (waiting until it is completed);
   the games without quest claims claim `citizens_shipyard` only — its
-  10 sails are the first built sloop's, the start stock has none.
+  10 sails are the first built cog's, the start stock has none.
 - A collector upgrade for reach is skipped while its materials are
   neither in stock nor produced on the island (the opening has no
   stone); a warehouse is placed instead.
@@ -806,14 +857,14 @@ Generator changes for D-074:
 
 Plan changes for D-074:
 
-- Citizens: the shipyard, the claim and the sloop moved to the
+- Citizens: the shipyard, the claim and the cog moved to the
   Merchants plan; the second and third weaver stand by their sheep
   farms (the level-1 Trading Post carries five producers; it ends at
   94 % load, nothing throttled).
 - Merchants: route 1 brings stone home (the opening has none to
   spare); Citizen upgrades alternate with the need chains (a house
   grows with each chain); the shipyard, the shipyard claim and the
-  sloop come after home-2's Citizen upgrades; the sloop brings the first
+  cog come after home-2's Citizen upgrades; the cog brings the first
   three bricks by hand (route 1's round trip was too slow for the
   first Merchant house); no sheep farm and weaver for home-2, no
   explicit warehouse (their gold is the first Merchant house's).
@@ -825,9 +876,9 @@ Plan changes for D-074:
   Merchant houses; the plan repeats the chains because serves needs
   them) for settlers and twelve more Merchant houses, upgraded before
   the winepress waits for the unlock; two mills and two bakeries
-  (Citizen food); hemp on "Island goods" until the brigs are ordered
+  (Citizen food); hemp on "Island goods" until the hulks are ordered
   and two hemp farms more (no start sails); 18 warehouse upgrades at
-  home; five breweries, five wheat farms and a hops-only brig more;
+  home; five breweries, five wheat farms and a hops-only hulk more;
   three apiaries and two meaderies more; two butchers more.
 
 ### D-072 reference results (sim minutes, seed 1053001)
@@ -881,7 +932,7 @@ seed's islands moved, island 2 lies farther from home):
   Citizen → Merchant upgrades come before the dairy farm, cheese
   dairy, pig farm and apiary (the first Merchant house came at minute
   273 with the old order, over its 270).
-- Patricians: a second galleon on the farm-goods route, a brig with the
+- Patricians: a second carrack on the farm-goods route, a hulk with the
   pigs that piled up on island 6 (the route loads 150), and the
   roast-beef chain (three cattle farms on island 2 with three houses
   for their workers, two slaughterhouses at home) right with the
@@ -960,7 +1011,7 @@ Plan changes for D-065 are build order, counts and waits only:
   unbuilt on the home island and did not fit; coverage reservation
   leaves 0 (island 2: 16, island 6: 16, none of them chain plots).
 - Farms moved for room (the only buildings allowed to): pig farms #11–14
-  from the home island to island 6, with an extra sloop on route
+  from the home island to island 6, with an extra cog on route
   "Stone out, pigs home": with every chain plot reserved, the home
   island's last wheat farm (140 fields) found no grass area large
   enough. Wheat cannot move (fertile only on islands 1, 5, 10 and 11).
@@ -999,7 +1050,7 @@ within target.
   house and by the goldens `bootstrap_settlers`, `bootstrap_citizens`,
   `bootstrap_merchants` and `bootstrap_patricians` (tiers 3–4, below)
   (the tier 1–2 reference game from the starting stock: island 2 settled
-  at 52 min by the start sloop, Citizens unlocked by 30 min, the first
+  at 52 min by the start cog, Citizens unlocked by 30 min, the first
   Citizen house at 88 min, tools from island 2 on the home island by
   132 min; with the quests 34 / 21 / 73 / 117 — on the generated dev
   archipelago, seed 1053001, with the D-056 need model; before D-056:
@@ -1007,7 +1058,7 @@ within target.
   hand-made islands: 100 / 139). The first-house margin (88 of 100;
   quests 15 min earlier) is the tight one: a change that slows the
   first hours must say so.
-  If a later change needs room, the first lever is the sloop's reference
+  If a later change needs room, the first lever is the cog's reference
   speed (legs are 3.4–4.3 min on the dev seed), not the targets.
 - **Tier 3–4 reference games (D-056, sim minutes from the starting
   stock, attentive play; not faster):** Merchants unlocked (360
@@ -1026,8 +1077,8 @@ within target.
   targets at 501 / 798 / 843 with build order and island choice alone:
   the Patrician houses and public buildings stand at home; island 6
   (quartz, copper, grapes, hemp) makes glass, brass, thread and grapes
-  for a sloop and a brig, island 2 pigs, salt, milk and cattle for a
-  galleon. At the end (minute 873: 560 Settlers, 210 Citizens, 1 250
+  for a cog and a hulk, island 2 pigs, salt, milk and cattle for a
+  carrack. At the end (minute 873: 560 Settlers, 210 Citizens, 1 250
   Merchants, 160 Patricians at home) the used share of the buildable
   tiles is 59 % at home (16 387; houses and public buildings 1 443,
   production and fields 6 632, roads 1 332, collectors 234), 30 % on
@@ -1050,7 +1101,7 @@ within target.
 - Charcoal demand of a balanced Merchant economy must exceed one island's
   forest capacity so coal or a second forest island becomes relevant.
 - Starting stock (`start.json`: 2 000 gold, 100 planks — D-074 §4; the
-  goods aboard the start sloop, 1 800 gold and 85 planks left after
+  goods aboard the start cog, 1 800 gold and 85 planks left after
   founding the Trading Post for 200 gold / 15 planks) must allow: 8
   settler houses + fisher + lumberjack + sawmill + market + ~40 road
   tiles, and cover the early deficit for ≥ 15 min of upkeep without

@@ -351,6 +351,8 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   if (b.work_area?.fertility) needsSite.push(t("almanac.site.fertility", { name: titleCase(fertilityName(b.work_area.fertility)) }));
   if (b.field?.terrain?.length) needsSite.push(t("almanac.site.on", { terrain: b.field.terrain.map(terrainName).join("/") }));
   if (b.field?.fertility) needsSite.push(t("almanac.site.fertility", { name: titleCase(fertilityName(b.field.fertility)) }));
+  // D-075 §1: a water-edge building's land tiles stand at sea level.
+  if (b.water_rows) needsSite.push(t("almanac.site.lowShore"));
   const levels: LevelView[] = [];
   b.trading_post?.levels?.forEach((l, i) =>
     levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, throughput: l.throughput_per_min / 1000, berths: l.berths, reach: l.reach, upkeep: upkeepOf(l), tier: l.tier }),

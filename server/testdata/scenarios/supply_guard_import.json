@@ -1,0 +1,272 @@
+{
+  "name": "supply_guard_import",
+  "description": "Supply guard on imported input (D-075 §5): the start island has a weaver, a fisher, the wood chain and two settler houses but no sheep farm; a cog founds island 2 and a route brings its 60 t of wool to the start island. Upkeep empties the treasury at 28:28: the cascade pauses the wood chain and the cog but keeps the weaver, the last producer of the garments the houses consume, because its wool is in stock, and the fisher. Gold is held at zero while the weaver works the stock down. At 1:44 the island's wool is gone: no producer of wool on the island, running or paused, and no stock, so the weaver loses its guard and the cascade pauses it; the balance turns positive and gold grows again.",
+  "content": "server/testdata/content/old_coast_pre_d054",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~c~~~~~cc~~cccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 36,
+      "y": 48,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~",
+        "~~~~~cccccccccccc~",
+        "~cccccccccccccccc~",
+        "~................~",
+        "~................~",
+        "~................~",
+        "~...........mIIm.~",
+        "~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 900,
+    "stock": {
+      "planks": 270,
+      "sails": 10,
+      "wood": 50,
+      "fish": 120
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          5
+        ],
+        "to": [
+          28,
+          5
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "order_ship": {
+        "x": 6,
+        "y": 1,
+        "ship_type": "cog"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "island2",
+        "cargo": {
+          "planks": 50
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m35s"
+      }
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "island2",
+        "x": 1,
+        "y": 0,
+        "rotation": 0
+      }
+    },
+    {
+      "stock": {
+        "island": "island2",
+        "good": "wool",
+        "amount": 60
+      }
+    },
+    {
+      "create_route": {
+        "name": "Wool in",
+        "stops": [
+          {
+            "island": "island2",
+            "load": {
+              "wool": 30
+            }
+          },
+          {
+            "island": "start",
+            "unload": [
+              "wool"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "assign_ship": {
+        "ship": 1,
+        "route": 1
+      }
+    },
+    {
+      "demolish": {
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 13,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          13,
+          3
+        ],
+        "to": [
+          13,
+          4
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 21,
+        "y": 3,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 27,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          27,
+          6
+        ],
+        "rect": [
+          27,
+          8,
+          28,
+          8
+        ],
+        "count": 1
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 24,
+        "y": 3,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 3,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 5,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "20m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "30m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "40m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "20m"
+      }
+    }
+  ]
+}

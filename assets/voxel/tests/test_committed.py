@@ -147,7 +147,7 @@ class CommittedTest(unittest.TestCase):
     def test_sway_groups_are_listed(self):
         # The manifest lists each model's sway groups (the recipes' sail, flag and cloth voxels), the trees sway with "canopy".
         self.assertIn("cloth", self.manifest["models"]["weaver_wool"]["sway"])
-        self.assertIn("sail", self.manifest["models"]["sloop"]["sway"])
+        self.assertIn("sail", self.manifest["models"]["cog"]["sway"])
         self.assertEqual(self.manifest["decor"]["decor_tree_a"]["sway"], ["canopy"])
         for entry in list(self.manifest["models"].values()) + list(self.manifest["decor"].values()):
             self.assertEqual(entry.get("sway", []), sorted(set(entry.get("sway", []))))

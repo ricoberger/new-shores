@@ -338,7 +338,9 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   input 400 (also `route_invalid`), unknown entity 404 (also
   `ship_not_found`, `route_not_found`), state conflicts 409 (e.g.
   `shipyard_busy`, `ship_not_idle`, `route_in_use`, `island_not_settled`,
-  `cargo_insufficient`, `last_warehouse`), internal-only sim errors 500.
+  `cargo_insufficient`, `last_warehouse`, `needs_low_shore` — a
+  water-edge building over a terrace, D-075 §1), internal-only sim
+  errors 500.
 - Implemented (M2): `POST /auth/guest`, `/auth/register`, `/auth/login`,
   `/auth/logout`, `GET /auth/me`, `PATCH /auth/me {language}` (D-061), `POST /auth/verify-email`,
   `/auth/password-reset/request`, `/auth/password-reset/confirm`;
@@ -539,6 +541,14 @@ STATS=2` attributes a real view per layer, with the neighbours in relief
 - `content_version` is embedded in worlds; content changes that alter rules
   for existing worlds must be backward compatible or ship with a world
   migration.
+- Art-only fields stay in content and out of the sim and the API: a
+  building's required `look` (`rural`, `workshop`, `civic`, `harbour`;
+  D-075 §3) is validated by the loader and sets the art (ART_DIRECTION
+  §7, "Look follows the workers"); no rule reads it.
+- Retired IDs are never reused (CONTENT "Retired IDs"); the D-075 ship
+  rename (`cog`, `hulk`, `carrack`) happened before deployment, so no
+  world migration exists for it, and `TestRetiredShipIDsGone` keeps the
+  old ship names out of every tracked file but DECISIONS and STATUS.
 
 ## 7. Deployment
 

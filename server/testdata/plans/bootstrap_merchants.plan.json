@@ -189,7 +189,7 @@
       }
     },
     {
-      "note": "D-074 §4: the founding stock carries no sails; the shipyard quest's 10 sails are the first built sloop's — claimed even in the games without quest claims (their only source before a sailmaker), as soon as the intro chain reaches the quest (after the wool chain).",
+      "note": "D-074 §4: the founding stock carries no sails; the shipyard quest's 10 sails are the first built cog's — claimed even in the games without quest claims (their only source before a sailmaker), as soon as the intro chain reaches the quest (after the wool chain).",
       "claim": {
         "quest": "citizens_shipyard",
         "island": "isle-01"
@@ -198,7 +198,7 @@
     {
       "order_ship": {
         "island": "isle-01",
-        "ship_type": "sloop"
+        "ship_type": "cog"
       }
     },
     {

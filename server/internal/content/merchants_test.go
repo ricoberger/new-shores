@@ -193,14 +193,14 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 	if m := c.BuildingByID["market"]; m.Service.RadiusAt(3) != 28 || m.LevelTier(3) != "merchants" {
 		t.Errorf("market level 3 = %d %s", m.Service.RadiusAt(3), m.LevelTier(3))
 	}
-	// The brig is the Merchants' ship, built at the shipyard.
-	if b := c.ShipByID["brig"]; b == nil || b.Tier != "merchants" || !slices.Contains(c.BuildingByID["shipyard"].Shipyard.Ships, "brig") {
-		t.Errorf("brig = %+v", b)
+	// The hulk is the Merchants' ship, built at the shipyard.
+	if b := c.ShipByID["hulk"]; b == nil || b.Tier != "merchants" || !slices.Contains(c.BuildingByID["shipyard"].Shipyard.Ships, "hulk") {
+		t.Errorf("hulk = %+v", b)
 	}
 }
 
 // TestMerchantsQuests pins the tier-3 quest chain (D-056 C3): church,
-// first Merchant house, both food and both drink alternatives, a brig
+// first Merchant house, both food and both drink alternatives, a hulk
 // (the third ship: there is no per-type ship predicate) and stored
 // bricks, with modest gold rewards only.
 func TestMerchantsQuests(t *testing.T) {
@@ -213,7 +213,7 @@ func TestMerchantsQuests(t *testing.T) {
 		"merchants_house":  "building_count:house_merchants:1",
 		"merchants_food":   "connected:butcher:0 connected:pastry_kitchen:0",
 		"merchants_drink":  "connected:brewery:0 connected:distillery:0",
-		"merchants_brig":   "ship_count::3",
+		"merchants_hulk":   "ship_count::3",
 		"merchants_bricks": "stock:bricks:30000",
 	}
 	n := 0

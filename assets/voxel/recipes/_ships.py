@@ -1,20 +1,30 @@
 """
 Ships (bow toward +x, waterline z = 0) at 20 voxels per tile (D-057 §3,
-V5): sloop, brig and galleon from one hull builder.
+V5): the Hanseatic ladder of D-075 §4 — cog, hulk and carrack — from one
+hull builder.
 
 The hull: a tarred bottom, planking in courses (alternating shades), a
 dark wale, a painted trim band in the ship's colour, a bulwark with a
-pale rail cap, a deck of planks in courses, gunports on the brig and the
-galleon, a bowsprit with a jib boom and a stem post. Masts 1 / 2 / 3
-carry yards, a top and shrouds down to the rails; square sails and the
-gaff and jib are sway groups ("sail"), the masthead pennants "flag". The
-brig and galleon have a stern cabin with a row (two on the galleon) of
-windows, a stern gallery and lanterns; the galleon a forecastle; the
-sloop a tiller and a lantern on a stern post. Each ship's cargo
-attachment shows one prop per cargo slot (2 / 4 / 6) on its free deck,
-clear of masts, cabin and boom. Anchors: `status` (the pipeline's
-default) and `wake` (the stern at the waterline, where the wake starts).
-Hull lengths at the waterline are length_tiles × SCALE (2 / 2.6 / 3.2).
+pale rail cap, a deck of planks in courses, gunports on the hulk and the
+carrack, a bowsprit and a stem post. `sides` raises the bulwark in
+clinker strakes (alternating shades, each strake's lower edge dark, the
+overlap). Castles (`castle`) are raised decks on plank walls with a
+painted rail and crenels. Square sails, the lateen and the jib are sway
+groups ("sail"), the masthead pennants "flag".
+
+- Cog: high clinker sides, one mast with one square sail, a stern castle
+  with the tiller under it, a short bowsprit, a lantern on the castle.
+- Hulk: the round hull with fore and stern castles (the stern one with a
+  row of windows), two masts with square sails and a jib.
+- Carrack: three masts — square sails on the fore- and mainmast, a
+  lateen on the mizzen — a high two-storey forecastle, the stern cabin
+  with two rows of windows, a gallery and lanterns.
+
+Each ship's cargo attachment shows one prop per cargo slot (2 / 4 / 6) on
+its free deck, clear of masts and castles. Anchors: `status` (the
+pipeline's default) and `wake` (the stern at the waterline, where the
+wake starts). Hull lengths at the waterline are length_tiles × SCALE
+(2 / 2.6 / 3.2).
 
 Lite (far LOD, V7): each ship has its own simplified lite model at
 SCALE / 4 = 5 voxels per tile — the hull with its trim band, the masts,
@@ -28,6 +38,7 @@ from nsvoxel.grid import mat, shade_of
 from nsvoxel.mats import BRASS, CANVAS, DYE_BLUE, OCHRE, PLANK, TERRACOTTA, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
 SCALE = 20
+CRENELS = False
 SAIL = mat("canvas", 1.0, "sail")
 SAIL_SHADE = mat("canvas", 0.92, "sail")
 FLAG = mat("dye-blue", 1.0, "flag")
@@ -41,7 +52,7 @@ WALE = shade_of(TIMBER_DARK, 0.9)
 DECK_B = shade_of(PLANK, 0.93)
 
 #: Hull length at the waterline in voxels (length_tiles × SCALE).
-HULL_LENGTH = {"sloop": 40, "brig": 52, "galleon": 64}
+HULL_LENGTH = {"cog": 40, "hulk": 52, "carrack": 64}
 
 
 def half_beam(x, length, beam):
@@ -69,11 +80,13 @@ def lantern(v, x, y, z):
     v.set(x, y, z + 2, BRASS)
 
 
-def hull(v, length, beam, trim, cabin=0, cabin_h=4, ports=(), forecastle=0):
+def hull(v, length, beam, trim, cabin=0, cabin_h=4, ports=(), forecastle=0, sides=0, bowsprit=5):
     """
     The hull (see the module doc): `cabin` voxels of stern cabin aft,
     `cabin_h` high above the deck (8 = two rows of windows), gunports at
-    the side x positions `ports`, a forecastle `forecastle` voxels long.
+    the side x positions `ports`, a forecastle `forecastle` voxels long
+    (one storey; castle() builds higher ones), `sides` extra clinker
+    strakes above the bulwark, a bowsprit length / `bowsprit` voxels long.
     Returns the half-length.
     """
     h = length // 2
@@ -89,11 +102,13 @@ def hull(v, length, beam, trim, cabin=0, cabin_h=4, ports=(), forecastle=0):
                     v.set(x, y, z, PLANK if (y // 2) % 2 else DECK_B)
                 elif edge:
                     v.set(x, y, z, shell(z, trim))
-        # Bulwark and rail cap.
+        # Bulwark (clinker strakes when `sides`) and rail cap.
         ends = range(-hw, hw) if x in (-h, h - 1) else (-hw, hw - 1)
         for y in ends:
             v.set(x, y, 4, TIMBER)
-            v.set(x, y, 5, TIMBER_LIGHT)
+            for k in range(sides):
+                v.set(x, y, 5 + k, COURSE_A)
+            v.set(x, y, 5 + sides, TIMBER_LIGHT)
     for x in ports:
         hw = half_beam(x, length, beam)
         for y in (-hw, hw - 1):
@@ -103,7 +118,7 @@ def hull(v, length, beam, trim, cabin=0, cabin_h=4, ports=(), forecastle=0):
             v.set(x + 1, y, 2, trim)
     # Stem post and bowsprit with a jib boom.
     v.box(h - 1, -1, 3, h, 1, 7, TIMBER_DARK)
-    n = length // 5
+    n = length // bowsprit
     for k in range(n):
         v.set(h + k, 0, 6 + k // 3, TIMBER)
     v.set(h + n, 0, 6 + n // 3, TIMBER_DARK)
@@ -153,6 +168,42 @@ def hull(v, length, beam, trim, cabin=0, cabin_h=4, ports=(), forecastle=0):
     return h
 
 
+def castle(v, x0, x1, length, beam, floor, trim, windows=False):
+    """
+    A castle from x0 to x1 (exclusive) on the deck: plank walls along the
+    hull sides and its open end up to the castle deck at `floor`, a painted
+    rail above and crenels on top every other voxel; `windows` puts a row
+    of windows into the side walls.
+    """
+    for x in range(x0, x1):
+        hw = half_beam(x, length, beam)
+        for y in range(-hw, hw):
+            edge = y in (-hw, hw - 1) or x in (x0, x1 - 1)
+            if edge:
+                for z in range(4, floor + 1):
+                    v.set(x, y, z, COURSE_A)
+                v.set(x, y, floor + 1, trim)
+                if CRENELS and (x + y) % 2 == 0:
+                    v.set(x, y, floor + 2, TIMBER_LIGHT)
+            else:
+                v.set(x, y, floor, PLANK if y % 2 else DECK_B)
+        if windows and (x - x0) % 3 == 1 and x0 < x < x1 - 1:
+            v.set(x, -hw, floor - 2, WINDOW)
+            v.set(x, hw - 1, floor - 2, WINDOW)
+
+
+def lateen(v, x, fore, aft, z_low, z_high, foot):
+    """A lateen sail beside the mast at x: the yard from `fore` voxels before the mast at z_low up to `aft` behind it at z_high, the sail below it down to a foot rising from z_low to `foot` aft."""
+    x_lo, x_hi = x - aft, x + fore
+    for xx in range(x_lo, x_hi + 1):
+        t = (x_hi - xx) / (x_hi - x_lo)
+        top = int(round(z_low + (z_high - z_low) * t))
+        bottom = int(round(z_low + (foot - z_low) * t))
+        for z in range(bottom, top):
+            v.set(xx, 1, z, SAIL if (xx // 3) % 2 else SAIL_SHADE)
+        v.set(xx, 1, top, TIMBER)
+
+
 def shrouds(v, x, hw, z0, z1):
     """Shrouds from both rails (at z0) up to the mast at z1: a staircase per side (vertical runs merge cheaply)."""
     for side in (-1, 1):
@@ -163,8 +214,12 @@ def shrouds(v, x, hw, z0, z1):
             v.set(x, y, z, ROPE)
 
 
-def mast(v, x, top, sails, hw, yards=True, top_z=None):
-    """Mast at x with stacked square sails (canvas rows with a belly toward +x), yards, a top, shrouds and a pennant."""
+def mast(v, x, top, sails, hw, yards=True, top_z=None, stripes=True, rigging=True):
+    """
+    Mast at x with stacked square sails (canvas rows with a belly toward +x,
+    shaded every fourth row unless not `stripes`), yards, a top, shrouds
+    (unless not `rigging`) and a pennant.
+    """
     v.box(x, 0, 4, x + 1, 1, top, TIMBER)
     tz = top_z or (sails[0][1] + 1 if sails else top - 6)
     v.box(x - 1, -1, tz, x + 2, 2, tz + 1, PLANK)  # the top
@@ -173,11 +228,12 @@ def mast(v, x, top, sails, hw, yards=True, top_z=None):
         for z in range(z0, z1):
             belly = 1 if z0 + 1 < z < z1 - 2 else 0
             for y in range(-w, w + 1):
-                m = SAIL if (z - z0) % 4 else SAIL_SHADE
+                m = SAIL if (z - z0) % 4 or not stripes else SAIL_SHADE
                 v.set(x + 1 + belly, y, z, m)
         if yards:
             v.box(x + 1, -w - 1, z1, x + 2, w + 2, z1 + 1, TIMBER)
-    shrouds(v, x - 1, hw, 6, tz)
+    if rigging:
+        shrouds(v, x - 1, hw, 6, tz)
     v.box(x, 0, top, x + 1, 1, top + 1, BRASS)
     for k in range(4):
         v.set(x - 1 - k, 0, top - 1, FLAG)
@@ -204,41 +260,45 @@ def jib(v, x0, x1, z0, z1):
         v.set(x, 0, top, ROPE)
 
 
-def sloop(ctx):
+def cog(ctx):
     v = ctx.vox(0, 0)
-    L = HULL_LENGTH["sloop"]
-    h = hull(v, L, 8, OCHRE)
-    mast(v, 2, 36, [], 8, yards=False, top_z=30)
-    gaff(v, 2, 7, 33, 16)
-    jib(v, 4, 20, 7, 30)
-    # Tiller, a hatch and the stern lantern on its post.
-    v.box(-h + 1, 0, 4, -h + 5, 1, 5, TIMBER_DARK)
-    v.box(-4, -2, 4, 0, 2, 5, TIMBER_DARK)
-    v.box(-h, 0, 4, -h + 1, 1, 8, TIMBER)
-    lantern(v, -h, 0, 8)
+    L = HULL_LENGTH["cog"]
+    h = hull(v, L, 8, OCHRE, sides=3, bowsprit=8)
+    # The stern castle over the tiller, with the lantern on its rail.
+    castle(v, -h, -h + 8, L, 8, 11, OCHRE)
+    lantern(v, -h, 0, 14)
+    mast(v, 1, 40, [(12, 34, 9)], 8, top_z=30, stripes=True, rigging=False)
+
     v.anchor("wake", -h, 0, 0)
     return v
 
 
-def brig(ctx):
+def hulk(ctx):
     v = ctx.vox(0, 0)
-    L = HULL_LENGTH["brig"]
-    h = hull(v, L, 10, TERRACOTTA, cabin=8, cabin_h=4, ports=(-14, -6, 2, 10))
-    mast(v, 9, 48, [(10, 22, 7), (24, 34, 6), (36, 43, 4)], 10)
-    mast(v, -8, 44, [(12, 22, 6), (24, 33, 5), (35, 41, 4)], 10)
-    jib(v, 11, 28, 8, 40)
+    L = HULL_LENGTH["hulk"]
+    h = hull(v, L, 10, TERRACOTTA, ports=(-14, -6, 2, 10), sides=1)
+    castle(v, -h, -h + 10, L, 10, 11, TERRACOTTA, windows=True)
+    castle(v, h - 10, h - 2, L, 10, 10, TERRACOTTA)
+    lantern(v, -h, -half_beam(-h, L, 10) + 1, 14)
+    lantern(v, -h, half_beam(-h, L, 10) - 2, 14)
+    mast(v, 6, 48, [(12, 24, 8), (26, 36, 6), (38, 44, 4)], 10)
+    mast(v, -12, 40, [(15, 25, 6), (27, 35, 4)], 10)
+    jib(v, 8, 26, 12, 40)
     v.anchor("wake", -h, 0, 0)
     return v
 
 
-def galleon(ctx):
+def carrack(ctx):
     v = ctx.vox(0, 0)
-    L = HULL_LENGTH["galleon"]
-    h = hull(v, L, 12, DYE_BLUE, cabin=12, cabin_h=8, ports=(-18, -12, -6, 0, 6, 12), forecastle=7)
-    mast(v, 14, 56, [(10, 24, 9), (26, 38, 7), (40, 50, 5)], 10)
+    L = HULL_LENGTH["carrack"]
+    h = hull(v, L, 12, DYE_BLUE, cabin=12, cabin_h=8, ports=(-18, -12, -6, 0, 6, 12), sides=1)
+    # The high forecastle: two storeys over the bow.
+    castle(v, h - 12, h - 1, L, 12, 13, DYE_BLUE, windows=True)
+    mast(v, 18, 54, [(16, 28, 8), (30, 40, 6), (42, 50, 4)], 10)
     mast(v, -2, 62, [(14, 26, 10), (28, 42, 8), (44, 55, 6)], 12)
-    mast(v, -18, 48, [(16, 26, 6), (28, 38, 5)], 12)
-    jib(v, 16, 35, 8, 46)
+    mast(v, -18, 46, [], 12, yards=False, top_z=38, rigging=False)
+    lateen(v, -18, 9, 12, 16, 44, 18)
+    jib(v, 20, 36, 15, 48)
     v.anchor("wake", -h, 0, 0)
     return v
 
@@ -281,6 +341,7 @@ def lite_hull(v, length, beam, trim, castle=0, forecastle=0):
     for x in range(hi - forecastle - 1, hi - 1) if forecastle else ():
         hw = hw_at(x)
         v.box(x, -hw, 1, x + 1, hw, 2, TIMBER)
+        v.box(x, -hw, 2, x + 1, hw, 3, trim)
     # The bowsprit, as long as the full model's (length / 5 voxels).
     n = max(2, round(length / 5 / LITE))
     for k in range(n):
@@ -296,47 +357,41 @@ def lite_mast(v, x, top, sails):
     v.set(x - 1, 0, top - 1, FLAG)
 
 
-def sloop_lite(ctx):
+def cog_lite(ctx):
     v = ctx.vox(0, 0)
-    lo, _ = lite_hull(v, HULL_LENGTH["sloop"], 8, OCHRE)
-    v.box(0, 0, 1, 1, 1, 9, TIMBER_DARK)  # the mast
-    v.set(-1, 0, 8, FLAG)
-    for z in range(2, 8):  # the gaff sail behind the mast, narrowing upward
-        v.box(-4 + (z - 2) // 3, 0, z, 0, 1, z + 1, SAIL)
-    for z in range(2, 7):  # the jib toward the bowsprit
-        v.box(1, 0, z, 1 + max(1, (8 - z) * 4 // 6), 1, z + 1, SAIL)
-    v.set(lo, 0, 2, BRASS)  # the stern lantern
+    lo, _ = lite_hull(v, HULL_LENGTH["cog"], 8, OCHRE, castle=2)
+    lite_mast(v, 0, 10, [(3, 9, 2)])
+    v.set(lo, 0, 3, BRASS)  # the stern lantern
     return v
 
 
-def brig_lite(ctx):
+def hulk_lite(ctx):
     v = ctx.vox(0, 0)
-    lite_hull(v, HULL_LENGTH["brig"], 10, TERRACOTTA, castle=2)
-    lite_mast(v, 2, 12, [(3, 6, 2), (6, 9, 1)])
-    lite_mast(v, -2, 11, [(3, 6, 2), (6, 8, 1)])
-    for z in range(3, 8):  # the jib
-        v.box(3, 0, z, 3 + max(1, (9 - z) * 3 // 6), 1, z + 1, SAIL)
+    lite_hull(v, HULL_LENGTH["hulk"], 10, TERRACOTTA, castle=2, forecastle=2)
+    lite_mast(v, 1, 12, [(3, 6, 2), (6, 9, 1)])
+    lite_mast(v, -3, 10, [(4, 6, 1), (6, 8, 1)])
     return v
 
 
-def galleon_lite(ctx):
+def carrack_lite(ctx):
     v = ctx.vox(0, 0)
-    lite_hull(v, HULL_LENGTH["galleon"], 12, DYE_BLUE, castle=3, forecastle=2)
-    lite_mast(v, 3, 14, [(3, 6, 2), (7, 10, 2), (10, 13, 1)])
+    lite_hull(v, HULL_LENGTH["carrack"], 12, DYE_BLUE, castle=3, forecastle=3)
+    lite_mast(v, 4, 14, [(4, 7, 2), (7, 10, 1)])
     lite_mast(v, -1, 16, [(4, 7, 3), (7, 11, 2), (11, 14, 1)])
-    lite_mast(v, -5, 12, [(5, 7, 1), (7, 10, 1)])
-    for z in range(3, 10):  # the jib
-        v.box(4, 0, z, 4 + max(1, (11 - z) * 4 // 8), 1, z + 1, SAIL)
+    v.box(-5, 0, 1, -4, 1, 12, TIMBER_DARK)  # the mizzen with its lateen
+    for z in range(4, 11):
+        v.box(-7 + (z - 4) // 3, 1, z, -4 + max(0, (10 - z) // 3), 2, z + 1, SAIL)
+    v.set(-6, 0, 11, FLAG)
     return v
 
 
 # ---------------------------------------------------------------- cargo
 
-#: Deck spots (x, y) of the cargo props per ship, one per cargo slot (2 / 4 / 6), clear of masts, cabins and the sloop's boom.
+#: Deck spots (x, y) of the cargo props per ship, one per cargo slot (2 / 4 / 6), clear of masts and castles.
 CARGO_SPOTS = {
-    "sloop": ((6, -4), (6, 1)),
-    "brig": ((-5, -6), (-5, 2), (1, -6), (1, 2)),
-    "galleon": ((-15, -7), (-15, 2), (-10, -3), (2, -7), (2, 2), (7, -3)),
+    "cog": ((5, -4), (5, 1)),
+    "hulk": ((-5, -6), (-5, 2), (1, -6), (1, 2)),
+    "carrack": ((-15, -7), (-15, 2), (-10, -3), (2, -7), (2, 2), (7, -3)),
 }
 
 
@@ -366,7 +421,7 @@ PROPS = (crate, barrels, bale)
 def cargo(ctx):
     """Deck cargo shown while loaded: one prop per slot at the ship's CARGO_SPOTS (crates, barrels, bales in turn)."""
     v = ctx.vox(0, 0)
-    spots = CARGO_SPOTS.get(ctx.cid, CARGO_SPOTS["brig"])
+    spots = CARGO_SPOTS.get(ctx.cid, CARGO_SPOTS["hulk"])
     n = int(ctx.defn.get("slots", len(spots)))
     for i, (x, y) in enumerate(spots[:n]):
         PROPS[i % len(PROPS)](v, x, y)
@@ -374,7 +429,7 @@ def cargo(ctx):
 
 
 RECIPES = {
-    "sloop": {"build": sloop, "lite": sloop_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0}},
-    "brig": {"build": brig, "lite": brig_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.6, "masts": 2, "sail_scale": 1.0}},
-    "galleon": {"build": galleon, "lite": galleon_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 3.2, "masts": 3, "sail_scale": 1.0}},
+    "cog": {"build": cog, "lite": cog_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0}},
+    "hulk": {"build": hulk, "lite": hulk_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 2.6, "masts": 2, "sail_scale": 1.0}},
+    "carrack": {"build": carrack, "lite": carrack_lite, "scale": SCALE, "cargo": cargo, "ship": {"length_tiles": 3.2, "masts": 3, "sail_scale": 1.0}},
 }

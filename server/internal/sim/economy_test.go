@@ -29,15 +29,18 @@ func legacyUpkeep(base *content.Catalogue) *content.Catalogue {
 }
 
 // bonusTax returns base with every tier's tax raised by the largest
-// bonus that D-056 removed (variety x1.1 and optional needs x1.25): the
-// recovery property cases were calibrated with those bonuses on the
-// variety test content and otherwise miss their minimum boundary counts.
+// bonus that D-056 removed (variety x1.1 and optional needs x1.25) and,
+// since the transitive supply guard (D-075 §5), a little more (x1.6 in
+// all): the recovery property cases were calibrated with those bonuses on
+// the variety test content, and a guarded chain (weaver and sheep farm)
+// keeps costing upkeep while gold is held at zero, so without the extra
+// they miss their minimum boundary counts.
 func bonusTax(base *content.Catalogue) *content.Catalogue {
 	c := *base
 	c.Tiers, c.TierByID = nil, map[string]*content.Tier{}
 	for _, t := range base.Tiers {
 		cp := *t
-		cp.TaxPerResidentPerMin = cp.TaxPerResidentPerMin * 1375 / 1000
+		cp.TaxPerResidentPerMin = cp.TaxPerResidentPerMin * 1600 / 1000
 		c.Tiers = append(c.Tiers, &cp)
 		c.TierByID[cp.ID] = &cp
 	}
@@ -156,6 +159,63 @@ func TestAutoPauseCascadeAndHeldGold(t *testing.T) {
 	}
 }
 
+// TestAutoPauseSupplyGuards (D-075 §5): two settler houses get their fish
+// from the running fisher (fulfilment 1) but no wool garments. The fisher
+// and the weaver are the island's last running producers of goods the
+// houses consume — the fisher although the fish need is met today — and
+// the sheep farm is the last producer of the weaver's wool (the guard is
+// transitive), so the cascade skips all three, pauses the wood chain and
+// gold is held at zero (D-008) while they keep running. With a second
+// fisher the first one (lower ID) is paused and the second, now the
+// last, is kept.
+func TestAutoPauseSupplyGuards(t *testing.T) {
+	c := orderCatalogue(t)
+	for _, second := range []bool{false, true} {
+		w, fisher, weaver, sawmill, sheep, lumberjack := insolventTown(t, c)
+		var fisher2 int64
+		if second {
+			fisher2 = placeFree(t, w, c, "fisher", 10, 0, 0)
+		}
+		placeHouses(t, w, c, 2)
+		bs := mustAdvance(t, w, c, time.Minute)
+		want := []int64{lumberjack, sawmill}
+		if second {
+			want = append(want, fisher)
+		}
+		if got := pauseEvents(bs, BoundaryAutoPause); !equalIDs(got, want) {
+			t.Fatalf("second fisher %v: pause order = %v, want %v", second, got, want)
+		}
+		is := w.Islands[0]
+		kept := fisher
+		if second {
+			kept = fisher2
+		}
+		if is.Building(weaver).Paused || is.Building(sheep).Paused || is.Building(kept).Paused {
+			t.Fatalf("second fisher %v: weaver paused %v, sheep farm paused %v, fisher %d paused %v", second, is.Building(weaver).Paused, is.Building(sheep).Paused, kept, is.Building(kept).Paused)
+		}
+		ds := display(t, w, c)
+		if !second {
+			if w.Gold != 0 || ds.BalanceRatePerMin >= 0 {
+				t.Errorf("gold %d balance %d, want gold held at zero", w.Gold, ds.BalanceRatePerMin)
+			}
+			bs := mustAdvance(t, w, c, time.Hour)
+			if p := pauseEvents(bs, BoundaryAutoPause); len(p) != 0 || w.Gold != 0 || is.Building(weaver).Paused || is.Building(fisher).Paused {
+				t.Errorf("an hour later: pauses %v, gold %d", p, w.Gold)
+			}
+		}
+		for _, b := range ds.Islands[0].Buildings {
+			if b.Type != "house_settlers" {
+				continue
+			}
+			for _, n := range b.Needs {
+				if n.ID == "settlers_clothing" && n.FulfilmentPermille >= 600 {
+					t.Errorf("house %d clothing %d", b.ID, n.FulfilmentPermille)
+				}
+			}
+		}
+	}
+}
+
 // TestAutoResumeOrderAndHysteresis: unpaid buildings resume in reverse pause
 // order, each once gold reaches 5 minutes of its upkeep and the balance stays
 // >= 0 without it.
@@ -219,6 +279,115 @@ func TestAutoResumeOrderAndHysteresis(t *testing.T) {
 	}
 }
 
+// TestSupplyGuardCutOffInput (D-075 §5): the weaver is the last producer
+// of the garments the houses consume, but it loses its guard while its
+// wool is cut off — no sheep farm on the island, running or paused, and no
+// wool in stock: the cascade pauses it first (need goods). Wool in stock
+// (an import) or a paused sheep farm (it can resume) keeps the guard.
+func TestSupplyGuardCutOffInput(t *testing.T) {
+	c := orderCatalogue(t)
+	for _, tc := range []struct {
+		name    string
+		setup   func(w *World)
+		guarded bool
+	}{
+		{"cut off", func(*World) {}, false},
+		{"wool in stock", func(w *World) { addStock(t, w, c, "wool", 20) }, true},
+		{"paused sheep farm", func(w *World) {
+			b := w.Islands[0].Building(placeFree(t, w, c, "sheep_farm", 24, 5, 180))
+			b.Paused, b.PausedReason = true, PausedReasonPlayer
+		}, true},
+	} {
+		w := newTown(t, c, 1)
+		fisher := placeFree(t, w, c, "fisher", 6, 1, 0)
+		weaver := placeFree(t, w, c, "weaver_wool", 21, 2, 0)
+		sawmill := placeFree(t, w, c, "sawmill", 24, 2, 0)
+		tc.setup(w)
+		placeHouses(t, w, c, 2)
+		bs := mustAdvance(t, w, c, time.Minute)
+		got := pauseEvents(bs, BoundaryAutoPause)
+		want := []int64{weaver, sawmill}
+		if tc.guarded {
+			want = []int64{sawmill}
+		}
+		if !equalIDs(got, want) {
+			t.Errorf("%s: pauses %v, want %v", tc.name, got, want)
+		}
+		if w.Islands[0].Building(fisher).Paused {
+			t.Errorf("%s: the last fisher paused", tc.name)
+		}
+	}
+}
+
+// TestResumeSkipsCutOffProducer (D-075 §5): the resume queue (last paused
+// first) skips the weaver while its wool is cut off — no wool producer on
+// the island, running or paused, no stock and none in transit — and
+// offers the sawmill paused before it. The weaver is a candidate again
+// once wool arrives in stock, is on its way into the stock, or a sheep
+// farm stands on the island, even a paused one.
+func TestResumeSkipsCutOffProducer(t *testing.T) {
+	c := orderCatalogue(t)
+	w := newTown(t, c, 0)
+	for _, h := range placeHouses(t, w, c, 8) {
+		house(w, h).Residents = 8_000
+	}
+	addStock(t, w, c, "fish", 200)
+	weaver := placeFree(t, w, c, "weaver_wool", 21, 2, 0)
+	sawmill := placeFree(t, w, c, "sawmill", 24, 2, 0)
+	addStock(t, w, c, "wood", 50)
+	is := w.Islands[0]
+	now := w.LastEvaluatedAt.UnixMilli()
+	for i, id := range []int64{sawmill, weaver} {
+		b := is.Building(id)
+		b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = true, PausedReasonUnpaid, int64(i+1), now-1
+	}
+	w.PauseSeq = 2
+	want := func(step string, id int64) {
+		t.Helper()
+		if p := resumeCandidate(w, c, now); p.b == nil || p.b.ID != id {
+			t.Fatalf("%s: candidate %+v, want building %d", step, p.b, id)
+		}
+	}
+	want("cut off", sawmill)
+
+	addStock(t, w, c, "wool", 10)
+	want("wool in stock", weaver)
+	is.Inventory.Stock["wool"] = 0
+	want("stock used up", sawmill)
+
+	// Wool on its way into the stock (a transit segment not yet over);
+	// once it is over, the input is cut off again.
+	is.Building(sawmill).Transit = []TransitSegment{{Good: "wool", FromMs: now - 1, ToMs: now + 60_000, RateSub: 1}}
+	want("wool in transit", weaver)
+	is.Building(sawmill).Transit[0].ToMs = now
+	want("transit over", sawmill)
+	is.Building(sawmill).Transit = nil
+
+	sheep := placeFree(t, w, c, "sheep_farm", 24, 5, 180)
+	b := is.Building(sheep)
+	b.Paused, b.PausedReason = true, PausedReasonPlayer
+	want("paused sheep farm", weaver)
+
+	// Through Advance, with gold and full houses that pay for both: in a
+	// copy without the sheep farm the weaver is skipped and only the
+	// sawmill resumes; with the sheep farm the weaver (paused last)
+	// resumes first.
+	cut := w.Clone()
+	cis := cut.Islands[0]
+	cis.Buildings = slices.DeleteFunc(cis.Buildings, func(b *Building) bool { return b.ID == sheep })
+	for _, x := range []*World{w, cut} {
+		x.Gold = 1_000_000
+	}
+	bs := mustAdvance(t, cut, c, time.Millisecond)
+	if got := pauseEvents(bs, BoundaryAutoResume); !equalIDs(got, []int64{sawmill}) || !cis.Building(weaver).Paused {
+		t.Errorf("cut off: resumes %v, weaver paused %v: %+v", got, cis.Building(weaver).Paused, bs)
+	}
+	bs = mustAdvance(t, w, c, time.Millisecond)
+	if got := pauseEvents(bs, BoundaryAutoResume); len(got) == 0 || got[0] != weaver {
+		t.Errorf("with a sheep farm: resumes %v", got)
+	}
+}
+
 // TestPublicBuildingPauseHysteresis: a paused public building fulfils no
 // building need, so pausing it lowers taxes. Resuming it raises them again;
 // the resume condition (gold >= 5 min of upkeep and balance - upkeep >= 0)
@@ -231,26 +400,28 @@ func TestPublicBuildingPauseHysteresis(t *testing.T) {
 	weaver := placeFree(t, w, c, "weaver_wool", 21, 2, 0)
 	addStock(t, w, c, "fish", 200)
 	addStock(t, w, c, "wool_garments", 100)
+	addStock(t, w, c, "wool", 200)
 
-	// t0: taxes 16 x 0.2 = 3.2 < upkeep 9 with no gold: the weaver (need
-	// goods) and then the market (public) are paused. Without the market
-	// satisfaction is 0.7: taxes 2.24 < 4 (warehouse), gold held at zero.
+	// t0: taxes 16 x 0.2 = 3.2 < upkeep 8 with no gold. The weaver (need
+	// goods) is the island's last producer of the garments the houses
+	// consume and has wool in stock, so it pauses last (D-075 §5) and only
+	// the market (public) is paused. Without the market satisfaction is 0.7: taxes 2.24 < 5
+	// (warehouse, weaver), gold held at zero.
 	bs := mustAdvance(t, w, c, time.Millisecond)
-	if got := pauseEvents(bs, BoundaryAutoPause); !equalIDs(got, []int64{weaver, market}) {
+	if got := pauseEvents(bs, BoundaryAutoPause); !equalIDs(got, []int64{market}) {
 		t.Fatalf("pauses = %v", got)
 	}
 	ds := display(t, w, c)
-	if b := buildingDisplay(t, ds, houses[0]); *b.SatisfactionPermille != 700 || ds.TaxRatePerMin != 2_240 || ds.BalanceRatePerMin != -1_760 {
+	if b := buildingDisplay(t, ds, houses[0]); *b.SatisfactionPermille != 700 || ds.TaxRatePerMin != 2_240 || ds.BalanceRatePerMin != -2_760 {
 		t.Fatalf("after pauses: satisfaction %d tax %d balance %d", *b.SatisfactionPermille, ds.TaxRatePerMin, ds.BalanceRatePerMin)
 	}
 
-	// Houses still grow (0.7 >= 0.5). At R = 7 the balance is 1.12 x 7 - 4 =
-	// 3.84 >= 3 (market upkeep); once gold reaches 15 (5 min of the market's
-	// upkeep) the market resumes, satisfaction returns to 1 and the weaver
-	// follows at the same instant (gold >= 10, balance 11.2 - 7 - 2 >= 0).
+	// Houses still grow (0.7 >= 0.5). At R = 8 the balance is 1.12 x 8 - 5 =
+	// 3.96 >= 3 (market upkeep); once gold reaches 15 (5 min of the market's
+	// upkeep) the market resumes and satisfaction returns to 1.
 	bs = mustAdvance(t, w, c, 3*time.Hour)
 	resumes := pauseEvents(bs, BoundaryAutoResume)
-	if !equalIDs(resumes, []int64{market, weaver}) || countKind(bs, BoundaryAutoPause) != 0 {
+	if !equalIDs(resumes, []int64{market}) || countKind(bs, BoundaryAutoPause) != 0 || w.Islands[0].Building(weaver).Paused {
 		t.Fatalf("resumes %v, %d pauses: %+v", resumes, countKind(bs, BoundaryAutoPause), bs)
 	}
 	var at time.Time
@@ -272,6 +443,7 @@ func TestPublicBuildingPauseHysteresis(t *testing.T) {
 	placeFree(t, w2, c, "weaver_wool", 21, 2, 0)
 	addStock(t, w2, c, "fish", 200)
 	addStock(t, w2, c, "wool_garments", 100)
+	addStock(t, w2, c, "wool", 200)
 	mustAdvance(t, w2, c, at.Sub(t0)-time.Millisecond)
 	if !w2.Islands[0].Building(market).Paused || w2.goldFine() >= 15_000*GoldSubPerMilli {
 		t.Fatalf("1 ms before resume: gold %d", w2.Gold)

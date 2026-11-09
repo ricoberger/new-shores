@@ -38,7 +38,7 @@ by timers. Monetisation is cosmetic only.
   electricity, steam or rail. (D-011)
 - **Home region:** Europe-inspired temperate coast with an invented name
   (working title *the Old Coast*). Half-timbered and brick architecture in
-  early tiers, baroque stone and slate in later ones. Caravels and galleons.
+  early tiers, baroque stone and slate in later ones. Caravels and carracks.
 - **Player role:** a chartered settler sent to found new colonies for a
   trading company. The company's advisor is the quest-giver voice.
 - **Later regions** (not in launch scope): tropical or arid regions with their

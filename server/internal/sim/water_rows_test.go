@@ -32,13 +32,16 @@ type waterSiteFixture struct {
 	Y         int                `json:"y"`
 	Rotation  int                `json:"rotation"`
 	Rows      []string           `json:"rows"`
+	Levels    []string           `json:"levels,omitempty"`
 	Quays     []Pos              `json:"quays"`
 	Error     string             `json:"error"`
 	Tiles     []waterTileFixture `json:"tiles"`
 }
 
 // TestWaterRows exercises every rotation with an asymmetric footprint. Each
-// input string is a column read from sea to land. 'q' is sea carrying a quay.
+// input string is a column read from sea to land. 'q' is sea carrying a quay;
+// a digit is grass at that terrace level (D-075 §1: land tiles of a
+// water-edge building are at level 0).
 // Expectations are independent of the chosen-prefix implementation.
 func TestWaterRows(t *testing.T) {
 	c := shippedCatalogue(t)
@@ -71,6 +74,9 @@ func TestWaterRows(t *testing.T) {
 			{"zero-max", 0, 0, [3]string{"c.......", "c.......", "c......."}, nil, 0},
 			{"zero-max-water", 0, 0, [3]string{"~c......", "c.......", "c......."}, ErrTerrain, 1},
 			{"equal-bounds", 2, 2, [3]string{"~~c.....", "~~c.....", "~~c....."}, nil, 0},
+			{"low-shore-front", 2, 3, [3]string{"~~1.....", "~~c.....", "~~c....."}, ErrNeedsLowShore, 1},
+			{"low-shore-back", 2, 3, [3]string{"~~c.....", "~~~c...2", "~~c....."}, ErrNeedsLowShore, 1},
+			{"low-shore-outside", 2, 3, [3]string{"~~c.....", "~~c.....", "~~c....."}, nil, 0},
 		} {
 			t.Run(fmt.Sprintf("%s/%d", tc.name, rotation), func(t *testing.T) {
 				def.WaterRows = &content.WaterRows{Min: tc.min, Max: tc.max}
@@ -103,11 +109,32 @@ func TestWaterRows(t *testing.T) {
 						grid[p.Y][p.X] = byte(cell)
 					}
 				}
+				// low-shore-outside: a terrace right behind the footprint.
+				if tc.name == "low-shore-outside" {
+					p := at(1, 8)
+					grid[p.Y][p.X] = '3'
+				}
 				rows := make([]string, size)
+				var levels []string
 				for i := range grid {
+					level := []byte(strings.Repeat("0", size))
+					for j, ch := range grid[i] {
+						if ch >= '1' && ch <= '9' {
+							level[j], grid[i][j] = ch, '.'
+						}
+					}
 					rows[i] = string(grid[i])
+					levels = append(levels, string(level))
+				}
+				if !strings.ContainsAny(strings.Join(levels, ""), "123456789") {
+					levels = nil
 				}
 				is := islandFromRows("main", rows...)
+				for row, digits := range levels {
+					for column, d := range digits {
+						is.Tiles[is.index(column, row)].Level = int(d - '0')
+					}
+				}
 				is.Roads = map[int]string{}
 				for _, p := range quays {
 					is.Roads[is.index(p.X, p.Y)] = "quay"
@@ -119,7 +146,7 @@ func TestWaterRows(t *testing.T) {
 				if valid := NewSiteChecker(is, c).Valid(&def, x, y, rotation); valid != (tc.want == nil) {
 					t.Fatalf("SiteChecker.Valid = %v, want %v", valid, tc.want == nil)
 				}
-				f := waterSiteFixture{Name: tc.name, Width: def.Width, Height: def.Height, WaterRows: *def.WaterRows, X: x, Y: y, Rotation: rotation, Rows: rows, Quays: quays, Tiles: []waterTileFixture{}}
+				f := waterSiteFixture{Name: tc.name, Width: def.Width, Height: def.Height, WaterRows: *def.WaterRows, X: x, Y: y, Rotation: rotation, Rows: rows, Levels: levels, Quays: quays, Tiles: []waterTileFixture{}}
 				if tc.want != nil {
 					f.Error = tc.want.Error()
 				}
@@ -137,6 +164,9 @@ func TestWaterRows(t *testing.T) {
 						}
 						if !wet && !buildableTerrain(terrain) && !quay {
 							problem = "land"
+						}
+						if problem == "" && !wet && !quay && is.Tile(p.X, p.Y).Level > 0 {
+							problem = "low"
 						}
 						if problem != "" {
 							bad++

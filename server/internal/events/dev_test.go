@@ -122,7 +122,7 @@ func TestDevSchedulerRearms(t *testing.T) {
 	clock := &manualClock{now: worldStart}
 	w := devShipyardWorld(t, c, worldStart)
 	// A far due moment: the first shipyard's order completes in 1 h.
-	if err := sim.Apply(w, c, sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "sloop"}); err != nil {
+	if err := sim.Apply(w, c, sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "cog"}); err != nil {
 		t.Fatal(err)
 	}
 	far := worldStart.Add(time.Hour)
@@ -187,13 +187,13 @@ func TestDevSchedulerRearms(t *testing.T) {
 	}
 	wait(armedFar, "the scheduler never armed for the 1 h order")
 
-	// The second shipyard orders a sloop due in 2 min; it wakes the
+	// The second shipyard orders a cog due in 2 min; it wakes the
 	// scheduler, which re-arms for it (nothing is due at the frozen clock).
 	_, err := mem.Update(ctx, "dev", func(w *sim.World, _ int64, now time.Time) (bool, error) {
 		if _, err := sim.Advance(w, c, now); err != nil {
 			return false, err
 		}
-		return true, sim.Apply(w, c, sim.OrderShip{IslandID: "start", BuildingID: 3, ShipType: "sloop"})
+		return true, sim.Apply(w, c, sim.OrderShip{IslandID: "start", BuildingID: 3, ShipType: "cog"})
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -223,7 +223,7 @@ func TestDevSchedulerRearms(t *testing.T) {
 		ships = len(w.Ships)
 		return false, nil
 	})
-	// The start sloop of the founded dev world plus the built one.
+	// The start cog of the founded dev world plus the built one.
 	if ships != 2 || pub.count() != 1 {
 		t.Fatalf("ships %d, publishes %d", ships, pub.count())
 	}

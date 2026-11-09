@@ -143,6 +143,17 @@ handlers only.
   still need a coast tile (quay counts). Harbour points remain two tiles
   off the **front row**, not the variable water/land boundary (§9).
   Error codes stay `not_on_water`, `terrain` and `occupied`.
+- **Low shore** (D-075 §1): every land tile of a water-edge building
+  (any `water_rows`, the depot's all-land footprint included) is at
+  terrace level 0 (§10), else `needs_low_shore`; cliffs are not pier
+  coasts. Quay tiles are shallows and need no level. The rule holds for
+  `place_building`, plans (placing, moving and building them), `move_building`,
+  `found_island` and the site of `sail_ship`; it is checked after the
+  water rows (`not_on_water`, `terrain`, `occupied` come first) and
+  before the coast and deposit rules. The archipelago generator is
+  unchanged: its island check (two disjoint Trading Post sites, a
+  shipyard site) runs the same placement check, so every generated
+  island still has low-shore sites.
 - **Work area** = a fertility tag only (`work_area.fertility`, above); there
   is no work radius or terrain rule. The efficiency of a building comes
   from its fields:
@@ -625,6 +636,39 @@ then lowest upkeep first so the fewest buildings stop, then lowest ID):
 4. **Ships on routes** (ship anchors at its current stop; cargo stays aboard).
 5. **Tier-1 food** production.
 
+**Supply chains pause last** (D-075 §5): a candidate is skipped while it
+is its island's **last running producer** (not paused) of a good that a
+connected house on the island consumes — any alternative of a goods need
+of the house's tier — **whether the need is met today or not**: without
+it the need would fall below 0.6 (the upgrade gate), so a fisher whose
+catch fills the houses is guarded as much as a weaver whose garments are
+not there yet. The guard is **transitive**: the island's last running
+producer of every input good of a guarded producer (any accepted
+alternative) is guarded too, recursively over the recipes — the sheep
+farm of a guarded weaver, the mill and the wheat farm of a guarded
+bakery — so a guarded producer is never starved by the cascade; content has no
+production cycles. The pause falls on the next candidate; with a second
+running producer of a good the cascade pauses one (the usual order) and
+guards the last, and the walk does not continue through a good with
+two producers. Unconnected houses consume nothing and guard nothing. A
+producer **loses its guard** (and its inputs are not walked) while an
+input is **cut off**: no building on the island produces any accepted
+good of the input slot, running or paused, the island's stock of each
+is zero and none is on its way into the stock (a transit segment not
+yet over). A paused producer of the input keeps the guard (it can
+resume), and so does stock, imported or left over: a weaver without a
+sheep farm stays guarded on shipped-in wool until the stock is empty,
+then the cascade at that instant (a stock-empty boundary) pauses it.
+Cargo aboard a ship does not count until it is unloaded (a boundary).
+Stock only rises from zero with an inflow and falls to zero at a stock
+boundary, so the test is constant between boundaries and splitting an
+advancement cannot change it. The guard is evaluated on the settled
+rates and stock of each cascade step, so it stays deterministic. With only guarded candidates left, D-008's gold floor
+holds: gold is held at zero and the guarded buildings keep running
+unpaid until taxes cover them or their inputs run out (D-009, no ruin).
+Scenarios `supply_chains_pause_last`, `supply_chains_met_need`,
+`supply_guard_import`, `ship_insolvency`, `stall_recovery_auto`.
+
 Never auto-paused: houses, warehouses, roads, shipyard, harbourmaster,
 decorations, and the tier-1 market and chapel. **Never-pausable buildings
 carry no upkeep** (D-046): their running cost is folded into their
@@ -637,7 +681,13 @@ are never paused; when nothing pausable is left their upkeep holds gold
 at zero until taxes cover it (a demolished hub stops its upkeep).
 
 - **Auto-resume**: the candidate is the most recently auto-paused
-  building. It resumes when both hold: (a) gold ≥
+  building or ship, **skipping a producer with a cut-off input** (the
+  test of the supply guard above: no producer of the input on its
+  island, running or paused, no stock, nothing in transit; D-075 §5) —
+  it would only cost upkeep. It is a candidate again once an input
+  producer is built or resumed or stock of the input arrives (the queue
+  is evaluated at every boundary; scenario `ship_insolvency`: the
+  woolless weaver is skipped and the cog gets the trial resume). It resumes when both hold: (a) gold ≥
   `auto_resume_upkeep_minutes` (content, provisional 5; **strictly
   positive** — it is the hysteresis that prevents pause/resume flapping, so
   0 is rejected as invalid content) of its upkeep, and (b) the **full**
@@ -685,7 +735,7 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
 - Building unlocks depend on the player's **global** progress (highest tier
   population reached anywhere), so a new island can immediately use all
   unlocked buildings.
-- **The game starts at sea** (D-051): the player's sloop holds the
+- **The game starts at sea** (D-051): the player's cog holds the
   starting stock; no island is settled, every island can be settled, and
   nothing is gated by tier. Settling an island means sailing there and
   placing the **Trading Post** from the ship (`found_island`): materials
@@ -700,22 +750,22 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
 
 ### 9.1 Ships
 
-- Types (D-056, speeds D-059): *Sloop* (2 slots × 50, speed 1.2, build
-  2 min, tier 2), *Brig* (4 × 50, 1.0, 5 min, tier 3), *Galleon* (6 × 60,
+- Types (D-056, speeds D-059): *Cog* (2 slots × 50, speed 1.2, build
+  2 min, tier 2), *Hulk* (4 × 50, 1.0, 5 min, tier 3), *Carrack* (6 × 60,
   0.85, 10 min, tier 4): small and fast for founding and short hops,
   large and slow for bulk; the ETA uses each ship's speed over the
   routed path length. Later: war ships (D-005). Defined
   in `ships.json`; the shipyard (tier 2, no levels) offers the types
   whose tier is unlocked (`ErrTierLocked` otherwise). The start ship is a
-  sloop; its **founding cargo** (start stock) is exempt from the slot
+  cog; its **founding cargo** (start stock) is exempt from the slot
   limit — slot checks apply only to player loading — and moves to the
   Trading Post at founding (§10).
 - **Length and berth spacing** (display only, D-056 C3): each type has a
-  hull length (`length_tiles`: sloop 2, brig 2.6, galleon 3.2); its
-  ratio to the sloop scales the drawn ship. At a Trading Post or trading
+  hull length (`length_tiles`: cog 2, hulk 2.6, carrack 3.2); its
+  ratio to the cog scales the drawn ship. At a Trading Post or trading
   pier (§9.3) each
   moored ship takes the anchor spacing (1.5 tiles without anchors) ×
-  its ratio along the pier, filling outwards in anchor order, so sloops
+  its ratio along the pier, filling outwards in anchor order, so cogs
   lie exactly on the berth anchors and a longer ship pushes its
   neighbours out instead of overlapping them; ships stay stern-first
   (stern offset × ratio), and the queue waits beyond the longest moored
@@ -730,7 +780,7 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
   `anchored_unpaid`. Insolvency step 4 (§7) applies to **every** ship with
   upkeep, idle ones included: a ship on a leg finishes it, then anchors
   without unloading; it resumes at its arrival stop.
-- **Names** (D-055): a new ship is named "<type name> <id>" ("Sloop 1");
+- **Names** (D-055): a new ship is named "<type name> <id>" ("Cog 1");
   `rename_ship` renames it in any state — trimmed, 1–24 printable runes
   (the island rule), not unique; an empty name restores the default.
 - **Cargo** is stored canonically per good (full slots, then one partial
@@ -744,19 +794,31 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
 - **Sea routing (D-058 §5):** a leg runs from the departure island's
   harbour — 2 tiles out from the middle of its Trading Post's water edge,
   or the nearest open water tile (no land within 1 tile, outside the
-  footprint) when that one is not; an island without one: its water tile
+  footprint) when that one is not; an island without one: its sea-reachable water tile
   next to land nearest the other end; a founding voyage (`sail_ship` with
   the Trading Post's `site`): that site's harbour — to the arrival
   island's, around land: integer A* on a 4-tile sea grid (a cell with
   any land is blocked, and so is a sea cell the open sea cannot reach —
   a bay whose mouth is narrower than a cell, D-072; an end in such a
-  cell reaches the open grid over water tiles), then string pulling with a tile-exact line test that
-  keeps 1 tile of water from land (no way around: the straight line). The leg stores the polyline (`path`, shown
+  cell walks over water tiles to the nearest open cell, first within 24
+  tiles, then anywhere on the grid — a long bay or channel), then string
+  pulling with a tile-exact line test that keeps 1 tile of water from
+  land (within 1 tile of an end point every tile the segment passes,
+  corners included, must be water). When an end reaches no open cell
+  over water (two ends in the same closed lagoon) the leg follows the
+  coast: an A* over the water tiles, pulled the same way. The straight
+  line is kept only when it is clear, or when the ends share no water
+  at all — which the end points rule out: harbours are routable (§3),
+  a shore point is a water tile the open sea reaches (never a closed
+  pool or a tile behind quays), sea positions are former leg ends
+  (polish 8; property test over the archipelagos of seeds 1–50: every
+  island pair and every founding voyage to an island's best site touch
+  no land tile). The leg stores the polyline (`path`, shown
   to the client) and its ETA is the sum of the segments' distances in
   the formula above; route loop times use the same paths.
   Constants in `region.json`: `ship_speed_tiles_per_min` (provisional 60)
   and `ship_handling_seconds` (provisional 20). Two islands 120 tiles
-  apart → 100 s per sloop leg (speed 1.2), 2 min per brig leg.
+  apart → 100 s per cog leg (speed 1.2), 2 min per hulk leg.
 - A ship is never in two places: its `island_id` is cleared at departure
   (not a boundary — no rate changes — but included in `next_change_at` so
   the client never shows a ship at an island it has left) and set at
@@ -889,11 +951,12 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
     Fishing stays sea-only.
   - **Islets** (2–15 tiles, rock with a grass top or bare) lie inside
     an island's grid as unbuildable decor.
-  - **Terraces are visual only:** every land tile has a level 0–2 (the
-    beach at 0, inland higher, rivers stepping down, the plain on one
-    level) and
-    rock tiles a rock height. No tile loses buildability and no placement
-    rule reads them; the client draws plinths, ramps and waterfalls.
+  - **Terraces are visual** except for one rule: every land tile has a
+    level 0–2 (the beach at 0, inland higher, rivers stepping down, the
+    plain on one level) and rock tiles a rock height. No tile loses
+    buildability; the only placement rule that reads levels is the low
+    shore of water-edge buildings (§2, D-075 §1). The client draws
+    plinths, ramps and waterfalls.
 - **Shallows** (D-060): an island's water tiles (not river) within 3
   tiles (Chebyshev) of its own land — islets are not own land — derived
   from the tiles; the ground of quays (§3). D-036 stands: the shallows

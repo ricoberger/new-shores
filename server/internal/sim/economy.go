@@ -18,7 +18,15 @@ import (
 //     (non-paused, upkeep > 0, pause_category != never; every non-paused
 //     ship with upkeep) in the order need_goods < public < intermediate <
 //     ships < food_basic, then building/ship tier descending, upkeep
-//     ascending, ID ascending, until balance >= 0. With no candidate left,
+//     ascending, ID ascending, until balance >= 0. Supply chains pause last
+//     (D-075 §5): a building is skipped while it is its island's last
+//     running producer of a good that a connected house on the island
+//     consumes (any alternative of a goods need of its tier), whether the
+//     need is met today or not — without it the need would fall below 0.6
+//     — and, transitively, while it is the last running producer of an
+//     input of a guarded producer; a producer whose input has no producer
+//     on the island (running or paused) and no stock is not guarded
+//     (supplyGuards). With no candidate left,
 //     gold is held (rate 0) while the condition holds.
 //   - auto-resume (R21): the unpaid building or ship with the highest pause
 //     sequence resumes when (a) gold >= auto_resume_upkeep_minutes x its
@@ -221,7 +229,7 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 		gold := w.goldFine()
 		if wr.balance < 0 && (insolvent || -wr.balance > gold) {
 			insolvent = true
-			if p := pauseCandidate(w, c); p.valid() {
+			if p := pauseCandidate(w, c, wr, now); p.valid() {
 				w.PauseSeq++
 				if p.s != nil {
 					pauseShip(p.s, w.PauseSeq, now)
@@ -235,7 +243,7 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 			if -wr.balance > gold {
 				wr.goldRate = 0
 			}
-		} else if p := resumeCandidate(w); p.valid() {
+		} else if p := resumeCandidate(w, c, now); p.valid() {
 			// After a trial resume no further candidate is resumed at this
 			// instant; the candidate is still evaluated so that its reserve
 			// boundary is scheduled (at the next millisecond if gold already
@@ -298,9 +306,132 @@ func trialThreshold(c *content.Catalogue, upkeep Qty) int64 {
 	return c.Region.Rules.TrialResumeMs * upkeep
 }
 
+// supplyGuards returns the buildings of an island the auto-pause skips
+// (D-075 §5): each is the island's last running (not paused) producer of a
+// good that a connected house on the island consumes, any alternative of
+// a goods need counting, whatever the need's fulfilment today: a met need
+// (stock or arrivals at rate) would still fall below 0.6 without its last
+// producer. The guard is transitive: the last running producer of every
+// input good of a guarded producer (any accepted alternative) is guarded
+// too, recursively over the recipes (content has no production cycles;
+// the visited set ends the walk regardless). A producer is not guarded
+// (and its inputs are not walked) while one of its input slots is cut
+// off (inputCutOff: no producer on the island, running or paused, no
+// stock and nothing in transit); a paused producer of an input keeps the
+// guard (it can resume). Unconnected
+// houses consume nothing and guard nothing. r are the island's settled
+// rates.
+func supplyGuards(is *Island, c *content.Catalogue, r *rates, now int64) map[int64]bool {
+	var queue []string
+	seen := map[string]bool{}
+	add := func(g string) {
+		if !seen[g] {
+			seen[g] = true
+			queue = append(queue, g)
+		}
+	}
+	for _, h := range r.houses {
+		if !h.connected {
+			continue
+		}
+		for _, n := range h.needs {
+			if n.goods == nil {
+				continue
+			}
+			for _, g := range n.need.Goods {
+				add(g.Good)
+			}
+		}
+	}
+	if len(queue) == 0 {
+		return nil
+	}
+	// producers per good: the island's running producers in building
+	// order.
+	producers := map[string][]*Building{}
+	for _, b := range is.Buildings {
+		def := c.BuildingByID[b.Type]
+		if def == nil || def.Recipe == nil || b.Paused {
+			continue
+		}
+		for _, o := range def.Recipe.Outputs {
+			producers[o.Good] = append(producers[o.Good], b)
+		}
+	}
+	cut := newInputCutOff(is, c, now)
+	guards := map[int64]bool{}
+	for len(queue) > 0 {
+		g := queue[0]
+		queue = queue[1:]
+		ps := producers[g]
+		if len(ps) != 1 {
+			continue // none, or a second producer lifts the guard
+		}
+		b := ps[0]
+		if guards[b.ID] || cut.any(c.BuildingByID[b.Type]) {
+			continue
+		}
+		guards[b.ID] = true
+		for _, in := range c.BuildingByID[b.Type].Recipe.Inputs {
+			for _, alt := range in.Goods {
+				add(alt)
+			}
+			add(in.Good)
+		}
+	}
+	return guards
+}
+
+// inputCutOff tells whether an input slot of a recipe is cut off on an
+// island (D-075 §5): no building of the island produces any accepted good
+// of the slot, running or paused, the island's stock of each is zero and
+// none is on its way into the stock (a transit segment not yet over).
+// Cargo aboard ships does not count; it reaches the stock at an unloading,
+// a boundary. The inflow keeps the test piecewise constant between
+// boundaries: stock only rises from zero with an inflow, and it falls to
+// zero at a stock boundary, so splitting an advancement cannot change it
+// (R31).
+type inputCutOff struct {
+	is *Island
+	// available marks the goods any building of the island produces,
+	// running or paused, or has in transit at now.
+	available map[string]bool
+}
+
+func newInputCutOff(is *Island, c *content.Catalogue, now int64) inputCutOff {
+	available := map[string]bool{}
+	for _, b := range is.Buildings {
+		if def := c.BuildingByID[b.Type]; def != nil && def.Recipe != nil {
+			for _, o := range def.Recipe.Outputs {
+				available[o.Good] = true
+			}
+		}
+		for _, seg := range b.Transit {
+			if seg.ToMs > now {
+				available[seg.Good] = true
+			}
+		}
+	}
+	return inputCutOff{is: is, available: available}
+}
+
+func (x inputCutOff) has(g string) bool {
+	return x.available[g] || x.is.Inventory.Stock[g] > 0
+}
+
+func (x inputCutOff) slot(in content.RecipeInput) bool {
+	return !x.has(in.Good) && !slices.ContainsFunc(in.Goods, x.has)
+}
+
+// any reports whether def has a recipe with a cut-off input slot.
+func (x inputCutOff) any(def *content.Building) bool {
+	return def != nil && def.Recipe != nil && slices.ContainsFunc(def.Recipe.Inputs, x.slot)
+}
+
 // pauseCandidate returns the next building or ship to pause for
-// insolvency (invalid target if none).
-func pauseCandidate(w *World, c *content.Catalogue) pauseTarget {
+// insolvency (invalid target if none). wr are the settled rates of the
+// world's islands (supplyGuards).
+func pauseCandidate(w *World, c *content.Catalogue, wr *worldRates, now int64) pauseTarget {
 	type cand struct {
 		p    pauseTarget
 		id   int64
@@ -325,10 +456,14 @@ func pauseCandidate(w *World, c *content.Catalogue) pauseTarget {
 		}
 		return 0
 	}
-	for _, is := range w.Islands {
+	for i, is := range w.Islands {
+		var guards map[int64]bool
+		if wr != nil && i < len(wr.islands) && wr.islands[i] != nil {
+			guards = supplyGuards(is, c, wr.islands[i], now)
+		}
 		for _, b := range is.Buildings {
 			def := c.BuildingByID[b.Type]
-			if def == nil || b.Paused || def.UpkeepAt(b.Level) <= 0 {
+			if def == nil || b.Paused || def.UpkeepAt(b.Level) <= 0 || guards[b.ID] {
 				continue
 			}
 			rank := pauseRank(def.PauseCategory)
@@ -354,15 +489,30 @@ func pauseCandidate(w *World, c *content.Catalogue) pauseTarget {
 }
 
 // resumeCandidate returns the unpaid building or ship with the highest
-// pause sequence number (invalid target if none).
-func resumeCandidate(w *World) pauseTarget {
+// pause sequence number (invalid target if none). A producer with a
+// cut-off input (inputCutOff: no producer of the input on its island,
+// running or paused, no stock and nothing in transit) is skipped: it would only cost upkeep.
+// It is a candidate again once an input producer is built or resumed or
+// stock of the input arrives (the queue is evaluated at every boundary).
+func resumeCandidate(w *World, c *content.Catalogue, now int64) pauseTarget {
 	var best pauseTarget
 	var seq int64
 	for _, is := range w.Islands {
+		var cut *inputCutOff
 		for _, b := range is.Buildings {
-			if b.Paused && b.PausedReason == PausedReasonUnpaid && (!best.valid() || b.PauseSeq > seq) {
-				best, seq = pauseTarget{is: is, b: b}, b.PauseSeq
+			if !b.Paused || b.PausedReason != PausedReasonUnpaid || (best.valid() && b.PauseSeq <= seq) {
+				continue
 			}
+			if def := c.BuildingByID[b.Type]; def != nil && def.Recipe != nil && len(def.Recipe.Inputs) > 0 {
+				if cut == nil {
+					x := newInputCutOff(is, c, now)
+					cut = &x
+				}
+				if cut.any(def) {
+					continue
+				}
+			}
+			best, seq = pauseTarget{is: is, b: b}, b.PauseSeq
 		}
 	}
 	for _, s := range w.Ships {

@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.20.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.21.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 80 {
@@ -135,7 +135,7 @@ func TestLoadOldCoast(t *testing.T) {
 	// the tier-3 chain (C3) and the tier-4 chain (C4), each linear; the
 	// tier-2 chain branches off at intro_settlers_120, the tier-3 chain
 	// follows citizens_cheese, the tier-4 chain merchants_bricks. Rewards in fixed point; only the shipyard quest
-	// gives sails (for the first built sloop, CONTENT §8).
+	// gives sails (for the first built cog, CONTENT §8).
 	if len(c.Quests) < 10 || c.Quests[0].ID != "intro_home_island" || len(c.Quests[0].Prerequisites) != 0 ||
 		c.Quests[0].Objectives[0] != (Objective{Kind: ObjectiveIslandSettled, Min: 1}) || c.Quests[1].ID != "intro_first_road" {
 		t.Fatalf("quests = %+v", c.Quests)
@@ -222,19 +222,19 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 
 	// Ships (CONTENT §7, §8; R-1, R-3; D-056 §9: 2/4/6 slots, the start
-	// sloop first, the others of tiers 3 and 4).
-	if len(c.Ships) != 3 || c.Ships[0].ID != "sloop" {
+	// cog first, the others of tiers 3 and 4).
+	if len(c.Ships) != 3 || c.Ships[0].ID != "cog" {
 		t.Fatalf("ships = %+v", c.Ships)
 	}
-	sloop := c.ShipByID["sloop"]
+	cog := c.ShipByID["cog"]
 	wantCost := Cost{Gold: 100_000, Materials: []GoodAmount{{"planks", 20_000}, {"sails", 10_000}}}
-	if sloop == nil || sloop.Tier != "citizens" || sloop.Slots != 2 || sloop.SlotSize != 50_000 || sloop.SpeedPermille != 1200 ||
-		sloop.BuildMs != 120_000 || sloop.UpkeepPerMin != 1_000 || sloop.Cost.Gold != wantCost.Gold ||
-		len(sloop.Cost.Materials) != 2 || sloop.Cost.Materials[0] != wantCost.Materials[0] || sloop.Cost.Materials[1] != wantCost.Materials[1] {
-		t.Errorf("sloop = %+v", sloop)
+	if cog == nil || cog.Tier != "citizens" || cog.Slots != 2 || cog.SlotSize != 50_000 || cog.SpeedPermille != 1200 ||
+		cog.BuildMs != 120_000 || cog.UpkeepPerMin != 1_000 || cog.Cost.Gold != wantCost.Gold ||
+		len(cog.Cost.Materials) != 2 || cog.Cost.Materials[0] != wantCost.Materials[0] || cog.Cost.Materials[1] != wantCost.Materials[1] {
+		t.Errorf("cog = %+v", cog)
 	}
 	// Hull lengths (display only, CONTENT §11) match the models (assets/voxel/recipes/_ships.py ship length_tiles).
-	for id, want := range map[string]int64{"sloop": 2_000, "brig": 2_600, "galleon": 3_200} {
+	for id, want := range map[string]int64{"cog": 2_000, "hulk": 2_600, "carrack": 3_200} {
 		if sh := c.ShipByID[id]; sh == nil || sh.LengthMilliTiles != want {
 			t.Errorf("%s length = %+v, want %d", id, sh, want)
 		}
@@ -247,9 +247,9 @@ func TestLoadOldCoast(t *testing.T) {
 		tools          Qty
 		speed          int64
 	}{
-		// D-060: the sloop is fast and light, the galleon slow and heavy.
-		{"brig", "merchants", 4, 50_000, 1_500_000, 300_000, 4_000, 10_000, 1000},
-		{"galleon", "patricians", 6, 60_000, 6_000_000, 600_000, 8_000, 30_000, 850},
+		// D-060: the cog is fast and light, the carrack slow and heavy.
+		{"hulk", "merchants", 4, 50_000, 1_500_000, 300_000, 4_000, 10_000, 1000},
+		{"carrack", "patricians", 6, 60_000, 6_000_000, 600_000, 8_000, 30_000, 850},
 	} {
 		s := c.ShipByID[w.id]
 		if s == nil || s.Tier != w.tier || s.Slots != w.slots || s.SlotSize != w.size || s.Cost.Gold != w.gold || s.BuildMs != w.buildMs ||
@@ -258,7 +258,7 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 	}
 	sy := c.BuildingByID["shipyard"]
-	if sy.Shipyard == nil || sy.Tier != "citizens" || strings.Join(sy.Shipyard.Ships, ",") != "sloop,brig,galleon" || sy.Width != 8 || sy.Height != 12 || waterRange(sy).Max != 4 || sy.Coastal || !sy.RequiresRoad ||
+	if sy.Shipyard == nil || sy.Tier != "citizens" || strings.Join(sy.Shipyard.Ships, ",") != "cog,hulk,carrack" || sy.Width != 8 || sy.Height != 12 || waterRange(sy).Max != 4 || sy.Coastal || !sy.RequiresRoad ||
 		sy.Cost.Gold != 300_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 45_000}) ||
 		sy.UpkeepPerMin != 0 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
 		t.Errorf("shipyard = %+v", sy)
@@ -281,7 +281,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Error("fisher recipe/water-edge mismatch")
 	}
 	tp := c.BuildingByID["trading_post"]
-	if tp.TradingPost == nil || waterRange(tp) != (WaterRows{Min: 1, Max: 2}) || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 8_000, Reach: 24, Berths: 1}) {
+	if tp.TradingPost == nil || waterRange(tp) != (WaterRows{Min: 1, Max: 2}) || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 10_000, Reach: 24, Berths: 1}) {
 		t.Errorf("trading post = %+v", tp.TradingPost)
 	}
 	var berths []int
@@ -292,27 +292,27 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("trading post berths = %v", berths)
 	}
 	wh := c.BuildingByID["warehouse"]
-	if wh.Warehouse == nil || waterRange(wh).Max != 0 || wh.Coastal || wh.Tier != "settlers" || wh.Warehouse.Levels[0] != (WarehouseLevel{ThroughputPerMin: 6_000, Reach: 18, UpkeepPerMin: 1_000}) ||
-		len(wh.Warehouse.Levels) != 4 || wh.Warehouse.Levels[3].ThroughputPerMin != 48_000 {
+	if wh.Warehouse == nil || waterRange(wh).Max != 0 || wh.Coastal || wh.Tier != "settlers" || wh.Warehouse.Levels[0] != (WarehouseLevel{ThroughputPerMin: 8_000, Reach: 18, UpkeepPerMin: 1_000}) ||
+		len(wh.Warehouse.Levels) != 4 || wh.Warehouse.Levels[3].ThroughputPerMin != 64_000 {
 		t.Errorf("warehouse = %+v", wh.Warehouse)
 	}
-	// D-069: warehouse throughput 6 / 12 / 24 / 48 (D-074), reach 18 / 21 / 24 /
-	// 27 (D-072), upkeep 1 / 10 / 15 / 25 (level 1 tuned, CONTENT §7), levels 2-4 gated on Citizens /
-	// Merchants / Patricians (D-065); Trading Post throughput 8 / 16 / 32
-	// / 64 (D-074), reach 24 / 28 / 32 / 36 (D-072), upkeep 0 / 10 / 20 / 30; market
+	// D-069: warehouse throughput 8 / 16 / 32 / 64 (D-075), reach 18 / 21 / 24 /
+	// 27 (D-072), upkeep 1 / 5 / 10 / 20 (D-075), levels 2-4 gated on Citizens /
+	// Merchants / Patricians (D-065); Trading Post throughput 10 / 20 / 40
+	// / 80 (D-075), reach 24 / 28 / 32 / 36 (D-072), upkeep 0 / 6 / 12 / 24 (D-075); market
 	// upkeep 0 / 10 / 40 / 60 (level 1 free: CONTENT §7; levels 3-4 ×2, D-072).
 	var whLevels, tpLevels, mkLevels []string
 	for i, l := range wh.Warehouse.Levels {
 		whLevels = append(whLevels, fmt.Sprintf("%d/%d/%d:%s", l.ThroughputPerMin/1000, wh.ReachAt(i+1), wh.UpkeepAt(i+1)/1000, wh.LevelTier(i+1)))
 	}
-	if got := strings.Join(whLevels, " "); got != "6/18/1: 12/21/10:citizens 24/24/15:merchants 48/27/25:patricians" {
+	if got := strings.Join(whLevels, " "); got != "8/18/1: 16/21/5:citizens 32/24/10:merchants 64/27/20:patricians" {
 		t.Errorf("warehouse levels = %s", got)
 	}
 	for i, l := range tp.TradingPost.Levels {
 		tpLevels = append(tpLevels, fmt.Sprintf("%d/%d/%d:%s", l.ThroughputPerMin/1000, tp.ReachAt(i+1), tp.UpkeepAt(i+1)/1000, tp.LevelTier(i+1)))
 	}
 	// The Trading Post's levels 2-4 have the warehouse's tier gate (D-065 extended).
-	if got := strings.Join(tpLevels, " "); got != "8/24/0: 16/28/10:citizens 32/32/20:merchants 64/36/30:patricians" {
+	if got := strings.Join(tpLevels, " "); got != "10/24/0: 20/28/6:citizens 40/32/12:merchants 80/36/24:patricians" {
 		t.Errorf("trading post levels = %s", got)
 	}
 	mk := c.BuildingByID["market"]
@@ -524,44 +524,44 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		{
 			"ship unknown tier", FileShips,
 			[]string{`"tier": "citizens"`, `"tier": "nobles"`},
-			[]string{FileShips, `ship "sloop"`, "tier", `unknown tier "nobles"`},
+			[]string{FileShips, `ship "cog"`, "tier", `unknown tier "nobles"`},
 		},
 		{
 			"ship unknown cost good", FileShips,
 			[]string{`"sails": 10`, `"silk": 10`},
-			[]string{FileShips, `ship "sloop"`, "cost.silk", `unknown good "silk"`},
+			[]string{FileShips, `ship "cog"`, "cost.silk", `unknown good "silk"`},
 		},
 		{
 			"ship wrong region", FileShips,
 			[]string{`"region": "old_coast"`, `"region": "new_world"`},
-			[]string{FileShips, `ship "sloop"`, "region", `must be "old_coast"`},
+			[]string{FileShips, `ship "cog"`, "region", `must be "old_coast"`},
 		},
 		{
 			"ship zero slots", FileShips,
 			[]string{`"slots": 2`, `"slots": 0`},
-			[]string{FileShips, `ship "sloop"`, "schema violation"},
+			[]string{FileShips, `ship "cog"`, "schema violation"},
 		},
 		{
 			"ship unknown field", FileShips,
 			[]string{`"slots": 2`, `"slots": 2, "cannons": 4`},
-			[]string{FileShips, `ship "sloop"`, "schema violation"},
+			[]string{FileShips, `ship "cog"`, "schema violation"},
 		},
 		{
 			"ship duplicate", FileShips,
 			[]string{`[
   {`, `[
-  { "id": "sloop", "name": "Sloop", "region": "old_coast", "tier": "settlers", "slots": 1, "slot_size": 1, "speed": 1, "build_seconds": 1, "cost": {}, "upkeep_per_min": 0 },
+  { "id": "cog", "name": "Cog", "region": "old_coast", "tier": "settlers", "slots": 1, "slot_size": 1, "speed": 1, "build_seconds": 1, "cost": {}, "upkeep_per_min": 0 },
   {`},
-			[]string{FileShips, `ship "sloop"`, "duplicate ID"},
+			[]string{FileShips, `ship "cog"`, "duplicate ID"},
 		},
 		{
 			"shipyard unknown ship", FileBuildings,
-			[]string{`"ships": ["sloop", "brig", "galleon"]`, `"ships": ["frigate"]`},
+			[]string{`"ships": ["cog", "hulk", "carrack"]`, `"ships": ["frigate"]`},
 			[]string{FileBuildings, `building "shipyard"`, "shipyard.ships[0]", `unknown ship "frigate"`},
 		},
 		{
 			"shipyard without ships", FileBuildings,
-			[]string{`"ships": ["sloop", "brig", "galleon"]`, `"ships": []`},
+			[]string{`"ships": ["cog", "hulk", "carrack"]`, `"ships": []`},
 			[]string{FileBuildings, `building "shipyard"`, "schema violation"},
 		},
 		{
@@ -581,6 +581,23 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
     "upkeep_per_min": 0,`, `"cost": { "gold": 100, "planks": 6 },
     "upkeep_per_min": 3,`},
 			[]string{FileBuildings, `building "chapel"`, "upkeep_per_min", "must be 0 for pause_category never"},
+		},
+		{
+			"unknown look", FileBuildings,
+			[]string{`"pause_category": "never",
+    "look": "civic",
+    "service": { "chain": "faith"`, `"pause_category": "never",
+    "look": "palace",
+    "service": { "chain": "faith"`},
+			[]string{FileBuildings, "schema violation"},
+		},
+		{
+			"missing look", FileBuildings,
+			[]string{`"pause_category": "never",
+    "look": "civic",
+    "service": { "chain": "faith"`, `"pause_category": "never",
+    "service": { "chain": "faith"`},
+			[]string{FileBuildings, "schema violation", "missing property 'look'"},
 		},
 		{
 			"smoke on a public building", FileBuildings,
@@ -640,8 +657,8 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"quest unknown ship type", FileQuests,
-			[]string{`{ "kind": "ship_count", "type": "galleon", "min": 1 }`, `{ "kind": "ship_count", "type": "frigate", "min": 1 }`},
-			[]string{FileQuests, `quest "patricians_galleon"`, "objectives[0].type", `unknown ship type "frigate"`},
+			[]string{`{ "kind": "ship_count", "type": "carrack", "min": 1 }`, `{ "kind": "ship_count", "type": "frigate", "min": 1 }`},
+			[]string{FileQuests, `quest "patricians_carrack"`, "objectives[0].type", `unknown ship type "frigate"`},
 		},
 		{
 			"quest unknown tier", FileQuests,
@@ -785,15 +802,15 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"collector reach shrinks", FileBuildings,
-			[]string{`"throughput_per_min": 12,
-          "reach": 21,`, `"throughput_per_min": 12,
+			[]string{`"throughput_per_min": 16,
+          "reach": 21,`, `"throughput_per_min": 16,
           "reach": 16,`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[1].reach", "previous level"},
 		},
 		{
 			"collector reach on some levels only", FileBuildings,
-			[]string{`"throughput_per_min": 12,
-          "reach": 21,`, `"throughput_per_min": 12,`},
+			[]string{`"throughput_per_min": 16,
+          "reach": 21,`, `"throughput_per_min": 16,`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels", "every level or on none"},
 		},
 		{
@@ -803,7 +820,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"level upkeep differs from the building's", FileBuildings,
-			[]string{`{ "throughput_per_min": 6, "reach": 18, "upkeep_per_min": 1 }`, `{ "throughput_per_min": 6, "reach": 18, "upkeep_per_min": 4 }`},
+			[]string{`{ "throughput_per_min": 8, "reach": 18, "upkeep_per_min": 1 }`, `{ "throughput_per_min": 8, "reach": 18, "upkeep_per_min": 4 }`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[0].upkeep_per_min", "level 1"},
 		},
 		{
@@ -1280,6 +1297,62 @@ func TestRetiredIDsAreNotReused(t *testing.T) {
 	for id, r := range map[string]int{"city_guard": 26, "fire_station": 22} {
 		if b := c.BuildingByID[id]; b.Upgradable() || len(b.Service.Levels) != 1 || b.Service.RadiusAt(1) != r {
 			t.Errorf("%s = %+v, want one radius %d and no upgrade (D-065, D-072)", id, b.Service, r)
+		}
+	}
+}
+
+// TestBuildingLooks (D-075 §3): every building names who works it — rural
+// producers wear the tier-1 look whatever their tier, workshops the
+// tier-2 look, civic and harbour buildings the unlock-tier ladder.
+// Fields, plots and roads are rural (no exemption: one rule); the quay
+// is harbour; the charcoal burner is rural although it burns wood.
+func TestBuildingLooks(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{
+		"lumberjack": LookRural, "tree_plot": LookRural, "wheat_farm": LookRural, "wheat_field": LookRural,
+		"apiary": LookRural, "orchard": LookRural, "hemp_farm": LookRural, "dairy_farm": LookRural,
+		"pig_farm": LookRural, "quarry": LookRural, "iron_mine": LookRural, "gold_mine": LookRural,
+		"charcoal_burner": LookRural, "cattle_farm": LookRural, "vineyard": LookRural, "fisher": LookRural,
+		"road_dirt": LookRural, "road_paved": LookRural,
+		"sawmill": LookWorkshop, "weaver_wool": LookWorkshop, "mill": LookWorkshop, "bakery": LookWorkshop,
+		"cidery": LookWorkshop, "meadery": LookWorkshop, "tannery": LookWorkshop, "sailmaker": LookWorkshop,
+		"smelter": LookWorkshop, "toolmaker": LookWorkshop, "brewery": LookWorkshop, "goldsmith": LookWorkshop,
+		"house_settlers": LookCivic, "house_patricians": LookCivic, "chapel": LookCivic, "cathedral": LookCivic,
+		"school": LookCivic, "university": LookCivic, "tavern": LookCivic, "playhouse": LookCivic,
+		"city_guard": LookCivic, "fire_station": LookCivic, "surgery": LookCivic, "market": LookCivic,
+		"trading_post": LookHarbour, "warehouse": LookHarbour, "shipyard": LookHarbour,
+		"trading_pier": LookHarbour, "depot": LookHarbour, "quay": LookHarbour,
+	}
+	for id, look := range want {
+		if b := c.BuildingByID[id]; b == nil || b.Look != look {
+			t.Errorf("%s look = %v, want %s", id, b, look)
+		}
+	}
+	for _, b := range c.Buildings {
+		switch {
+		case b.Road != nil && b.Road.Shallows:
+			if b.Look != LookHarbour {
+				t.Errorf("%s (quay) look %q, want harbour", b.ID, b.Look)
+			}
+		case b.Field != nil || b.Road != nil:
+			if b.Look != LookRural {
+				t.Errorf("%s (field or road) look %q, want rural", b.ID, b.Look)
+			}
+		case b.House != nil || b.Service != nil:
+			if b.Look != LookCivic {
+				t.Errorf("%s (house or service) look %q, want civic", b.ID, b.Look)
+			}
+		case b.Collector() || b.Pier != nil || b.Depot != nil || b.Shipyard != nil:
+			if b.Look != LookHarbour {
+				t.Errorf("%s (harbour) look %q, want harbour", b.ID, b.Look)
+			}
+		case b.Recipe != nil && len(b.Recipe.Inputs) > 0 && b.ID != "charcoal_burner":
+			if b.Look != LookWorkshop {
+				t.Errorf("%s (processes inputs) look %q, want workshop", b.ID, b.Look)
+			}
 		}
 	}
 }

@@ -261,7 +261,7 @@ the build.
   `make check`): determinism, one model per content ID, placeholders,
   budgets, footprint fit, anchors and the 24 MiB folder limit.
 - **Looking at the result** (git-ignored, under `.experiment/`):
-  `make model-sheet RECIPE=sawmill,sloop` renders a contact sheet of the
+  `make model-sheet RECIPE=sawmill,cog` renders a contact sheet of the
   named models (every variant, level and attachment) to
   `.experiment/sheets/<ids>.png`; the committed models and thumbnails stay
   untouched; without `RECIPE` it lists the model IDs. `make shots` writes `<fixture>-<view>-<device>.png` into
@@ -271,7 +271,7 @@ the build.
   `FIXTURE=`, `VIEW=`, `DEVICE=` (comma lists or `all`) and move the camera
   with `ROTATION=0..3`, `ISLAND=`, `ZOOM=` (half extent), `X= Y=`; `HUD=0`
   hides the HUD, `OUT=` sets the directory. `make shots PRESET=all` takes
-  the HUD states instead (`info-panel`, `sheet`, `ghost`, `sloop`). The
+  the HUD states instead (`info-panel`, `sheet`, `ghost`, `cog`). The
   scene has no screenshot baselines.
 
 ## Tech stack at a glance

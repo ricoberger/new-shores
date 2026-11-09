@@ -215,7 +215,7 @@ describe("moorings at the Trading Post's pier", () => {
     // Drawn hulls: 0.444 lengths wide (the models' beam), a reference ship 5 tiles long with its stern 2.35 tiles behind the origin (DOCK_STERN).
     const stern = 2.35;
     const beam = (r: number) => 0.444 * 5 * r;
-    const ratios = [1, 1.3, 1.6]; // sloop, brig, galleon (length_tiles 2, 2.6, 3.2)
+    const ratios = [1, 1.3, 1.6]; // cog, hulk, carrack (length_tiles 2, 2.6, 3.2)
     for (let berths = 1; berths <= 4; berths++) {
       const combos: number[][] = [[]];
       for (let k = 0; k < berths; k++) combos.splice(0, combos.length, ...combos.flatMap((c) => ratios.map((r) => [...c, r])));
@@ -244,12 +244,12 @@ describe("moorings at the Trading Post's pier", () => {
       }
     }
     // Reference-length ships lie exactly on the anchors (unchanged from berthDock).
-    const sloops = pierLayout(pier, 0, [1, 1, 1, 1], [], 2).moored;
-    sloops.forEach((d, i) => expect(d).toEqual(berthDock(pier, 0, i, false, 2)));
-    expect(sloops[0]!.point.x - Math.cos(sloops[0]!.heading) * 2).toBeCloseTo(-0.75);
-    // A brig in the first slot pushes the third ship (same side) outwards.
+    const cogs = pierLayout(pier, 0, [1, 1, 1, 1], [], 2).moored;
+    cogs.forEach((d, i) => expect(d).toEqual(berthDock(pier, 0, i, false, 2)));
+    expect(cogs[0]!.point.x - Math.cos(cogs[0]!.heading) * 2).toBeCloseTo(-0.75);
+    // A hulk in the first slot pushes the third ship (same side) outwards.
     const mixed = pierLayout(pier, 0, [1.3, 1, 1], [], 2).moored;
-    expect(mixed[2]!.point.x).toBeLessThan(sloops[2]!.point.x);
+    expect(mixed[2]!.point.x).toBeLessThan(cogs[2]!.point.x);
     expect(shipLengthRatio({ length_milli_tiles: 2_600 })).toBeCloseTo(1.3);
     expect(shipLengthRatio({})).toBe(1);
   });

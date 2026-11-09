@@ -1,9 +1,9 @@
 {
   "scenario": "ship_insolvency",
   "base": {
-    "evaluated_at": "2026-01-01T01:16:20.000Z",
-    "next_change_at": "2026-01-01T02:17:26.818Z",
-    "gold": 19556,
+    "evaluated_at": "2026-01-01T01:41:20.000Z",
+    "next_change_at": "2026-01-01T03:04:25.342Z",
+    "gold": 26588,
     "balance_rate_per_min": -320,
     "tax_rate_per_min": 1680,
     "upkeep_rate_per_min": 2000,
@@ -84,7 +84,7 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 111526,
+            "stock": 108526,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": -120,
@@ -126,7 +126,7 @@
             "in_transit_rate_per_min": 0
           },
           "planks": {
-            "stock": 124001,
+            "stock": 174001,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -161,21 +161,21 @@
             "in_transit_rate_per_min": 0
           },
           "wood": {
-            "stock": 206,
+            "stock": 50206,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
             "in_transit_rate_per_min": 0
           },
           "wool": {
-            "stock": 244,
+            "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 55766,
+            "stock": 65846,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": -60,
@@ -413,7 +413,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 3,
+            "cycle_progress_permille": 583,
             "transfer_delay_ms": 28000,
             "assigned_warehouse_id": 1,
             "road_distance": 18,
@@ -714,32 +714,20 @@
     "ships": [
       {
         "id": 1,
-        "type": "sloop",
-        "name": "Sloop 1",
+        "type": "cog",
+        "name": "Cog 1",
         "state": "idle",
-        "island_id": "island2",
+        "island_id": "start",
         "route_id": 0,
         "stop_index": 0,
         "leg": null,
-        "cargo": [
-          {
-            "good": "planks",
-            "amount": 50000
-          },
-          {
-            "good": "wood",
-            "amount": 50000
-          }
-        ],
+        "cargo": [],
         "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": "",
-        "position": {
-          "x": 37,
-          "y": 48
-        },
+        "position": null,
         "queued_at": null,
         "berth_until": null
       }
@@ -790,15 +778,15 @@
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T00:46:20.000Z"
+    "last_seen_at": "2026-01-01T01:36:20.000Z"
   },
   "samples": [
     {
       "offset_ms": 250,
       "display": {
-        "evaluated_at": "2026-01-01T01:16:20.250Z",
-        "next_change_at": "2026-01-01T02:17:26.818Z",
-        "gold": 19555,
+        "evaluated_at": "2026-01-01T01:41:20.250Z",
+        "next_change_at": "2026-01-01T03:04:25.342Z",
+        "gold": 26587,
         "balance_rate_per_min": -320,
         "tax_rate_per_min": 1680,
         "upkeep_rate_per_min": 2000,
@@ -879,7 +867,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 111525,
+                "stock": 108525,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -120,
@@ -921,7 +909,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124001,
+                "stock": 174001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -956,21 +944,21 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 206,
+                "stock": 50206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
-                "stock": 244,
+                "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 55766,
+                "stock": 65846,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -60,
@@ -1208,7 +1196,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 3,
+                "cycle_progress_permille": 583,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
@@ -1509,32 +1497,20 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "idle",
-            "island_id": "island2",
+            "island_id": "start",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
-            "cargo": [
-              {
-                "good": "planks",
-                "amount": 50000
-              },
-              {
-                "good": "wood",
-                "amount": 50000
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
-            "position": {
-              "x": 37,
-              "y": 48
-            },
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -1585,15 +1561,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:46:20.000Z"
+        "last_seen_at": "2026-01-01T01:36:20.000Z"
       }
     },
     {
       "offset_ms": 1000,
       "display": {
-        "evaluated_at": "2026-01-01T01:16:21.000Z",
-        "next_change_at": "2026-01-01T02:17:26.818Z",
-        "gold": 19551,
+        "evaluated_at": "2026-01-01T01:41:21.000Z",
+        "next_change_at": "2026-01-01T03:04:25.342Z",
+        "gold": 26583,
         "balance_rate_per_min": -320,
         "tax_rate_per_min": 1680,
         "upkeep_rate_per_min": 2000,
@@ -1674,7 +1650,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 111524,
+                "stock": 108524,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -120,
@@ -1716,7 +1692,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124001,
+                "stock": 174001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -1751,21 +1727,21 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 206,
+                "stock": 50206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
-                "stock": 244,
+                "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 55765,
+                "stock": 65845,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -60,
@@ -2003,7 +1979,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 3,
+                "cycle_progress_permille": 583,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
@@ -2304,32 +2280,20 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "idle",
-            "island_id": "island2",
+            "island_id": "start",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
-            "cargo": [
-              {
-                "good": "planks",
-                "amount": 50000
-              },
-              {
-                "good": "wood",
-                "amount": 50000
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
-            "position": {
-              "x": 37,
-              "y": 48
-            },
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -2380,15 +2344,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:46:20.000Z"
+        "last_seen_at": "2026-01-01T01:36:20.000Z"
       }
     },
     {
       "offset_ms": 5000,
       "display": {
-        "evaluated_at": "2026-01-01T01:16:25.000Z",
-        "next_change_at": "2026-01-01T02:17:26.818Z",
-        "gold": 19529,
+        "evaluated_at": "2026-01-01T01:41:25.000Z",
+        "next_change_at": "2026-01-01T03:04:25.342Z",
+        "gold": 26561,
         "balance_rate_per_min": -320,
         "tax_rate_per_min": 1680,
         "upkeep_rate_per_min": 2000,
@@ -2469,7 +2433,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 111516,
+                "stock": 108516,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -120,
@@ -2511,7 +2475,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124001,
+                "stock": 174001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -2546,21 +2510,21 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 206,
+                "stock": 50206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
-                "stock": 244,
+                "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 55761,
+                "stock": 65841,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -60,
@@ -2798,7 +2762,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 3,
+                "cycle_progress_permille": 583,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
@@ -3099,32 +3063,20 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "idle",
-            "island_id": "island2",
+            "island_id": "start",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
-            "cargo": [
-              {
-                "good": "planks",
-                "amount": 50000
-              },
-              {
-                "good": "wood",
-                "amount": 50000
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
-            "position": {
-              "x": 37,
-              "y": 48
-            },
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -3175,15 +3127,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:46:20.000Z"
+        "last_seen_at": "2026-01-01T01:36:20.000Z"
       }
     },
     {
       "offset_ms": 30000,
       "display": {
-        "evaluated_at": "2026-01-01T01:16:50.000Z",
-        "next_change_at": "2026-01-01T02:17:26.818Z",
-        "gold": 19396,
+        "evaluated_at": "2026-01-01T01:41:50.000Z",
+        "next_change_at": "2026-01-01T03:04:25.342Z",
+        "gold": 26428,
         "balance_rate_per_min": -320,
         "tax_rate_per_min": 1680,
         "upkeep_rate_per_min": 2000,
@@ -3264,7 +3216,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 111466,
+                "stock": 108466,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -120,
@@ -3306,7 +3258,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124001,
+                "stock": 174001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -3341,21 +3293,21 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 206,
+                "stock": 50206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
-                "stock": 244,
+                "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 55736,
+                "stock": 65816,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -60,
@@ -3593,7 +3545,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 3,
+                "cycle_progress_permille": 583,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
@@ -3894,32 +3846,20 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "idle",
-            "island_id": "island2",
+            "island_id": "start",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
-            "cargo": [
-              {
-                "good": "planks",
-                "amount": 50000
-              },
-              {
-                "good": "wood",
-                "amount": 50000
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
-            "position": {
-              "x": 37,
-              "y": 48
-            },
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -3970,15 +3910,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:46:20.000Z"
+        "last_seen_at": "2026-01-01T01:36:20.000Z"
       }
     },
     {
       "offset_ms": 300000,
       "display": {
-        "evaluated_at": "2026-01-01T01:21:20.000Z",
-        "next_change_at": "2026-01-01T02:17:26.818Z",
-        "gold": 17956,
+        "evaluated_at": "2026-01-01T01:46:20.000Z",
+        "next_change_at": "2026-01-01T03:04:25.342Z",
+        "gold": 24988,
         "balance_rate_per_min": -320,
         "tax_rate_per_min": 1680,
         "upkeep_rate_per_min": 2000,
@@ -4059,7 +3999,7 @@
                 "in_transit_rate_per_min": 0
               },
               "fish": {
-                "stock": 110926,
+                "stock": 107926,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -120,
@@ -4101,7 +4041,7 @@
                 "in_transit_rate_per_min": 0
               },
               "planks": {
-                "stock": 124001,
+                "stock": 174001,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -4136,21 +4076,21 @@
                 "in_transit_rate_per_min": 0
               },
               "wood": {
-                "stock": 206,
+                "stock": 50206,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool": {
-                "stock": 244,
+                "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 55466,
+                "stock": 65546,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": -60,
@@ -4388,7 +4328,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 3,
+                "cycle_progress_permille": 583,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
@@ -4689,32 +4629,20 @@
         "ships": [
           {
             "id": 1,
-            "type": "sloop",
-            "name": "Sloop 1",
+            "type": "cog",
+            "name": "Cog 1",
             "state": "idle",
-            "island_id": "island2",
+            "island_id": "start",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
-            "cargo": [
-              {
-                "good": "planks",
-                "amount": 50000
-              },
-              {
-                "good": "wood",
-                "amount": 50000
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
-            "position": {
-              "x": 37,
-              "y": 48
-            },
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -4765,7 +4693,7 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:46:20.000Z"
+        "last_seen_at": "2026-01-01T01:36:20.000Z"
       }
     }
   ]

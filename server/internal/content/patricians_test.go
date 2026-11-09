@@ -229,7 +229,7 @@ func TestTierFourMatchesPlannedModels(t *testing.T) {
 // ladder (D-056 C4, CONTENT §2): five goods categories at 0.14 each with
 // two alternatives, services 0.3 with university and cathedral, the three
 // lower tiers' categories at the cumulative rates, and the tier's
-// infrastructure (market level 3, trading post level 4, galleon).
+// infrastructure (market level 3, trading post level 4, carrack).
 func TestLoadPatriciansNeeds(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
@@ -346,16 +346,16 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 	if tp := c.BuildingByID["trading_post"]; tp.LevelCount() != 4 || fmt.Sprint(tp.LevelCost(4).Gold, tp.LevelCost(4).Materials) != "1200000 [{planks 40000} {stone 30000} {tools 10000}]" {
 		t.Errorf("trading_post level 4 = %+v", tp.LevelCost(4))
 	}
-	// The galleon is the Patricians' ship, built at the shipyard.
-	if g := c.ShipByID["galleon"]; g == nil || g.Tier != "patricians" || g.Slots != 6 || g.SlotSize != 60_000 || g.LengthMilliTiles != 3200 ||
-		!slices.Contains(c.BuildingByID["shipyard"].Shipyard.Ships, "galleon") {
-		t.Errorf("galleon = %+v", g)
+	// The carrack is the Patricians' ship, built at the shipyard.
+	if g := c.ShipByID["carrack"]; g == nil || g.Tier != "patricians" || g.Slots != 6 || g.SlotSize != 60_000 || g.LengthMilliTiles != 3200 ||
+		!slices.Contains(c.BuildingByID["shipyard"].Shipyard.Ships, "carrack") {
+		t.Errorf("carrack = %+v", g)
 	}
 }
 
 // TestPatriciansQuests pins the tier-4 quest chain (D-056 C4): cathedral
 // at the Patricians' unlock, first Patrician house, both food and both
-// drink alternatives, stored glass and a galleon (a per-type ship_count),
+// drink alternatives, stored glass and a carrack (a per-type ship_count),
 // with modest gold rewards only (D-022).
 func TestPatriciansQuests(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
@@ -368,7 +368,7 @@ func TestPatriciansQuests(t *testing.T) {
 		"patricians_food":      "connected:slaughterhouse:0 connected:oyster_house:0",
 		"patricians_drink":     "connected:winepress:0 connected:grain_distillery:0",
 		"patricians_glass":     "stock:glass:30000",
-		"patricians_galleon":   "ship_count:galleon:1",
+		"patricians_carrack":   "ship_count:carrack:1",
 	}
 	n := 0
 	for _, q := range c.Quests {
@@ -391,7 +391,7 @@ func TestPatriciansQuests(t *testing.T) {
 		t.Errorf("%d patricians quests, want %d", n, len(want))
 	}
 	// The earlier chains keep counting every ship.
-	for _, id := range []string{"citizens_sloop", "merchants_brig"} {
+	for _, id := range []string{"citizens_cog", "merchants_hulk"} {
 		if q := c.QuestByID[id]; q == nil || q.Objectives[0].Kind != ObjectiveShipCount || q.Objectives[0].Ship != "" {
 			t.Errorf("%s = %+v", id, q)
 		}

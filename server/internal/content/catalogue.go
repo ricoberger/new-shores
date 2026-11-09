@@ -29,6 +29,21 @@ const (
 	WeightScale = 1_000_000
 )
 
+// Looks of a building (D-075 §3): who works it, which sets its art.
+const (
+	// LookRural wears the tier-1 look whatever the tier: farms, fields,
+	// plots, fishers, mines, quarries, the charcoal burner, roads.
+	LookRural = "rural"
+	// LookWorkshop wears the tier-2 look: processing buildings.
+	LookWorkshop = "workshop"
+	// LookCivic follows the unlock-tier ladder: houses, public buildings,
+	// the market.
+	LookCivic = "civic"
+	// LookHarbour follows the unlock-tier ladder: Trading Post, warehouse,
+	// shipyard, quay, trading pier, depot.
+	LookHarbour = "harbour"
+)
+
 // Terrain types of island tiles (MECHANICS §2).
 const (
 	TerrainWater    = "water"
@@ -278,6 +293,9 @@ type Building struct {
 	// UpkeepPerMin is in milli-gold per minute.
 	UpkeepPerMin  Qty
 	PauseCategory string
+	// Look is who works the building, which sets its art (D-075 §3; one
+	// of the Look* constants, no gameplay effect).
+	Look string
 
 	Recipe *Recipe
 	House  *House

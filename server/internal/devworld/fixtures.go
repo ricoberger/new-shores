@@ -25,7 +25,7 @@ import (
 //     settled, the start ship at sea with the starting stock.
 //   - default: the home candidate (the archipelago's first island)
 //     founded from the start ship at its roomiest Trading Post site; the
-//     sloop idle there.
+//     cog idle there.
 //   - town: default plus FixtureGold, a street inland from the Trading
 //     Post, a connected lumberjack with its 24 tree plots painted in one
 //     place_fields drag (D-059) and a sawmill, four settler houses (one
@@ -33,10 +33,10 @@ import (
 //     claimed, and a sheep farm with its three 3x3 pastures painted in
 //     one place_fields drag (D-054).
 //   - settled: town plus the citizens tier (granted; the shipyard is tier
-//     2, D-056), a shipyard on the coast, a second sloop (ship 2),
+//     2, D-056), a shipyard on the coast, a second cog (ship 2),
 //     the nearest habitable island founded by it (Trading Post, street,
 //     two houses, a fisher) and ship 2 sailing the route "Fish home"; the
-//     start sloop (ship 1) idle at the home island.
+//     start cog (ship 1) idle at the home island.
 //   - citizens: town with the citizens tier unlocked and a wheat farm
 //     without fields on the home island, at a site where its 140 wheat
 //     fields fit in one drag, with the gold and materials for them (the
@@ -45,8 +45,8 @@ import (
 //   - merchants: town plus the citizens and merchants tiers (granted),
 //     the services ladder up to the church with the market at level 2,
 //     four Merchant houses (seeded: houses of a later tier only appear by
-//     upgrading), a butcher, a pastry kitchen and a shipyard with a brig;
-//     the brig founds the nearest island with a clay deposit (Trading
+//     upgrading), a butcher, a pastry kitchen and a shipyard with a hulk;
+//     the hulk founds the nearest island with a clay deposit (Trading
 //     Post, street, clay pit on the slot, brickworks) and sails the route
 //     "Bricks home". A seed without a clay deposit is an error (every
 //     seed of the shipped content has one, DevSeed included).
@@ -54,7 +54,7 @@ import (
 //     services ladder to the cathedral with the market at level 3, two
 //     Merchant houses and a Patrician house (seeded), the roast-beef chain
 //     on the home island (cattle farm with its five pastures, salt pans,
-//     slaughterhouse) and a galleon that founds the nearest island with a
+//     slaughterhouse) and a carrack that founds the nearest island with a
 //     quartz deposit (Trading Post, street, lumberjack with its tree
 //     plots, charcoal burner, quartz quarry on the slot, glass smelter)
 //     and sails the route "Glass home". A seed without a quartz deposit
@@ -86,7 +86,7 @@ func Fixtures() []string {
 }
 
 // History of the fixtures before now (world time): long enough for the
-// voyages from the spawn and between islands, the planks, the sloop and
+// voyages from the spawn and between islands, the planks, the cog and
 // the first fish the layouts need.
 const (
 	foundHistory     = 20 * time.Minute
@@ -94,13 +94,13 @@ const (
 	settledHistory   = townHistory + 60*time.Minute
 	citizensHistory  = townHistory + 2*time.Minute
 	merchantsHistory = townHistory + 60*time.Minute
-	// patriciansHistory: the galleon's 10 min build and a longer voyage.
+	// patriciansHistory: the carrack's 10 min build and a longer voyage.
 	patriciansHistory = townHistory + 90*time.Minute
 )
 
 // FixtureGold (milli-gold) is granted to the town and settled fixtures, so
 // that a shot session on them never runs into insolvency while it adds
-// upkeep (a shipyard, the sloop, island 2).
+// upkeep (a shipyard, the cog, island 2).
 const FixtureGold = 3_000_000
 
 // NewFixture builds the named dev fixture on the archipelago of seed
@@ -250,7 +250,7 @@ func town(f *fixture) {
 	f.advance(time.Minute)
 }
 
-// settle builds a shipyard and a sloop and settles the nearest habitable
+// settle builds a shipyard and a cog and settles the nearest habitable
 // island with it. The shipyard is a tier-2 building (D-056), so the
 // citizens tier is granted first, as in the citizens fixture.
 func settle(f *fixture) {
@@ -265,13 +265,13 @@ func settle(f *fixture) {
 	if f.err != nil {
 		return
 	}
-	// The start stock carries no sails (D-074): the sloop's cost is
-	// granted, like the brig's and the galleon's.
-	f.grant(home, &f.c.ShipByID["sloop"].Cost)
-	f.apply(sim.OrderShip{IslandID: home, BuildingID: yard, ShipType: "sloop"})
+	// The start stock carries no sails (D-074): the cog's cost is
+	// granted, like the hulk's and the carrack's.
+	f.grant(home, &f.c.ShipByID["cog"].Cost)
+	f.apply(sim.OrderShip{IslandID: home, BuildingID: yard, ShipType: "cog"})
 	f.advance(2*time.Minute + 10*time.Second)
 	if f.err == nil && (len(f.w.Ships) != 2 || f.w.Ships[1].State != sim.ShipIdle) {
-		f.err = errors.New("the sloop is not idle after its build time")
+		f.err = errors.New("the cog is not idle after its build time")
 		return
 	}
 	if f.err != nil {
@@ -358,7 +358,7 @@ func citizens(f *fixture) {
 const (
 	merchantsTier    = "merchants"
 	merchantsHouse   = "house_merchants"
-	merchantsShip    = "brig"
+	merchantsShip    = "hulk"
 	merchantsDeposit = "clay"
 	// merchantsGold (milli-gold) is granted on top of FixtureGold.
 	merchantsGold = 5_000_000
@@ -367,10 +367,10 @@ const (
 // merchants unlocks the citizens and merchants tiers (granted, like the
 // gold), builds the services up to the church and four seeded Merchant
 // houses on the home island, a butcher and a pastry kitchen, and a
-// shipyard (placed first) whose brig founds the nearest island with a
+// shipyard (placed first) whose hulk founds the nearest island with a
 // clay deposit and then sails bricks home. Every charged placement gets its cost granted
 // first, and merchantsGold covers the larger upkeep (services, workshops,
-// the brig) for well over an hour.
+// the hulk) for well over an hour.
 func merchants(f *fixture) {
 	if f.err != nil {
 		return
@@ -410,12 +410,12 @@ func merchants(f *fixture) {
 	if f.err != nil {
 		return
 	}
-	brig := f.c.ShipByID[merchantsShip]
-	f.grant(home, &brig.Cost)
+	hulk := f.c.ShipByID[merchantsShip]
+	f.grant(home, &hulk.Cost)
 	f.apply(sim.OrderShip{IslandID: home, BuildingID: yard, ShipType: merchantsShip})
-	f.advance(time.Duration(brig.BuildMs)*time.Millisecond + 10*time.Second)
+	f.advance(time.Duration(hulk.BuildMs)*time.Millisecond + 10*time.Second)
 	if f.err == nil && (len(f.w.Ships) != 2 || f.w.Ships[1].Type != merchantsShip || f.w.Ships[1].State != sim.ShipIdle) {
-		f.err = errors.New("the brig is not idle after its build time")
+		f.err = errors.New("the hulk is not idle after its build time")
 	}
 	if f.err != nil {
 		return
@@ -452,7 +452,7 @@ func merchants(f *fixture) {
 const (
 	patriciansTier    = "patricians"
 	patriciansHouse   = "house_patricians"
-	patriciansShip    = "galleon"
+	patriciansShip    = "carrack"
 	patriciansDeposit = "quartz"
 	// patriciansGold (milli-gold) is granted on top of FixtureGold: the
 	// university and cathedral alone cost 110 000 gold.
@@ -464,7 +464,7 @@ const (
 // market at level 3, two seeded Merchant houses and a seeded Patrician
 // house, and the roast-beef chain on the home island (cattle farm with
 // its pastures, salt pans on the coast, slaughterhouse); a shipyard's
-// galleon founds the nearest island with a quartz deposit, builds the
+// carrack founds the nearest island with a quartz deposit, builds the
 // glass chain there (lumberjack with its tree plots, charcoal burner,
 // quartz quarry on the slot, glass smelter) and sails glass home. Every charged placement gets
 // its cost granted first.
@@ -515,12 +515,12 @@ func patricians(f *fixture) {
 	if f.err != nil {
 		return
 	}
-	galleon := f.c.ShipByID[patriciansShip]
-	f.grant(home, &galleon.Cost)
+	carrack := f.c.ShipByID[patriciansShip]
+	f.grant(home, &carrack.Cost)
 	f.apply(sim.OrderShip{IslandID: home, BuildingID: yard, ShipType: patriciansShip})
-	f.advance(time.Duration(galleon.BuildMs)*time.Millisecond + 10*time.Second)
+	f.advance(time.Duration(carrack.BuildMs)*time.Millisecond + 10*time.Second)
 	if f.err == nil && (len(f.w.Ships) != 2 || f.w.Ships[1].Type != patriciansShip || f.w.Ships[1].State != sim.ShipIdle) {
-		f.err = errors.New("the galleon is not idle after its build time")
+		f.err = errors.New("the carrack is not idle after its build time")
 	}
 	if f.err != nil {
 		return

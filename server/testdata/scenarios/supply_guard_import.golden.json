@@ -1,0 +1,1707 @@
+{
+  "name": "supply_guard_import",
+  "content_version": "old_coast-0.9.0",
+  "boundary_count": 61,
+  "totals": {
+    "island2": {
+      "planks": {
+        "produced": 0,
+        "consumed": 0,
+        "lost": 0,
+        "spent": 15000,
+        "unloaded": 50000
+      },
+      "wool": {
+        "produced": 0,
+        "consumed": 0,
+        "lost": 0,
+        "granted": 60000,
+        "loaded": 60000
+      }
+    },
+    "start": {
+      "fish": {
+        "produced": 176814,
+        "consumed": 15031,
+        "lost": 0,
+        "granted": 120000
+      },
+      "planks": {
+        "produced": 29523,
+        "consumed": 0,
+        "lost": 0,
+        "spent": 94000,
+        "refunded": 12000,
+        "granted": 270000,
+        "loaded": 50000
+      },
+      "sails": {
+        "produced": 0,
+        "consumed": 0,
+        "lost": 0,
+        "spent": 10000,
+        "granted": 10000
+      },
+      "wood": {
+        "produced": 29523,
+        "consumed": 29523,
+        "lost": 0,
+        "granted": 50000
+      },
+      "wool": {
+        "produced": 0,
+        "consumed": 60000,
+        "lost": 0,
+        "unloaded": 60000
+      },
+      "wool_garments": {
+        "produced": 60000,
+        "consumed": 7477,
+        "lost": 0
+      }
+    }
+  },
+  "bottlenecks": [
+    {
+      "island_id": "start",
+      "building_id": 5,
+      "type": "weaver_wool",
+      "status": "paused",
+      "reason": "Paused: insufficient gold"
+    },
+    {
+      "island_id": "start",
+      "building_id": 6,
+      "type": "lumberjack",
+      "status": "paused",
+      "reason": "Paused: insufficient gold"
+    },
+    {
+      "island_id": "start",
+      "building_id": 8,
+      "type": "sawmill",
+      "status": "paused",
+      "reason": "Paused: insufficient gold"
+    }
+  ],
+  "pause_events": [
+    {
+      "at": "2026-01-01T00:28:28.118Z",
+      "action": "auto_pause",
+      "island_id": "start",
+      "building_id": 6,
+      "type": "lumberjack"
+    },
+    {
+      "at": "2026-01-01T00:28:28.118Z",
+      "action": "auto_pause",
+      "island_id": "start",
+      "building_id": 8,
+      "type": "sawmill"
+    },
+    {
+      "at": "2026-01-01T00:28:28.118Z",
+      "action": "auto_pause",
+      "island_id": "",
+      "building_id": 0,
+      "ship_id": 1,
+      "type": "cog"
+    },
+    {
+      "at": "2026-01-01T01:44:01.760Z",
+      "action": "auto_pause",
+      "island_id": "start",
+      "building_id": 5,
+      "type": "weaver_wool"
+    }
+  ],
+  "snapshots": [
+    {
+      "step": 3,
+      "at": "2026-01-01T00:02:00.000Z",
+      "boundaries": 1,
+      "inventory": {
+        "island2": {},
+        "start": {
+          "fish": {
+            "stock": 120000,
+            "in_transit": 0
+          },
+          "planks": {
+            "stock": 225000,
+            "in_transit": 0
+          },
+          "wood": {
+            "stock": 50000,
+            "in_transit": 0
+          }
+        }
+      },
+      "statuses": {},
+      "gold": 575000,
+      "balance_rate_per_min": -1000,
+      "population": {},
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "idle",
+          "island_id": "start"
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "at": "2026-01-01T00:03:35.000Z",
+      "boundaries": 1,
+      "inventory": {
+        "island2": {},
+        "start": {
+          "fish": {
+            "stock": 120000,
+            "in_transit": 0
+          },
+          "planks": {
+            "stock": 175000,
+            "in_transit": 0
+          },
+          "wood": {
+            "stock": 50000,
+            "in_transit": 0
+          }
+        }
+      },
+      "statuses": {},
+      "gold": 573416,
+      "balance_rate_per_min": -1000,
+      "population": {},
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "idle",
+          "island_id": "island2",
+          "cargo": {
+            "planks": 50000
+          }
+        }
+      ]
+    },
+    {
+      "step": 19,
+      "at": "2026-01-01T00:04:35.000Z",
+      "boundaries": 3,
+      "inventory": {
+        "island2": {
+          "planks": {
+            "stock": 35000,
+            "in_transit": 0
+          },
+          "wool": {
+            "stock": 30000,
+            "in_transit": 0
+          }
+        },
+        "start": {
+          "fish": {
+            "stock": 120171,
+            "in_transit": 122
+          },
+          "planks": {
+            "stock": 138215,
+            "in_transit": 230
+          },
+          "wood": {
+            "stock": 49748,
+            "in_transit": 252
+          }
+        }
+      },
+      "statuses": {
+        "input_starved": 1,
+        "short_of_workers": 3
+      },
+      "gold": 106816,
+      "balance_rate_per_min": -5600,
+      "population": {
+        "settlers": 4000
+      },
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "on_route",
+          "route_id": 1,
+          "stop_index": 1,
+          "cargo": {
+            "wool": 30000
+          }
+        }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 6,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
+      ]
+    },
+    {
+      "step": 20,
+      "at": "2026-01-01T00:06:35.000Z",
+      "boundaries": 9,
+      "inventory": {
+        "island2": {
+          "planks": {
+            "stock": 35000,
+            "in_transit": 0
+          }
+        },
+        "start": {
+          "fish": {
+            "stock": 120848,
+            "in_transit": 183
+          },
+          "planks": {
+            "stock": 139217,
+            "in_transit": 344
+          },
+          "wood": {
+            "stock": 49622,
+            "in_transit": 378
+          },
+          "wool": {
+            "stock": 29692,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 172,
+            "in_transit": 104
+          }
+        }
+      },
+      "statuses": {
+        "short_of_workers": 4
+      },
+      "gold": 96080,
+      "balance_rate_per_min": -5160,
+      "population": {
+        "settlers": 6000
+      },
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "on_route",
+          "island_id": "island2",
+          "route_id": 1,
+          "stop_index": 1,
+          "cargo": {
+            "wool": 30000
+          }
+        }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 6,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
+      ]
+    },
+    {
+      "step": 21,
+      "at": "2026-01-01T00:11:35.000Z",
+      "boundaries": 21,
+      "inventory": {
+        "island2": {
+          "planks": {
+            "stock": 35000,
+            "in_transit": 0
+          }
+        },
+        "start": {
+          "fish": {
+            "stock": 124260,
+            "in_transit": 367
+          },
+          "planks": {
+            "stock": 144320,
+            "in_transit": 689
+          },
+          "wood": {
+            "stock": 49244,
+            "in_transit": 756
+          },
+          "wool": {
+            "stock": 57877,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 1639,
+            "in_transit": 207
+          }
+        }
+      },
+      "statuses": {
+        "short_of_workers": 4
+      },
+      "gold": 72944,
+      "balance_rate_per_min": -4320,
+      "population": {
+        "settlers": 12000
+      },
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "on_route",
+          "route_id": 1
+        }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 6,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
+      ]
+    },
+    {
+      "step": 22,
+      "at": "2026-01-01T00:21:35.000Z",
+      "boundaries": 8,
+      "inventory": {
+        "island2": {
+          "planks": {
+            "stock": 35000,
+            "in_transit": 0
+          }
+        },
+        "start": {
+          "fish": {
+            "stock": 133060,
+            "in_transit": 367
+          },
+          "planks": {
+            "stock": 157653,
+            "in_transit": 689
+          },
+          "wood": {
+            "stock": 49244,
+            "in_transit": 756
+          },
+          "wool": {
+            "stock": 53433,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 5482,
+            "in_transit": 207
+          }
+        }
+      },
+      "statuses": {
+        "short_of_workers": 4
+      },
+      "gold": 29744,
+      "balance_rate_per_min": -4320,
+      "population": {
+        "settlers": 12000
+      },
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "on_route",
+          "island_id": "start",
+          "route_id": 1
+        }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 6,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
+      ]
+    },
+    {
+      "step": 23,
+      "at": "2026-01-01T00:41:35.000Z",
+      "boundaries": 15,
+      "inventory": {
+        "island2": {
+          "planks": {
+            "stock": 35000,
+            "in_transit": 0
+          }
+        },
+        "start": {
+          "fish": {
+            "stock": 157034,
+            "in_transit": 550
+          },
+          "planks": {
+            "stock": 167523,
+            "in_transit": 0
+          },
+          "wood": {
+            "stock": 50000,
+            "in_transit": 0
+          },
+          "wool": {
+            "stock": 41631,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 15981,
+            "in_transit": 311
+          }
+        }
+      },
+      "statuses": {
+        "ok": 2,
+        "paused": 2
+      },
+      "gold": 0,
+      "balance_rate_per_min": -320,
+      "population": {
+        "settlers": 12000
+      },
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "anchored_unpaid",
+          "island_id": "start",
+          "route_id": 1,
+          "stop_index": 1,
+          "paused": true
+        }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 6,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
+      ]
+    },
+    {
+      "step": 24,
+      "at": "2026-01-01T01:11:35.000Z",
+      "boundaries": 0,
+      "inventory": {
+        "island2": {
+          "planks": {
+            "stock": 35000,
+            "in_transit": 0
+          }
+        },
+        "start": {
+          "fish": {
+            "stock": 198434,
+            "in_transit": 550
+          },
+          "planks": {
+            "stock": 167523,
+            "in_transit": 0
+          },
+          "wood": {
+            "stock": 50000,
+            "in_transit": 0
+          },
+          "wool": {
+            "stock": 21631,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 34181,
+            "in_transit": 311
+          }
+        }
+      },
+      "statuses": {
+        "ok": 2,
+        "paused": 2
+      },
+      "gold": 0,
+      "balance_rate_per_min": -320,
+      "population": {
+        "settlers": 12000
+      },
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "anchored_unpaid",
+          "island_id": "start",
+          "route_id": 1,
+          "stop_index": 1,
+          "paused": true
+        }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 6,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
+      ]
+    },
+    {
+      "step": 25,
+      "at": "2026-01-01T01:51:35.000Z",
+      "boundaries": 3,
+      "inventory": {
+        "island2": {
+          "planks": {
+            "stock": 35000,
+            "in_transit": 0
+          }
+        },
+        "start": {
+          "fish": {
+            "stock": 253634,
+            "in_transit": 550
+          },
+          "planks": {
+            "stock": 167523,
+            "in_transit": 0
+          },
+          "wood": {
+            "stock": 50000,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 53723,
+            "in_transit": 0
+          }
+        }
+      },
+      "statuses": {
+        "ok": 1,
+        "paused": 3
+      },
+      "gold": 5136,
+      "balance_rate_per_min": 680,
+      "population": {
+        "settlers": 12000
+      },
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "anchored_unpaid",
+          "island_id": "start",
+          "route_id": 1,
+          "stop_index": 1,
+          "paused": true
+        }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 6,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
+      ]
+    },
+    {
+      "step": 26,
+      "at": "2026-01-01T02:11:35.000Z",
+      "boundaries": 0,
+      "inventory": {
+        "island2": {
+          "planks": {
+            "stock": 35000,
+            "in_transit": 0
+          }
+        },
+        "start": {
+          "fish": {
+            "stock": 281234,
+            "in_transit": 550
+          },
+          "planks": {
+            "stock": 167523,
+            "in_transit": 0
+          },
+          "wood": {
+            "stock": 50000,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 52523,
+            "in_transit": 0
+          }
+        }
+      },
+      "statuses": {
+        "ok": 1,
+        "paused": 3
+      },
+      "gold": 18736,
+      "balance_rate_per_min": 680,
+      "population": {
+        "settlers": 12000
+      },
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "anchored_unpaid",
+          "island_id": "start",
+          "route_id": 1,
+          "stop_index": 1,
+          "paused": true
+        }
+      ],
+      "farms": [
+        {
+          "island": "start",
+          "id": 6,
+          "type": "lumberjack",
+          "active": 1,
+          "required": 1,
+          "max": 2,
+          "fields": 1,
+          "efficiency_permille": 1000
+        }
+      ]
+    }
+  ],
+  "quests": [
+    {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_first_road",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_planks",
+      "completed_at": "2026-01-01T00:03:35.000Z"
+    }
+  ],
+  "final": {
+    "evaluated_at": "2026-01-01T02:11:35.000Z",
+    "next_change_at": "2026-01-01T02:24:47.018Z",
+    "gold": 18736,
+    "balance_rate_per_min": 680,
+    "tax_rate_per_min": 1680,
+    "upkeep_rate_per_min": 1000,
+    "tiers": [
+      {
+        "id": "settlers",
+        "unlocked": true,
+        "population": {},
+        "buildings": {}
+      },
+      {
+        "id": "citizens",
+        "unlocked": false,
+        "population": {
+          "settlers": {
+            "have": 12000,
+            "need": 120000
+          }
+        },
+        "buildings": {
+          "chapel": false,
+          "market_small": false
+        }
+      }
+    ],
+    "archipelago": {
+      "seed": 0,
+      "roll": 0,
+      "rerollable": false,
+      "generator_version": 8,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 54,
+        "height": 56
+      }
+    },
+    "islands": [
+      {
+        "id": "start",
+        "name": "Start",
+        "size_class": "",
+        "scenic": false,
+        "settled": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "width": 30,
+        "height": 14,
+        "inventory": {
+          "apples": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "bread": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "charcoal": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "cider": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "fish": {
+            "stock": 281234,
+            "capacity": 300000,
+            "in_transit": 550,
+            "rate_per_min": 1380,
+            "in_transit_rate_per_min": 0
+          },
+          "flour": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "hemp": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "iron": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "iron_ore": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "linen_garments": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "planks": {
+            "stock": 167523,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "sails": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "stone": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "tools": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "wheat": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "wood": {
+            "stock": 50000,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "wool": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "wool_garments": {
+            "stock": 52523,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": -60,
+            "in_transit_rate_per_min": 0
+          }
+        },
+        "roads": [
+          {
+            "x": 13,
+            "y": 3,
+            "type": "road_dirt"
+          },
+          {
+            "x": 13,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 1,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 3,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 4,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 5,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 6,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 7,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 8,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 9,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 10,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 11,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 12,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 13,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 14,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 15,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 16,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 17,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 18,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 19,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 20,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 21,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 22,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 23,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 24,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 25,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 26,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 27,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 28,
+            "y": 5,
+            "type": "road_dirt"
+          }
+        ],
+        "buildings": [
+          {
+            "id": 1,
+            "type": "trading_post",
+            "x": 1,
+            "y": 1,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "level": 1,
+            "capacity": 300000,
+            "throughput_per_min": 30000,
+            "load_permille": 50,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
+          },
+          {
+            "id": 4,
+            "type": "fisher",
+            "x": 13,
+            "y": 1,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "rates": {
+              "inputs": {},
+              "outputs": {
+                "fish": 1500
+              }
+            },
+            "cycle_seconds": 40,
+            "cycle_progress_permille": 814,
+            "transfer_delay_ms": 22000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 12,
+            "cycle_rate_permille_per_min": 1500,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 4000
+            }
+          },
+          {
+            "id": 5,
+            "type": "weaver_wool",
+            "x": 21,
+            "y": 3,
+            "rotation": 0,
+            "paused": true,
+            "paused_reason": "unpaid",
+            "status": "paused",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "rates": {
+              "inputs": {
+                "wool": 0
+              },
+              "outputs": {
+                "wool_garments": 0
+              }
+            },
+            "cycle_seconds": 90,
+            "cycle_progress_permille": 999,
+            "transfer_delay_ms": 28000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 18,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 6000
+            }
+          },
+          {
+            "id": 6,
+            "type": "lumberjack",
+            "x": 27,
+            "y": 6,
+            "rotation": 180,
+            "paused": true,
+            "paused_reason": "unpaid",
+            "status": "paused",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "rates": {
+              "inputs": {},
+              "outputs": {
+                "wood": 0
+              }
+            },
+            "cycle_seconds": 30,
+            "cycle_progress_permille": 522,
+            "transfer_delay_ms": 34000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 24,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 4000
+            },
+            "fields": {
+              "active": 1,
+              "required": 1,
+              "max": 2,
+              "ids": [
+                7
+              ]
+            }
+          },
+          {
+            "id": 7,
+            "type": "tree_plot",
+            "x": 27,
+            "y": 8,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 6,
+            "active": true
+          },
+          {
+            "id": 8,
+            "type": "sawmill",
+            "x": 24,
+            "y": 3,
+            "rotation": 0,
+            "paused": true,
+            "paused_reason": "unpaid",
+            "status": "paused",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "rates": {
+              "inputs": {
+                "wood": 0
+              },
+              "outputs": {
+                "planks": 0
+              }
+            },
+            "cycle_seconds": 30,
+            "cycle_progress_permille": 522,
+            "transfer_delay_ms": 31000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 21,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 4000
+            }
+          },
+          {
+            "id": 9,
+            "type": "house_settlers",
+            "x": 3,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "tier_locked"
+            },
+            "residents": 6000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "residents_target": 6000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 700,
+            "tax_rate_per_min": 840,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "goods": {
+                  "fish": 120
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "goods": {
+                  "wool_garments": 60
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 0,
+                "reason": "out_of_range"
+              }
+            ]
+          },
+          {
+            "id": 10,
+            "type": "house_settlers",
+            "x": 5,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "tier_locked"
+            },
+            "residents": 6000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "residents_target": 6000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 700,
+            "tax_rate_per_min": 840,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "goods": {
+                  "fish": 120
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "goods": {
+                  "wool_garments": 60
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 0,
+                "reason": "out_of_range"
+              }
+            ]
+          }
+        ],
+        "workforce": {
+          "settlers": {
+            "available": 12000,
+            "required": 4000,
+            "factor_permille": 1000
+          }
+        },
+        "population": {
+          "settlers": 12000
+        },
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
+        },
+        "fertilities": [],
+        "deposits": [],
+        "terrain_mask": "wwwwcccwgggggggwgggggffwwwwwwwww"
+      },
+      {
+        "id": "island2",
+        "name": "Island 2",
+        "size_class": "",
+        "scenic": false,
+        "settled": true,
+        "position": {
+          "x": 36,
+          "y": 48
+        },
+        "width": 18,
+        "height": 8,
+        "inventory": {
+          "apples": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "bread": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "charcoal": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "cider": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "fish": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "flour": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "hemp": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "iron": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "iron_ore": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "linen_garments": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "planks": {
+            "stock": 35000,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "sails": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "stone": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "tools": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "wheat": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "wood": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "wool": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          },
+          "wool_garments": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
+          }
+        },
+        "roads": [],
+        "buildings": [
+          {
+            "id": 3,
+            "type": "trading_post",
+            "x": 1,
+            "y": 0,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "level": 1,
+            "capacity": 300000,
+            "throughput_per_min": 30000,
+            "load_permille": 0,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
+          }
+        ],
+        "workforce": {},
+        "population": {},
+        "capacity_source": {
+          "building_id": 3,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
+        },
+        "fertilities": [],
+        "deposits": [
+          {
+            "x": 13,
+            "y": 6,
+            "kind": "iron"
+          },
+          {
+            "x": 14,
+            "y": 6,
+            "kind": "iron"
+          }
+        ],
+        "terrain_mask": "wcccwggggw"
+      }
+    ],
+    "ships": [
+      {
+        "id": 1,
+        "type": "cog",
+        "name": "Cog 1",
+        "state": "anchored_unpaid",
+        "island_id": "start",
+        "route_id": 1,
+        "stop_index": 1,
+        "leg": null,
+        "cargo": [],
+        "slots": 4,
+        "slot_size": 50000,
+        "upkeep_per_min": 0,
+        "paused": true,
+        "paused_reason": "unpaid",
+        "position": null,
+        "queued_at": null,
+        "berth_until": null
+      }
+    ],
+    "routes": [
+      {
+        "id": 1,
+        "name": "Wool in",
+        "stops": [
+          {
+            "island_id": "island2",
+            "load": [
+              {
+                "good": "wool",
+                "max_amount": 30000
+              }
+            ],
+            "unload": []
+          },
+          {
+            "island_id": "start",
+            "load": [],
+            "unload": [
+              {
+                "good": "wool"
+              }
+            ]
+          }
+        ],
+        "ship_ids": [
+          1
+        ],
+        "loop_ms": 161623,
+        "paths": [
+          [
+            {
+              "x": 39,
+              "y": 46
+            },
+            {
+              "x": -2,
+              "y": 13
+            },
+            {
+              "x": -2,
+              "y": 1
+            },
+            {
+              "x": 3,
+              "y": -1
+            }
+          ],
+          [
+            {
+              "x": 3,
+              "y": -1
+            },
+            {
+              "x": -2,
+              "y": 1
+            },
+            {
+              "x": -2,
+              "y": 17
+            },
+            {
+              "x": 39,
+              "y": 46
+            }
+          ]
+        ],
+        "effects": [
+          {
+            "island_id": "island2",
+            "good": "wool",
+            "per_loop": -30000,
+            "per_min": -11137
+          },
+          {
+            "island_id": "start",
+            "good": "wool",
+            "per_loop": 30000,
+            "per_min": 11137
+          }
+        ]
+      }
+    ],
+    "insolvency": {
+      "unpaid_buildings": 3,
+      "unpaid_ships": 1,
+      "unpaid_upkeep_per_min": 5000,
+      "balance_if_resumed_per_min": -4320
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_houses",
+          "objectives": [
+            {
+              "kind": "building_count",
+              "type": "house_settlers",
+              "current": 2,
+              "target": 4,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_home_island",
+        "intro_first_road",
+        "intro_planks"
+      ],
+      "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_planks",
+          "completed_at": "2026-01-01T00:03:35.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:03:35.000Z"
+  }
+}

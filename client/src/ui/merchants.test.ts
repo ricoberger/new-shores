@@ -8,7 +8,7 @@ import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../a
 import { ICON_PATHS } from "../theme/icons";
 import { InfoPanel } from "./InfoPanel";
 
-// Tier 3 in the cards (D-056 C3): the brig in the shipyard, a market at
+// Tier 3 in the cards (D-056 C3): the hulk in the shipyard, a market at
 // level 2 and a Merchant house with its comfort need, against the
 // tier-3 reference game's display fixture and the shipped content names.
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -53,7 +53,7 @@ const content = {
   needs: shipped<{ id: string; name: string }[]>("needs.json"),
   need_categories: shipped<{ id: string; name: string; icon: string }[]>("need_categories.json"),
   buildings: [
-    def("shipyard", "Shipyard", { tier: "citizens", category: "harbour", width: 8, height: 12, shipyard: { ships: ["sloop", "brig"] } }),
+    def("shipyard", "Shipyard", { tier: "citizens", category: "harbour", width: 8, height: 12, shipyard: { ships: ["cog", "hulk"] } }),
     def("market", "Market", {
       width: 5,
       height: 6,
@@ -73,8 +73,8 @@ const content = {
     def("cathedral", "Cathedral", { tier: "patricians", service: { radius: 28, chain: "faith", rank: 3, levels: [{ radius: 28 }] } }),
   ],
   ships: [
-    { id: "sloop", name: "Sloop", tier: "citizens", slots: 2, slot_size: 50_000, build_ms: 120_000, upkeep_per_min: 1_000, cost: { gold: 100_000, materials: { planks: 20_000, sails: 10_000 } } },
-    { id: "brig", name: "Brig", tier: "merchants", slots: 4, slot_size: 50_000, build_ms: 300_000, upkeep_per_min: 4_000, cost: { gold: 1_500_000, materials: { planks: 60_000, sails: 20_000, tools: 10_000 } } },
+    { id: "cog", name: "Cog", tier: "citizens", slots: 2, slot_size: 50_000, build_ms: 120_000, upkeep_per_min: 1_000, cost: { gold: 100_000, materials: { planks: 20_000, sails: 10_000 } } },
+    { id: "hulk", name: "Hulk", tier: "merchants", slots: 4, slot_size: 50_000, build_ms: 300_000, upkeep_per_min: 4_000, cost: { gold: 1_500_000, materials: { planks: 60_000, sails: 20_000, tools: 10_000 } } },
   ],
   quests: [],
 } as unknown as Content;
@@ -109,14 +109,14 @@ const plain = (id: number, type: string, extra: Partial<BuildingDisplay> = {}) =
   ({ id, type, x: 1, y: 1, rotation: 0, paused: false, paused_reason: "", status: "ok", efficiency_permille: 1000, throughput_factor_permille: 1000, ...extra }) as BuildingDisplay;
 
 describe("tier 3 in the cards (D-056)", () => {
-  it("lists the brig in the shipyard after the sloop, with its cargo, upkeep and costs", () => {
+  it("lists the hulk in the shipyard after the cog, with its cargo, upkeep and costs", () => {
     const html = panel(plain(9_001, "shipyard"));
     const t = text(html);
-    expect(t.indexOf("SloopOrder")).toBeLessThan(t.indexOf("BrigOrder"));
-    expect(html).toContain('data-testid="shipyard-order-brig"');
-    expect(text(html.match(/data-testid="shipyard-ship-brig">(.*?)<\/button>/)![0])).toContain("Brig");
-    expect(t).toContain("4×50\u00a0t cargo·1.0× speed·4.0 gold/min upkeep");
-    expect(text(html.match(/data-testid="shipyard-cost-brig">(.*?)<\/div>/)![1]!)).toBe("1500 gold·60\u00a0tPlanks·20\u00a0tSails·10\u00a0tTools·5:00 min build");
+    expect(t.indexOf("CogOrder")).toBeLessThan(t.indexOf("HulkOrder"));
+    expect(html).toContain('data-testid="shipyard-order-hulk"');
+    expect(text(html.match(/data-testid="shipyard-ship-hulk">(.*?)<\/button>/)![0])).toContain("Hulk");
+    expect(t).toContain("4×50\u00a0t cargo·1.0× speed·4.0 gold/min maintenance");
+    expect(text(html.match(/data-testid="shipyard-cost-hulk">(.*?)<\/div>/)![1]!)).toBe("1500 gold·60\u00a0tPlanks·20\u00a0tSails·10\u00a0tTools·5:00 min build");
   });
 
   it("shows a market at level 3 of 4 (D-065) with its radius and the Patrician-locked level 4", () => {
@@ -134,7 +134,7 @@ describe("tier 3 in the cards (D-056)", () => {
     const house = home.buildings.find((b) => b.type === "house_merchants")!;
     const html = panel(house);
     const t = text(html);
-    expect(t).toContain("Residents→ 20 / 25");
+    expect(t).toContain("Residents→ 21 / 25");
     const rows = [...html.matchAll(/data-testid="house-need-(?!group-)([a-z_]+)"/g)].map((m) => m[1]);
     expect(rows).toEqual([
       "merchants_settlers_food",

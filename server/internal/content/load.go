@@ -297,6 +297,7 @@ type rawBuilding struct {
 	Cost          map[string]json.Number `json:"cost"`
 	Upkeep        json.Number            `json:"upkeep_per_min"`
 	PauseCategory string                 `json:"pause_category"`
+	Look          string                 `json:"look"`
 	Recipe        *struct {
 		Inputs       []rawRecipeInput `json:"inputs"`
 		Outputs      []rawGoodAmount  `json:"outputs"`
@@ -769,6 +770,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		RequiresRoad:  rb.RequiresRoad,
 		UpkeepPerMin:  col.fixed(file, ent, "upkeep_per_min", rb.Upkeep, 3),
 		PauseCategory: rb.PauseCategory,
+		Look:          rb.Look,
 		House:         rb.House,
 
 		RequiresDeposit: rb.RequiresDeposit,

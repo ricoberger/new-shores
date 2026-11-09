@@ -1,12 +1,12 @@
 {
   "name": "stall_recovery_manual",
   "content_version": "old_coast-0.9.0",
-  "boundary_count": 52,
+  "boundary_count": 50,
   "totals": {
     "start": {
       "fish": {
-        "produced": 88752,
-        "consumed": 19921,
+        "produced": 89148,
+        "consumed": 22685,
         "lost": 0
       },
       "planks": {
@@ -29,13 +29,13 @@
         "lost": 0
       },
       "wool": {
-        "produced": 36371,
-        "consumed": 19593,
+        "produced": 39622,
+        "consumed": 39188,
         "lost": 0
       },
       "wool_garments": {
-        "produced": 19593,
-        "consumed": 5633,
+        "produced": 39188,
+        "consumed": 11303,
         "lost": 0
       }
     }
@@ -54,13 +54,6 @@
       "at": "2026-01-01T00:17:22.222Z",
       "action": "auto_pause",
       "island_id": "start",
-      "building_id": 13,
-      "type": "weaver_wool"
-    },
-    {
-      "at": "2026-01-01T00:17:22.222Z",
-      "action": "auto_pause",
-      "island_id": "start",
       "building_id": 4,
       "type": "lumberjack"
     },
@@ -68,44 +61,22 @@
       "at": "2026-01-01T00:17:22.222Z",
       "action": "auto_pause",
       "island_id": "start",
-      "building_id": 8,
-      "type": "sheep_farm"
+      "building_id": 6,
+      "type": "sawmill"
     },
     {
-      "at": "2026-01-01T00:17:22.222Z",
+      "at": "2026-01-01T00:18:00.000Z",
       "action": "auto_pause",
       "island_id": "start",
       "building_id": 6,
       "type": "sawmill"
     },
     {
-      "at": "2026-01-01T00:17:22.222Z",
-      "action": "auto_pause",
-      "island_id": "start",
-      "building_id": 7,
-      "type": "fisher"
-    },
-    {
-      "at": "2026-01-01T00:22:36.667Z",
+      "at": "2026-01-01T00:23:39.000Z",
       "action": "auto_resume",
       "island_id": "start",
       "building_id": 6,
       "type": "sawmill"
-    },
-    {
-      "at": "2026-01-01T00:22:36.667Z",
-      "action": "auto_resume",
-      "island_id": "start",
-      "building_id": 8,
-      "type": "sheep_farm"
-    },
-    {
-      "at": "2026-01-01T00:47:36.664Z",
-      "action": "auto_resume",
-      "island_id": "start",
-      "building_id": 13,
-      "type": "weaver_wool",
-      "trial": true
     }
   ],
   "snapshots": [
@@ -160,12 +131,12 @@
     {
       "step": 21,
       "at": "2026-01-01T00:18:00.000Z",
-      "boundaries": 9,
+      "boundaries": 6,
       "inventory": {
         "start": {
           "fish": {
             "stock": 175,
-            "in_transit": 48
+            "in_transit": 723
           },
           "planks": {
             "stock": 21000,
@@ -180,16 +151,22 @@
             "in_transit": 49
           },
           "wool": {
-            "stock": 106,
-            "in_transit": 6
+            "stock": 0,
+            "in_transit": 306
+          },
+          "wool_garments": {
+            "stock": 0,
+            "in_transit": 106
           }
         }
       },
       "statuses": {
-        "paused": 5
+        "input_starved": 1,
+        "paused": 2,
+        "short_of_workers": 2
       },
-      "gold": 677,
-      "balance_rate_per_min": 1600,
+      "gold": 0,
+      "balance_rate_per_min": -1400,
       "population": {
         "settlers": 10000
       },
@@ -222,12 +199,12 @@
     {
       "step": 24,
       "at": "2026-01-01T00:19:00.000Z",
-      "boundaries": 8,
+      "boundaries": 11,
       "inventory": {
         "start": {
           "fish": {
-            "stock": 557,
-            "in_transit": 1050
+            "stock": 1101,
+            "in_transit": 900
           },
           "planks": {
             "stock": 23000,
@@ -242,17 +219,22 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 112,
-            "in_transit": 0
+            "stock": 0,
+            "in_transit": 376
+          },
+          "wool_garments": {
+            "stock": 140,
+            "in_transit": 405
           }
         }
       },
       "statuses": {
-        "ok": 1,
-        "paused": 3
+        "input_starved": 1,
+        "ok": 2,
+        "paused": 1
       },
-      "gold": 1527,
-      "balance_rate_per_min": 1400,
+      "gold": 0,
+      "balance_rate_per_min": 0,
       "population": {
         "settlers": 15000
       },
@@ -275,11 +257,11 @@
     {
       "step": 25,
       "at": "2026-01-01T00:20:00.000Z",
-      "boundaries": 5,
+      "boundaries": 7,
       "inventory": {
         "start": {
           "fish": {
-            "stock": 1904,
+            "stock": 2283,
             "in_transit": 1050
           },
           "planks": {
@@ -295,17 +277,21 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 112,
-            "in_transit": 0
+            "stock": 0,
+            "in_transit": 433
+          },
+          "wool_garments": {
+            "stock": 533,
+            "in_transit": 538
           }
         }
       },
       "statuses": {
-        "ok": 1,
-        "paused": 3
+        "ok": 3,
+        "paused": 1
       },
-      "gold": 2977,
-      "balance_rate_per_min": 2200,
+      "gold": 350,
+      "balance_rate_per_min": 1000,
       "population": {
         "settlers": 20000
       },
@@ -328,11 +314,11 @@
     {
       "step": 26,
       "at": "2026-01-01T00:22:00.000Z",
-      "boundaries": 5,
+      "boundaries": 11,
       "inventory": {
         "start": {
           "fish": {
-            "stock": 4463,
+            "stock": 4798,
             "in_transit": 1050
           },
           "planks": {
@@ -348,19 +334,23 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 112,
-            "in_transit": 0
+            "stock": 0,
+            "in_transit": 433
+          },
+          "wool_garments": {
+            "stock": 1595,
+            "in_transit": 567
           }
         }
       },
       "statuses": {
-        "ok": 1,
-        "paused": 3
+        "ok": 3,
+        "paused": 1
       },
-      "gold": 8027,
+      "gold": 4050,
       "balance_rate_per_min": 3000,
       "population": {
-        "settlers": 25000
+        "settlers": 30000
       },
       "unlocked_tiers": [
         "settlers"
@@ -381,11 +371,11 @@
     {
       "step": 27,
       "at": "2026-01-01T00:27:00.000Z",
-      "boundaries": 12,
+      "boundaries": 15,
       "inventory": {
         "start": {
           "fish": {
-            "stock": 10485,
+            "stock": 10413,
             "in_transit": 1050
           },
           "planks": {
@@ -397,20 +387,23 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 2605,
+            "stock": 0,
             "in_transit": 433
+          },
+          "wool_garments": {
+            "stock": 3986,
+            "in_transit": 567
           }
         }
       },
       "statuses": {
         "input_starved": 1,
-        "ok": 2,
-        "paused": 1
+        "ok": 3
       },
-      "gold": 13511,
-      "balance_rate_per_min": 800,
+      "gold": 20050,
+      "balance_rate_per_min": 3000,
       "population": {
-        "settlers": 30000
+        "settlers": 40000
       },
       "unlocked_tiers": [
         "settlers"
@@ -435,7 +428,7 @@
       "inventory": {
         "start": {
           "fish": {
-            "stock": 22485,
+            "stock": 21413,
             "in_transit": 1050
           },
           "planks": {
@@ -447,20 +440,23 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 9271,
+            "stock": 0,
             "in_transit": 433
+          },
+          "wool_garments": {
+            "stock": 8652,
+            "in_transit": 567
           }
         }
       },
       "statuses": {
         "input_starved": 1,
-        "ok": 2,
-        "paused": 1
+        "ok": 3
       },
-      "gold": 21511,
-      "balance_rate_per_min": 800,
+      "gold": 50050,
+      "balance_rate_per_min": 3000,
       "population": {
-        "settlers": 30000
+        "settlers": 40000
       },
       "unlocked_tiers": [
         "settlers"
@@ -485,7 +481,7 @@
       "inventory": {
         "start": {
           "fish": {
-            "stock": 34485,
+            "stock": 32413,
             "in_transit": 1050
           },
           "planks": {
@@ -497,20 +493,23 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 15938,
+            "stock": 0,
             "in_transit": 433
+          },
+          "wool_garments": {
+            "stock": 13319,
+            "in_transit": 567
           }
         }
       },
       "statuses": {
         "input_starved": 1,
-        "ok": 2,
-        "paused": 1
+        "ok": 3
       },
-      "gold": 29511,
-      "balance_rate_per_min": 800,
+      "gold": 80050,
+      "balance_rate_per_min": 3000,
       "population": {
-        "settlers": 30000
+        "settlers": 40000
       },
       "unlocked_tiers": [
         "settlers"
@@ -531,11 +530,11 @@
     {
       "step": 30,
       "at": "2026-01-01T00:57:00.000Z",
-      "boundaries": 13,
+      "boundaries": 0,
       "inventory": {
         "start": {
           "fish": {
-            "stock": 45781,
+            "stock": 43413,
             "in_transit": 1050
           },
           "planks": {
@@ -547,11 +546,11 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 16346,
+            "stock": 0,
             "in_transit": 433
           },
           "wool_garments": {
-            "stock": 4060,
+            "stock": 17986,
             "in_transit": 567
           }
         }
@@ -560,7 +559,7 @@
         "input_starved": 1,
         "ok": 3
       },
-      "gold": 52446,
+      "gold": 110050,
       "balance_rate_per_min": 3000,
       "population": {
         "settlers": 40000
@@ -588,7 +587,7 @@
       "inventory": {
         "start": {
           "fish": {
-            "stock": 56781,
+            "stock": 54413,
             "in_transit": 1050
           },
           "planks": {
@@ -600,11 +599,11 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 16346,
+            "stock": 0,
             "in_transit": 433
           },
           "wool_garments": {
-            "stock": 8727,
+            "stock": 22652,
             "in_transit": 567
           }
         }
@@ -613,7 +612,7 @@
         "input_starved": 1,
         "ok": 3
       },
-      "gold": 82446,
+      "gold": 140050,
       "balance_rate_per_min": 3000,
       "population": {
         "settlers": 40000
@@ -641,7 +640,7 @@
       "inventory": {
         "start": {
           "fish": {
-            "stock": 67781,
+            "stock": 65413,
             "in_transit": 1050
           },
           "planks": {
@@ -653,11 +652,11 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 16346,
+            "stock": 0,
             "in_transit": 433
           },
           "wool_garments": {
-            "stock": 13393,
+            "stock": 27319,
             "in_transit": 567
           }
         }
@@ -666,7 +665,7 @@
         "input_starved": 1,
         "ok": 3
       },
-      "gold": 112446,
+      "gold": 170050,
       "balance_rate_per_min": 3000,
       "population": {
         "settlers": 40000
@@ -720,8 +719,8 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T01:17:00.000Z",
-    "next_change_at": "2026-01-01T04:47:09.214Z",
-    "gold": 112446,
+    "next_change_at": "2026-01-01T04:49:18.361Z",
+    "gold": 170050,
     "balance_rate_per_min": 3000,
     "tax_rate_per_min": 8000,
     "upkeep_rate_per_min": 5000,
@@ -802,7 +801,7 @@
             "in_transit_rate_per_min": 0
           },
           "fish": {
-            "stock": 67781,
+            "stock": 65413,
             "capacity": 300000,
             "in_transit": 1050,
             "rate_per_min": 1100,
@@ -886,14 +885,14 @@
             "in_transit_rate_per_min": 0
           },
           "wool": {
-            "stock": 16346,
+            "stock": 0,
             "capacity": 300000,
             "in_transit": 433,
             "rate_per_min": 0,
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 13393,
+            "stock": 27319,
             "capacity": 300000,
             "in_transit": 567,
             "rate_per_min": 466,
@@ -1598,7 +1597,7 @@
               }
             },
             "cycle_seconds": 40,
-            "cycle_progress_permille": 752,
+            "cycle_progress_permille": 148,
             "transfer_delay_ms": 42000,
             "assigned_warehouse_id": 3,
             "road_distance": 32,
@@ -1627,7 +1626,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 371,
+            "cycle_progress_permille": 621,
             "transfer_delay_ms": 39000,
             "assigned_warehouse_id": 1,
             "road_distance": 29,
@@ -1725,7 +1724,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 592,
+            "cycle_progress_permille": 188,
             "transfer_delay_ms": 51000,
             "assigned_warehouse_id": 1,
             "road_distance": 41,

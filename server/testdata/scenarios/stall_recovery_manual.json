@@ -1,6 +1,6 @@
 {
   "name": "stall_recovery_manual",
-  "description": "Stall recovery (golden x, manual shortcut): the world of stall_recovery_auto up to the fully stalled state; at minute 18 the player resumes the unpaid fisher manually instead of waiting for its 5-gold reserve and demolishes the unpaid lumberjack (1 gold/min of upkeep less to earn back; the wool chain stays, the houses need its garments to fill, D-074). The rest of the chain resumes automatically.",
+  "description": "Stall recovery (golden x, manual shortcut): the world of stall_recovery_auto up to the fully stalled state; at minute 18 the player resumes the unpaid sawmill manually instead of waiting for its reserve and demolishes the unpaid lumberjack (1 gold/min of upkeep less to earn back). The balance is still negative, so the sawmill pauses again at once (only the weaver, the fisher and the sheep farm are guarded, D-075 §5) and resumes automatically, no later than without the shortcut.",
   "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
@@ -280,8 +280,8 @@
     },
     {
       "resume": {
-        "x": 50,
-        "y": 1
+        "x": 31,
+        "y": 5
       }
     },
     {

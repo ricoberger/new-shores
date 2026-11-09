@@ -55,16 +55,16 @@ class PlannedTest(unittest.TestCase):
             entry("pen_test", kind="module", footprint=(3, 4)),
             entry("hall_test", kind="service", footprint=(6, 8)),
             entry("pier_test", kind="producer", water_tiles=3, slot="stone", footprint=(3, 8)),
-            entry("brig_test", kind="ship", tier=3, footprint=None, slots=4),
+            entry("hulk_test", kind="ship", tier=3, footprint=None, slots=4),
         ])
         c = self.load()
         self.assertEqual(content.footprint(c, "cheese_test"), (4, 5))
         self.assertEqual(content.kind_of(c, "cheese_test"), "building")
         self.assertEqual(content.kind_of(c, "pen_test"), "field")
-        self.assertEqual(content.kind_of(c, "brig_test"), "ship")
+        self.assertEqual(content.kind_of(c, "hulk_test"), "ship")
         self.assertEqual(c["buildings"]["cheese_test"]["tier"], "citizens")
-        self.assertEqual(c["ships"]["brig_test"]["tier"], "merchants")
-        self.assertTrue(content.is_planned(c, "brig_test"))
+        self.assertEqual(c["ships"]["hulk_test"]["tier"], "merchants")
+        self.assertTrue(content.is_planned(c, "hulk_test"))
         self.assertFalse(content.is_planned(c, "sawmill"))
         self.assertEqual(c["buildings"]["pier_test"]["requires_deposit"], "stone")
         # Smoke only where flagged (producers that burn or cook): planned or content `smoke: true`.
@@ -77,7 +77,7 @@ class PlannedTest(unittest.TestCase):
         self.assertEqual(content.life_anchors(c, "farm_test"), ["cart"])
         self.assertEqual(content.life_anchors(c, "pier_test"), ["cart", "boat"])
         required = content.required_ids(c)
-        for cid in ("cheese_test", "farm_test", "pen_test", "hall_test", "pier_test", "brig_test"):
+        for cid in ("cheese_test", "farm_test", "pen_test", "hall_test", "pier_test", "hulk_test"):
             self.assertIn(cid, required)
         self.assertEqual(sorted(set(required) - set(content.required_ids(content.load(config.CONTENT_DIR, planned_dir=None)))),
                          sorted(content.planned_ids(c)))

@@ -149,7 +149,7 @@ func levelWorld(t *testing.T, c *content.Catalogue) *World {
 
 // TestLevelTierGates (D-065): market level n needs tier n (radius
 // 12/15/18/21), warehouse levels 2-4 need Citizens, Merchants and
-// Patricians (throughput 6/12/24/48, D-074 §3); the city guard and the fire station
+// Patricians (throughput 8/16/32/64, D-075 §2); the city guard and the fire station
 // have a single radius 16 and no levels.
 func TestLevelTierGates(t *testing.T) {
 	c := shippedCatalogue(t)
@@ -166,7 +166,7 @@ func TestLevelTierGates(t *testing.T) {
 		want  []int
 	}{
 		{market, "market", func(d *content.Building, l int) int { return d.Service.RadiusAt(l) }, []int{20, 24, 28, 32}},
-		{warehouse, "warehouse", func(d *content.Building, l int) int { return int(d.ThroughputAt(l) / 1000) }, []int{6, 12, 24, 48}},
+		{warehouse, "warehouse", func(d *content.Building, l int) int { return int(d.ThroughputAt(l) / 1000) }, []int{8, 16, 32, 64}},
 	} {
 		def := c.BuildingByID[tc.typ]
 		cmd := UpgradeBuilding{IslandID: "main", BuildingID: tc.id}

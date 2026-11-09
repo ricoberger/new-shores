@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { waterEdgeHint, waterEdgeTiles, type WaterEdgeDef } from "./geometry";
+import { levelAt, waterEdgeHint, waterEdgeTiles, type WaterEdgeDef } from "./geometry";
 import { withQuays } from "./quay";
 import { footprintText } from "./fields";
 
@@ -11,6 +11,8 @@ interface Site extends WaterEdgeDef {
   x: number;
   y: number;
   rows: string[];
+  /** Terrace level digits per row (D-075 low shore; absent: all 0). */
+  levels?: string[];
   quays: { x: number; y: number }[];
   error: string;
   tiles: { x: number; y: number; water: boolean; problem: string }[];
@@ -22,13 +24,21 @@ describe("D-062 per-column water rows, shared with Go", () => {
   for (const site of sites) {
     it(`${site.name} / ${site.rotation}°`, () => {
       const terrain = withQuays((x, y) => terrainNames[site.rows[y]?.[x] ?? "~"]!, new Set(site.quays.map((p) => `${p.x},${p.y}`)));
-      const tiles = waterEdgeTiles(site, terrain, site.x, site.y, site.rotation);
+      const level = levelAt(site.levels?.join(""), site.rows[0]!.length);
+      const tiles = waterEdgeTiles(site, terrain, site.x, site.y, site.rotation, level);
       expect(tiles.map((p) => ({ ...p, problem: p.problem ?? "" }))).toEqual(site.tiles);
       expect(tiles.some((p) => p.problem)).toBe(site.error !== "");
-      const hint = waterEdgeHint(site, terrain, site.x, site.y, site.rotation);
-      expect(hint).toBe(site.tiles.some((p) => p.problem === "front") ? "front" : site.error ? "land" : null);
+      const hint = waterEdgeHint(site, terrain, site.x, site.y, site.rotation, level);
+      const first = (["front", "land", "low"] as const).find((problem) => site.tiles.some((p) => p.problem === problem)) ?? null;
+      expect(hint).toBe(first);
     });
   }
+
+  it("reads the low-shore cases from the shared fixture (D-075)", () => {
+    const low = sites.filter((s) => s.name.startsWith("low-shore"));
+    expect(low).toHaveLength(12);
+    expect(low.filter((s) => s.tiles.some((p) => p.problem === "low"))).toHaveLength(8);
+  });
 
   it("has no water preview for an inland building", () => {
     expect(waterEdgeTiles({ width: 3, height: 5 }, () => "grass", 0, 0, 0)).toEqual([]);

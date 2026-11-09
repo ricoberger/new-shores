@@ -80,7 +80,7 @@ describe("collector reach and upkeep per level (D-069 §6)", () => {
     expect(cell(html, "warehouse-upkeep")).toBe(`${(levels[0]!.upkeep_per_min / 1000).toFixed(1)} gold/min`);
     const stats = visible(html.match(/data-testid="warehouse-upgrade-stats">(.*?)<\/div>/)?.[1] ?? "");
     expect(stats).toContain(`${levels[1]!.reach} tiles reach`);
-    expect(stats).toContain(`${(levels[1]!.upkeep_per_min / 1000).toFixed(1)} gold/min upkeep`);
+    expect(stats).toContain(`${(levels[1]!.upkeep_per_min / 1000).toFixed(1)} gold/min maintenance`);
   });
 
   it("shows the lock reason of a level whose tier is not unlocked", () => {

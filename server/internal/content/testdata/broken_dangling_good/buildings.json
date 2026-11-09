@@ -10,6 +10,7 @@
     "cost": { "gold": 0, "planks": 10 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "civic",
     "house": { "tier": "settlers" }
   },
   {
@@ -23,6 +24,7 @@
     "cost": { "gold": 0 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "rural",
     "road": { "seconds_per_tile": 1.0 }
   },
   {
@@ -37,6 +39,7 @@
     "cost": { "gold": 300, "planks": 30 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "harbour",
     "trading_post": {
       "levels": [{ "capacity": 300, "throughput_per_min": 60, "berths": 1 }]
     }
@@ -52,6 +55,7 @@
     "cost": { "gold": 225, "planks": 15 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "civic",
     "service": { "radius": 12 }
   },
   {
@@ -65,6 +69,7 @@
     "cost": { "gold": 375, "planks": 15 },
     "upkeep_per_min": 0,
     "pause_category": "never",
+    "look": "civic",
     "service": { "radius": 16 }
   },
   {
@@ -78,6 +83,7 @@
     "cost": { "gold": 50, "planks": 5 },
     "upkeep_per_min": 1,
     "pause_category": "intermediate",
+    "look": "rural",
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -96,6 +102,7 @@
     "cost": { "gold": 80, "planks": 8 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "look": "workshop",
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [{ "good": "woood", "amount": 1 }],
@@ -115,6 +122,7 @@
     "cost": { "gold": 60, "planks": 6 },
     "upkeep_per_min": 1,
     "pause_category": "food_basic",
+    "look": "rural",
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -133,6 +141,7 @@
     "cost": { "gold": 100, "planks": 10 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "look": "rural",
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -151,6 +160,7 @@
     "cost": { "gold": 120, "planks": 10 },
     "upkeep_per_min": 2,
     "pause_category": "need_goods",
+    "look": "workshop",
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "wool", "amount": 1 }],

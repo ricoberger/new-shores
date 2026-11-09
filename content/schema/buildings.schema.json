@@ -17,7 +17,8 @@
       "requires_road",
       "cost",
       "upkeep_per_min",
-      "pause_category"
+      "pause_category",
+      "look"
     ],
     "properties": {
       "id": { "$ref": "#/$defs/id" },
@@ -49,6 +50,10 @@
       "boat": {
         "description": "The water-edge producer works with a boat (fisher): the life layer rows it out from the model's boat anchor and back (display only, CONTENT §11). Needs water_rows. Absent is false.",
         "type": "boolean"
+      },
+      "look": {
+        "description": "Who works the building, which sets its art (D-075 §3, ART_DIRECTION §3; no gameplay effect): rural (farms, fields, plots, primary producers, roads) wears the tier-1 look whatever its tier, workshop (processing) the tier-2 look, civic (houses, public buildings, market) and harbour (Trading Post, warehouse, shipyard, quay, pier, depot) the unlock-tier ladder.",
+        "enum": ["rural", "workshop", "civic", "harbour"]
       },
       "smoke": {
         "description": "The producer burns or cooks: its model carries chimney and smoke anchors and the life layer draws smoke (producers only, CONTENT §11). Absent is false.",

@@ -1,6 +1,6 @@
 {
   "name": "insolvency",
-  "description": "Upkeep exceeds taxes with little gold: buildings are auto-paused in MECHANICS §7 order (weaver; lumberjack and sheep farm at the lowest upkeep, then sawmill; fisher) because two houses at their floor pay less than the fisher's upkeep. The growing houses and demolished upkeep let them auto-resume in reverse order, each once gold covers 5 minutes of its upkeep.",
+  "description": "Upkeep exceeds taxes with little gold: the cascade pauses in MECHANICS §7 order (lumberjack at the lowest upkeep, then sawmill) because two houses at their floor pay less than the upkeep; the weaver and the fisher, the island's last producers of the garments and the fish the houses consume, and the sheep farm that feeds the weaver pause last (D-075 §5, transitive), so gold is held at zero while they run. The player demolishes the two paused buildings; the growing houses pay for the guarded chain and gold grows again.",
   "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {

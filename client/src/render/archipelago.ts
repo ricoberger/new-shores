@@ -45,7 +45,7 @@ const DRAFT_GAP = 6;
 /** Ship instance scale at near/mid LOD and at far LOD (≥ 1.5×, so ships stay visible zoomed out). */
 export const SHIP_SCALE = 5;
 export const SHIP_SCALE_FAR = 4;
-/** From a ship's origin back to its stern at near LOD (tiles): the sloop's stern lies 0.443 ship lengths behind; a hand's breadth off the pier. */
+/** From a ship's origin back to its stern at near LOD (tiles): the cog's stern lies 0.443 ship lengths behind; a hand's breadth off the pier. */
 export const DOCK_STERN = 0.45 * SHIP_SCALE + 0.1;
 const ROUTE_Y = GROUND_TOP + 0.25;
 /** The haze starts this far (tiles) outside the islands' bounding box. */

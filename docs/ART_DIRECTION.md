@@ -122,7 +122,8 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - **Continuous terrain, hidden grid.** The tile grid is not drawn; a
   subtle grid overlay fades in around the cursor (≈ 8 tiles) only while a
   build/road/field/move tool is active. Ground is flat within a terrace
-  level; the levels are visual only (D-058 §4).
+  level; the levels are visual except that water-edge buildings need a
+  level-0 shore (D-058 §4, D-075 §1).
 - **Voxel ground (D-057 V2):** the island is a column field at 4
   columns per tile, height steps of 1/8 tile, greedy-meshed per 32×32-tile
   chunk with baked corner occlusion (`render/voxelterrain.ts`). The top
@@ -157,7 +158,7 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   flecks (`render/wake.ts`, the `life_wake` model as thin instances)
   from its stern: the manifest's `wake` anchor gives the stern and
   `ship.wake_width` the width there, measured by the build at the
-  stern's waterline to ¼ tile (sloop 0.7, brig 0.9, galleon 1.1 tiles;
+  stern's waterline to ¼ tile (cog 0.7, hulk 0.9, carrack 1.1 tiles;
   a recipe may declare it); each arm starts half of it out to the side.
   Without the field the client uses the model's full bounds width.
 - **Far coast lines up with near:** the lite (2 columns per tile) and far
@@ -570,13 +571,25 @@ land buildings).
   cloths), `H.lantern` (a lantern post with a brass cage) and
   `H.cupola` (a roof lantern with glazed sides, hipped roof and pennant).
   Their tests are `HelperTest` in `tests/test_d062.py`.
-- **Ships:** `recipes/_ships.py` builds all hulls with one `hull()`
-  (plank courses, wale, trim band, rail, deck courses, gunports,
-  bowsprit, stern cabin with windows, gallery and lanterns, forecastle)
-  and `mast()` (yards, top, shrouds, pennant); sails are sway group
-  `sail`, pennants `flag`. The cargo attachment places one prop per
-  cargo slot at the ship's `CARGO_SPOTS`; anchors are `status` and
-  `wake` (stern, waterline).
+- **Ships (D-075 §4, the Hanseatic ladder):** `recipes/_ships.py`
+  builds all hulls with one `hull()` (plank courses, wale, trim band,
+  rail, `sides` raised bulwark strakes, deck courses, gunports,
+  bowsprit, stern cabin with windows, gallery and lanterns),
+  `castle()` (a raised deck on plank walls with a painted rail; a row
+  of windows optional), `mast()` (square sails, yards, top, shrouds
+  unless `rigging=False`, pennant) and `lateen()`. The **cog** (length
+  2 tiles, 2 720 triangles): high sides, one mast with one square sail
+  and no shrouds, a stern castle with a lantern. The **hulk** (2.6
+  tiles, 5 450): fore and stern castles (windows aft, two lanterns),
+  two masts with square sails and a jib. The **carrack** (3.2 tiles,
+  7 430): a high two-storey forecastle with windows, the stern cabin
+  with two rows of windows, square sails on the fore- and mainmast, a
+  lateen on the mizzen, a jib. Sails (square, lateen, jib) are sway
+  group `sail`, pennants `flag`, so the life layer is unchanged. The
+  cargo attachment places one prop per cargo slot at the ship's
+  `CARGO_SPOTS` (clear of masts and castles); anchors are `status` and
+  `wake` (stern, waterline). Budgets are unchanged; the cog's shrouds
+  were the price of its sides and castle.
 - **Anchors:** everything `model.required_anchors` lists (cart, boat,
   berths, slip, pasture gate and animals, chimney/smoke) plus a door on
   buildings; the build fails without them.
@@ -635,6 +648,17 @@ land buildings).
   uses `brick` (an accent: level 3 piers and arch rings, level 4 ground
   floor and gable fields; the role was darkened from `#9C4A38` to
   `#7E4A3C`, shadow `#492928`).
+- **Look follows the workers (D-075 §3):** the roof ladder above is the
+  ladder of `civic` and `harbour` buildings only (content `look`). A
+  `rural` building (farms, fields, lumberjack, apiary, orchard, hemp,
+  dairy, pigs, quarry, mines, charcoal burner, fisher, salt pans,
+  oyster beds) wears the tier-1 look — thatch, timber, low walls —
+  whatever its tier; a `workshop` the tier-2 look — terracotta,
+  half-timber, stone plinth, `tile-dark` allowed on tier-4 workshops;
+  size and props tell the tier. The assignment is the `look` table in
+  CONTENT (under buildings.json); re-dressing the 12–15 tier-3/4
+  production models that still wear their unlock tier's roof is an art
+  session's task.
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual
   only, D-042); one material (vertex colours). Every building reads by
@@ -691,9 +715,10 @@ land buildings).
   of its voxels are). **Ships (V7):** an authored lite per ship
   (`<id>.lite.glb`; `_ships.py` `lite_hull` / `lite_mast` at a quarter
   of the full grid, `SHIP_LITE_DOWNSAMPLE`: keel, planked side, bulwark,
-  stern castle, bowsprit, masts and sail silhouettes, no cargo) under its
-  own budget (`LITE_BUDGET_SHIPS`: sloop
-  300, brig 600, galleon 800; now 236 / 448 / 544 triangles); a plain
+  stern castle, forecastle, bowsprit, masts and sail silhouettes — the
+  cog's one square sail, the carrack's lateen — no cargo) under its
+  own budget (`LITE_BUDGET_SHIPS`: cog
+  300, hulk 600, carrack 800; now 224 / 416 / 506 triangles); a plain
   downsample came out over budget and noisy. Ships switch to the lite
   with the buildings, one draw per ship type; the far allocation counts
   the lite triangles. Fields, decor and life props have no lite file.
@@ -705,15 +730,15 @@ land buildings).
   manifest against content and the life classes.
 - **Budgets (D-054 area scaling, re-based for voxels):** triangles per
   footprint tile — buildings 500 (lite 40), houses 540 (lite 45), fields
-  410 — times the footprint area, no floor and no cap; ships sloop 2 800,
-  brig 6 000, galleon 7 600, cargo 300; decor 580; life props 760,
+  410 — times the footprint area, no floor and no cap; ships cog 2 800,
+  hulk 6 000, carrack 7 600, cargo 300; decor 580; life props 760,
   construction stages 2 100. Each is the prototype's densest model of its
   class with ≈ 50 % headroom; a model over its budget fails the build.
   Per-model exceptions live in `config.py` (`BUDGET_OVERRIDE`,
   `SLACK_OVERRIDE`) and must be justified in the recipe docstring — so
   far only `tree_plot` (450, slack 4: the forest trees at forest scale,
   D-068 as built). The committed GLBs are 23.35 MiB after the V7 rework
-  (#66) of a **24 MiB folder limit**; what remains per triangle is
+  (#66) of a **24 MiB folder limit** (23.33 MiB with the D-075 ships); what remains per triangle is
   indices and AO/normal-split vertices.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at
@@ -730,7 +755,7 @@ land buildings).
   inside D-048's ≤ 40 / ≤ 250 k; dense island mid 1.41 M and near with
   life 1.30 M, settled near 262 k. Near/mid are targets; the gate is the
   device run (§8).
-- **Hero pass (later, optional):** church, harbourmaster, theatre, galleon
+- **Hero pass (later, optional):** church, harbourmaster, theatre, carrack
   may get larger budgets (a `config.py` change with its reason); still
   voxels from recipes.
 
@@ -775,7 +800,7 @@ land buildings).
    diorama islands (PR #16, D-050; both replaced by the voxel build in
    D-057 V1)**: kit manifest, recipe schema and
    Blender build with deterministic GLB writer, AO/two-tone bake, all
-   tier 1–2 recipes + fields + sloop from KayKit/Pirate, slab/plateau/
+   tier 1–2 recipes + fields + cog from KayKit/Pirate, slab/plateau/
    scatter islands, real models at every zoom (lite at far), device-
    validated perf floors, dev reset endpoint for fixtures.
 4. **Life layer and dressing — done (PR #21):** everything in

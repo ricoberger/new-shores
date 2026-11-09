@@ -755,8 +755,8 @@ func TestHealthAndContent(t *testing.T) {
 	if c.Region.Version != "old_coast-0.9.0" || len(c.Buildings) != 33 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
 		t.Fatalf("content: version %s buildings %d goods %d tiers %d needs %d ships %d", c.Region.Version, len(c.Buildings), len(c.Goods), len(c.Tiers), len(c.Needs), len(c.Ships))
 	}
-	if sh := c.Ships[0]; sh.ID != "sloop" || sh.Slots != 4 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != catalogue(t).ShipByID["sloop"].Cost.Gold || sh.Cost.Materials["sails"] != 10_000 {
-		t.Errorf("sloop = %+v", sh)
+	if sh := c.Ships[0]; sh.ID != "cog" || sh.Slots != 4 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != catalogue(t).ShipByID["cog"].Cost.Gold || sh.Cost.Materials["sails"] != 10_000 {
+		t.Errorf("cog = %+v", sh)
 	}
 	if r := c.Region.Rules; r.ShipHandlingBaseMs != 10_000 || r.ShipHandlingMsPerUnit != 200 || r.ShipSpeed != 60_000 {
 		t.Errorf("rules = %+v", c.Region.Rules)
@@ -791,7 +791,7 @@ func TestHealthAndContent(t *testing.T) {
 		if b.ID == "warehouse" && b.Cost.Gold != catalogue(t).BuildingByID["warehouse"].Cost.Gold {
 			t.Errorf("warehouse gold cost %d milli-gold", b.Cost.Gold)
 		}
-		if (b.ID == "shipyard") != (b.Shipyard != nil) || (b.Shipyard != nil && strings.Join(b.Shipyard.Ships, ",") != "sloop") {
+		if (b.ID == "shipyard") != (b.Shipyard != nil) || (b.Shipyard != nil && strings.Join(b.Shipyard.Ships, ",") != "cog") {
 			t.Errorf("%s shipyard block %+v", b.ID, b.Shipyard)
 		}
 		// Format additions of R-5: deposit, fertility and level costs.
