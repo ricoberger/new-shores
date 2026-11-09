@@ -33,6 +33,20 @@ describe("shipment dialog", () => {
     expect(html).toMatch(/data-testid="shipment-slots">[^<]*0[^<]*2/);
   });
 
+  it("disables Send while the cargo exceeds the ship's slots; the warning line stays", () => {
+    const noop = () => {};
+    // 60 t of planks (2 slots of 50 t) and 10 t of wood (1): 3 of 2 slots.
+    const over = { ...ship, cargo: [{ good: "planks", amount: 60_000 }, { good: "wood", amount: 10_000 }] } as unknown as ShipDisplay;
+    const html = renderToStaticMarkup(createElement(ShipmentDialog, { ship: over, initialTo: "isle-02", model, content, onSend: noop, onClose: noop }));
+    expect(sendButton(html)).toContain("disabled");
+    expect(html).toMatch(/class="[^"]*warn[^"]*" data-testid="shipment-slots">[^<]*3[^<]*2/);
+    // Within the slots (2 of 2) Send stays enabled.
+    const full = { ...ship, cargo: [{ good: "planks", amount: 60_000 }] } as unknown as ShipDisplay;
+    const ok = renderToStaticMarkup(createElement(ShipmentDialog, { ship: full, initialTo: "isle-02", model, content, onSend: noop, onClose: noop }));
+    expect(sendButton(ok)).not.toContain("disabled");
+    expect(ok).not.toMatch(/class="[^"]*warn[^"]*" data-testid="shipment-slots"/);
+  });
+
   it("keeps Send disabled without a destination", () => {
     const noop = () => {};
     const alone = { ...model, islands: [home] } as DisplayState;
