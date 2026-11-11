@@ -158,7 +158,7 @@ in the sync after a task unless the task says otherwise; nobody adds the
      with one region) and **D-077** (gold ornaments, military with a
      dormant `defence`, repair crane, shore placement, three Patrician
      warships + patrol, supporter subscription instead of Doubloons,
-     models 32 MiB) → **next: D-076 structural session**, then the
+     models 32 MiB, harbour basins: shallows 8 + connected quays) → **next: D-076 structural session**, then the
      D-077 content + sim + client session and its model session, the `look` re-dress art session (12–15
      tier-3/4 production models, D-075 §3), then playtest 3 with
      screenshots;

@@ -2701,16 +2701,33 @@ bonus × 1.6, advances split into ≤ 12 pieces.
   7. **Models folder limit 24 → 32 MiB** (D-057 amendment); lazy loading
      of rarely used families is the next step if region 2 pushes past
      ~40 MiB.
+  8. **Harbour basins** (amends D-060 §2 / D-036; reference: Anno 1404
+     harbours with piers, breakwaters and basins — buildings standing
+     on the quays, towers at the pier heads). **Shallows band 3 → 8
+     tiles** (Chebyshev from own land, river excluded; still bounded).
+     **Quays must be connected**: every quay tile has an edge neighbour
+     that is land or quay; a demolish that would leave a floating piece
+     is rejected. **Harbours stay open**: placing a quay or a shore
+     building is rejected when it would cut a harbour point, berth or
+     trading pier of the island off from the open sea (the D-075
+     reachability test at placement). Berths stay at the Trading Post
+     and trading piers (a pier head is where the trading pier goes).
+     Cost unchanged (5 gold / 2 stone per tile — the stone sink). Render:
+     a quay tile is a level-0 land block in the terrain mesh with a
+     stone side face and mooring posts (D-068: terrain, not a model);
+     far view a stone-coloured line.
 - **Why:** a city-builder's free game must be complete, so beauty is
   paid in gold and the subscription is support, not access; walls,
   towers and warships are the D-005 hooks the owner wants to see before
   raids exist, and a dormant `defence` / `attack` number costs nothing;
   the shore rule turns four special cases into one; the limit raise is
-  the cheap way to make room.
+  the cheap way to make room; the wide band with connected quays gives
+  the Anno harbour picture for the price of stone.
 - **Consequences:** content 0.22.0 (ornaments, military, crane,
   Kontor, warships, `placement: shore`, `defence`, `attack`,
   categories), sim (shore placement, patrol state and loop, wall/hedge
-  join as paint families), client (two categories, paint tools for
+  join as paint families, shallows 8, quay connectivity and open-harbour
+  checks), client (two categories, paint tools for
   hedge / wall / square, patrol UI, decks), ≈ 27 recipes + GLBs,
   MONETIZATION.md rewritten for the subscription, MECHANICS §3 / §9,
   CONTENT §7 / §8, UI.md, ART_DIRECTION (castle and wall language,
