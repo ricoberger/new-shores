@@ -4,6 +4,9 @@ house with an open work bay in front and a slim chimney (smoke); under the
 bay a giant copper still with its head and pipe, grain heaps and a pyramid
 of spirit barrels. 12 voxels per tile; massing and signature prop in
 NOTES.md.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -23,7 +26,7 @@ def build(ctx):
     v = ctx.vox()  # 60 × 72
     seed = 201
     K.ground(v, 30, 56, 27, 18, seed)
-    h = K.workshop(v, 6, 6, 60 - 6, 34, 3, "d", seed, door=("y+", 28), smoke=True, chim=(46, 10), wins=[])
+    h = K.workshop(v, 6, 6, 60 - 6, 34, 2, "d", seed, door=("y+", 28), smoke=True, chim=(46, 10), wins=[])
     K.still(v, 16, 54, m=COPPER, r=7)
     K.pile(v, 34, 38, 1, 12, 8, 6, GOODS, seed)
     for row, n in enumerate((5, 4, 3)):

@@ -1,9 +1,12 @@
 """
 Salt works (4 × 6; V7 rework after the Anno 1404 salt processing, tier III):
-a tall stone-and-timber boiling house under dark burgundy tiles with a slim
+a tall stone-and-timber boiling house under terracotta tiles with a slim
 chimney (smoke), a round copper evaporation pan on a hearth at its flank, a
 long shallow trough of brine, big white heaps of salt, salt barrels and a
 cart. 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -24,7 +27,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 72
     seed = 117
     K.ground(v, 24, 48, 20, 20, seed)
-    K.workshop(v, 18, 6, 44, 34, 3, "b", seed, door=("y+", 24), smoke=True, chim=(38, 10), wins=[])
+    K.workshop(v, 18, 6, 44, 34, 2, "b", seed, door=("y+", 24), smoke=True, chim=(38, 10), wins=[])
     # Round copper pan on a stone hearth.
     v.ellipsoid(10, 20, 0, 8, 8, 5, lambda x, y, z: mat("stone", 0.85), keep=lambda x, y, z: z >= 1 and z <= 4)
     v.ellipsoid(10, 20, 3, 6.5, 6.5, 2.5, lambda x, y, z: COPPER, keep=lambda x, y, z: z >= 4)

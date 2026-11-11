@@ -1,9 +1,12 @@
 """
 Brewery (5 × 6; V7 rework after the Anno 1404 brewery, tier III): a long
-stone-and-timber brewhouse under dark burgundy tiles with a slim chimney
+stone-and-timber brewhouse under terracotta tiles with a slim chimney
 (smoke), a round copper-capped kettle tower at its west corner, a big
 stack of pale new barrels and rows of barrels on the cobbled-over yard,
 a loading hatch with a hoist and a cart. 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -24,8 +27,8 @@ def build(ctx):
     v = ctx.vox()  # 60 × 72
     seed = 67
     K.ground(v, 34, 48, 24, 20, seed)
-    h = K.workshop(v, 22, 6, 54, 34, 3, "b", seed, door=("y+", 40), smoke=True, chim=(46, 10), wins=[26])
-    W.loft_door(v, 33, 28, 14, w=5, h=6, frame=P.DRESSED, side="y+", length=6, rope=6)
+    h = K.workshop(v, 22, 6, 54, 34, 2, "b", seed, door=("y+", 40), smoke=True, chim=(46, 10), wins=[26])
+    W.loft_door(v, 33, 28, 12, w=5, h=6, frame=P.DRESSED, side="y+", length=6, rope=6)
     # Round kettle tower at the west corner with a copper cone.
     V.round_tower(v, 12, 22, 8, 1, 22, m=STONE, seed=seed)
     V.cone_roof(v, 12, 22, 8.6, 22, CAP, rise=1.2, tip=CAP)

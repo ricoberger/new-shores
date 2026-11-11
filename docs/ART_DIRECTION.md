@@ -667,6 +667,7 @@ land buildings).
 |---|---|---|---|
 | hop farm, woad farm, clay pit, salt pans, salt mine, coal mine | Merchants | rural | tier I: boarded walls / stone-and-timber on a stone band, weathered thatch |
 | cattle farm, oyster beds, vineyard, quartz quarry, copper mine, gold mine | Patricians | rural | tier I: as above; mines keep their timber headframes, pits their sheds |
+| butcher, pastry kitchen, brewery, distillery, leather works, tailor, dyer works, dyer, paper mill, printing press, rendering house, soap maker, salt works, brickworks | Merchants | workshop | tier II: rubble ground floor, half-timber, terracotta; kettle caps and kilns stay |
 
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual

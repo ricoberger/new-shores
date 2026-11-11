@@ -1,10 +1,13 @@
 """
 Butcher (4 × 5; V7 rework after the Anno 1404 butcher's shop, tier III): a
-stone-and-timber shop under dark burgundy tiles with a slim chimney (smoke)
+stone-and-timber shop under terracotta tiles with a slim chimney (smoke)
 and a wide shop hatch, beside an open smoking shed on posts with a tiled
 roof from whose rails sides of red meat and hams hang; a chopping block, a
 scalding tub, salt casks, a woodpile and a cart; a low forecourt wall.
 12 voxels per tile; dirt in the yard, the rest grass.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -24,7 +27,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 19
     K.ground(v, 24, 38, 21, 18, seed)
-    h = K.workshop(v, 22, 6, 46, 28, 3, "d", seed, door=("y+", 36), smoke=True, chim=(40, 10), wins=[])
+    h = K.workshop(v, 22, 6, 46, 28, 2, "d", seed, door=("y+", 36), smoke=True, chim=(40, 10), wins=[])
     v.box(26, 29, 3, 34, 31, 4, TIMBER_LIGHT)  # the counter
     for x in (26, 33):
         v.box(x, 29, 1, x + 1, 31, 3, TIMBER_DARK)
@@ -32,7 +35,7 @@ def build(ctx):
     for x in (2, 18):
         for y in (8, 12, 20, 26):
             v.box(x, y, 1, x + 1, y + 1, 12, TIMBER_DARK)
-    K.lean(v, 2, 19, 8, 27, 12, "y+", tier=3, posts=False)
+    K.lean(v, 2, 19, 8, 27, 12, "y+", tier=2, posts=False)
     v.box(2, 12, 11, 19, 13, 12, TIMBER)
     v.box(2, 20, 11, 19, 21, 12, TIMBER)
     V.hanging(v, 3, 18, 12, 11, ((MEAT, 5), (HAM, 4)), every=3)
