@@ -5,6 +5,9 @@ y like the dairy farm's, with a hayloft door and hoist in the front gable and
 an open lean-to milking shed on the west flank (a cow, churns); in front a
 fenced paddock with two cows, a long water trough, a haystack and a cart.
 12 voxels per tile.
+Re-dressed in the rural look (D-075 §3, `look: rural`): the tier-I look — boarded
+walls on a stone band under weathered thatch — whatever the unlock tier; the
+props and the signature parts are unchanged.
 """
 
 from nsvoxel import parts as P
@@ -23,7 +26,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 127
     K.ground(v, 24, 48, 21, 14, seed)
-    h = K.workshop(v, 6, 4, 42, 30, 4, "b", seed, door=("y+", 24), wins=None)
+    h = K.workshop(v, 6, 4, 42, 30, 1, "b", seed, door=("y+", 24), wins=None)
     W.loft_door(v, 29, 24, 13, frame=P.DRESSED, beam_z=26, rope=11)
     K.cow(v, 8, 12, 1, along="y")
     for y in (22, 25):

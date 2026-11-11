@@ -3,12 +3,16 @@ Salt pans (5 × 9, back 3 rows over water; D-057 §3): evaporation basins
 on low stone walls over the water rows — sea water, brine and white
 crystallising pans with raked salt ridges — plank walks between them, a
 jetty with a moored salt barge (the boat's mooring beside it: `boat`);
-on land a great white salt heap, a tiled salt-workers' hut, rakes, salt
+on land a great white salt heap, a thatched salt-workers' hut (the rural look, D-075 §3), rakes, salt
 sacks and a cart.
+Re-dressed in the rural look (D-075 §3, `look: rural`): the tier-I look — boarded
+walls on a stone band under weathered thatch — whatever the unlock tier; the
+props and the signature parts are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
 from nsvoxel import parts as P
+from nsvoxel.parts_v7 import thatch_finish
 from nsvoxel.grid import mat
 from nsvoxel.mats import CANVAS, PLANK, STONE, STONE_DARK, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
@@ -76,7 +80,8 @@ def build(ctx):
         v.box(x, 44, 1, x + 1, 45, 4, TIMBER_LIGHT)  # a rake leaning on the heap's foot
         v.set(x, 45, 3, TIMBER_DARK)
     # Salt-workers' hut: stone, tiles, a door to the yard.
-    b = P.building(v, 22, 30, 36, 42, "stone", along="x", seed=seed, height=9)
+    b = P.building(v, 22, 30, 36, 42, "stonethatch", along="x", seed=seed, height=9)
+    thatch_finish(v, b.roof, seed)
     P.entrance(b.face("y+"), 27, 2, 3, 5)
     P.casement(b.face("y+"), 32, 4, 2, 3, frame=P.DRESSED, sill=P.DRESSED, shutters=mat("dye-blue"))
     P.casement(b.face("x-"), 35, 4, 2, 3, frame=P.DRESSED, sill=P.DRESSED, shutters=mat("dye-blue"))
@@ -85,7 +90,7 @@ def build(ctx):
     P.sacks(v, 24, 48, 1, n=2, m=CANVAS)
     P.box_crate(v, 31, 46, 1, contents=SALT)
     # A tiled store shed with stacked sacks, a second heap, the cart.
-    P.lean_to(v, 26, 38, 52, 62, 8, "tiles", down="y+", posts=True)
+    P.lean_to(v, 26, 38, 52, 62, 8, "thatch", down="y+", posts=True, seed=seed)
     for x in range(27, 37, 2):
         P.sacks(v, x, 54, 1, n=1, m=SACK)
         P.sacks(v, x, 57, 1, n=1, m=SACK)

@@ -3,6 +3,9 @@ Hop farm (3 × 4; V7 rework, tier III; no 1404 render): a stone-and-timber
 farmhouse under dark burgundy tiles, a yard of tall hop poles hung with
 green bines and pale cones, a drying frame with bunches of hops, big
 green hop bales and a cart. No chimney. 12 voxels per tile.
+Re-dressed in the rural look (D-075 §3, `look: rural`): the tier-I look — boarded
+walls on a stone band under weathered thatch — whatever the unlock tier; the
+props and the signature parts are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,7 +24,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 79
     K.ground(v, 18, 36, 15, 11, seed)
-    h = K.workshop(v, 6, 5, 30, 22, 3, "a", seed, door=("y+", 14), wins=[7, 22])
+    h = K.workshop(v, 6, 5, 30, 22, 1, "a", seed, door=("y+", 14), wins=[7, 22])
     for x in range(5, 32, 6):
         for y in (28, 34):
             V.hop_pole(v, x, y, 13, seed)

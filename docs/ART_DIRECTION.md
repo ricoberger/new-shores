@@ -659,6 +659,15 @@ land buildings).
   CONTENT (under buildings.json); re-dressing the 12–15 tier-3/4
   production models that still wear their unlock tier's roof is an art
   session's task.
+- **Look table (D-075 §3, as built).** Every production building's look
+  is its content `look`; the tier column is the unlock tier, the
+  last column the look the model wears.
+
+| Building | Tier | `look` | Model wears |
+|---|---|---|---|
+| hop farm, woad farm, clay pit, salt pans, salt mine, coal mine | Merchants | rural | tier I: boarded walls / stone-and-timber on a stone band, weathered thatch |
+| cattle farm, oyster beds, vineyard, quartz quarry, copper mine, gold mine | Patricians | rural | tier I: as above; mines keep their timber headframes, pits their sheds |
+
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual
   only, D-042); one material (vertex colours). Every building reads by

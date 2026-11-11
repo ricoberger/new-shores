@@ -2,21 +2,24 @@
 Oyster beds (6 × 12, the back 4 rows over water; D-057 §3, V5): rack
 frames on piles over the water rows — trestles carrying rails with rows
 of oyster bags — either side of a plank walkway that runs out to the
-boat's mooring (`boat`); on the land rows a sorting hut of ashlar with a
-tiled roof and an open sorting shed with tables and tubs, stone holding
+boat's mooring (`boat`); on the land rows a sorting hut of stone with a
+thatched roof and an open sorting shed with tables and tubs, stone holding
 tanks of sea water, shell heaps, stacked spare racks, a store for bags and gear, the keeper's
-cottage and a cart.
+timber cottage and a cart (the rural look, D-075 §3: thatch and timber).
+Re-dressed in the rural look (D-075 §3, `look: rural`): the tier-I look — boarded
+walls on a stone band under weathered thatch — whatever the unlock tier; the
+props and the signature parts are unchanged.
 """
 
 from nsvoxel import detail_v5 as Q
 from nsvoxel import parts as P
+from nsvoxel.parts_v7 import thatch_finish
 from nsvoxel.grid import mat
 from nsvoxel.mats import CANVAS, PLANK, STONE, STONE_DARK, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
 BAG = mat("stone", 0.78)
 OYSTER = mat("stone", 0.9)
 SEA = mat("shallows")
-ROOF = mat("terracotta", 0.94)
 
 
 def rack(v, x0, x1, y):
@@ -56,7 +59,8 @@ def build(ctx):
     P.yard(v, 0, D - 10, 20, D, "grass", seed=seed)
     P.path(v, [(x, y) for x in range(22, 26) for y in range(land, D)], kind="paved")
     # Sorting hut: ashlar, tiles, a chimney-less hipped roof.
-    b = P.building(v, 3, 40, 19, 54, "stone", along="x", height=11, roof=ROOF, seed=seed)
+    b = P.building(v, 3, 40, 19, 54, "stonethatch", along="x", height=11, seed=seed, hip=True)
+    thatch_finish(v, b.roof, seed)
     f = b.face("y+")
     P.entrance(f, 9, 2, 3, 5)
     for a in (5, 15):
@@ -64,7 +68,7 @@ def build(ctx):
     Q.window(b.face("x+"), 46, 5, 2, 3, hood="key", surround=True)
     P.trade_sign(f, 13, 8, OYSTER)
     # Open sorting shed: lean-to on posts over two tables and tubs.
-    P.lean_to(v, 29, 45, 40, 52, 9, "tiles", down="y+", m=ROOF, seed=seed)
+    P.lean_to(v, 29, 45, 40, 52, 9, "thatch", down="y+", seed=seed)
     for y in (42, 47):
         v.box(31, y, 1, 43, y + 2, 3, TIMBER_LIGHT)
         for x in range(32, 42, 3):
@@ -84,14 +88,16 @@ def build(ctx):
     for i in range(3):
         v.box(4, 70 + i * 2, 1 + i, 16, 71 + i * 2, 2 + i, TIMBER)
     # Store for bags and gear: boarded on a stone plinth, tiles, an open gate with crates.
-    st = P.building(v, 30, 78, 45, 90, "stone", along="x", height=9, roof=ROOF, seed=seed + 3)
+    st = P.building(v, 30, 78, 45, 90, "settler", along="x", height=9, seed=seed + 3)
+    thatch_finish(v, st.roof, seed + 3)
     P.barn_gate(st.face("y+"), 33, 1, 5, 6)
     P.casement(st.face("y+"), 41, 4, 2, 2, frame=P.DRESSED, sill=P.DRESSED, bars=False)
     P.box_crate(v, 30, 91, 1, contents=OYSTER)
     P.box_crate(v, 39, 92, 1, contents=OYSTER)
     P.sacks(v, 42, 92, 1, n=2, m=CANVAS)
     # Keeper's cottage by the gate: ashlar, tiles, a chimney.
-    k = P.building(v, 3, 78, 15, 88, "stone", along="y", height=10, roof=mat("terracotta", 0.84), seed=seed + 4)
+    k = P.building(v, 3, 78, 15, 88, "settler", along="y", height=10, seed=seed + 4)
+    thatch_finish(v, k.roof, seed + 4)
     P.entrance(k.face("x+"), 82, 2, 2, 5)
     Q.window(k.face("y+"), 8, 5, 2, 3, hood="key", surround=True)
     P.roof_chimney(v, k.roof, 6, 80, above=2, brick=True)

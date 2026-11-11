@@ -3,6 +3,9 @@ Woad farm (3 × 4; V7 variety pass, tier III): a stone-and-timber farmhouse
 with a lean-to shed (no chimney); in front two tall racks hung with deep
 blue woad leaves and a heap of woad balls. 12 voxels per tile; massing and
 signature prop in NOTES.md.
+Re-dressed in the rural look (D-075 §3, `look: rural`): the tier-I look — boarded
+walls on a stone band under weathered thatch — whatever the unlock tier; the
+props and the signature parts are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,7 +24,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 221
     K.ground(v, 18, 40, 15, 10, seed)
-    h = K.workshop(v, 6, 6, 36 - 6, 26, 3, "b", seed, door=("y+", 16), wins=[])
+    h = K.workshop(v, 6, 6, 36 - 6, 26, 1, "b", seed, door=("y+", 16), wins=[])
     K.rack(v, 6, 30, 32, GOODS, h=16, drop=13)
     K.rack(v, 6, 30, 40, [GOODS, shade_of(GOODS, 1.2)], h=14, drop=11)
     V.heap(v, 28, 44, r=5, h=5, m=GOODS, seed=seed)
