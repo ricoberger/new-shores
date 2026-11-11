@@ -49,7 +49,7 @@
   "quarters": [
     {
       "id": "home-1",
-      "island": "isle-01",
+      "island": "oc-01",
       "civic": [
         "market",
         "chapel",
@@ -81,7 +81,7 @@
     },
     {
       "id": "isle2-1",
-      "island": "isle-02",
+      "island": "oc-02",
       "civic": [
         "market",
         "chapel",
@@ -97,7 +97,7 @@
     },
     {
       "id": "home-2",
-      "island": "isle-01",
+      "island": "oc-01",
       "civic": [
         "market",
         "chapel"
@@ -106,7 +106,7 @@
     },
     {
       "id": "home-3",
-      "island": "isle-01",
+      "island": "oc-01",
       "civic": [
         "market",
         "chapel",
@@ -128,7 +128,7 @@
     },
     {
       "id": "isle6-1",
-      "island": "isle-06",
+      "island": "oc-06",
       "civic": [
         "market",
         "chapel",
@@ -144,7 +144,7 @@
     },
     {
       "id": "home-4",
-      "island": "isle-01",
+      "island": "oc-01",
       "civic": [
         "market",
         "chapel",
@@ -165,7 +165,7 @@
     },
     {
       "id": "home-5",
-      "island": "isle-01",
+      "island": "oc-01",
       "civic": [
         "market",
         "chapel"
@@ -178,14 +178,14 @@
       "step": {
         "sail_ship": {
           "ship": 1,
-          "to": "isle-01"
+          "to": "oc-01"
         }
       }
     },
     {
       "found": {
         "ship": 1,
-        "island": "isle-01",
+        "island": "oc-01",
         "at": [
           122,
           198,
@@ -195,14 +195,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "fisher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -210,14 +210,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sawmill",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -225,7 +225,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sawmill",
         "count": 1
       }
@@ -250,21 +250,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -272,14 +272,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sawmill",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "fisher",
         "count": 1
       }
@@ -288,7 +288,7 @@
       "step": {
         "manual_shipment": {
           "ship": 1,
-          "to": "isle-02",
+          "to": "oc-02",
           "cargo": {
             "planks": 50
           }
@@ -298,7 +298,7 @@
     {
       "found": {
         "ship": 1,
-        "island": "isle-02"
+        "island": "oc-02"
       }
     },
     {
@@ -306,7 +306,7 @@
       "step": {
         "sail_ship": {
           "ship": 1,
-          "to": "isle-01"
+          "to": "oc-01"
         }
       }
     },
@@ -342,21 +342,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "quarry",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1,
         "at": [
@@ -368,14 +368,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1,
         "at": [
@@ -387,7 +387,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "fisher",
         "count": 1
       }
@@ -404,7 +404,7 @@
       "step": {
         "manual_shipment": {
           "ship": 1,
-          "to": "isle-02",
+          "to": "oc-02",
           "cargo": {
             "planks": 50,
             "stone": 27
@@ -414,7 +414,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "fisher",
         "count": 1
       }
@@ -427,7 +427,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -435,28 +435,28 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "charcoal_burner",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "iron_mine",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "smelter",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "toolmaker",
         "count": 1
       }
@@ -466,7 +466,7 @@
       "step": {
         "manual_shipment": {
           "ship": 1,
-          "to": "isle-01",
+          "to": "oc-01",
           "cargo": {
             "tools": 2
           }
@@ -479,7 +479,7 @@
           "name": "Stone out, tools home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "load": {
                 "planks": 50,
                 "stone": 50
@@ -489,7 +489,7 @@
               ]
             },
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "tools": 50
               },
@@ -514,7 +514,7 @@
       "checkpoint": {
         "name": "tools on the start island",
         "stock": {
-          "island": "isle-01",
+          "island": "oc-01",
           "good": "tools"
         },
         "max": "90m"

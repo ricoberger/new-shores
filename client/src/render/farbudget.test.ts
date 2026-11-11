@@ -66,7 +66,7 @@ const DEVICES = { desktop: 1280 / 800, phone: 390 / 844, "desktop-xl": 2992 / 17
 const FAR_DRAWS = 40;
 /** Draws of the far view besides the islands and the fleet: sea, haze, landmarks. */
 const FAR_SCENERY_DRAWS = 3;
-const HOME = "isle-01";
+const HOME = "oc-01";
 
 /** Canvas stand-in for the dynamic textures (foam, field patterns, status icons): drawing is a no-op. */
 class FakeCanvas {

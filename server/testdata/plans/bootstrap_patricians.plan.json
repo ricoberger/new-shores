@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_patricians",
-  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. Farms moved off the start island (the D-065 chain plots leave isle-01 too little grass for its last wheat_farm, and wheat grows only on isle-01 among the settled islands): the 11th to 14th pig_farm stand on isle-06, served by a fourth cog on a new route 4 (stone out, pigs home); later ships and routes are renumbered; the eighth wheat_farm comes before the second apiary.",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. Farms moved off the start island (the D-065 chain plots leave oc-01 too little grass for its last wheat_farm, and wheat grows only on oc-01 among the settled islands): the 11th to 14th pig_farm stand on oc-06, served by a fourth cog on a new route 4 (stone out, pigs home); later ships and routes are renumbered; the eighth wheat_farm comes before the second apiary.",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
@@ -50,7 +50,7 @@
   "quarters": [
     {
       "id": "home-6",
-      "island": "isle-01",
+      "island": "oc-01",
       "near": [
         220,
         100
@@ -84,7 +84,7 @@
           "name": "Hops home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "unload": [
                 "hops",
                 "tools",
@@ -94,7 +94,7 @@
               ]
             },
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "hops": 50,
                 "stone": 50
@@ -106,7 +106,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       },
@@ -114,7 +114,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1,
         "at": [
@@ -132,7 +132,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -141,14 +141,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sawmill",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -156,21 +156,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sawmill",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sawmill",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sawmill",
         "count": 1
       }
@@ -197,7 +197,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "sawmill",
         "count": 1
       }
@@ -210,70 +210,70 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 3
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 3
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tailor",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "weaver_wool",
         "count": 1
       }
@@ -286,7 +286,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "hop_farm",
         "count": 1
       }
@@ -313,35 +313,35 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "leather_works",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -366,7 +366,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "fisher",
         "count": 1
       }
@@ -411,7 +411,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -444,14 +444,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
@@ -464,7 +464,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "hop_farm",
         "count": 1
       }
@@ -477,21 +477,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tailor",
         "count": 1
       }
@@ -518,7 +518,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -531,14 +531,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -551,7 +551,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "meadery",
         "count": 1
       }
@@ -587,7 +587,7 @@
       "step": {
         "manual_shipment": {
           "ship": 2,
-          "to": "isle-06",
+          "to": "oc-06",
           "cargo": {
             "planks": 100
           }
@@ -597,7 +597,7 @@
     {
       "found": {
         "ship": 2,
-        "island": "isle-06"
+        "island": "oc-06"
       }
     },
     {
@@ -618,13 +618,13 @@
           "name": "Hemp home",
           "stops": [
             {
-              "island": "isle-06",
+              "island": "oc-06",
               "load": {
                 "hemp": 30
               }
             },
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "unload": [
                 "hemp"
               ]
@@ -643,7 +643,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -657,7 +657,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "sawmill",
         "count": 1
       }
@@ -670,7 +670,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "hemp_farm",
         "count": 1
       },
@@ -684,21 +684,21 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sailmaker",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "fisher",
         "count": 1
       }
@@ -711,7 +711,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "weaver_wool",
         "count": 1
       }
@@ -744,7 +744,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -757,7 +757,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
@@ -770,7 +770,7 @@
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
@@ -795,7 +795,7 @@
     },
     {
       "order_ship": {
-        "island": "isle-01",
+        "island": "oc-01",
         "ship_type": "cog"
       }
     },
@@ -850,7 +850,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "mill",
         "count": 1
       },
@@ -858,21 +858,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "bakery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "mill",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "bakery",
         "count": 1
       }
@@ -892,7 +892,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -905,14 +905,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -957,7 +957,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
@@ -970,14 +970,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "hop_farm",
         "count": 1
       }
@@ -990,21 +990,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tailor",
         "count": 1
       }
@@ -1031,7 +1031,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -1044,14 +1044,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "leather_works",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "fisher",
         "count": 1
       }
@@ -1084,14 +1084,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "dairy_farm",
         "count": 1
       }
@@ -1104,7 +1104,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -1117,14 +1117,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "cheese_dairy",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "printing_press",
         "count": 1
       }
@@ -1151,7 +1151,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -1164,7 +1164,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
@@ -1177,7 +1177,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tannery",
         "count": 1
       }
@@ -1204,7 +1204,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "apiary",
         "count": 1
       }
@@ -1231,7 +1231,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -1245,7 +1245,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
@@ -1258,7 +1258,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -1291,21 +1291,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "hop_farm",
         "count": 1
       }
@@ -1318,21 +1318,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tailor",
         "count": 1
       }
@@ -1389,7 +1389,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -1442,7 +1442,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -1455,14 +1455,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
@@ -1475,7 +1475,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -1488,7 +1488,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "fisher",
         "count": 1
       }
@@ -1515,14 +1515,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "leather_works",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "meadery",
         "count": 1
       }
@@ -1549,7 +1549,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -1582,7 +1582,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
@@ -1595,14 +1595,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -1615,7 +1615,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
@@ -1628,28 +1628,28 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tailor",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "hop_farm",
         "count": 1
       }
@@ -1677,7 +1677,7 @@
     {
       "note": "D-069: before the pig farms of this round, which otherwise take the grass it needs next to the warehouses reach asks for.",
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
@@ -1685,7 +1685,7 @@
     {
       "note": "D-069: the last wheat farm right after the round's first one, before the pastures and small buildings fragment the grass.",
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
@@ -1718,7 +1718,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "apiary",
         "count": 1
       }
@@ -1757,7 +1757,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
@@ -1770,14 +1770,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -1830,7 +1830,7 @@
     },
     {
       "order_ship": {
-        "island": "isle-01",
+        "island": "oc-01",
         "ship_type": "cog"
       }
     },
@@ -1840,7 +1840,7 @@
           "name": "Stone out, pigs home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "load": {
                 "stone": 30
               },
@@ -1850,7 +1850,7 @@
               ]
             },
             {
-              "island": "isle-06",
+              "island": "oc-06",
               "load": {
                 "pigs": 50,
                 "milk": 30
@@ -1865,7 +1865,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "quarry",
         "count": 1
       }
@@ -1880,37 +1880,37 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "pig_farm",
         "count": 1
       }
     },
     {
-      "note": "D-069: pig farms #13–14 on isle-06 too (pig route): the warehouses reach asks for take the home grass of the last wheat farm.",
+      "note": "D-069: pig farms #13–14 on oc-06 too (pig route): the warehouses reach asks for take the home grass of the last wheat farm.",
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "pig_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "pig_farm",
         "count": 1
       }
     },
     {
-      "note": "D-069: on isle-06 (milk home on the pig route): the warehouses reach asks for take the home grass this pasture needed.",
+      "note": "D-069: on oc-06 (milk home on the pig route): the warehouses reach asks for take the home grass this pasture needed.",
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "dairy_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "cheese_dairy",
         "count": 1
       }
@@ -1943,7 +1943,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
@@ -1956,7 +1956,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "hop_farm",
         "count": 1
       }
@@ -1969,21 +1969,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "fisher",
         "count": 1
       }
@@ -1996,14 +1996,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tailor",
         "count": 1
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
@@ -2028,7 +2028,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "pig_farm",
         "count": 1
       }
@@ -2041,21 +2041,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "leather_works",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -2082,7 +2082,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "printing_press",
         "count": 1
       }
@@ -2127,7 +2127,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "pig_farm",
         "count": 1
       }
@@ -2140,7 +2140,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
@@ -2173,21 +2173,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "paper_mill",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -2200,7 +2200,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tannery",
         "count": 1
       }
@@ -2251,72 +2251,72 @@
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "apiary",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "apiary",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "meadery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "apiary",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "meadery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "pig_farm",
         "count": 1
       }
@@ -2349,7 +2349,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "apiary",
         "count": 1
       }
@@ -2362,7 +2362,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
@@ -2395,7 +2395,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "hop_farm",
         "count": 1
       }
@@ -2408,7 +2408,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "sheep_farm",
         "count": 1
       }
@@ -2421,35 +2421,35 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "meadery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tailor",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "weaver_wool",
         "count": 1
       }
@@ -2462,7 +2462,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "fisher",
         "count": 1
       }
@@ -2513,7 +2513,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
@@ -2526,7 +2526,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
@@ -2539,7 +2539,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -2566,7 +2566,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "dairy_farm",
         "count": 1
       }
@@ -2579,7 +2579,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
@@ -2592,14 +2592,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "cheese_dairy",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "fisher",
         "count": 1
       }
@@ -2620,7 +2620,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "leather_works",
         "count": 1
       }
@@ -2655,21 +2655,21 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -2690,7 +2690,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "hop_farm",
         "count": 1
       }
@@ -2703,28 +2703,28 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tailor",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "warehouse",
         "count": 1
       }
@@ -2750,7 +2750,7 @@
           "name": "Island goods",
           "stops": [
             {
-              "island": "isle-06",
+              "island": "oc-06",
               "load": {
                 "brass": 30,
                 "glass": 40,
@@ -2764,7 +2764,7 @@
               ]
             },
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "load": {
                 "bricks": 20,
                 "stone": 30
@@ -2789,7 +2789,7 @@
           "name": "Hops home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "unload": [
                 "hops",
                 "tools",
@@ -2798,7 +2798,7 @@
               ]
             },
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "hops": 50,
                 "iron": 30
@@ -2815,7 +2815,7 @@
           "name": "Bricks home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "unload": [
                 "bricks",
                 "stone",
@@ -2824,7 +2824,7 @@
               ]
             },
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "bricks": 50,
                 "stone": 50
@@ -2836,13 +2836,13 @@
     },
     {
       "order_ship": {
-        "island": "isle-01",
+        "island": "oc-01",
         "ship_type": "hulk"
       }
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -2850,14 +2850,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sheep_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "charcoal_burner",
         "count": 1
       }
@@ -2870,14 +2870,14 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "charcoal_burner",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "weaver_wool",
         "count": 1
       }
@@ -2899,14 +2899,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "winepress",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "pig_farm",
         "count": 1
       }
@@ -2927,27 +2927,27 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "hemp_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "hemp_farm",
         "count": 1
       }
     },
     {
       "order_ship": {
-        "island": "isle-01",
+        "island": "oc-01",
         "ship_type": "carrack"
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "pig_farm",
         "count": 1
       }
@@ -2960,7 +2960,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "copper_mine",
         "count": 1
       }
@@ -2980,7 +2980,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "quartz_quarry",
         "count": 1
       }
@@ -3000,7 +3000,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "glass_smelter",
         "count": 1
       }
@@ -3020,7 +3020,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "glass_smelter",
         "count": 1
       }
@@ -3033,7 +3033,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "thread_spinner",
         "count": 1
       }
@@ -3046,7 +3046,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "vineyard",
         "count": 1
       }
@@ -3066,7 +3066,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "vineyard",
         "count": 1
       }
@@ -3079,7 +3079,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "vineyard",
         "count": 1
       }
@@ -3092,7 +3092,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "pig_farm",
         "count": 1
       }
@@ -3105,100 +3105,100 @@
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
@@ -3215,7 +3215,7 @@
           "name": "Farm goods",
           "stops": [
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "cattle": 30,
                 "hops": 60,
@@ -3225,7 +3225,7 @@
               }
             },
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "unload": [
                 "pigs",
                 "salt",
@@ -3247,9 +3247,9 @@
       }
     },
     {
-      "note": "D-072 part 2: the deposit-slot rule moved the dev seed's layout and isle-02 lies farther from home (a 27-minute loop): one carrack no longer carries enough cattle and pigs (roast beef and sausages ran short in the final wait): a second carrack on the farm-goods route, a hulk with the pigs that pile up on isle-06 and the roast-beef chain right with the farm-goods route (three cattle farms on isle-02 with three more houses for their workers, two slaughterhouses at home), not after the cathedral: built after it, hardly any cattle reached home before the end.",
+      "note": "D-072 part 2: the deposit-slot rule moved the dev seed's layout and oc-02 lies farther from home (a 27-minute loop): one carrack no longer carries enough cattle and pigs (roast beef and sausages ran short in the final wait): a second carrack on the farm-goods route, a hulk with the pigs that pile up on oc-06 and the roast-beef chain right with the farm-goods route (three cattle farms on oc-02 with three more houses for their workers, two slaughterhouses at home), not after the cathedral: built after it, hardly any cattle reached home before the end.",
       "order_ship": {
-        "island": "isle-01",
+        "island": "oc-01",
         "ship_type": "carrack"
       }
     },
@@ -3263,7 +3263,7 @@
     },
     {
       "order_ship": {
-        "island": "isle-01",
+        "island": "oc-01",
         "ship_type": "hulk"
       }
     },
@@ -3274,7 +3274,7 @@
           "name": "Stone out, pigs home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "load": {
                 "stone": 30
               },
@@ -3284,7 +3284,7 @@
               ]
             },
             {
-              "island": "isle-06",
+              "island": "oc-06",
               "load": {
                 "pigs": 150,
                 "milk": 30
@@ -3299,7 +3299,7 @@
     },
     {
       "order_ship": {
-        "island": "isle-01",
+        "island": "oc-01",
         "ship_type": "hulk"
       },
       "note": "D-074: sixty Merchant houses drink more beer: five more breweries, five wheat farms and a hulk for hops alone."
@@ -3310,13 +3310,13 @@
           "name": "Hops home 2",
           "stops": [
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "hops": 100
               }
             },
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "unload": [
                 "hops"
               ]
@@ -3343,35 +3343,35 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "cattle_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "slaughterhouse",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "cattle_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "cattle_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "slaughterhouse",
         "count": 1
       }
@@ -3384,7 +3384,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "pig_farm",
         "count": 1
       }
@@ -3405,49 +3405,49 @@
     {
       "note": "Level 4 needs Patricians (D-065 extended to the Trading Post): after the first Patrician house.",
       "upgrade_trading_post": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "upgrade_warehouse": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
@@ -3473,7 +3473,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "salt_pans",
         "count": 1
       }
@@ -3486,7 +3486,7 @@
     },
     {
       "build": {
-        "island": "isle-06",
+        "island": "oc-06",
         "type": "copper_smelter",
         "count": 1
       }
@@ -3511,7 +3511,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "salt_pans",
         "count": 1
       }
@@ -3545,7 +3545,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "salt_pans",
         "count": 1
       }
@@ -3564,7 +3564,7 @@
           "name": "Bricks home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "unload": [
                 "bricks",
                 "stone",
@@ -3573,7 +3573,7 @@
               ]
             },
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "bricks": 50
               }
@@ -3590,7 +3590,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "cooperage",
         "count": 1
       }
@@ -3616,7 +3616,7 @@
           "name": "Island goods",
           "stops": [
             {
-              "island": "isle-06",
+              "island": "oc-06",
               "load": {
                 "brass": 30,
                 "glass": 40,
@@ -3625,7 +3625,7 @@
               }
             },
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "unload": [
                 "glass",
                 "brass",
@@ -3647,7 +3647,7 @@
           "name": "Bricks home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "unload": [
                 "bricks",
                 "stone",
@@ -3656,7 +3656,7 @@
               ]
             },
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "bricks": 50,
                 "stone": 50
@@ -3687,30 +3687,30 @@
       }
     },
     {
-      "note": "D-072: coats and sausages ran short in the final wait (the tailors and butchers starve for pigs): a seventh leather works, a tenth tailor and three more pig farms on isle-02.",
+      "note": "D-072: coats and sausages ran short in the final wait (the tailors and butchers starve for pigs): a seventh leather works, a tenth tailor and three more pig farms on oc-02.",
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "pig_farm",
         "count": 3
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "leather_works",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tailor",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "lace_maker",
         "count": 1
       }
@@ -3724,14 +3724,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "luthier",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "optician",
         "count": 1
       }

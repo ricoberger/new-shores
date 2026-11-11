@@ -15,7 +15,7 @@ FROM alpine:3.22
 RUN addgroup -S app && adduser -S -G app -H -s /sbin/nologin app
 COPY --from=build /out/server /usr/local/bin/server
 COPY content/ /content/
-ENV CONTENT_DIR=/content/old_coast \
+ENV CONTENT_DIR=/content \
     LISTEN_ADDR=:8080 \
     METRICS_ADDR=:9090 \
     LOG_FORMAT=json

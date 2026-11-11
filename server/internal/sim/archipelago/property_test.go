@@ -72,7 +72,7 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 			continue
 		}
 		perClass[sc.ID]++
-		if is.ID != IslandID(i) {
+		if is.ID != IslandID(c.Region.Prefix, i) {
 			fail("island %d has ID %s", i, is.ID)
 		}
 		// Straits: land to land, skerries included (D-058).

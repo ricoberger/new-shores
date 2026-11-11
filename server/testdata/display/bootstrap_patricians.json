@@ -62,7 +62,7 @@
     },
     "islands": [
       {
-        "id": "isle-01",
+        "id": "oc-01",
         "name": "Cormorant Rock",
         "size_class": "large",
         "scenic": false,
@@ -87051,7 +87051,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmwmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmwwwwwwwwwwwwwwwwffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmwwwwwwwwwwwwwwfffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmwwwwwwwwwwwwwwffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmwwwwwwwwwwwwwffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmwmmmmwwwwwwwwwwwwwfffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmwmmmmwwwwwwwwwwwfffffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmwmmmmwmwwwwwwwwmffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmwmmmmmmwwwwwwmmmfffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmmmmmmwwwwwmmmmffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggmmmmmmmmmmmwmmmmmmmmmmmmfffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggmmmmmmmmmmmmmmmmmmmmmmmfffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggmmmmmmmmmwmmmmmmmmmmmfffffffffffffgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggggggggmmmmmmmwmmmmgggfffffffffffffffggwwwwwwwwwwwwwwggggwwwwwwwwwwwwwwgggggggggggggggggmggggwwggggffffffffffffffgggwwwwwwwwwwwwwggggggwwwwgggwwwwwwggggggggggggggggggggggggwggggffffffffffgggggggwwwwwwwwwwwcgggggggwcgggggwwwggggggggggggggggggggggggggwgggggggfffffgggggggggwwwwwwwwwwcggggggggggggggggggggggggggggggggggggggggggggggggggggffggggggggggggwwwwwwwwwwggggggggggggffffgggggggggggggggggggggggggggggggggggggggggggggggggggwwwwwwwwwcggggggggggffffffffggggggggggggggggggggggggggggwgggggggggggggggggggggwwwwwwwwgggggggggggffffffffffgggggggggggggggggggggggggggwwwwwggggggggggggggggwwwwwwwgggggggggggfffffffffffggggggggggggggggggggggggggggggggwggggggggggggggwwwwwwwgggggggggggffffffffffffggggggggggggggggggfggggggggggggggwggggggggggggggwwwwwwggggggggggffffffffffffffgggggggggggggggfffffggggggggggggwggggggggggggggwwwwwgggggggggggffffffffffffffggggggggggggfffffffffgggggggggggwgggggggggggwcwwwwwcgggggggggggffffffffffffffgggggggggggffffffffffgggggggggggwgggccwwwgwwwwwwwwggmmmmmggggggffffffffffffffgggggggggggffffffffffgggggggggggwgwwwwwwwwwwwwwwwwggmmmmmmgggggfffffffffffffggggggggggggfffffffffffggggggggggwgwwwwwwwwwwwwwwwwggmmmmmmmgggggffffffffffffgggggggggggffffffffffffggggggggggwwwwwwwwwwwwwwwwwwwgmmmmmmmgggggffffffffffffgggggggggggffffffffffffgggggggggggcwwwwwwwwwwwwwwwwwwmmmmmmmgggggfffffffffffggggggggggggffffffffffffgggggggggggggwwwwwwwwwwwwwwwwwmmmmmmmggggggfffffffffggggggggggggfffffffffffffggggggggggggggmwwwwwwwwwwwwwwwwmmmmmmggggggfffffggggggggggggggggfffffffffffffgggggggggggggmmmwwwwwwwwwwwwwwwmmmmmmgggggggggggggggggggggggggggfffffffffffffgggggggggggggmmmwwwwwwwwwwwwwwwwmmmmmmgggggggggggggggggggggggggggffffffffffffgggggggggggggmmmmwwwwwwwwwwwwwwwmmmmmmggggggggggggggggggggggggggggffffffffffggggggggggggggmmmmwwwwwwwwwwwwwwwmmmmmmggggggggggggwwcggggggggggggggfffffffffgggggggggggggmmmmmwwwwwwwwwwwwwwwwmmmmmggggggggggggwwwggggggggggggggffffffffffggggggggggggmmmmmmwwwwwwwwwwwwwwwmmmmggggggggggggwwwwgggggggggggggggffffggggggggggggggggmmmmmmmwwwwwwwwwwwwwwwwmmmgggggggggggwwwwcgggggggggggggggggggggggggggggggggggmmmmmmmmmwwwwwwwwwwwwwwwgggggggggggggcwcggggggggggggggggggggggggggggggggggggmmmmmmmmmmmwwwwwwwwwwwwwwwgggggggggccgwwcgggggggggggggggggggggggggggggggggggggmmmmmmmmmgwwwwwwwwwwwwwwwcgggggggwwwwwwwwwcgggggggcwwwwwwwgggggggggggggggggggmmmmmmmmggwwwwwwwwwwwwwwwwwcgggggwwwwwwwwwwwwgggggwwwwwwwwwwgggggggggggggggggmmmmmmmmgwwwwwwwwwwwwwwwwwwwwwggwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggmmmmmgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggggcccwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgwwwwcggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-02",
+        "id": "oc-02",
         "name": "Mistle Haven",
         "size_class": "large",
         "scenic": false,
@@ -105472,7 +105472,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggwwggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggwgggggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggwggmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggwggmmmmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggggwggmmmmmmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggwgggmmmmmmmmmmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggmmmmmmmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggggggmmmmmmmmmmmmwwwgcwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggggggggggggmmmmmmmmmmmggcwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggwggffggggggggggggmmmmmmmmmmggwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggwgffffgggggggggggggmmmmmmmgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggfffffffggggggggggggggmmggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggfffffffgffggggggggggggggggggggccwwwwwwwwwwwwwwwwwwwwwwwcggggggggggggggffffffffffgggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwgggggfgfgggggggffffffffffffgggggggggggggggggggggggggcwwwwwwwwwwwwwwwwgffgfffffffgggggffffffffffffggggggggggggggggggggggggggcwwwwwwwwwwwwwwwgffffffffffffgggffffffffffffggggggggggggggggggggggggggggggggwwwwwwwwwfffffffffffffffggwfffffffffffgggggggggggggggggggggggggggggggggwwwwwwwffffffffffffffffggwffffffffffffgggggggggggggggggggggggggggggggggwwwwwfffffffffffffffffffwfffffffffffggggggggggggggggggggggggggggggggggwwwwgfffffffffffffffffffffffffffffffffgggggggggggggggggggggggggggggggggwwwgfffffffffffffffwwwffffffffffffffgggggggggggggggggggggggggggggfgfggwwwwffffffffffffffwggfffffffffffffffgggggggggggggggggggggggggffgfffffgwwwwffffffffffffffgggffffffffffffggggggggggggggggggggggggggffffffffffggwwwfffffffffffffwgggggfffffffffggggggggggggggggggggggggggffffffffffffwwwwffwwwcwwwffffgggggggffffffffggggggggggggggggggggggggggffffffffffffwwwwwcwwwwwwwfffwgggggggggggffggggggggggggggggggggggggggggffffffffffffwwwwwwwwwwwwffffwggggggggggggggggggggggggggggggggggggggggfffffffffffffwwwwwwwwwwfcfwwgggggggggggggggggggggggggggggggggggggggggffffffffffffffwwwwwwwwwwffwggggggggggggggggggggggggggggggggggggggggggffffffffffffffwwwwwwwwwwcffwggggggggggggggggggggggggggggggggggggggggggffffffffffffffwwwwwwwwwwwffwggggggggggggggggggggggggggggggggggggggggggffffffffffffffwwwwwwwwwwwcfwggggggggggggggggggggggggggggggggggggggggggfffffffffffffwwwwwwwwwwwwfffggggggggggggggggggggggggwwwgcggggggggggggggffffffffffffwwwwwwwwwwwwwfggggggggggggggggggggggggwwwwwwggggggggggggggfffffffffffcwwwwwwwwwwwwcgggggggggggggggggggggggcwwwwwwwgggggggggggggggfffffffffcwwwwwwwwwwwwwgggmmggggggggggggggggggwwwwwwwwcggggggggggggggggggffffffwwwwwwwwwwwwwwmmwmmmmmgggggggggggggwwwwwwwwwwgggggggggwwcggggggggggffwwwwwwwwwwwwwwwmmwmmmmmmgggggggggggggwwwwwwwwwwgggggggwwwwcggggggggggcwwwwwwwwwwwwwwwmmwmmmmmmmgggggggggggcwwwwwwwwwwwgggggwwwwwwgggggggggcwwwwwwwwwwwwwwwwmmmmmmmmmmgggggggggggcwwwwwwwwwwwwwwwwwwwwwwwgggggggcwwwwwwwwwwwwwwwwmmmmmmmmmmmmggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwcggggwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmggggmmmggwwwwwwwwwwwwwwwwwwwwwwwwwwwcggcwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmmmmmmmmgwwwwwwwwwwwwwwwwwwwwwwwwwwwwggwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmmmmmmmmgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmmmmmmmmgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmwwwwmmcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-03",
+        "id": "oc-03",
         "name": "Storm Wrack",
         "size_class": "large",
         "scenic": false,
@@ -105965,7 +105965,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggggwwwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggcgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcwwwggggggggggggggggggggggggcgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggwgggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggwgggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggmmmmmgggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmwgggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmwggggggggggggggggggggggcwggwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmwgggggggggggggggggggggwwwwgwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmwgggggggggggggggggggggwwwwggwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmwgfffgggggggggggggggggwwwwgwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmgwffffffgggggggggggggggwwwwwcwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmgffffffffffggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmgggfffffffffffgggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmggggfffffffffffffggggmmmmmgwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmggggwffffffffffffffgggmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmgggggfffffffffffffffggmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmgggggwffffffffffffffffggmmmmwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmggggggwffffffffffffffffggmmwwwwwwwwwwwwwwwwwwwwwwwwwwfmmmmmmmmgggggggwffffffffffffffffggmmwwwwwwwwwwwwwwffwwwwwwwwfffffmmmmgggggggggwffffffffffffffffgggmmmmwwwwwwwwwwffffwwwwwcfffffffggggggggggggffffffffffffffffffggmmmmwwwwwwwwwwfffffffffffffffffggggggggggggffffffffffffffffffgggmmmmwwwwwwwwwfffffffffffffffffggggggggggggfffffffffffffffffgggwmmmmmwwwwwwwwfffffffffffffffffggggggggggggfffffffffffffffffgggmmmmmmmwwwwwwffffffffffffffffffggggggggggggwffffffffffffffffgggmmmmmmmwwwwwffffffffffffffffffgggggggggggggwfffffffffffffffggggmmmmmmmmwwwwwffffffffffffffffffgggggggggggggffffffffffffffgggggmmmmmmmwwwwwwffffffffffffffffffgggggggggggggfffffffffffffgggggwmmmmmmwwwwwwfffffffffffffffffffgggggggggggggffffffffffggggggggwmmmmmwwwwwwwwfffffffffffffffffffggggggggggggggffffgffggggggggwggmmmwwwwwwwwwffffffffffffffffffggggggggggggwgggggggggggggggggggggmmwwwwwwwwwffffffffffffffffffggggggggggggwggggggggggggggggwgggggcwwwwwwwwwfffffffffffffffffggggggggggggggggggggggggggggggwgggggwwwwwwwwwwffffffffffffffffgggggggggggggwgggggggggggggggggwggggcwwwwwwwwwwffffffffffffffgggggggggggggggwgggggggggggggggggwggggwwwwwwwwwwwwffffffffffffggggggmmmmmggggwggggggggggggggggggwggggwwwwwwwwwwwwffffffffffffgggmmmmmmmmmggwgggggggggggggggggggwggggwwwwwwwwwwwwwgggggffggfggggmmmmmmmmmmgwgggggggggggggggggggggggwwwwwwwwwwwwwwggggggggggggggmmmmmmmmmmmmgggggggggggggggggwgwwwgwwwwwwwwwwwwwwgggggggggggggmmmwwwwmmmmmmmggggggggggggwwwwwgwwwcwwwwwwwwwwwwwwwggggggggggggmwwwwwwwmmmwmmmmggggggggggggggggcwcwwwwwwwwwwwwwwwwwgggggggggggwwwwwwwwwmmmmmmmmmmwwggggggggggggggggwwwwwwwwwwwwwwwcgggggggggwwwwwwwwwwwmmmmmmmmwwwggggggggggggggggwwwwwwwwwwwwwwwwwggggggcwwwwwwwwwwwwmmmmmmmwwwgggggggggggggggggcwwwwwwwwwwwwwwwwwggggwwwwwwwwwwwwwwmmmmmmwwwgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmwwwwwgggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-04",
+        "id": "oc-04",
         "name": "Brine Water",
         "size_class": "medium",
         "scenic": false,
@@ -106457,7 +106457,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggcwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggcwwwwwwwwwwwwwwwwwwwmmmgggggggggggggggggggggwwwwwwwwwwwwwwwwwmmmmggggggggggggggggggggggcwwwwwwwwwwwwwwmmmmmggggggggggggggggggggggggwwwwwwwwwwwwmmmmmmgggggggggggggggggggggggggwwwwwwwwwwwmmmmmmgggggggggggggggggggggggggwwwwwwwwwwmmmmmmggggggggggggggggggggggggggwwwwwwwwwwmmmmmgggggggggggggggggggggggggggwwwwwwwwwmmmmmggggggggggggggggggggggggggggwwwwwwwwwmmmmgggggggggggggggggfggggggggggcwwwwwwwwmmmwmggggggggggggggffffffgggggggwwwwwwwwwwmmmwmgggggggggggggfffffffffgggggcwwwwwwwwwgggwggggggggggggggfffffffffffggggwwwwwwwwggggwggggggggggggggfffffffffffgggmwwwwwwwwgggggwgggggggggggfffffffffffffmmmmmwwwwwwwggggffwgggggggggggfffffffffffmmmmmmmwwwwwgggggfffwwgwwggggggfffffffffffmmmmmmmwwwwwgggggffffffffwggggffffffffffffmmmmmmmmwwwwgggfffffffffffggggfffffffffffmmmmmmmmwwwwwwcggffffffffffwgggfffffffffffmmmmmmmwwwwwwwwwwwwwwwwfffffwgggffffffffffmmmmmmwwwwwwwwwwwwwwwwwfffffffwgffffffffmmmmmmmwwwwwwwwwwwwwwwwwwwfffffffwwfffffffmmmmmmmwwwwwwwwwwwwwwwwwwwfffffffwwwffffffmmmmmmmwwwwwwwwwwwwwwwwwwwcfffffcwwwwwcgggmmmmmggwwwwwwwwwwwwwwwwwwwwfffffwwwwwwwwggmmmmmggwwwwwwwwwwwwwwwwwwwwfffffwwwwwwwwwggmmmggcwwwwwwwwwwwwwwwwwwwwfffffwwwwwwwwwwgggggcwwwwwwwwwwwwwwwwwwwwwffffwwwwwwwwwwwgggggwwwwwwwwwwwwwwwwwwwwwwwffffwwwwwwwwwwggggggwwwwwwwwwwwwwwwwwwwwwfffffwwwwwwwwwwgggggggwwwwwwwwwwwwwwwwwwcfffffffwwwwwwwwgggggggwwwwwwwwwwwwwwwwwwwffffffffwwwwwwwwwcgggcwwwwwwwwwwwwwwwwwwwwfffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwffffffffffgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcfffffffggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfffggwcggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-05",
+        "id": "oc-05",
         "name": "Seal Watch",
         "size_class": "medium",
         "scenic": false,
@@ -106969,7 +106969,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggwcffgggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggwffffgggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwggggwfffffggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwggggfffffffgggggggwwwwwwwwwwwwwwwwwwwwwwwwwwgggwfffffffggggggggggggwgggwwwwwwwwwwwwwwwwggggwfffffffggggggggggggggmmwwwwwwwwwwwwwwwgggggwfffffffgggggggggggggmmmwwwwwwwwwwwwwwcgggggwfffffffggggggggggggmmmmmwwwwwwwwwwwwgggggggwffffffggggggggggggggmmmmmwwwwwwwwwcggggggggffffffggggggggggggggmmmmmmmwwwwwwffffgggggggffffffggggggggggggggmmmmmmmwwwwwffffffgggggwffffggggggggggggggggmmmmmmwwwwwwfffffffggggwgfffggggggggggggggggmmmmmmwwwwwwffffffffgggwgggggggggggggggggggggmwwwwwwwwwwffffffffgggwgggggggggggggggggggggmwwwwwwwwwfffffffffgggwggggggggggggggggggggggmmmmmwwwwfffffffffggggggggggggggggggggggggggmmmmmmwwwfffffffffggwgggggggggggggggggggggfffmmmffwwwfffmmffffggwgggggggggggggggggggggfffmmmffwwwwfmmmmmffgwgggggggggggggggggggggfffffmmfcwwwwmmmmmmmggwggggggggggggggggggggffffffffffwwwwwmmmmmmgggggggggggggggggggggggfffffffffwwwwwwmmmmmmmggggggggggwwwwggggggggfffffffffwwwwwwwmmmmmmggggggggggwwwwwggggggfffffffffcwwwwwwwmmmmmmmggggggggwwwwwwwggggggfffffffwwwwwwwwwwmmmmmwggggggggwwwwwwwcgggggffffffwwwwwwwwwwwmmmmmmgggggggggwwwwwwwcggggfffffwwwwwwwwwwwwwwmmmmmgggggggggwwwwwwwgggggffccwwwwwwwwwwwwwwmmmmmggggggggggwwwwwwgggggffwwwwwwwwwwwwwwwwwmmmgggggwwgggggcwwwwwgggggwwwwwwwwwwwwwwwwwwwwwggwgwwwggggggwwwwwwgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggcwwwwwgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwccggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-06",
+        "id": "oc-06",
         "name": "Merrow's Cradle",
         "size_class": "medium",
         "scenic": false,
@@ -121812,7 +121812,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfwcwwfffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwffffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfffffffffffffwwwwwwwwwwwggwwwwwwwwwwwwwwwwffmmmmffmfffffwwwwwwwwwcgggwwwwwwwwwwwwwwwffmmmmmmmmffffwwwwwwwwwggggwwwwwwwwwwwwwwwwmmmmmmfmmfffffwwcwwwwwfgggcwwwwwwwwwwwwwwmmmmmmfffmfffffffffffffffgggwwwwwwwwwwwwwwmmmmmmffffffffffffffffffffggwwwwwwwwwwwwwmmmmmmffffffffffffffffffffffgwwwwwwwwwwwwwmmmmmmffffffffffffffffffffffcwwwwwwwwwwwwwmmmmmmffffffffffffffffffffffgwwwwwwwwwwwwmmmmmmfffffffffffffffffffffffwwwwwwwwwwwwmmmmmmmffffffffffggfffffffffffwwwwwwwwwmmmmmmmmmfffffffffggggfffffffffggwwwwwwwwmmmmmmmmmmffffffffgggggggggffffggggwwwwwwmmmmmmmmmmgffffffggggggggggggggcgggwwwwwwwmmmmmmmmmmgggggggggggggggggggggwwcwwwwwwwcmmmmmmmmgggggggggggggggggggggggwwwwwwwwwwggmmmmggggggggggggggggggggggggggwwwwwwwwwcgggmmmggggggggggggggggggggggggggwwwwwwwwwgggggggggggggggggggggggggggggggwwwwwwwwwwggggggggggggggggggggggggggggggggwwwwwwwwwwwggggggggggggggggggggggggggggggwwwwwwwwwwwwggggggggggggggggggggggggggggggwwwwwwwwwwwggggggggggggggggggggggggggggggggcwwwwwwwwwggggggggggggggggggggggggggggggggwwwwwwwwwwgggggggggggggggggggggggggggggggcwwwwwwwwwwggggggggggggggggggggggggggggggggwwwwwwwwwwggggggggggggggggggggggggggggggggcwwwwwwwwwgggggggggggggggggggggggggggggggggwwwwwwwwwwgggggggggggggggggggggggggggggggggwwwwwwwwwggggggggggggcwcggggggggggggggggggcwwwwwwwwwggggggggggcwwwwwwwgggggggggggggwwwwwwwwwwwwcggggggggwwwwwwwwwgggggggggggwcwwwwwwwwwwwwwwgggggwwwwwwwwwwwggggggggggwwwwwwwwwwwwwwwwwwwgcwwwwwwwwwwwwgggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-07",
+        "id": "oc-07",
         "name": "Cobbler's Reach",
         "size_class": "medium",
         "scenic": false,
@@ -122293,7 +122293,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggffffffwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggfffffffwwwwwwwwwwwwwwwwwwwwwwwwggggggggfffffffffffwwwwwwwwwwwwwwwwwwwwwwggggggggffffffffffffwwwwwwwwwwwwwwwwwwwwwggggggggffffffffffffwwwwwwwwwwwwwwwwwwwwwwwggggggfffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwcwggfffffffffffffffccwwwwwwwwwwwwwwwwwwwwwwwggffffffffffffffffgggwwwwwwwwwwwwwwwwwwwwcgffffffffffffffffgggcwwwwwwwwwwwwwwwwwwwwwwffffffffffffffmmmmmwwwwwwwwwwwwwwwwggggggggwwwffffffffmmmmmmmwwwwwwwwwwwwggggggggggggggwfffffffmmmmmmmmwwwwwwwwwwwggggggggggggggggwfffffgmmmmmmmmwwwwwwwwwggggggggggggggggggwffggggmmmmmmmwwwwwwwwwggggggggggggggggggggggggggmmmmmmwwwwwwwwwgggggggggggggggggggwggggggmmmmmmwwwwwwwwwgggggggggggggggggggggggggmmmmmmwwwwwwwwwwgggggggggggggggggggggwgggmmmmmmwwwwwwwwwgggggggggggggggggggggggggmmmwmmmwwwwwwwwwcggggggggggggggggggggggggmmmmwmwwwwwwwwwgggggggggggggggggggggggggmmmmmwwwwwwwwwwcgggggggggggggggggggggggggmmmmwmwwwwwwwwcggggggggggggggggggggggggggmmmmmmwwwwwwwcgggggggggggggggggggfffffgggmmmmmmmwwwwwcgggggggggggggggffffffffffffgmmmmmmwwwwwwggggggggggggggggffffffffffffgmmmmmwwwwwwwggggggggggggggggfffffffffmmmmmmmmmmwwwwwwgggggggggggggffffffffffffmmmmmmmmmmwwwwwwcgggggggggggggfffffffffffmmmmmmmmmmwwwwwwwggggggggggggffffffffffffmmmmmmmmmwwwwwwwwwgggggggggggffffffffffffmmmmmmmwwwwwwwwwwwcggggggggggffffffffffffmmwmmwwwwwwwwwwwwwwwgggggggggfffffffffffwwwwwwwwwwwwwwwwwwwwggggggggggffffffffffwwwwwwwwwwwwwwwwwwwwwgggggggggggfffffffffwwwwwwwwwwwwwwwwwwwwwwgggggggggggfffffffwwwwwwwwwwwwwwwwwwwwwwwwcggggggggggffffffwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-08",
+        "id": "oc-08",
         "name": "Elder Holm",
         "size_class": "medium",
         "scenic": false,
@@ -122774,7 +122774,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgcwgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmgcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmgggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmggggggggggwwwwwwwwwwwwwwwwwwwwwmmwmmmmmmwmmggggggggggggwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmwggggggggggggwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmggggggggggggggwwwwwwwwwwwmwmmmmmmmmmmmmmmmmmggwggggggggggggwwwwwwwwgggmmmmmmmmmmmmmmmmmggggwgggggggggggggwwwwwwcgggmmmmmmmmmmmmmmgggggggwgggggggggggggwwwwwwgggggmmmmmmmmmmggggggggggggggggggggggggwwwwwgggggggmmmmmmmgggggggggggggwggggggggggggcwwwwgggggggmmmmggggggggggggggggwggggggggggggcwwwwgggggggggggggggggggggggggggwggggggggggggcwwwggggggggggggggggggggggggggggwggggggggggggggwwggggggggggggggggggggggggggggwggggggggggggggwwgggggggggggggggggfggggggggggwggggggggggggggwwwgggggggggggggggfffgfgggggggwggggggggggggggwwcgggggggggggggffffffffffggggwgggggggggggggcwwwgggggggggggggfffffffffffggggwggggggggggggwwwwggggggggggggffffffffffffffgggggggggggggggwwwwwggggggggggffffffffffffffffggwggggggggggwwwwwwggwwwgggggffffffffffffffffggwgggggggggwwwwwwwwwwwwwwwwwffffffffffffffffggwgggggggggwwwwwwwwwwwwwwwwwwffffffffffffffffggggggggggwwwwwwwwwwwwwwwwwwwffffffffffffffffggwgggggggwwwwwwwwwwwwwwwwwwffffffffffffffffffggwwcgggwwwwwwwwwwwwwwwwwwwffffffffffffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwffffffffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwffffffffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwfffffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcfffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcfffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-09",
+        "id": "oc-09",
         "name": "Ropewalk Isle",
         "size_class": "small",
         "scenic": false,
@@ -123266,7 +123266,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmgggcwwwwwwwwwwwwwwwwwmmmmmmmgggggcwwwwwwwwwwwwwwwmmmmmmmmggggggwwwwwwwwwwwwwmmmmgggggggggggwwwwwwwwwwwwmmmmmgggggggggggcwwwwwwwwwwmmmmmfggggggggggggcwwwwwwwwwwmmmmfffgggggggggggwwwwwmmmmmmmmffffgggggggcwwwwwwwgmmmmmmmmffffggggggwwwwwwwwgggmmmmmmffffffgggggwwwwwwwwgggfffffffffffgggggggggwwwwwwwgffffffffffffgggggggggwwwwwwwffffffffffffggggggggggwwwwwgfffffffffffggggggggggggwwwwgfffffffffffggggggggggggwwwwggffffffffffggggggggggggwwwwwgggfffffffggggggggggggwwwwwwggggffgggggggggggggggwwwwwwwwggggggggggggggggggggwwwwwwwwwgwwwggggggggggggggwwwwwwwwwwwwwwwwwgggcgwcgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-10",
+        "id": "oc-10",
         "name": "Gannet Cliff",
         "size_class": "small",
         "scenic": false,
@@ -123788,7 +123788,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggcwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggwwwwwwwwwwwwwcgwwwwwwwwwwwwffggggwwwwwwwwwwwwwwggwwwwwwwwwwwfffffggcwwwwwwwwwwwwggggwwwwwwwwwcffffffggcwwwwwwwwwwwggggcwwwwwwwwgffffffgggcwwwcwwwwwggggffwwwwwwwgffffffggggggggggwwwgggggfffwwwwwwggfffggggggggggggggggggggfffwwwwwcgggggggggggggggggggggggggffffwwwwggggggggggggggggggggggggggffffwwwggggggggggggggggggggggggggffffffwwgggggccggggggggggggggggggggffffcwwcgggwwcgffgggggggggggggggggggfcwwwwcggwwwffffgggggggggggmmmmmggmwwwwwwgwwwcfffffgggggggggmmmmwmwwwwwwwwwwwwwwfffffgggggggggmmmmwwwwwwwwwwwwwwwffffffgggggggggmmmmwwwwwwwwwwwwwwwwcffffgggggggggmmmmwwwwwwwwwwwwwwwwwwwwfgggggggggmmmmwwwwwwwwwwwwwwwwwwwwwwggggmmmgmmmmwwwwwwwwwwwwwwwwwwwwwwggggmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwgggmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwggggmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwgcwwwmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-11",
+        "id": "oc-11",
         "name": "Driftwood Isle",
         "size_class": "small",
         "scenic": false,
@@ -124290,7 +124290,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggcwwwwwwwwwwwwwwwwwwwwwwgggggggcwwwwwwwwwwwwwwwwwcggggggggggwwwwwwwwwwwwwwwwggggggggggggwwwwwwwwwwwwwwgggggggggggcwwwwwwwwwwwwwwwwgggggggggcwwwwwwwwwwwwwwwwwgggggggggwwwwwwwwwwwwwwwwwwgggggggggwwwwwwwwwwwwwwwwwggggggggggcwwwwwwwwwwwwwwwcgggggggggggwwwwwwwwwwwwwwfffgggggggggggwwwwwwwwwwwwcfffggggggggggggggggwwwwwwfffffgggggggggggggggggwwwwffffffffggggggggggggggggwwwffffffffggggggggggggggggwwwwfffffffgggggfggggggggggwwwwwffffffggggfffffggwwgcwwwwwwfffffgggggffffffwwwwwwwwwwwwffffggggfffffffcwggmwwwwwwwffgggggfffffffffwcmmwwwwwwwggggggfffffffmffgmmwwwwwwwwggggggfffffffmmmmmmmwwwwwwwggggggfffffmmfmmmmmwwwwwwwwggggggggmmmmmgmmmmmwwwwwwwwcgggggggmwmmmmmmmmwwwwwwwwcggggggggmwmmmmmmmwwwwwwwwwwwggwwgggmwmmmmmmmwwwwwwwwwwwwwwwcgwwwmmmmmwwwwwwwwwwwwwwwwwwwwwwwmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-12",
+        "id": "oc-12",
         "name": "Saltmarsh Holm",
         "size_class": "small",
         "scenic": false,
@@ -124793,7 +124793,7 @@
         "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggcwwwwwwwwwwwwwwwwwmmmmwwggggggwwwwwwwwwwwwwmmmmmmmggggggggfcwwwwwwwwmmmmmmmmmgggggggffffwwwwwwmmmmmmmmmmffgggggffffcwwwwwmmmmmgggffffggggffffffwwwwmmmmgggggfffffggfffffffwwwwmmmmgggggfffffgggffffffwwwwmmggggggffffffggggffffgwwwwggggggggffffffggggffffgwwwwggggggggfffffggggggffggwwwggggggggggffggggggggggggwwwgggggggggggggggggggggwwwwwwwgggggggggggggggggggwwwwwwwwwcwggggggggggggggwwwwwwwwwwwwwwgggggggggggwwwwwwwwwwwwwwwwwgggggggggwwwwwwwwwwwwwwwwwwgggggggggwwwwwwwwwwwwwwwwwwwggggggggwwwwwwwwwwwwwwwwwwwggggggfffwwwwwwwwwwwwwwwwwccggwcggfffwwwwwwwwwwwwwwwggwwwwwgfffffffwwwwwwwwwcgggcwwwwwwffffffffwwwwwwwwwgggwwwwwwwwfffffffwwwwwwwwwwwgwwwwwwwwfffffcwwwwwwwwwwwwwwwwwwwwwcfffwwwwwwwwwwwwwwwwwwwwwwwwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
-        "id": "isle-13",
+        "id": "oc-13",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -125271,7 +125271,7 @@
         "terrain_mask": "wwwwwwwww"
       },
       {
-        "id": "isle-14",
+        "id": "oc-14",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -125749,7 +125749,7 @@
         "terrain_mask": "wwwwwwwwwwww"
       },
       {
-        "id": "isle-15",
+        "id": "oc-15",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -126227,7 +126227,7 @@
         "terrain_mask": "wwwwwwwww"
       },
       {
-        "id": "isle-16",
+        "id": "oc-16",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -126705,7 +126705,7 @@
         "terrain_mask": "wwwwwwwww"
       },
       {
-        "id": "isle-17",
+        "id": "oc-17",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -127183,7 +127183,7 @@
         "terrain_mask": "wwwwwwwww"
       },
       {
-        "id": "isle-18",
+        "id": "oc-18",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -127661,7 +127661,7 @@
         "terrain_mask": "wwwwwgwwwwww"
       },
       {
-        "id": "isle-19",
+        "id": "oc-19",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -128139,7 +128139,7 @@
         "terrain_mask": "wwwwwwwww"
       },
       {
-        "id": "isle-20",
+        "id": "oc-20",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -128617,7 +128617,7 @@
         "terrain_mask": "wwwwwwwww"
       },
       {
-        "id": "isle-21",
+        "id": "oc-21",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -129095,7 +129095,7 @@
         "terrain_mask": "wwwwcwwww"
       },
       {
-        "id": "isle-22",
+        "id": "oc-22",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -129583,9 +129583,9 @@
         "route_id": 1,
         "stop_index": 1,
         "leg": {
-          "from_island_id": "isle-01",
+          "from_island_id": "oc-01",
           "from_position": null,
-          "to_island_id": "isle-02",
+          "to_island_id": "oc-02",
           "depart_at": "2026-01-01T19:29:43.257Z",
           "arrive_at": "2026-01-01T19:41:12.576Z",
           "path": [
@@ -129646,9 +129646,9 @@
         "route_id": 2,
         "stop_index": 0,
         "leg": {
-          "from_island_id": "isle-02",
+          "from_island_id": "oc-02",
           "from_position": null,
-          "to_island_id": "isle-01",
+          "to_island_id": "oc-01",
           "depart_at": "2026-01-01T19:37:31.147Z",
           "arrive_at": "2026-01-01T19:49:02.140Z",
           "path": [
@@ -129722,9 +129722,9 @@
         "route_id": 3,
         "stop_index": 0,
         "leg": {
-          "from_island_id": "isle-01",
+          "from_island_id": "oc-01",
           "from_position": null,
-          "to_island_id": "isle-06",
+          "to_island_id": "oc-06",
           "depart_at": "2026-01-01T19:38:31.479Z",
           "arrive_at": "2026-01-01T19:44:18.784Z",
           "path": [
@@ -129769,9 +129769,9 @@
         "route_id": 4,
         "stop_index": 1,
         "leg": {
-          "from_island_id": "isle-01",
+          "from_island_id": "oc-01",
           "from_position": null,
-          "to_island_id": "isle-06",
+          "to_island_id": "oc-06",
           "depart_at": "2026-01-01T19:34:41.196Z",
           "arrive_at": "2026-01-01T19:40:28.501Z",
           "path": [
@@ -129821,9 +129821,9 @@
         "route_id": 3,
         "stop_index": 0,
         "leg": {
-          "from_island_id": "isle-01",
+          "from_island_id": "oc-01",
           "from_position": null,
-          "to_island_id": "isle-06",
+          "to_island_id": "oc-06",
           "depart_at": "2026-01-01T19:38:54.822Z",
           "arrive_at": "2026-01-01T19:45:51.588Z",
           "path": [
@@ -129868,9 +129868,9 @@
         "route_id": 5,
         "stop_index": 0,
         "leg": {
-          "from_island_id": "isle-01",
+          "from_island_id": "oc-01",
           "from_position": null,
-          "to_island_id": "isle-02",
+          "to_island_id": "oc-02",
           "depart_at": "2026-01-01T19:35:03.918Z",
           "arrive_at": "2026-01-01T19:51:17.074Z",
           "path": [
@@ -129931,9 +129931,9 @@
         "route_id": 5,
         "stop_index": 0,
         "leg": {
-          "from_island_id": "isle-01",
+          "from_island_id": "oc-01",
           "from_position": null,
-          "to_island_id": "isle-02",
+          "to_island_id": "oc-02",
           "depart_at": "2026-01-01T19:39:42.658Z",
           "arrive_at": "2026-01-01T19:55:55.814Z",
           "path": [
@@ -129994,9 +129994,9 @@
         "route_id": 4,
         "stop_index": 1,
         "leg": {
-          "from_island_id": "isle-01",
+          "from_island_id": "oc-01",
           "from_position": null,
-          "to_island_id": "isle-06",
+          "to_island_id": "oc-06",
           "depart_at": "2026-01-01T19:37:56.042Z",
           "arrive_at": "2026-01-01T19:44:52.808Z",
           "path": [
@@ -130046,9 +130046,9 @@
         "route_id": 6,
         "stop_index": 0,
         "leg": {
-          "from_island_id": "isle-01",
+          "from_island_id": "oc-01",
           "from_position": null,
-          "to_island_id": "isle-02",
+          "to_island_id": "oc-02",
           "depart_at": "2026-01-01T19:27:50.103Z",
           "arrive_at": "2026-01-01T19:41:37.285Z",
           "path": [
@@ -130107,7 +130107,7 @@
         "name": "Hops home",
         "stops": [
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "load": [],
             "unload": [
               {
@@ -130125,7 +130125,7 @@
             ]
           },
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "load": [
               {
                 "good": "hops",
@@ -130227,25 +130227,25 @@
         ],
         "effects": [
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "hops",
             "per_loop": 50000,
             "per_min": 1789
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "iron",
             "per_loop": 30000,
             "per_min": 1073
           },
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "good": "hops",
             "per_loop": -50000,
             "per_min": -1789
           },
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "good": "iron",
             "per_loop": -30000,
             "per_min": -1073
@@ -130257,7 +130257,7 @@
         "name": "Bricks home",
         "stops": [
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "load": [],
             "unload": [
               {
@@ -130275,7 +130275,7 @@
             ]
           },
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "load": [
               {
                 "good": "bricks",
@@ -130377,25 +130377,25 @@
         ],
         "effects": [
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "bricks",
             "per_loop": 50000,
             "per_min": 1789
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "stone",
             "per_loop": 50000,
             "per_min": 1789
           },
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "good": "bricks",
             "per_loop": -50000,
             "per_min": -1789
           },
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "good": "stone",
             "per_loop": -50000,
             "per_min": -1789
@@ -130407,7 +130407,7 @@
         "name": "Island goods",
         "stops": [
           {
-            "island_id": "isle-06",
+            "island_id": "oc-06",
             "load": [
               {
                 "good": "brass",
@@ -130429,7 +130429,7 @@
             "unload": []
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "load": [],
             "unload": [
               {
@@ -130509,49 +130509,49 @@
         ],
         "effects": [
           {
-            "island_id": "isle-06",
+            "island_id": "oc-06",
             "good": "brass",
             "per_loop": -30000,
             "per_min": -4204
           },
           {
-            "island_id": "isle-06",
+            "island_id": "oc-06",
             "good": "glass",
             "per_loop": -40000,
             "per_min": -5606
           },
           {
-            "island_id": "isle-06",
+            "island_id": "oc-06",
             "good": "grapes",
             "per_loop": -50000,
             "per_min": -7007
           },
           {
-            "island_id": "isle-06",
+            "island_id": "oc-06",
             "good": "thread",
             "per_loop": -30000,
             "per_min": -4204
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "brass",
             "per_loop": 30000,
             "per_min": 4204
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "glass",
             "per_loop": 40000,
             "per_min": 5606
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "grapes",
             "per_loop": 50000,
             "per_min": 7007
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "thread",
             "per_loop": 30000,
             "per_min": 4204
@@ -130563,7 +130563,7 @@
         "name": "Stone out, pigs home",
         "stops": [
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "load": [
               {
                 "good": "stone",
@@ -130580,7 +130580,7 @@
             ]
           },
           {
-            "island_id": "isle-06",
+            "island_id": "oc-06",
             "load": [
               {
                 "good": "milk",
@@ -130651,37 +130651,37 @@
         ],
         "effects": [
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "milk",
             "per_loop": 30000,
             "per_min": 4204
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "pigs",
             "per_loop": 100000,
             "per_min": 14015
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "stone",
             "per_loop": -30000,
             "per_min": -4204
           },
           {
-            "island_id": "isle-06",
+            "island_id": "oc-06",
             "good": "milk",
             "per_loop": -30000,
             "per_min": -4204
           },
           {
-            "island_id": "isle-06",
+            "island_id": "oc-06",
             "good": "pigs",
             "per_loop": -100000,
             "per_min": -14015
           },
           {
-            "island_id": "isle-06",
+            "island_id": "oc-06",
             "good": "stone",
             "per_loop": 30000,
             "per_min": 4204
@@ -130693,7 +130693,7 @@
         "name": "Farm goods",
         "stops": [
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "load": [
               {
                 "good": "cattle",
@@ -130719,7 +130719,7 @@
             "unload": []
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "load": [],
             "unload": [
               {
@@ -130829,61 +130829,61 @@
         ],
         "effects": [
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "good": "cattle",
             "per_loop": -30000,
             "per_min": -2147
           },
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "good": "hops",
             "per_loop": -60000,
             "per_min": -4294
           },
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "good": "milk",
             "per_loop": -60000,
             "per_min": -4294
           },
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "good": "pigs",
             "per_loop": -120000,
             "per_min": -8589
           },
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "good": "salt",
             "per_loop": -60000,
             "per_min": -4294
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "cattle",
             "per_loop": 30000,
             "per_min": 2147
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "hops",
             "per_loop": 60000,
             "per_min": 4294
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "milk",
             "per_loop": 60000,
             "per_min": 4294
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "pigs",
             "per_loop": 120000,
             "per_min": 8589
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "salt",
             "per_loop": 60000,
             "per_min": 4294
@@ -130895,7 +130895,7 @@
         "name": "Hops home 2",
         "stops": [
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "load": [
               {
                 "good": "hops",
@@ -130905,7 +130905,7 @@
             "unload": []
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "load": [],
             "unload": [
               {
@@ -131002,13 +131002,13 @@
         ],
         "effects": [
           {
-            "island_id": "isle-02",
+            "island_id": "oc-02",
             "good": "hops",
             "per_loop": -100000,
             "per_min": -3579
           },
           {
-            "island_id": "isle-01",
+            "island_id": "oc-01",
             "good": "hops",
             "per_loop": 100000,
             "per_min": 3579
@@ -131230,7 +131230,7 @@
         },
         "islands": [
           {
-            "id": "isle-01",
+            "id": "oc-01",
             "name": "Cormorant Rock",
             "size_class": "large",
             "scenic": false,
@@ -218219,7 +218219,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmwmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmwwwwwwwwwwwwwwwwffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmwwwwwwwwwwwwwwfffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmwwwwwwwwwwwwwwffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmwwwwwwwwwwwwwffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmwmmmmwwwwwwwwwwwwwfffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmwmmmmwwwwwwwwwwwfffffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmwmmmmwmwwwwwwwwmffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmwmmmmmmwwwwwwmmmfffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmmmmmmwwwwwmmmmffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggmmmmmmmmmmmwmmmmmmmmmmmmfffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggmmmmmmmmmmmmmmmmmmmmmmmfffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggmmmmmmmmmwmmmmmmmmmmmfffffffffffffgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggggggggmmmmmmmwmmmmgggfffffffffffffffggwwwwwwwwwwwwwwggggwwwwwwwwwwwwwwgggggggggggggggggmggggwwggggffffffffffffffgggwwwwwwwwwwwwwggggggwwwwgggwwwwwwggggggggggggggggggggggggwggggffffffffffgggggggwwwwwwwwwwwcgggggggwcgggggwwwggggggggggggggggggggggggggwgggggggfffffgggggggggwwwwwwwwwwcggggggggggggggggggggggggggggggggggggggggggggggggggggffggggggggggggwwwwwwwwwwggggggggggggffffgggggggggggggggggggggggggggggggggggggggggggggggggggwwwwwwwwwcggggggggggffffffffggggggggggggggggggggggggggggwgggggggggggggggggggggwwwwwwwwgggggggggggffffffffffgggggggggggggggggggggggggggwwwwwggggggggggggggggwwwwwwwgggggggggggfffffffffffggggggggggggggggggggggggggggggggwggggggggggggggwwwwwwwgggggggggggffffffffffffggggggggggggggggggfggggggggggggggwggggggggggggggwwwwwwggggggggggffffffffffffffgggggggggggggggfffffggggggggggggwggggggggggggggwwwwwgggggggggggffffffffffffffggggggggggggfffffffffgggggggggggwgggggggggggwcwwwwwcgggggggggggffffffffffffffgggggggggggffffffffffgggggggggggwgggccwwwgwwwwwwwwggmmmmmggggggffffffffffffffgggggggggggffffffffffgggggggggggwgwwwwwwwwwwwwwwwwggmmmmmmgggggfffffffffffffggggggggggggfffffffffffggggggggggwgwwwwwwwwwwwwwwwwggmmmmmmmgggggffffffffffffgggggggggggffffffffffffggggggggggwwwwwwwwwwwwwwwwwwwgmmmmmmmgggggffffffffffffgggggggggggffffffffffffgggggggggggcwwwwwwwwwwwwwwwwwwmmmmmmmgggggfffffffffffggggggggggggffffffffffffgggggggggggggwwwwwwwwwwwwwwwwwmmmmmmmggggggfffffffffggggggggggggfffffffffffffggggggggggggggmwwwwwwwwwwwwwwwwmmmmmmggggggfffffggggggggggggggggfffffffffffffgggggggggggggmmmwwwwwwwwwwwwwwwmmmmmmgggggggggggggggggggggggggggfffffffffffffgggggggggggggmmmwwwwwwwwwwwwwwwwmmmmmmgggggggggggggggggggggggggggffffffffffffgggggggggggggmmmmwwwwwwwwwwwwwwwmmmmmmggggggggggggggggggggggggggggffffffffffggggggggggggggmmmmwwwwwwwwwwwwwwwmmmmmmggggggggggggwwcggggggggggggggfffffffffgggggggggggggmmmmmwwwwwwwwwwwwwwwwmmmmmggggggggggggwwwggggggggggggggffffffffffggggggggggggmmmmmmwwwwwwwwwwwwwwwmmmmggggggggggggwwwwgggggggggggggggffffggggggggggggggggmmmmmmmwwwwwwwwwwwwwwwwmmmgggggggggggwwwwcgggggggggggggggggggggggggggggggggggmmmmmmmmmwwwwwwwwwwwwwwwgggggggggggggcwcggggggggggggggggggggggggggggggggggggmmmmmmmmmmmwwwwwwwwwwwwwwwgggggggggccgwwcgggggggggggggggggggggggggggggggggggggmmmmmmmmmgwwwwwwwwwwwwwwwcgggggggwwwwwwwwwcgggggggcwwwwwwwgggggggggggggggggggmmmmmmmmggwwwwwwwwwwwwwwwwwcgggggwwwwwwwwwwwwgggggwwwwwwwwwwgggggggggggggggggmmmmmmmmgwwwwwwwwwwwwwwwwwwwwwggwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggmmmmmgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggggcccwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgwwwwcggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-02",
+            "id": "oc-02",
             "name": "Mistle Haven",
             "size_class": "large",
             "scenic": false,
@@ -236640,7 +236640,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggwwggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggwgggggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggwggmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggwggmmmmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggggwggmmmmmmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggwgggmmmmmmmmmmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggmmmmmmmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggggggmmmmmmmmmmmmwwwgcwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggggggggggggmmmmmmmmmmmggcwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggwggffggggggggggggmmmmmmmmmmggwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggwgffffgggggggggggggmmmmmmmgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggfffffffggggggggggggggmmggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggfffffffgffggggggggggggggggggggccwwwwwwwwwwwwwwwwwwwwwwwcggggggggggggggffffffffffgggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwgggggfgfgggggggffffffffffffgggggggggggggggggggggggggcwwwwwwwwwwwwwwwwgffgfffffffgggggffffffffffffggggggggggggggggggggggggggcwwwwwwwwwwwwwwwgffffffffffffgggffffffffffffggggggggggggggggggggggggggggggggwwwwwwwwwfffffffffffffffggwfffffffffffgggggggggggggggggggggggggggggggggwwwwwwwffffffffffffffffggwffffffffffffgggggggggggggggggggggggggggggggggwwwwwfffffffffffffffffffwfffffffffffggggggggggggggggggggggggggggggggggwwwwgfffffffffffffffffffffffffffffffffgggggggggggggggggggggggggggggggggwwwgfffffffffffffffwwwffffffffffffffgggggggggggggggggggggggggggggfgfggwwwwffffffffffffffwggfffffffffffffffgggggggggggggggggggggggggffgfffffgwwwwffffffffffffffgggffffffffffffggggggggggggggggggggggggggffffffffffggwwwfffffffffffffwgggggfffffffffggggggggggggggggggggggggggffffffffffffwwwwffwwwcwwwffffgggggggffffffffggggggggggggggggggggggggggffffffffffffwwwwwcwwwwwwwfffwgggggggggggffggggggggggggggggggggggggggggffffffffffffwwwwwwwwwwwwffffwggggggggggggggggggggggggggggggggggggggggfffffffffffffwwwwwwwwwwfcfwwgggggggggggggggggggggggggggggggggggggggggffffffffffffffwwwwwwwwwwffwggggggggggggggggggggggggggggggggggggggggggffffffffffffffwwwwwwwwwwcffwggggggggggggggggggggggggggggggggggggggggggffffffffffffffwwwwwwwwwwwffwggggggggggggggggggggggggggggggggggggggggggffffffffffffffwwwwwwwwwwwcfwggggggggggggggggggggggggggggggggggggggggggfffffffffffffwwwwwwwwwwwwfffggggggggggggggggggggggggwwwgcggggggggggggggffffffffffffwwwwwwwwwwwwwfggggggggggggggggggggggggwwwwwwggggggggggggggfffffffffffcwwwwwwwwwwwwcgggggggggggggggggggggggcwwwwwwwgggggggggggggggfffffffffcwwwwwwwwwwwwwgggmmggggggggggggggggggwwwwwwwwcggggggggggggggggggffffffwwwwwwwwwwwwwwmmwmmmmmgggggggggggggwwwwwwwwwwgggggggggwwcggggggggggffwwwwwwwwwwwwwwwmmwmmmmmmgggggggggggggwwwwwwwwwwgggggggwwwwcggggggggggcwwwwwwwwwwwwwwwmmwmmmmmmmgggggggggggcwwwwwwwwwwwgggggwwwwwwgggggggggcwwwwwwwwwwwwwwwwmmmmmmmmmmgggggggggggcwwwwwwwwwwwwwwwwwwwwwwwgggggggcwwwwwwwwwwwwwwwwmmmmmmmmmmmmggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwcggggwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmggggmmmggwwwwwwwwwwwwwwwwwwwwwwwwwwwcggcwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmmmmmmmmgwwwwwwwwwwwwwwwwwwwwwwwwwwwwggwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmmmmmmmmgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmmmmmmmmgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmwwwwmmcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-03",
+            "id": "oc-03",
             "name": "Storm Wrack",
             "size_class": "large",
             "scenic": false,
@@ -237133,7 +237133,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggggwwwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggcgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcwwwggggggggggggggggggggggggcgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggwgggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggwgggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggmmmmmgggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmwgggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmwggggggggggggggggggggggcwggwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmwgggggggggggggggggggggwwwwgwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmwgggggggggggggggggggggwwwwggwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmwgfffgggggggggggggggggwwwwgwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmgwffffffgggggggggggggggwwwwwcwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmgffffffffffggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmgggfffffffffffgggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmggggfffffffffffffggggmmmmmgwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmggggwffffffffffffffgggmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmgggggfffffffffffffffggmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmgggggwffffffffffffffffggmmmmwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmggggggwffffffffffffffffggmmwwwwwwwwwwwwwwwwwwwwwwwwwwfmmmmmmmmgggggggwffffffffffffffffggmmwwwwwwwwwwwwwwffwwwwwwwwfffffmmmmgggggggggwffffffffffffffffgggmmmmwwwwwwwwwwffffwwwwwcfffffffggggggggggggffffffffffffffffffggmmmmwwwwwwwwwwfffffffffffffffffggggggggggggffffffffffffffffffgggmmmmwwwwwwwwwfffffffffffffffffggggggggggggfffffffffffffffffgggwmmmmmwwwwwwwwfffffffffffffffffggggggggggggfffffffffffffffffgggmmmmmmmwwwwwwffffffffffffffffffggggggggggggwffffffffffffffffgggmmmmmmmwwwwwffffffffffffffffffgggggggggggggwfffffffffffffffggggmmmmmmmmwwwwwffffffffffffffffffgggggggggggggffffffffffffffgggggmmmmmmmwwwwwwffffffffffffffffffgggggggggggggfffffffffffffgggggwmmmmmmwwwwwwfffffffffffffffffffgggggggggggggffffffffffggggggggwmmmmmwwwwwwwwfffffffffffffffffffggggggggggggggffffgffggggggggwggmmmwwwwwwwwwffffffffffffffffffggggggggggggwgggggggggggggggggggggmmwwwwwwwwwffffffffffffffffffggggggggggggwggggggggggggggggwgggggcwwwwwwwwwfffffffffffffffffggggggggggggggggggggggggggggggwgggggwwwwwwwwwwffffffffffffffffgggggggggggggwgggggggggggggggggwggggcwwwwwwwwwwffffffffffffffgggggggggggggggwgggggggggggggggggwggggwwwwwwwwwwwwffffffffffffggggggmmmmmggggwggggggggggggggggggwggggwwwwwwwwwwwwffffffffffffgggmmmmmmmmmggwgggggggggggggggggggwggggwwwwwwwwwwwwwgggggffggfggggmmmmmmmmmmgwgggggggggggggggggggggggwwwwwwwwwwwwwwggggggggggggggmmmmmmmmmmmmgggggggggggggggggwgwwwgwwwwwwwwwwwwwwgggggggggggggmmmwwwwmmmmmmmggggggggggggwwwwwgwwwcwwwwwwwwwwwwwwwggggggggggggmwwwwwwwmmmwmmmmggggggggggggggggcwcwwwwwwwwwwwwwwwwwgggggggggggwwwwwwwwwmmmmmmmmmmwwggggggggggggggggwwwwwwwwwwwwwwwcgggggggggwwwwwwwwwwwmmmmmmmmwwwggggggggggggggggwwwwwwwwwwwwwwwwwggggggcwwwwwwwwwwwwmmmmmmmwwwgggggggggggggggggcwwwwwwwwwwwwwwwwwggggwwwwwwwwwwwwwwmmmmmmwwwgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmwwwwwgggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-04",
+            "id": "oc-04",
             "name": "Brine Water",
             "size_class": "medium",
             "scenic": false,
@@ -237625,7 +237625,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggcwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggggggggggcwwwwwwwwwwwwwwwwwwwmmmgggggggggggggggggggggwwwwwwwwwwwwwwwwwmmmmggggggggggggggggggggggcwwwwwwwwwwwwwwmmmmmggggggggggggggggggggggggwwwwwwwwwwwwmmmmmmgggggggggggggggggggggggggwwwwwwwwwwwmmmmmmgggggggggggggggggggggggggwwwwwwwwwwmmmmmmggggggggggggggggggggggggggwwwwwwwwwwmmmmmgggggggggggggggggggggggggggwwwwwwwwwmmmmmggggggggggggggggggggggggggggwwwwwwwwwmmmmgggggggggggggggggfggggggggggcwwwwwwwwmmmwmggggggggggggggffffffgggggggwwwwwwwwwwmmmwmgggggggggggggfffffffffgggggcwwwwwwwwwgggwggggggggggggggfffffffffffggggwwwwwwwwggggwggggggggggggggfffffffffffgggmwwwwwwwwgggggwgggggggggggfffffffffffffmmmmmwwwwwwwggggffwgggggggggggfffffffffffmmmmmmmwwwwwgggggfffwwgwwggggggfffffffffffmmmmmmmwwwwwgggggffffffffwggggffffffffffffmmmmmmmmwwwwgggfffffffffffggggfffffffffffmmmmmmmmwwwwwwcggffffffffffwgggfffffffffffmmmmmmmwwwwwwwwwwwwwwwwfffffwgggffffffffffmmmmmmwwwwwwwwwwwwwwwwwfffffffwgffffffffmmmmmmmwwwwwwwwwwwwwwwwwwwfffffffwwfffffffmmmmmmmwwwwwwwwwwwwwwwwwwwfffffffwwwffffffmmmmmmmwwwwwwwwwwwwwwwwwwwcfffffcwwwwwcgggmmmmmggwwwwwwwwwwwwwwwwwwwwfffffwwwwwwwwggmmmmmggwwwwwwwwwwwwwwwwwwwwfffffwwwwwwwwwggmmmggcwwwwwwwwwwwwwwwwwwwwfffffwwwwwwwwwwgggggcwwwwwwwwwwwwwwwwwwwwwffffwwwwwwwwwwwgggggwwwwwwwwwwwwwwwwwwwwwwwffffwwwwwwwwwwggggggwwwwwwwwwwwwwwwwwwwwwfffffwwwwwwwwwwgggggggwwwwwwwwwwwwwwwwwwcfffffffwwwwwwwwgggggggwwwwwwwwwwwwwwwwwwwffffffffwwwwwwwwwcgggcwwwwwwwwwwwwwwwwwwwwfffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwffffffffffgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcfffffffggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfffggwcggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-05",
+            "id": "oc-05",
             "name": "Seal Watch",
             "size_class": "medium",
             "scenic": false,
@@ -238137,7 +238137,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwcgggggwcffgggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggwffffgggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwggggwfffffggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwggggfffffffgggggggwwwwwwwwwwwwwwwwwwwwwwwwwwgggwfffffffggggggggggggwgggwwwwwwwwwwwwwwwwggggwfffffffggggggggggggggmmwwwwwwwwwwwwwwwgggggwfffffffgggggggggggggmmmwwwwwwwwwwwwwwcgggggwfffffffggggggggggggmmmmmwwwwwwwwwwwwgggggggwffffffggggggggggggggmmmmmwwwwwwwwwcggggggggffffffggggggggggggggmmmmmmmwwwwwwffffgggggggffffffggggggggggggggmmmmmmmwwwwwffffffgggggwffffggggggggggggggggmmmmmmwwwwwwfffffffggggwgfffggggggggggggggggmmmmmmwwwwwwffffffffgggwgggggggggggggggggggggmwwwwwwwwwwffffffffgggwgggggggggggggggggggggmwwwwwwwwwfffffffffgggwggggggggggggggggggggggmmmmmwwwwfffffffffggggggggggggggggggggggggggmmmmmmwwwfffffffffggwgggggggggggggggggggggfffmmmffwwwfffmmffffggwgggggggggggggggggggggfffmmmffwwwwfmmmmmffgwgggggggggggggggggggggfffffmmfcwwwwmmmmmmmggwggggggggggggggggggggffffffffffwwwwwmmmmmmgggggggggggggggggggggggfffffffffwwwwwwmmmmmmmggggggggggwwwwggggggggfffffffffwwwwwwwmmmmmmggggggggggwwwwwggggggfffffffffcwwwwwwwmmmmmmmggggggggwwwwwwwggggggfffffffwwwwwwwwwwmmmmmwggggggggwwwwwwwcgggggffffffwwwwwwwwwwwmmmmmmgggggggggwwwwwwwcggggfffffwwwwwwwwwwwwwwmmmmmgggggggggwwwwwwwgggggffccwwwwwwwwwwwwwwmmmmmggggggggggwwwwwwgggggffwwwwwwwwwwwwwwwwwmmmgggggwwgggggcwwwwwgggggwwwwwwwwwwwwwwwwwwwwwggwgwwwggggggwwwwwwgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggcwwwwwgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwccggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-06",
+            "id": "oc-06",
             "name": "Merrow's Cradle",
             "size_class": "medium",
             "scenic": false,
@@ -252980,7 +252980,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfwcwwfffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwffffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfffffffffffffwwwwwwwwwwwggwwwwwwwwwwwwwwwwffmmmmffmfffffwwwwwwwwwcgggwwwwwwwwwwwwwwwffmmmmmmmmffffwwwwwwwwwggggwwwwwwwwwwwwwwwwmmmmmmfmmfffffwwcwwwwwfgggcwwwwwwwwwwwwwwmmmmmmfffmfffffffffffffffgggwwwwwwwwwwwwwwmmmmmmffffffffffffffffffffggwwwwwwwwwwwwwmmmmmmffffffffffffffffffffffgwwwwwwwwwwwwwmmmmmmffffffffffffffffffffffcwwwwwwwwwwwwwmmmmmmffffffffffffffffffffffgwwwwwwwwwwwwmmmmmmfffffffffffffffffffffffwwwwwwwwwwwwmmmmmmmffffffffffggfffffffffffwwwwwwwwwmmmmmmmmmfffffffffggggfffffffffggwwwwwwwwmmmmmmmmmmffffffffgggggggggffffggggwwwwwwmmmmmmmmmmgffffffggggggggggggggcgggwwwwwwwmmmmmmmmmmgggggggggggggggggggggwwcwwwwwwwcmmmmmmmmgggggggggggggggggggggggwwwwwwwwwwggmmmmggggggggggggggggggggggggggwwwwwwwwwcgggmmmggggggggggggggggggggggggggwwwwwwwwwgggggggggggggggggggggggggggggggwwwwwwwwwwggggggggggggggggggggggggggggggggwwwwwwwwwwwggggggggggggggggggggggggggggggwwwwwwwwwwwwggggggggggggggggggggggggggggggwwwwwwwwwwwggggggggggggggggggggggggggggggggcwwwwwwwwwggggggggggggggggggggggggggggggggwwwwwwwwwwgggggggggggggggggggggggggggggggcwwwwwwwwwwggggggggggggggggggggggggggggggggwwwwwwwwwwggggggggggggggggggggggggggggggggcwwwwwwwwwgggggggggggggggggggggggggggggggggwwwwwwwwwwgggggggggggggggggggggggggggggggggwwwwwwwwwggggggggggggcwcggggggggggggggggggcwwwwwwwwwggggggggggcwwwwwwwgggggggggggggwwwwwwwwwwwwcggggggggwwwwwwwwwgggggggggggwcwwwwwwwwwwwwwwgggggwwwwwwwwwwwggggggggggwwwwwwwwwwwwwwwwwwwgcwwwwwwwwwwwwgggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-07",
+            "id": "oc-07",
             "name": "Cobbler's Reach",
             "size_class": "medium",
             "scenic": false,
@@ -253461,7 +253461,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggffffffwwwwwwwwwwwwwwwwwwwwwwwwcgggggggggfffffffwwwwwwwwwwwwwwwwwwwwwwwwggggggggfffffffffffwwwwwwwwwwwwwwwwwwwwwwggggggggffffffffffffwwwwwwwwwwwwwwwwwwwwwggggggggffffffffffffwwwwwwwwwwwwwwwwwwwwwwwggggggfffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwcwggfffffffffffffffccwwwwwwwwwwwwwwwwwwwwwwwggffffffffffffffffgggwwwwwwwwwwwwwwwwwwwwcgffffffffffffffffgggcwwwwwwwwwwwwwwwwwwwwwwffffffffffffffmmmmmwwwwwwwwwwwwwwwwggggggggwwwffffffffmmmmmmmwwwwwwwwwwwwggggggggggggggwfffffffmmmmmmmmwwwwwwwwwwwggggggggggggggggwfffffgmmmmmmmmwwwwwwwwwggggggggggggggggggwffggggmmmmmmmwwwwwwwwwggggggggggggggggggggggggggmmmmmmwwwwwwwwwgggggggggggggggggggwggggggmmmmmmwwwwwwwwwgggggggggggggggggggggggggmmmmmmwwwwwwwwwwgggggggggggggggggggggwgggmmmmmmwwwwwwwwwgggggggggggggggggggggggggmmmwmmmwwwwwwwwwcggggggggggggggggggggggggmmmmwmwwwwwwwwwgggggggggggggggggggggggggmmmmmwwwwwwwwwwcgggggggggggggggggggggggggmmmmwmwwwwwwwwcggggggggggggggggggggggggggmmmmmmwwwwwwwcgggggggggggggggggggfffffgggmmmmmmmwwwwwcgggggggggggggggffffffffffffgmmmmmmwwwwwwggggggggggggggggffffffffffffgmmmmmwwwwwwwggggggggggggggggfffffffffmmmmmmmmmmwwwwwwgggggggggggggffffffffffffmmmmmmmmmmwwwwwwcgggggggggggggfffffffffffmmmmmmmmmmwwwwwwwggggggggggggffffffffffffmmmmmmmmmwwwwwwwwwgggggggggggffffffffffffmmmmmmmwwwwwwwwwwwcggggggggggffffffffffffmmwmmwwwwwwwwwwwwwwwgggggggggfffffffffffwwwwwwwwwwwwwwwwwwwwggggggggggffffffffffwwwwwwwwwwwwwwwwwwwwwgggggggggggfffffffffwwwwwwwwwwwwwwwwwwwwwwgggggggggggfffffffwwwwwwwwwwwwwwwwwwwwwwwwcggggggggggffffffwwwwwwwwwwwwwwwwwwwwwwwwwwgggggggggggffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-08",
+            "id": "oc-08",
             "name": "Elder Holm",
             "size_class": "medium",
             "scenic": false,
@@ -253942,7 +253942,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwgcwgwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmgcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmgggggggcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmggggggggggwwwwwwwwwwwwwwwwwwwwwmmwmmmmmmwmmggggggggggggwwwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmwggggggggggggwwwwwwwwwwwwwwwwwwmmmmmmmmmmmmmmggggggggggggggwwwwwwwwwwwmwmmmmmmmmmmmmmmmmmggwggggggggggggwwwwwwwwgggmmmmmmmmmmmmmmmmmggggwgggggggggggggwwwwwwcgggmmmmmmmmmmmmmmgggggggwgggggggggggggwwwwwwgggggmmmmmmmmmmggggggggggggggggggggggggwwwwwgggggggmmmmmmmgggggggggggggwggggggggggggcwwwwgggggggmmmmggggggggggggggggwggggggggggggcwwwwgggggggggggggggggggggggggggwggggggggggggcwwwggggggggggggggggggggggggggggwggggggggggggggwwggggggggggggggggggggggggggggwggggggggggggggwwgggggggggggggggggfggggggggggwggggggggggggggwwwgggggggggggggggfffgfgggggggwggggggggggggggwwcgggggggggggggffffffffffggggwgggggggggggggcwwwgggggggggggggfffffffffffggggwggggggggggggwwwwggggggggggggffffffffffffffgggggggggggggggwwwwwggggggggggffffffffffffffffggwggggggggggwwwwwwggwwwgggggffffffffffffffffggwgggggggggwwwwwwwwwwwwwwwwwffffffffffffffffggwgggggggggwwwwwwwwwwwwwwwwwwffffffffffffffffggggggggggwwwwwwwwwwwwwwwwwwwffffffffffffffffggwgggggggwwwwwwwwwwwwwwwwwwffffffffffffffffffggwwcgggwwwwwwwwwwwwwwwwwwwffffffffffffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwffffffffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwffffffffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwfffffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcfffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwcfffffffffcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-09",
+            "id": "oc-09",
             "name": "Ropewalk Isle",
             "size_class": "small",
             "scenic": false,
@@ -254434,7 +254434,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwmmmwwwwwwwwwwwwwwwwwwwwwwwwmmmmmmmgggcwwwwwwwwwwwwwwwwwmmmmmmmgggggcwwwwwwwwwwwwwwwmmmmmmmmggggggwwwwwwwwwwwwwmmmmgggggggggggwwwwwwwwwwwwmmmmmgggggggggggcwwwwwwwwwwmmmmmfggggggggggggcwwwwwwwwwwmmmmfffgggggggggggwwwwwmmmmmmmmffffgggggggcwwwwwwwgmmmmmmmmffffggggggwwwwwwwwgggmmmmmmffffffgggggwwwwwwwwgggfffffffffffgggggggggwwwwwwwgffffffffffffgggggggggwwwwwwwffffffffffffggggggggggwwwwwgfffffffffffggggggggggggwwwwgfffffffffffggggggggggggwwwwggffffffffffggggggggggggwwwwwgggfffffffggggggggggggwwwwwwggggffgggggggggggggggwwwwwwwwggggggggggggggggggggwwwwwwwwwgwwwggggggggggggggwwwwwwwwwwwwwwwwwgggcgwcgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-10",
+            "id": "oc-10",
             "name": "Gannet Cliff",
             "size_class": "small",
             "scenic": false,
@@ -254956,7 +254956,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggcwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwggggggwwwwwwwwwwwwwcgwwwwwwwwwwwwffggggwwwwwwwwwwwwwwggwwwwwwwwwwwfffffggcwwwwwwwwwwwwggggwwwwwwwwwcffffffggcwwwwwwwwwwwggggcwwwwwwwwgffffffgggcwwwcwwwwwggggffwwwwwwwgffffffggggggggggwwwgggggfffwwwwwwggfffggggggggggggggggggggfffwwwwwcgggggggggggggggggggggggggffffwwwwggggggggggggggggggggggggggffffwwwggggggggggggggggggggggggggffffffwwgggggccggggggggggggggggggggffffcwwcgggwwcgffgggggggggggggggggggfcwwwwcggwwwffffgggggggggggmmmmmggmwwwwwwgwwwcfffffgggggggggmmmmwmwwwwwwwwwwwwwwfffffgggggggggmmmmwwwwwwwwwwwwwwwffffffgggggggggmmmmwwwwwwwwwwwwwwwwcffffgggggggggmmmmwwwwwwwwwwwwwwwwwwwwfgggggggggmmmmwwwwwwwwwwwwwwwwwwwwwwggggmmmgmmmmwwwwwwwwwwwwwwwwwwwwwwggggmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwgggmmmmmmmmwwwwwwwwwwwwwwwwwwwwwwwggggmmmmmmwwwwwwwwwwwwwwwwwwwwwwwwwgcwwwmmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-11",
+            "id": "oc-11",
             "name": "Driftwood Isle",
             "size_class": "small",
             "scenic": false,
@@ -255458,7 +255458,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggcwwwwwwwwwwwwwwwwwwwwwwgggggggcwwwwwwwwwwwwwwwwwcggggggggggwwwwwwwwwwwwwwwwggggggggggggwwwwwwwwwwwwwwgggggggggggcwwwwwwwwwwwwwwwwgggggggggcwwwwwwwwwwwwwwwwwgggggggggwwwwwwwwwwwwwwwwwwgggggggggwwwwwwwwwwwwwwwwwggggggggggcwwwwwwwwwwwwwwwcgggggggggggwwwwwwwwwwwwwwfffgggggggggggwwwwwwwwwwwwcfffggggggggggggggggwwwwwwfffffgggggggggggggggggwwwwffffffffggggggggggggggggwwwffffffffggggggggggggggggwwwwfffffffgggggfggggggggggwwwwwffffffggggfffffggwwgcwwwwwwfffffgggggffffffwwwwwwwwwwwwffffggggfffffffcwggmwwwwwwwffgggggfffffffffwcmmwwwwwwwggggggfffffffmffgmmwwwwwwwwggggggfffffffmmmmmmmwwwwwwwggggggfffffmmfmmmmmwwwwwwwwggggggggmmmmmgmmmmmwwwwwwwwcgggggggmwmmmmmmmmwwwwwwwwcggggggggmwmmmmmmmwwwwwwwwwwwggwwgggmwmmmmmmmwwwwwwwwwwwwwwwcgwwwmmmmmwwwwwwwwwwwwwwwwwwwwwwwmmwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-12",
+            "id": "oc-12",
             "name": "Saltmarsh Holm",
             "size_class": "small",
             "scenic": false,
@@ -255961,7 +255961,7 @@
             "terrain_mask": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwggcwwwwwwwwwwwwwwwwwmmmmwwggggggwwwwwwwwwwwwwmmmmmmmggggggggfcwwwwwwwwmmmmmmmmmgggggggffffwwwwwwmmmmmmmmmmffgggggffffcwwwwwmmmmmgggffffggggffffffwwwwmmmmgggggfffffggfffffffwwwwmmmmgggggfffffgggffffffwwwwmmggggggffffffggggffffgwwwwggggggggffffffggggffffgwwwwggggggggfffffggggggffggwwwggggggggggffggggggggggggwwwgggggggggggggggggggggwwwwwwwgggggggggggggggggggwwwwwwwwwcwggggggggggggggwwwwwwwwwwwwwwgggggggggggwwwwwwwwwwwwwwwwwgggggggggwwwwwwwwwwwwwwwwwwgggggggggwwwwwwwwwwwwwwwwwwwggggggggwwwwwwwwwwwwwwwwwwwggggggfffwwwwwwwwwwwwwwwwwccggwcggfffwwwwwwwwwwwwwwwggwwwwwgfffffffwwwwwwwwwcgggcwwwwwwffffffffwwwwwwwwwgggwwwwwwwwfffffffwwwwwwwwwwwgwwwwwwwwfffffcwwwwwwwwwwwwwwwwwwwwwcfffwwwwwwwwwwwwwwwwwwwwwwwwcwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
-            "id": "isle-13",
+            "id": "oc-13",
             "name": "",
             "size_class": "scenic",
             "scenic": true,
@@ -256439,7 +256439,7 @@
             "terrain_mask": "wwwwwwwww"
           },
           {
-            "id": "isle-14",
+            "id": "oc-14",
             "name": "",
             "size_class": "scenic",
             "scenic": true,
@@ -256917,7 +256917,7 @@
             "terrain_mask": "wwwwwwwwwwww"
           },
           {
-            "id": "isle-15",
+            "id": "oc-15",
             "name": "",
             "size_class": "scenic",
             "scenic": true,
@@ -257395,7 +257395,7 @@
             "terrain_mask": "wwwwwwwww"
           },
           {
-            "id": "isle-16",
+            "id": "oc-16",
             "name": "",
             "size_class": "scenic",
             "scenic": true,
@@ -257873,7 +257873,7 @@
             "terrain_mask": "wwwwwwwww"
           },
           {
-            "id": "isle-17",
+            "id": "oc-17",
             "name": "",
             "size_class": "scenic",
             "scenic": true,
@@ -258351,7 +258351,7 @@
             "terrain_mask": "wwwwwwwww"
           },
           {
-            "id": "isle-18",
+            "id": "oc-18",
             "name": "",
             "size_class": "scenic",
             "scenic": true,
@@ -258829,7 +258829,7 @@
             "terrain_mask": "wwwwwgwwwwww"
           },
           {
-            "id": "isle-19",
+            "id": "oc-19",
             "name": "",
             "size_class": "scenic",
             "scenic": true,
@@ -259307,7 +259307,7 @@
             "terrain_mask": "wwwwwwwww"
           },
           {
-            "id": "isle-20",
+            "id": "oc-20",
             "name": "",
             "size_class": "scenic",
             "scenic": true,
@@ -259785,7 +259785,7 @@
             "terrain_mask": "wwwwwwwww"
           },
           {
-            "id": "isle-21",
+            "id": "oc-21",
             "name": "",
             "size_class": "scenic",
             "scenic": true,
@@ -260263,7 +260263,7 @@
             "terrain_mask": "wwwwcwwww"
           },
           {
-            "id": "isle-22",
+            "id": "oc-22",
             "name": "",
             "size_class": "scenic",
             "scenic": true,
@@ -260751,9 +260751,9 @@
             "route_id": 1,
             "stop_index": 1,
             "leg": {
-              "from_island_id": "isle-01",
+              "from_island_id": "oc-01",
               "from_position": null,
-              "to_island_id": "isle-02",
+              "to_island_id": "oc-02",
               "depart_at": "2026-01-01T19:29:43.257Z",
               "arrive_at": "2026-01-01T19:41:12.576Z",
               "path": [
@@ -260814,9 +260814,9 @@
             "route_id": 2,
             "stop_index": 0,
             "leg": {
-              "from_island_id": "isle-02",
+              "from_island_id": "oc-02",
               "from_position": null,
-              "to_island_id": "isle-01",
+              "to_island_id": "oc-01",
               "depart_at": "2026-01-01T19:37:31.147Z",
               "arrive_at": "2026-01-01T19:49:02.140Z",
               "path": [
@@ -260890,9 +260890,9 @@
             "route_id": 3,
             "stop_index": 0,
             "leg": {
-              "from_island_id": "isle-01",
+              "from_island_id": "oc-01",
               "from_position": null,
-              "to_island_id": "isle-06",
+              "to_island_id": "oc-06",
               "depart_at": "2026-01-01T19:38:31.479Z",
               "arrive_at": "2026-01-01T19:44:18.784Z",
               "path": [
@@ -260937,9 +260937,9 @@
             "route_id": 4,
             "stop_index": 1,
             "leg": {
-              "from_island_id": "isle-01",
+              "from_island_id": "oc-01",
               "from_position": null,
-              "to_island_id": "isle-06",
+              "to_island_id": "oc-06",
               "depart_at": "2026-01-01T19:34:41.196Z",
               "arrive_at": "2026-01-01T19:40:28.501Z",
               "path": [
@@ -260989,9 +260989,9 @@
             "route_id": 3,
             "stop_index": 0,
             "leg": {
-              "from_island_id": "isle-01",
+              "from_island_id": "oc-01",
               "from_position": null,
-              "to_island_id": "isle-06",
+              "to_island_id": "oc-06",
               "depart_at": "2026-01-01T19:38:54.822Z",
               "arrive_at": "2026-01-01T19:45:51.588Z",
               "path": [
@@ -261036,9 +261036,9 @@
             "route_id": 5,
             "stop_index": 0,
             "leg": {
-              "from_island_id": "isle-01",
+              "from_island_id": "oc-01",
               "from_position": null,
-              "to_island_id": "isle-02",
+              "to_island_id": "oc-02",
               "depart_at": "2026-01-01T19:35:03.918Z",
               "arrive_at": "2026-01-01T19:51:17.074Z",
               "path": [
@@ -261099,9 +261099,9 @@
             "route_id": 5,
             "stop_index": 0,
             "leg": {
-              "from_island_id": "isle-01",
+              "from_island_id": "oc-01",
               "from_position": null,
-              "to_island_id": "isle-02",
+              "to_island_id": "oc-02",
               "depart_at": "2026-01-01T19:39:42.658Z",
               "arrive_at": "2026-01-01T19:55:55.814Z",
               "path": [
@@ -261162,9 +261162,9 @@
             "route_id": 4,
             "stop_index": 1,
             "leg": {
-              "from_island_id": "isle-01",
+              "from_island_id": "oc-01",
               "from_position": null,
-              "to_island_id": "isle-06",
+              "to_island_id": "oc-06",
               "depart_at": "2026-01-01T19:37:56.042Z",
               "arrive_at": "2026-01-01T19:44:52.808Z",
               "path": [
@@ -261214,9 +261214,9 @@
             "route_id": 6,
             "stop_index": 0,
             "leg": {
-              "from_island_id": "isle-01",
+              "from_island_id": "oc-01",
               "from_position": null,
-              "to_island_id": "isle-02",
+              "to_island_id": "oc-02",
               "depart_at": "2026-01-01T19:27:50.103Z",
               "arrive_at": "2026-01-01T19:41:37.285Z",
               "path": [
@@ -261275,7 +261275,7 @@
             "name": "Hops home",
             "stops": [
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "load": [],
                 "unload": [
                   {
@@ -261293,7 +261293,7 @@
                 ]
               },
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "load": [
                   {
                     "good": "hops",
@@ -261395,25 +261395,25 @@
             ],
             "effects": [
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "hops",
                 "per_loop": 50000,
                 "per_min": 1789
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "iron",
                 "per_loop": 30000,
                 "per_min": 1073
               },
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "good": "hops",
                 "per_loop": -50000,
                 "per_min": -1789
               },
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "good": "iron",
                 "per_loop": -30000,
                 "per_min": -1073
@@ -261425,7 +261425,7 @@
             "name": "Bricks home",
             "stops": [
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "load": [],
                 "unload": [
                   {
@@ -261443,7 +261443,7 @@
                 ]
               },
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "load": [
                   {
                     "good": "bricks",
@@ -261545,25 +261545,25 @@
             ],
             "effects": [
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "bricks",
                 "per_loop": 50000,
                 "per_min": 1789
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "stone",
                 "per_loop": 50000,
                 "per_min": 1789
               },
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "good": "bricks",
                 "per_loop": -50000,
                 "per_min": -1789
               },
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "good": "stone",
                 "per_loop": -50000,
                 "per_min": -1789
@@ -261575,7 +261575,7 @@
             "name": "Island goods",
             "stops": [
               {
-                "island_id": "isle-06",
+                "island_id": "oc-06",
                 "load": [
                   {
                     "good": "brass",
@@ -261597,7 +261597,7 @@
                 "unload": []
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "load": [],
                 "unload": [
                   {
@@ -261677,49 +261677,49 @@
             ],
             "effects": [
               {
-                "island_id": "isle-06",
+                "island_id": "oc-06",
                 "good": "brass",
                 "per_loop": -30000,
                 "per_min": -4204
               },
               {
-                "island_id": "isle-06",
+                "island_id": "oc-06",
                 "good": "glass",
                 "per_loop": -40000,
                 "per_min": -5606
               },
               {
-                "island_id": "isle-06",
+                "island_id": "oc-06",
                 "good": "grapes",
                 "per_loop": -50000,
                 "per_min": -7007
               },
               {
-                "island_id": "isle-06",
+                "island_id": "oc-06",
                 "good": "thread",
                 "per_loop": -30000,
                 "per_min": -4204
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "brass",
                 "per_loop": 30000,
                 "per_min": 4204
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "glass",
                 "per_loop": 40000,
                 "per_min": 5606
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "grapes",
                 "per_loop": 50000,
                 "per_min": 7007
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "thread",
                 "per_loop": 30000,
                 "per_min": 4204
@@ -261731,7 +261731,7 @@
             "name": "Stone out, pigs home",
             "stops": [
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "load": [
                   {
                     "good": "stone",
@@ -261748,7 +261748,7 @@
                 ]
               },
               {
-                "island_id": "isle-06",
+                "island_id": "oc-06",
                 "load": [
                   {
                     "good": "milk",
@@ -261819,37 +261819,37 @@
             ],
             "effects": [
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "milk",
                 "per_loop": 30000,
                 "per_min": 4204
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "pigs",
                 "per_loop": 100000,
                 "per_min": 14015
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "stone",
                 "per_loop": -30000,
                 "per_min": -4204
               },
               {
-                "island_id": "isle-06",
+                "island_id": "oc-06",
                 "good": "milk",
                 "per_loop": -30000,
                 "per_min": -4204
               },
               {
-                "island_id": "isle-06",
+                "island_id": "oc-06",
                 "good": "pigs",
                 "per_loop": -100000,
                 "per_min": -14015
               },
               {
-                "island_id": "isle-06",
+                "island_id": "oc-06",
                 "good": "stone",
                 "per_loop": 30000,
                 "per_min": 4204
@@ -261861,7 +261861,7 @@
             "name": "Farm goods",
             "stops": [
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "load": [
                   {
                     "good": "cattle",
@@ -261887,7 +261887,7 @@
                 "unload": []
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "load": [],
                 "unload": [
                   {
@@ -261997,61 +261997,61 @@
             ],
             "effects": [
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "good": "cattle",
                 "per_loop": -30000,
                 "per_min": -2147
               },
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "good": "hops",
                 "per_loop": -60000,
                 "per_min": -4294
               },
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "good": "milk",
                 "per_loop": -60000,
                 "per_min": -4294
               },
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "good": "pigs",
                 "per_loop": -120000,
                 "per_min": -8589
               },
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "good": "salt",
                 "per_loop": -60000,
                 "per_min": -4294
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "cattle",
                 "per_loop": 30000,
                 "per_min": 2147
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "hops",
                 "per_loop": 60000,
                 "per_min": 4294
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "milk",
                 "per_loop": 60000,
                 "per_min": 4294
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "pigs",
                 "per_loop": 120000,
                 "per_min": 8589
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "salt",
                 "per_loop": 60000,
                 "per_min": 4294
@@ -262063,7 +262063,7 @@
             "name": "Hops home 2",
             "stops": [
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "load": [
                   {
                     "good": "hops",
@@ -262073,7 +262073,7 @@
                 "unload": []
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "load": [],
                 "unload": [
                   {
@@ -262170,13 +262170,13 @@
             ],
             "effects": [
               {
-                "island_id": "isle-02",
+                "island_id": "oc-02",
                 "good": "hops",
                 "per_loop": -100000,
                 "per_min": -3579
               },
               {
-                "island_id": "isle-01",
+                "island_id": "oc-01",
                 "good": "hops",
                 "per_loop": 100000,
                 "per_min": 3579

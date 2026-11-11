@@ -14,7 +14,31 @@ Content IDs are stable snake_case strings and never reused.
 
 | ID | Name (working) | Climate | Notes |
 |---|---|---|---|
-| `old_coast` | The Old Coast | temperate | launch region; all content below. Materials are regional (D-037). |
+| `old_coast` | The Old Coast | temperate | launch region and home region (D-076); all content below. Materials are regional (D-037). Island prefix `oc`. |
+
+The regions of a world are listed in `content/regions.json` (D-076), the
+home region first:
+
+```json
+{
+  "regions": [{ "id": "old_coast", "prefix": "oc", "home": true, "gate": null }],
+  "passages": []
+}
+```
+
+`id` names the region folder `content/<id>` (its `region.json` carries the
+same ID); `prefix` (2–4 lower-case letters, unique) prefixes the island IDs
+of the region's archipelago (`oc-01` … `oc-NN`); `home` marks the home
+region — exactly one, the first; `gate` is the building ID that opens a
+later region (D-076 §2: the Kontor) and `null` for the home region;
+`passages[]` = `{ from, to, minutes }` are the off-map legs between two
+listed regions (one per pair, both directions; provisional 10 min at
+scale 1). The loader validates the list (schema `regions.schema.json`,
+unique IDs and prefixes, every folder present, gates are buildings of a
+region, passages join two listed regions), loads every region folder on
+its own and merges their goods into one ID space: a good ID in two regions
+is an error (goods are global, D-076 §3). While the list holds one region
+there is no passage and no gate.
 
 ## 2. Tiers
 
@@ -462,6 +486,7 @@ and short hops, the carrack large and slow for bulk. Ship positions and legs fol
 | Buildable area | 185 000 tiles (coast, grass, forest) per archipelago ± 10 % (D-072; ≈ 51 % of the 365 289-tile land extents, the share the shape rules give; provisional) |
 | Anno 117 sizes (D-072) | buildable mean over seeds 1–50: large 31 725 (Anno 117: 31 573), medium 13 614 (13 369), small 6 011 (5 860) tiles; ≈ 2 640 / 1 130 / 500 houses at 12 tiles per house; with the rim massifs (D-072 §4) 13 % of a large or medium island is rock, and a quarter of the small islands have no massif |
 | Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
+| IDs | `<region prefix>-NN` (`regions.json`, D-076): `oc-01` (the home candidate) … `oc-12`, skerries after them; global across the regions of a world |
 
 Guarantees per tier are specified in MECHANICS §10. No gating (D-051).
 Sizes, counts, pools and ranges live in `islands.json`; the generator
@@ -477,7 +502,8 @@ and house facade variants per tier.
 
 ## 11. Content data format
 
-Content lives in `content/<region>/*.json`, one file per entity type
+Content lives in `content/regions.json` (the region list, §1) and
+`content/<region>/*.json`, one file per entity type
 (`region.json`, `start.json`, `tiers.json`, `goods.json`, `buildings.json`,
 `needs.json`, `ships.json`, `quests.json`, `islands.json`; later
 `decorations.json`), with
@@ -581,7 +607,7 @@ Every building has `id`, `name`, `region` (must equal the region id),
 called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min`,
 `pause_category` and `look`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **15**, content **old_coast-0.21.0** (D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): no migration while
+World schema **15**, content **old_coast-0.21.1** (D-076 `regions.json`, island IDs `oc-NN`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): no migration while
 undeployed; recreate local databases with `make down VOLUMES=1 && make up`.
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.

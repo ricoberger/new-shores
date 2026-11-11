@@ -117,7 +117,7 @@ func TestDevReset(t *testing.T) {
 	}
 	d := decodeDisplay(t, w.Display)
 	// The default fixture: the start cog idle at the founded start island.
-	if ships := d["ships"].([]any); d["away_summary"] != nil || len(ships) != 1 || ships[0].(map[string]any)["island_id"] != archipelago.IslandID(0) {
+	if ships := d["ships"].([]any); d["away_summary"] != nil || len(ships) != 1 || ships[0].(map[string]any)["island_id"] != archipelago.IslandID("oc", 0) {
 		t.Errorf("summary %v ships %v after reset", d["away_summary"], d["ships"])
 	}
 	if pub.n.Load() != 2 {

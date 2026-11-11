@@ -1,0 +1,6 @@
+{
+  "regions": [
+    { "id": "old_coast", "prefix": "oc", "home": true, "gate": null }
+  ],
+  "passages": []
+}

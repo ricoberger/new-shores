@@ -60,7 +60,7 @@ func TestDevSeedTierThreeDeposits(t *testing.T) {
 // keepSeeds are the seeds whose islands keepsTheWorld compares tile by
 // tile. Since D-072 part 2 a later tier's slot needs a free footprint
 // 16 tiles from the others, which can turn down a shape the earlier
-// slots fit on (the dev seed's small isle-10 with four slots), so the
+// slots fit on (the dev seed's small oc-10 with four slots), so the
 // tile-level guarantee holds per seed; the composition (planComposition)
 // stays the same on every seed (TestLaterTierDepositsKeepThePlan).
 var keepSeeds = []uint64{1, 42}

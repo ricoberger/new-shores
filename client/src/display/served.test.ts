@@ -103,9 +103,9 @@ describe("wouldServe (ghost hint, D-027)", () => {
 });
 
 describe("ghostRelated (ghost hint, D-027)", () => {
-  const isle = base.islands.find((is) => is.id === "isle-01")!;
+  const isle = base.islands.find((is) => is.id === "oc-01")!;
   const idsOf = (...types: string[]) => isle.buildings.filter((b) => types.includes(b.type)).map((b) => b.id).sort((a, b) => a - b);
-  const ghost = (type: string, x = 0, y = 0) => ({ type, island: "isle-01", x, y, rotation: 0 });
+  const ghost = (type: string, x = 0, y = 0) => ({ type, island: "oc-01", x, y, rotation: 0 });
 
   it("a service building: the houses it would serve", () => {
     expect(ghostRelated(chapelAt(0), content, base)).toEqual(wouldServe(chapelAt(0), content, base));
@@ -148,7 +148,7 @@ describe("ghostRelated (ghost hint, D-027)", () => {
     expect(ghostRelated(at(reach + 1), content, base)).not.toContain(tp.id);
     const collectors = new Set(idsOf("trading_post", "warehouse"));
     for (const id of ghostRelated(at(0), content, base)) expect(collectors.has(id)).toBe(true);
-    expect(ghostRelated({ ...at(0), island: "isle-02" }, content, base).every((id) => !collectors.has(id))).toBe(true);
+    expect(ghostRelated({ ...at(0), island: "oc-02" }, content, base).every((id) => !collectors.has(id))).toBe(true);
   });
 
   it("the reach outline: the footprint grown by reach + ½ tile around its corner tiles", () => {
@@ -172,14 +172,14 @@ describe("ghostRelated (ghost hint, D-027)", () => {
 });
 
 describe("plans in the served hints (D-071)", () => {
-  const isle = base.islands.find((is) => is.id === "isle-01")!;
+  const isle = base.islands.find((is) => is.id === "oc-01")!;
 
   it("ignore plans: a planned house in a chapel ghost's radius is not tinted, a planned chapel serves nobody", () => {
-    const chapelGhost = { type: "chapel", island: "isle-01", x: 0, y: 0, rotation: 0 };
+    const chapelGhost = { type: "chapel", island: "oc-01", x: 0, y: 0, rotation: 0 };
     const plain = ghostRelated(chapelGhost, content, base);
     // Plans live in their own array: the hint reads `buildings` only.
     const planned = { ...isle, plans: [{ id: 9001, type: "house_settlers", x: 1, y: 1, rotation: 0 as const, planned: true }] };
-    const withPlans = { ...base, islands: base.islands.map((is) => (is.id === "isle-01" ? planned : is)) };
+    const withPlans = { ...base, islands: base.islands.map((is) => (is.id === "oc-01" ? planned : is)) };
     expect(ghostRelated(chapelGhost, content, withPlans)).toEqual(plain);
     const house = isle.buildings.find((b) => b.type === "house_settlers")!;
     expect(servedRelated(house, isle.buildings, def("house_settlers"))).not.toContain(9001);

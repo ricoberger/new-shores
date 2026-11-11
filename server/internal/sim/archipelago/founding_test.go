@@ -128,12 +128,12 @@ func TestSailShipSite(t *testing.T) {
 }
 
 // TestLagoonHarbourLegs (polish 8): seed 1053001, roll 2 (the owner's
-// second playtest) — isle-03's Trading Post site (77, 41) at 180° had its
+// second playtest) — oc-03's Trading Post site (77, 41) at 180° had its
 // harbour in a cliff bay whose mouth lies more than approachReach tiles
 // out; the founding voyage from the start position and a manual shipment
 // from the founded island to every other island sailed the straight line
-// across isle-01 / isle-03. The bay is a cliff coast, which D-075 §1 now
-// rejects (needs_low_shore); the legs of every other isle-03 site go by
+// across oc-01 / oc-03. The bay is a cliff coast, which D-075 §1 now
+// rejects (needs_low_shore); the legs of every other oc-03 site go by
 // water.
 func TestLagoonHarbourLegs(t *testing.T) {
 	c := catalogue(t)
@@ -148,24 +148,24 @@ func TestLagoonHarbourLegs(t *testing.T) {
 		}
 	}
 	owner := sim.FoundingSite{BuildingType: "trading_post", X: 77, Y: 41, Rotation: 180}
-	if err := sim.Apply(w, c, sim.SailShip{ShipID: 1, ToIslandID: "isle-03", Site: &owner}); !errors.Is(err, sim.ErrNeedsLowShore) {
+	if err := sim.Apply(w, c, sim.SailShip{ShipID: 1, ToIslandID: "oc-03", Site: &owner}); !errors.Is(err, sim.ErrNeedsLowShore) {
 		t.Fatalf("the owner's cliff-bay site: %v, want %v", err, sim.ErrNeedsLowShore)
 	}
 	var isle *sim.Island
 	for _, is := range w.Islands {
-		if is.ID == "isle-03" {
+		if is.ID == "oc-03" {
 			isle = is
 		}
 	}
 	sites := Sites(isle, c, TradingPost(c))
 	if len(sites) == 0 {
-		t.Fatal("isle-03 has no Trading Post site")
+		t.Fatal("oc-03 has no Trading Post site")
 	}
 	for i := 0; i < len(sites); i += max(1, len(sites)/24) {
 		r := sites[i]
 		site := sim.FoundingSite{BuildingType: "trading_post", X: r.X, Y: r.Y, Rotation: r.Rotation}
 		w := w.Clone()
-		if err := sim.Apply(w, c, sim.SailShip{ShipID: 1, ToIslandID: "isle-03", Site: &site}); err != nil {
+		if err := sim.Apply(w, c, sim.SailShip{ShipID: 1, ToIslandID: "oc-03", Site: &site}); err != nil {
 			t.Fatalf("site %+v: %v", r, err)
 		}
 		s := w.Ship(1)
@@ -179,11 +179,11 @@ func TestLagoonHarbourLegs(t *testing.T) {
 		if _, err := sim.Advance(w, c, time.UnixMilli(s.Leg.ArriveAtMs)); err != nil {
 			t.Fatal(err)
 		}
-		if err := sim.Apply(w, c, sim.FoundIsland{ShipID: 1, IslandID: "isle-03", BuildingType: site.BuildingType, X: site.X, Y: site.Y, Rotation: site.Rotation}); err != nil {
+		if err := sim.Apply(w, c, sim.FoundIsland{ShipID: 1, IslandID: "oc-03", BuildingType: site.BuildingType, X: site.X, Y: site.Y, Rotation: site.Rotation}); err != nil {
 			t.Fatal(err)
 		}
 		for _, to := range w.Islands[:12] {
-			if to.ID == "isle-03" {
+			if to.ID == "oc-03" {
 				continue
 			}
 			w := w.Clone()

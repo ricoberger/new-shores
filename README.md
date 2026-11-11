@@ -148,7 +148,7 @@ environment variables.
 | `REDIS_URL` | — (required) | Redis URL (`redis://host:6379/0`); push and rate limits degrade without a reachable Redis |
 | `LISTEN_ADDR` | `:8080` | API listen address (flag `--addr`) |
 | `METRICS_ADDR` | `:9090` | separate listener for `/metrics` (Prometheus) |
-| `CONTENT_DIR` | `../content/old_coast` | region content directory (flag `--content`) |
+| `CONTENT_DIR` | `../content` | content directory: `regions.json` and the region folders (flag `--content`) |
 | `ALLOWED_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | browser origins for CORS, the CSRF check and the WebSocket (flag `--cors-origin`) |
 | `COOKIE_SECURE` | `false` | `Secure` attribute of the session cookie (set `true` behind HTTPS) |
 | `SESSION_TTL` | `720h` | idle session lifetime (sliding, at least `1h`) |

@@ -51,7 +51,7 @@ func TestArchipelagoSteps(t *testing.T) {
 		{"rename_island": {"name": "Haven"}, "expect_error": "island_not_settled"},
 		{"reroll_archipelago": true},
 		{"reroll_archipelago": true},
-		{"sail_ship": {"ship": 1, "to": "isle-01"}},
+		{"sail_ship": {"ship": 1, "to": "oc-01"}},
 		{"reroll_archipelago": true, "expect_error": "reroll_not_allowed"}
 	]}`))
 	if err != nil {

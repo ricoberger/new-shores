@@ -47,7 +47,7 @@ func SkerryTiles(sc *content.SizeClass) content.Range {
 // two), placed next to a random island with at least StraitMin tiles of
 // water (grid to grid) to every island and skerry, inside the islands'
 // bounds and within NearestMax of an island. IDs continue the islands'.
-func skerries(r *rng, islands []*sim.Island, rules *content.IslandRules) ([]*sim.Island, error) {
+func skerries(r *rng, islands []*sim.Island, rules *content.IslandRules, prefix string) ([]*sim.Island, error) {
 	main := len(islands)
 	minX, minY, maxX, maxY := Bounds(islands[:main])
 	strait := rules.StraitMin
@@ -57,7 +57,7 @@ func skerries(r *rng, islands []*sim.Island, rules *content.IslandRules) ([]*sim
 		}
 		for range r.between(sc.Count.Min, sc.Count.Max) {
 			is := skerry(r, sc)
-			is.ID = IslandID(len(islands))
+			is.ID = IslandID(prefix, len(islands))
 			placed := false
 			for range skerryTries {
 				a := islands[r.intn(main)]
