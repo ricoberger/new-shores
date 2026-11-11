@@ -4,6 +4,9 @@ plaster house on an ashlar floor under slate (no chimney); in the paved
 forecourt three tall racks hung with bolts of blue, red and cream cloth and
 piles of folded cloth. 12 voxels per tile; massing and signature prop in
 NOTES.md.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor and half-timber — under the dark burgundy tile, one of the grand
+tier-4 workshops that may wear it; the props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -24,7 +27,7 @@ def build(ctx):
     v = ctx.vox()  # 60 × 84
     seed = 151
     K.ground(v, 30, 63, 27, 23, seed, "paved")
-    h = K.workshop(v, 6, 6, 60 - 6, 36, 4, "a", seed, door=("y+", 28), wins=[])
+    h = K.workshop(v, 6, 6, 60 - 6, 36, 2, "a", seed, door=("y+", 28), wins=[], dark=True)
     K.rack(v, 6, 36, 46, [GOODS, RED, CREAM], h=18, drop=14)
     K.rack(v, 6, 36, 58, [CREAM, GOODS, RED], h=16, drop=12)
     K.rack(v, 6, 36, 70, [RED, CREAM, GOODS], h=14, drop=10)

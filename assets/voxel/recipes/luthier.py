@@ -3,6 +3,9 @@ Luthier (5 × 5; V7 variety pass, tier IV): a long two-storey cream plaster
 workshop under slate (no chimney); in front a rack of big violins and lutes
 with pale necks and a stack of pale tonewood planks. 12 voxels per tile;
 massing and signature prop in NOTES.md.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor and half-timber — under the dark burgundy tile, one of the grand
+tier-4 workshops that may wear it; the props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -22,7 +25,7 @@ def build(ctx):
     v = ctx.vox()  # 60 × 60
     seed = 161
     K.ground(v, 30, 49, 27, 13, seed, "paved")
-    h = K.workshop(v, 6, 6, 60 - 6, 32, 4, "a", seed, door=("y+", 28), wins=[])
+    h = K.workshop(v, 6, 6, 60 - 6, 32, 2, "a", seed, door=("y+", 28), wins=[], dark=True)
     for k, x in enumerate(range(6, 46, 13)):
         v.box(x, 38, 1, x + 1, 39, 16, TIMBER_DARK)
         v.box(x + 10, 38, 1, x + 11, 39, 16, TIMBER_DARK)

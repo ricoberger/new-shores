@@ -4,6 +4,9 @@ pressing hall with an open bay and a slim chimney (smoke); under and before
 it a giant timber screw press on a stone bed with a dark-red must trough,
 big vats and a pyramid of wine barrels. 12 voxels per tile; massing and
 signature prop in NOTES.md.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -24,7 +27,7 @@ def build(ctx):
     v = ctx.vox()  # 72 × 108
     seed = 173
     K.ground(v, 36, 83, 33, 27, seed, "paved")
-    h = K.workshop(v, 6, 6, 72 - 6, 52, 4, "d", seed, door=("y+", 34), smoke=True, chim=(58, 10), wins=[])
+    h = K.workshop(v, 6, 6, 72 - 6, 52, 2, "d", seed, door=("y+", 34), smoke=True, chim=(58, 10), wins=[])
     for dx in (0, 14):
         for dy in (0, 10):
             v.box(14 + dx, 68 + dy, 1, 17 + dx, 71 + dy, 28, TIMBER_DARK)

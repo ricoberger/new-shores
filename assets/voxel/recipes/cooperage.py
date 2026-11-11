@@ -5,6 +5,9 @@ a slim chimney (smoke) and an open arched work bay on the front, a big
 pale pyramid of finished barrels, rows of barrels and half-built staves in
 hoops on the forecourt, a hoop pile and a cart. 12 voxels per tile; paved
 forecourt.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import parts as P
@@ -23,7 +26,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 72
     seed = 73
     K.ground(v, 26, 50, 19, 18, seed, "paved")
-    h = K.workshop(v, 6, 6, 40, 34, 4, "e", seed, door=("y+", 30), smoke=True, chim=(32, 10), wins=[], out="kiln")
+    h = K.workshop(v, 6, 6, 40, 34, 2, "e", seed, door=("y+", 30), smoke=True, chim=(32, 10), wins=[], out="kiln")
     W.arched_window(h.face("y+"), 10, 3, 6, 6)
     # Barrel pyramid.
     for row, n in enumerate((6, 5, 4, 3)):

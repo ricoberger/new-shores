@@ -4,6 +4,9 @@ glowing mouth and a slim stack (smoke) beside a cream-plaster casting hall
 under slate, stacked copper ingots, a cart. Its own outbuilding on the camera
 side (V7 leftovers): a tall ashlar stack to the roofline (brick firebox and cap only) and two plank ore bins heaped with
 green-tinged ore. 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import parts as P
@@ -52,7 +55,7 @@ def build(ctx):
     seed = 141
     K.ground(v, 24, 50, 20, 18, seed, "paved")
     K.furnace(v, 14, 18, glow=GLOW)
-    K.workshop(v, 26, 8, 44, 34, 4, "a", seed, door=("x-", 22), wins=[])
+    K.workshop(v, 26, 8, 44, 34, 2, "a", seed, door=("x-", 22), wins=[])
     for i in range(3):
         v.box(30, 38 + i * 4, 1, 40, 41 + i * 4, 3, GOODS)
     v.box(30, 38, 3, 38, 41, 5, GOODS)

@@ -3,6 +3,9 @@ Lace maker (3 × 5; V7 variety pass, tier IV): an L-plan two-storey cream
 plaster house under slate (no chimney); in front two standing lace frames, a
 tile and more tall, with white threads (plaster) and lace edgings, a counter
 with a bolt of lace and a flower bed (V7 leftovers). 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -47,7 +50,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 60
     seed = 159
     K.ground(v, 18, 49, 15, 13, seed, "paved")
-    h = K.workshop(v, 6, 6, 36 - 6, 32, 4, "c", seed, door=("y+", 16), wins=[])
+    h = K.workshop(v, 6, 6, 36 - 6, 32, 2, "c", seed, door=("y+", 16), wins=[])
     lace_frame(v, 4, 18, 38)
     lace_frame(v, 20, 34, 38)
     for x in (6, 20):

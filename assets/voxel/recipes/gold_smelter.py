@@ -4,6 +4,9 @@ glowing mouth and a slim stack (smoke) beside a cream-plaster casting hall
 under slate, a cart. Its own outbuildings on the camera side (V7 leftovers): a
 small ashlar strongroom with an iron-banded door and a barred window, and a
 crucible hearth with a pyramid of brass ingots. 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import parts as P
@@ -63,7 +66,7 @@ def build(ctx):
     seed = 143
     K.ground(v, 24, 50, 20, 18, seed, "paved")
     K.furnace(v, 14, 18, glow=GLOW)
-    K.workshop(v, 26, 8, 44, 34, 4, "a", seed, door=("x-", 22), wins=[])
+    K.workshop(v, 26, 8, 44, 34, 2, "a", seed, door=("x-", 22), wins=[])
     strongroom(v, 32, 40, 46, 52, seed)
     hearth(v, 4, 50, seed)
     P.handcart(v, 30, 62, 1, along="x", load=GOODS)
