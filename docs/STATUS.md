@@ -155,10 +155,11 @@ in the sync after a task unless the task says otherwise; nobody adds the
      ships may sail; "Maintenance" / "Betriebskosten" wording) merged →
      **D-076** (regions in one world: separate archipelagos, passages,
      global goods, Kontor at Patricians as the gate; shape built now
-     with one region) → **next: D-076 structural session**, then the
-     ornaments / military / warships interview (D-021 revisit:
-     subscription instead of Doubloons; model folder limit), their
-     content + model sessions, the `look` re-dress art session (12–15
+     with one region) and **D-077** (gold ornaments, military with a
+     dormant `defence`, repair crane, shore placement, three Patrician
+     warships + patrol, supporter subscription instead of Doubloons,
+     models 32 MiB) → **next: D-076 structural session**, then the
+     D-077 content + sim + client session and its model session, the `look` re-dress art session (12–15
      tier-3/4 production models, D-075 §3), then playtest 3 with
      screenshots;
      later group move (D-074 §5), forest 48 → 64 if woods still feel

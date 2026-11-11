@@ -2637,3 +2637,86 @@ bonus × 1.6, advances split into ≤ 12 pieces.
 - **Rejected:** region 2 at Merchants; generating all regions at world
   creation; exclusive fertilities per region; region-2 goods as hard
   gates for existing tiers.
+
+## D-077 Beauty and defence: gold ornaments, military with a dormant defence value, warships and patrol, shore placement, subscription instead of Doubloons, 32 MiB of models
+
+- **Status:** accepted (2026-11-09); amends D-021 / MONETIZATION
+  (currency and catalogue), D-005 (prepares raids), D-054 ("military
+  out"), D-060 §4 (repair crane), D-062 (water footprints), D-057
+  (folder limit), D-076 §2 (Kontor placement).
+- **Context:** the owner wants the content shape final before the next
+  playtest, which doubles as the screenshot set: ornaments, a walled
+  city, a harbour with towers and a crane, warships. Today ornaments
+  exist only as the planned Doubloon catalogue and nothing military
+  exists.
+- **Decision:**
+  1. **Monetisation = supporter subscription** (monthly), no Doubloons,
+     no per-item shop or balance ledger: an entitlement "active until"
+     plus a supporter badge. **Nothing is gated yet** — every item is
+     usable without it. Items placed while subscribed always stay.
+     Possible later gates (region 2, online features) are content
+     access, not advantage — they need their own decision against
+     D-021's principle.
+  2. **Ornaments are gold buildings**, zero effect, no maintenance
+     (price is the sink), `look: civic`, no road needed, movable, new
+     build-menu category **Ornaments**: `hedge` 1×1 and `garden_wall`
+     1×1 (paint families that auto-join like roads), `tree_ornament`
+     1×1 (2–3 voxel variants), `flower_bed` 1×1, `well` 1×1 (Settlers);
+     `maypole` 2×2, `pillory` 1×1, `pond` 3×3 (ground kind
+     `water_still`) (Citizens); `fountain` 2×2, `statue` 2×2, `cemetery`
+     4×4, `square` 1×1 paint (ground kind `cobbles_fine`),
+     `harbour_statue` 2×2 shore (Merchants); `gold_statue` 3×3
+     (Patricians). Costs 10 → 2 000 gold, provisional.
+  3. **Military buildings**, category **Military**, `look: civic`, each
+     with a content `defence` value that nothing reads until raids
+     (D-005), small maintenance: `city_wall` 1×1 paint family (a road
+     across a wall tile renders as an arch; defence 1, 0.1 gold/min per
+     tile), `tower` 2×2 (joins a wall line; 5, 2), `gatehouse` 3×3
+     (wall on two opposite sides, road through; 5, 3) — Citizens;
+     `harbour_tower` 2×2 shore (8, 4) — Merchants; `castle` 8×8 keep +
+     curtain + gate (30, 15) — Patricians. The manorial palace stays out
+     (possible later as a modular kit).
+  4. **Repair crane** `repair_crane` 3×3 shore, Merchants, small
+     maintenance, moving arm; `repairs: true`. **Ship health comes with
+     raids**, not now (D-060 §4 reasoning stands).
+  5. **Shore placement** (`placement: shore`): every footprint tile is
+     water (incl. shallows) or level-0 land / quay, at least one water
+     tile, the back edge touches land or quay; outside the harbour lane
+     and berths; the sea grid treats it as land; the model carries a
+     deck under every tile. Applies to trading pier, depot, shipyard,
+     repair crane, harbour tower, harbour statue and the **Kontor**.
+     Trading Post, fisher, salt pans, oyster beds keep strict
+     `water_rows`; quay unchanged.
+  6. **Warships**, three, all **Patricians**, built at the existing
+     shipyard, **no cargo**, maintenance like cargo ships, `attack`
+     read only by the later raid formula: `balinger` (Balinger /
+     Balinger; attack 4, speed 1.3; 800 gold, 40 planks, 15 sails, 10
+     tools), `war_cog` (War Cog / Friedeschiff; 10, 1.0; 2 500 / 80 /
+     30 / 20), `war_carrack` (War Carrack / Kriegskraweel; 20, 0.8;
+     6 000 / 150 / 50 / 40). No weapons good now. **Patrol**: ship state
+     `patrolling` with `patrol {ship_id, island_id}` — a deterministic
+     coast loop from the sea grid, the client lerps it like a leg; stop
+     with `unassign`; later adds to the island's defence. No second
+     shipyard.
+  7. **Models folder limit 24 → 32 MiB** (D-057 amendment); lazy loading
+     of rarely used families is the next step if region 2 pushes past
+     ~40 MiB.
+- **Why:** a city-builder's free game must be complete, so beauty is
+  paid in gold and the subscription is support, not access; walls,
+  towers and warships are the D-005 hooks the owner wants to see before
+  raids exist, and a dormant `defence` / `attack` number costs nothing;
+  the shore rule turns four special cases into one; the limit raise is
+  the cheap way to make room.
+- **Consequences:** content 0.22.0 (ornaments, military, crane,
+  Kontor, warships, `placement: shore`, `defence`, `attack`,
+  categories), sim (shore placement, patrol state and loop, wall/hedge
+  join as paint families), client (two categories, paint tools for
+  hedge / wall / square, patrol UI, decks), ≈ 27 recipes + GLBs,
+  MONETIZATION.md rewritten for the subscription, MECHANICS §3 / §9,
+  CONTENT §7 / §8, UI.md, ART_DIRECTION (castle and wall language,
+  warship hulls), plans untouched (nothing affects the economy except
+  optional maintenance). Sessions: content + sim + client, then models.
+- **Rejected:** Doubloons; gating anything now; ornaments with effects
+  or maintenance; the Anno extras (flagpole, shrine, stalls, juggler
+  camp — the owner found them weak); a second shipyard; cargo slots on
+  warships; ship health now; lazy loading now.
