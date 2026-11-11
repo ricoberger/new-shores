@@ -2553,3 +2553,87 @@ the `look` rule in ART_DIRECTION §7. Reference games 50 / 25 / 71 /
 124 · 21 / 38 · 215 / 250 / 387 · 721 / 868 / 1 180, no plan changed.
 Test fixtures only: recovery property towns seed wood/wool stock, tax
 bonus × 1.6, advances split into ≤ 12 pieces.
+
+## D-076 Regions in one world: separate archipelagos, passages, global goods, the Kontor
+
+- **Status:** accepted (2026-11-09); builds on D-010 (regions first-class),
+  D-011 / D-064 §1 (regional identity), D-075 §4 (region speed);
+  amends D-053 / D-072 (island IDs, generation per region), D-069
+  (population unlocks per region).
+- **Context:** before more content is added (ornaments, military,
+  warships) the world shape must carry regions so that a second region
+  later needs no breaking change. Today everything is implicitly
+  `old_coast`: island IDs `isle-NN`, one archipelago per world, one
+  catalogue, no notion of a passage.
+- **Decision:**
+  1. **One world, several regions.** Each region is its own generated
+     archipelago with its own camera, minimap and far budget; ships
+     cross between regions on a **passage** — an off-map leg with a
+     fixed time per region pair (`passages[]` in `content/regions.json`,
+     provisional 10 min at scale 1), no path, the ship is "between
+     regions" (ship list only, `region_id` null, `leg.passage`); it
+     enters a region at that archipelago's **passage point** (generator,
+     like the start position) and sails the normal sea route from
+     there. Inside a region the D-075 region-speed rule applies.
+     Rejected: the south as extra islands of the same map (D-072 cap,
+     far budget, two climates in one generator); separate worlds (no
+     trade).
+  2. **Old Coast is always the home region.** A later region is opened
+     at **Patricians** by building the **Kontor** (`kontor`, tier 4
+     harbour building, `look: harbour`, one per world — new uniqueness
+     scope `world`), then a quest chain ending in an **expedition**:
+     a ship with founding materials takes the passage and arrives at
+     sea in the new archipelago exactly like the game start (choose,
+     re-roll once, found). The region's archipelago is generated at
+     that moment from `world seed + region index`. The Kontor is also
+     the home of the later online features (market, contracts, visits;
+     D-022 contracts) and ships now with the expedition disabled while
+     `regions.json` lists one region.
+  3. **Goods are global, production is regional.** One ID space across
+     `content/<region>/goods.json` (loader merges, duplicates rejected);
+     any need may reference any good. A later region may add a need to
+     an existing tier only as a further alternative of an existing
+     category or as a new category of weight ≤ 0.1, never as a
+     retroactive upgrade gate; D-074 handles the satisfaction drop
+     (stall, not ruin), shipped with a content bump and an announcing
+     quest.
+  4. **Fertilities and deposits are per-region lists, not exclusive**:
+     each region's `islands.json` names what its islands can roll (the
+     south may list `grapes`, `stone`, `clay` beside its own). A building
+     has one definition and is placeable wherever its fertility /
+     deposit exists; an optional `regions` whitelist binds culture-bound
+     buildings (the Kontor stays north). **Per-region model variants**:
+     the manifest resolves `<id>.<region>` and falls back to `<id>`; the
+     same hook serves cosmetic façade variants later.
+  5. **Per world:** gold, premium currency or subscription, ships,
+     routes, quests, achievements, the Kontor, warnings and away summary
+     (entries name their region). **Per region:** archipelago, islands,
+     population and population unlocks (D-069), tiers (D-010), palette
+     roles, passage point. Top bar and minimap show the current region;
+     region tabs carry a warning badge.
+  6. **Shape now, single region.** Island IDs become region-prefixed
+     (`oc-01` … `oc-12`); payload `world.regions[]` (`id`, `unlocked`,
+     `passage_point`, `seed`) and `region_id` on islands, ships and
+     route stops; `/content` returns every region's catalogue; the
+     client keeps one scene per region behind a switcher hidden with one
+     region; `World.Regions[]` in the sim with islands per region so
+     `Advance` is untouched; generator per region; `content/regions.json`
+     (order, gate, passages); sim schema bump, no DB change; `sail_ship`
+     and routes accept cross-region destinations. The expedition
+     command, region-2 content and the Kontor's online features come
+     with their own decisions.
+- **Why:** separate archipelagos keep D-072's one-island camera and the
+  generator per climate; the Kontor turns a tier gate into a building
+  the player sees and gives the online features an anchor; global goods
+  with regional production are what makes cross-region trade worth
+  anything; doing the shape now is cheap (dev worlds reset freely) and
+  avoids a migration after deployment.
+- **Consequences:** one structural session (server, content, client;
+  player-invisible except IDs); plans, goldens, fixtures renamed;
+  ARCHITECTURE §4 / payload, MECHANICS §9 (passage), CONTENT §1 / §9
+  (regions.json, per-region lists), UI.md (region switcher, Kontor
+  card), GAME_DESIGN regions paragraph. The Kontor building itself
+  (model, cost) comes with the military / ornaments content session.
+- **Rejected:** region 2 at Merchants; generating all regions at world
+  creation; exclusive fertilities per region; region-2 goods as hard
+  gates for existing tiers.

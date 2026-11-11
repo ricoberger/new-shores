@@ -153,8 +153,14 @@ in the sync after a task unless the task says otherwise; nobody adds the
      hulk / carrack + new models; transitive supply guard, dropped and
      skipped for cut-off inputs; TP card scrolls in its box; empty
      ships may sail; "Maintenance" / "Betriebskosten" wording) merged →
-     **next: `look` re-dress art session** (12–15 tier-3/4 production
-     models to the rural / workshop look, D-075 §3), then playtest 3;
+     **D-076** (regions in one world: separate archipelagos, passages,
+     global goods, Kontor at Patricians as the gate; shape built now
+     with one region) → **next: D-076 structural session**, then the
+     ornaments / military / warships interview (D-021 revisit:
+     subscription instead of Doubloons; model folder limit), their
+     content + model sessions, the `look` re-dress art session (12–15
+     tier-3/4 production models, D-075 §3), then playtest 3 with
+     screenshots;
      later group move (D-074 §5), forest 48 → 64 if woods still feel
      thin; tooling: shot presets `info-panel` and `service-card` time
      out on the played fixture;
