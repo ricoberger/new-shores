@@ -72,6 +72,10 @@ var (
 	ErrCargoExceedsSlots    = errors.New("cargo exceeds the ship's slots")
 	ErrLastTradingPost      = errors.New("trading post of an island with other buildings")
 	ErrNotConnected         = errors.New("building has no road to a trading post or warehouse")
+	// ErrNoPassage: a leg or route between two regions (D-076 §1) while
+	// no passage leg exists (the content lists no passage for the pair,
+	// or passage legs are not built yet).
+	ErrNoPassage = errors.New("no passage between the regions")
 )
 
 // Sentinel errors of quests and the away summary.

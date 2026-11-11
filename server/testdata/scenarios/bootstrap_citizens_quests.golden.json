@@ -13419,6 +13419,23 @@
         "buildings": {}
       }
     ],
+    "regions": [
+      {
+        "id": "old_coast",
+        "unlocked": true,
+        "seed": 1053001,
+        "passage_point": {
+          "x": 322,
+          "y": 392
+        },
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 960,
+          "height": 979
+        }
+      }
+    ],
     "archipelago": {
       "seed": 1053001,
       "roll": 0,
@@ -13434,6 +13451,7 @@
     "islands": [
       {
         "id": "oc-01",
+        "region_id": "old_coast",
         "name": "Cormorant Rock",
         "size_class": "large",
         "scenic": false,
@@ -21133,6 +21151,7 @@
       },
       {
         "id": "oc-02",
+        "region_id": "old_coast",
         "name": "Mistle Haven",
         "size_class": "large",
         "scenic": false,
@@ -24283,6 +24302,7 @@
       },
       {
         "id": "oc-03",
+        "region_id": "old_coast",
         "name": "Storm Wrack",
         "size_class": "large",
         "scenic": false,
@@ -24776,6 +24796,7 @@
       },
       {
         "id": "oc-04",
+        "region_id": "old_coast",
         "name": "Brine Water",
         "size_class": "medium",
         "scenic": false,
@@ -25268,6 +25289,7 @@
       },
       {
         "id": "oc-05",
+        "region_id": "old_coast",
         "name": "Seal Watch",
         "size_class": "medium",
         "scenic": false,
@@ -25780,6 +25802,7 @@
       },
       {
         "id": "oc-06",
+        "region_id": "old_coast",
         "name": "Merrow's Cradle",
         "size_class": "medium",
         "scenic": false,
@@ -26302,6 +26325,7 @@
       },
       {
         "id": "oc-07",
+        "region_id": "old_coast",
         "name": "Cobbler's Reach",
         "size_class": "medium",
         "scenic": false,
@@ -26783,6 +26807,7 @@
       },
       {
         "id": "oc-08",
+        "region_id": "old_coast",
         "name": "Elder Holm",
         "size_class": "medium",
         "scenic": false,
@@ -27264,6 +27289,7 @@
       },
       {
         "id": "oc-09",
+        "region_id": "old_coast",
         "name": "Ropewalk Isle",
         "size_class": "small",
         "scenic": false,
@@ -27756,6 +27782,7 @@
       },
       {
         "id": "oc-10",
+        "region_id": "old_coast",
         "name": "Gannet Cliff",
         "size_class": "small",
         "scenic": false,
@@ -28278,6 +28305,7 @@
       },
       {
         "id": "oc-11",
+        "region_id": "old_coast",
         "name": "Driftwood Isle",
         "size_class": "small",
         "scenic": false,
@@ -28780,6 +28808,7 @@
       },
       {
         "id": "oc-12",
+        "region_id": "old_coast",
         "name": "Saltmarsh Holm",
         "size_class": "small",
         "scenic": false,
@@ -29283,6 +29312,7 @@
       },
       {
         "id": "oc-13",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -29761,6 +29791,7 @@
       },
       {
         "id": "oc-14",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -30239,6 +30270,7 @@
       },
       {
         "id": "oc-15",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -30717,6 +30749,7 @@
       },
       {
         "id": "oc-16",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -31195,6 +31228,7 @@
       },
       {
         "id": "oc-17",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -31673,6 +31707,7 @@
       },
       {
         "id": "oc-18",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -32151,6 +32186,7 @@
       },
       {
         "id": "oc-19",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -32629,6 +32665,7 @@
       },
       {
         "id": "oc-20",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -33107,6 +33144,7 @@
       },
       {
         "id": "oc-21",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -33585,6 +33623,7 @@
       },
       {
         "id": "oc-22",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "scenic",
         "scenic": true,
@@ -34069,6 +34108,7 @@
         "name": "Cog 1",
         "state": "on_route",
         "island_id": "",
+        "region_id": "old_coast",
         "route_id": 1,
         "stop_index": 1,
         "leg": {
@@ -34143,6 +34183,7 @@
         "stops": [
           {
             "island_id": "oc-01",
+            "region_id": "old_coast",
             "load": [
               {
                 "good": "planks",
@@ -34161,6 +34202,7 @@
           },
           {
             "island_id": "oc-02",
+            "region_id": "old_coast",
             "load": [
               {
                 "good": "tools",

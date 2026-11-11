@@ -3,6 +3,8 @@ package sim
 import (
 	"bytes"
 	"testing"
+
+	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
 // twoRegionWorld is a hand-made world of two regions (D-076): the home
@@ -89,5 +91,53 @@ func TestRegionsRoundTrip(t *testing.T) {
 	}
 	if len(joined.Regions) != 2 || joined.Regions[1].Seed != 9 || joined.Regions[1].Unlocked || *joined.Regions[1].PassagePoint != (Pos{X: 3, Y: 4}) {
 		t.Fatalf("regions %+v", joined.Regions)
+	}
+}
+
+// TestNoPassageBetweenRegions: a voyage or route between two regions
+// fails with ErrNoPassage (D-076 §1) — without a passage of the pair in
+// the content and, until passage legs are built, with one — and leaves
+// the world unchanged; inside a region nothing changes.
+func TestNoPassageBetweenRegions(t *testing.T) {
+	c := catalogue(t)
+	w, s := routeWorld(t, c)
+	a, b := w.Island("a"), w.Island("b")
+	w.Regions[0].SetIslands([]*Island{a})
+	far := &Region{ID: "far", Unlocked: true}
+	far.SetIslands([]*Island{b})
+	w.Regions = append(w.Regions, far)
+	if s.IslandID != "b" || shipRegionID(w, s) != "far" {
+		t.Fatalf("ship at %q in region %q", s.IslandID, shipRegionID(w, s))
+	}
+	withPassage := *c
+	withPassage.Passages = []content.Passage{{From: "", To: "far", Ms: 600_000}}
+	for _, cat := range []*content.Catalogue{c, &withPassage} {
+		expectErr(t, w, cat, SailShip{ShipID: s.ID, ToIslandID: "a"}, ErrNoPassage)
+		expectErr(t, w, cat, ManualShipment{ShipID: s.ID, ToIslandID: "a"}, ErrNoPassage)
+		expectErr(t, w, cat, CreateRoute{Stops: []Stop{{IslandID: "a"}, {IslandID: "b"}}}, ErrNoPassage)
+	}
+	if err := checkPassage(c, "far", "far"); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestDisplayShipBetweenRegions: a ship on a passage leg is on no map —
+// region_id null, leg.passage — while a ship on a normal leg is on its
+// destination's region and an idle one on its island's.
+func TestDisplayShipBetweenRegions(t *testing.T) {
+	c := catalogue(t)
+	w := twoRegionWorld(t)
+	between := displayShip(w, &Ship{ID: 7, State: ShipManualLeg, Leg: &Leg{ToIsland: "far-01", Passage: true}}, c, false)
+	if between.RegionID != nil || between.Leg == nil || !between.Leg.Passage {
+		t.Fatalf("ship between regions: region %v leg %+v", between.RegionID, between.Leg)
+	}
+	sailing := displayShip(w, &Ship{ID: 8, State: ShipManualLeg, Leg: &Leg{FromIsland: "main", ToIsland: "rock"}}, c, false)
+	idle := displayShip(w, &Ship{ID: 9, State: ShipIdle, IslandID: "far-01", RegionID: "home"}, c, false)
+	if sailing.RegionID == nil || *sailing.RegionID != "home" || sailing.Leg.Passage || idle.RegionID == nil || *idle.RegionID != "far" {
+		t.Fatalf("regions %v %v", sailing.RegionID, idle.RegionID)
+	}
+	regions := displayRegions(w)
+	if len(regions) != 2 || regions[1].ID != "far" || regions[1].PassagePoint == nil || *regions[1].PassagePoint != (PositionDisplay{X: 3, Y: 4}) || regions[0].PassagePoint != nil {
+		t.Fatalf("regions %+v", regions)
 	}
 }

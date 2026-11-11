@@ -104,6 +104,7 @@ var simErrors = []simError{
 	// 409: the command conflicts with the current state.
 	{sim.ErrOccupied, "occupied", http.StatusConflict},
 	{sim.ErrRerollNotAllowed, "reroll_not_allowed", http.StatusConflict},
+	{sim.ErrNoPassage, "no_passage", http.StatusConflict},
 	{sim.ErrTerrain, "terrain", http.StatusConflict},
 	{sim.ErrNotCoastal, "not_coastal", http.StatusConflict},
 	{sim.ErrNotOnWater, "not_on_water", http.StatusConflict},

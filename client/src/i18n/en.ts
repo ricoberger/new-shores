@@ -362,6 +362,7 @@ export const en = {
   "error.needs_unmet": "The needs of the current tier are not met.",
   "error.upgrade_only": "A house of this tier can only be reached by an upgrade.",
   "error.route_invalid": "The route is not valid.",
+  "error.no_passage": "No passage leads to that region yet.",
   "error.ship_not_found": "Ship not found.",
   "error.route_not_found": "Route not found.",
   "error.shipyard_busy": "The shipyard already has an order.",

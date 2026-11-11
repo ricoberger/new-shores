@@ -45,6 +45,34 @@ type contentPayload struct {
 	// generated island keeps the English name in the world until the
 	// player renames it; clients show Name for a matching Source.
 	IslandNames []islandNameJSON `json:"island_names"`
+	// Regions are the regions of regions.json in order, the home region
+	// first (D-076); Passages the passages between them. Only the top
+	// level carries them: the fields above are the home region's
+	// catalogue (goods: every region's), and each later region's own
+	// catalogue is its entry's Catalogue.
+	Regions  []contentRegionJSON `json:"regions,omitempty"`
+	Passages []passageJSON       `json:"passages,omitempty"`
+}
+
+// contentRegionJSON is one region of regions.json (D-076).
+type contentRegionJSON struct {
+	ID     string `json:"id"`
+	Prefix string `json:"prefix"`
+	Home   bool   `json:"home"`
+	// Gate is the building that opens the region; null for the home
+	// region.
+	Gate *string `json:"gate"`
+	// Catalogue is the region's own catalogue; null for the home region
+	// (the top level).
+	Catalogue *contentPayload `json:"catalogue"`
+}
+
+// passageJSON is the off-map leg between two regions (D-076 §1).
+type passageJSON struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+	// Ms is the passage time in milliseconds at scale 1.
+	Ms int64 `json:"ms"`
 }
 
 type islandNameJSON struct {
@@ -424,6 +452,28 @@ func (t texts) sourceIfDifferent(file, id, english string) string {
 }
 
 func newContentPayload(c *content.Catalogue, lang string) contentPayload {
+	p := newCataloguePayload(c, lang)
+	p.Regions, p.Passages = []contentRegionJSON{}, []passageJSON{}
+	for _, r := range c.Regions {
+		rj := contentRegionJSON{ID: r.ID, Prefix: r.Prefix, Home: r.Home}
+		if r.Gate != "" {
+			rj.Gate = &r.Gate
+		}
+		if !r.Home {
+			rp := newCataloguePayload(r.Catalogue, lang)
+			rj.Catalogue = &rp
+		}
+		p.Regions = append(p.Regions, rj)
+	}
+	for _, ps := range c.Passages {
+		p.Passages = append(p.Passages, passageJSON{From: ps.From, To: ps.To, Ms: ps.Ms})
+	}
+	return p
+}
+
+// newCataloguePayload is the payload of one region's catalogue (the
+// content payload without the region list).
+func newCataloguePayload(c *content.Catalogue, lang string) contentPayload {
 	tx := texts{c, lang}
 	r := c.Region.Rules
 	p := contentPayload{

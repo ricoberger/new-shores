@@ -325,14 +325,21 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `settled`, `position`, `quests`, `away_summary`, `insolvency`,
   per-island `bounds`, `size_class`, `scenic`, fertilities, deposit slots
   and a 1:4 terrain `mask` (PR #26; tile rows are **not** in the world
-  payload); `GET /world/islands/{id}/tiles?v=<seed>-<roll>` → the full
+  payload), and since D-076 the world's `regions[]` (`id`, `unlocked`,
+  `seed`, `passage_point`, `bounds`; content order, the home region
+  first) with `region_id` on every island, ship (`null` on a passage leg
+  between regions, `leg.passage`), route stop and away-summary entry
+  (`archipelago` stays the home region's); `GET /world/islands/{id}/tiles?v=<seed>-<roll>` → the full
   rows, `ETag` = sha256(seed, roll, island id), `Cache-Control: private,
   max-age=31536000, immutable`, 304 on `If-None-Match`, `no-store` when
   `v` names another roll; `GET /content[?lang=<code>]` → catalogue in the same fixed-point units
   as the display payload, with its text fields in the requested language
   (D-061: `lang` or `Accept-Language`, an unknown `lang` is 400; the
   payload names `language`, `languages`, `island_names` and carries
-  `Content-Language`); `GET /healthz`.
+  `Content-Language`; its fields are the home region's catalogue with
+  every region's goods, `regions[]` lists `regions.json` — `id`,
+  `prefix`, `home`, `gate` and each later region's own `catalogue` — and
+  `passages[]` the passage times); `GET /healthz`.
 - The sea-route grid that the display's route and ship paths search
   (D-058 §5) is built once per archipelago and cached in the API layer
   (`internal/api/seagrid.go`), keyed by seed, roll, generator version and
@@ -345,7 +352,9 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `ship_not_found`, `route_not_found`), state conflicts 409 (e.g.
   `shipyard_busy`, `ship_not_idle`, `route_in_use`, `island_not_settled`,
   `cargo_insufficient`, `last_warehouse`, `needs_low_shore` — a
-  water-edge building over a terrace, D-075 §1), internal-only sim
+  water-edge building over a terrace, D-075 §1; `no_passage` — a voyage
+  or route between two regions while no passage leg exists, D-076),
+  internal-only sim
   errors 500.
 - Implemented (M2): `POST /auth/guest`, `/auth/register`, `/auth/login`,
   `/auth/logout`, `GET /auth/me`, `PATCH /auth/me {language}` (D-061), `POST /auth/verify-email`,

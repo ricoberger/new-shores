@@ -1261,7 +1261,7 @@ func Sentinels() map[string]error {
 		"not_a_shipyard": sim.ErrNotAShipyard, "unknown_ship_type": sim.ErrUnknownShipType,
 		"no_ship_order": sim.ErrNoShipOrder, "ship_not_found": sim.ErrShipNotFound, "ship_not_idle": sim.ErrShipNotIdle,
 		"ship_not_on_route": sim.ErrShipNotOnRoute, "route_not_found": sim.ErrRouteNotFound,
-		"route_invalid": sim.ErrRouteInvalid, "route_in_use": sim.ErrRouteInUse,
+		"route_invalid": sim.ErrRouteInvalid, "route_in_use": sim.ErrRouteInUse, "no_passage": sim.ErrNoPassage,
 		"island_already_settled": sim.ErrIslandAlreadySettled, "island_not_settled": sim.ErrIslandNotSettled,
 		"cargo_insufficient": sim.ErrCargoInsufficient, "cargo_exceeds_slots": sim.ErrCargoExceedsSlots,
 		"last_trading_post": sim.ErrLastTradingPost, "not_connected": sim.ErrNotConnected,

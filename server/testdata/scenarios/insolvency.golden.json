@@ -425,6 +425,20 @@
         }
       }
     ],
+    "regions": [
+      {
+        "id": "old_coast",
+        "unlocked": true,
+        "seed": 0,
+        "passage_point": null,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 30,
+          "height": 14
+        }
+      }
+    ],
     "archipelago": {
       "seed": 0,
       "roll": 0,
@@ -440,6 +454,7 @@
     "islands": [
       {
         "id": "main",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "",
         "scenic": false,

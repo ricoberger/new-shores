@@ -1035,6 +1035,9 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 	if to == from {
 		return fmt.Errorf("%w: destination %q is the ship's island", ErrRouteInvalid, to.ID)
 	}
+	if err := checkPassage(c, from.RegionID, to.RegionID); err != nil {
+		return err
+	}
 	ship := c.ShipByID[s.Type]
 	if ship == nil {
 		return fmt.Errorf("%w: %q", ErrUnknownShipType, s.Type)
@@ -1123,6 +1126,29 @@ func scenic(is *Island, c *content.Catalogue) bool {
 	return sc != nil && sc.Scenic
 }
 
+// shipRegionID returns the region of an idle ship: its island's, else
+// its own (a ship at sea).
+func shipRegionID(w *World, s *Ship) string {
+	if is := w.Island(s.IslandID); is != nil {
+		return is.RegionID
+	}
+	return s.RegionID
+}
+
+// checkPassage accepts a leg inside one region; a leg between two regions
+// fails with ErrNoPassage (D-076 §1): without a passage of the pair in
+// the content, and — until the passage leg is built with the expedition
+// (D-076 §2) — with one too.
+func checkPassage(c *content.Catalogue, from, to string) error {
+	if from == to {
+		return nil
+	}
+	if _, ok := c.PassageMs(from, to); !ok {
+		return fmt.Errorf("%w: %q and %q", ErrNoPassage, from, to)
+	}
+	return fmt.Errorf("%w: passage legs from %q to %q are not built yet", ErrNoPassage, from, to)
+}
+
 func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	s, err := idleShip(w, cmd.ShipID)
 	if err != nil {
@@ -1137,6 +1163,9 @@ func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	}
 	if to.ID == s.IslandID {
 		return fmt.Errorf("%w: destination %q is the ship's island", ErrRouteInvalid, to.ID)
+	}
+	if err := checkPassage(c, shipRegionID(w, s), to.RegionID); err != nil {
+		return err
 	}
 	ship := c.ShipByID[s.Type]
 	if ship == nil {

@@ -364,6 +364,7 @@ export const de: Record<keyof typeof en, string> = {
   "error.needs_unmet": "Die Bedürfnisse der aktuellen Stufe sind nicht erfüllt.",
   "error.upgrade_only": "Ein Haus dieser Stufe erreichst du nur durch einen Ausbau.",
   "error.route_invalid": "Die Route ist ungültig.",
+  "error.no_passage": "Noch führt keine Passage in diese Region.",
   "error.ship_not_found": "Schiff nicht gefunden.",
   "error.route_not_found": "Route nicht gefunden.",
   "error.shipyard_busy": "Die Werft hat bereits einen Auftrag.",

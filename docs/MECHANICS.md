@@ -914,15 +914,18 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
   and carries its region's prefix (`oc-01`). Every island and ship
   records its `region_id`.
 - **Per world:** gold, ships, routes, quests, warnings and the away
-  summary; **per region:** archipelago, islands, passage point (D-076 §5;
+  summary (its island and still-unpaid entries name their region); **per region:** archipelago, islands, passage point (D-076 §5;
   population unlocks become per region with a second region, today the
   world's population is the home region's, §12).
 - A **passage** is an off-map leg between two regions with the fixed
   time of the region pair (`passages[]` in `regions.json`): no path, the
   ship is "between regions" (`region_id` unset, `leg.passage`), it
   enters the other region at its passage point and sails the normal sea
-  route from there. The shipped content lists one region and no passage,
-  so no passage leg exists yet; the expedition that opens a region
+  route from there. `sail_ship`, manual shipments and routes look up
+  their islands in every region; a voyage or a pair of consecutive route
+  stops in two regions fails with `no_passage` (`ErrNoPassage`) while no
+  passage leg exists. The shipped content lists one region and no
+  passage, so no passage leg exists yet; the expedition that opens a region
   (Kontor, D-076 §2) comes with its own decision. `Advance` treats the
   regions' islands as one list (`World.Islands()`); generation is per
   region (`archipelago.GenerateRegion`), a region's archipelago is

@@ -51,7 +51,11 @@ type DisplayState struct {
 	UpkeepRatePerMin  Qty `json:"upkeep_rate_per_min"`
 	// Tiers in progression order with their unlock progress.
 	Tiers []TierDisplay `json:"tiers"`
-	// Archipelago identifies the generated archipelago and its extent.
+	// Regions are the world's regions in content order, the home region
+	// first (D-076); every island, ship and route stop names its region.
+	Regions []RegionDisplay `json:"regions"`
+	// Archipelago identifies the generated archipelago of the home
+	// region and its extent.
 	Archipelago ArchipelagoDisplay `json:"archipelago"`
 	Islands     []IslandDisplay    `json:"islands"`
 	// Ships sorted by ID.
@@ -137,6 +141,10 @@ type ShipDisplay struct {
 	State string `json:"state"`
 	// IslandID is where the ship is; empty while travelling.
 	IslandID string `json:"island_id"`
+	// RegionID is the region whose map the ship is on (its island's, its
+	// leg's destination's or, at sea, its own); null on a passage leg
+	// between regions (D-076 §1).
+	RegionID *string `json:"region_id"`
 	// RouteID is the assigned route (0 when none); StopIndex the index of
 	// the stop the ship is heading to.
 	RouteID   int64       `json:"route_id"`
@@ -183,6 +191,9 @@ type LegDisplay struct {
 	// origin's harbour, the waypoints, the destination's harbour; the
 	// ship covers it at constant speed between DepartAt and ArriveAt.
 	Path []PositionDisplay `json:"path,omitempty"`
+	// Passage marks an off-map leg between two regions (D-076 §1): no
+	// path, the ship is "between regions".
+	Passage bool `json:"passage,omitempty"`
 }
 
 // CargoDisplay is one occupied cargo slot (milli-units).
@@ -222,7 +233,9 @@ type RouteEffectDisplay struct {
 
 // RouteStopDisplay is one stop of a route.
 type RouteStopDisplay struct {
-	IslandID string              `json:"island_id"`
+	IslandID string `json:"island_id"`
+	// RegionID is the stop island's region (D-076).
+	RegionID string              `json:"region_id"`
 	Load     []LoadRuleDisplay   `json:"load"`
 	Unload   []UnloadRuleDisplay `json:"unload"`
 }
@@ -325,6 +338,8 @@ type BuildingWorkforce struct {
 // IslandDisplay is the display state of one island.
 type IslandDisplay struct {
 	ID string `json:"id"`
+	// RegionID is the island's region (D-076).
+	RegionID string `json:"region_id"`
 	// Name is the display name (may be empty).
 	Name string `json:"name"`
 	// SizeClass is the content size class of a generated island ("" for a
@@ -396,6 +411,48 @@ type ArchipelagoDisplay struct {
 	Bounds           BoundsDisplay `json:"bounds"`
 }
 
+// RegionDisplay is one region of the world (D-076, MECHANICS §9.4).
+type RegionDisplay struct {
+	ID       string `json:"id"`
+	Unlocked bool   `json:"unlocked"`
+	// Seed is the region's archipelago seed (0 before it is generated or
+	// for a hand-made world).
+	Seed uint64 `json:"seed"`
+	// PassagePoint is where a ship from a passage enters the region's
+	// map (region tiles); null when unknown.
+	PassagePoint *PositionDisplay `json:"passage_point"`
+	// Bounds is the extent of the region's islands (region tiles; zero
+	// without islands).
+	Bounds BoundsDisplay `json:"bounds"`
+}
+
+func displayRegions(w *World) []RegionDisplay {
+	out := make([]RegionDisplay, 0, len(w.Regions))
+	for _, r := range w.Regions {
+		d := RegionDisplay{ID: r.ID, Unlocked: r.Unlocked, Seed: r.Seed, Bounds: islandBounds(r.Islands)}
+		if p := r.PassagePoint; p != nil {
+			d.PassagePoint = &PositionDisplay{X: p.X, Y: p.Y}
+		}
+		out = append(out, d)
+	}
+	return out
+}
+
+// islandBounds is the bounding rectangle of the islands.
+func islandBounds(islands []*Island) BoundsDisplay {
+	var b BoundsDisplay
+	for i, is := range islands {
+		if i == 0 {
+			b = BoundsDisplay{X: is.X, Y: is.Y, Width: is.Width, Height: is.Height}
+			continue
+		}
+		x0, y0 := min(b.X, is.X), min(b.Y, is.Y)
+		x1, y1 := max(b.X+b.Width, is.X+is.Width), max(b.Y+b.Height, is.Y+is.Height)
+		b = BoundsDisplay{X: x0, Y: y0, Width: x1 - x0, Height: y1 - y0}
+	}
+	return b
+}
+
 // BoundsDisplay is a rectangle in archipelago tiles.
 type BoundsDisplay struct {
 	X      int `json:"x"`
@@ -406,14 +463,8 @@ type BoundsDisplay struct {
 
 func displayArchipelago(w *World, c *content.Catalogue) ArchipelagoDisplay {
 	d := ArchipelagoDisplay{Seed: w.Seed, Roll: w.ArchipelagoRoll, Rerollable: CanReroll(w, c) == nil}
-	for i, is := range w.Islands() {
-		if i == 0 {
-			d.Bounds = BoundsDisplay{X: is.X, Y: is.Y, Width: is.Width, Height: is.Height}
-			continue
-		}
-		x0, y0 := min(d.Bounds.X, is.X), min(d.Bounds.Y, is.Y)
-		x1, y1 := max(d.Bounds.X+d.Bounds.Width, is.X+is.Width), max(d.Bounds.Y+d.Bounds.Height, is.Y+is.Height)
-		d.Bounds = BoundsDisplay{X: x0, Y: y0, Width: x1 - x0, Height: y1 - y0}
+	if len(w.Regions) > 0 {
+		d.Bounds = islandBounds(w.Regions[0].Islands)
 	}
 	return d
 }
@@ -576,7 +627,7 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		EvaluatedAt: cw.LastEvaluatedAt.Format(timeLayout), Gold: cw.Gold,
 		BalanceRatePerMin: wr.balance, TaxRatePerMin: wr.tax, UpkeepRatePerMin: wr.upkeep,
 		Tiers: []TierDisplay{}, Islands: []IslandDisplay{}, Ships: []ShipDisplay{}, Routes: []RouteDisplay{},
-		Archipelago: displayArchipelago(cw, c),
+		Regions: displayRegions(cw), Archipelago: displayArchipelago(cw, c),
 	}
 	at, _ := nextBoundary(cw, c, wr, nowMs)
 	// A departure changes no rate but the ship's displayed location, so the
@@ -610,7 +661,7 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		ds.NextChangeAt = &s
 	}
 	for _, s := range cw.Ships {
-		ds.Ships = append(ds.Ships, displayShip(s, c, hasBerthSource(cw, s.IslandID)))
+		ds.Ships = append(ds.Ships, displayShip(cw, s, c, hasBerthSource(cw, s.IslandID)))
 	}
 	for _, r := range cw.Routes {
 		ds.Routes = append(ds.Routes, displayRoute(cw, c, r))
@@ -683,10 +734,19 @@ func hasBerthSource(w *World, islandID string) bool {
 	return is != nil && berthTotal(is) > 0
 }
 
-func displayShip(s *Ship, c *content.Catalogue, hasBerths bool) ShipDisplay {
+func displayShip(w *World, s *Ship, c *content.Catalogue, hasBerths bool) ShipDisplay {
 	d := ShipDisplay{
 		ID: s.ID, Type: s.Type, Name: s.Name, State: s.State, IslandID: s.IslandID, RouteID: s.RouteID, StopIndex: s.StopIndex,
 		Cargo: []CargoDisplay{}, Paused: s.Paused, PausedReason: s.PausedReason,
+	}
+	if l := s.Leg; l == nil || !l.Passage {
+		region := shipRegionID(w, s)
+		if l != nil {
+			if to := w.Island(l.ToIsland); to != nil {
+				region = to.RegionID
+			}
+		}
+		d.RegionID = &region
 	}
 	if def := c.ShipByID[s.Type]; def != nil {
 		d.Slots, d.SlotSize = def.Slots, def.SlotSize
@@ -695,7 +755,7 @@ func displayShip(s *Ship, c *content.Catalogue, hasBerths bool) ShipDisplay {
 		}
 	}
 	if l := s.Leg; l != nil {
-		d.Leg = &LegDisplay{FromIslandID: l.FromIsland, ToIslandID: l.ToIsland, DepartAt: formatMs(l.DepartAtMs), ArriveAt: formatMs(l.ArriveAtMs)}
+		d.Leg = &LegDisplay{FromIslandID: l.FromIsland, ToIslandID: l.ToIsland, DepartAt: formatMs(l.DepartAtMs), ArriveAt: formatMs(l.ArriveAtMs), Passage: l.Passage}
 		if l.From != nil {
 			d.Leg.FromPosition = &PositionDisplay{X: l.From.X, Y: l.From.Y}
 		}
@@ -731,7 +791,7 @@ func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
 		}
 	}
 	for _, st := range r.Stops {
-		sd := RouteStopDisplay{IslandID: st.IslandID, Load: []LoadRuleDisplay{}, Unload: []UnloadRuleDisplay{}}
+		sd := RouteStopDisplay{IslandID: st.IslandID, RegionID: regionOf(w, st.IslandID), Load: []LoadRuleDisplay{}, Unload: []UnloadRuleDisplay{}}
 		for _, g := range st.Unload {
 			u := UnloadRuleDisplay{Good: g}
 			if m, ok := st.UnloadMax[g]; ok {
@@ -764,7 +824,7 @@ func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
 // by gold or stock crossing the cost, which no boundary marks.
 func displayIsland(w *World, is *Island, c *content.Catalogue, wr *worldRates, r *rates, now int64, at *int64) IslandDisplay {
 	d := IslandDisplay{
-		ID: is.ID, Name: is.Name, SizeClass: is.SizeClass, Settled: settled(is, c), Position: PositionDisplay{X: is.X, Y: is.Y},
+		ID: is.ID, RegionID: is.RegionID, Name: is.Name, SizeClass: is.SizeClass, Settled: settled(is, c), Position: PositionDisplay{X: is.X, Y: is.Y},
 		Width: is.Width, Height: is.Height,
 		Inventory: map[string]GoodDisplay{}, Roads: []RoadDisplay{}, Buildings: []BuildingDisplay{},
 		Workforce: map[string]WorkforceDisplay{}, Population: islandPopulation(is, c),
@@ -1087,3 +1147,11 @@ func producerStatus(is *Island, p *producer) string {
 }
 
 func ptr[T any](v T) *T { return &v }
+
+// regionOf returns the region of an island ("" for an unknown one).
+func regionOf(w *World, islandID string) string {
+	if is := w.Island(islandID); is != nil {
+		return is.RegionID
+	}
+	return ""
+}
