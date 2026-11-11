@@ -1681,3 +1681,39 @@
 .dockActive .dockCount {
   background: var(--ns-ui-ink);
 }
+
+/* The region tabs (D-076): shown only with more than one unlocked region. */
+.regionTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 8px 0;
+  pointer-events: auto;
+}
+
+.regionTab {
+  position: relative;
+  min-height: 32px;
+  padding: 0 12px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ns-ui-ink);
+  background: var(--ns-ui-parchment-light);
+  border: 1px solid var(--ns-ui-brass);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ns-ui-ink) 35%, transparent);
+  cursor: pointer;
+}
+
+[data-touch="true"] .regionTab {
+  min-height: 44px;
+}
+
+.regionTab:focus-visible {
+  outline: 3px solid var(--ns-ui-focus);
+}
+
+.regionTabActive {
+  color: var(--ns-ui-parchment-light);
+  background: var(--ns-ui-dark-wood);
+}

@@ -21,7 +21,7 @@ export function shipStateLabel(state: string): string {
 /**
  * Where a ship is or its countdown ("departs in" / "arrives in" from the
  * leg timestamps; "unloading" until berth_until; "at sea" for the start
- * ship before it sails).
+ * ship before it sails; "between regions" on a passage, D-076).
  */
 export function shipWhere(s: ShipDisplay, nowMs: number, islandName: (id: string) => string): string {
   if (!s.leg) {
@@ -31,6 +31,8 @@ export function shipWhere(s: ShipDisplay, nowMs: number, islandName: (id: string
     return t("ships.at", { island: islandName(s.island_id) });
   }
   const timing = legTiming(s.leg, nowMs);
+  // A passage between regions (D-076 §1): on no map, only its arrival counts down.
+  if (s.leg.passage) return t("ships.betweenRegions", { time: countdown(timing.arrivesInMs) });
   return timing.phase === "handling" ? t("ships.departsIn", { time: countdown(timing.departsInMs) }) : t("ships.arrivesIn", { time: countdown(timing.arrivesInMs) });
 }
 
