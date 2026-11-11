@@ -738,7 +738,7 @@ land buildings).
   `SLACK_OVERRIDE`) and must be justified in the recipe docstring — so
   far only `tree_plot` (450, slack 4: the forest trees at forest scale,
   D-068 as built). The committed GLBs are 23.35 MiB after the V7 rework
-  (#66) of a **24 MiB folder limit** (23.33 MiB with the D-075 ships); what remains per triangle is
+  (#66) of a **32 MiB folder limit** (D-077 §7, raised from 24 MiB; 23.33 MiB with the D-075 ships); what remains per triangle is
   indices and AO/normal-split vertices.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at

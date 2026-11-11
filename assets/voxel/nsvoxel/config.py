@@ -114,11 +114,11 @@ BUDGET_DECOR = 580
 #: BUDGET_LIFE_STAGE × n / 4 from n = 4 up.
 BUDGET_LIFE = 760
 BUDGET_LIFE_STAGE = 2100
-#: Ceiling of the committed GLBs (bytes; manifest-listed files). The voxel
-#: output is ≈ 19.1 MiB with 66 placeholders; the limit of the kit-bashed
-#: models (24 MiB) is kept until a quantised export (KHR_mesh_quantization)
-#: shrinks the files (open question in the V1 notes).
-MODELS_FOLDER_LIMIT = 24 * 1024 * 1024
+#: Ceiling of the committed GLBs (bytes; manifest-listed files): 32 MiB since D-077 §7
+#: (24 MiB before; the ornaments, military, Kontor, repair crane and warships of D-077
+#: made room). Lazy loading of rarely used families is the next step if region 2 pushes
+#: past about 40 MiB.
+MODELS_FOLDER_LIMIT = 32 * 1024 * 1024
 
 #: Decoration and life IDs (not content IDs) start with these prefixes.
 DECOR_PREFIX = "decor_"
