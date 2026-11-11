@@ -86,6 +86,7 @@ new-shores/
 │       ├── planned/            footprints of IDs content does not define yet
 │       └── tests/              `make assets-test`
 ├── content/
+│   ├── regions.json            the regions of a world in order, the home region first, passages (D-076)
 │   ├── schema/                 JSON Schema per entity
 │   └── old_coast/              tiers, goods, buildings, needs, ships, quests, islands, decorations
 ├── deploy/                     docker-compose.yaml, Dockerfiles, later Helm/Kustomize
@@ -198,7 +199,8 @@ return Display(w, now)
   `failed` events do not hold a world back.
 - Worlds are unique per `(player_id, region)`; world IDs never come from
   the client — the session resolves the player and the region picks the
-  world. The world row is stored as the sim envelope `{schema_version,
+  world. The column holds the home region; the world holds every region
+  of the content (D-076), so a later region adds no row. The world row is stored as the sim envelope `{schema_version,
   content_version, world}`; decoding runs the sim's pure migration hook
   and fails with `ErrSchemaVersion` (HTTP 500, own code) when no migration
   is registered for an older version — never a silent reset. Migrations

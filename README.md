@@ -112,8 +112,9 @@ in as the fixed player "Developer". The API is at
   world. Without `RESUME=now` the load plays "while you were away";
   with it the world continues from the present. A snapshot loads only on
   the same schema and content version.
-- Other server flags: `--addr` (default `:8080`), `--content` (region
-  directory), `--cors-origin` (comma-separated browser origins allowed to
+- Other server flags: `--addr` (default `:8080`), `--content` (content
+  root with `regions.json`, default `../content`; a single region directory
+  loads as one region), `--cors-origin` (comma-separated browser origins allowed to
   call the API; default `http://localhost:5173,http://127.0.0.1:5173`),
   `--log-format text|json`. If you open the client from another origin
   (another host or port), add it there.

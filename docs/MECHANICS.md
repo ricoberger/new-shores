@@ -1095,7 +1095,7 @@ house cost is paid. One alternative per category is enough.
   `[last_seen_at, now]`: gold before/after, population per tier
   before/after, per-island goods produced/consumed/lost with stock,
   capacity and `at_capacity`, auto-paused/resumed counts, still-unpaid
-  list, ship arrivals, quests completed, tiers unlocked (a `tier_unlocked`
+  list (island and still-unpaid entries name their region, D-076 §5), ship arrivals, quests completed, tiers unlocked (a `tier_unlocked`
   boundary inside the interval: the tier and the number of buildings it adds
   to the build menu, as in the live unlock toast; the letter shows "Citizens
   unlocked — 15 new buildings"). A read that produces one commits
