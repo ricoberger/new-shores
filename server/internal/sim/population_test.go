@@ -47,7 +47,7 @@ var (
 func newTown(t testing.TB, c *content.Catalogue, gold Qty) *World {
 	t.Helper()
 	w := NewWorld(t0)
-	w.Islands = []*Island{islandFromRows("main", townRows()...)}
+	w.SetIslands(islandFromRows("main", townRows()...))
 	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func withPauseCategory(base *content.Catalogue, id, category string) *content.Ca
 	return &c
 }
 
-func house(w *World, id int64) *HouseState { return w.Islands[0].Building(id).House }
+func house(w *World, id int64) *HouseState { return w.Islands()[0].Building(id).House }
 
 func countKind(bs []Boundary, kind string) int {
 	n := 0
@@ -151,8 +151,8 @@ func TestResidentsStepAndClamp(t *testing.T) {
 	// is the floor and the house declines at 0.5 x (1 - 0) = 0.5
 	// residents/min, one resident every 2 minutes.
 	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: market})
-	w.Islands[0].Inventory.setFine("fish", 0)
-	w.Islands[0].Inventory.setFine("wool_garments", 0)
+	w.Islands()[0].Inventory.setFine("fish", 0)
+	w.Islands()[0].Inventory.setFine("wool_garments", 0)
 	ds = display(t, w, c)
 	if b := buildingDisplay(t, ds, h); *b.SatisfactionPermille != 0 || *b.GrowthRatePerMin != -500 || *b.ResidentsTarget != 2000 {
 		t.Fatalf("starving house: satisfaction %d rate %d", *b.SatisfactionPermille, *b.GrowthRatePerMin)
@@ -246,7 +246,7 @@ func TestEqualShareWithStarvedGood(t *testing.T) {
 	w := newTown(t, c, 1_000)
 	houses := placeHouses(t, w, c, 5) // 10 residents
 	addStock(t, w, c, "fish", 100)
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	now := w.LastEvaluatedAt.UnixMilli()
 	// 0.02 bread/min arriving, nothing in stock: starved regime with
 	// positive arrivals.
@@ -360,7 +360,7 @@ func TestSetPausedRules(t *testing.T) {
 			}
 		}
 	}
-	b := w.Islands[0].Building(f)
+	b := w.Islands()[0].Building(f)
 	b.Paused, b.PausedReason, b.PauseSeq = true, PausedReasonUnpaid, 7
 	mustApply(t, w, c, SetPaused{IslandID: "main", BuildingID: f, Paused: true})
 	if b.PausedReason != PausedReasonPlayer || b.PauseSeq != 0 {
@@ -429,8 +429,8 @@ func TestGrantWorkforce(t *testing.T) {
 
 	// Clone and envelope round trip.
 	cw := w.Clone()
-	cw.Islands[0].WorkforceGrant["settlers"] = 1_000
-	if w.Islands[0].WorkforceGrant["settlers"] != 8_000 {
+	cw.Islands()[0].WorkforceGrant["settlers"] = 1_000
+	if w.Islands()[0].WorkforceGrant["settlers"] != 8_000 {
 		t.Error("clone shares the grant map")
 	}
 	data := encode(t, w)
@@ -438,7 +438,7 @@ func TestGrantWorkforce(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if w2.Islands[0].WorkforceGrant["settlers"] != 8_000 || !bytes.Equal(data, encode(t, w2)) {
+	if w2.Islands()[0].WorkforceGrant["settlers"] != 8_000 || !bytes.Equal(data, encode(t, w2)) {
 		t.Error("grant not round-tripped")
 	}
 }
@@ -453,7 +453,7 @@ func TestShortfallDrawsSlackOfStarvedGood(t *testing.T) {
 	c := varietyCatalogue(t)
 	w := newTown(t, c, 1_000)
 	hs := placeHouses(t, w, c, 5) // 10 settlers
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	now := w.LastEvaluatedAt.UnixMilli()
 	is.Building(hs[0]).Transit = []TransitSegment{
 		{Good: "fish", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, 10_000)},
@@ -542,7 +542,7 @@ func TestHouseWithoutRoad(t *testing.T) {
 	if hs := house(w, h); hs.Residents != 2000 || hs.Growth != 0 {
 		t.Errorf("house after 12 h = %+v", hs)
 	}
-	if got := w.Islands[0].Inventory.Stock["fish"]; got != 100_000 {
+	if got := w.Islands()[0].Inventory.Stock["fish"]; got != 100_000 {
 		t.Errorf("fish = %d, want untouched", got)
 	}
 	checkUnconnectedHouse(t, w, c, h)
@@ -606,7 +606,7 @@ func TestCoverageMonotoneProperty(t *testing.T) {
 	for i := range 60 {
 		w := newTown(t, c, 1_000)
 		houses := placeHouses(t, w, c, 5)
-		is := w.Islands[0]
+		is := w.Islands()[0]
 		now := w.LastEvaluatedAt.UnixMilli()
 		var segs []TransitSegment
 		for _, g := range []string{"fish", "bread"} {

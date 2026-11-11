@@ -20,7 +20,9 @@ func gridTestWorld() *World {
 		}
 		return is
 	}
-	return &World{Seed: 5, Islands: []*Island{mk("a", 0, 0), mk("b", 60, 0), mk("c", 30, 40)}}
+	w := &World{Seed: 5}
+	w.SetIslands(mk("a", 0, 0), mk("b", 60, 0), mk("c", 30, 40))
+	return w
 }
 
 // A lent grid gives the same route as a fresh one, and the key follows
@@ -28,8 +30,8 @@ func gridTestWorld() *World {
 func TestSeaGridLentEqualsFresh(t *testing.T) {
 	w := gridTestWorld()
 	a, b := Pos{2, 10}, Pos{80, 10}
-	want := SeaRoute(w.Islands, a, b)
-	w.SetSeaGrid(BuildSeaGrid(w.Islands))
+	want := SeaRoute(w.Islands(), a, b)
+	w.SetSeaGrid(BuildSeaGrid(w.Islands()))
 	if got := w.seaGridFor(a, b); got.nx == 0 {
 		t.Fatal("empty grid")
 	}
@@ -52,11 +54,11 @@ func TestSeaGridKey(t *testing.T) {
 	if SeaGridKey(w, 2) == k {
 		t.Error("generator version not in the key")
 	}
-	w.Islands[0].Roads[5*20+5] = "road" // land tile
+	w.Islands()[0].Roads[5*20+5] = "road" // land tile
 	if SeaGridKey(w, 1) != k {
 		t.Error("a road on land changed the key")
 	}
-	w.Islands[0].Roads[1] = "quay" // water tile
+	w.Islands()[0].Roads[1] = "quay" // water tile
 	if SeaGridKey(w, 1) == k {
 		t.Error("a road on water did not change the key")
 	}

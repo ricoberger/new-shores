@@ -33,7 +33,7 @@ func (c *seaGridCache) get(w *sim.World, generatorVersion int) *sim.SeaGrid {
 	if g, ok := c.grids[key]; ok {
 		return g
 	}
-	g := sim.BuildSeaGrid(w.Islands)
+	g := sim.BuildSeaGrid(w.Islands())
 	if c.grids == nil {
 		c.grids = map[string]*sim.SeaGrid{}
 	}

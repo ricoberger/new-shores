@@ -15,7 +15,7 @@ func wheatWorld(t *testing.T, c *content.Catalogue) (*World, int64) {
 	t.Helper()
 	w, _ := fieldsWorld(t, c)
 	w.UnlockedTiers = []string{"citizens"}
-	w.Islands[0].Fertilities = []string{"wheat"}
+	w.Islands()[0].Fertilities = []string{"wheat"}
 	if err := AddStock(w, c, "main", "stone", 50_000, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func TestPlaceFieldsBatch(t *testing.T) {
 	if len(res.Tiles) != len(tiles) {
 		t.Fatalf("%d results for %d tiles", len(res.Tiles), len(tiles))
 	}
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	ok := 0
 	for i, r := range res.Tiles {
 		if r.X != tiles[i].X || r.Y != tiles[i].Y {
@@ -126,8 +126,8 @@ func TestPlaceFieldsPartial(t *testing.T) {
 			t.Errorf("tile %d (%d,%d): %v, want %v", i, r.X, r.Y, r.Err, want[i])
 		}
 	}
-	if w.Gold != 0 || len(farmFieldsOf(w.Islands[0], c, farm)) != 3 {
-		t.Errorf("gold %d, fields %d", w.Gold, len(farmFieldsOf(w.Islands[0], c, farm)))
+	if w.Gold != 0 || len(farmFieldsOf(w.Islands()[0], c, farm)) != 3 {
+		t.Errorf("gold %d, fields %d", w.Gold, len(farmFieldsOf(w.Islands()[0], c, farm)))
 	}
 }
 
@@ -204,7 +204,7 @@ func TestDemolishFields(t *testing.T) {
 			t.Errorf("tile %d: %v, want %v", i, r.Err, want[i])
 		}
 	}
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	if is.Building(p1) != nil || is.Building(p2) == nil || !is.Building(p2).Inactive {
 		t.Errorf("p1 %+v p2 %+v", is.Building(p1), is.Building(p2))
 	}
@@ -272,7 +272,7 @@ func TestPropertyPlaceFields(t *testing.T) {
 					ref := p.w.Clone()
 					before := encodeWorld(t, p.w)
 					beforeIDs := map[int64]bool{}
-					for _, b := range p.w.Islands[0].Buildings {
+					for _, b := range p.w.Islands()[0].Buildings {
 						beforeIDs[b.ID] = true
 					}
 					res, err := ApplyWithResult(p.w, p.c, cmd, nil)
@@ -299,7 +299,7 @@ func TestPropertyPlaceFields(t *testing.T) {
 						}
 						t.Fatalf("seed %d: batch differs from the tile-by-tile reference at\nref   %s\nbatch %s", seed, a[max(0, i-200):min(len(a), i+100)], b[max(0, i-200):min(len(b), i+100)])
 					}
-					is := p.w.Islands[0]
+					is := p.w.Islands()[0]
 					okTiles := 0
 					for _, r := range res.Tiles {
 						b := is.BuildingAt(p.c, r.X, r.Y)
@@ -394,8 +394,8 @@ func shippedFieldsCase(t *testing.T, c *content.Catalogue, seed uint64) *propCas
 		}
 	}
 	w := NewWorld(t0)
-	w.Islands = []*Island{NewIsland("main", width, height, tiles)}
-	w.Islands[0].Fertilities = []string{"wheat", "apple", "hemp"}
+	w.SetIslands(NewIsland("main", width, height, tiles))
+	w.Islands()[0].Fertilities = []string{"wheat", "apple", "hemp"}
 	w.UnlockedTiers = []string{"citizens"}
 	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, p.l); err != nil {
 		t.Fatalf("seed %d: trading post: %v", seed, err)
@@ -419,7 +419,7 @@ func shippedFieldsCase(t *testing.T, c *content.Catalogue, seed uint64) *propCas
 // and compares with one Demolish per covered field (in the order the
 // tiles first name them).
 func (p *propCase) checkDemolishFields(seed uint64, farm int64) {
-	is := p.w.Islands[0]
+	is := p.w.Islands()[0]
 	b := is.Building(farm)
 	if b == nil {
 		return

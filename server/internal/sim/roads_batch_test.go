@@ -20,7 +20,7 @@ func TestDemolishRoads(t *testing.T) {
 	// down).
 	c.BuildingByID["road_dirt"].Cost = content.Cost{Materials: []content.GoodAmount{{Good: "stone", Amount: 3 * content.MilliPerUnit}}}
 	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{6, 7}, {7, 7}, {8, 7}}, Planned: true})
-	is := w.Islands[0]
+	is := w.Islands()[0]
 
 	before := encodeWorld(t, w)
 	empty := []Pos{{6, 8}, {7, 8}, {-1, 0}}

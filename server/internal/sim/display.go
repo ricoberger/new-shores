@@ -406,7 +406,7 @@ type BoundsDisplay struct {
 
 func displayArchipelago(w *World, c *content.Catalogue) ArchipelagoDisplay {
 	d := ArchipelagoDisplay{Seed: w.Seed, Roll: w.ArchipelagoRoll, Rerollable: CanReroll(w, c) == nil}
-	for i, is := range w.Islands {
+	for i, is := range w.Islands() {
 		if i == 0 {
 			d.Bounds = BoundsDisplay{X: is.X, Y: is.Y, Width: is.Width, Height: is.Height}
 			continue
@@ -602,7 +602,7 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		}
 		ds.Tiers = append(ds.Tiers, td)
 	}
-	for i, is := range cw.Islands {
+	for i, is := range cw.Islands() {
 		ds.Islands = append(ds.Islands, displayIsland(cw, is, c, wr, wr.islands[i], nowMs, &at))
 	}
 	if at != math.MaxInt64 {
@@ -655,7 +655,7 @@ func displayQuests(w *World, c *content.Catalogue, wr *worldRates, now int64) Qu
 // world and computes the balance with all of them running.
 func displayInsolvency(w *World, c *content.Catalogue, wr *worldRates, now int64) InsolvencyDisplay {
 	d := InsolvencyDisplay{BalanceIfResumedPerMin: wr.balance}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for _, b := range is.Buildings {
 			if b.Paused && b.PausedReason == PausedReasonUnpaid {
 				d.UnpaidBuildings++

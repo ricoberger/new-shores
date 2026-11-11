@@ -28,7 +28,7 @@ var playedPlannedFarms = []string{"hop_farm", "woad_farm", "hemp_farm", "wheat_f
 func planPlayed(c *content.Catalogue, w *sim.World) error {
 	lp := &layout.Planner{C: c, W: w, SpareForest: true}
 	var home *sim.Island
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		if lp.TradingPost(is.ID) != nil && (home == nil || len(is.Buildings) > len(home.Buildings)) {
 			home = is
 		}

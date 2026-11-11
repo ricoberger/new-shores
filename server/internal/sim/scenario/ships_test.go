@@ -79,7 +79,7 @@ func TestRouteLoop(t *testing.T) {
 	now := r.w.LastEvaluatedAt.UnixMilli()
 	for _, g := range r.c.Goods {
 		var islands, ledger int64
-		for _, is := range r.w.Islands {
+		for _, is := range r.w.Islands() {
 			stock := sim.FineStock(is, g.ID, now)
 			f := r.l.Flow(is.ID, g.ID)
 			islands += stock

@@ -44,7 +44,7 @@ func reroll(t *testing.T, w *sim.World) error {
 func arrive(t *testing.T, w *sim.World) {
 	t.Helper()
 	c := catalogue(t)
-	if err := sim.Apply(w, c, sim.SailShip{ShipID: 1, ToIslandID: w.Islands[0].ID}); err != nil {
+	if err := sim.Apply(w, c, sim.SailShip{ShipID: 1, ToIslandID: w.Islands()[0].ID}); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := sim.Advance(w, c, time.UnixMilli(w.Ships[0].Leg.ArriveAtMs).UTC()); err != nil {
@@ -56,7 +56,7 @@ func arrive(t *testing.T, w *sim.World) {
 func found(t *testing.T, w *sim.World) {
 	t.Helper()
 	c := catalogue(t)
-	home := w.Islands[0]
+	home := w.Islands()[0]
 	tp := TradingPost(c)
 	for _, r := range Sites(home, c, tp) {
 		if sim.Apply(w, c, sim.FoundIsland{ShipID: 1, IslandID: home.ID, BuildingType: tp.ID, X: r.X, Y: r.Y, Rotation: r.Rotation}) == nil {
@@ -81,10 +81,10 @@ func TestReroll(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if w.Seed != 7 || w.ArchipelagoRoll != 1 || len(w.Islands) != len(want.Islands) {
-		t.Fatalf("seed %d roll %d islands %d", w.Seed, w.ArchipelagoRoll, len(w.Islands))
+	if w.Seed != 7 || w.ArchipelagoRoll != 1 || len(w.Islands()) != len(want.Islands) {
+		t.Fatalf("seed %d roll %d islands %d", w.Seed, w.ArchipelagoRoll, len(w.Islands()))
 	}
-	for i, is := range w.Islands {
+	for i, is := range w.Islands() {
 		if is.ID != want.Islands[i].ID || is.X != want.Islands[i].X || is.Name != want.Islands[i].Name {
 			t.Fatalf("island %d = %s at (%d,%d), want %s at (%d,%d)", i, is.ID, is.X, is.Y, want.Islands[i].ID, want.Islands[i].X, want.Islands[i].Y)
 		}
@@ -142,7 +142,7 @@ func TestRerollAllowed(t *testing.T) {
 	}
 	// On a leg.
 	w := newWorld(t, 11)
-	if err := sim.Apply(w, c, sim.SailShip{ShipID: 1, ToIslandID: w.Islands[0].ID}); err != nil {
+	if err := sim.Apply(w, c, sim.SailShip{ShipID: 1, ToIslandID: w.Islands()[0].ID}); err != nil {
 		t.Fatal(err)
 	}
 	refused(w, sim.ErrRerollNotAllowed)
@@ -178,7 +178,7 @@ func TestRerollAllowed(t *testing.T) {
 func TestRenameIsland(t *testing.T) {
 	c := catalogue(t)
 	w := newWorld(t, 13)
-	home := w.Islands[0].ID
+	home := w.Islands()[0].ID
 	if err := sim.Apply(w, c, sim.RenameIsland{IslandID: home, Name: "Haven"}); !errors.Is(err, sim.ErrIslandNotSettled) {
 		t.Fatalf("rename unsettled = %v", err)
 	}
@@ -230,7 +230,7 @@ func TestStartCogCarriesFoundingStock(t *testing.T) {
 	}
 	arrive(t, w)
 	found(t, w)
-	home := w.Islands[0]
+	home := w.Islands()[0]
 	if len(s.Cargo) != 0 || home.Inventory.Stock["sails"] != 0 || home.Inventory.Stock["planks"] == 0 {
 		t.Fatalf("after founding: cargo %+v stock %v", s.Cargo, home.Inventory.Stock)
 	}
@@ -239,7 +239,7 @@ func TestStartCogCarriesFoundingStock(t *testing.T) {
 	home.Inventory.Stock["fish"] = 10_000
 	home.Inventory.Stock["sails"] = 10_000
 	before := encode(t, w)
-	cmd := sim.ManualShipment{ShipID: s.ID, ToIslandID: w.Islands[1].ID, Cargo: []sim.CargoAmount{
+	cmd := sim.ManualShipment{ShipID: s.ID, ToIslandID: w.Islands()[1].ID, Cargo: []sim.CargoAmount{
 		{Good: "planks", Amount: 10_000}, {Good: "sails", Amount: 5_000}, {Good: "fish", Amount: 5_000},
 	}}
 	if err := sim.Apply(w, c, cmd); !errors.Is(err, sim.ErrCargoExceedsSlots) {

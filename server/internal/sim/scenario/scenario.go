@@ -440,14 +440,23 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 		return nil, errors.New("scenario has no island (use Parse)")
 	}
 	w := sim.NewWorld(s.Start)
+	// The content's regions (D-076); a hand-made world's islands are the
+	// home region's.
+	for i, r := range c.Regions {
+		w.Regions = append(w.Regions, &sim.Region{ID: r.ID, Unlocked: i == 0})
+	}
 	ship := s.Seed.Ship
 	if seed := s.Seed.Archipelago; seed != 0 {
-		a, err := archipelago.Generate(seed, c)
+		a, err := archipelago.GenerateRegion(seed, 0, c)
 		if err != nil {
 			return nil, err
 		}
 		w.Seed = seed
-		w.Islands = a.Islands
+		for i, r := range w.Regions {
+			r.Seed = archipelago.RegionSeed(seed, i)
+		}
+		w.HomeRegion().PassagePoint = &a.Ship
+		w.SetIslands(a.Islands...)
 		if ship == nil && s.Seed.Start && s.Seed.TradingPost == nil {
 			ship = &SeaShip{X: a.Ship.X, Y: a.Ship.Y}
 		}
@@ -457,9 +466,9 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 		if err != nil {
 			return nil, err
 		}
-		w.Islands = append(w.Islands, is)
+		w.AddIsland(is)
 	}
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	if wh := s.Seed.TradingPost; wh != nil {
 		typ := wh.Type
 		if typ == "" {
@@ -819,12 +828,12 @@ func run(s *Scenario, c *content.Catalogue) (*Report, *sim.World, error) {
 // islandID resolves a step's island ("" = the first island).
 func (r *runner) islandID(id string) string {
 	if id == "" {
-		return r.w.Islands[0].ID
+		return r.w.Islands()[0].ID
 	}
 	return id
 }
 
-func (r *runner) island() *sim.Island { return r.w.Islands[0] }
+func (r *runner) island() *sim.Island { return r.w.Islands()[0] }
 
 func (r *runner) buildingAt(at *At) (string, *sim.Building, error) {
 	id := r.islandID(at.Island)

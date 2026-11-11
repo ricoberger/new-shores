@@ -90,7 +90,7 @@ func (e *questEnv) rates() *worldRates {
 // (population), milli-units (stock) or parts per million (satisfaction).
 func (e *questEnv) objectiveValue(o content.Objective) (current, target int64) {
 	w, c := e.w, e.c
-	islands := w.Islands
+	islands := w.Islands()
 	if o.Island != "" {
 		islands = nil
 		if is := w.Island(o.Island); is != nil {
@@ -141,7 +141,7 @@ func (e *questEnv) objectiveValue(o content.Objective) (current, target int64) {
 		}
 		return 0, 1
 	case content.ObjectiveIslandSettled:
-		for _, is := range w.Islands {
+		for _, is := range w.Islands() {
 			if settled(is, c) {
 				current++
 			}
@@ -205,7 +205,7 @@ func ObjectiveTarget(o content.Objective) int64 {
 func stockObjectiveFine(w *World, o content.Objective) (int64, []int) {
 	var fine int64
 	var idx []int
-	for i, is := range w.Islands {
+	for i, is := range w.Islands() {
 		if o.Island != "" && is.ID != o.Island {
 			continue
 		}

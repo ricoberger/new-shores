@@ -179,7 +179,7 @@ func TestTerrainRow(t *testing.T) {
 		if len(first) != 1 || first[0].seed != int64(w.Seed) || first[0].roll != w.ArchipelagoRoll { //nolint:gosec // test seeds are small
 			t.Errorf("terrain rows %+v for key %+v", first, w.TerrainKey())
 		}
-		is := w.Islands[0]
+		is := w.Islands()[0]
 		if len(is.Tiles) != is.Width*is.Height {
 			t.Fatalf("island %q loaded with %d tiles", is.ID, len(is.Tiles))
 		}
@@ -195,9 +195,9 @@ func TestTerrainRow(t *testing.T) {
 	// A re-roll: a new key with other tiles.
 	_, err = st.Update(ctx, id, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
 		w.ArchipelagoRoll++
-		w.Islands[0].Tiles[0].Terrain = content.TerrainMountain
+		w.Islands()[0].Tiles[0].Terrain = content.TerrainMountain
 		if tiles0 == content.TerrainMountain {
-			w.Islands[0].Tiles[0].Terrain = content.TerrainWater
+			w.Islands()[0].Tiles[0].Terrain = content.TerrainWater
 		}
 		return true, nil
 	})
@@ -208,7 +208,7 @@ func TestTerrainRow(t *testing.T) {
 		t.Fatalf("after the re-roll: %+v", r)
 	}
 	_, err = st.Update(ctx, id, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
-		if got := w.Islands[0].Tiles[0].Terrain; got == tiles0 {
+		if got := w.Islands()[0].Tiles[0].Terrain; got == tiles0 {
 			t.Errorf("tile 0 is still %s after the re-roll", got)
 		}
 		return false, nil

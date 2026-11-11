@@ -42,7 +42,7 @@ func shipWorld(t testing.TB, c *content.Catalogue) *World {
 		"~~~~~~~~~~~~",
 	)
 	b.Name, b.X, b.Y = "Island B", 6, 8
-	w.Islands = []*Island{a, b}
+	w.SetIslands(a, b)
 	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "a", Type: "trading_post", X: 1, Y: 1}, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -149,7 +149,7 @@ func TestCargoSlots(t *testing.T) {
 func TestOrderShipAndBuilt(t *testing.T) {
 	c := catalogue(t)
 	w := shipWorld(t, c)
-	gold, planks, sails := w.Gold, w.Islands[0].Inventory.Stock["planks"], w.Islands[0].Inventory.Stock["sails"]
+	gold, planks, sails := w.Gold, w.Islands()[0].Inventory.Stock["planks"], w.Islands()[0].Inventory.Stock["sails"]
 
 	expectErr(t, w, c, OrderShip{IslandID: "a", BuildingID: 1, ShipType: "cog"}, ErrNotAShipyard)
 	expectErr(t, w, c, OrderShip{IslandID: "a", BuildingID: 2, ShipType: "carrack"}, ErrUnknownShipType)
@@ -160,9 +160,9 @@ func TestOrderShipAndBuilt(t *testing.T) {
 	expectErr(t, poor, c, OrderShip{IslandID: "a", BuildingID: 2, ShipType: "cog"}, ErrInsufficientGold)
 
 	mustApply(t, w, c, OrderShip{IslandID: "a", BuildingID: 2, ShipType: "cog"})
-	if w.Gold != gold-cog.Cost.Gold || w.Islands[0].Inventory.Stock["planks"] != planks-material(cog.Cost, "planks") ||
-		w.Islands[0].Inventory.Stock["sails"] != sails-material(cog.Cost, "sails") {
-		t.Errorf("cost not charged: gold %d planks %d sails %d", w.Gold, w.Islands[0].Inventory.Stock["planks"], w.Islands[0].Inventory.Stock["sails"])
+	if w.Gold != gold-cog.Cost.Gold || w.Islands()[0].Inventory.Stock["planks"] != planks-material(cog.Cost, "planks") ||
+		w.Islands()[0].Inventory.Stock["sails"] != sails-material(cog.Cost, "sails") {
+		t.Errorf("cost not charged: gold %d planks %d sails %d", w.Gold, w.Islands()[0].Inventory.Stock["planks"], w.Islands()[0].Inventory.Stock["sails"])
 	}
 	expectErr(t, w, c, OrderShip{IslandID: "a", BuildingID: 2, ShipType: "cog"}, ErrShipyardBusy)
 	due := t0.Add(2 * time.Minute)
@@ -191,7 +191,7 @@ func TestOrderShipAndBuilt(t *testing.T) {
 		t.Fatalf("boundaries %+v ships %+v", bs, w.Ships)
 	}
 	s := w.Ships[0]
-	if s.ID != 1 || s.Type != "cog" || s.State != ShipIdle || s.IslandID != "a" || s.Leg != nil || len(s.Cargo) != 0 || w.Islands[0].Building(2).Order != nil {
+	if s.ID != 1 || s.Type != "cog" || s.State != ShipIdle || s.IslandID != "a" || s.Leg != nil || len(s.Cargo) != 0 || w.Islands()[0].Building(2).Order != nil {
 		t.Fatalf("ship = %+v", s)
 	}
 	ds = display(t, w, c)
@@ -209,7 +209,7 @@ func TestShipyardNeedsConnection(t *testing.T) {
 	w := shipWorld(t, c)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "a", Type: "shipyard", X: 14, Y: 1})
 	mustApply(t, w, c, DemolishRoad{IslandID: "a", Tiles: []Pos{{13, 5}}})
-	if b := w.Islands[0].Building(3); b.AssignedWarehouseID != 0 {
+	if b := w.Islands()[0].Building(3); b.AssignedWarehouseID != 0 {
 		t.Fatal("shipyard behind the gap is connected")
 	}
 	expectErr(t, w, c, OrderShip{IslandID: "a", BuildingID: 3, ShipType: "cog"}, ErrNotConnected)
@@ -223,13 +223,13 @@ func TestCancelShipOrderAndDemolishRefund(t *testing.T) {
 	w := shipWorld(t, c)
 	expectErr(t, w, c, CancelShipOrder{IslandID: "a", BuildingID: 2}, ErrNoShipOrder)
 	mustApply(t, w, c, OrderShip{IslandID: "a", BuildingID: 2, ShipType: "cog"})
-	gold, planks, sails := w.Gold, w.Islands[0].Inventory.Stock["planks"], w.Islands[0].Inventory.Stock["sails"]
+	gold, planks, sails := w.Gold, w.Islands()[0].Inventory.Stock["planks"], w.Islands()[0].Inventory.Stock["sails"]
 	cw := w.Clone()
 	mustApply(t, w, c, CancelShipOrder{IslandID: "a", BuildingID: 2})
 	cog := c.ShipByID["cog"].Cost
-	if w.Gold != gold || w.Islands[0].Inventory.Stock["planks"] != planks+refundAmount(material(cog, "planks")) ||
-		w.Islands[0].Inventory.Stock["sails"] != sails+refundAmount(material(cog, "sails")) || len(DueEvents(w)) != 0 {
-		t.Errorf("cancel: gold %d planks %d sails %d", w.Gold, w.Islands[0].Inventory.Stock["planks"], w.Islands[0].Inventory.Stock["sails"])
+	if w.Gold != gold || w.Islands()[0].Inventory.Stock["planks"] != planks+refundAmount(material(cog, "planks")) ||
+		w.Islands()[0].Inventory.Stock["sails"] != sails+refundAmount(material(cog, "sails")) || len(DueEvents(w)) != 0 {
+		t.Errorf("cancel: gold %d planks %d sails %d", w.Gold, w.Islands()[0].Inventory.Stock["planks"], w.Islands()[0].Inventory.Stock["sails"])
 	}
 	mustAdvance(t, w, c, 3*time.Minute)
 	if len(w.Ships) != 0 {
@@ -237,9 +237,9 @@ func TestCancelShipOrderAndDemolishRefund(t *testing.T) {
 	}
 	// Demolishing the busy shipyard refunds the building and the order.
 	mustApply(t, cw, c, Demolish{IslandID: "a", BuildingID: 2})
-	if cw.Islands[0].Inventory.Stock["planks"] != planks+refundAmount(material(c.BuildingByID["shipyard"].Cost, "planks"))+refundAmount(material(cog, "planks")) ||
-		cw.Islands[0].Inventory.Stock["sails"] != sails+refundAmount(material(cog, "sails")) || len(DueEvents(cw)) != 0 {
-		t.Errorf("demolish: planks %d sails %d", cw.Islands[0].Inventory.Stock["planks"], cw.Islands[0].Inventory.Stock["sails"])
+	if cw.Islands()[0].Inventory.Stock["planks"] != planks+refundAmount(material(c.BuildingByID["shipyard"].Cost, "planks"))+refundAmount(material(cog, "planks")) ||
+		cw.Islands()[0].Inventory.Stock["sails"] != sails+refundAmount(material(cog, "sails")) || len(DueEvents(cw)) != 0 {
+		t.Errorf("demolish: planks %d sails %d", cw.Islands()[0].Inventory.Stock["planks"], cw.Islands()[0].Inventory.Stock["sails"])
 	}
 }
 
@@ -261,13 +261,13 @@ func TestManualShipmentAndFounding(t *testing.T) {
 	// Placement on the unsettled island is rejected.
 	expectErr(t, w, c, PlaceBuilding{IslandID: "b", Type: "trading_post", X: 1, Y: 0}, ErrIslandNotSettled)
 
-	planks := w.Islands[0].Inventory.Stock["planks"]
+	planks := w.Islands()[0].Inventory.Stock["planks"]
 	mustApply(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 50_000}, {"wood", 1_500}}})
 	// Handling: 10 s base + 0.2 s per unit loaded (51.5 units) = 20.3 s.
 	dep := start + 20_300
 	leg := legOf(w, c, "a", "b", dep)
 	if handlingMs(c, 51_500) != 20_300 || s.State != ShipManualLeg || s.IslandID != "a" || !reflect.DeepEqual(*s.Leg, leg) ||
-		w.Islands[0].Inventory.Stock["planks"] != planks-50_000 {
+		w.Islands()[0].Inventory.Stock["planks"] != planks-50_000 {
 		t.Fatalf("ship %+v leg %+v", s, s.Leg)
 	}
 	// The display re-fetch point is the departure (the ship's location
@@ -533,7 +533,7 @@ func TestAssignAwayFromRoute(t *testing.T) {
 	w, s := routeWorld(t, c)
 	b2 := islandFromRows("c", "~~~~~~", "~~~~~~", "~....~", "~....~", "~~~~~~")
 	b2.X, b2.Y = 30, 40
-	w.Islands = append(w.Islands, b2)
+	w.SetIslands(append(w.Islands(), b2)...)
 	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "c", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -709,7 +709,7 @@ func TestShipInsolvency(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	for _, b := range w.Islands[0].Buildings {
+	for _, b := range w.Islands()[0].Buildings {
 		if b.House != nil {
 			b.House.Residents = 8_000
 		}

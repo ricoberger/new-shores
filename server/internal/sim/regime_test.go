@@ -110,7 +110,7 @@ func TestInputAlternatives(t *testing.T) {
 	if len(bs) > 20 || countKind(bs, BoundaryCoarseMode) != 0 {
 		t.Fatalf("%d boundaries", len(bs))
 	}
-	inv := w.Islands[0].Inventory
+	inv := w.Islands()[0].Inventory
 	if inv.Stock["wood"] != 0 || inv.Stock["wool"] != 0 {
 		t.Errorf("stock wood %d wool %d", inv.Stock["wood"], inv.Stock["wool"])
 	}

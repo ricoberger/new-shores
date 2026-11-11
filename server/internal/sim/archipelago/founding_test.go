@@ -62,7 +62,7 @@ func TestFoundingVoyage(t *testing.T) {
 		}
 		perRotation := 0
 		probe := base.Clone()
-		for _, is := range base.Islands[:6] {
+		for _, is := range base.Islands()[:6] {
 			found := 0
 			// Sites spread over the island: one per band of rows.
 			for y := 0; y < is.Height && found < 4; y++ {
@@ -77,7 +77,7 @@ func TestFoundingVoyage(t *testing.T) {
 					s := world.Ship(1)
 					path := s.Leg.Path
 					end := path[len(path)-1]
-					if landTile(world.Islands, end.X, end.Y) {
+					if landTile(world.Islands(), end.X, end.Y) {
 						t.Errorf("%s site (%d,%d) r%d: leg ends on land at %v", is.ID, x, y, rotation, end)
 					}
 					if lx, ly := end.X-is.X, end.Y-is.Y; lx >= x && ly >= y && lx < x+w && ly < y+h {
@@ -86,7 +86,7 @@ func TestFoundingVoyage(t *testing.T) {
 					if end != sim.HarbourAt(is, tp, x, y, rotation) {
 						t.Errorf("%s site (%d,%d) r%d: leg ends at %v, not the harbour %v", is.ID, x, y, rotation, end, sim.HarbourAt(is, tp, x, y, rotation))
 					}
-					if fx, fy, bad := pathLand(world.Islands, path); bad {
+					if fx, fy, bad := pathLand(world.Islands(), path); bad {
 						t.Errorf("%s site (%d,%d) r%d: path %v crosses land at (%.2f,%.2f)", is.ID, x, y, rotation, path, fx, fy)
 					}
 					// On arrival the ship founds the Trading Post at the site.
@@ -114,7 +114,7 @@ func TestFoundingVoyage(t *testing.T) {
 func TestSailShipSite(t *testing.T) {
 	c := catalogue(t)
 	w := newWorld(t, 1053001)
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	if err := sim.Apply(w, c, sim.SailShip{ShipID: 1, ToIslandID: is.ID, Site: &sim.FoundingSite{BuildingType: "trading_post", X: 0, Y: 0, Rotation: 45}}); err == nil {
 		t.Fatal("rotation 45 accepted")
 	}
@@ -152,7 +152,7 @@ func TestLagoonHarbourLegs(t *testing.T) {
 		t.Fatalf("the owner's cliff-bay site: %v, want %v", err, sim.ErrNeedsLowShore)
 	}
 	var isle *sim.Island
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		if is.ID == "oc-03" {
 			isle = is
 		}
@@ -169,7 +169,7 @@ func TestLagoonHarbourLegs(t *testing.T) {
 			t.Fatalf("site %+v: %v", r, err)
 		}
 		s := w.Ship(1)
-		if fx, fy, bad := pathLand(w.Islands, s.Leg.Path); bad {
+		if fx, fy, bad := pathLand(w.Islands(), s.Leg.Path); bad {
 			t.Errorf("founding voyage to %+v: %v crosses land at (%.2f,%.2f)", r, s.Leg.Path, fx, fy)
 		}
 		if i > 0 {
@@ -182,7 +182,7 @@ func TestLagoonHarbourLegs(t *testing.T) {
 		if err := sim.Apply(w, c, sim.FoundIsland{ShipID: 1, IslandID: "oc-03", BuildingType: site.BuildingType, X: site.X, Y: site.Y, Rotation: site.Rotation}); err != nil {
 			t.Fatal(err)
 		}
-		for _, to := range w.Islands[:12] {
+		for _, to := range w.Islands()[:12] {
 			if to.ID == "oc-03" {
 				continue
 			}
@@ -191,7 +191,7 @@ func TestLagoonHarbourLegs(t *testing.T) {
 				t.Fatalf("shipment to %s: %v", to.ID, err)
 			}
 			path := w.Ship(1).Leg.Path
-			if fx, fy, bad := pathLand(w.Islands, path); bad {
+			if fx, fy, bad := pathLand(w.Islands(), path); bad {
 				t.Errorf("shipment to %s: %v crosses land at (%.2f,%.2f)", to.ID, path, fx, fy)
 			}
 		}

@@ -26,10 +26,10 @@ func TestD062FoundingSite(t *testing.T) {
 	if site.W != 6 || site.H != 6 {
 		t.Fatalf("site %+v", site)
 	}
-	if err := sim.CheckSite(w.Islands[0], c, def, site.X, site.Y, site.Rotation); err != nil {
+	if err := sim.CheckSite(w.Islands()[0], c, def, site.X, site.Y, site.Rotation); err != nil {
 		t.Fatal(err)
 	}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		sc := c.Islands.SizeClassByID[is.SizeClass]
 		if sc == nil || sc.Scenic {
 			continue
@@ -43,7 +43,7 @@ func TestD062FoundingSite(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	b := founded.Islands[0].Buildings[0]
+	b := founded.Islands()[0].Buildings[0]
 	if b.X != site.X || b.Y != site.Y || b.Rotation != site.Rotation {
 		t.Fatalf("default founds %+v, UI site %+v", b, site)
 	}

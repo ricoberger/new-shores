@@ -139,6 +139,9 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 		return nil, errors.New("no sea tile for the start ship")
 	}
 	a.Ship = ship
+	for _, is := range a.Islands {
+		is.RegionID = c.Region.ID
+	}
 	if err := Verify(a, c); err != nil {
 		return nil, err
 	}

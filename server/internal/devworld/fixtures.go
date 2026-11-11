@@ -621,7 +621,7 @@ func (f *fixture) placePaid(island, typ string, anchor sim.Pos) int64 {
 func (f *fixture) nearestWithDeposit(from, kind string) string {
 	src := f.w.Island(from)
 	best, bestGap := "", -1
-	for _, is := range f.w.Islands {
+	for _, is := range f.w.Islands() {
 		sc := f.c.Islands.SizeClassByID[is.SizeClass]
 		if is.ID == from || sc == nil || archipelago.DepositCounts(is)[kind] == 0 {
 			continue
@@ -731,14 +731,14 @@ func (f *fixture) requiredFields(farm string) int {
 }
 
 // home is the archipelago's home candidate (its first island).
-func (f *fixture) home() string { return f.w.Islands[0].ID }
+func (f *fixture) home() string { return f.w.Islands()[0].ID }
 
 // neighbour returns the habitable island nearest to the island (grid gap,
 // then ID).
 func (f *fixture) neighbour(id string) string {
 	from := f.w.Island(id)
 	best, bestGap := "", -1
-	for _, is := range f.w.Islands {
+	for _, is := range f.w.Islands() {
 		sc := f.c.Islands.SizeClassByID[is.SizeClass]
 		if is.ID == id || sc == nil || sc.Scenic {
 			continue

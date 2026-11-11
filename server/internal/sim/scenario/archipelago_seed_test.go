@@ -35,8 +35,8 @@ func TestArchipelagoSeed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if w.Seed != 7 || len(w.Islands) != len(a.Islands) || w.Islands[0].ID != a.Islands[0].ID {
-		t.Fatalf("seed %d, %d islands (want 7, %d)", w.Seed, len(w.Islands), len(a.Islands))
+	if w.Seed != 7 || len(w.Islands()) != len(a.Islands) || w.Islands()[0].ID != a.Islands[0].ID {
+		t.Fatalf("seed %d, %d islands (want 7, %d)", w.Seed, len(w.Islands()), len(a.Islands))
 	}
 	if len(w.Ships) != 1 || w.Ships[0].AtSea == nil || *w.Ships[0].AtSea != a.Ship {
 		t.Fatalf("ships %+v, want the start ship at %+v", w.Ships, a.Ship)

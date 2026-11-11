@@ -39,7 +39,7 @@ func TestPlayedFixture(t *testing.T) {
 	}
 	houses := func() int {
 		n := 0
-		for _, is := range w.Islands {
+		for _, is := range w.Islands() {
 			for _, b := range is.Buildings {
 				if b.Type == "house_patricians" {
 					n++
@@ -52,7 +52,7 @@ func TestPlayedFixture(t *testing.T) {
 		t.Fatal("no Patrician house")
 	}
 	plans, roads, fields := 0, 0, 0
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		plans += len(is.Plans)
 		roads += len(is.PlannedRoads)
 		for _, p := range is.Plans {

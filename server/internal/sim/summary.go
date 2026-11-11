@@ -303,7 +303,7 @@ func ProduceSummary(w *World, c *content.Catalogue) *AwaySummary {
 			s.Population[tier] = p
 		}
 	}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		ai := AwayIsland{ID: is.ID, Goods: map[string]AwayGood{}}
 		capMilli := capacityMilli(is, c)
 		flows := a.Flows[is.ID]

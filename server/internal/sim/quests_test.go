@@ -173,7 +173,7 @@ func TestQuestChainAndPermanence(t *testing.T) {
 		}
 	}
 	// Demolishing the house does not un-complete anything.
-	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: w.Islands[0].Buildings[len(w.Islands[0].Buildings)-1].ID})
+	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: w.Islands()[0].Buildings[len(w.Islands()[0].Buildings)-1].ID})
 	mustAdvance(t, w, c, time.Minute)
 	ds = display(t, w, c)
 	if len(w.Quests) != 3 || len(ds.Quests.Active) != 0 || len(ds.Quests.Completed) != 3 ||
@@ -196,7 +196,7 @@ func TestQuestStockThresholdBoundary(t *testing.T) {
 	if err := GrantWorkforce(w, c, "main", "settlers", 20_000); err != nil {
 		t.Fatal(err)
 	}
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	for y := 8; y <= 12; y++ {
 		for x := 20; x <= 28; x++ {
 			is.Tiles[is.index(x, y)].Terrain = content.TerrainForest
@@ -224,8 +224,8 @@ func TestQuestStockThresholdBoundary(t *testing.T) {
 	// Exactly reached at that millisecond, not before.
 	before := w.Clone()
 	mustAdvance(t, before, c, at.Sub(t0)-time.Millisecond)
-	if QuestCompleted(before, "wood") || before.Islands[0].Inventory.fine("wood") >= 3_000*SubPerMilli {
-		t.Fatalf("1 ms before: completed %v stock %d", QuestCompleted(before, "wood"), before.Islands[0].Inventory.Stock["wood"])
+	if QuestCompleted(before, "wood") || before.Islands()[0].Inventory.fine("wood") >= 3_000*SubPerMilli {
+		t.Fatalf("1 ms before: completed %v stock %d", QuestCompleted(before, "wood"), before.Islands()[0].Inventory.Stock["wood"])
 	}
 	// Splits before, at and after the threshold give the same world.
 	for _, split := range []time.Duration{at.Sub(t0) - time.Millisecond, at.Sub(t0), at.Sub(t0) + time.Millisecond, 7 * time.Minute} {
@@ -249,7 +249,7 @@ func TestClaimQuest(t *testing.T) {
 	c := withQuests(withoutQuests(catalogue(t)), goods, gold, never)
 	w := newTown(t, c, 100)
 	placeHouses(t, w, c, 1)
-	w.Islands = append(w.Islands, islandFromRows("empty", "~~~~", "~cc~", "~~~~"))
+	w.SetIslands(append(w.Islands(), islandFromRows("empty", "~~~~", "~cc~", "~~~~"))...)
 	mustAdvance(t, w, c, time.Second)
 
 	for _, tt := range []struct {
@@ -269,11 +269,11 @@ func TestClaimQuest(t *testing.T) {
 	// Goods are credited up to the free committed capacity (300 per good;
 	// 200 planks in stock): 50 fish, 100 of 150 planks, 50 lost.
 	l := NewLedger()
-	g0, fish0 := w.Gold, w.Islands[0].Inventory.Stock["fish"]
+	g0, fish0 := w.Gold, w.Islands()[0].Inventory.Stock["fish"]
 	if err := ApplyWithLedger(w, c, ClaimQuest{QuestID: "goods", IslandID: "main"}, l); err != nil {
 		t.Fatal(err)
 	}
-	inv := w.Islands[0].Inventory
+	inv := w.Islands()[0].Inventory
 	if w.Gold != g0+5_000 || inv.Stock["fish"] != fish0+50_000 || inv.Stock["planks"] != 300_000 {
 		t.Fatalf("gold %d fish %d planks %d", w.Gold, inv.Stock["fish"], inv.Stock["planks"])
 	}

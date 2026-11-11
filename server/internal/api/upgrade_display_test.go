@@ -38,7 +38,7 @@ func TestHouseUpgradeDisplayOverHTTP(t *testing.T) {
 	at := s.Steps[step].Upgrade
 	islandID := at.Island
 	if islandID == "" {
-		islandID = base.Islands[0].ID
+		islandID = base.Islands()[0].ID
 	}
 	houseID := base.Island(islandID).BuildingAt(c, at.X, at.Y).ID
 	citizensCost := c.BuildingByID["house_citizens"].Cost
@@ -139,7 +139,7 @@ func TestHouseUpgradeFlipsAtNextChange(t *testing.T) {
 	at := s.Steps[step].Upgrade
 	islandID := at.Island
 	if islandID == "" {
-		islandID = w.Islands[0].ID
+		islandID = w.Islands()[0].ID
 	}
 	houseID := w.Island(islandID).BuildingAt(c, at.X, at.Y).ID
 	w.Gold = c.BuildingByID["house_citizens"].Cost.Gold - 1

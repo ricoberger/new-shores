@@ -101,7 +101,7 @@ func equalIDs(a, b []int64) bool { return slices.Equal(a, b) }
 func insolventTown(t *testing.T, c *content.Catalogue) (w *World, fisher, weaver, sawmill, sheep, lumberjack int64) {
 	t.Helper()
 	w = newTown(t, c, 1)
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	for y := 8; y <= 12; y++ {
 		for x := 20; x <= 28; x++ {
 			is.Tiles[is.index(x, y)].Terrain = content.TerrainForest
@@ -133,7 +133,7 @@ func TestAutoPauseCascadeAndHeldGold(t *testing.T) {
 		t.Errorf("pause order = %v, want %v", got, want)
 	}
 	for i, id := range want {
-		b := w.Islands[0].Building(id)
+		b := w.Islands()[0].Building(id)
 		if !b.Paused || b.PausedReason != PausedReasonUnpaid || b.PauseSeq != int64(i+1) || !bs[i+1].At.Equal(bs[0].At) {
 			t.Errorf("building %d = %+v at %s", id, b, bs[i+1].At)
 		}
@@ -154,7 +154,7 @@ func TestAutoPauseCascadeAndHeldGold(t *testing.T) {
 	// A manually resumed unpaid building is paused again at once.
 	mustApply(t, w, c, SetPaused{IslandID: "main", BuildingID: fisher, Paused: false})
 	bs = mustAdvance(t, w, c, time.Millisecond)
-	if got := pauseEvents(bs, BoundaryAutoPause); !equalIDs(got, []int64{fisher}) || w.Islands[0].Building(fisher).PauseSeq != 6 {
+	if got := pauseEvents(bs, BoundaryAutoPause); !equalIDs(got, []int64{fisher}) || w.Islands()[0].Building(fisher).PauseSeq != 6 {
 		t.Errorf("re-pause after manual resume: %v", bs)
 	}
 }
@@ -185,7 +185,7 @@ func TestAutoPauseSupplyGuards(t *testing.T) {
 		if got := pauseEvents(bs, BoundaryAutoPause); !equalIDs(got, want) {
 			t.Fatalf("second fisher %v: pause order = %v, want %v", second, got, want)
 		}
-		is := w.Islands[0]
+		is := w.Islands()[0]
 		kept := fisher
 		if second {
 			kept = fisher2
@@ -247,7 +247,7 @@ func TestAutoResumeOrderAndHysteresis(t *testing.T) {
 		t.Errorf("resume order = %v", got)
 	}
 	for _, id := range []int64{lumberjack, weaver} {
-		if b := w.Islands[0].Building(id); !b.Paused || b.PausedReason != PausedReasonUnpaid {
+		if b := w.Islands()[0].Building(id); !b.Paused || b.PausedReason != PausedReasonUnpaid {
 			t.Errorf("building %d resumed: %+v", id, b)
 		}
 	}
@@ -271,10 +271,10 @@ func TestAutoResumeOrderAndHysteresis(t *testing.T) {
 	}
 	before := replay(first.Sub(start) - time.Millisecond)
 	at := replay(first.Sub(start))
-	if b := before.Islands[0].Building(fisher); !b.Paused || before.goldFine() >= 5_000*GoldSubPerMilli {
+	if b := before.Islands()[0].Building(fisher); !b.Paused || before.goldFine() >= 5_000*GoldSubPerMilli {
 		t.Errorf("1 ms before resume: paused %v gold %d", b.Paused, before.Gold)
 	}
-	if b := at.Islands[0].Building(fisher); b.Paused || at.goldFine() < 5_000*GoldSubPerMilli {
+	if b := at.Islands()[0].Building(fisher); b.Paused || at.goldFine() < 5_000*GoldSubPerMilli {
 		t.Errorf("at resume: paused %v gold %d", b.Paused, at.Gold)
 	}
 }
@@ -294,7 +294,7 @@ func TestSupplyGuardCutOffInput(t *testing.T) {
 		{"cut off", func(*World) {}, false},
 		{"wool in stock", func(w *World) { addStock(t, w, c, "wool", 20) }, true},
 		{"paused sheep farm", func(w *World) {
-			b := w.Islands[0].Building(placeFree(t, w, c, "sheep_farm", 24, 5, 180))
+			b := w.Islands()[0].Building(placeFree(t, w, c, "sheep_farm", 24, 5, 180))
 			b.Paused, b.PausedReason = true, PausedReasonPlayer
 		}, true},
 	} {
@@ -313,7 +313,7 @@ func TestSupplyGuardCutOffInput(t *testing.T) {
 		if !equalIDs(got, want) {
 			t.Errorf("%s: pauses %v, want %v", tc.name, got, want)
 		}
-		if w.Islands[0].Building(fisher).Paused {
+		if w.Islands()[0].Building(fisher).Paused {
 			t.Errorf("%s: the last fisher paused", tc.name)
 		}
 	}
@@ -335,7 +335,7 @@ func TestResumeSkipsCutOffProducer(t *testing.T) {
 	weaver := placeFree(t, w, c, "weaver_wool", 21, 2, 0)
 	sawmill := placeFree(t, w, c, "sawmill", 24, 2, 0)
 	addStock(t, w, c, "wood", 50)
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	now := w.LastEvaluatedAt.UnixMilli()
 	for i, id := range []int64{sawmill, weaver} {
 		b := is.Building(id)
@@ -373,7 +373,7 @@ func TestResumeSkipsCutOffProducer(t *testing.T) {
 	// sawmill resumes; with the sheep farm the weaver (paused last)
 	// resumes first.
 	cut := w.Clone()
-	cis := cut.Islands[0]
+	cis := cut.Islands()[0]
 	cis.Buildings = slices.DeleteFunc(cis.Buildings, func(b *Building) bool { return b.ID == sheep })
 	for _, x := range []*World{w, cut} {
 		x.Gold = 1_000_000
@@ -421,7 +421,7 @@ func TestPublicBuildingPauseHysteresis(t *testing.T) {
 	// upkeep) the market resumes and satisfaction returns to 1.
 	bs = mustAdvance(t, w, c, 3*time.Hour)
 	resumes := pauseEvents(bs, BoundaryAutoResume)
-	if !equalIDs(resumes, []int64{market}) || countKind(bs, BoundaryAutoPause) != 0 || w.Islands[0].Building(weaver).Paused {
+	if !equalIDs(resumes, []int64{market}) || countKind(bs, BoundaryAutoPause) != 0 || w.Islands()[0].Building(weaver).Paused {
 		t.Fatalf("resumes %v, %d pauses: %+v", resumes, countKind(bs, BoundaryAutoPause), bs)
 	}
 	var at time.Time
@@ -445,12 +445,12 @@ func TestPublicBuildingPauseHysteresis(t *testing.T) {
 	addStock(t, w2, c, "wool_garments", 100)
 	addStock(t, w2, c, "wool", 200)
 	mustAdvance(t, w2, c, at.Sub(t0)-time.Millisecond)
-	if !w2.Islands[0].Building(market).Paused || w2.goldFine() >= 15_000*GoldSubPerMilli {
+	if !w2.Islands()[0].Building(market).Paused || w2.goldFine() >= 15_000*GoldSubPerMilli {
 		t.Fatalf("1 ms before resume: gold %d", w2.Gold)
 	}
 	mustAdvance(t, w2, c, time.Millisecond)
 	ds = display(t, w2, c)
-	if w2.Islands[0].Building(market).Paused || w2.goldFine() < 15_000*GoldSubPerMilli || ds.BalanceRatePerMin <= 0 {
+	if w2.Islands()[0].Building(market).Paused || w2.goldFine() < 15_000*GoldSubPerMilli || ds.BalanceRatePerMin <= 0 {
 		t.Fatalf("at resume: gold %d balance %d", w2.Gold, ds.BalanceRatePerMin)
 	}
 	gold := w2.goldFine()
@@ -545,16 +545,16 @@ func TestUpgradeHouse(t *testing.T) {
 	w.Gold = 199_999
 	expectErr(t, w, c, cmd, ErrInsufficientGold)
 	w.Gold = 1_000_000
-	planks := w.Islands[0].Inventory.Stock["planks"]
+	planks := w.Islands()[0].Inventory.Stock["planks"]
 	mustApply(t, w, c, cmd)
-	b := w.Islands[0].Building(h)
+	b := w.Islands()[0].Building(h)
 	// Residents stay on upgrade (D-074 §2): 8 of the Settlers' 8, within
 	// the Citizens' 5–15; the accumulator resets.
 	if b.Type != "house_citizens" || b.House.Residents != 8_000 || b.House.Growth != 0 || b.X != 9 || b.Y != 2 {
 		t.Errorf("upgraded = %+v %+v", b, b.House)
 	}
-	if w.Gold != 800_000 || w.Islands[0].Inventory.Stock["planks"] != planks-15_000 {
-		t.Errorf("gold %d planks %d", w.Gold, w.Islands[0].Inventory.Stock["planks"])
+	if w.Gold != 800_000 || w.Islands()[0].Inventory.Stock["planks"] != planks-15_000 {
+		t.Errorf("gold %d planks %d", w.Gold, w.Islands()[0].Inventory.Stock["planks"])
 	}
 	// Citizens have no next tier with a house (merchants is declared only).
 	b.House.Residents = 15_000
@@ -681,13 +681,13 @@ func TestDisplayPopulationFields(t *testing.T) {
 	placeFree(t, w, c, "market_small", 17, 1, 0)
 	addStock(t, w, c, "fish", 100)
 	addStock(t, w, c, "wool_garments", 100)
-	for _, hs := range w.Islands[0].Buildings {
+	for _, hs := range w.Islands()[0].Buildings {
 		if hs.House != nil {
 			hs.House.Residents = 8_000
 		}
 	}
 	f = placeFree(t, w, c, "fisher", 6, 1, 0)
-	fb := w.Islands[0].Building(f)
+	fb := w.Islands()[0].Building(f)
 	w.PauseSeq, fb.Paused, fb.PausedReason, fb.PauseSeq = 1, true, PausedReasonUnpaid, 1
 	// Balance 12.8 - 7 = 5.8 gold/min; 5 gold after ceil(5000*60000/5800)
 	// ms = 51 725 ms.
@@ -713,7 +713,7 @@ func TestPropertyCoverageMonotonic(t *testing.T) {
 		p.run(false)
 		for _, good := range []string{"fish", "bread", "wool_garments"} {
 			w := p.w.Clone()
-			if committedFine(w.Islands[0], good, w.LastEvaluatedAt.UnixMilli())+1000*SubPerMilli > capacityFine(w.Islands[0], c) {
+			if committedFine(w.Islands()[0], good, w.LastEvaluatedAt.UnixMilli())+1000*SubPerMilli > capacityFine(w.Islands()[0], c) {
 				continue
 			}
 			before := display(t, w, c)
@@ -762,7 +762,7 @@ func fishWeaverTown(t *testing.T, fishPerMin Qty) (*content.Catalogue, *World, i
 	placeFree(t, w, c, "market_small", 17, 1, 0)
 	wv := placeFree(t, w, c, "weaver_wool", 21, 2, 0)
 	addStock(t, w, c, "wool_garments", 100)
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	now := w.LastEvaluatedAt.UnixMilli()
 	b := is.Building(wv)
 	b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = true, PausedReasonUnpaid, 1, now-1
@@ -786,7 +786,7 @@ func TestResumeNeedsRecomputedBalance(t *testing.T) {
 		t.Fatalf("weaver = %+v", b)
 	}
 	bs := mustAdvance(t, w, c, time.Hour)
-	if countKind(bs, BoundaryAutoResume) != 0 || countKind(bs, BoundaryGoldReserve) != 0 || !w.Islands[0].Building(wv).Paused {
+	if countKind(bs, BoundaryAutoResume) != 0 || countKind(bs, BoundaryGoldReserve) != 0 || !w.Islands()[0].Building(wv).Paused {
 		t.Errorf("weaver resumed: %+v", bs)
 	}
 }
@@ -833,12 +833,12 @@ func TestResumeRegimeBasedNotStockBased(t *testing.T) {
 func TestNoResumeAtPauseInstant(t *testing.T) {
 	c, w, wv := fishWeaverTown(t, 650) // 1000 gold, eligible weaver
 	now := w.LastEvaluatedAt.UnixMilli()
-	w.Islands[0].Building(wv).PausedAtMs = now
+	w.Islands()[0].Building(wv).PausedAtMs = now
 
 	before := encode(t, w)
 	cw := w.Clone()
 	settleWorld(cw, c, now)
-	if !cw.Islands[0].Building(wv).Paused {
+	if !cw.Islands()[0].Building(wv).Paused {
 		t.Fatal("resumed at the pause instant")
 	}
 	settled := encode(t, cw)

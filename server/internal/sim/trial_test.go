@@ -32,13 +32,13 @@ func trialTown(t *testing.T, connectFisher bool) (*content.Catalogue, *World, in
 	fisher := placeFree(t, w, c, "fisher", 6, 1, 0)
 	// No gold: the cascade pauses the sawmill at t0. The fisher is
 	// unpaid from t0 too, paused last (tier-1 food).
-	b := w.Islands[0].Building(fisher)
+	b := w.Islands()[0].Building(fisher)
 	b.Paused, b.PausedReason, b.PausedAtMs = true, PausedReasonUnpaid, w.LastEvaluatedAt.UnixMilli()
 	mustAdvance(t, w, c, time.Millisecond)
 	w.PauseSeq++
 	b.PauseSeq = w.PauseSeq
 	for _, id := range []int64{sawmill, fisher} {
-		if b := w.Islands[0].Building(id); !b.Paused || b.PausedReason != PausedReasonUnpaid {
+		if b := w.Islands()[0].Building(id); !b.Paused || b.PausedReason != PausedReasonUnpaid {
 			t.Fatalf("building %d not unpaid: %+v", id, b)
 		}
 	}
@@ -90,8 +90,8 @@ func TestTrialResume(t *testing.T) {
 			t.Errorf("the sawmill needed a trial: %+v", b)
 		}
 	}
-	if trials != 1 || !w.Islands[0].Building(sawmill).Paused || w.Islands[0].Building(fisher).Paused {
-		t.Fatalf("trials %d, sawmill paused %v, fisher paused %v", trials, w.Islands[0].Building(sawmill).Paused, w.Islands[0].Building(fisher).Paused)
+	if trials != 1 || !w.Islands()[0].Building(sawmill).Paused || w.Islands()[0].Building(fisher).Paused {
+		t.Fatalf("trials %d, sawmill paused %v, fisher paused %v", trials, w.Islands()[0].Building(sawmill).Paused, w.Islands()[0].Building(fisher).Paused)
 	}
 	if ds := display(t, w, c); ds.BalanceRatePerMin < 0 || ds.Insolvency.UnpaidBuildings != 1 {
 		t.Errorf("after recovery: balance %d insolvency %+v", ds.BalanceRatePerMin, ds.Insolvency)
@@ -103,7 +103,7 @@ func TestTrialResume(t *testing.T) {
 	if _, err := Advance(before, c, trialAt.Add(-time.Millisecond)); err != nil {
 		t.Fatal(err)
 	}
-	if !before.Islands[0].Building(fisher).Paused {
+	if !before.Islands()[0].Building(fisher).Paused {
 		t.Fatal("trial before the reserve")
 	}
 	for _, split := range []time.Duration{-time.Millisecond, 0, time.Millisecond, time.Minute} {
@@ -130,7 +130,7 @@ func TestTrialResume(t *testing.T) {
 // TestStallRecoveryNoTransit, TestStallRecoveryOffline24h.)
 func TestTrialResumeGuarded(t *testing.T) {
 	c, w, fisher, sawmill := trialTown(t, false)
-	buildings := len(w.Islands[0].Buildings)
+	buildings := len(w.Islands()[0].Buildings)
 	bs := mustAdvance(t, w, c, 24*time.Hour)
 	var trials, repauses int
 	var trialAt time.Time
@@ -149,7 +149,7 @@ func TestTrialResumeGuarded(t *testing.T) {
 	if trials != 1 || repauses != 0 {
 		t.Fatalf("trials %d, re-pauses %d in %v", trials, repauses, bs)
 	}
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	if is.Building(fisher).Paused || !is.Building(sawmill).Paused {
 		t.Errorf("fisher paused %v, sawmill paused %v", is.Building(fisher).Paused, is.Building(sawmill).Paused)
 	}
@@ -178,7 +178,7 @@ func trialCatalogue(t *testing.T) *content.Catalogue {
 func (p *propCase) trialWorld() *World {
 	p.l = NewLedger()
 	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
-	w.Islands = []*Island{islandFromRows("main", townRows()...)}
+	w.SetIslands(islandFromRows("main", townRows()...))
 	free := func(typ string, x, y, rot int) {
 		if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "main", Type: typ, X: x, Y: y, Rotation: rot}, p.l); err != nil {
 			p.fail("trial %s: %v", typ, err)

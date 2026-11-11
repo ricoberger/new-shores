@@ -39,7 +39,7 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	at := s.Steps[upgrade].Upgrade
 	islandID := at.Island
 	if islandID == "" {
-		islandID = w.Islands[0].ID
+		islandID = w.Islands()[0].ID
 	}
 	house := w.Island(islandID).BuildingAt(c, at.X, at.Y)
 	if house == nil || house.Type != "house_settlers" {

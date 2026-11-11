@@ -901,10 +901,39 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
   `harbour_blocked`. A crane (shorter handling) is deferred (D-060). The Trading Post panel shows berths
   busy/free and the queue; a waiting ship shows "waiting for berth".
 
+### 9.4 Regions and passages (D-076)
+
+- A world holds one or more **regions** (`World.regions`, in the order of
+  `content/regions.json`, the home region `old_coast` first). Each
+  region is its own archipelago with its own map: `id`, `seed` (world
+  seed + region index; the home region's is the world seed), `unlocked`
+  (the home region always), `passage_point` (the sea position where a
+  ship from a passage enters the map: the generator's start position;
+  unset in a world migrated from schema 15) and its `islands`. Island
+  positions are region coordinates; an island ID is unique in the world
+  and carries its region's prefix (`oc-01`). Every island and ship
+  records its `region_id`.
+- **Per world:** gold, ships, routes, quests, warnings and the away
+  summary; **per region:** archipelago, islands, passage point (D-076 §5;
+  population unlocks become per region with a second region, today the
+  world's population is the home region's, §12).
+- A **passage** is an off-map leg between two regions with the fixed
+  time of the region pair (`passages[]` in `regions.json`): no path, the
+  ship is "between regions" (`region_id` unset, `leg.passage`), it
+  enters the other region at its passage point and sails the normal sea
+  route from there. The shipped content lists one region and no passage,
+  so no passage leg exists yet; the expedition that opens a region
+  (Kontor, D-076 §2) comes with its own decision. `Advance` treats the
+  regions' islands as one list (`World.Islands()`); generation is per
+  region (`archipelago.GenerateRegion`), a region's archipelago is
+  generated when it is opened.
+
 ## 10. Islands, archipelago and settling (D-016, D-051)
 
 - Each archipelago is generated from a **seed stored on the world**
-  (D-053) by a pure function of seed and content: **12 habitable islands**
+  (D-053; a region's archipelago from world seed + region index, §9.4,
+  the home region's from the world seed, island IDs `<prefix>-NN` with
+  the region's prefix) by a pure function of seed and content: **12 habitable islands**
   (3 large ≈ 250×250, 5 medium ≈ 163×163, 4 small ≈ 106×106 extents;
   Anno 117 buildable areas, D-072) plus 6–12
   **skerries** (below; no resource rocks, D-073). Each island gets
@@ -1004,7 +1033,9 @@ all of the tier's `unlock` conditions in content hold:
 { "population": { "settlers": 120 } }
 ```
 
-Conditions are evaluated against the player's whole archipelago at the end
+Conditions are evaluated against the player's whole archipelago (with
+one region the home region's; per region once a second exists, D-076
+§5) at the end
 of every advancement and after every successful command; `population`
 keys must be earlier tiers. The first tier is always unlocked. Unlocks are
 permanent (no regression) and have no rate effect; the unlock moment is

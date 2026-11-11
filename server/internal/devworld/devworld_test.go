@@ -46,13 +46,13 @@ func TestNewIsTheSeededArchipelago(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !reflect.DeepEqual(w.Islands, a.Islands) {
+	if !reflect.DeepEqual(w.Islands(), a.Islands) {
 		t.Error("world islands differ from the generated archipelago")
 	}
 	if w.Seed != DevSeed || w.ArchipelagoRoll != 0 || !w.LastEvaluatedAt.Equal(start.Truncate(time.Millisecond)) {
 		t.Errorf("seed %d roll %d evaluated %s", w.Seed, w.ArchipelagoRoll, w.LastEvaluatedAt)
 	}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		if len(is.Buildings) != 0 {
 			t.Errorf("%s is settled", is.ID)
 		}

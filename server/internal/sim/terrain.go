@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
@@ -107,11 +108,20 @@ func digit(b byte) (int, bool) {
 	return int(b - '0'), true
 }
 
+// regionPrefix returns the region prefix of a generated island ID
+// ("oc-01" -> "oc"). DecodeTerrain matches a terrain written before the
+// D-076 rename (the former isle prefix) by the digits: the terrain is stored apart from
+// the state and not migrated (migrate15to16).
+func regionPrefix(id string) string {
+	head, _, _ := strings.Cut(id, "-")
+	return head
+}
+
 // EncodeTerrain returns the gzip-compressed terrain of the world's islands.
 // The output is deterministic.
 func EncodeTerrain(w *World) ([]byte, error) {
 	var doc terrainDoc
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		if len(is.Tiles) != is.Width*is.Height {
 			return nil, fmt.Errorf("encode terrain: island %q has %d tiles for %dx%d", is.ID, len(is.Tiles), is.Width, is.Height)
 		}
@@ -178,12 +188,12 @@ func AttachTerrain(w *World, data []byte) error {
 	if err := json.Unmarshal(raw.Bytes(), &doc); err != nil {
 		return fmt.Errorf("decode terrain: %w", err)
 	}
-	if len(doc.Islands) != len(w.Islands) {
-		return fmt.Errorf("decode terrain: %d islands for a world of %d", len(doc.Islands), len(w.Islands))
+	if len(doc.Islands) != len(w.Islands()) {
+		return fmt.Errorf("decode terrain: %d islands for a world of %d", len(doc.Islands), len(w.Islands()))
 	}
 	for k, ti := range doc.Islands {
-		is := w.Islands[k]
-		if ti.ID != is.ID || ti.Width != is.Width || ti.Height != is.Height || len(ti.Rows) != ti.Width*ti.Height {
+		is := w.Islands()[k]
+		if (ti.ID != is.ID && prefixedIslandID(ti.ID, regionPrefix(is.ID)) != is.ID) || ti.Width != is.Width || ti.Height != is.Height || len(ti.Rows) != ti.Width*ti.Height {
 			return fmt.Errorf("decode terrain: island %q %dx%d (%d tiles) does not match %q %dx%d",
 				ti.ID, ti.Width, ti.Height, len(ti.Rows), is.ID, is.Width, is.Height)
 		}
@@ -228,11 +238,16 @@ func EncodeState(w *World, contentVersion string) (state, terrain []byte, err er
 		return nil, nil, err
 	}
 	bare := *w
-	bare.Islands = make([]*Island, len(w.Islands))
-	for i, is := range w.Islands {
-		c := *is
-		c.Tiles = nil
-		bare.Islands[i] = &c
+	bare.Regions = make([]*Region, len(w.Regions))
+	for i, r := range w.Regions {
+		br := *r
+		br.Islands = make([]*Island, len(r.Islands))
+		for j, is := range r.Islands {
+			c := *is
+			c.Tiles = nil
+			br.Islands[j] = &c
+		}
+		bare.Regions[i] = &br
 	}
 	state, err = Encode(&bare, contentVersion)
 	if err != nil {
@@ -250,7 +265,7 @@ func DecodeState(state, terrain []byte, c *content.Catalogue) (*World, string, M
 		return nil, "", notes, err
 	}
 	if terrain == nil {
-		if slices.ContainsFunc(w.Islands, func(is *Island) bool { return len(is.Tiles) != is.Width*is.Height }) {
+		if slices.ContainsFunc(w.Islands(), func(is *Island) bool { return len(is.Tiles) != is.Width*is.Height }) {
 			return nil, "", notes, fmt.Errorf("decode state: islands without terrain")
 		}
 		return w, cv, notes, nil

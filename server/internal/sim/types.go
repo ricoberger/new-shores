@@ -67,7 +67,10 @@ type World struct {
 	// seaGrid is the sea grid lent by the API layer for the duration of a
 	// display (SetSeaGrid); never serialised or part of the world's state.
 	seaGrid *seaGrid
-	Islands []*Island `json:"islands"`
+	// Regions are the archipelagos of the world in content order
+	// (regions.json, D-076), the home region first; every island belongs
+	// to exactly one. Islands() lists the islands of all regions.
+	Regions []*Region `json:"regions"`
 	// Seed is the archipelago seed of a generated world (D-053), 0 for a
 	// hand-made one (scenarios). ArchipelagoRoll counts the re-rolls
 	// (reroll_archipelago): the current islands are generated from
@@ -115,9 +118,35 @@ type World struct {
 	PendingSummary *AwaySummary `json:"pending_summary,omitempty"`
 }
 
+// Region is one archipelago of a world (D-076): its own map (island
+// positions are region coordinates), camera and passage point. Gold,
+// ships, routes and quests belong to the world; islands, population and
+// tiers to the region.
+type Region struct {
+	// ID is the content region ID (regions.json); "" for a hand-made
+	// world without content regions (tests).
+	ID string `json:"id"`
+	// Seed is the region's archipelago seed: the world seed plus the
+	// region index (the home region's is the world seed); 0 for a
+	// hand-made world. The home region's islands come from
+	// RollSeed(Seed, World.ArchipelagoRoll).
+	Seed uint64 `json:"seed,omitempty"`
+	// Unlocked: the home region always; a later region once it is opened
+	// (D-076 §2, not built yet).
+	Unlocked bool `json:"unlocked"`
+	// PassagePoint is the sea position (region tiles) where a ship from a
+	// passage enters the region's map: the generator's start position;
+	// nil when unknown (a world migrated from schema 15, migrate15to16).
+	PassagePoint *Pos `json:"passage_point,omitempty"`
+	// Islands of the region; IDs are unique across the world.
+	Islands []*Island `json:"islands"`
+}
+
 // Island is a tile grid with its buildings, roads and shared inventory.
 type Island struct {
 	ID string `json:"id"`
+	// RegionID is the region the island belongs to (Region.ID).
+	RegionID string `json:"region_id"`
 	// Name is the display name of the island (optional); generated
 	// islands draw it from the content word list, the owner may rename a
 	// settled island (D-053).
@@ -288,9 +317,78 @@ type Pos struct {
 	Y int `json:"y"`
 }
 
+// Islands returns the islands of every region in region order (D-076).
+// With one region it is that region's slice; callers never modify it
+// (SetIslands, AddIsland and ReplaceIsland change the islands).
+func (w *World) Islands() []*Island {
+	switch len(w.Regions) {
+	case 0:
+		return nil
+	case 1:
+		return w.Regions[0].Islands
+	}
+	var out []*Island
+	for _, r := range w.Regions {
+		out = append(out, r.Islands...)
+	}
+	return out
+}
+
+// Region returns the region with the given ID or nil.
+func (w *World) Region(id string) *Region {
+	for _, r := range w.Regions {
+		if r.ID == id {
+			return r
+		}
+	}
+	return nil
+}
+
+// HomeRegion returns the home region (the first), creating an unlocked
+// one with ID "" for a world without regions (hand-made test worlds).
+func (w *World) HomeRegion() *Region {
+	if len(w.Regions) == 0 {
+		w.Regions = []*Region{{Unlocked: true}}
+	}
+	return w.Regions[0]
+}
+
+// SetIslands replaces the islands of region r, stamping their RegionID.
+func (r *Region) SetIslands(islands []*Island) {
+	for _, is := range islands {
+		is.RegionID = r.ID
+	}
+	r.Islands = islands
+}
+
+// SetIslands replaces the islands of the home region (HomeRegion).
+func (w *World) SetIslands(islands ...*Island) { w.HomeRegion().SetIslands(islands) }
+
+// AddIsland appends an island to the home region (HomeRegion).
+func (w *World) AddIsland(is *Island) {
+	r := w.HomeRegion()
+	is.RegionID = r.ID
+	r.Islands = append(r.Islands, is)
+}
+
+// ReplaceIsland puts is in place of the island with the same ID (in its
+// region); it reports whether there was one.
+func (w *World) ReplaceIsland(is *Island) bool {
+	for _, r := range w.Regions {
+		for i, old := range r.Islands {
+			if old.ID == is.ID {
+				is.RegionID = r.ID
+				r.Islands[i] = is
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // Island returns the island with the given ID or nil.
 func (w *World) Island(id string) *Island {
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		if is.ID == id {
 			return is
 		}
@@ -437,9 +535,18 @@ func (w *World) Clone() *World {
 	if w.UnlockedTiers != nil {
 		c.UnlockedTiers = append([]string(nil), w.UnlockedTiers...)
 	}
-	c.Islands = make([]*Island, len(w.Islands))
-	for i, is := range w.Islands {
-		c.Islands[i] = is.clone()
+	c.Regions = make([]*Region, len(w.Regions))
+	for i, r := range w.Regions {
+		cr := *r
+		if r.PassagePoint != nil {
+			p := *r.PassagePoint
+			cr.PassagePoint = &p
+		}
+		cr.Islands = make([]*Island, len(r.Islands))
+		for j, is := range r.Islands {
+			cr.Islands[j] = is.clone()
+		}
+		c.Regions[i] = &cr
 	}
 	if w.Ships != nil {
 		c.Ships = make([]*Ship, len(w.Ships))

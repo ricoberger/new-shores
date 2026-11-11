@@ -120,8 +120,11 @@ gone).
 
 ### 4.1 Simulation package (`internal/sim`)
 
-- `type World struct` — islands, buildings, inventories, houses, ships, routes,
-  gold, rng state, `LastEvaluatedAt`. Serialises to the JSONB column via a
+- `type World struct` — regions (D-076: `World.Regions[]`, each with its
+  ID, seed, unlocked flag, passage point and islands; `World.Islands()`
+  lists the islands of all regions, so `Advance` sees one list),
+  buildings, inventories, houses, ships, routes, gold, rng state,
+  `LastEvaluatedAt`. Serialises to the JSONB column via a
   versioned envelope `{schema_version, content_version, world}`.
 - `func Advance(w *World, c *content.Catalogue, to time.Time) ([]Boundary, error)`
   — pure; returns the boundary list for debugging/UI; `to` before
@@ -202,9 +205,12 @@ return Display(w, now)
   are pure functions over the raw envelope that may take the content
   catalogue and return **notes** (e.g. the 2→3 fields migration reports
   farms whose efficiency could not be preserved); the store logs the
-  notes, the sim never does. Current schema: 8; the only registered
-  migration is 7→8 (default ship names, D-055) — older versions were
-  bumped without a migration (local databases are recreated). **Rule
+  notes, the sim never does. Current schema: 16; the registered
+  migrations are 14→15 (plans, D-071) and 15→16 (regions, D-076: the
+  islands move into `regions[0]`, generated island IDs get the region
+  prefix, islands and ships get `region_id`; the separately stored
+  terrain is matched by the IDs' digits) — older versions were bumped
+  without a migration (local databases are recreated). **Rule
   while undeployed:** a trivial additive migration (a defaulted field)
   may be written when it is cheaper than a reset; structural changes
   (envelope layout, tiles, islands) bump the schema without a migration

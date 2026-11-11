@@ -150,7 +150,7 @@ func balanceAfterResume(w *World, c *content.Catalogue, now int64, p pauseTarget
 	if p.s != nil {
 		balance -= p.upkeep(c)
 	}
-	for _, ois := range w.Islands {
+	for _, ois := range w.Islands() {
 		cis := ois.clone()
 		if p.b != nil && ois == p.is {
 			cb := cis.Building(p.b.ID)
@@ -173,7 +173,7 @@ func balanceAllResumed(w *World, c *content.Catalogue, now int64) int64 {
 			balance -= def.UpkeepPerMin
 		}
 	}
-	for _, ois := range w.Islands {
+	for _, ois := range w.Islands() {
 		cis := ois.clone()
 		for _, b := range cis.Buildings {
 			if b.Paused && b.PausedReason == PausedReasonUnpaid {
@@ -200,7 +200,7 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 	var events []Boundary
 	applyDue(w, c, now, l)
 	normalizeShips(w, now)
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		w.Away.addPopulation(normalizeHouses(is, c))
 	}
 	// insolvent is set once gold cannot cover the balance: from then on the
@@ -213,8 +213,8 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 	// guards against a broken invariant.
 	limit := 4 * (countBuildings(w) + len(w.Ships) + 1)
 	for iter := 0; ; iter++ {
-		wr = &worldRates{islands: make([]*rates, len(w.Islands))}
-		for i, is := range w.Islands {
+		wr = &worldRates{islands: make([]*rates, len(w.Islands()))}
+		for i, is := range w.Islands() {
 			r := settle(is, c, now)
 			wr.islands[i] = r
 			wr.tax += r.tax
@@ -288,7 +288,7 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 
 func countBuildings(w *World) int {
 	n := 0
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		n += len(is.Buildings)
 	}
 	return n
@@ -456,7 +456,7 @@ func pauseCandidate(w *World, c *content.Catalogue, wr *worldRates, now int64) p
 		}
 		return 0
 	}
-	for i, is := range w.Islands {
+	for i, is := range w.Islands() {
 		var guards map[int64]bool
 		if wr != nil && i < len(wr.islands) && wr.islands[i] != nil {
 			guards = supplyGuards(is, c, wr.islands[i], now)
@@ -497,7 +497,7 @@ func pauseCandidate(w *World, c *content.Catalogue, wr *worldRates, now int64) p
 func resumeCandidate(w *World, c *content.Catalogue, now int64) pauseTarget {
 	var best pauseTarget
 	var seq int64
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		var cut *inputCutOff
 		for _, b := range is.Buildings {
 			if !b.Paused || b.PausedReason != PausedReasonUnpaid || (best.valid() && b.PauseSeq <= seq) {
@@ -556,7 +556,7 @@ func WorldPopulation(w *World, c *content.Catalogue) map[string]int64 {
 // worldPopulation returns the residents (milli) per tier over all islands.
 func worldPopulation(w *World, c *content.Catalogue) map[string]Qty {
 	pop := map[string]Qty{}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for tier, n := range islandPopulation(is, c) {
 			pop[tier] += n
 		}
@@ -585,7 +585,7 @@ func evaluateTier(w *World, c *content.Catalogue, t *content.Tier, pop map[strin
 	for _, id := range t.Unlock.Buildings {
 		st.buildings[id] = false
 	}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for _, b := range is.Buildings {
 			if _, ok := st.buildings[b.Type]; ok {
 				st.buildings[b.Type] = true

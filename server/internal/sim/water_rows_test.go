@@ -181,7 +181,7 @@ func TestWaterRows(t *testing.T) {
 				// Placement consumes valid quay tiles without refund and leaves
 				// every failed command byte-identical.
 				w := NewWorld(t0)
-				w.Islands = []*Island{is}
+				w.SetIslands(is)
 				before := encode(t, w)
 				err = PlaceFree(w, c, PlaceBuilding{IslandID: is.ID, Type: def.ID, X: x, Y: y, Rotation: rotation}, nil)
 				if !errors.Is(err, tc.want) {

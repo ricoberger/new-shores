@@ -13,8 +13,8 @@ import (
 func TestTerrainRoundTrip(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
-	w.Islands = append(w.Islands, islandFromRows("rock", "~~~~", "~mf~", "~c.~", "~~~~"))
-	w.Islands[1].Tiles[5].Deposit = &Deposit{Kind: "stone", Quantity: -1}
+	w.SetIslands(append(w.Islands(), islandFromRows("rock", "~~~~", "~mf~", "~c.~", "~~~~"))...)
+	w.Islands()[1].Tiles[5].Deposit = &Deposit{Kind: "stone", Quantity: -1}
 	full := encode(t, w)
 	state, terrain, err := EncodeState(w, "test")
 	if err != nil {
@@ -49,7 +49,7 @@ func TestTerrainRoundTrip(t *testing.T) {
 	if _, _, _, err := DecodeState(state, []byte("not gzip"), c); err == nil {
 		t.Error("corrupt terrain decoded")
 	}
-	w.Islands[1].Tiles[0].Terrain = "lava"
+	w.Islands()[1].Tiles[0].Terrain = "lava"
 	if _, _, err := EncodeState(w, "test"); err == nil {
 		t.Error("unknown terrain encoded")
 	}

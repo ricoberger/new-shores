@@ -84,6 +84,10 @@ type Ship struct {
 	// until the player renames it (rename_ship; empty restores the default).
 	Name  string `json:"name"`
 	State string `json:"state"`
+	// RegionID is the region whose map the ship is on (D-076): the
+	// region of its island, leg or sea position; "" on a passage leg
+	// (Leg.Passage), which is on no map.
+	RegionID string `json:"region_id,omitempty"`
 	// IslandID is where the ship is ("" while travelling or at sea).
 	IslandID string `json:"island_id,omitempty"`
 	// AtSea is the archipelago position (tiles) of an idle ship that is at
@@ -134,6 +138,11 @@ type Leg struct {
 	// harbour (or From) around land to the destination's (Ends, SeaRoute);
 	// its length sets the travel time (PathMs).
 	Path []Pos `json:"path,omitempty"`
+	// Passage marks an off-map leg between two regions (D-076 §1): no
+	// path, the fixed passage time of the region pair, the ship is
+	// "between regions". No passage exists while the content lists one
+	// region.
+	Passage bool `json:"passage,omitempty"`
 }
 
 // Slot is one cargo slot holding Amount milli-units of Good.
@@ -455,7 +464,7 @@ type dueEvent struct {
 
 func dueList(w *World) []dueEvent {
 	var out []dueEvent
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for _, b := range is.Buildings {
 			if b.Order != nil {
 				out = append(out, dueEvent{DueEvent{Kind: DueShipBuilt, IslandID: is.ID, BuildingID: b.ID}, b.Order.DueAtMs})
@@ -586,7 +595,7 @@ func applyShipBuilt(w *World, c *content.Catalogue, is *Island, b *Building) {
 	if w.NextShipID < 1 {
 		w.NextShipID = 1
 	}
-	w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: typ, Name: DefaultShipName(c, typ, w.NextShipID), State: ShipIdle, IslandID: is.ID})
+	w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: typ, Name: DefaultShipName(c, typ, w.NextShipID), State: ShipIdle, RegionID: is.RegionID, IslandID: is.ID})
 	w.NextShipID++
 	clearRegimes(is)
 }
@@ -1077,7 +1086,7 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 // returns it. The founding cargo is exempt from the slot limit (D-056 §9:
 // the 2-slot start cog carries the whole start stock); slots limit only
 // what a player loads. Like PlaceFree it is meant for world creation (the
-// start ship of a new world, D-051), never for player commands.
+// start ship of a new world, D-051), never for player commands. The ship is on the home region's map.
 func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo map[string]Qty) (*Ship, error) {
 	def := c.ShipByID[typ]
 	if def == nil {
@@ -1100,7 +1109,7 @@ func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo m
 	if w.NextShipID < 1 {
 		w.NextShipID = 1
 	}
-	s := &Ship{ID: w.NextShipID, Type: def.ID, Name: DefaultShipName(c, def.ID, w.NextShipID), State: ShipIdle, AtSea: &Pos{at.X, at.Y}}
+	s := &Ship{ID: w.NextShipID, Type: def.ID, Name: DefaultShipName(c, def.ID, w.NextShipID), State: ShipIdle, RegionID: w.HomeRegion().ID, AtSea: &Pos{at.X, at.Y}}
 	setCargo(s, def.SlotSize, amounts)
 	w.NextShipID++
 	w.Ships = append(w.Ships, s)
