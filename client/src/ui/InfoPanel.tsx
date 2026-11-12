@@ -1,5 +1,6 @@
 import { type ReactNode, useRef } from "react";
 import type { BuildingDisplay, Content, ContentBuilding, DisplayState, IslandDisplay } from "../api/client";
+import { buildingNotes } from "../display/buildMenu";
 import { percent, perMin, residentsLine, seconds, speedFactor, tons, tonsPerMin, tonsRatio, units } from "../display/format";
 import { countdownWithUnit, orderTiming } from "../display/ships";
 import { fieldBuildingOf } from "../display/fields";
@@ -578,6 +579,16 @@ export function InfoPanel({
             {status.fix && <div className={styles.fix}>{status.fix}</div>}
           </div>
         </div>
+        {/* The D-077 notes (paint family, defence and repairs without effect yet, uniqueness). */}
+        {def && buildingNotes(def).length > 0 && (
+          <div className={styles.section} data-testid="info-notes">
+            {buildingNotes(def).map((note) => (
+              <div key={note} className={styles.small}>
+                {note}
+              </div>
+            ))}
+          </div>
+        )}
 
         {b.fields && def?.fields && (() => {
           // Placed of the maximum (= required), fields cut off from the farm, and the Paint button (right click / long press: Remove fields).
@@ -830,9 +841,16 @@ export function InfoPanel({
                   </div>
                   <DotRow
                     items={[
-                      <span key="cargo">
-                        {t("infoPanel.cargo", { slots: ship.slots, size: tons(ship.slot_size) })}
-                      </span>,
+                      // A warship (D-077 §6) carries nothing; its attack has no effect yet.
+                      ship.attack !== undefined ? (
+                        <span key="cargo" data-testid={`shipyard-attack-${id}`}>
+                          {t("shipPanel.attack", { value: ship.attack })}
+                        </span>
+                      ) : (
+                        <span key="cargo">
+                          {t("infoPanel.cargo", { slots: ship.slots, size: tons(ship.slot_size) })}
+                        </span>
+                      ),
                       <span key="speed">{t("infoPanel.speed", { factor: speedFactor(ship.speed_permille ?? 1000) })}</span>,
                       <span key="upkeep">{t("infoPanel.upkeepShip", { rate: perMin(ship.upkeep_per_min) })}</span>,
                     ]}

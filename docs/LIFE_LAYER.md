@@ -129,6 +129,9 @@ that name". All motion is procedural.
 - Harbour: fisher boat loop may cross land (same follow-up as ship
   legs); crates only at Trading Post piers; gulls by presence of a fisher
   or Trading Post, not by status; waiting ships bob at anchor.
+- Patrol (D-077 §6): a patrolling ship moves along its served approach
+  and then round its coast loop for ever (`patrolPlacement`); it sails
+  (its sails fill, `sailing`) and does not bob (`waiting`).
 - Pasture: the recipe's static sheep were removed; 2 instanced sheep per
   pasture wander inside it; "inactive" = field inactive or farm paused →
   sheep stand still, tinted. Polish 5: cattle pastures get 2 cows and pig

@@ -154,8 +154,11 @@ export function waterRows(
 export interface WaterEdgeTile extends TilePos {
   /** Whether this tile is in the column's chosen water prefix. */
   water: boolean;
-  /** front: land in the water rows; land: water or unbuildable terrain behind them; low: a land tile above terrace level 0 (D-075). */
-  problem: "front" | "land" | "low" | null;
+  /**
+   * front: land in the water rows; land: water or unbuildable terrain behind them; low: a land tile above terrace level 0
+   * (D-075); back: a shore building's back edge on open water (D-077 §5); water: a shore footprint without water.
+   */
+  problem: "front" | "land" | "low" | "back" | "water" | null;
 }
 
 /**
@@ -218,6 +221,64 @@ export function waterEdgeHint(
 ): "front" | "land" | "low" | null {
   const tiles = waterEdgeTiles(def, terrain, x, y, rotation, level);
   for (const problem of ["front", "land", "low"] as const) {
+    if (tiles.some((p) => p.problem === problem)) return problem;
+  }
+  return null;
+}
+
+/**
+ * Per-tile shore preview (D-077 §5, a display mirror of the server's
+ * checkShoreSite; quays read as "quay"): every footprint tile is water or
+ * buildable land at terrace level 0 (else `land` / `low`); without any water
+ * tile every tile is `water`; a back-edge column (row height-1 from the
+ * front) whose tile and the tile behind it are both open water marks its
+ * back tile `back`. Precedence of the ghost text: land, low, water, back.
+ */
+export function shoreTiles(
+  def: { width: number; height: number },
+  terrain: (x: number, y: number) => string,
+  x: number,
+  y: number,
+  rotation: number,
+  level?: (x: number, y: number) => number,
+): WaterEdgeTile[] {
+  const r = ((rotation % 360) + 360) % 360;
+  const pos = (column: number, row: number): TilePos => {
+    switch (r) {
+      case 90: return { x: x + def.height - 1 - row, y: y + column };
+      case 180: return { x: x + column, y: y + def.height - 1 - row };
+      case 270: return { x: x + row, y: y + column };
+      default: return { x: x + column, y: y + row };
+    }
+  };
+  const land = (p: TilePos) => {
+    const t = terrain(p.x, p.y);
+    return t !== "water" && t !== "river" && t !== "islet" && t !== "";
+  };
+  const out: WaterEdgeTile[] = [];
+  for (let column = 0; column < def.width; column++) {
+    for (let row = 0; row < def.height; row++) {
+      const p = pos(column, row);
+      const t = terrain(p.x, p.y);
+      const water = t === "water";
+      const valid = water || t === "coast" || t === "grass" || t === "forest" || t === "quay";
+      const low = !water && valid && t !== "quay" && (level?.(p.x, p.y) ?? 0) > 0;
+      out.push({ ...p, water, problem: !valid ? "land" : low ? "low" : null });
+    }
+  }
+  if (!out.some((p) => p.water)) return out.map((p) => ({ ...p, problem: p.problem ?? "water" }));
+  for (let column = 0; column < def.width; column++) {
+    const back = pos(column, def.height - 1);
+    if (land(back) || land(pos(column, def.height))) continue;
+    const tile = out.find((p) => p.x === back.x && p.y === back.y);
+    if (tile && !tile.problem) tile.problem = "back";
+  }
+  return out;
+}
+
+/** The ghost text's problem of a shore preview (shoreTiles), by the server's precedence; null when none. */
+export function shoreHint(tiles: readonly WaterEdgeTile[]): "land" | "low" | "water" | "back" | null {
+  for (const problem of ["land", "low", "water", "back"] as const) {
     if (tiles.some((p) => p.problem === problem)) return problem;
   }
   return null;

@@ -3,6 +3,7 @@
 // Public, Harbour, Ornaments and Military (D-077) from the server's category, the production ones ordered along their chains. The cost
 // parts the player cannot currently afford are only a hint: every card stays clickable.
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
+import { t } from "../i18n";
 import { needCategory, type NeedCategoryInfo } from "./needs";
 import { listedInBuildMenu, lockParts, tierUnlocked } from "./tiers";
 
@@ -161,3 +162,21 @@ export function recipeFlow(b: ContentBuilding): { inputs: string[]; outputs: str
   if (!b.recipe) return undefined;
   return { inputs: b.recipe.inputs.map((i) => i.good), outputs: b.recipe.outputs.map((o) => o.good) };
 }
+
+/**
+ * The D-077 notes of a building's card and info panel: a paint family is
+ * painted tile by tile, a military building's defence and the repair
+ * crane's repairs have no effect yet, a unique building says its scope
+ * (the Kontor: expeditions later). Empty for other buildings.
+ */
+export function buildingNotes(b: Pick<ContentBuilding, "paint_family" | "defence" | "repairs" | "unique" | "gate">): string[] {
+  const out: string[] = [];
+  if (b.paint_family) out.push(t("build.note.paint"));
+  if (b.gate) out.push(t("build.note.gate"));
+  if (b.defence !== undefined) out.push(t("build.note.defence", { value: b.defence }));
+  if (b.repairs) out.push(t("build.note.repairs"));
+  if (b.unique === "world") out.push(t("build.note.uniqueWorld"));
+  if (b.unique === "island") out.push(t("build.note.uniqueIsland"));
+  return out;
+}
+

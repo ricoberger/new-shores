@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { planRoadDrag, roadDragSend, type RoadDragData } from "./roaddrag";
+import { isPaintType, planRoadDrag, roadDragSend, type RoadDragData } from "./roaddrag";
 
 const defs = new Map([
   ["house", { width: 2, height: 2 }],
   ["road_dirt", { width: 1, height: 1, tier: "settlers", road: {} }],
   ["road_paved", { width: 1, height: 1, tier: "citizens", road: {} }],
   ["quay", { width: 1, height: 1, tier: "citizens", road: { shallows: true } }],
+  ["hedge", { width: 1, height: 1, tier: "settlers", paint_family: {} }],
+  ["city_wall", { width: 1, height: 1, tier: "citizens", paint_family: { road_crossing: true } }],
 ]);
 const tiers = [
   { id: "settlers", index: 0 },
@@ -66,5 +68,41 @@ describe("planRoadDrag", () => {
   it("hints a quay drag by the shallows", () => {
     const tiles = planRoadDrag({ x: 2, y: 0 }, { x: 2, y: 1 }, "quay", data());
     expect(tiles.map((t) => t.hint)).toEqual(["ok", "bad"]);
+  });
+
+  it("hints a quay by its connection to land (D-077 §8): a tile off the land and off other quays is red", () => {
+    // A 6 × 6 island: land in the bottom row only; water above (all shallows).
+    const width = 6;
+    const terrain = Array.from({ length: width * 6 }, (_, i) => (Math.floor(i / width) === 5 ? "grass" : "water"));
+    const d: RoadDragData = { island: { width, height: 6, terrain }, buildings: [], roads: [{ x: 0, y: 2, type: "quay" }], defs, tiers };
+    // A pier from the land up: every tile reaches land over the drag.
+    expect(planRoadDrag({ x: 2, y: 4 }, { x: 2, y: 1 }, "quay", d).map((t) => t.hint)).toEqual(["ok", "ok", "ok", "ok"]);
+    // A floating row: red; a row touching the (floating) old quay at (0,2) is still not anchored.
+    expect(planRoadDrag({ x: 3, y: 1 }, { x: 5, y: 1 }, "quay", d).map((t) => t.hint)).toEqual(["bad", "bad", "bad"]);
+    expect(planRoadDrag({ x: 1, y: 2 }, { x: 1, y: 2 }, "quay", d)[0]!.hint).toBe("bad");
+    // Next to a building on the water (a shore deck): anchored.
+    const deck = { ...d, buildings: [{ type: "house", x: 4, y: 3, rotation: 0 as const }] };
+    expect(planRoadDrag({ x: 4, y: 2 }, { x: 4, y: 2 }, "quay", deck)[0]!.hint).toBe("ok");
+  });
+});
+
+describe("paint families with the road tool (D-077 §2–§3)", () => {
+  it("knows the paint families", () => {
+    expect(isPaintType(defs, "hedge")).toBe(true);
+    expect(isPaintType(defs, "road_dirt")).toBe(false);
+  });
+
+  it("paints buildable land, skips its own tiles, refuses roads, buildings and other terrain", () => {
+    const d = { ...data(), buildings: [...data().buildings, { type: "hedge", x: 2, y: 4, rotation: 0 as const }] };
+    // Row 3: grass at 1–2, roads at 3–4, grass at 5, the mountain at 6, grass at 7.
+    expect(planRoadDrag({ x: 1, y: 3 }, { x: 7, y: 3 }, "hedge", d).map((t) => t.hint)).toEqual(["ok", "ok", "bad", "bad", "ok", "bad", "ok"]);
+    expect(planRoadDrag({ x: 2, y: 4 }, { x: 2, y: 4 }, "hedge", d)[0]!.hint).toBe("skip");
+    expect(planRoadDrag({ x: 8, y: 1 }, { x: 8, y: 1 }, "hedge", d)[0]!.hint).toBe("bad");
+    expect(planRoadDrag({ x: 1, y: 0 }, { x: 1, y: 0 }, "hedge", d)[0]!.hint).toBe("bad");
+  });
+
+  it("lets the city wall cross a land road, never a quay", () => {
+    const d = { ...data(), roads: [...data().roads, { x: 2, y: 3, type: "quay" }] };
+    expect(planRoadDrag({ x: 2, y: 3 }, { x: 4, y: 3 }, "city_wall", d).map((t) => t.hint)).toEqual(["bad", "ok", "ok"]);
   });
 });

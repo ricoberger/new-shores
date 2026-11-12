@@ -28,14 +28,14 @@ export const SWAY_MIN = 8.5 / 255;
 /** Instance alpha marking a sailing ship (reset to 1 in the shader). */
 export const SAILING_ALPHA = 0.5;
 
-/** Whether a ship's sails fill: under way on a leg (not handling, not arrived, not waiting at sea). */
-export function sailing(ship: { leg?: unknown }, placement: { atSea: boolean } | null): boolean {
-  return !!ship.leg && !!placement?.atSea;
+/** Whether a ship's sails fill: under way on a leg (not handling, not arrived, not waiting at sea) or on patrol (D-077 §6). */
+export function sailing(ship: { leg?: unknown; patrol?: unknown }, placement: { atSea: boolean } | null): boolean {
+  return (!!ship.leg || !!ship.patrol) && !!placement?.atSea;
 }
 
-/** Whether a ship waits at anchor (idle or unpaid without a leg, or queued at a Trading Post): it bobs. */
-export function waiting(ship: { leg?: unknown }, dock: { queued?: boolean } | undefined): boolean {
-  return dock ? !!dock.queued : !ship.leg;
+/** Whether a ship waits at anchor (idle or unpaid without a leg or patrol, or queued at a Trading Post): it bobs. */
+export function waiting(ship: { leg?: unknown; patrol?: unknown }, dock: { queued?: boolean } | undefined): boolean {
+  return dock ? !!dock.queued : !ship.leg && !ship.patrol;
 }
 
 const bobOut = { dy: 0, rock: 0 };

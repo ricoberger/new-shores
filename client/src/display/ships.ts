@@ -2,7 +2,7 @@
 // server's timestamps, no rule evaluated. Travel times, capacities and
 // slot rules are the server's; the slot count here is only a display
 // bound for the shipment dialog (the server validates).
-import type { BuildingDisplay, CargoDisplay, LegDisplay, ShipDisplay, ShipOrderDisplay } from "../api/client";
+import type { BuildingDisplay, CargoDisplay, LegDisplay, PatrolDisplay, ShipDisplay, ShipOrderDisplay } from "../api/client";
 import { t } from "../i18n";
 import { serverTimeMs } from "./extrapolate";
 import { rotatedFootprint, waterRows } from "./geometry";
@@ -464,7 +464,7 @@ export function legPath(
  * island centre plus the spread offset of `slot`. Null when an island is unknown.
  */
 export function shipPlacement(
-  ship: Pick<ShipDisplay, "island_id" | "leg"> & { position?: ShipDisplay["position"] },
+  ship: Pick<ShipDisplay, "island_id" | "leg"> & { position?: ShipDisplay["position"]; patrol?: ShipDisplay["patrol"] },
   islands: ReadonlyMap<string, IslandPlacement>,
   nowMs: number,
   slot = 0,
@@ -472,6 +472,7 @@ export function shipPlacement(
   dock?: Dock,
   arrived?: ArchPoint,
 ): ShipPlacement | null {
+  if (ship.patrol) return patrolPlacement(ship.patrol, nowMs);
   const leg = ship.leg;
   if (leg) {
     // A leg from the sea (the start ship, D-051) starts at its sea position;
@@ -502,6 +503,26 @@ export function shipPlacement(
   const a = islandAnchor(is);
   const o = spreadOffset(slot);
   return { point: { x: a.x + o.x, y: a.y + o.y }, heading: 0, atSea: false };
+}
+
+/**
+ * Archipelago position of a patrolling ship at server time nowMs (D-077 §6;
+ * a lerp of the server's polylines and times, no rule): along `approach`
+ * for `approach_ms` from `started_at`, then round the closed `loop` once
+ * every `loop_ms`, each at constant speed.
+ */
+export function patrolPlacement(patrol: PatrolDisplay, nowMs: number): ShipPlacement {
+  const elapsed = Math.max(0, nowMs - serverTimeMs(patrol.started_at));
+  if (elapsed < patrol.approach_ms && patrol.approach.length > 1) {
+    const at = alongPath(patrol.approach.map(seaPoint), elapsed / Math.max(1, patrol.approach_ms));
+    return { point: at.point, heading: at.heading, atSea: true };
+  }
+  const loop = patrol.loop.map(seaPoint);
+  if (loop.length === 0) return { point: { x: 0, y: 0 }, heading: 0, atSea: true };
+  const span = Math.max(1, patrol.loop_ms);
+  const f = (Math.max(0, elapsed - patrol.approach_ms) % span) / span;
+  const at = alongPath([...loop, loop[0]!], f);
+  return { point: at.point, heading: at.heading, atSea: true };
 }
 
 /**

@@ -99,6 +99,11 @@ export function waterEdgeText(problem: "front" | "land" | "low", waterRows: { mi
   return problem === "front" ? t("tier.waterEdge.front", { count: waterRows.min }) : t("tier.waterEdge.land");
 }
 
+/** The ghost text of a shore building's problem (D-077 §5, display/geometry.ts shoreTiles). */
+export function shoreText(problem: "land" | "low" | "water" | "back"): string {
+  return t(`tier.shore.${problem}`);
+}
+
 /** "Must cover a stone deposit" / "Must cover an iron deposit" (the article follows the deposit's name). */
 export function depositText(kind: string): string {
   return tOr(`deposit.cover.${kind}`, t("deposit.cover", { kind: depositName(kind) }));

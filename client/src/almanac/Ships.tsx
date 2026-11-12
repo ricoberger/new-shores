@@ -26,8 +26,9 @@ export function Ships({ idx, id }: { idx: Index; id?: string }) {
             </div>
             <dl className={styles.defs}>
               <Row label={t("almanac.s.cargo")}>
-                {t("almanac.s.cargoValue", { slots: s.slots, size: tonsText(num(s.slotSize)), total: tonsText(num(s.totalCapacity)) })}
+                {s.slots > 0 ? t("almanac.s.cargoValue", { slots: s.slots, size: tonsText(num(s.slotSize)), total: tonsText(num(s.totalCapacity)) }) : t("shipPanel.noCargo")}
               </Row>
+              {s.attack !== undefined && <Row label={t("almanac.s.attack")}>{t("almanac.s.attackValue", { value: s.attack })}</Row>}
               <Row label={t("almanac.s.speed")}>{t("almanac.s.speedValue", { factor: num(s.speed) })}</Row>
               <Row label={t("almanac.b.cost")}>
                 <Cost idx={idx} parts={s.cost} />
@@ -50,6 +51,10 @@ export function Ships({ idx, id }: { idx: Index; id?: string }) {
           </article>
         ))}
       </div>
+      <section aria-labelledby="ships-patrol" data-testid="almanac-patrol">
+        <h3 id="ships-patrol">{t("almanac.s.patrol")}</h3>
+        <p>{t("almanac.s.patrolText")}</p>
+      </section>
       <section aria-labelledby="ships-routes" data-testid="almanac-routes">
         <h3 id="ships-routes">{t("almanac.s.routes")}</h3>
         <p>{t("almanac.s.routesLead")}</p>

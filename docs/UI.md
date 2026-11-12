@@ -236,6 +236,14 @@ UI shows the same numbers the server uses.
      group's icon (it serves the goods needs; `build.marketSupplies`). A missing fertility replaces this line with a red "Needs
      wheat fertility" (not what the island has; the placement ghost's hint
      keeps that).
+     An ornament's line shows no upkeep (D-077 §2: cost only); the D-077
+     notes follow the upkeep, separated by dots (`buildingNotes`,
+     `display/buildMenu.ts`): "Painted tile by tile" for the paint
+     families, "Gate in the city wall", "Defense 5 (no effect yet)" for a
+     military building, "Repairs ships (no effect yet)" for the repair
+     crane and "Only one in the world · unlocks expeditions later" for the
+     Kontor. The info panel shows the same notes below its status row, the
+     almanac's building page as a Notes row.
 - **Panels:** parchment with a 3 px dark-wood border and inset light-wood
   edge (10 px radius; build cards 7 px); status badges as wax seals (ink
   bands, parchment ring). Every panel has a fixed title row with an icon
@@ -278,6 +286,16 @@ UI shows the same numbers the server uses.
   rivers never as sea. The model keeps its normal tint for a water-edge
   mismatch so one bad tile does not turn the entire building red. This is
   a display hint only: the server validates every placement.
+- **Shore ghosts (D-077 §5):** a building with `placement: shore` (the
+  trading pier, depot, shipyard, harbor statue, harbor tower, repair crane
+  and Kontor) gets the same per-tile overlay (`shoreTiles`,
+  `display/geometry.ts`): its deck may cover water and buildable land at
+  level 0 (quays count as land); unbuildable terrain, a land tile on a
+  terrace, a footprint without any water ("Must stand partly on the
+  water") and a back-edge column on open water with open water behind it
+  ("Its back must touch land or a quay — rotate it (R) to face the sea")
+  tint their tiles red, in that order of the hint text. The harbor lane
+  and berth keep-out are the server's (`harbour_blocked`).
 - Roads: drag to draw; auto-connect; cost preview. While dragging, the
   L-path of the drag shows as a ghost on the ground, one mark per tile in
   the field paint's tints: green where the client expects a road, red
@@ -289,6 +307,20 @@ UI shows the same numbers the server uses.
   the server's). The quay (D-060) is
   drawn the same way over shallow water; a drag that leaves the shallows
   is not sent (toast; display mirror of the rule, `display/quay.ts`).
+  A quay tile that would not reach the island's land or a building over
+  the drag's and the island's quay tiles is red (D-077 §8, the server's
+  `quay_disconnected` rejects the whole drag); the tool hint says a quay
+  must touch land or a connected quay.
+- **Paint families (D-077 §2–§3):** the hedge, garden wall, city wall and
+  square are drawn with the road tool (their cards select it): the drag's
+  L-path marks each tile green on buildable land and red on a building,
+  plan, road or other terrain; a tile of the same family is left unmarked
+  and not sent; the city wall may cross a land road, never a quay. The
+  release sends one `place_paint` (planning mode: plans) and the server
+  answers per tile; every tile is a 1×1 building (click to inspect or
+  demolish it). The Demolish tool's rectangle also takes the paint tiles
+  under it, built or planned, with one `demolish_paint` ("Remove 5 wall,
+  hedge or square tiles").
   Quays render as a stone wharf with a timber fender and a bollard every
   third tile, and in the paved road's colour on the minimap.
 - **Fields** (D-051 part 4): fields are not in the build menu. The farm
@@ -524,11 +556,21 @@ UI shows the same numbers the server uses.
   "Shipment · …", "Idle · at …"), the from → to islands of a leg, upkeep, speed (×, from the ship type),
   slot capacity, under a "Slots" heading (no divider) one box per cargo
   slot (good icon, amount / slot size),
-  pending founding and berth-wait notes.
+  pending founding and berth-wait notes. A warship (D-077 §6) shows
+  "Attack 4 (no effect yet)" and "Carries no cargo" instead of the
+  capacity, and no Slots heading; the shipyard's list shows its attack
+  instead of the cargo.
 - Buttons: "Assign to route…" (an inline picker of the saved routes; routes
   are created only in the Routes list, the picker links there when there
-  are none), unassign, "Send…" (manual shipment dialog), found settlement,
-  scrap; later: send on expedition (Harbormaster).
+  are none), unassign, **"Patrol…"** (an idle ship of any type: an inline
+  picker of the islands of the ship's region but skerries; sends `patrol`),
+  **"Stop patrol"** for a patrolling ship (`unassign_ship`), "Send…"
+  (manual shipment dialog), found settlement, scrap; later: send on
+  expedition (Harbormaster).
+- A patrolling ship's status line reads "Patrolling: <island>" in the
+  panel and the Ships list. On the map it sails its approach and then
+  round the loop at constant speed from the served `patrol` polylines and
+  times (`patrolPlacement`, `display/ships.ts`; a lerp, no rule).
 
 **Routes list** (panel): per route its name, then "Island 1 → Island 2
 (15:00 min)" (the loop time), then "Ships: n". Clicking a route opens it in
@@ -710,6 +752,12 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   archipelago-wide pools, the home guarantees, the schema version) is
   read defensively and shown only when present. Building pages show a
   depot's level table, a pier's berths and the quay's site (shallows).
+  The buildings page lists the Ornaments and Military categories (D-077)
+  after Roads, with the D-077 notes (defense and repairs without effect
+  yet, uniqueness, paint families); the Ships page shows a warship's
+  attack ("no effect yet: raids come later"), "Carries no cargo" and a
+  Patrol chapter; the Islands page ends with a "Harbor basins" paragraph
+  (shallows 8 tiles, connected quays, shore buildings, open harbors).
   The Ships page ends with a Routes chapter that words the route rules
   of MECHANICS §9.2: unload first, then load; "top up to", the optional
   keep on the island and the optional most unloaded per visit (D-070).

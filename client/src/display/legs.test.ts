@@ -170,3 +170,29 @@ describe("ship placement against the server fixtures", () => {
     expect(shipPlacement({ island_id: "nowhere", leg: null }, new Map(), 0)).toBeNull();
   });
 });
+
+describe("patrol placement against the server fixture (D-077 §6)", () => {
+  const d = fixture("patrol");
+  const ship = d.ships.find((s) => s.state === "patrolling") as ShipDisplay;
+  const p = ship.patrol!;
+  const start = serverTimeMs(p.started_at);
+
+  it("the patrolling ship has no island, no leg and no position", () => {
+    expect(ship.island_id).toBe("");
+    expect(ship.leg).toBeNull();
+    expect(ship.position).toBeNull();
+    expect(p.loop.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("sails the approach, then the closed loop once every loop_ms", () => {
+    const at = (ms: number) => shipPlacement(ship, placements(d), ms)!;
+    expect(at(start).point).toEqual(seaPoint(p.approach[0]!));
+    expect(at(start + p.approach_ms).point).toEqual(seaPoint(p.loop[0]!));
+    expect(at(start + p.approach_ms + p.loop_ms).point).toEqual(seaPoint(p.loop[0]!));
+    expect(at(start + p.approach_ms + 3 * p.loop_ms).atSea).toBe(true);
+    // Half a round later it lies on the loop, a round later at the same point.
+    const half = at(start + p.approach_ms + p.loop_ms / 2).point;
+    expect(at(start + p.approach_ms + (3 * p.loop_ms) / 2).point.x).toBeCloseTo(half.x, 6);
+    expect(half).not.toEqual(seaPoint(p.loop[0]!));
+  });
+});

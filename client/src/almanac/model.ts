@@ -16,7 +16,7 @@ export type ContentGood = components["schemas"]["ContentGood"];
 export type ContentNeedCategory = components["schemas"]["ContentNeedCategory"];
 
 /** Build-menu group order of the buildings page. */
-export const CATEGORY_ORDER: ContentBuilding["category"][] = ["houses", "production", "public", "harbour", "roads", "other"];
+export const CATEGORY_ORDER: ContentBuilding["category"][] = ["houses", "production", "public", "harbour", "roads", "ornaments", "military", "other"];
 /** A build-menu group's name on the buildings page. */
 export function categoryName(category: ContentBuilding["category"]): string {
   return tOr(`almanac.category.${category}`, titleCase(category));
@@ -524,6 +524,8 @@ export interface ShipView {
   speed: number;
   cost: CostPart[];
   upkeep: number;
+  /** A warship's attack (D-077 §6; no effect yet); undefined for a cargo ship. */
+  attack?: number;
   lengthTiles?: number;
   buildMinutes: number;
   shipyards: string[];
@@ -540,6 +542,7 @@ export function shipView(idx: Index, s: ContentShip): ShipView {
     speed: s.speed_permille / 1000,
     cost: costParts(s.cost),
     upkeep: (s.upkeep_per_min ?? 0) / 1000,
+    attack: s.attack,
     lengthTiles: s.length_milli_tiles === undefined ? undefined : s.length_milli_tiles / 1000,
     buildMinutes: s.build_ms / 60000,
     shipyards: idx.shipyardsOf(s.id).map((b) => b.id),

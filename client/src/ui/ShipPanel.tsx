@@ -20,6 +20,8 @@ interface Props {
   /** Opens the Routes list (to create a route). */
   onOpenRoutes: () => void;
   onUnassign: () => void;
+  /** Sends the idle ship to patrol an island of its region (`patrol`, D-077 §6). */
+  onPatrol: (islandId: string) => void;
   onSend: () => void;
   onFound: () => void;
   /** The island this ship sails to found (a founding chained by the client, D-051); null when none. */
@@ -45,6 +47,7 @@ export function ShipPanel({
   onAssign,
   onOpenRoutes,
   onUnassign,
+  onPatrol,
   onSend,
   onFound,
   pendingFounding = null,
@@ -59,6 +62,10 @@ export function ShipPanel({
   const type = shipType?.name ?? s.type;
   const idle = s.state === "idle";
   const [choosing, setChoosing] = useState(false);
+  const [patrolPick, setPatrolPick] = useState(false);
+  const patrolling = s.state === "patrolling";
+  // The islands a patrol may go round: those of the ship's region but skerries (the server validates).
+  const patrolIslands = model.islands.filter((i) => !i.scenic && i.region_id === s.region_id);
   // The name editor in the header (the island card's pattern); the name is saved at once.
   const [draft, setDraft] = useState<{ ship: number; name: string } | null>(initiallyRenaming ? { ship: s.id, name: s.name } : null);
   const [busy, setBusy] = useState(false);
@@ -74,7 +81,7 @@ export function ShipPanel({
   const here = model.islands.find((i) => i.id === s.island_id);
   const route = model.routes.find((r) => r.id === s.route_id);
   // No actions (a ship under way): no empty divider block.
-  const hasActions = idle || s.route_id !== 0 || s.state === "anchored_unpaid";
+  const hasActions = idle || patrolling || s.route_id !== 0 || s.state === "anchored_unpaid";
   return (
     <div className={`${styles.panel} ${styles.infoPanel}`} data-testid="ship-panel">
       <div className={editing ? `${styles.row} ${styles.nowrap}` : styles.row}>
@@ -135,8 +142,13 @@ export function ShipPanel({
             {t("shipPanel.speed", { factor: speedFactor(shipType.speed_permille) })}
           </div>
         )}
+        {shipType?.attack !== undefined && (
+          <div className={styles.small} data-testid="ship-panel-attack">
+            {t("shipPanel.attack", { value: shipType.attack })}
+          </div>
+        )}
         <div className={styles.small} data-testid="ship-panel-capacity">
-          {t("shipPanel.capacity", { count: s.slots, size: tons(s.slot_size) })}
+          {s.slots > 0 ? t("shipPanel.capacity", { count: s.slots, size: tons(s.slot_size) }) : t("shipPanel.noCargo")}
         </div>
         {s.state === "waiting_for_berth" && (
           <div className={styles.small} data-testid="ship-panel-berth">
@@ -148,10 +160,12 @@ export function ShipPanel({
             {t("shipPanel.sailsToFound", { island: pendingFounding })}
           </div>
         )}
-        {/* A "Slots" heading over the cargo slots (no divider: the details heading's style). */}
+        {/* A "Slots" heading over the cargo slots (no divider: the details heading's style); none for a warship. */}
+        {s.slots > 0 && (
         <div className={`${styles.section} ${styles.sectionTitle}`} data-testid="ship-panel-slots-title">
           {t("shipPanel.slots")}
         </div>
+        )}
         <div className={styles.slots} data-testid="ship-panel-cargo" aria-label={t("shipPanel.cargoLabel", { count: s.slots })}>
           {Array.from({ length: s.slots }, (_, i) => {
             const c = s.cargo[i];
@@ -205,11 +219,43 @@ export function ShipPanel({
             </button>
           </div>
         )}
-        {hasActions && !(choosing && idle) && (
+        {patrolPick && idle && (
+          <div className={styles.shipEntry} data-testid="ship-panel-patrol-picker">
+            <div className={styles.sectionTitle}>{t("shipPanel.patrolTitle")}</div>
+            {patrolIslands.map((i) => (
+              <button
+                key={i.id}
+                type="button"
+                className={`${styles.trayEntry} ${styles.routeChoice}`}
+                onClick={() => {
+                  setPatrolPick(false);
+                  onPatrol(i.id);
+                }}
+                data-testid={`ship-panel-patrol-${i.id}`}
+              >
+                <span>{islandName(i.id)}</span>
+              </button>
+            ))}
+            <button type="button" className={styles.link} onClick={() => setPatrolPick(false)} data-testid="ship-panel-patrol-cancel">
+              {t("common.cancel")}
+            </button>
+          </div>
+        )}
+        {hasActions && !((choosing || patrolPick) && idle) && (
         <div className={`${styles.row} ${styles.shipEntry}`}>
           {idle && (
             <button type="button" className={styles.button} onClick={() => setChoosing(true)} data-testid="ship-panel-assign">
               {t("shipPanel.assign")}
+            </button>
+          )}
+          {idle && (
+            <button type="button" className={styles.button} onClick={() => setPatrolPick(true)} data-testid="ship-panel-patrol">
+              {t("shipPanel.patrol")}
+            </button>
+          )}
+          {patrolling && (
+            <button type="button" className={styles.button} onClick={onUnassign} data-testid="ship-panel-stop-patrol">
+              {t("shipPanel.stopPatrol")}
             </button>
           )}
           {s.route_id !== 0 && (

@@ -20,6 +20,7 @@ export type ShipDisplay = Schemas["ShipDisplay"];
 export type RegionDisplay = Schemas["RegionDisplay"];
 export type ContentRegionEntry = Schemas["ContentRegionEntry"];
 export type LegDisplay = Schemas["LegDisplay"];
+export type PatrolDisplay = Schemas["PatrolDisplay"];
 export type CargoDisplay = Schemas["CargoDisplay"];
 export type RouteDisplay = Schemas["RouteDisplay"];
 export type ShipOrderDisplay = Schemas["ShipOrderDisplay"];

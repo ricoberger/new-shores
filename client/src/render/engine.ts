@@ -27,12 +27,12 @@ import { allocateFarTerrain, type MaskIsland, MaskLayer, reliefOrder } from "./f
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { freeShallows, isQuayType, withQuays } from "../display/quay";
-import { buildingAt, levelAt, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
+import { buildingAt, levelAt, missingDepositHint, missingRoadHint, rotatedFootprint, shoreHint, shoreTiles, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
 import { type ArchPoint, dockPoints, type ModelAnchor, seaPoint, shipLengthRatio } from "../display/ships";
-import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
+import { depositText, fertilityNeed, missingFertilityText, shoreText, waterEdgeText } from "../display/tiers";
 import { freeDepositSlots, highlightedDeposit } from "../display/deposits";
 import { DepositHighlight, type DepositMark } from "./deposithighlight";
 import { ReachRing } from "./reachring";
@@ -58,8 +58,8 @@ import { LIFE_CLASSES, LifeLayer } from "./life";
 import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
 import { PaintPreview, type PaintMark } from "./paint";
-import { planRoadDrag } from "../display/roaddrag";
-import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, selectedPlanMarks, planningRoadDrag, plansUnder, roadsUnder } from "../display/plans";
+import { isPaintType, planRoadDrag } from "../display/roaddrag";
+import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, selectedPlanMarks, planningRoadDrag, paintUnder, plansUnder, roadsUnder } from "../display/plans";
 import { PlanLayer, type PlanRoadTile, type PlanSpec } from "./plans";
 import { t } from "../i18n";
 
@@ -132,6 +132,8 @@ export interface RendererEvents {
   demolishPlans(island: string, ids: number[]): void;
   /** The Demolish tool's rectangle covered roads or planned roads: one demolish_roads with those tiles (MECHANICS §3). */
   removeRoads(island: string, tiles: TilePos[], clipped: boolean): void;
+  /** The Demolish tool's rectangle covered paint-family tiles (D-077, built or planned): one demolish_paint. */
+  removePaint(island: string, tiles: TilePos[]): void;
   /** The live count of a painted or removal rectangle ("n / max …"), null when no rectangle is dragged. */
   paintStatus(text: string | null): void;
   demolish(at: IslandTile): void;
@@ -1793,6 +1795,11 @@ export class GameRenderer {
       const st = l.statics;
       const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
       waterTiles = waterEdgeTiles(def, withQuays(terrain, l.roads), tl.x, tl.y, tool.rotation, levelAt(st.levels, st.width));
+    } else if (l?.statics && def.placement === "shore") {
+      // A shore building (D-077 §5): its deck over water and level-0 land, the back edge on land or a quay.
+      const st = l.statics;
+      const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
+      waterTiles = shoreTiles(def, withQuays(terrain, l.roads), tl.x, tl.y, tool.rotation, levelAt(st.levels, st.width));
     }
     let waterHint = false;
     if (fertility && !fertility.present) {
@@ -1803,6 +1810,12 @@ export class GameRenderer {
       const edge = (["front", "land", "low"] as const).find((problem) => waterTiles.some((p) => p.problem === problem)) ?? null;
       if (edge) {
         hint = waterEdgeText(edge, def.water_rows);
+        waterHint = true;
+      }
+    } else if (def.placement === "shore") {
+      const shore = shoreHint(waterTiles);
+      if (shore) {
+        hint = shoreText(shore);
         waterHint = true;
       }
     }
@@ -1925,9 +1938,11 @@ export class GameRenderer {
     const l = this.lookup(drag.island);
     // Planned fields go with the fields; the Demolish tool takes the planned buildings under the rectangle too (D-071 §4).
     const groups = l ? fieldsUnder(tiles, hintSite(l.display, false).buildings, this.defs, tool.kind === "field" ? tool.farmId : null) : new Map();
-    const plans = l && tool.kind === "demolish" ? plansUnder(tiles, l.display, this.defs).map((p) => planAsBuilding(p, false)) : [];
+    // Planned paint-family tiles go with the built ones (one demolish_paint, D-077).
+    const plans = l && tool.kind === "demolish" ? plansUnder(tiles, l.display, this.defs).filter((p) => !this.defs.get(p.type)?.paint_family).map((p) => planAsBuilding(p, false)) : [];
     // The Demolish tool also takes the roads and planned roads under it (one demolish_roads).
     const roads = l && tool.kind === "demolish" ? roadsUnder(tiles, l.display) : [];
+    const painted = l && tool.kind === "demolish" ? paintUnder(tiles, l.display, this.defs) : [];
     const marks: PaintMark[] = [];
     let n = 0;
     for (const f of [...[...groups.values()].flatMap((g) => g.fields), ...plans]) {
@@ -1937,7 +1952,7 @@ export class GameRenderer {
       marks.push(mark(f.x, f.y, w, h, "remove"));
       n++;
     }
-    for (const r of roads) marks.push(mark(r.x, r.y, 1, 1, "remove"));
+    for (const r of [...roads, ...painted]) marks.push(mark(r.x, r.y, 1, 1, "remove"));
     this.paintPreview.set(marks);
     if (!this.paint) {
       this.setPaintStatus(null);
@@ -1945,7 +1960,7 @@ export class GameRenderer {
     }
     if (tool.kind === "demolish") {
       const fields = n - plans.length;
-      this.setPaintStatus(demolishStatus(fields, plans.length, roads.length, clipped));
+      this.setPaintStatus(demolishStatus(fields, plans.length, roads.length, clipped, painted.length));
       return;
     }
     const name = tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? t("field.generic")).toLowerCase() : t("field.generic");
@@ -1960,7 +1975,7 @@ export class GameRenderer {
     const detail = this.details.get(island);
     // Plans reserve their tiles; a planned road goes on free tiles only (D-071).
     const drag = planRoadDrag(start, end, roadType, { island: l.statics, buildings: hintSite(l.display, false).buildings, roads: l.display.roads, defs: this.defs, tiers: this.tiers });
-    const tiles = this.planning ? planningRoadDrag(drag, l.display) : drag;
+    const tiles = this.planning && !isPaintType(this.defs, roadType) ? planningRoadDrag(drag, l.display) : drag;
     // A road the new one replaces (MECHANICS §3) is marked like a new tile.
     return tiles
       .filter((tl) => tl.hint !== "skip")
@@ -2030,10 +2045,12 @@ export class GameRenderer {
     for (const [farm, g] of groups) this.events.removeFields(island, farm, g.tiles, clipped);
     // The Demolish tool (no farm) removes the planned buildings and the roads under the rectangle as well.
     if (farmId === null) {
-      const plans = plansUnder(tiles, l.display, this.defs);
+      const plans = plansUnder(tiles, l.display, this.defs).filter((p) => !this.defs.get(p.type)?.paint_family);
       if (plans.length > 0) this.events.demolishPlans(island, plans.map((p) => p.id));
       const roads = roadsUnder(tiles, l.display);
       if (roads.length > 0) this.events.removeRoads(island, roads, clipped && groups.size === 0);
+      const painted = paintUnder(tiles, l.display, this.defs);
+      if (painted.length > 0) this.events.removePaint(island, painted);
     }
   }
 
