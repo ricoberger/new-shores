@@ -768,6 +768,7 @@ export const en = {
   "tier.shore.low": "Needs a low shore — its land tiles must be at sea level, not on a terrace",
   "tier.shore.water": "Must stand partly on the water",
   "tier.shore.back": "Its back must touch land or a quay — rotate it (R) to face the sea",
+  "tier.harbourLane": "Keep the harbor lane clear — nothing may stand in front of a pier where the ships come in",
   "tier.unlocked": "{name} unlocked",
   "toast.unlockTitle": "New tier",
   "tier.unlockedWith": "{name} unlocked — {count} new {count, one{building} other{buildings}}",

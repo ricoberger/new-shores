@@ -62,6 +62,7 @@ import { isPaintType, planRoadDrag } from "../display/roaddrag";
 import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBuilding, plannedRoadAt, selectedPlanMarks, planningRoadDrag, paintUnder, plansUnder, roadsUnder } from "../display/plans";
 import { PlanLayer, type PlanRoadTile, type PlanSpec } from "./plans";
 import { t } from "../i18n";
+import { laneGhost, laneRect, type LaneSite } from "../display/lane";
 
 /**
  * Render resolution cap (render pixels per CSS pixel). High-DPR phones
@@ -254,6 +255,8 @@ export class GameRenderer {
   private paintKey = "";
   private readonly depositHighlight: DepositHighlight;
   private readonly reachRing: ReachRing;
+  /** The selected berth holder's harbour lane (D-078 §1), a gold outline. */
+  private readonly laneRing: ReachRing;
   private readonly depositMarkers: DepositMarkers;
   /** The reach of the collector ghost under the pointer (D-069 §1), or null. */
   private ghostReach: { island: string; x: number; y: number; w: number; h: number; r: number; gold?: boolean } | null = null;
@@ -345,6 +348,7 @@ export class GameRenderer {
     this.paintPreview = new PaintPreview(this.scene);
     this.depositHighlight = new DepositHighlight(this.scene);
     this.reachRing = new ReachRing(this.scene);
+    this.laneRing = new ReachRing(this.scene);
     this.depositMarkers = new DepositMarkers(this.scene);
 
     this.ghost = new PlacementGhost(this.scene, this.models);
@@ -416,6 +420,7 @@ export class GameRenderer {
     this.paintPreview.tick(tl, this.frozenAt !== null);
     this.updateDeposits();
     this.updateReachRing();
+    this.updateLaneRing();
     this.updatePlans();
     this.updateGrid();
     this.updateMarks();
@@ -1678,6 +1683,19 @@ export class GameRenderer {
     return l;
   }
 
+  /** What the harbour-lane mirror reads of an island (display/lane.ts): buildings and plans, roads and planned roads. */
+  private laneSite(l: IslandLookups): LaneSite {
+    const st = l.statics;
+    const planned = (l.display.planned_roads ?? []).flatMap((r) => r.tiles.map(({ x, y }) => ({ x, y, type: r.type })));
+    return {
+      width: st?.width ?? 0,
+      height: st?.height ?? 0,
+      buildings: hintSite(l.display, false).buildings,
+      roads: [...l.display.roads, ...planned],
+      defs: this.defs,
+    };
+  }
+
   /**
    * Outlines of a farm's chain (D-051 part 4): the farm and its fields of the
    * selected building (a farm or one of its fields) and of the farm the field
@@ -1801,6 +1819,19 @@ export class GameRenderer {
       const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
       waterTiles = shoreTiles(def, withQuays(terrain, l.roads), tl.x, tl.y, tool.rotation, levelAt(st.levels, st.width));
     }
+    // The harbour lane (D-078 §1): a holder's own lane drawn in the ghost colour, its tiles over a quay, a shore building
+    // or a paint tile red; a shore building's footprint tiles on another holder's lane red.
+    let laneBlocked = false;
+    if (l?.statics && (def.harbour_lane || def.placement === "shore")) {
+      const lane = laneGhost(def, tl.x, tl.y, tool.rotation, this.laneSite(l), tool.kind === "move" ? tool.buildingId : undefined);
+      for (const p of lane) {
+        laneBlocked ||= p.blocked;
+        const at = waterTiles.find((w) => w.x === p.x && w.y === p.y);
+        if (at) {
+          if (p.blocked && !at.problem) at.problem = "lane";
+        } else waterTiles.push({ x: p.x, y: p.y, water: false, problem: p.blocked ? "lane" : null });
+      }
+    }
     let waterHint = false;
     if (fertility && !fertility.present) {
       hint = missingFertilityText(fertility.fertility, fertilities);
@@ -1818,6 +1849,10 @@ export class GameRenderer {
         hint = shoreText(shore);
         waterHint = true;
       }
+    }
+    if (!hint && laneBlocked) {
+      hint = t("tier.harbourLane");
+      waterHint = true;
     }
     // A field is checked against its farm's chain (a hint; the server validates).
     if (tool.kind === "field" && !hint) {
@@ -2166,6 +2201,46 @@ export class GameRenderer {
       outline.map((p) => ({ x: pl.position.x + p.x, z: -(pl.position.y + p.y), y: d.reliefAt(Math.floor(p.x), Math.floor(p.y)) })),
       src.gold === true,
     );
+  }
+
+  /**
+   * The harbour lane of the selected berth holder (D-078 §1, UI.md §3):
+   * its lane rectangle as a gold outline while its card is open, built or
+   * planned, on an island drawn in detail.
+   */
+  private updateLaneRing(): void {
+    let src: { island: string; type: string; x: number; y: number; rotation: number } | null = null;
+    if (this.lod !== "far") {
+      const plan = this.findPlan();
+      const found = this.selected !== null ? this.findBuilding(this.selected) : undefined;
+      if (plan) src = { island: plan.island.id, type: plan.plan.type, x: plan.plan.x, y: plan.plan.y, rotation: plan.plan.rotation };
+      else if (found) src = { island: found.island.id, type: found.b.type, x: found.b.x, y: found.b.y, rotation: found.b.rotation };
+    }
+    const def = src ? this.defs.get(src.type) : undefined;
+    const st = src ? this.sync.getSnapshot().islands.get(src.island) : undefined;
+    const rect = src && def?.harbour_lane && st ? laneRect(def, src.x, src.y, src.rotation, st.width, st.height) : null;
+    const d = src ? this.details.get(src.island) : undefined;
+    const pl = src ? this.arch.placement(src.island) : undefined;
+    if (!src || !rect || !d || !pl || !d.hasTiles()) {
+      this.laneRing.set("", null);
+      return;
+    }
+    const key = `${src.island}|${rect.x}|${rect.y}|${rect.w}|${rect.h}|${pl.position.x}|${pl.position.y}`;
+    const points: { x: number; y: number }[] = [];
+    for (let i = 0; i < rect.w; i++) points.push({ x: rect.x + i, y: rect.y });
+    for (let i = 0; i < rect.h; i++) points.push({ x: rect.x + rect.w, y: rect.y + i });
+    for (let i = rect.w; i > 0; i--) points.push({ x: rect.x + i, y: rect.y + rect.h });
+    for (let i = rect.h; i > 0; i--) points.push({ x: rect.x, y: rect.y + i });
+    this.laneRing.set(
+      key,
+      points.map((p) => ({ x: pl.position.x + p.x, z: -(pl.position.y + p.y), y: d.reliefAt(Math.min(p.x, rect.x + rect.w - 1), Math.min(p.y, rect.y + rect.h - 1)) })),
+      true,
+    );
+  }
+
+  /** Whether the selected berth holder's lane outline is drawn (tests and shots). */
+  laneRingShown(): boolean {
+    return this.laneRing.shown();
   }
 
   /** Whether the reach ring is drawn (tests and shots). */

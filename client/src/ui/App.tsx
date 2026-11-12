@@ -121,6 +121,8 @@ export interface TestHook {
   planCount(): number;
   /** The reach/radius ring drawn: none, a collector's reach (yellow) or gold (a service radius or a plan's ring, D-071). */
   ring(): "none" | "reach" | "gold";
+  /** Whether the selected berth holder's gold harbour-lane outline is drawn (D-078 §1). */
+  laneRing(): boolean;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
@@ -801,6 +803,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         depositMarkerCount: () => rendererRef.current?.depositMarkerCount() ?? 0,
         planCount: () => rendererRef.current?.planCount() ?? 0,
         ring: () => rendererRef.current?.ring() ?? "none",
+        laneRing: () => rendererRef.current?.laneRingShown() ?? false,
         quality: () => rendererRef.current?.quality() ?? "low",
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         assets: () =>

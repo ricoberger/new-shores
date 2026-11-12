@@ -48,8 +48,8 @@ func laneTiles(is *Island, def *content.Building, x, y, rotation int) []Pos {
 	return out
 }
 
-// LaneTiles is laneTiles for the API and the display (the selected berth
-// holder's lane outline).
+// LaneTiles is laneTiles for the shared fixture
+// (server/testdata/lane/lanes.json) the client's lane ghost mirrors.
 func LaneTiles(is *Island, def *content.Building, x, y, rotation int) []Pos {
 	return laneTiles(is, def, x, y, rotation)
 }

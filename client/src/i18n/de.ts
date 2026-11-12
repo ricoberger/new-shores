@@ -770,6 +770,7 @@ export const de: Record<keyof typeof en, string> = {
   "tier.shore.low": "Braucht ein flaches Ufer – seine Landfelder müssen auf Meereshöhe liegen, nicht auf einer Terrasse",
   "tier.shore.water": "Muss teilweise im Wasser stehen",
   "tier.shore.back": "Seine Rückseite muss Land oder einen Kai berühren – drehe es (R) zum Meer",
+  "tier.harbourLane": "Die Hafeneinfahrt freihalten – vor einem Anleger, an dem Schiffe festmachen, darf nichts stehen",
   "tier.unlocked": "{name} freigeschaltet",
   "toast.unlockTitle": "Neue Stufe",
   "tier.unlockedWith": "{name} freigeschaltet – {count} {count, one{neues Gebäude} other{neue Gebäude}}",

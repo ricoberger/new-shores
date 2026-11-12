@@ -1,7 +1,13 @@
 package sim
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
+	"flag"
+	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -172,5 +178,67 @@ func TestHarbourLanePaint(t *testing.T) {
 		if !errors.Is(res[i].Err, want) {
 			t.Fatalf("tile %v: %v, want %v", res[i], res[i].Err, want)
 		}
+	}
+}
+
+var updateLanes = flag.Bool("update-lanes", false, "regenerate server/testdata/lane/lanes.json")
+
+type laneFixture struct {
+	Type     string `json:"type"`
+	Width    int    `json:"width"`
+	Height   int    `json:"height"`
+	X        int    `json:"x"`
+	Y        int    `json:"y"`
+	Rotation int    `json:"rotation"`
+	IslandW  int    `json:"island_width"`
+	IslandH  int    `json:"island_height"`
+	Tiles    []Pos  `json:"tiles"`
+}
+
+// TestLaneFixture writes the lanes of every shipped berth holder at each
+// rotation, inside an island and clipped at its corner, for the client's
+// lane ghost (client/src/display/lane.test.ts).
+func TestLaneFixture(t *testing.T) {
+	c := shippedCatalogue(t)
+	rows := make([]string, 24)
+	for i := range rows {
+		rows[i] = strings.Repeat(".", 24)
+	}
+	is := islandFromRows("main", rows...)
+	var out []laneFixture
+	for _, def := range c.Buildings {
+		if !def.HarbourLane {
+			continue
+		}
+		for _, at := range []Pos{{8, 8}, {0, 0}} {
+			for _, rotation := range []int{0, 90, 180, 270} {
+				out = append(out, laneFixture{
+					Type: def.ID, Width: def.Width, Height: def.Height, X: at.X, Y: at.Y, Rotation: rotation,
+					IslandW: is.Width, IslandH: is.Height, Tiles: LaneTiles(is, def, at.X, at.Y, rotation),
+				})
+			}
+		}
+	}
+	sort.SliceStable(out, func(i, j int) bool { return out[i].Type < out[j].Type })
+	data, err := json.MarshalIndent(out, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	data = append(data, '\n')
+	path := filepath.Join(repoRoot(t), "server", "testdata", "lane", "lanes.json")
+	if *updateLanes {
+		if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, data, 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	want, err := os.ReadFile(path) // #nosec G304 -- test fixture.
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(want, data) {
+		t.Fatal("lane fixture differs; run -update-lanes and review")
 	}
 }

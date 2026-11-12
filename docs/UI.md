@@ -294,14 +294,28 @@ UI shows the same numbers the server uses.
   terrace, a footprint without any water ("Must stand partly on the
   water") and a back-edge column on open water with open water behind it
   ("Its back must touch land or a quay — rotate it (R) to face the sea")
-  tint their tiles red, in that order of the hint text. The harbor lane
-  (`harbour_lane`, D-078 §1) and the berth keep-out (`harbour_blocked`)
-  are the server's; the placement error names them.
+  tint their tiles red, in that order of the hint text. The berth
+  keep-out (`harbour_blocked`) is the server's; the placement error names
+  it.
+- **Lane ghost (D-078 §1, `display/lane.ts`, a mirror of the server's
+  `lane.go` checked against `server/testdata/lane/lanes.json`):** placing
+  or moving a berth holder (content `harbour_lane`: Trading Post, trading
+  pier, depot, shipyard, repair crane, Kontor) draws its lane — its width
+  plus one tile on each side, four rows in front of its water edge — in
+  the ghost's tile overlay; lane tiles over a quay, a shore building or a
+  paint tile turn red. A shore building's footprint tiles on another
+  holder's lane turn red. Either way, when no earlier hint applies, the
+  hint reads "Keep the harbor lane clear — nothing may stand in front of
+  a pier where the ships come in" (`tier.harbourLane`). A moved holder
+  never blocks itself. The quay and paint drags mark tiles on a lane red.
+  While a built or planned holder is selected (its card open), its lane
+  shows as a gold outline on the ground (a second `ReachRing`), so the
+  player sees what to keep clear.
 - Roads: drag to draw; auto-connect; cost preview. While dragging, the
   L-path of the drag shows as a ghost on the ground, one mark per tile in
   the field paint's tints: green where the client expects a road, red
   where a rule rejects it (terrain, a building, off the shallows for a
-  quay); a land road of a lower type (dirt under a paved drag) is marked
+  quay, a quay or paint tile on a harbor lane); a land road of a lower type (dirt under a paved drag) is marked
   green too and sent — the new road replaces it (MECHANICS §3) — while
   tiles with a road of the same or a higher type are left unmarked and
   are not sent (`display/roaddrag.ts`, a display hint; bridge shapes are
