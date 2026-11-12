@@ -23,7 +23,9 @@ UI shows the same numbers the server uses.
   bar's gold stay world-wide. The **region switcher** — one tab per
   unlocked region under the top bar, the current one pressed, each with
   its warning count — appears only once a world has more than one
-  unlocked region; with one region nothing changes on screen. Switching
+  unlocked region; with one region nothing changes on screen. The region
+  name is shown only in the switcher, not in the top bar (accepted
+  reading of D-076 §5: the one-region look stays unchanged). Switching
   rebuilds the scene for the other archipelago and places the camera
   anew. A ship on a passage between regions is on no map; the ship list
   shows "between regions, arrives in m:ss". Warning entries carry their

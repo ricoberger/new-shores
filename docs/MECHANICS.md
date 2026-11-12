@@ -909,7 +909,9 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
   seed + region index; the home region's is the world seed), `unlocked`
   (the home region always), `passage_point` (the sea position where a
   ship from a passage enters the map: the generator's start position;
-  unset in a world migrated from schema 15) and its `islands`. Island
+  set on first use — a world migrated from schema 15 has none until the
+  first passage leg into the region needs it, which computes it lazily
+  like the region's archipelago; no migration fix-up) and its `islands`. Island
   positions are region coordinates; an island ID is unique in the world
   and carries its region's prefix (`oc-01`). Every island and ship
   records its `region_id`.
