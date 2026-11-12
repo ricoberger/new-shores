@@ -142,7 +142,9 @@ gone).
   island, free seed step, Apply/Advance steps) and produces reports with
   totals, bottlenecks and snapshots; golden reports live in
   `server/testdata/scenarios` and are the shared fixtures for client display
-  tests. A scenario may set `snapshot_every` (simulated minutes, default 1):
+  tests (with `server/testdata/display`; the harbour lane's and the group
+  move's geometry mirrors read `server/testdata/lane` and
+  `server/testdata/group`, written by `-update-lanes` / `-update-group`). A scenario may set `snapshot_every` (simulated minutes, default 1):
   the report then records a snapshot only at the first advance step, at the
   first step reaching each multiple of the interval, at every milestone (a
   tier unlocks, a tier gets its first residents) and at the last advance step
@@ -490,7 +492,8 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
 
 See ART_DIRECTION for the rules. Mechanically: `assets/voxel/recipes/
 <id>.py` (procedural voxel recipes on the shared parts library in
-`assets/voxel/nsvoxel`, 8 voxels per tile) + `assets/voxel/build.py`
+`assets/voxel/nsvoxel`, 8 voxels per tile by default, 12 for most
+buildings) + `assets/voxel/build.py`
 (Python 3 standard library only — no Blender, no kits, no numpy) →
 greedy-meshed quads with per-vertex colour, baked AO and sun →
 `client/public/models/*.glb` + `manifest.json` + thumbnails (committed)

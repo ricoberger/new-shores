@@ -27,7 +27,8 @@ textured detail does not** (D-048, refined by D-050 and D-057):
    comes from silhouette, colour, baked ambient occlusion and motion.
 4. **Chunky stylised shapes (D-050, D-057).** Exaggerated proportions —
    tall steep roofs, fat chimneys, oversized doors — strong silhouettes,
-   built from voxels at 8 per tile; roofs as courses, window frames and
+   built from voxels at 8 per tile (12 for the buildings, §7 "Voxels per
+   tile"); roofs as courses, window frames and
    shutters, chimney pots. Hero pieces may go further later (§7).
 
 ## 2. Light, palette, time of day
@@ -846,6 +847,12 @@ land buildings).
 - **Voxels per tile (V7):** a building or field recipe may set
   `VOXELS_PER_TILE` — 8 by default, 12 or 16 for finer detail on large
   footprints (`ALLOWED_VOXELS_PER_TILE`; anything else fails the build).
+  Since D-078 every house, production, public and large harbour
+  building is at 12 (the last holdouts — playhouse, university,
+  cathedral, shipyard, depot, trading pier — moved in step 6); 8 remains
+  for the ornaments, the wall sets, the tower and gatehouse, the small
+  harbour pieces (kontor, repair crane, harbour statue and tower) and
+  the salt pans and oyster beds.
   The manifest records each model's `voxels_per_tile`; the client sizes
   the shader's per-voxel jitter by it (a `voxG` vertex attribute where
   models of different densities share a chunk mesh).
