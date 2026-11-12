@@ -714,16 +714,36 @@ land buildings).
     yew, a dirt `path()`), `harbour_statue` 2 × 2 shore and
     `gold_statue` 3 × 3 (`brass`, 12 voxels per tile). The 1 × 1 to
     3 × 3 ornaments use `config.BUDGET_BY_FOOTPRINT`
-    (900 / 2 600 / 5 600 triangles, lite 72 / 200 / 400) instead of 500
+    (900 / 2 600 / 5 600 triangles, lite 72 / 260 / 400; 2 × 2 lite 200 until D-078) instead of 500
     per tile.
   - *Shore models* (`placement: shore`, `config.SHORE_MODELS`): the model
-    carries a plank deck at z = 0 under every tile and timber piles under
-    its edge; the plate check does not apply and the model may reach
-    below z = 0 like the water structures. `harbour_statue`,
-    `harbour_tower` 2 × 2, `repair_crane` 3 × 3 (treadwheel; jib and hook
-    in sway group `arm`) and `kontor` (4 × 11, the depot class's
-    footprint: the first model with `brick` as its main role, crow-step
-    gables, crane beam, banner `flag`).
+    carries a deck at z = 0 under every tile; the plate check does not
+    apply and the model may reach below z = 0 like the water structures.
+    `harbour_statue`, `harbour_tower` 2 × 2, `repair_crane` 3 × 3
+    (treadwheel; jib and hook in sway group `arm`) and `kontor` (4 × 11,
+    the depot class's footprint: the first model with `brick` as its main
+    role, crow-step gables, crane beam, banner `flag`).
+  - *Stone quay plinths* (D-078 §3–§4, as built): the harbour-look shore
+    buildings — trading pier, depot, shipyard, repair crane, harbour
+    tower, harbour statue and Kontor — stand on the terrain's quay block
+    as a model part, `parts_d078.plinth` (imported as `Q`), not on timber
+    decks: the deck layer z = 0 of stone slabs (`rock-light`, the quay
+    deck's stone; slabs of `vpt / 4` voxels in two shades, a darker one
+    now and then) under the whole footprint, a light capping course on
+    its rim, the side face from z = −6 (× `vpt / 8`) up in dressed
+    courses of two shades darkening to a wet `rock` foot, and timber
+    mooring posts with iron caps every two tiles on the named water edges
+    (the front y− at rotation 0; the flanks too for the trading pier and
+    the small 2 × 2 models). Iron mooring rings sit in the face. The
+    trading pier, depot and shipyard dropped their `GROUND_Z = 1` plate,
+    yards, ramps and piles: everything stands on the plinth at z = 1; the
+    shipyard's slipway runs down a channel cut through the plinth over
+    its four front rows, the channel's walls dressed like the face. The
+    rural water buildings (fisher, salt pans, oyster beds) keep their
+    timber decks. The **harbour tower is the tower model on a plinth**
+    (D-078 §4: no beacon, no light): `recipes/tower.py` publishes both
+    IDs (`RECIPES`, `build_harbour` raises the tower one voxel onto
+    `Q.plinth`). The 2 × 2 lite budget rose to 260 for it.
   - *Wall set* (D-077 §2–§3; `config.PAINT_JOINS`,
     `parts_d077.JOIN_ARMS`): each paint family's recipe builds, besides
     its own model (the straight piece, along x), the join pieces

@@ -8,10 +8,18 @@ voxels), run from the foot to the footprint edge on the centre line of
 each edge tile (two per side, voxels 2..6 and 10..14: the line a
 `city_wall` tile's pieces run on, ART_DIRECTION §7), so a wall meets the
 tower from any side. 8 voxels per tile.
+
+One recipe, two IDs (D-078 §4): `harbour_tower` (2 × 2 shore, Patricians)
+is the same tower raised one voxel onto the stone quay plinth of the
+harbour buildings (parts_d078.plinth: slabs, capping, a dressed side
+face into the water, mooring posts on the three water edges) — no
+beacon, no light.
 """
 
 from nsvoxel import parts as P
 from nsvoxel import parts_d077 as O
+from nsvoxel import parts_d078 as Q
+from nsvoxel import grid
 from nsvoxel.grid import mat, shade_of
 from nsvoxel.mats import BRASS, IRON, SLATE, TIMBER, TIMBER_DARK, TIMBER_LIGHT, WINDOW
 
@@ -32,9 +40,8 @@ def stubs(v, centres, x0, y0, x1, y1, w, h, sides="nsew"):
             v.box(a, b, h - 1, cc, d, h, O.CAP)
 
 
-def build(ctx):
-    v = ctx.vox()  # 16 × 16
-    seed = 71
+def tower(v):
+    """The tower standing on z = 0 of v."""
     x0, y0, x1, y1 = 3, 3, 13, 13
     O.ashlar_box(v, x0 - 1, y0 - 1, x1 + 1, y1 + 1, 0, 3, O.ASHLAR_DARK, course=1)  # the battered foot
     O.ashlar_box(v, x0, y0, x1, y1, 3, 22, O.ASHLAR, course=2)
@@ -61,4 +68,26 @@ def build(ctx):
         v.box(px, py, 23, px + 1, py + 1, 25, TIMBER_DARK)
     v.box(7, 7, top, 9, 9, top + 3, BRASS)
     v.box(8, 7, top + 3, 12, 8, top + 5, P.cloth(BANNER, "flag"))
-    return P.colour_jitter(v, seed=seed)
+
+
+def build(ctx):
+    v = ctx.vox()  # 16 × 16
+    tower(v)
+    return P.colour_jitter(v, seed=71)
+
+
+def build_harbour(ctx):
+    v = ctx.vox()  # 16 × 16
+    Q.plinth(v, 0, 0, v.w, v.d, vpt=8, seed=79)
+    t = grid.Vox(v.w, v.d, v.name)
+    tower(t)
+    for (x, y, z), m in t.cells.items():
+        v.set(x, y, z + 1, m)
+    return P.colour_jitter(v, seed=79)
+
+
+#: The two IDs of the recipe (model.recipe_modules: a RECIPES dict instead of build()).
+RECIPES = {
+    "tower": {"build": build},
+    "harbour_tower": {"build": build_harbour},
+}

@@ -1,8 +1,9 @@
 """
 Kontor (4 × 11 shore, D-076/D-077 §6, Patricians, `look: harbour`; the
 footprint of the depot class): the trading house of the Hanseatic league on
-a plank deck that lies under every tile (timber piles under the deck's
-edge, bollards and mooring rings along it). One long hall of brick — the
+the stone quay plinth of the harbour buildings (D-078 §3,
+parts_d078.plinth: slabs under every tile, a dressed side face into the
+water, mooring posts and iron rings on the sea edge). One long hall of brick — the
 first model whose accent role is `brick` — on a stone plinth, with a
 tall stepped (crow-step) gable toward the sea (y-) and another toward the
 land, a dark tile roof with a lighter ridge, white-framed casements, a
@@ -16,6 +17,7 @@ import math
 
 from nsvoxel import parts as P
 from nsvoxel import parts_d077 as O
+from nsvoxel import parts_d078 as Q
 from nsvoxel import detail_d060 as D
 from nsvoxel.grid import hash3, mat, shade_of
 from nsvoxel.mats import BRASS, IRON, PLASTER, STONE, STONE_DARK, STONE_LIGHT, TIMBER, TIMBER_DARK, TIMBER_LIGHT
@@ -56,12 +58,9 @@ def stepped_gable(v, y, thick, x0, x1, z0, hw):
 def build(ctx):
     v = ctx.vox()  # 32 × 88
     seed = 89
-    O.deck(v, 0, 0, 32, 88, board=3)
-    for x in (4, 12, 20, 28):
-        D.mooring_ring(v, x, 0, 0)
-    for y in (12, 30, 48, 66):
-        for x in (0, 31):
-            O.bollard(v, x, y, 1, 2)
+    Q.plinth(v, 0, 0, 32, 88, vpt=8, edges=("y-",), seed=seed)
+    for x in (10, 18):
+        D.mooring_ring(v, x, 0, -3)
     # Plinth, brick walls, the roof along y.
     v.box(HX0 - 1, HY0 - 1, 1, HX1 + 1, HY1 + 1, 1 + PLINTH, STONE)
     for z in range(1, 1 + PLINTH):

@@ -1,26 +1,41 @@
 """
-Shipyard (8 × 12, back 4 rows over water; D-057 §3): a plank slipway on
-piles with keel blocks and a hull's ribs on the stocks running into the
-sea (`slip`), a side pier as a fitting-out berth with bollards, a big
-open thatched shed on posts with braces, a timber crane, a coursed-stone
-workshop with tiles and a chimney, log and plank stacks, steam box,
-pitch kettle and rope coils.
+Shipyard (8 × 12 shore, D-057 §3, D-077 §5): the yard stands on the stone
+quay plinth of the harbour buildings (D-078 §3, parts_d078.plinth: slabs
+under every tile, a dressed side face into the water, mooring posts on
+the sea edge); a plank slipway on piles with keel blocks and a hull's
+ribs on the stocks runs down a channel cut through the plinth into the
+sea (`slip`, the channel's walls dressed like the plinth's face); the
+fitting-out berth beside it with bollards, a big open thatched shed on
+posts with braces, a timber crane, a coursed-stone workshop with tiles
+and a chimney, log and plank stacks, steam box, pitch kettle and rope
+coils.
 """
 
 from nsvoxel import parts as P
-from nsvoxel.mats import IRON, PLANK, STONE, STONE_DARK, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+from nsvoxel import parts_d078 as Q
+from nsvoxel.mats import IRON, PLANK, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-GROUND_Z = 1  # authored on the old one-voxel ground plate: the build settles it on the terrain (D-068)
+#: The slip channel through the plinth (x SLIP_X0..SLIP_X1 over the four front rows).
+SLIP_X0, SLIP_X1 = 10, 32
 
 
 def build(ctx):
     v = ctx.vox()  # 64 × 96, land from y 32
     W, D, land = ctx.W, ctx.D, ctx.land
     seed = 81
+    Q.plinth(v, 0, 0, W, D, vpt=8, edges=("y-",), seed=seed)
+    # The slip channel: the plinth cut away over the front rows, its walls dressed like the plinth's face.
+    for (x, y, z) in [k for k in v.cells if SLIP_X0 <= k[0] < SLIP_X1 and k[1] < land]:
+        v.set(x, y, z, None)
+    for y in range(0, land):
+        for x in (SLIP_X0 - 1, SLIP_X1):
+            for k in range(1, Q.DEPTH_8 + 1):
+                v.set(x, y, -k, Q.WET if k > Q.DEPTH_8 * 2 // 3 else (Q.COURSE if k % 2 else Q.COURSE_DARK))
+            v.set(x, y, 0, Q.CAPPING)
     # Slipway: a ramp of planks from the yard down into the water, keel blocks along its middle.
     for y in range(0, land + 18):
         z = min(0, (y - land) // 4)
-        for x in range(10, 32):
+        for x in range(SLIP_X0, SLIP_X1):
             v.set(x, y, z, P.shade_of(PLANK, 1.0 if (y // 3) % 2 else 0.9))
         if y % 4 == 0:
             v.box(20, y, z + 1, 22, y + 1, z + 2, TIMBER_DARK)
@@ -28,21 +43,11 @@ def build(ctx):
         for x in (10, 31):
             v.box(x, y, -8, x + 1, y + 1, 1, TIMBER_DARK)
     v.anchor("slip", 20.8, 17.6, 0.5)
-    # Side pier and quay.
-    for y in range(4, land):
-        for x in range(44, 52):
-            v.set(x, y, 0, P.shade_of(PLANK, 1.0 if (y // 2) % 2 else 0.9))
-        if y % 6 == 4:
-            for x in (44, 51):
-                v.box(x, y, -8, x + 1, y + 1, 0, TIMBER_DARK)
+    # The fitting-out berth beside the slip: bollards and a tarpaulin.
     for y in range(6, land, 8):
         v.box(44, y, 1, 45, y + 1, 3, TIMBER_DARK)
         v.set(44, y, 3, IRON)
     v.box(48, 8, 1, 50, 10, 2, P.mat("canvas", 0.85))
-    for x in range(W):
-        if not 10 <= x < 32:
-            v.box(x, land, -2, x + 1, land + 2, 1, STONE_DARK if x % 4 else STONE)
-    P.yard(v, 0, land + 2, W, D, "dirt", seed=seed)
     # A hull's ribs on the stocks at the head of the slip.
     for y in range(land - 6, land + 14, 3):
         hw = 6 - abs(y - (land + 4)) // 4
@@ -97,6 +102,5 @@ def build(ctx):
         v.box(x, land + 48, 1, x + 2, land + 50, 2, P.mat("canvas", 0.85))
     P.handcart(v, 24, land + 50, 1, along="x", load=PLANK)
     P.sawhorse(v, 14, land + 50, 1, along="x")
-    P.scatter(v, 0, land + 2, W, D, 0.012, seed=seed, kinds=("pebble", "tuft"))
     P.tie_floating(v, ground=0)
     return P.colour_jitter(v, seed=seed)

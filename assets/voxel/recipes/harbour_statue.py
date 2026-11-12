@@ -1,15 +1,17 @@
 """
 Harbour statue (2 × 2 shore, D-077 §2, Merchants, `look: civic`): a stone
 figure of a sailor with a raised spyglass on a tall ashlar plinth with an
-anchor carved on it, standing on a small stone quay head in the middle of a
-plank deck that lies under every tile; timber piles under the deck's edge
-(so it stands on the quay, in shallows or on the beach alike), bollards at
-two corners. 8 voxels per tile; the deck is the ground of the model
-(config.SHORE_MODELS, `placement: shore`).
+anchor carved on it, standing on the stone quay plinth of the harbour
+buildings (D-078 §3, parts_d078.plinth: slabs under every tile, a dressed
+side face into the water, so it stands on the quay, in shallows or on the
+beach alike; mooring posts on the three water edges). 8 voxels per tile;
+the plinth is the ground of the model (config.SHORE_MODELS, `placement:
+shore`).
 """
 
 from nsvoxel import parts as P
 from nsvoxel import parts_d077 as O
+from nsvoxel import parts_d078 as Q
 from nsvoxel.grid import mat
 from nsvoxel.mats import BRASS, IRON, STONE_DARK
 
@@ -20,9 +22,7 @@ CLOAK = mat("stone", 0.98)
 
 def build(ctx):
     v = ctx.vox()  # 16 × 16
-    O.deck(v, 0, 0, 16, 16)
-    for x, y in ((1, 1), (14, 14)):
-        O.bollard(v, x, y, 1, 2)
+    Q.plinth(v, 0, 0, 16, 16, vpt=8, seed=13)
     O.ashlar_box(v, 3, 3, 13, 13, 1, 3, O.ASHLAR_DARK, course=1)
     O.ashlar_box(v, 4, 4, 12, 12, 3, 5, O.ASHLAR, course=2)
     O.ashlar_box(v, 5, 5, 11, 11, 5, 11, O.ASHLAR, course=2)

@@ -229,12 +229,15 @@ class D062Test(unittest.TestCase):
         self.assertEqual([f[0] for f in files], ["depot.glb", "depot.lite.glb"])
         self.assertEqual(entry.get("sway", []), [])
 
-    def test_the_depot_is_a_warm_stone_platform_with_three_sheds(self):
+    def test_the_depot_is_three_sheds_on_the_quay_plinth(self):
         files, entry, _ = self.built("depot")
         v = [f[3] for f in files if f[0] == "depot.glb"][0]
         roles = [m[0] for m in v.cells.values()]
-        warm = roles.count("cliff-upper") / len(roles)
-        self.assertGreater(warm, 0.35)  # warm sandstone (as the church and city guard): platform, gatehouse and ramp dominate the volume
+        # D-078 §3: the quay plinth's stone (the terrain quay's rock-light) under every column; the gatehouse warm sandstone.
+        deck = [v.cells.get((x, y, 0), ("",))[0] for x in range(32) for y in range(88)]
+        self.assertNotIn("", deck)  # a deck cell under every column
+        self.assertGreater(sum(1 for r in deck if r in ("rock-light", "rock")) / len(deck), 0.7)  # stone, the walkways' planks the rest
+        self.assertGreater(roles.count("cliff-upper") / len(roles), 0.05)
         self.assertLess(roles.count("stone") / len(roles), 0.03)  # no cold grey
         self.assertFalse({"slate", "whitewash", "travertine"} & set(roles))
         # The roofs seen from above: dark tile and brown slate, terracotta a small minority (D-063 §3).
@@ -255,7 +258,7 @@ class D062Test(unittest.TestCase):
             self.assertGreater(ridge, dep.WALL_TOP + 3, (x0, x1))
         self.assertEqual(len(dep.SHEDS), 3)
         self.assertLessEqual(max(x for (x, _, _) in v.cells) + 1, w)
-        # Anchors: cart on the land rows, the door at the ramp's end, the status icon above the middle shed.
+        # Anchors: cart on the land rows, the door at the plinth's land end, the status icon above the middle shed.
         a = entry["anchors"]
         scale = config.VOXELS_PER_TILE
         self.assertLess(a["cart"][2], (44 - 72) / scale + 0.01)  # glTF +z points to the sea: land rows are y ≥ 72
@@ -264,36 +267,29 @@ class D062Test(unittest.TestCase):
         self.assertGreater(a["status"][1], dep.WALL_TOP / scale)  # above the sheds' walls, over the ridge
         self.assertLess(a["status"][2], 0.0 + 1.0)  # over the platform, not the beach
 
-    def test_the_depot_has_only_piles_and_edge_arches_below_the_deck_over_its_water_rows(self):
-        # y < 72: water for certain (rows 0–6) or in some columns (rows 7–8, 7–9 water rows in the content).
-        dep = depot_module()
-        for f in self.built("depot")[0]:
-            if f[3] is None:
-                continue
-            for (x, y, z), m in f[3].cells.items():
-                if y >= dep.LAND_Y or z >= 0:
+    def test_below_the_deck_the_quay_plinths_have_only_their_side_face(self):
+        # D-078 §3: under the deck (z < 0) only the plinth's rim — the dressed side face — and the mooring rings on it.
+        for cid in ("depot", "trading_pier"):
+            for f in self.built(cid)[0]:
+                if f[3] is None or f[0].endswith(".lite.glb"):
                     continue
-                if z < -3:
-                    self.assertIn((x, y), dep.PILES, (f[0], x, y, z))
-                    self.assertEqual(m[0], "timber")
-                else:
-                    edge = x < dep.PX0 + dep.BAND or x >= dep.PX1 - dep.BAND or y < dep.PY0 + dep.BAND
-                    self.assertTrue((x, y) in dep.PILES or edge, (f[0], x, y, z))
-                    ring = y < dep.PY0 or x < dep.PX0 or x >= dep.PX1  # a mooring ring hangs on the platform's face
-                    self.assertIn(m[0], ("cliff-upper", "iron", "brass") if ring else ("cliff-upper",), (f[0], x, y, z))
-        # The deck's underside is open between the piles inside the perimeter band.
-        v = [f[3] for f in self.built("depot")[0] if f[0] == "depot.glb"][0]
-        self.assertTrue(all((x, y, -1) not in v.cells for x in range(6, 26) for y in range(8, dep.LAND_Y) if (x, y) not in dep.PILES))
+                w, d = (32, 88) if cid == "depot" else (48, 72)
+                for (x, y, z), m in f[3].cells.items():
+                    if z >= 0:
+                        continue
+                    rim = x <= 0 or y <= 0 or x >= w - 1 or y >= d - 1
+                    self.assertTrue(rim, (f[0], x, y, z))
+                    self.assertIn(m[0], ("rock-light", "rock", "iron", "brass"), (f[0], x, y, z))
 
-    def test_nothing_solid_stands_over_the_water_rows_and_only_piles_reach_below_ground(self):
-        # The water rows hold decks, ramps, quay edges, posts, piles and banner cloth; walls and roofs stand on the land rows behind them.
+    def test_nothing_solid_stands_over_the_water_rows(self):
+        # The water rows hold the deck, quay edges, posts and banner cloth; walls and roofs stand on the land rows behind them.
         for cid, rows in MODEL_WATER.items():
             files, _, _ = self.built(cid)
             for f in files:
                 if f[3] is None:
                     continue
                 for (x, y, z), m in f[3].cells.items():
-                    if z < 0:
+                    if z < 0 and cid == "trading_post":
                         self.assertLess(y, rows + 2, (cid, f[0], x, y, z))
                     if y < rows and z > 4:
                         self.assertIn(m[0], ("timber", "iron", "brass", "canvas", "dye-blue"), (cid, f[0], x, y, z, m))
