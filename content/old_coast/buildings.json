@@ -2135,7 +2135,8 @@
     "pause_category": "public",
     "look": "civic",
     "category": "military",
-    "defence": 5
+    "defence": 5,
+    "gate": true
   },
   {
     "id": "harbour_tower",

@@ -63,8 +63,8 @@ export interface paths {
          * Advance the world to now and apply one command.
          * @description Commands (`command.type`): `place_building`, `place_road`,
          *     `demolish`, `demolish_road`, `demolish_roads`, `place_field`,
-         *     `place_fields`, `demolish_fields`,
-         *     `set_paused`, `upgrade_building` (deprecated aliases
+         *     `place_fields`, `demolish_fields`, `place_paint`,
+         *     `demolish_paint`, `set_paused`, `upgrade_building` (deprecated aliases
          *     `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
          *     `move_building`, and the ship and route commands `order_ship`,
          *     `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
@@ -459,6 +459,9 @@ export interface components {
          *       `unique_building` (the building, e.g. the Kontor, exists once
          *       per island or per world — `unique` in the content — and one
          *       already stands or is planned, D-076 §2),
+         *       `gate_needs_wall` (a gate, the gatehouse, needs a city wall —
+         *       built or planned — beside the middle of the two sides its
+         *       passage does not cross, D-077 §3),
          *       `no_fertility` (the island lacks the work area's or the field's
          *       fertility tag),
          *       `field_type_mismatch` (`place_field` with a type that is not a
@@ -533,7 +536,9 @@ export interface components {
          *     `island_not_settled`. A batch without a valid tile is not an
          *     error: 200 with every tile `ok: false` and its reason, the
          *     unchanged version, no state change and no event (`place_fields`
-         *     and `demolish_fields` alike).
+         *     and `demolish_fields` alike). `place_paint` and `demolish_paint`
+         *     (D-077 §2–§3) are the batch forms for paint families and follow
+         *     the same rules.
          *
          *     `demolish_roads` is the batch form of `demolish_road` for the
          *     Demolish tool's rectangle (at most 512 tiles): the tiles with a
@@ -568,7 +573,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "shore_needs_water" | "shore_back_edge" | "quay_disconnected" | "quay_would_float" | "unique_building" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "shore_needs_water" | "shore_back_edge" | "quay_disconnected" | "quay_would_float" | "unique_building" | "gate_needs_wall" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -642,7 +647,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["DemolishRoadsCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["DemolishRoadsCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["PlacePaintCommand"] | components["schemas"]["DemolishPaintCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -940,6 +945,49 @@ export interface components {
              * @description Building ID of the owning farm (BuildingDisplay.id).
              */
             farm_id: number;
+            tiles: components["schemas"]["FieldTileList"];
+        };
+        /**
+         * @description Paint the `tiles` with a paint family (D-077 §2–§3, MECHANICS §3:
+         *     hedge, garden wall, city wall, square): one 1×1 building per
+         *     tile, each checked like a placement (`occupied`, `terrain`, …)
+         *     and charged cumulatively like `place_fields`. A city wall may
+         *     stand on a road tile (the road crosses it). The valid tiles are
+         *     placed in one state change; `tile_results` reports every tile.
+         *     Without a valid tile it answers 200 with every tile rejected and
+         *     the unchanged version (no state change, no event).
+         */
+        PlacePaintCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "place_paint";
+            island_id: string;
+            /** @description Content building ID with a `paint_family`. */
+            building_type: string;
+            tiles: components["schemas"]["FieldTileList"];
+            /**
+             * @description Optional, default false. Make plans instead (D-071): no tier
+             *     lock, nothing charged.
+             */
+            planned?: boolean;
+        };
+        /**
+         * @description Demolish the paint-family buildings and plans on the `tiles`
+         *     (D-077 §2–§3): each like `demolish` (refund of 50 % of the
+         *     materials, a plan for free); a road under a city wall stays. A
+         *     tile without one is rejected (`building_not_found`, or
+         *     `out_of_bounds`); without a valid tile it succeeds like
+         *     `place_paint` with the unchanged version.
+         */
+        DemolishPaintCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "demolish_paint";
+            island_id: string;
             tiles: components["schemas"]["FieldTileList"];
         };
         SetPausedCommand: {
@@ -2734,6 +2782,12 @@ export interface components {
             };
             /** @description The building repairs ships (the repair crane, D-077 §4). Dormant until raids. */
             repairs?: boolean;
+            /**
+             * @description A gate in the city wall (the gatehouse, D-077 §3): it needs a
+             *     city wall on two opposite sides (`gate_needs_wall`) and a road
+             *     may run along its centre line.
+             */
+            gate?: boolean;
             requires_road: boolean;
             cost: {
                 /**

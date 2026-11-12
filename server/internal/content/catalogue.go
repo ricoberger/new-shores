@@ -336,7 +336,11 @@ type Building struct {
 	// PaintFamily makes a 1x1 building a paint family (D-077 §2–§3).
 	PaintFamily *PaintFamily
 	// Repairs marks the repair crane (D-077 §4); dormant until raids.
-	Repairs      bool
+	Repairs bool
+	// Gate marks the gatehouse (D-077 §3): it needs a road-crossing
+	// paint family (the city wall) on two opposite sides and lets a road
+	// through its centre line.
+	Gate         bool
 	RequiresRoad bool
 	Cost         Cost
 	// UpkeepPerMin is in milli-gold per minute.

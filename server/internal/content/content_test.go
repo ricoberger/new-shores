@@ -610,6 +610,12 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{FileBuildings, "schema violation", "missing property 'look'"},
 		},
 		{
+			"gate on a public building", FileBuildings,
+			[]string{`"cost": { "gold": 100, "planks": 6 },`, `"cost": { "gold": 100, "planks": 6 },
+    "gate": true,`},
+			[]string{FileBuildings, `building "chapel"`, "gate", "square military building"},
+		},
+		{
 			"smoke on a public building", FileBuildings,
 			[]string{`"cost": { "gold": 100, "planks": 6 },`, `"cost": { "gold": 100, "planks": 6 },
     "smoke": true,`},

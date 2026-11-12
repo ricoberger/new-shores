@@ -69,6 +69,11 @@ func TestD077Content(t *testing.T) {
 	if wall := c.BuildingByID["city_wall"]; wall.UpkeepPerMin != 100 || !wall.PaintFamily.RoadCrossing {
 		t.Errorf("city_wall = %+v", wall)
 	}
+	for _, b := range c.Buildings {
+		if b.Gate != (b.ID == "gatehouse") {
+			t.Errorf("%s gate %v", b.ID, b.Gate)
+		}
+	}
 	if sq := c.BuildingByID["square"]; sq.PaintFamily.Ground != GroundCobblesFine {
 		t.Errorf("square = %+v", sq.PaintFamily)
 	}

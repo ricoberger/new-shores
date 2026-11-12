@@ -121,6 +121,10 @@
         "description": "The building repairs ships (repair crane, D-077 §4). Dormant: ship health comes with raids. Absent is false.",
         "type": "boolean"
       },
+      "gate": {
+        "description": "The building is a gate in the city wall (gatehouse, D-077 §3): placed with a road-crossing paint family on two opposite sides, a road may run along its centre line. Absent is false.",
+        "type": "boolean"
+      },
       "trading_post": {
         "description": "The Trading Post (MECHANICS §5, D-051): one per island, placed only by founding; its level sets the island's capacity per good, a collector throughput and the berths of its pier.",
         "type": "object",

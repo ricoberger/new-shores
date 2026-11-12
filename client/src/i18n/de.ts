@@ -360,6 +360,7 @@ export const de: Record<keyof typeof en, string> = {
   "error.quay_disconnected": "Ein Kai muss an Land oder an einen mit dem Land verbundenen Kai grenzen.",
   "error.quay_would_float": "Dadurch wäre ein Kai vom Land abgeschnitten.",
   "error.unique_building": "Davon kannst du nur eines haben, und es ist schon gebaut oder geplant.",
+  "error.gate_needs_wall": "Ein Torhaus braucht auf zwei gegenüberliegenden Seiten eine Stadtmauer.",
   "error.no_work_area": "In seinem Arbeitsbereich gibt es keine nutzbaren Felder.",
   "error.no_fertility": "Der Insel fehlt der nötige Boden.",
   "error.no_deposit": "Unter dem Gebäude liegt kein passendes Vorkommen.",

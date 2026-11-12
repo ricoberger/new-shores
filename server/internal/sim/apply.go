@@ -212,6 +212,12 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Resul
 	case DemolishFields:
 		res.Tiles, err = demolishFields(w, c, cmd, l)
 		res.Unchanged = err == nil && noTileApplied(res.Tiles)
+	case PlacePaint:
+		res.Tiles, err = placePaint(w, c, cmd, l)
+		res.Unchanged = err == nil && noTileApplied(res.Tiles)
+	case DemolishPaint:
+		res.Tiles, err = demolishPaint(w, c, cmd, l)
+		res.Unchanged = err == nil && noTileApplied(res.Tiles)
 	case SetPaused:
 		err = setPaused(w, c, cmd)
 	case UpgradeHouse:
@@ -605,6 +611,8 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 				}
 			case standsOnQuay(def) && quayAt(is, s.c, i):
 				// A quay counts as coast (D-060).
+			case is.roadOrPlan(i) && buildableTerrain(t) && roadCrossing(def, x, y, rotation, tx, ty):
+				// A wall or gate passage on a road (D-077 §3).
 			case is.roadOrPlan(i) || (!buildableTerrain(t) && (!mountain || t != content.TerrainMountain)):
 				return false
 			}
@@ -634,11 +642,17 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 	}
 	depths := waterDepths(is, c, def, x, y, rotation)
 	tiles := make([]Pos, 0, fw*fh)
-	var water, quay []Pos
+	var water, quay, crossing []Pos
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
 			if waterAt(def, depths, x, y, rotation, tx, ty) {
 				water = append(water, Pos{tx, ty})
+				continue
+			}
+			// A city wall or a gate's passage may stand on a road
+			// (D-077 §3): the tile must be free of buildings and land.
+			if is.roadOrPlan(is.index(tx, ty)) && roadCrossing(def, x, y, rotation, tx, ty) {
+				crossing = append(crossing, Pos{tx, ty})
 				continue
 			}
 			// A coastal or water-edge building may stand on a quay: it
@@ -660,6 +674,20 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 	for _, p := range quay {
 		if occ[is.index(p.X, p.Y)] != 0 {
 			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
+		}
+	}
+	for _, p := range crossing {
+		i := is.index(p.X, p.Y)
+		if t := is.Tiles[i].Terrain; !buildableTerrain(t) {
+			return fmt.Errorf("%w: (%d,%d) is %s", ErrTerrain, p.X, p.Y, t)
+		}
+		if occ[i] != 0 {
+			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
+		}
+	}
+	if def.Gate {
+		if err := checkGateWalls(is, c, occ, def, x, y, rotation); err != nil {
+			return err
 		}
 	}
 	// Water-edge buildings (D-062): each column starts with free sea
@@ -859,7 +887,8 @@ func checkRoadSite(is *Island, c *content.Catalogue, def *content.Building, tile
 			fresh = append(fresh, p)
 		}
 	}
-	if err := checkTiles(is, is.occupancy(c), fresh, allowRiver); err != nil {
+	// A road may cross a city wall or a gate's passage (D-077 §3).
+	if err := checkTiles(is, is.roadOccupancy(c), fresh, allowRiver); err != nil {
 		return err
 	}
 	return checkBridges(is, tiles)

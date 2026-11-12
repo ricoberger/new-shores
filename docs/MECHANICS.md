@@ -361,6 +361,31 @@ handlers only.
   before D-077 never block a change. Cost and speed are content
   (provisional 5 gold / 2 stone per tile, 0.6 s/tile like the paved
   road).
+- **Paint families** (D-077 §2–§3; `paint_family` in the content, `paint.go`):
+  the hedge, the garden wall, the city wall and the square are 1×1
+  buildings painted tile by tile with the road tools. `place_paint` is a
+  batch like `place_fields`: every tile is checked as a 1×1 placement
+  (`occupied`, `terrain`, …) and charged cumulatively (a tile the gold or
+  materials no longer cover is refused); the valid tiles are placed in
+  one state change, with `planned` as plans (D-071, free, no tier lock).
+  Each tile is its own building (cost per tile; `demolish_paint` removes
+  the paint-family buildings and plans on its tiles with the usual
+  refund, a plan for free; single tiles also go with `demolish`).
+  Neighbouring tiles of one family join (display only: the client picks
+  the piece). The square is a ground kind (`cobbles_fine`) with no model;
+  it is not a road. Nothing else reads a paint family.
+- **City wall and gate** (D-077 §3): a road may share a tile with a
+  **road-crossing** paint family (the city wall, drawn as an arch) in
+  either order — a road placed over the wall or the wall painted over a
+  road (a land road; never a bridge or a quay) — and demolishing one
+  leaves the other. A **gate** (`gate` in the content, the gatehouse)
+  needs a city wall (built or planned) on the tile beside the middle of
+  each of the two sides its passage does not cross (`gate_needs_wall`,
+  checked when it is placed or moved; later wall demolition does not
+  touch it), and a road may share the tiles of its centre line along the
+  passage (north–south at rotation 0 and 180, east–west at 90 and 270),
+  in either order. Every other building tile stays `occupied` for roads.
+  Military buildings have a `defence` value nothing reads (raids, D-005).
 - Each connected producer is **assigned** to the nearest collector whose
   reach covers it (§5, D-069) by road distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile

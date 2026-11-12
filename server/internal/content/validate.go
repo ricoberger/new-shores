@@ -732,4 +732,7 @@ func checkD077(col *collector, ent string, b *Building) {
 	if b.Repairs && !b.Shore() {
 		col.add(FileBuildings, ent, "repairs", "a repairing building stands on the shore")
 	}
+	if b.Gate && (b.Category != CategoryMilitary || b.PaintFamily != nil || b.Shore() || b.Width != b.Height || b.Width < 3 || b.Width%2 == 0) {
+		col.add(FileBuildings, ent, "gate", "a gate is a square military building with an odd side of at least 3 on land, not a paint family")
+	}
 }

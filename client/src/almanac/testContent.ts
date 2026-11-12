@@ -51,6 +51,7 @@ export function loadContent(dir: string): Content {
       ...(b.unique ? { unique: b.unique } : {}),
       ...(b.paint_family ? { paint_family: b.paint_family } : {}),
       ...(b.repairs ? { repairs: true } : {}),
+      ...(b.gate ? { gate: true } : {}),
       ...(b.description ? { description: b.description } : {}),
       requires_road: !!b.requires_road,
       cost: cost(b.cost),

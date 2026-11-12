@@ -144,8 +144,8 @@ paths:
       description: |
         Commands (`command.type`): `place_building`, `place_road`,
         `demolish`, `demolish_road`, `demolish_roads`, `place_field`,
-        `place_fields`, `demolish_fields`,
-        `set_paused`, `upgrade_building` (deprecated aliases
+        `place_fields`, `demolish_fields`, `place_paint`,
+        `demolish_paint`, `set_paused`, `upgrade_building` (deprecated aliases
         `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
         `move_building`, and the ship and route commands `order_ship`,
         `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
@@ -828,6 +828,9 @@ components:
           `unique_building` (the building, e.g. the Kontor, exists once
           per island or per world — `unique` in the content — and one
           already stands or is planned, D-076 §2),
+          `gate_needs_wall` (a gate, the gatehouse, needs a city wall —
+          built or planned — beside the middle of the two sides its
+          passage does not cross, D-077 §3),
           `no_fertility` (the island lacks the work area's or the field's
           fertility tag),
           `field_type_mismatch` (`place_field` with a type that is not a
@@ -902,7 +905,9 @@ components:
         `island_not_settled`. A batch without a valid tile is not an
         error: 200 with every tile `ok: false` and its reason, the
         unchanged version, no state change and no event (`place_fields`
-        and `demolish_fields` alike).
+        and `demolish_fields` alike). `place_paint` and `demolish_paint`
+        (D-077 §2–§3) are the batch forms for paint families and follow
+        the same rules.
 
         `demolish_roads` is the batch form of `demolish_road` for the
         Demolish tool's rectangle (at most 512 tiles): the tiles with a
@@ -955,6 +960,7 @@ components:
         - quay_disconnected
         - quay_would_float
         - unique_building
+        - gate_needs_wall
         - harbour_blocked
         - no_fertility
         - no_deposit
@@ -1151,6 +1157,8 @@ components:
         - $ref: "#/components/schemas/PlaceFieldCommand"
         - $ref: "#/components/schemas/PlaceFieldsCommand"
         - $ref: "#/components/schemas/DemolishFieldsCommand"
+        - $ref: "#/components/schemas/PlacePaintCommand"
+        - $ref: "#/components/schemas/DemolishPaintCommand"
         - $ref: "#/components/schemas/SetPausedCommand"
         - $ref: "#/components/schemas/UpgradeHouseCommand"
         - $ref: "#/components/schemas/UpgradeBuildingCommand"
@@ -1185,6 +1193,8 @@ components:
           place_field: "#/components/schemas/PlaceFieldCommand"
           place_fields: "#/components/schemas/PlaceFieldsCommand"
           demolish_fields: "#/components/schemas/DemolishFieldsCommand"
+          place_paint: "#/components/schemas/PlacePaintCommand"
+          demolish_paint: "#/components/schemas/DemolishPaintCommand"
           set_paused: "#/components/schemas/SetPausedCommand"
           upgrade_house: "#/components/schemas/UpgradeHouseCommand"
           upgrade_building: "#/components/schemas/UpgradeBuildingCommand"
@@ -1537,6 +1547,54 @@ components:
           type: integer
           format: int64
           description: Building ID of the owning farm (BuildingDisplay.id).
+        tiles:
+          $ref: "#/components/schemas/FieldTileList"
+    PlacePaintCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Paint the `tiles` with a paint family (D-077 §2–§3, MECHANICS §3:
+        hedge, garden wall, city wall, square): one 1×1 building per
+        tile, each checked like a placement (`occupied`, `terrain`, …)
+        and charged cumulatively like `place_fields`. A city wall may
+        stand on a road tile (the road crosses it). The valid tiles are
+        placed in one state change; `tile_results` reports every tile.
+        Without a valid tile it answers 200 with every tile rejected and
+        the unchanged version (no state change, no event).
+      required: [type, island_id, building_type, tiles]
+      properties:
+        type:
+          type: string
+          enum: [place_paint]
+        island_id:
+          type: string
+        building_type:
+          type: string
+          description: Content building ID with a `paint_family`.
+        tiles:
+          $ref: "#/components/schemas/FieldTileList"
+        planned:
+          type: boolean
+          description: |
+            Optional, default false. Make plans instead (D-071): no tier
+            lock, nothing charged.
+    DemolishPaintCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Demolish the paint-family buildings and plans on the `tiles`
+        (D-077 §2–§3): each like `demolish` (refund of 50 % of the
+        materials, a plan for free); a road under a city wall stays. A
+        tile without one is rejected (`building_not_found`, or
+        `out_of_bounds`); without a valid tile it succeeds like
+        `place_paint` with the unchanged version.
+      required: [type, island_id, tiles]
+      properties:
+        type:
+          type: string
+          enum: [demolish_paint]
+        island_id:
+          type: string
         tiles:
           $ref: "#/components/schemas/FieldTileList"
     SetPausedCommand:
@@ -3959,6 +4017,12 @@ components:
         repairs:
           type: boolean
           description: The building repairs ships (the repair crane, D-077 §4). Dormant until raids.
+        gate:
+          type: boolean
+          description: |
+            A gate in the city wall (the gatehouse, D-077 §3): it needs a
+            city wall on two opposite sides (`gate_needs_wall`) and a road
+            may run along its centre line.
         requires_road:
           type: boolean
         cost:

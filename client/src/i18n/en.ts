@@ -358,6 +358,7 @@ export const en = {
   "error.quay_disconnected": "A quay must touch land or a quay that is connected to land.",
   "error.quay_would_float": "This would leave a quay cut off from the land.",
   "error.unique_building": "You can only have one of these, and it is already built or planned.",
+  "error.gate_needs_wall": "A gatehouse needs a city wall on two opposite sides.",
   "error.no_work_area": "There are no usable tiles in its work area.",
   "error.no_fertility": "The island lacks the needed fertility.",
   "error.no_deposit": "There is no matching deposit under the building.",

@@ -492,7 +492,7 @@ show it. Costs provisional.
 |---|---|---|---|---|---|---|
 | `city_wall` | 2 | 1×1 | 1 | 0.1 per tile | 15 gold, 2 stone | paint family; a road may cross a tile (`road_crossing`, drawn as an arch) |
 | `tower` | 2 | 2×2 | 5 | 2 | 200 gold, 10 stone | joins a wall line |
-| `gatehouse` | 2 | 3×3 | 5 | 3 | 300 gold, 15 stone | wall on two opposite sides, the road through |
+| `gatehouse` | 2 | 3×3 | 5 | 3 | 300 gold, 15 stone | `gate: true`: wall on two opposite sides, the road through its centre line |
 | `harbour_tower` | 3 | 2×2 | 8 | 4 | 600 gold, 20 stone, 10 bricks | shore placement |
 | `castle` | 4 | 8×8 | 30 | 15 | 5 000 gold, 100 stone, 60 bricks | keep, curtain and gate |
 
@@ -679,7 +679,9 @@ or planned, `unique_building`; not on a trading post, road, field or
 house); `paint_family` (`{ ground?: "cobbles_fine", road_crossing?:
 bool }`: a 1×1 land building without blocks painted with the road tools
 whose tiles join, MECHANICS §3); `repairs` (boolean, shore buildings
-only; dormant).
+only; dormant); `gate` (boolean: the gatehouse — a square military
+building with an odd side ≥ 3 that needs a city wall on two opposite
+sides and lets a road along its centre line, MECHANICS §3).
 What a building *does* is defined by the optional blocks
 it carries:
 

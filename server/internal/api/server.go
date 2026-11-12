@@ -389,7 +389,8 @@ type worldResponse struct {
 	Version int64            `json:"version"`
 	Display sim.DisplayState `json:"display"`
 	// TileResults is the per-tile outcome of a batch command
-	// (place_fields, demolish_fields), in request order; absent for
+	// (place_fields, demolish_fields, place_paint, demolish_paint,
+	// demolish_roads), in request order; absent for
 	// every other command.
 	TileResults []tileResultJSON `json:"tile_results,omitempty"`
 }

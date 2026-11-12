@@ -148,7 +148,7 @@ func planRoad(c *content.Catalogue, is *Island, def *content.Building, cmd Place
 	v := planView(is)
 	if !def.Road.Shallows {
 		// A planned road never replaces a road: every tile is free.
-		if err := checkTiles(v, v.occupancy(c), cmd.Tiles, allowRiver); err != nil {
+		if err := checkTiles(v, v.roadOccupancy(c), cmd.Tiles, allowRiver); err != nil {
 			return err
 		}
 	}

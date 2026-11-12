@@ -114,6 +114,7 @@ var simErrors = []simError{
 	{sim.ErrQuayDisconnected, "quay_disconnected", http.StatusConflict},
 	{sim.ErrQuayWouldFloat, "quay_would_float", http.StatusConflict},
 	{sim.ErrUniqueBuilding, "unique_building", http.StatusConflict},
+	{sim.ErrGateNeedsWall, "gate_needs_wall", http.StatusConflict},
 	{sim.ErrHarbourBlocked, "harbour_blocked", http.StatusConflict},
 	{sim.ErrNoFertility, "no_fertility", http.StatusConflict},
 	{sim.ErrNoDeposit, "no_deposit", http.StatusConflict},

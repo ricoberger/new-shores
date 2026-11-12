@@ -19,6 +19,7 @@ var (
 	ErrQuayDisconnected      = errors.New("a quay must touch land or a connected quay")
 	ErrQuayWouldFloat        = errors.New("the change would leave a quay cut off from land")
 	ErrUniqueBuilding        = errors.New("the building exists only once in its scope")
+	ErrGateNeedsWall         = errors.New("a gate needs a wall on two opposite sides")
 	ErrShoreNeedsWater       = errors.New("a shore building needs at least one water tile")
 	ErrShoreBackEdge         = errors.New("the back edge of a shore building must touch land or quay")
 	ErrNoFertility           = errors.New("island lacks fertility")

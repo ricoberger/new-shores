@@ -320,7 +320,9 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   alias), `sail_ship`, `found_island`, `upgrade_trading_post`,
   `upgrade_warehouse`, and since D-071 `planned: true` on
   `place_building` / `place_road` / `place_fields`, `build_plan` and
-  `demolish_roads` (batch, ≤ 512 tiles, per-tile results), returning
+  `demolish_roads` (batch, ≤ 512 tiles, per-tile results), and since
+  D-077 `place_paint` / `demolish_paint` (paint-family batches, ≤ 512
+  tiles, per-tile results, MECHANICS §3), returning
   `{version, display}`; the display
   payload includes `ships`, `routes` (with `loop_ms` and the estimated
   `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,
