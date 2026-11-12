@@ -202,7 +202,7 @@ func TestTierFourMatchesPlannedModels(t *testing.T) {
 		if b.Tier != "patricians" {
 			continue
 		}
-		if !seen[b.ID] && b.ID != "grain_distillery" && b.ID != "surgery" {
+		if !seen[b.ID] && b.ID != "grain_distillery" && b.ID != "surgery" && !d077Building(b) {
 			t.Errorf("%s is not in the planned tier-4 models", b.ID)
 		}
 		m, ok := manifest.Models[b.ID]

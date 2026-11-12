@@ -1,3 +1,4 @@
+import { SHALLOWS_REACH } from "../display/quay";
 import { depositName, fertilityName } from "../display/tiers";
 import { t } from "../i18n";
 import styles from "./almanac.module.css";
@@ -88,6 +89,10 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
           </dl>
         </>
       )}
+      <section aria-labelledby="islands-basins" data-testid="almanac-basins">
+        <h3 id="islands-basins">{t("almanac.i.basins")}</h3>
+        <p>{t("almanac.i.basinsText", { count: SHALLOWS_REACH })}</p>
+      </section>
       {v.basicOnly && <p className={styles.small}>{t("almanac.i.basicOnly")}</p>}
     </>
   );

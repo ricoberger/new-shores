@@ -21,14 +21,15 @@ CONTENT = content.load()
 ROLES = palette.load()[0]
 
 #: id → (footprint w × d tiles, content water_rows range, anchors beyond status, model levels).
+#: Trading pier and depot have the shore placement since D-077 §5 (config.SHORE_DECK_ROWS: 6 and 9).
 D062 = {
     "trading_post": ((6, 6), (1, 2), ("door", "cart", "berth_1", "berth_2", "berth_3", "berth_4"), 4),
     "chapel": ((3, 5), None, ("door",), 1),
     "city_guard": ((4, 4), None, ("door",), 1),
     "fire_station": ((4, 5), None, ("door",), 1),
     "surgery": ((4, 6), None, ("door",), 1),
-    "trading_pier": ((6, 9), (5, 6), ("berth_1", "berth_2", "cart"), 1),
-    "depot": ((4, 11), (7, 9), ("cart", "door"), 1),
+    "trading_pier": ((6, 9), None, ("berth_1", "berth_2", "cart"), 1),
+    "depot": ((4, 11), None, ("cart", "door"), 1),
     "playhouse": ((11, 14), None, ("door",), 1),
 }
 #: Voxels of the model's water rows: the deck of the pier (all six; D-062: 5–6 in the content), the Trading Post's front row. The depot is a platform with its own test.

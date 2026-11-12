@@ -1,0 +1,189 @@
+{
+  "name": "shore_placement",
+  "description": "Shore placement (D-077 §5) on the shipped content: a trading pier on the beach (water and land); a depot on the pier's berth tiles (both flanks) fails (harbour_blocked), one column further succeeds; a depot on land only (shore_needs_water), on open water (shore_back_edge) and turned so its back edge faces the sea (shore_back_edge) fails; after a quay row along the coast a trading pier fully on the water against the quay succeeds, one column off the quay's end fails (shore_back_edge); a shipyard plan on the beach succeeds; moving the depot onto open water fails, one tile further out on the beach succeeds. Every failed step leaves the world byte-identical.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "fertilities": [],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 4,
+      "y": 16,
+      "rotation": 0
+    },
+    "gold": "2000000",
+    "stock": {
+      "planks": 290,
+      "stone": 290
+    },
+    "unlocked_tiers": [
+      "citizens",
+      "merchants"
+    ]
+  },
+  "steps": [
+    {
+      "place": {
+        "type": "trading_pier",
+        "x": 20,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 26,
+        "y": 9,
+        "rotation": 0
+      },
+      "expect_error": "harbour_blocked"
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 16,
+        "y": 9,
+        "rotation": 0
+      },
+      "expect_error": "harbour_blocked"
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 27,
+        "y": 9,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 33,
+        "y": 18,
+        "rotation": 0
+      },
+      "expect_error": "shore_needs_water"
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 33,
+        "y": 2,
+        "rotation": 0
+      },
+      "expect_error": "shore_back_edge"
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 33,
+        "y": 9,
+        "rotation": 180
+      },
+      "expect_error": "shore_back_edge"
+    },
+    {
+      "road": {
+        "type": "quay",
+        "from": [
+          10,
+          17
+        ],
+        "to": [
+          15,
+          17
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "trading_pier",
+        "x": 11,
+        "y": 8,
+        "rotation": 0
+      },
+      "expect_error": "shore_back_edge"
+    },
+    {
+      "place": {
+        "type": "trading_pier",
+        "x": 10,
+        "y": 8,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 31,
+        "y": 8,
+        "rotation": 0,
+        "planned": true
+      }
+    },
+    {
+      "move": {
+        "x": 27,
+        "y": 9,
+        "to_x": 27,
+        "to_y": 2,
+        "rotation": 0
+      },
+      "expect_error": "shore_back_edge"
+    },
+    {
+      "move": {
+        "x": 27,
+        "y": 9,
+        "to_x": 27,
+        "to_y": 8,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

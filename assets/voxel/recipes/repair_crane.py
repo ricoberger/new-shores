@@ -5,8 +5,10 @@ shipyard's treadwheel crane on a plank deck that lies under every tile
 big treadwheel (a ring with rungs and spokes, a walker's platform inside it)
 turning on the windlass shaft, a jib over the water carrying the block and
 hook with a hanging crate, and a stone-weighted counter-arm at the back.
-The jib and the hanging hook are in the sway group `arm`, so the client can
-swing them. 8 voxels per tile; shore model (config.SHORE_MODELS).
+The jib and the hanging hook are in the sway group `arm` (export.ARM: a
+sway weight rising from the jib's root to its tip), so the client's sway
+swings them slowly about the root. 8 voxels per tile; shore model
+(config.SHORE_MODELS).
 """
 
 import math

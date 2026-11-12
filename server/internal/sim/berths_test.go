@@ -304,7 +304,7 @@ func TestDemolishLastBerthSourceMoorsShips(t *testing.T) {
 	}
 	is := w.Island("b")
 	tp := is.Buildings[0]
-	want := HarbourAt(is, c.BuildingByID[tp.Type], tp.X, tp.Y, tp.Rotation)
+	want := HarbourAt(c, is, c.BuildingByID[tp.Type], tp.X, tp.Y, tp.Rotation)
 	mustApply(t, w, c, Demolish{IslandID: "b", BuildingID: tp.ID, AcceptSurplusLoss: true})
 	if s.Offshore == nil || *s.Offshore != want {
 		t.Fatalf("offshore = %v, want %v", s.Offshore, want)

@@ -207,11 +207,12 @@ return Display(w, now)
   are pure functions over the raw envelope that may take the content
   catalogue and return **notes** (e.g. the 2→3 fields migration reports
   farms whose efficiency could not be preserved); the store logs the
-  notes, the sim never does. Current schema: 16; the registered
-  migrations are 14→15 (plans, D-071) and 15→16 (regions, D-076: the
+  notes, the sim never does. Current schema: 17; the registered
+  migrations are 14→15 (plans, D-071), 15→16 (regions, D-076: the
   islands move into `regions[0]`, generated island IDs get the region
   prefix, islands and ships get `region_id`; the separately stored
-  terrain is matched by the IDs' digits) — older versions were bumped
+  terrain is matched by the IDs' digits) and 16→17 (patrol, D-077 §6:
+  `Ship.Patrol`, unchanged JSON) — older versions were bumped
   without a migration (local databases are recreated). **Rule
   while undeployed:** a trivial additive migration (a defaulted field)
   may be written when it is cheaper than a reset; structural changes
@@ -320,7 +321,9 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   alias), `sail_ship`, `found_island`, `upgrade_trading_post`,
   `upgrade_warehouse`, and since D-071 `planned: true` on
   `place_building` / `place_road` / `place_fields`, `build_plan` and
-  `demolish_roads` (batch, ≤ 512 tiles, per-tile results), returning
+  `demolish_roads` (batch, ≤ 512 tiles, per-tile results), and since
+  D-077 `place_paint` / `demolish_paint` (paint-family batches, ≤ 512
+  tiles, per-tile results, MECHANICS §3), returning
   `{version, display}`; the display
   payload includes `ships`, `routes` (with `loop_ms` and the estimated
   `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,
@@ -472,7 +475,7 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   not in the OpenAPI contract) reseeds the in-memory world from a named
   fixture of the one list `devworld.Fixtures()` (`default`, `town`,
   `settled`, `seafaring`, `citizens`, `merchants`, `patricians`,
-  `played`), clears pending dev events and publishes; `make shots` uses
+  `played`, `harbour-basin`, `castle-town`), clears pending dev events and publishes; `make shots` uses
   it for every fixture (the client no longer posts it, D-066).
   `played` (D-059) replays `server/testdata/scenarios/
   bootstrap_patricians.json` (dev server flag `--scenarios`, default
@@ -622,6 +625,22 @@ STATS=2` attributes a real view per layer, with the neighbours in relief
 CI runs `gofmt`, `go vet`, `golangci-lint` (config in repo), `go test ./...`,
 `tsc`, `eslint`, Vitest, the client build and `assets-check` on every
 labelled PR.
+
+Pitfalls for local runs:
+
+- **The reference-game replay is slow.** `TestPlansRegenerate`
+  (`internal/sim/scenario/plan`) regenerates the four reference games and
+  compares them byte for byte; it takes about 26 min. It is skipped with
+  `-short` (`make check`) and runs in `make server-test-full` and
+  `make server-integration`. Run it on its own in the background
+  (`go test -timeout 60m ./internal/sim/scenario/plan -run
+  TestPlansRegenerate`; `-update` rewrites the scenarios).
+- **A new dev fixture in its own file needs the shots test.** The
+  fixture names are read from Go source by `client/e2e/tools/shots-args.test.ts`
+  (fixtures.go plus a fixed list of files: `played.go`, `basin.go`,
+  `castle.go`). A fixture constant in a new file must be added to that
+  list, to `FIXTURES` in `shots-args.ts` and to `FIXTURE_INFO` in
+  `shots.ts`, or `make check` fails.
 
 ## 11. Alternatives considered
 

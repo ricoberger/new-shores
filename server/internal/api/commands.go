@@ -26,6 +26,8 @@ const (
 	cmdPlaceField    = "place_field"
 	cmdPlaceFields   = "place_fields"
 	cmdDemolishField = "demolish_fields"
+	cmdPlacePaint    = "place_paint"
+	cmdDemolishPaint = "demolish_paint"
 	cmdSetPaused     = "set_paused"
 	cmdUpgradeHouse  = "upgrade_house"
 	cmdMoveBuilding  = "move_building"
@@ -43,6 +45,7 @@ const (
 	cmdDeleteRoute     = "delete_route"
 	cmdAssignShip      = "assign_ship"
 	cmdUnassignShip    = "unassign_ship"
+	cmdPatrol          = "patrol"
 	cmdManualShipment  = "manual_shipment"
 	cmdSailShip        = "sail_ship"
 	cmdFoundIsland     = "found_island"
@@ -126,6 +129,22 @@ type placeFieldsJSON struct {
 	Tiles        []tileJSON `json:"tiles"`
 	Rotation     *int       `json:"rotation"`
 	Planned      bool       `json:"planned"`
+}
+
+// placePaintJSON is the body of place_paint (D-077 §2–§3): the tiles of
+// one paint-family drag, at most sim.MaxFieldTiles.
+type placePaintJSON struct {
+	Type         string     `json:"type"`
+	IslandID     *string    `json:"island_id"`
+	BuildingType *string    `json:"building_type"`
+	Tiles        []tileJSON `json:"tiles"`
+	Planned      bool       `json:"planned"`
+}
+
+type demolishPaintJSON struct {
+	Type     string     `json:"type"`
+	IslandID *string    `json:"island_id"`
+	Tiles    []tileJSON `json:"tiles"`
 }
 
 type demolishFieldsJSON struct {
@@ -231,6 +250,13 @@ type manualShipmentJSON struct {
 	Cargo      []cargoJSON `json:"cargo"`
 }
 
+// patrolJSON is the body of patrol (D-077 §6).
+type patrolJSON struct {
+	Type     string  `json:"type"`
+	ShipID   *int64  `json:"ship_id"`
+	IslandID *string `json:"island_id"`
+}
+
 type sailShipJSON struct {
 	Type       string        `json:"type"`
 	ShipID     *int64        `json:"ship_id"`
@@ -318,6 +344,10 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodePlaceFields(raw)
 	case cmdDemolishField:
 		cmd, err = decodeDemolishFields(raw)
+	case cmdPlacePaint:
+		cmd, err = decodePlacePaint(raw)
+	case cmdDemolishPaint:
+		cmd, err = decodeDemolishPaint(raw)
 	case cmdSetPaused:
 		cmd, err = decodeSetPaused(raw)
 	case cmdUpgradeHouse, cmdUpgradeBuilding, cmdUpgradeWarehouse, cmdUpgradeTradingPost:
@@ -338,6 +368,8 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeDeleteRoute(raw)
 	case cmdAssignShip:
 		cmd, err = decodeAssignShip(raw)
+	case cmdPatrol:
+		cmd, err = decodePatrol(raw)
 	case cmdManualShipment:
 		cmd, err = decodeManualShipment(raw)
 	case cmdSailShip:
@@ -584,6 +616,41 @@ func decodePlaceFields(raw json.RawMessage) (sim.Command, error) {
 		rot = *c.Rotation
 	}
 	return sim.PlaceFields{IslandID: *c.IslandID, FarmID: *c.FarmID, Type: *c.BuildingType, Tiles: tiles, Rotation: rot, Planned: c.Planned}, nil
+}
+
+// decodePlacePaint decodes place_paint.
+func decodePlacePaint(raw json.RawMessage) (sim.Command, error) {
+	var c placePaintJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	switch {
+	case c.IslandID == nil:
+		return nil, missing("island_id")
+	case c.BuildingType == nil:
+		return nil, missing("building_type")
+	}
+	tiles, err := decodeFieldTiles(c.Tiles)
+	if err != nil {
+		return nil, err
+	}
+	return sim.PlacePaint{IslandID: *c.IslandID, Type: *c.BuildingType, Tiles: tiles, Planned: c.Planned}, nil
+}
+
+// decodeDemolishPaint decodes demolish_paint.
+func decodeDemolishPaint(raw json.RawMessage) (sim.Command, error) {
+	var c demolishPaintJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	if c.IslandID == nil {
+		return nil, missing("island_id")
+	}
+	tiles, err := decodeFieldTiles(c.Tiles)
+	if err != nil {
+		return nil, err
+	}
+	return sim.DemolishPaint{IslandID: *c.IslandID, Tiles: tiles}, nil
 }
 
 func decodeDemolishFields(raw json.RawMessage) (sim.Command, error) {
@@ -855,6 +922,20 @@ func decodeAssignShip(raw json.RawMessage) (sim.Command, error) {
 		return nil, missing("route_id")
 	}
 	return sim.AssignShip{ShipID: *c.ShipID, RouteID: *c.RouteID}, nil
+}
+
+func decodePatrol(raw json.RawMessage) (sim.Command, error) {
+	var c patrolJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	switch {
+	case c.ShipID == nil:
+		return nil, missing("ship_id")
+	case c.IslandID == nil:
+		return nil, missing("island_id")
+	}
+	return sim.StartPatrol{ShipID: *c.ShipID, IslandID: *c.IslandID}, nil
 }
 
 func decodeSailShip(raw json.RawMessage) (sim.Command, error) {

@@ -1,0 +1,204 @@
+{
+  "name": "city_wall_gate",
+  "description": "Paint families and the gate (D-077 §2–§3) on the shipped content: a dirt road north–south; a city wall painted across it (the road crosses); a hedge on the road fails (occupied); a gatehouse without its second wall fails (gate_needs_wall), with the wall on both sides it stands and a road runs through its passage; a road beside the passage fails (occupied); a square planned; the wall tile on the road demolished keeps the road. Every failed step leaves the world byte-identical.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "fertilities": [],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 4,
+      "y": 16,
+      "rotation": 0
+    },
+    "gold": "2000000",
+    "stock": {
+      "planks": 290,
+      "stone": 290
+    },
+    "unlocked_tiers": [
+      "citizens",
+      "merchants"
+    ]
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          20,
+          19
+        ],
+        "to": [
+          20,
+          22
+        ]
+      }
+    },
+    {
+      "paint": {
+        "type": "city_wall",
+        "from": [
+          14,
+          22
+        ],
+        "to": [
+          25,
+          22
+        ]
+      }
+    },
+    {
+      "paint": {
+        "type": "hedge",
+        "from": [
+          20,
+          20
+        ],
+        "to": [
+          20,
+          20
+        ]
+      },
+      "expect_error": "occupied"
+    },
+    {
+      "paint": {
+        "type": "city_wall",
+        "from": [
+          26,
+          24
+        ],
+        "to": [
+          26,
+          24
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "gatehouse",
+        "x": 27,
+        "y": 23,
+        "rotation": 0
+      },
+      "expect_error": "gate_needs_wall"
+    },
+    {
+      "paint": {
+        "type": "city_wall",
+        "from": [
+          30,
+          24
+        ],
+        "to": [
+          34,
+          24
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "gatehouse",
+        "x": 27,
+        "y": 23,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          28,
+          20
+        ],
+        "to": [
+          28,
+          27
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          27,
+          24
+        ],
+        "to": [
+          27,
+          24
+        ]
+      },
+      "expect_error": "occupied"
+    },
+    {
+      "paint": {
+        "type": "square",
+        "from": [
+          10,
+          25
+        ],
+        "to": [
+          13,
+          25
+        ],
+        "planned": true
+      }
+    },
+    {
+      "demolish_paint": {
+        "rect": [
+          20,
+          22,
+          20,
+          22
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

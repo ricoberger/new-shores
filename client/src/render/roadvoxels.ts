@@ -15,7 +15,10 @@
 // lower, too). River tiles carry bridges instead (render/terraces.ts). Quays (D-060) stand on the water: the whole tile
 // is a stone wharf deck at the level of the shore, its walls stone into
 // the water below; toward open water a timber fender runs along the
-// edge, with an iron bollard on it every third tile. The island's terrain
+// edge, with an iron bollard on it every third tile. A quay tile in deeper
+// water (D-077 §8: no beach or sand shelf under it, a harbour basin's pier)
+// gets a dressed-stone wall (SIDE_QUAY) and a timber mooring post on the
+// fender of the tile after each bollard tile. The island's terrain
 // mesh (ramps and quays) and ground texture are rebuilt from the result
 // (render/terrain.ts).
 import { Color3 } from "@babylonjs/core/Maths/math.color";
@@ -25,7 +28,7 @@ import { cobbleTop, DIRT, dirtTop, KERB, STONE, STONE_DARK } from "./groundpaint
 import { c3 } from "./palette";
 import type { RoadTile } from "./roads";
 import { bridgeDecks, bridgeRunsOf, LEVEL_STEPS } from "./terraces";
-import { type Field, pack, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
+import { type Field, pack, SIDE_QUAY, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
 
 /** Directions to a road neighbour (x, y). */
 const RAMP_DIRS = [
@@ -45,6 +48,10 @@ export const QUAY_H = 0;
 export const BOLLARD_H = QUAY_H + 2;
 /** A bollard stands on every this many quay tiles (by tile position). */
 export const BOLLARD_EVERY = 3;
+/** Height of a mooring post on a deep quay's fender (steps). */
+export const POST_H = QUAY_H + 3;
+/** Ground below this (steps) is deeper water: no beach, rim or sand shelf (render/voxelterrain.ts WET_H is the lowest). */
+const DEEP_BELOW = -4;
 
 /** Whether a road tile is the paved (cobbled) road. */
 const paved = (t: RoadTile) => t.type === "road_paved";
@@ -184,6 +191,8 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
     };
     const edges = { n: open(0, -1), s: open(0, 1), w: open(-1, 0), e: open(1, 0) };
     const bollard = (t.x + t.y) % BOLLARD_EVERY === 0;
+    const deep = isDeepQuay(base, nx, ny, t.x, t.y);
+    const post = deep && (t.x + t.y) % BOLLARD_EVERY === 1;
     for (let b = 0; b < vpt; b++) {
       for (let a = 0; a < vpt; a++) {
         const i = t.x * vpt + a;
@@ -193,12 +202,13 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
         const fender = (edges.n && b === 0) || (edges.s && b === vpt - 1) || (edges.w && a === 0) || (edges.e && a === vpt - 1);
         // The bollard: the fender column at the middle of the tile's first open edge.
         const mid = (edges.n && b === 0 && a === lo) || (!edges.n && edges.e && a === vpt - 1 && b === lo) || (!edges.n && !edges.e && edges.s && b === vpt - 1 && a === hi) || (!edges.n && !edges.e && !edges.s && edges.w && a === 0 && b === hi);
-        f.h[k] = bollard && mid ? BOLLARD_H : QUAY_H;
-        (f.kind as Uint8Array)[k] = SIDE_ROCK;
+        f.h[k] = bollard && mid ? BOLLARD_H : post && mid ? POST_H : QUAY_H;
+        (f.kind as Uint8Array)[k] = deep ? SIDE_QUAY : SIDE_ROCK;
         f.road[k] = 3;
         painted.add(k);
         const r = hash2(i, j, seed + 64);
         if (bollard && mid) f.top[k] = pack(IRON);
+        else if (post && mid) f.top[k] = pack(TIMBER.scale(0.8));
         else if (fender) f.top[k] = pack(TIMBER.scale(0.9 + 0.15 * r));
         else {
           // Stone slabs of 2 × 2 columns in two shades, a darker joint now and then.
@@ -232,6 +242,24 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   const changed: number[] = [];
   for (let k = 0; k < nx * ny; k++) if (f.h[k] !== before[k]) changed.push(k);
   return changed;
+}
+
+/**
+ * Whether a quay tile stands in deeper water (D-077 §8): every column of
+ * the tile's ground (the roadless base) lies below the beach, rim and sand
+ * shelf. Such a tile's wall is dressed stone (SIDE_QUAY) and its fender
+ * carries mooring posts; a quay on the shelf next to land keeps the D-060 look.
+ */
+export function isDeepQuay(base: { h: Int8Array }, nx: number, ny: number, x: number, y: number, vpt = TERRAIN_VPT): boolean {
+  for (let b = 0; b < vpt; b++) {
+    for (let a = 0; a < vpt; a++) {
+      const i = x * vpt + a;
+      const j = y * vpt + b;
+      if (i < 0 || j < 0 || i >= nx || j >= ny) continue;
+      if ((base.h[j * nx + i] as number) >= DEEP_BELOW) return false;
+    }
+  }
+  return true;
 }
 
 /** A field tile and its field type (the ground under it is painted: render/terrain.ts). */

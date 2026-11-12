@@ -35,8 +35,9 @@ type MigrationNotes struct{}
 
 // SchemaMigrations returns the registered schema migrations; c is the
 // content catalogue of the binary for migrations that need content
-// (15 -> 16 reads its regions). 14 -> 15 (migrate14to15, D-071 plans) and
-// 15 -> 16 (migrate15to16, D-076 regions) are registered; worlds of
+// (15 -> 16 reads its regions). 14 -> 15 (migrate14to15, D-071 plans),
+// 15 -> 16 (migrate15to16, D-076 regions) and 16 -> 17 (migrate16to17,
+// D-077 patrol) are registered; worlds of
 // schema 1-13 are not migrated (the game was not deployed), but fail to
 // load with ErrSchemaVersion (a fresh database is required).
 //
@@ -51,7 +52,18 @@ type MigrationNotes struct{}
 //     checks the re-encode/round-trip/Advance/Display template
 //     (TestSchemaFixtures in migrate_test.go).
 func SchemaMigrations(c *content.Catalogue) Migrations {
-	return Migrations{14: migrate14to15, 15: migrate15to16(c)}
+	return Migrations{14: migrate14to15, 15: migrate15to16(c), 16: migrate16to17}
+}
+
+// migrate16to17 adds the patrol of D-077 §6 (Ship.Patrol, the state
+// patrolling): optional and absent in a schema-16 world, which has no
+// patrolling ship, so the world JSON is unchanged.
+func migrate16to17(e RawEnvelope, _ *MigrationNotes) (RawEnvelope, error) {
+	var world map[string]json.RawMessage
+	if err := json.Unmarshal(e.World, &world); err != nil {
+		return e, fmt.Errorf("schema 16 world: %w", err)
+	}
+	return e, nil
 }
 
 // migrate15to16 wraps the islands of a schema-15 world into the regions

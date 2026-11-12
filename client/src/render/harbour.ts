@@ -71,7 +71,8 @@ export function islandBerths(island: IslandDisplay, statics: Island, defs: Reado
       near = { x: box.cx, y: -box.cz };
     }
   }
-  const overWater = island.buildings.filter((b) => (defs.get(b.type)?.water_rows?.max ?? 0) > 0);
+  // Water-edge and shore buildings (D-077 §5) stand over the water: no berth on them.
+  const overWater = island.buildings.filter((b) => (defs.get(b.type)?.water_rows?.max ?? 0) > 0 || defs.get(b.type)?.placement === "shore");
   const taken = (x: number, y: number) =>
     overWater.some((b) => {
       const def = defs.get(b.type);

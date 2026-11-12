@@ -285,6 +285,22 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   colour in the lite terrain's ground texture, and the quays' decks are
   columns of the island's one lite terrain mesh (rebuilt when the quays
   change) — no road or quay mesh of their own.
+- **Quay walls (D-077 §8).** A quay tile in deeper water (every ground
+  column below the wet sand line, `isDeepQuay`: a harbour basin's pier)
+  is a level-0 block whose side is dressed stone (`SIDE_QUAY`,
+  `quaySide`: a light capping course, ashlar courses in two shades, a
+  wet green-grey foot) instead of the D-060 rock-and-earth bands, and
+  its fender carries a timber **mooring post** (3 steps) on the tile
+  after each bollard tile. A quay on the beach or sand shelf next to the
+  land keeps the D-060 look. At far LOD the deep quay is a column of the
+  lite mesh with the same stone side: a stone-coloured line.
+- **The square (D-077 §2)** is paint, not a model: each tile of the
+  paint family with `paint_family.ground: cobbles_fine` paints **fine
+  cobbles** (one-column setts in a light–dark checker, lighter than the
+  road's cobbles, a darker sett now and then; `fineCobbleTop`) into the
+  ground texture like a yard (`yardTiles`/`paintYards`), so near and far
+  views show it; on a terrace plinth it fills like a paved yard. Its
+  plan shows the gold outline only.
 - **Field ground** is painted into the ground texture too (furrows for
   crops, pasture, orchard grass; meadows and tree plots keep the
   terrain's grass) over the whole footprint; the field models have no
@@ -635,8 +651,13 @@ land buildings).
   side normals tilted toward up so walls turned from the sun stay warm.
   The alpha byte carries the role's **jitter class** (255 − class,
   `nsvoxel/jitter.py`; the shader's per-voxel jitter, §2) or, on cloth
-  and leaf voxels (sway groups `sail`, `flag`, `cloth`, `canopy`), the
-  sway weight (≤ 245); the manifest lists each model's sway groups.
+  and leaf voxels (sway groups `sail`, `flag`, `cloth`, `canopy`, `arm`), the
+  sway weight (≤ 245); the manifest lists each model's sway groups. The
+  `arm` group (the repair crane's jib, D-077) is rigid timber with
+  ordinary normals whose weight rises with the horizontal distance from
+  its pivot (the group's voxel nearest the footprint centre: 0 there,
+  `export.ARM_SWAY` 0.5 at the tip), so the shared sway shader bends it
+  about its root, a slow small swing, instead of shifting it off its post.
 - **Roles for the model rework (V7 roles, applied by the tier
   sessions):** roofs per tier (T1 thatch, T2 orange terracotta, T3
   `tile-dark`, T4 slate) and the `brick` / `tile-dark` roles follow
@@ -670,12 +691,16 @@ land buildings).
 | slaughterhouse, oyster house, cooperage, winepress, malt house, grain distillery, thread spinner, lace maker, candle foundry, copper smelter, gold smelter | Patricians | workshop | tier II: rubble, half-timber, terracotta; furnace towers, kilns, the oast cone and the strongroom keep their own stone and slate |
 | fashion house, goldsmith, optician, luthier, glass smelter | Patricians | workshop | tier II framing under the dark burgundy tile (`tile-dark`, the grand workshops: five of sixteen) |
 
-- **D-077 models (as built; held).** The planned entries of
-  `assets/voxel/planned/d077.json` are built, checked and sheeted but
-  carry `hold`: they are not written to `client/public/models` or the
-  manifest until the content defines the IDs (the client test requires
-  the manifest's models to equal the content's); `tests/test_d077.py`
-  builds every one. The planned schema gained `placement: shore`, `look`
+- **D-077 models (as built; published with content 0.22.0).** The
+  planned entries of `assets/voxel/planned/d077.json` were built,
+  checked and sheeted while held (`hold`); since the content defines the
+  IDs they are published (the client test requires the manifest's models
+  to equal the content's); `tests/test_d077.py` builds every one, the
+  tier tests leave them to it (`content.is_d077`). The paint families
+  `hedge`, `garden_wall` and `city_wall` have their join sets (wall set,
+  below); the `square` is a ground kind and has no model (`kind_of` →
+  road). The warships are
+  `config.WARSHIPS` beside `config.CARGO_SHIPS` (no cargo attachment). The planned schema gained `placement: shore`, `look`
   and `length_tiles`; ships may have 0 slots.
   - *Ornaments* (`look: civic`, 8 voxels per tile, no ground paint
     unless noted): `tree_ornament` 1 × 1 (three variants: lime, oak,
@@ -699,9 +724,31 @@ land buildings).
     in sway group `arm`) and `kontor` (4 × 11, the depot class's
     footprint: the first model with `brick` as its main role, crow-step
     gables, crane beam, banner `flag`).
-  - *Military* (`civic`): `tower` 2 × 2 with wall stubs on four sides,
-    `gatehouse` 3 × 3 (arch on the y axis, portcullis, stubs on x- and
-    x+, paved `path()` through the passage), `castle` 8 × 8 at 12 voxels
+  - *Wall set* (D-077 §2–§3; `config.PAINT_JOINS`,
+    `parts_d077.JOIN_ARMS`): each paint family's recipe builds, besides
+    its own model (the straight piece, along x), the join pieces
+    `end`, `corner`, `t` and `cross` — and the city wall's `arch`, the
+    straight piece with a stepped passage through y for a land road —
+    published as the models `<id>.<piece>` (the manifest's convention
+    for variants of one content ID, parallel to D-076's `<id>.<region>`;
+    `content.add_joins` gives them the family's definition with
+    `join_of`, so budgets and checks are the family's; no thumbnails of
+    their own). A piece is a core on the tile's centre line plus an arm
+    to each named tile edge (`join_cells`): the hedge two voxels wide
+    (3..5) and five high, the garden wall two wide and four high with a
+    coping course, the city wall four wide (2..6) and eight high on a
+    darker footing with merlons (every other pair of voxels) on its
+    outline (`join_rim`) around the wall-walk. The client draws each
+    tile with the piece whose turned arms meet its neighbours
+    (`render/paintjoin.ts`, like roads join).
+  - *Military* (`civic`): `tower` 2 × 2 with wall stubs (four voxels
+    thick, eight high under a cap course) on the centre line of every
+    edge tile — voxels 2..6 and 10..14 of each side, from the battered
+    foot to the footprint edge — so a city wall tile beside either of
+    its tiles meets a stub; `gatehouse` 3 × 3 (arch on the y axis,
+    portcullis, stubs of the same section on x- and x+ at its middle
+    tile's centre line, voxels 10..14, paved `path()` through the
+    passage); the city wall joins both (and the castle) as neighbours, `castle` 8 × 8 at 12 voxels
     per tile (curtain, four round towers, gatehouse, keep, cobbled
     `path()` yard). The warm sandstone of the city guard, slate caps.
   - *Warships* (`_warships.py`, 20 voxels per tile, `length_tiles` 2 / 2.6 /
@@ -788,8 +835,8 @@ land buildings).
   far only `tree_plot` (450, slack 4: the forest trees at forest scale,
   D-068 as built). The committed GLBs are 23.20 MiB (24 322 124 B) of a
   **32 MiB folder limit** (D-077 §7, raised from 24 MiB) after the
-  D-077 re-dress; the held D-077 models add 2.26 MiB once published
-  (≈ 25.5 MiB); what remains per triangle is indices and AO/normal-split
+  D-077 re-dress; with the D-077 models published (content 0.22.0) they
+  are 25.47 MiB (26 704 448 B); what remains per triangle is indices and AO/normal-split
   vertices.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at

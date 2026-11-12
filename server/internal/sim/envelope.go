@@ -29,10 +29,12 @@ import (
 // a schema-14 world has no plans), and version 16 the regions (D-076:
 // World.Regions with the islands per region, Island.RegionID,
 // Ship.RegionID, Leg.Passage; generated island IDs region-prefixed,
-// migrated from 15). Versions 1-13 have no migration path
+// migrated from 15), and version 17 the patrol (D-077 §6: Ship.Patrol,
+// the ship state patrolling; migrated from 16 unchanged, a schema-16
+// world has no patrol). Versions 1-13 have no migration path
 // (the game was not deployed; a fresh database is needed: make down
 // VOLUMES=1 && make up).
-const SchemaVersion = 16
+const SchemaVersion = 17
 
 // Envelope is the versioned persistence format of a world
 // (docs/ARCHITECTURE.md §4.1).

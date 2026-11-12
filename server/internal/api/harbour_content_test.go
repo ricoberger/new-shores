@@ -15,10 +15,10 @@ func TestHarbourContentPayload(t *testing.T) {
 		byID[b.ID] = b
 	}
 	pier, depot, quay := byID["trading_pier"], byID["depot"], byID["quay"]
-	if pier.Category != categoryHarbour || pier.Pier == nil || pier.Pier.Berths != 2 || pier.WaterRows == nil || pier.WaterRows.Min != 5 || pier.WaterRows.Max != 6 {
+	if pier.Category != categoryHarbour || pier.Pier == nil || pier.Pier.Berths != 2 || pier.WaterRows != nil || pier.Placement != "shore" {
 		t.Errorf("trading_pier = %+v", pier)
 	}
-	if depot.Category != categoryHarbour || depot.Depot == nil || depot.Depot.Capacity != 150_000 {
+	if depot.Category != categoryHarbour || depot.Depot == nil || depot.Depot.Capacity != 150_000 || depot.Placement != "shore" {
 		t.Fatalf("depot = %+v", depot)
 	}
 	if quay.Category != categoryHarbour || quay.Road == nil || !quay.Road.Shallows || quay.Road.MsPerTile != 600 {

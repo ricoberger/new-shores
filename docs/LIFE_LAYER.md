@@ -123,12 +123,17 @@ that name". All motion is procedural.
   sheets, the sailmaker's sail on its frame, the warehouse level 3 awning
   and flag, the Trading Post level 4 flag, the dyer's and dyer works'
   hung cloth, the tailor's washing line, the lace maker's hung piece,
-  and the ships' sails — sacks, bales, bolts, cart
+  and the ships' sails; the repair crane's jib and hook (sway group
+  `arm`, D-077) swing slightly about the jib's root (the weight rises
+  from 0 there to 0.5 at the tip) — sacks, bales, bolts, cart
   loads and aprons stay rigid; shadows do not sway. The tests read the
   manifest's `sway` list (`test_detail.py` names the allowed files).
 - Harbour: fisher boat loop may cross land (same follow-up as ship
   legs); crates only at Trading Post piers; gulls by presence of a fisher
   or Trading Post, not by status; waiting ships bob at anchor.
+- Patrol (D-077 §6): a patrolling ship moves along its served approach
+  and then round its coast loop for ever (`patrolPlacement`); it sails
+  (its sails fill, `sailing`) and does not bob (`waiting`).
 - Pasture: the recipe's static sheep were removed; 2 instanced sheep per
   pasture wander inside it; "inactive" = field inactive or farm paused →
   sheep stand still, tinted. Polish 5: cattle pastures get 2 cows and pig

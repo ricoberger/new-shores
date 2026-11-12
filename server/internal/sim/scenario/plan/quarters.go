@@ -243,7 +243,7 @@ func (g *gen) reserve(q *quarter) error {
 				break
 			}
 			fw, fh := layout.Dims(def, s.Rot)
-			if !layout.Touches(is, reach, s.X, s.Y, fw, fh) || !cl.free(s.X, s.Y, fw, fh) || !chk.Valid(def, s.X, s.Y, s.Rot) {
+			if !layout.Touches(is, reach, s.X, s.Y, fw, fh) || !cl.free(s.X, s.Y, fw, fh) || !layout.ValidSite(chk, def, s.X, s.Y, s.Rot) {
 				continue
 			}
 			score := 0
@@ -375,7 +375,7 @@ func (g *gen) reserveReach(q *quarter, lp *layout.Planner, typ string, region []
 			break
 		}
 		fw, fh := layout.Dims(def, s.Rot)
-		if !layout.Touches(is, reach, s.X, s.Y, fw, fh) || !cl.free(s.X, s.Y, fw, fh) || !chk.Valid(def, s.X, s.Y, s.Rot) {
+		if !layout.Touches(is, reach, s.X, s.Y, fw, fh) || !cl.free(s.X, s.Y, fw, fh) || !layout.ValidSite(chk, def, s.X, s.Y, s.Rot) {
 			continue
 		}
 		score := 0
@@ -558,7 +558,7 @@ func (g *gen) house(q *quarter) error {
 		var cands []cand
 		for y := 0; y+fh <= is.Height; y++ {
 			for x := 0; x+fw <= is.Width; x++ {
-				if !cl.ownedRegion(x, y, fw, fh, q.index, pass.spill) || (spare && layout.CoversForest(is, x, y, fw, fh)) || !chk.Valid(def, x, y, 0) {
+				if !cl.ownedRegion(x, y, fw, fh, q.index, pass.spill) || (spare && layout.CoversForest(is, x, y, fw, fh)) || !layout.ValidSite(chk, def, x, y, 0) {
 					continue
 				}
 				if q.ringOver(q.coverLevel(g.c, x, y, fw, fh), pass.spill) == -2 {

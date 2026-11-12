@@ -315,6 +315,13 @@ type rawBuilding struct {
 	Footprint     []int                  `json:"footprint"`
 	Coastal       bool                   `json:"coastal"`
 	WaterRows     *WaterRows             `json:"water_rows"`
+	Placement     string                 `json:"placement"`
+	Category      string                 `json:"category"`
+	Defence       int                    `json:"defence"`
+	Unique        string                 `json:"unique"`
+	PaintFamily   *PaintFamily           `json:"paint_family"`
+	Repairs       bool                   `json:"repairs"`
+	Gate          bool                   `json:"gate"`
 	RequiresRoad  bool                   `json:"requires_road"`
 	Cost          map[string]json.Number `json:"cost"`
 	Upkeep        json.Number            `json:"upkeep_per_min"`
@@ -404,6 +411,7 @@ type rawShip struct {
 	Cost         map[string]json.Number `json:"cost"`
 	Upkeep       json.Number            `json:"upkeep_per_min"`
 	LengthTiles  json.Number            `json:"length_tiles"`
+	Attack       int                    `json:"attack"`
 }
 
 type rawNeedCategory struct {
@@ -714,6 +722,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			BuildMs:       col.fixed(FileShips, ent, "build_seconds", rs.BuildSeconds, 3),
 			UpkeepPerMin:  col.fixed(FileShips, ent, "upkeep_per_min", rs.Upkeep, 3),
 			Cost:          decodeCost(col, FileShips, ent, rs.Cost, cat.GoodByID),
+			Attack:        rs.Attack,
 		}
 		if rs.LengthTiles != "" {
 			sh.LengthMilliTiles = col.fixed(FileShips, ent, "length_tiles", rs.LengthTiles, 3)
@@ -789,6 +798,13 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		Tier:          rb.Tier,
 		Coastal:       rb.Coastal,
 		WaterRows:     rb.WaterRows,
+		Placement:     rb.Placement,
+		Category:      rb.Category,
+		Defence:       rb.Defence,
+		Unique:        rb.Unique,
+		PaintFamily:   rb.PaintFamily,
+		Repairs:       rb.Repairs,
+		Gate:          rb.Gate,
 		RequiresRoad:  rb.RequiresRoad,
 		UpkeepPerMin:  col.fixed(file, ent, "upkeep_per_min", rb.Upkeep, 3),
 		PauseCategory: rb.PauseCategory,

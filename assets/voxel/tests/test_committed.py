@@ -112,28 +112,34 @@ class CommittedTest(unittest.TestCase):
         self.assertEqual(on_disk, listed)
         self.assertLessEqual(total, config.MODELS_FOLDER_LIMIT, f"{total} bytes of GLBs")
         thumbs = set(os.listdir(os.path.join(config.MODELS_DIR, "thumbs")))
-        self.assertEqual(thumbs, {f"{cid}.png" for cid in self.manifest["models"]})
+        # The paint families' join pieces (`<id>.<piece>`) share their family's thumbnail.
+        self.assertEqual(thumbs, {f"{cid}.png" for cid in self.manifest["models"] if not content.join_of(CONTENT, cid)})
 
     def test_budgets_per_footprint_tile(self):
         for cid, entry in self.placed():
             w, h = content.footprint(CONTENT, cid)
             cls = model.model_class(CONTENT, cid)
             for info in main_files(entry):
-                self.assertEqual(info["budget"], config.BUDGET_OVERRIDE.get(cid, config.BUDGET_PER_TILE[cls] * w * h), cid)
+                self.assertEqual(info["budget"], model.budget_of(cid, "building", CONTENT), cid)
+                if cid not in config.FOOTPRINT_CLASS_IDS:
+                    self.assertEqual(info["budget"], config.BUDGET_OVERRIDE.get(cid, config.BUDGET_PER_TILE[cls] * w * h), cid)
                 self.assertLessEqual(info["triangles"], info["budget"], info["path"])
                 if cls == "field":
                     self.assertNotIn("lite", info, cid)
                     continue
-                self.assertEqual(info["lite"]["budget"], config.LITE_BUDGET_PER_TILE[cls] * w * h, cid)
+                self.assertEqual(info["lite"]["budget"], model.lite_budget_of(cid, CONTENT), cid)
+                if cid not in config.FOOTPRINT_CLASS_IDS:
+                    self.assertEqual(info["lite"]["budget"], config.LITE_BUDGET_PER_TILE[cls] * w * h, cid)
                 self.assertLessEqual(info["lite"]["triangles"], info["lite"]["budget"], info["lite"]["path"])
         for cid in config.MODEL_SHIPS:
             entry = self.manifest["models"][cid]
             self.assertLessEqual(entry["file"]["triangles"], config.BUDGET_SHIPS[cid], cid)
-            self.assertLessEqual(entry["attachments"]["cargo"]["triangles"], config.BUDGET_SHIP_CARGO, cid)
+            if cid in config.CARGO_SHIPS:  # the warships carry no cargo (D-077 §6)
+                self.assertLessEqual(entry["attachments"]["cargo"]["triangles"], config.BUDGET_SHIP_CARGO, cid)
             # The far LOD's lite ship (V7) within its budget; the cargo attachment has no lite file.
             self.assertEqual(entry["file"]["lite"]["budget"], config.LITE_BUDGET_SHIPS[cid], cid)
             self.assertLessEqual(entry["file"]["lite"]["triangles"], config.LITE_BUDGET_SHIPS[cid], cid)
-            self.assertNotIn("lite", entry["attachments"]["cargo"], cid)
+            self.assertNotIn("lite", entry.get("attachments", {}).get("cargo", {}), cid)
         for cid, entry in self.manifest["decor"].items():
             for info in files_of(entry):
                 self.assertLessEqual(info["triangles"], config.BUDGET_DECOR, cid)
@@ -206,7 +212,7 @@ class CommittedTest(unittest.TestCase):
         for cid in config.MODEL_SHIPS:
             ship = models[cid]["ship"]
             self.assertAlmostEqual(ship["length_tiles"], CONTENT["ships"][cid]["length_tiles"], places=6, msg=cid)
-            self.assertIn("cargo", models[cid]["attachments"], cid)
+            self.assertEqual("cargo" in models[cid].get("attachments", {}), cid in config.CARGO_SHIPS, cid)
             # The wake leaves the stern (V7): narrower than the hull's widest point, wider than nothing.
             self.assertGreater(ship["wake_width"], 0, cid)
             self.assertLessEqual(ship["wake_width"], 2 * models[cid]["bounds"]["max"][2], cid)

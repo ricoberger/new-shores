@@ -24,6 +24,8 @@ export function shipStateLabel(state: string): string {
  * ship before it sails; "between regions" on a passage, D-076).
  */
 export function shipWhere(s: ShipDisplay, nowMs: number, islandName: (id: string) => string): string {
+  // A patrol (D-077 §6): the state line names the island, no place follows.
+  if (s.patrol) return "";
   if (!s.leg) {
     if (!s.island_id) return s.position ? t("ships.atSea") : "";
     if (s.state === "waiting_for_berth") return t("ships.waitingAt", { island: islandName(s.island_id) });
@@ -66,6 +68,7 @@ export function ShipStatusLine({
       <span data-testid={stateTestId}>
         {shipStateLabel(s.state)}
         {s.state === "on_route" && routeName ? `: ${routeName}` : ""}
+        {s.patrol ? `: ${islandName(s.patrol.island_id)}` : ""}
       </span>
       {s.paused && <span className={styles.warn}> {t("ships.unpaid")}</span>}
       {where && (

@@ -5,8 +5,9 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/sim"
 )
 
-// Build-menu categories derived from the capability blocks (no content
-// field yet; see IMPLEMENTATION.md of M1b).
+// Build-menu categories: content.CategoryOrnaments and
+// content.CategoryMilitary come from the content (D-077); the others are
+// derived from the capability blocks.
 const (
 	categoryHouses     = "houses"
 	categoryProduction = "production"
@@ -156,6 +157,9 @@ type shipJSONOut struct {
 	// LengthMilliTiles is the hull length (display only); absent when the
 	// content gives none.
 	LengthMilliTiles int64 `json:"length_milli_tiles,omitempty"`
+	// Attack is the dormant attack value of a warship (D-077 §6; no
+	// effect until raids), else absent.
+	Attack int `json:"attack,omitempty"`
 }
 
 type shipyardJSONOut struct {
@@ -324,38 +328,61 @@ type fieldJSON struct {
 	Fertility string   `json:"fertility,omitempty"`
 }
 
+type paintFamilyJSON struct {
+	// Ground is the ground kind the tile paints instead of a model
+	// (square: cobbles_fine), else absent.
+	Ground string `json:"ground,omitempty"`
+	// RoadCrossing: a road may cross a tile of the family (city wall).
+	RoadCrossing bool `json:"road_crossing,omitempty"`
+}
+
 type workforceJSON struct {
 	Tier   string `json:"tier"`
 	Amount int64  `json:"amount"`
 }
 
 type buildingJSON struct {
-	Description   string             `json:"description,omitempty"`
-	ID            string             `json:"id"`
-	Name          string             `json:"name"`
-	Tier          string             `json:"tier"`
-	Category      string             `json:"category"`
-	Width         int                `json:"width"`
-	Height        int                `json:"height"`
-	Coastal       bool               `json:"coastal"`
-	WaterRows     *content.WaterRows `json:"water_rows,omitempty"`
-	RequiresRoad  bool               `json:"requires_road"`
-	Cost          costJSON           `json:"cost"`
-	UpkeepPerMin  int64              `json:"upkeep_per_min"`
-	PauseCategory string             `json:"pause_category"`
-	Recipe        *recipeJSON        `json:"recipe,omitempty"`
-	House         *houseJSON         `json:"house,omitempty"`
-	TradingPost   *tradingPostJSON   `json:"trading_post,omitempty"`
-	Warehouse     *warehouseJSON     `json:"warehouse,omitempty"`
-	Pier          *pierJSON          `json:"pier,omitempty"`
-	Depot         *depotJSON         `json:"depot,omitempty"`
-	Road          *roadJSON          `json:"road,omitempty"`
-	Service       *serviceJSON       `json:"service,omitempty"`
-	WorkArea      *workAreaJSON      `json:"work_area,omitempty"`
-	Workforce     *workforceJSON     `json:"workforce,omitempty"`
-	Shipyard      *shipyardJSONOut   `json:"shipyard,omitempty"`
-	Fields        *farmFieldsJSON    `json:"fields,omitempty"`
-	Field         *fieldJSON         `json:"field,omitempty"`
+	Description string             `json:"description,omitempty"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Tier        string             `json:"tier"`
+	Category    string             `json:"category"`
+	Width       int                `json:"width"`
+	Height      int                `json:"height"`
+	Coastal     bool               `json:"coastal"`
+	WaterRows   *content.WaterRows `json:"water_rows,omitempty"`
+	// Placement is "shore" for a shore building (D-077 §5), else absent.
+	Placement string `json:"placement,omitempty"`
+	// Defence is the dormant defence value of a military building
+	// (D-077 §3; no effect until raids), else absent.
+	Defence int `json:"defence,omitempty"`
+	// Unique is the uniqueness scope ("island" or "world", D-076 §2),
+	// else absent.
+	Unique string `json:"unique,omitempty"`
+	// PaintFamily marks a 1x1 building painted with the road tools whose
+	// tiles join (D-077 §2–§3).
+	PaintFamily *paintFamilyJSON `json:"paint_family,omitempty"`
+	// Repairs marks the repair crane (D-077 §4; dormant until raids).
+	Repairs bool `json:"repairs,omitempty"`
+	// Gate marks the gatehouse (D-077 §3).
+	Gate          bool             `json:"gate,omitempty"`
+	RequiresRoad  bool             `json:"requires_road"`
+	Cost          costJSON         `json:"cost"`
+	UpkeepPerMin  int64            `json:"upkeep_per_min"`
+	PauseCategory string           `json:"pause_category"`
+	Recipe        *recipeJSON      `json:"recipe,omitempty"`
+	House         *houseJSON       `json:"house,omitempty"`
+	TradingPost   *tradingPostJSON `json:"trading_post,omitempty"`
+	Warehouse     *warehouseJSON   `json:"warehouse,omitempty"`
+	Pier          *pierJSON        `json:"pier,omitempty"`
+	Depot         *depotJSON       `json:"depot,omitempty"`
+	Road          *roadJSON        `json:"road,omitempty"`
+	Service       *serviceJSON     `json:"service,omitempty"`
+	WorkArea      *workAreaJSON    `json:"work_area,omitempty"`
+	Workforce     *workforceJSON   `json:"workforce,omitempty"`
+	Shipyard      *shipyardJSONOut `json:"shipyard,omitempty"`
+	Fields        *farmFieldsJSON  `json:"fields,omitempty"`
+	Field         *fieldJSON       `json:"field,omitempty"`
 	// RequiresDeposit is the deposit kind the footprint must cover.
 	RequiresDeposit string `json:"requires_deposit,omitempty"`
 	// Smoke marks a producer that burns or cooks (display only).
@@ -406,6 +433,11 @@ type needBuildingJSON struct {
 // capability blocks.
 func buildingCategory(b *content.Building) string {
 	switch {
+	case b.Category != "":
+		return b.Category
+	case b.Repairs, b.Unique == content.UniqueWorld:
+		// The repair crane and the Kontor stand in the harbour (D-077).
+		return categoryHarbour
 	case b.House != nil:
 		return categoryHouses
 	case b.Recipe != nil, b.Field != nil, b.Warehouse != nil:
@@ -523,7 +555,7 @@ func newCataloguePayload(c *content.Catalogue, lang string) contentPayload {
 	}
 	for _, sh := range c.Ships {
 		sj := shipJSONOut{
-			ID: sh.ID, Name: tx.name("ships", sh.ID, sh.Name), SourceName: tx.sourceIfDifferent("ships", sh.ID, sh.Name), Tier: sh.Tier, Slots: sh.Slots, SlotSize: sh.SlotSize, SpeedPermille: sh.SpeedPermille, LengthMilliTiles: sh.LengthMilliTiles,
+			ID: sh.ID, Name: tx.name("ships", sh.ID, sh.Name), SourceName: tx.sourceIfDifferent("ships", sh.ID, sh.Name), Tier: sh.Tier, Slots: sh.Slots, SlotSize: sh.SlotSize, SpeedPermille: sh.SpeedPermille, LengthMilliTiles: sh.LengthMilliTiles, Attack: sh.Attack,
 			BuildMs: sh.BuildMs, Cost: costJSON{Gold: sh.Cost.Gold, Materials: map[string]int64{}}, UpkeepPerMin: sh.UpkeepPerMin,
 		}
 		for _, m := range sh.Cost.Materials {
@@ -573,9 +605,13 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 	bj := buildingJSON{
 		Description: tx.c.Translate(tx.lang, content.TextKey("buildings", b.ID, "description"), b.Description),
 		ID:          b.ID, Name: tx.name("buildings", b.ID, b.Name), Tier: b.Tier, Category: buildingCategory(b),
-		Width: b.Width, Height: b.Height, Coastal: b.Coastal, WaterRows: b.WaterRows, RequiresRoad: b.RequiresRoad,
+		Width: b.Width, Height: b.Height, Coastal: b.Coastal, WaterRows: b.WaterRows, Placement: b.Placement, RequiresRoad: b.RequiresRoad,
+		Defence: b.Defence, Unique: b.Unique, Repairs: b.Repairs, Gate: b.Gate,
 		Cost:         newCostJSON(b.Cost),
 		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit, Smoke: b.Smoke, Boat: b.Boat,
+	}
+	if pf := b.PaintFamily; pf != nil {
+		bj.PaintFamily = &paintFamilyJSON{Ground: pf.Ground, RoadCrossing: pf.RoadCrossing}
 	}
 	if r := b.Recipe; r != nil {
 		ins := make([]recipeInputJSON, 0, len(r.Inputs))

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ContentBuilding } from "../api/client";
-import { cobbleTop, groundTiles, paintYards, type YardTile } from "./groundpaint";
+import { cobbleTop, fineCobbleTop, groundPaintOf, groundTiles, paintYards, type YardTile } from "./groundpaint";
 import { yardTiles } from "./island";
 import { buildingAnchor, type GroundKind, type ModelEntry, type ModelRegistry } from "./models";
 import { fieldBase, paintRoads } from "./roadvoxels";
@@ -135,5 +135,25 @@ describe("yards as ground paint (D-068)", () => {
     const defs = new Map<string, ContentBuilding>([["barn", def(2, 2)]]);
     const display = { buildings: [], plans: [{ id: 9, type: "barn", x: 4, y: 4, rotation: 0 }] } as never;
     expect(yardTiles(display, defs, registry)).toEqual([]);
+  });
+
+  it("paints a square's tile as fine cobbles in place of a model (D-077 §2)", () => {
+    const square = { ...def(1, 1), paint_family: { ground: "cobbles_fine" } } as ContentBuilding;
+    expect(groundPaintOf(square)).toBe("cobbles_fine");
+    expect(groundPaintOf(def(1, 1))).toBeUndefined();
+    const defs = new Map<string, ContentBuilding>([["square", square]]);
+    const display = { buildings: [{ id: 1, type: "square", x: 2, y: 1, rotation: 0 }] } as never;
+    // No registry entry needed: the square has no model.
+    expect(yardTiles(display, defs, null)).toEqual([{ x: 2, y: 1, kind: "cobbles_fine" }]);
+    const f = flat(4, 3);
+    const base = fieldBase(f);
+    paintYards(f, base, yardTiles(display, defs, null), 3);
+    const tops = columns(f, 2, 1).map((k) => f.top[k]);
+    expect(tops.every((t) => t !== base.top[0])).toBe(true);
+    // A checker of light and dark setts.
+    expect(fineCobbleTop(0, 0, 0.5)).not.toBe(fineCobbleTop(1, 0, 0.5));
+    expect(fineCobbleTop(0, 0, 0.5)).not.toBe(cobbleTop(0.5));
+    // Neighbouring tiles keep the ground.
+    expect(columns(f, 1, 1).every((k) => f.top[k] === base.top[k])).toBe(true);
   });
 });

@@ -3,6 +3,7 @@ package sim
 import (
 	"cmp"
 	"fmt"
+	"math"
 	"math/bits"
 	"slices"
 	"strconv"
@@ -44,7 +45,7 @@ import (
 //   - Ships pay upkeep while not paused; every unpaused ship with upkeep is
 //     an insolvency candidate of step 4 (economy.go).
 
-// Ship states (MECHANICS §9.1).
+// Ship states (MECHANICS §9.1; ShipPatrolling in patrol.go).
 const (
 	ShipIdle           = "idle"
 	ShipOnRoute        = "on_route"
@@ -120,6 +121,9 @@ type Ship struct {
 	// of its island: the departure of a route ship, the end of unloading
 	// after a manual leg; 0 when the ship holds no berth.
 	BerthUntilMs int64 `json:"berth_until_ms,omitempty"`
+	// Patrol is the patrol of a patrolling ship (state patrolling,
+	// D-077 §6, patrol.go); nil otherwise.
+	Patrol *Patrol `json:"patrol,omitempty"`
 }
 
 // Leg is a voyage between two islands: the ship handles cargo at the origin
@@ -172,6 +176,9 @@ func (s *Ship) clone() *Ship {
 	}
 	if s.Cargo != nil {
 		c.Cargo = append([]Slot(nil), s.Cargo...)
+	}
+	if s.Patrol != nil {
+		c.Patrol = s.Patrol.clone()
 	}
 	return &c
 }
@@ -288,11 +295,16 @@ func cargoAmounts(s *Ship) map[string]Qty {
 	return out
 }
 
-// slotsUsed is the number of slots the amounts occupy.
+// slotsUsed is the number of slots the amounts occupy. A ship without
+// cargo slots (slot size 0, a warship, D-077 §6) fits nothing: any amount
+// takes more slots than it has.
 func slotsUsed(amounts map[string]Qty, size Qty) int {
 	n := 0
 	for _, a := range amounts {
 		if a > 0 {
+			if size <= 0 {
+				return math.MaxInt32
+			}
 			n += int(ceilDiv(a, size))
 		}
 	}
@@ -303,6 +315,10 @@ func slotsUsed(amounts map[string]Qty, size Qty) int {
 // slots then one partial slot per good).
 func setCargo(s *Ship, size Qty, amounts map[string]Qty) {
 	var slots []Slot
+	if size <= 0 {
+		s.Cargo = nil // no cargo slots: callers never load one (slotsUsed, cargoRoom)
+		return
+	}
 	for _, g := range sortedKeys(amounts) {
 		for a := amounts[g]; a > 0; a -= min(a, size) {
 			slots = append(slots, Slot{Good: g, Amount: min(a, size)})
@@ -314,6 +330,9 @@ func setCargo(s *Ship, size Qty, amounts map[string]Qty) {
 // cargoRoom is how much more of good fits aboard: the free slots plus the
 // room of the good's partial slot.
 func cargoRoom(amounts map[string]Qty, good string, size Qty, slots int) Qty {
+	if size <= 0 {
+		return 0
+	}
 	room := Qty(max(slots-slotsUsed(amounts, size), 0)) * size
 	if r := amounts[good] % size; r != 0 {
 		room += size - r
@@ -640,8 +659,8 @@ func unmoor(w *World, islandID string) {
 // harbour point of the demolished building (computed from its footprint,
 // which no longer stands). Ships that are on a leg (loading for a
 // departure) keep none; the departure clears it anyway.
-func moorOffshore(w *World, is *Island, def *content.Building, b *Building) {
-	at := HarbourAt(is, def, b.X, b.Y, b.Rotation)
+func moorOffshore(w *World, c *content.Catalogue, is *Island, def *content.Building, b *Building) {
+	at := HarbourAt(c, is, def, b.X, b.Y, b.Rotation)
 	for _, s := range w.Ships {
 		if s.IslandID == is.ID && s.Leg == nil && s.Offshore == nil {
 			p := at
@@ -691,6 +710,11 @@ func resumeShip(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
 // pauseShip pauses a ship for insolvency (R-27, R-28).
 func pauseShip(s *Ship, seq, now int64) {
 	s.Paused, s.PausedReason, s.PauseSeq, s.PausedAtMs = true, PausedReasonUnpaid, seq, now
+	if s.State == ShipPatrolling {
+		// A paused patrol ends (D-077 §6): the ship anchors at the
+		// patrolled island.
+		stopPatrol(s)
+	}
 	if s.State == ShipIdle {
 		s.State = ShipAnchoredUnpaid
 	}
@@ -1003,6 +1027,10 @@ func unassignShip(w *World, cmd UnassignShip) error {
 	if err != nil {
 		return err
 	}
+	if s.State == ShipPatrolling {
+		stopPatrol(s)
+		return nil
+	}
 	if s.RouteID == 0 {
 		return fmt.Errorf("%w: ship %d", ErrShipNotOnRoute, s.ID)
 	}
@@ -1229,7 +1257,7 @@ func foundingHarbour(w *World, c *content.Catalogue, is *Island, site *FoundingS
 	if err := checkSite(is, c, is.occupancy(c), def, site.X, site.Y, site.Rotation); err != nil {
 		return Pos{}, false, err
 	}
-	return HarbourAt(is, def, site.X, site.Y, site.Rotation), true, nil
+	return HarbourAt(c, is, def, site.X, site.Y, site.Rotation), true, nil
 }
 
 func scrapShip(w *World, c *content.Catalogue, cmd ScrapShip, l *Ledger) error {

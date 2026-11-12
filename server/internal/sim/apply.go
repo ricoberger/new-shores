@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"maps"
 	"math"
+	"slices"
 	"strings"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -211,6 +212,12 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Resul
 	case DemolishFields:
 		res.Tiles, err = demolishFields(w, c, cmd, l)
 		res.Unchanged = err == nil && noTileApplied(res.Tiles)
+	case PlacePaint:
+		res.Tiles, err = placePaint(w, c, cmd, l)
+		res.Unchanged = err == nil && noTileApplied(res.Tiles)
+	case DemolishPaint:
+		res.Tiles, err = demolishPaint(w, c, cmd, l)
+		res.Unchanged = err == nil && noTileApplied(res.Tiles)
 	case SetPaused:
 		err = setPaused(w, c, cmd)
 	case UpgradeHouse:
@@ -229,6 +236,8 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Resul
 		err = foundIsland(w, c, cmd, l)
 	case AssignShip:
 		err = assignShip(w, c, cmd, l)
+	case StartPatrol:
+		err = startPatrol(w, c, cmd)
 	case UnassignShip:
 		err = unassignShip(w, cmd)
 	case ManualShipment:
@@ -488,6 +497,9 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if def.Field != nil {
 		return fmt.Errorf("%w: %s is placed from its %s (place_field)", ErrFieldNeedsFarm, def.ID, strings.Join(def.Field.Farms, " or "))
 	}
+	if err := checkUnique(w, is, def); err != nil {
+		return err
+	}
 	if def.Road != nil {
 		if !charge {
 			return fmt.Errorf("%w: roads cannot be placed free", ErrInvalidCommand)
@@ -501,7 +513,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
 		return err
 	}
-	if berths := def.InitialBerths(); berths > 0 {
+	if berths := def.InitialBerths(); berths > 0 || def.Shore() {
 		at := &Building{ID: -1, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: berths}
 		if err := checkHarbourAfter(is, c, def, at, -1); err != nil {
 			return err
@@ -585,6 +597,7 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 	}
 	depths := waterDepths(is, s.c, def, x, y, rotation)
 	mountain := def.RequiresDeposit != ""
+	shore := def.Shore()
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
 			i := is.index(tx, ty)
@@ -592,12 +605,16 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 			switch {
 			case s.occ[i] != 0:
 				return false
+			case shore && t == content.TerrainWater && !is.roadOrPlan(i):
+				// Shore water (D-077 §5).
 			case waterAt(def, depths, x, y, rotation, tx, ty):
 				if t != content.TerrainWater || is.roadOrPlan(i) {
 					return false
 				}
 			case standsOnQuay(def) && quayAt(is, s.c, i):
 				// A quay counts as coast (D-060).
+			case is.roadOrPlan(i) && buildableTerrain(t) && roadCrossing(def, x, y, rotation, tx, ty):
+				// A wall or gate passage on a road (D-077 §3).
 			case is.roadOrPlan(i) || (!buildableTerrain(t) && (!mountain || t != content.TerrainMountain)):
 				return false
 			}
@@ -622,13 +639,22 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 	if fw < 1 || fh < 1 || x < 0 || y < 0 || x > is.Width-fw || y > is.Height-fh {
 		return fmt.Errorf("%w: %s footprint at (%d,%d)", ErrOutOfBounds, def.ID, x, y)
 	}
+	if def.Shore() {
+		return checkShoreSite(is, c, occ, def, x, y, rotation)
+	}
 	depths := waterDepths(is, c, def, x, y, rotation)
 	tiles := make([]Pos, 0, fw*fh)
-	var water, quay []Pos
+	var water, quay, crossing []Pos
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
 			if waterAt(def, depths, x, y, rotation, tx, ty) {
 				water = append(water, Pos{tx, ty})
+				continue
+			}
+			// A city wall or a gate's passage may stand on a road
+			// (D-077 §3): the tile must be free of buildings and land.
+			if is.roadOrPlan(is.index(tx, ty)) && roadCrossing(def, x, y, rotation, tx, ty) {
+				crossing = append(crossing, Pos{tx, ty})
 				continue
 			}
 			// A coastal or water-edge building may stand on a quay: it
@@ -650,6 +676,20 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 	for _, p := range quay {
 		if occ[is.index(p.X, p.Y)] != 0 {
 			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
+		}
+	}
+	for _, p := range crossing {
+		i := is.index(p.X, p.Y)
+		if t := is.Tiles[i].Terrain; !buildableTerrain(t) {
+			return fmt.Errorf("%w: (%d,%d) is %s", ErrTerrain, p.X, p.Y, t)
+		}
+		if occ[i] != 0 {
+			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
+		}
+	}
+	if def.Gate {
+		if err := checkGateWalls(is, c, occ, def, x, y, rotation); err != nil {
+			return err
 		}
 	}
 	// Water-edge buildings (D-062): each column starts with free sea
@@ -742,9 +782,20 @@ func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
 		return err
 	}
 
-	if b.Berths > 0 {
+	if b.Berths > 0 || def.Shore() {
 		at := &Building{ID: b.ID, Type: b.Type, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: b.Berths}
 		if err := checkHarbourAfter(is, c, def, at, b.ID); err != nil {
+			return err
+		}
+	}
+	if hasQuay(is, c) {
+		// The building leaves its old site: no quay anchored to it may
+		// float (D-077 §8).
+		moved := *b
+		moved.X, moved.Y, moved.Rotation = cmd.X, cmd.Y, cmd.Rotation
+		after := islandWith(is, b.ID, &moved)
+		clearQuay(after, c, def, &moved)
+		if err := checkQuaysStay(is, after, c); err != nil {
 			return err
 		}
 	}
@@ -827,7 +878,7 @@ func checkRoadSite(is *Island, c *content.Catalogue, def *content.Building, tile
 		if !harbourRoutable(c, &tmp) {
 			return fmt.Errorf("%w: the quay would close the harbour of %q", ErrHarbourBlocked, is.ID)
 		}
-		return nil
+		return checkQuaysConnected(is, c, tmp.Roads, tiles)
 	}
 	// A land road replaces a road of a lower type on its tile (MECHANICS
 	// §3): the old road's demolition refund, the new road's cost, and the
@@ -838,7 +889,8 @@ func checkRoadSite(is *Island, c *content.Catalogue, def *content.Building, tile
 			fresh = append(fresh, p)
 		}
 	}
-	if err := checkTiles(is, is.occupancy(c), fresh, allowRiver); err != nil {
+	// A road may cross a city wall or a gate's passage (D-077 §3).
+	if err := checkTiles(is, is.roadOccupancy(c), fresh, allowRiver); err != nil {
 		return err
 	}
 	return checkBridges(is, tiles)
@@ -931,6 +983,12 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	b := is.Building(cmd.BuildingID)
 	if b == nil {
 		if is.Plan(cmd.BuildingID) != nil {
+			// No planned quay anchored to the plan may float (D-077 §8).
+			after := islandWith(is, -1, nil)
+			after.Plans = slices.DeleteFunc(slices.Clone(is.Plans), func(p *Building) bool { return p.ID == cmd.BuildingID })
+			if err := checkQuaysStay(is, after, c); err != nil {
+				return err
+			}
 			demolishPlan(is, c, cmd.BuildingID)
 			return nil
 		}
@@ -964,6 +1022,10 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	if len(surplus) > 0 && !cmd.AcceptSurplusLoss {
 		return fmt.Errorf("%w: %v", ErrSurplusLoss, surplus)
 	}
+	// No quay anchored to the building may float (D-077 §8).
+	if err := checkQuaysStay(is, islandWith(is, b.ID, nil), c); err != nil {
+		return err
+	}
 
 	// Validation complete: mutate.
 	for _, good := range transitGoods(b) {
@@ -976,7 +1038,7 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	}
 	removeBuilding(is, b.ID)
 	if b.Berths > 0 && !hasBerthSource(w, is.ID) {
-		moorOffshore(w, is, def, b)
+		moorOffshore(w, c, is, def, b)
 	}
 
 	for _, good := range surplus {
@@ -1079,6 +1141,18 @@ func demolishRoad(w *World, c *content.Catalogue, cmd DemolishRoad, l *Ledger) e
 		}
 		count[rt]++
 		real++
+	}
+	if hasQuay(is, c) {
+		// No remaining quay may float (D-077 §8), plans included.
+		after := islandWith(is, -1, nil)
+		after.Roads, after.PlannedRoads = maps.Clone(is.Roads), maps.Clone(is.PlannedRoads)
+		for _, p := range cmd.Tiles {
+			delete(after.Roads, is.index(p.X, p.Y))
+			delete(after.PlannedRoads, is.index(p.X, p.Y))
+		}
+		if err := checkQuaysStay(is, after, c); err != nil {
+			return err
+		}
 	}
 
 	now := w.LastEvaluatedAt.UnixMilli()
@@ -1375,6 +1449,25 @@ func clearRegimes(is *Island) {
 	is.Inventory.Full = nil
 }
 
+// islandWith returns a shallow copy of the island for a check of the
+// state after a change: its own Roads (cloned) and Buildings with the
+// building id replaced by b (nil: removed; id -1: unchanged).
+func islandWith(is *Island, id int64, b *Building) *Island {
+	tmp := *is
+	tmp.Roads = maps.Clone(is.Roads)
+	tmp.Buildings = make([]*Building, 0, len(is.Buildings))
+	for _, x := range is.Buildings {
+		if x.ID == id {
+			if b == nil {
+				continue
+			}
+			x = b
+		}
+		tmp.Buildings = append(tmp.Buildings, x)
+	}
+	return &tmp
+}
+
 func removeBuilding(is *Island, id int64) {
 	out := is.Buildings[:0]
 	for _, b := range is.Buildings {
@@ -1421,4 +1514,29 @@ func goodsOnIsland(is *Island) []string {
 		}
 	}
 	return sortedKeys(set)
+}
+
+// checkUnique enforces a building's uniqueness scope (D-076 §2, D-077):
+// one per island or one per world, built or planned. Building a plan
+// removes the plan first, so it never counts against itself.
+func checkUnique(w *World, is *Island, def *content.Building) error {
+	var scope []*Island
+	switch def.Unique {
+	case content.UniqueIsland:
+		scope = []*Island{is}
+	case content.UniqueWorld:
+		scope = w.Islands()
+	default:
+		return nil
+	}
+	for _, o := range scope {
+		for _, list := range [][]*Building{o.Buildings, o.Plans} {
+			for _, b := range list {
+				if b.Type == def.ID {
+					return fmt.Errorf("%w: %s (one per %s) already stands or is planned on %s", ErrUniqueBuilding, def.ID, def.Unique, o.ID)
+				}
+			}
+		}
+	}
+	return nil
 }

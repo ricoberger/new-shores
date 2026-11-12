@@ -114,3 +114,37 @@ def merlons(v, x0, y0, x1, y1, z, h=2, step=2):
                 for k in range(h):
                     v.set(x, y, z + k, ASHLAR)
                 v.set(x, y, z + h, CAP)
+
+
+#: The arms of a paint family's join pieces in recipe space (D-077 §2–§3,
+#: ART_DIRECTION §7 wall set): "x+" runs to the tile's x = W edge, "y+" to
+#: the front. The client turns the piece so that the arms meet the family's
+#: neighbours (render/paintjoin.ts holds the same table).
+JOIN_ARMS = {
+    "straight": ("x-", "x+"),
+    "arch": ("x-", "x+"),
+    "end": ("x+",),
+    "corner": ("x+", "y+"),
+    "t": ("x-", "x+", "y+"),
+    "cross": ("x-", "x+", "y-", "y+"),
+}
+
+
+def join_cells(join, n, lo, hi):
+    """The (x, y) columns of a join piece in an n × n tile: the core lo..hi on both axes and an arm to each named edge."""
+    cells = {(x, y) for x in range(lo, hi) for y in range(lo, hi)}
+    for arm in JOIN_ARMS[join]:
+        if arm == "x-":
+            cells |= {(x, y) for x in range(0, lo) for y in range(lo, hi)}
+        elif arm == "x+":
+            cells |= {(x, y) for x in range(hi, n) for y in range(lo, hi)}
+        elif arm == "y-":
+            cells |= {(x, y) for x in range(lo, hi) for y in range(0, lo)}
+        else:
+            cells |= {(x, y) for x in range(lo, hi) for y in range(hi, n)}
+    return cells
+
+
+def join_rim(cells, n):
+    """The columns of a piece on its outline (a 4-neighbour inside the tile that is not part of the piece): the parapet's line."""
+    return {(x, y) for x, y in cells if any(0 <= x + dx < n and 0 <= y + dy < n and (x + dx, y + dy) not in cells for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))}

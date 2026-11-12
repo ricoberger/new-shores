@@ -91,6 +91,40 @@
           "max": { "type": "integer", "minimum": 0 }
         }
       },
+      "placement": {
+        "description": "Shore placement (D-077 \u00a75, MECHANICS \u00a72): every footprint tile is water (shallows included) or level-0 land or quay, at least one tile is water, the back edge (the side opposite the front: the bottom row at rotation 0) touches land or quay along its full length, the harbour lane and berth tiles of the island's Trading Post and trading piers stay free; the footprint is land for ships. Excludes water_rows and coastal. Absent: the normal land / water_rows rules.",
+        "enum": ["shore"]
+      },
+      "category": {
+        "description": "Build-menu category (D-077 §2–§3): ornaments (zero effect, no maintenance) or military (a dormant defence value). Absent: derived from the capability blocks (houses, production, public, harbour, roads).",
+        "enum": ["ornaments", "military"]
+      },
+      "defence": {
+        "description": "Defence value of a military building (D-077 §3). Nothing reads it until raids (D-005); the almanac shows it. Only with category military.",
+        "type": "integer",
+        "minimum": 1
+      },
+      "unique": {
+        "description": "Uniqueness scope (D-076 §2, D-077): island (one per island) or world (one per world, the Kontor). Plans count. Absent: no limit.",
+        "enum": ["island", "world"]
+      },
+      "paint_family": {
+        "description": "Paint family (D-077 §2–§3): a 1x1 building painted tile by tile with the road tools' drag; neighbouring tiles of the family join (straight, corner, T, cross, end). ground: the tile is a ground kind instead of a model (square); road_crossing: a road may cross a tile of the family (city wall, rendered as an arch).",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ground": { "enum": ["cobbles_fine"] },
+          "road_crossing": { "type": "boolean" }
+        }
+      },
+      "repairs": {
+        "description": "The building repairs ships (repair crane, D-077 §4). Dormant: ship health comes with raids. Absent is false.",
+        "type": "boolean"
+      },
+      "gate": {
+        "description": "The building is a gate in the city wall (gatehouse, D-077 §3): placed with a road-crossing paint family on two opposite sides, a road may run along its centre line. Absent is false.",
+        "type": "boolean"
+      },
       "trading_post": {
         "description": "The Trading Post (MECHANICS §5, D-051): one per island, placed only by founding; its level sets the island's capacity per good, a collector throughput and the berths of its pier.",
         "type": "object",

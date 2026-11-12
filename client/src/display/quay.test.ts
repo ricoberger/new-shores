@@ -26,8 +26,9 @@ describe("shallows (D-060)", () => {
   });
 
   it("lists the tiles of a drag that are not shallows", () => {
-    expect(offShallows(island, [{ x: 10, y: 8 }, { x: 10, y: 5 }, { x: 10, y: 9 }, { x: -1, y: 8 }])).toEqual([
-      { x: 10, y: 5 },
+    // Row 0 lies 9 tiles off the coast (row 9): beyond the 8-tile band (D-077 §8).
+    expect(offShallows(island, [{ x: 10, y: 8 }, { x: 10, y: 0 }, { x: 10, y: 9 }, { x: -1, y: 8 }])).toEqual([
+      { x: 10, y: 0 },
       { x: 10, y: 9 },
       { x: -1, y: 8 },
     ]);

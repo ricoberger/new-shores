@@ -19,7 +19,7 @@ import { serverTimeMs } from "../display/extrapolate";
 import { tons, units } from "../display/format";
 import { countdown, shipName } from "../display/ships";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
-import { planRoadDrag, roadDragSend } from "../display/roaddrag";
+import { isPaintType, planRoadDrag, roadDragSend } from "../display/roaddrag";
 import { hintSite, moveTarget, planAt, plannedFarmAsBuilding, plannedRoadAt, planningRoadDrag } from "../display/plans";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
@@ -495,6 +495,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     });
   };
 
+  /** The Demolish tool's rectangle over paint-family tiles (D-077): one demolish_paint (the server answers every tile). */
+  const removePaint = (islandId: string, tiles: TilePos[]) => {
+    void sendCommand({ type: "demolish_paint", island_id: islandId, tiles }).then(({ ok, error }) => {
+      if (!ok && error) void sync.refresh();
+    });
+  };
+
   const confirmPlacement = () => {
     if (isGhostTool(tool) && tool.pending) placeGhost(tool, tool.pending);
   };
@@ -566,6 +573,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     paintFields,
     removeFields,
     removeRoads,
+    removePaint,
     paintStatus: (text: string | null) => setPaintStatus(text),
     pend: (at: IslandTile) => setTool((tl) => (isGhostTool(tl) ? { ...tl, pending: at } : tl)),
     unpend: () => setTool((tl) => (isGhostTool(tl) && tl.pending ? { ...tl, pending: undefined } : tl)),
@@ -583,8 +591,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       // their tiles, and a planned road goes on free tiles only (D-071).
       const st = renderer?.islandStatics().get(islandId);
       const drag = st ? planRoadDrag(from, to, tool.roadType, { island: st, buildings: hintSite(is, false).buildings, roads: is.roads, defs, tiers: content?.tiers }) : null;
+      const paint = isPaintType(defs, tool.roadType);
       const tiles = drag
-        ? roadDragSend(planning ? planningRoadDrag(drag, is) : drag)
+        ? roadDragSend(planning && !paint ? planningRoadDrag(drag, is) : drag)
         : lPath(from, to).filter((tl) => !is.roads.some((r) => r.x === tl.x && r.y === tl.y));
       if (tiles.length === 0) return;
       // A quay off the shallows would be rejected (display mirror of the rule, D-060).
@@ -592,7 +601,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         toast(t("app.quayShallows", { count: SHALLOWS_REACH }));
         return;
       }
-      void send({ type: "place_road", island_id: islandId, road_type: tool.roadType, tiles, ...plannedFlag });
+      // A paint family (D-077 §2–§3) goes tile by tile as buildings (one place_paint).
+      if (paint) void send({ type: "place_paint", island_id: islandId, building_type: tool.roadType, tiles, ...plannedFlag });
+      else void send({ type: "place_road", island_id: islandId, road_type: tool.roadType, tiles, ...plannedFlag });
     },
     demolish: (at: IslandTile) => {
       const is = model?.islands.find((x) => x.id === at.island);
@@ -651,7 +662,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const selectBuildItem = (b: ContentBuilding) => {
     dispatch({ type: "clearSelection" });
-    setTool(b.road ? { kind: "road", roadType: b.id } : { kind: "build", buildingType: b.id, rotation: 0 });
+    // Roads and the paint families (D-077) are drawn with the road tool.
+    setTool(b.road || b.paint_family ? { kind: "road", roadType: b.id } : { kind: "build", buildingType: b.id, rotation: 0 });
   };
 
   // The chained founding (D-051): found_island as soon as the ship is idle
@@ -941,6 +953,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             setPanel("routes");
           }}
           onUnassign={() => void send({ type: "unassign_ship", ship_id: ship.id })}
+          onPatrol={(islandId) => void send({ type: "patrol", ship_id: ship.id, island_id: islandId })}
           onSend={() => dispatch({ type: "openShipment", shipId: ship.id, to: null })}
           onFound={() => startFounding(ship)}
           onScrap={() => scrap(ship)}
@@ -1148,7 +1161,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       {tool.kind === "road" &&
         (isQuayType(defs, tool.roadType)
           ? t("app.hint.quay", { count: SHALLOWS_REACH })
-          : t("app.hint.road"))}
+          : isPaintType(defs, tool.roadType)
+            ? t("app.hint.paint", { name: defs.get(tool.roadType)?.name ?? tool.roadType })
+            : t("app.hint.road"))}
       {tool.kind === "field" &&
         (tool.remove
           ? t("app.hint.fieldsRemove", { name: fieldName })

@@ -1,15 +1,16 @@
 // Display lookups of the build menu (D-027: nothing here decides whether a building can be built, the server
 // does). The menu has one tab per content tier; inside a tab the buildings are grouped General, Production,
-// Public and Harbour from the server's category, the production ones ordered along their chains. The cost
+// Public, Harbour, Ornaments and Military (D-077) from the server's category, the production ones ordered along their chains. The cost
 // parts the player cannot currently afford are only a hint: every card stays clickable.
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
+import { t } from "../i18n";
 import { needCategory, type NeedCategoryInfo } from "./needs";
 import { listedInBuildMenu, lockParts, tierUnlocked } from "./tiers";
 
-export type BuildGroup = "general" | "production" | "public" | "harbour";
+export type BuildGroup = "general" | "production" | "public" | "harbour" | "ornaments" | "military";
 
 /** The groups of a tab in menu order. */
-export const BUILD_GROUPS: readonly BuildGroup[] = ["general", "production", "public", "harbour"];
+export const BUILD_GROUPS: readonly BuildGroup[] = ["general", "production", "public", "harbour", "ornaments", "military"];
 
 export interface BuildTierTab {
   id: string;
@@ -47,17 +48,23 @@ export function buildGroupOf(b: ContentBuilding): BuildGroup {
       return "public";
     case "harbour":
       return "harbour";
+    case "ornaments":
+      return "ornaments";
+    case "military":
+      return "military";
     default:
       return "general";
   }
 }
 
-/** Order inside Harbour: the shipyard, the pier, the depot, then the quay (a road on the shallows). */
+/** Order inside Harbour: the shipyard, the pier, the depot, the repair crane, the Kontor, then the quay (a road on the shallows). */
 function harbourRank(b: ContentBuilding): number {
   if (b.shipyard) return 0;
   if (b.pier) return 1;
   if (b.depot) return 2;
-  return 3;
+  if (b.repairs) return 3;
+  if (b.unique === "world") return 4;
+  return 5;
 }
 
 /** Order inside General: the house, the roads, the Warehouse, anything else. */
@@ -112,7 +119,7 @@ export interface BuildGroupRun {
   items: ContentBuilding[];
 }
 
-/** The buildings of a tier tab in menu order: the groups General, Production, Public, Harbour, empty ones left out. */
+/** The buildings of a tier tab in menu order: the groups General, Production, Public, Harbour, Ornaments, Military, empty ones left out (the last two in content order). */
 export function buildMenuGroups(content: Content, tierId: string): BuildGroupRun[] {
   const depths = chainDepths(content);
   const listed = content.buildings.map((b, order) => ({ b, order })).filter(({ b }) => b.tier === tierId && listedInBuildMenu(b, content));
@@ -155,3 +162,21 @@ export function recipeFlow(b: ContentBuilding): { inputs: string[]; outputs: str
   if (!b.recipe) return undefined;
   return { inputs: b.recipe.inputs.map((i) => i.good), outputs: b.recipe.outputs.map((o) => o.good) };
 }
+
+/**
+ * The D-077 notes of a building's card and info panel: a paint family is
+ * painted tile by tile, a military building's defence and the repair
+ * crane's repairs have no effect yet, a unique building says its scope
+ * (the Kontor: expeditions later). Empty for other buildings.
+ */
+export function buildingNotes(b: Pick<ContentBuilding, "paint_family" | "defence" | "repairs" | "unique" | "gate">): string[] {
+  const out: string[] = [];
+  if (b.paint_family) out.push(t("build.note.paint"));
+  if (b.gate) out.push(t("build.note.gate"));
+  if (b.defence !== undefined) out.push(t("build.note.defence", { value: b.defence }));
+  if (b.repairs) out.push(t("build.note.repairs"));
+  if (b.unique === "world") out.push(t("build.note.uniqueWorld"));
+  if (b.unique === "island") out.push(t("build.note.uniqueIsland"));
+  return out;
+}
+

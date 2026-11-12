@@ -103,7 +103,7 @@ in as the fixed player "Developer". The API is at
   `--time-scale` is only accepted with `--dev`.
 - **Start state:** `make dev FIXTURE=<name>` starts the world from a dev
   fixture (`default`, `seafaring`, `town`, `settled`, `citizens`,
-  `merchants`, `patricians` or `played`; `--fixture`, only with `--dev`);
+  `merchants`, `patricians`, `played`, `harbour-basin` or `castle-town`; `--fixture`, only with `--dev`);
   `make preview` takes the same variables.
 - **Snapshots (dev tooling, not save/load):** `make snapshot [OUT=file]`
   saves the running dev server's world to `.snapshots/<seed>-<time>.json`
@@ -131,7 +131,7 @@ in as the fixed player "Developer". The API is at
   `http://$HOST:4173/?stats=1` (start it with `make preview FIXTURE=played`).
 - **`POST /api/v1/dev/reset` (tests only):** replaces the dev server's
   in-memory world with a fresh dev fixture (optional body
-  `{"fixture": "default" | "seafaring" | "town" | "settled" | "citizens" | "merchants" | "patricians" | "played"}`, see
+  `{"fixture": "default" | "seafaring" | "town" | "settled" | "citizens" | "merchants" | "patricians" | "played" | "harbour-basin" | "castle-town"}`, see
   `server/internal/devworld/fixtures.go`): pending events, the last-seen
   time and the away summary start over, the version increases and
   `world_changed` is published. It exists for `make shots`, which resets
@@ -205,10 +205,12 @@ service before the servers start.
 - **Fixtures** (`make dev FIXTURE=<name>` and `make preview FIXTURE=<name>`,
   which run the `--dev` server; not `make up`): the server starts its world
   from a server fixture (`default`, `seafaring`, `town`, `settled`,
-  `citizens`, `merchants`, `patricians` or `played`, the list
+  `citizens`, `merchants`, `patricians`, `played` or `harbour-basin`, the list
   `devworld.Fixtures`; an unknown name is an error that lists them), e.g.
   `make dev FIXTURE=played`. `played` is the
-  Patricians reference game: a large town on four tiers.
+  Patricians reference game: a large town on four tiers; `harbour-basin`
+  (D-077) is the town with a 60-tile pier, a trading pier and harbor
+  tower at its head and a 3×3 town square.
   `?stats=1` (dev and E2E builds) shows a small
   fps badge bottom left: fps, frame ms (p95), draw calls, triangles, JS
   heap (Chromium only), LOD and model detail.
@@ -289,7 +291,8 @@ Compose → Kubernetes.
   caps bound offline gain, "stall don't ruin" (D-006 – D-009).
 - Private archipelago per player; matchmade neighbours on a social world map;
   barter-only trading (D-003, D-004, D-020).
-- Strictly cosmetic shop; two decoupled currencies (D-021).
+- Nothing with gameplay effect is sold (D-021); a supporter subscription,
+  nothing gated yet, no premium currency (D-077 §1).
 - Client extrapolates from server rates; no game rules in the client (D-027).
 
 ## Credits / attribution

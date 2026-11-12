@@ -157,11 +157,12 @@ export function paintCountText(plan: PaintPlan): string {
  * included), the planned buildings and the road tiles (planned ones
  * included) it removes, "Nothing to remove" over none.
  */
-export function demolishStatus(fields: number, plans: number, roads: number, clipped: boolean): string {
+export function demolishStatus(fields: number, plans: number, roads: number, clipped: boolean, paint = 0): string {
   const parts = [
     ...(fields > 0 ? [t("paint.partFields", { count: fields })] : []),
     ...(plans > 0 ? [t("paint.partPlans", { count: plans })] : []),
     ...(roads > 0 ? [t("paint.partRoads", { count: roads })] : []),
+    ...(paint > 0 ? [t("paint.partPaint", { count: paint })] : []),
   ];
   const cut = clipped ? t("paint.removeClipped") : "";
   return parts.length === 0 ? t("paint.removeNothing") + cut : t("paint.demolish", { parts: parts.join(", "), clipped: cut });

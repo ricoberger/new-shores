@@ -54,6 +54,7 @@ func TestLoadWaterRows(t *testing.T) {
 					continue
 				}
 				delete(b, "water_rows")
+				delete(b, "placement") // the depot is a shore building since D-077 §5
 				key := "water_rows"
 				if tc.legacy {
 					key = "water_tiles"

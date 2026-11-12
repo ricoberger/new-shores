@@ -44,6 +44,30 @@ const (
 	LookHarbour = "harbour"
 )
 
+// PlacementShore is the shore placement rule of a building (D-077 §5,
+// MECHANICS §2): every footprint tile is water (shallows included) or
+// level-0 land or quay, at least one is water, the back edge touches land
+// or quay along its full length; the footprint is land for ships.
+const PlacementShore = "shore"
+
+// Build-menu categories set by content (D-077 §2–§3); other buildings
+// derive theirs from the capability blocks.
+const (
+	CategoryOrnaments = "ornaments"
+	CategoryMilitary  = "military"
+)
+
+// Uniqueness scopes of a building (D-076 §2, D-077): one per island or
+// one per world; plans count.
+const (
+	UniqueIsland = "island"
+	UniqueWorld  = "world"
+)
+
+// GroundCobblesFine is the ground kind of the square paint family
+// (D-077 §2, D-068).
+const GroundCobblesFine = "cobbles_fine"
+
 // Terrain types of island tiles (MECHANICS §2).
 const (
 	TerrainWater    = "water"
@@ -297,7 +321,26 @@ type Building struct {
 	Coastal bool
 	// WaterRows is nil for inland buildings. At rotation 0 the front
 	// is the top row (smallest y); each column has its own water depth.
-	WaterRows    *WaterRows
+	WaterRows *WaterRows
+	// Placement is "" (the footprint rules above) or PlacementShore
+	// (D-077 §5).
+	Placement string
+	// Category is "" (derived from the blocks) or CategoryOrnaments or
+	// CategoryMilitary (D-077).
+	Category string
+	// Defence is the dormant defence value of a military building
+	// (D-077 §3): nothing reads it until raids.
+	Defence int
+	// Unique is "" or UniqueIsland or UniqueWorld (D-076 §2).
+	Unique string
+	// PaintFamily makes a 1x1 building a paint family (D-077 §2–§3).
+	PaintFamily *PaintFamily
+	// Repairs marks the repair crane (D-077 §4); dormant until raids.
+	Repairs bool
+	// Gate marks the gatehouse (D-077 §3): it needs a road-crossing
+	// paint family (the city wall) on two opposite sides and lets a road
+	// through its centre line.
+	Gate         bool
 	RequiresRoad bool
 	Cost         Cost
 	// UpkeepPerMin is in milli-gold per minute.
@@ -347,6 +390,16 @@ type Shipyard struct {
 	Ships []string
 }
 
+// PaintFamily is a 1x1 building painted tile by tile whose tiles join
+// their neighbours of the family (D-077 §2–§3).
+type PaintFamily struct {
+	// Ground is "" (a model) or the ground kind the tile paints
+	// (GroundCobblesFine).
+	Ground string `json:"ground"`
+	// RoadCrossing lets a road cross a tile of the family (city wall).
+	RoadCrossing bool `json:"road_crossing"`
+}
+
 // Ship is a ship type (ships.json, CONTENT §8).
 type Ship struct {
 	ID     string
@@ -369,7 +422,13 @@ type Ship struct {
 	Cost Cost
 	// UpkeepPerMin is in milli-gold per minute.
 	UpkeepPerMin Qty
+	// Attack is the dormant attack value of a warship (D-077 §6):
+	// nothing reads it until raids.
+	Attack int
 }
+
+// Warship reports whether the ship carries no cargo (D-077 §6).
+func (s *Ship) Warship() bool { return s.Slots == 0 }
 
 // Workforce is the number of residents of a tier a producer needs on its
 // island (D-035).
@@ -510,6 +569,9 @@ type WarehouseLevel struct {
 // Collector reports whether the building collects producer output (a
 // Trading Post or a Warehouse, MECHANICS §5).
 func (b *Building) Collector() bool { return b.TradingPost != nil || b.Warehouse != nil }
+
+// Shore reports whether the building has the shore placement (D-077 §5).
+func (b *Building) Shore() bool { return b.Placement == PlacementShore }
 
 // LevelCount is the number of levels of a Trading Post or Warehouse (0
 // for every other building).

@@ -138,13 +138,39 @@ handlers only.
   Quays count as land, terminate the water prefix, and are replaced without
   refund when covered by a valid land part (§3); required water cannot
   carry quay. Values: Trading Post 1–2, fisher/salt pans 2–3,
-  shipyard/oyster beds 3–4, trading pier 5–6, depot 7–9 rows (a 4×11 platform).
+  oyster beds 3–4 rows (shipyard, trading pier and depot have the shore
+  placement since D-077, below).
   A zero minimum permits an all-land footprint. Other coastal buildings
   still need a coast tile (quay counts). Harbour points remain two tiles
   off the **front row**, not the variable water/land boundary (§9).
   Error codes stay `not_on_water`, `terrain` and `occupied`.
+- **Shore placement** (D-077 §5, `placement: shore`: trading pier,
+  depot, shipyard, repair crane, harbour tower, harbour statue, Kontor).
+  Every footprint tile is free sea water (shallows included, never
+  river) or free buildable land at terrace level 0 or a quay (replaced
+  without refund, as for water-edge buildings); `terrain`, `occupied`
+  and `needs_low_shore` as above. At least one tile is water
+  (`shore_needs_water`). The **back edge** — the side opposite the
+  front (bottom row at 0°, left column at 90°, top row at 180°, right
+  column at 270°) — touches land or quay along its full length: for
+  every back-row tile, the tile itself or the tile behind it is the
+  island's own land or a quay (`shore_back_edge`). So a shore building
+  stands on the beach (straddling the water line, any mix of water and
+  land per column) or fully on the water against a quay. No footprint
+  tile may lie on the **harbour lane** — the strip in front of the
+  front edge of the island's Trading Post and of each trading pier,
+  its width and three tiles deep (one beyond the harbour point) — on a
+  trading pier's **berth tiles** (the water tiles of the columns beside
+  its two flanks) or on a harbour point (`harbour_blocked`). For ships
+  the whole footprint is **land** (sea grid, harbour points, open-sea
+  checks; the API's cached sea grid is keyed on the shore buildings);
+  plans are not. The rule holds for `place_building`, plans (placing,
+  moving, building) and `move_building`. The archipelago generator
+  keeps verifying the stricter D-062 shipyard site (8 × 12 with 3–4
+  water rows), which is always a valid shore site on a fresh island,
+  so seeds are unchanged.
 - **Low shore** (D-075 §1): every land tile of a water-edge building
-  (any `water_rows`, the depot's all-land footprint included) is at
+  (any `water_rows`) or a shore building is at
   terrace level 0 (§10), else `needs_low_shore`; cliffs are not pier
   coasts. Quay tiles are shallows and need no level. The rule holds for
   `place_building`, plans (placing, moving and building them), `move_building`,
@@ -307,7 +333,8 @@ handlers only.
   for free. The command touches no building or field (the tool removes
   fields and plans under the rectangle with their own commands).
 - **Quays** (D-060) are roads on the island's **shallows**: water tiles
-  of its grid, not river, within 3 tiles (Chebyshev) of its own land
+  of its grid, not river, within 8 tiles (Chebyshev, D-077 §8; was 3;
+  `ShallowsReach` in `quay.go`, mirrored in the client) of its own land
   (any tile but water, river and islet; derived from the tiles, no
   generator field). A quay tile must be free (no road, no footprint —
   the water rows of water-edge buildings included). A quay is a road for
@@ -316,11 +343,63 @@ handlers only.
   quay tiles, which it replaces (no refund), while its water rows need
   free water without quay. Other buildings never stand on a quay. For
   ships a quay tile is **land** (sea grid, approach, harbour point,
-  §9.1). Quay tiles, or a berth holder moved onto them, must leave the
-  island's harbour point a 4-connected way over water to the edge of
-  the island's grid (`harbour_blocked`). Cost and speed are content
+  §9.1). Quay tiles, a shore building (§2), or a berth holder moved onto
+  quay tiles must leave every harbour point of the island (Trading
+  Post and trading piers; `HarbourAt`, which moves to the nearest water
+  a ship reaches as quays cover it) a 4-connected way over water to the
+  edge of the island's grid (`harbour_blocked`), placed or planned.
+  **Harbour basins** (D-077 §8): quays are **connected** — every quay
+  tile of a placement reaches the island's own land or the footprint of
+  a built building over edge-adjacent quay tiles (a batch may connect
+  itself; a diagonal touch does not count), else `quay_disconnected`.
+  A planned quay may also rest on planned quays and plans (the plan
+  view, D-071); a built one only on built ground. Demolishing road
+  tiles (single or rectangle, plans included), a building or a plan, or
+  moving a building, is rejected with `quay_would_float` when a quay
+  tile that reached the land before would no longer (built quays over
+  built ground, planned ones over the plan view); quays that floated
+  before D-077 never block a change. Cost and speed are content
   (provisional 5 gold / 2 stone per tile, 0.6 s/tile like the paved
   road).
+- **Paint families** (D-077 §2–§3; `paint_family` in the content, `paint.go`):
+  the hedge, the garden wall, the city wall and the square are 1×1
+  buildings painted tile by tile with the road tools. `place_paint` is a
+  batch like `place_fields`: every tile is checked as a 1×1 placement
+  (`occupied`, `terrain`, …) and charged cumulatively (a tile the gold or
+  materials no longer cover is refused); the valid tiles are placed in
+  one state change, with `planned` as plans (D-071, free, no tier lock).
+  Each tile is its own building (cost per tile; `demolish_paint` removes
+  the paint-family buildings and plans on its tiles with the usual
+  refund, a plan for free; single tiles also go with `demolish`).
+  Neighbouring tiles of one family join (display only: the client picks
+  the piece). The square is a ground kind (`cobbles_fine`) with no model;
+  it is not a road. Nothing else reads a paint family.
+- **City wall and gate** (D-077 §3): a road may share a tile with a
+  **road-crossing** paint family (the city wall, drawn as an arch) in
+  either order — a road placed over the wall or the wall painted over a
+  road (a land road; never a bridge or a quay) — and demolishing one
+  leaves the other. A **gate** (`gate` in the content, the gatehouse)
+  needs a city wall (built or planned) on the tile beside the middle of
+  each of the two sides its passage does not cross (`gate_needs_wall`,
+  checked when it is placed or moved; later wall demolition does not
+  touch it), and a road may share the tiles of its centre line along the
+  passage (north–south at rotation 0 and 180, east–west at 90 and 270),
+  in either order. Every other building tile stays `occupied` for roads.
+  Military buildings have a `defence` value nothing reads (raids, D-005).
+- **Ornaments and dormant values** (D-077 §2–§4, §6): ornaments are
+  ordinary buildings with no inputs, outputs, residents, need or
+  maintenance (`upkeep_per_min: 0`, never paused); their gold price is
+  the only effect. A military building's `defence`, a warship's `attack`
+  and the repair crane's `repairs` are content only: nothing in the
+  simulation reads them until raids and ship health come (D-005); the
+  military buildings' maintenance is ordinary upkeep. Neither needs a
+  road (`requires_road: false`), so none is "not connected".
+- **Unique buildings** (D-076 §2, D-077 §4; `unique` in the content): a
+  building with `unique: island` exists at most once per island, one
+  with `unique: world` (the Kontor) once in the world; a building or a
+  plan of the type counts, so placing (or planning) a second fails with
+  `unique_building` (`ErrUniqueBuilding`); building the plan itself and
+  moving the building never do.
 - Each connected producer is **assigned** to the nearest collector whose
   reach covers it (§5, D-069) by road distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile
@@ -754,7 +833,9 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
   2 min, tier 2), *Hulk* (4 × 50, 1.0, 5 min, tier 3), *Carrack* (6 × 60,
   0.85, 10 min, tier 4): small and fast for founding and short hops,
   large and slow for bulk; the ETA uses each ship's speed over the
-  routed path length. Later: war ships (D-005). Defined
+  routed path length. **Warships** (D-077 §6: balinger, war cog, war
+  carrack, tier 4) carry no cargo (`slots: 0`) and an `attack` value
+  nothing reads until raids (D-005). Defined
   in `ships.json`; the shipyard (tier 2, no levels) offers the types
   whose tier is unlocked (`ErrTierLocked` otherwise). The start ship is a
   cog; its **founding cargo** (start stock) is exempt from the slot
@@ -777,9 +858,34 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
   with a pending order refunds the order like a cancel.
 - Ships have upkeep (gold/min; counts in `balance_rate`) and a `state`:
   `idle@island`, `on_route`, `manual_leg`, `on_world_map` (reserved),
-  `anchored_unpaid`. Insolvency step 4 (§7) applies to **every** ship with
+  `anchored_unpaid`, `patrolling`. Insolvency step 4 (§7) applies to **every** ship with
   upkeep, idle ones included: a ship on a leg finishes it, then anchors
-  without unloading; it resumes at its arrival stop.
+  without unloading; it resumes at its arrival stop. A patrolling ship
+  ends its patrol and anchors at the patrolled island (below).
+- **Patrol** (D-077 §6, `patrol.go`): `patrol {ship_id, island_id}` sends
+  an idle ship — warship or cargo ship — round an island of its region,
+  settled or not (not a skerry; `route_invalid` otherwise, also for an
+  island of another region; `ship_not_idle`). The server builds the
+  **coast loop** once: the convex hull of the island's land for ships
+  (quays and shore decks included) grown by 10 tiles (the shallows'
+  8 + 2) in each direction — a square per land tile, so every hull edge
+  keeps at least 10 tiles (Chebyshev) from the island's land — with
+  hull corners on another island's land dropped and every edge that is
+  not clear water (another island, a skerry) replaced by the sea route
+  round it (§9.1 routing, string-pulled); integer-only, deterministic.
+  The loop starts at its point nearest the ship; the **approach** is
+  the voyage from the ship's position (at sea, offshore, its island's
+  harbour or shore) to it. The ship stores both with their travel times
+  at its speed and the start (`Ship.Patrol`, schema 17) and is at no
+  island; the client places it on the approach and then round the loop
+  for ever (display `patrol`). No boundary event: nothing changes while
+  it patrols but the upkeep. `unassign_ship` ends the patrol: the ship
+  idles at the patrolled island, offshore at the loop point nearest the
+  island's harbour at the start (the loop's first point without one); an
+  insolvency pause ends it the same way (`anchored_unpaid`). The loop is
+  not rebuilt when quays or shore buildings grow later. A property test
+  checks that no loop of the generated archipelagos (seeds 1–50) or its
+  approach touches land.
 - **Names** (D-055): a new ship is named "<type name> <id>" ("Cog 1");
   `rename_ship` renames it in any state — trimmed, 1–24 printable runes
   (the island rule), not unique; an empty name restores the default.
@@ -991,10 +1097,12 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
     buildability; the only placement rule that reads levels is the low
     shore of water-edge buildings (§2, D-075 §1). The client draws
     plinths, ramps and waterfalls.
-- **Shallows** (D-060): an island's water tiles (not river) within 3
-  tiles (Chebyshev) of its own land — islets are not own land — derived
-  from the tiles; the ground of quays (§3). D-036 stands: the shallows
-  band bounds the harbour area.
+- **Shallows** (D-060, D-077 §8): an island's water tiles (not river)
+  within 8 tiles (Chebyshev; 3 before D-077) of its own land — islets
+  are not own land — derived from the tiles; the ground of quays (§3).
+  D-036 stands, with the wider band: the shallows still bound the
+  harbour area, so a basin of connected quays never reaches more than
+  8 tiles out (shore buildings at a pier head may stand beyond it).
 - **Skerries** (size class `scenic`, D-058, D-073): 5–18 tiles of rock with a
   grass or sand top, placed after the islands within the nearest
   neighbour distance. They have no sites, fertilities, deposits or name,

@@ -115,7 +115,7 @@ func (f *fixture) placeOnce(island, typ string, anchor sim.Pos, then func(id int
 	chk := sim.NewSiteChecker(is, f.c)
 	for _, s := range layout.Candidates(is, def, anchor) {
 		w, h := layout.Dims(def, s.Rot)
-		if !layout.Touches(is, reach, s.X, s.Y, w, h) || (f.spareForest && layout.CoversForest(is, s.X, s.Y, w, h)) || !chk.Valid(def, s.X, s.Y, s.Rot) {
+		if !layout.Touches(is, reach, s.X, s.Y, w, h) || (f.spareForest && layout.CoversForest(is, s.X, s.Y, w, h)) || !layout.ValidSite(chk, def, s.X, s.Y, s.Rot) {
 			continue
 		}
 		if tried++; tried > layout.MaxCandidates {

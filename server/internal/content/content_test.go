@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.21.1" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.22.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 80 {
@@ -82,7 +82,10 @@ func TestLoadOldCoast(t *testing.T) {
 		// Tier 4 (D-056 C4).
 		"house_patricians", "university", "cathedral", "cattle_farm", "slaughterhouse", "oyster_beds", "oyster_house", "vineyard", "vine_row", "cooperage", "winepress", "malt_house",
 		"grain_distillery", "fashion_house", "thread_spinner", "lace_maker", "candle_foundry", "quartz_quarry", "glass_smelter",
-		"copper_mine", "copper_smelter", "optician", "gold_mine", "gold_smelter", "goldsmith", "luthier")
+		"copper_mine", "copper_smelter", "optician", "gold_mine", "gold_smelter", "goldsmith", "luthier",
+		// Ornaments, military, repair crane and Kontor (D-077).
+		"hedge", "garden_wall", "tree_ornament", "flower_bed", "well", "maypole", "pillory", "pond", "fountain", "statue", "cemetery", "square",
+		"harbour_statue", "gold_statue", "city_wall", "tower", "gatehouse", "harbour_tower", "castle", "repair_crane", "kontor")
 	ids = nil
 	for _, tr := range c.Tiers {
 		ids = append(ids, tr.ID)
@@ -223,7 +226,7 @@ func TestLoadOldCoast(t *testing.T) {
 
 	// Ships (CONTENT §7, §8; R-1, R-3; D-056 §9: 2/4/6 slots, the start
 	// cog first, the others of tiers 3 and 4).
-	if len(c.Ships) != 3 || c.Ships[0].ID != "cog" {
+	if len(c.Ships) != 6 || c.Ships[0].ID != "cog" {
 		t.Fatalf("ships = %+v", c.Ships)
 	}
 	cog := c.ShipByID["cog"]
@@ -258,7 +261,7 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 	}
 	sy := c.BuildingByID["shipyard"]
-	if sy.Shipyard == nil || sy.Tier != "citizens" || strings.Join(sy.Shipyard.Ships, ",") != "cog,hulk,carrack" || sy.Width != 8 || sy.Height != 12 || waterRange(sy).Max != 4 || sy.Coastal || !sy.RequiresRoad ||
+	if sy.Shipyard == nil || sy.Tier != "citizens" || strings.Join(sy.Shipyard.Ships, ",") != "cog,hulk,carrack,balinger,war_cog,war_carrack" || sy.Width != 8 || sy.Height != 12 || !sy.Shore() || sy.WaterRows != nil || sy.Coastal || !sy.RequiresRoad ||
 		sy.Cost.Gold != 300_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 45_000}) ||
 		sy.UpkeepPerMin != 0 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
 		t.Errorf("shipyard = %+v", sy)
@@ -537,9 +540,16 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{FileShips, `ship "cog"`, "region", `must be "old_coast"`},
 		},
 		{
-			"ship zero slots", FileShips,
+			"ship zero slots with cargo size", FileShips,
 			[]string{`"slots": 2`, `"slots": 0`},
-			[]string{FileShips, `ship "cog"`, "schema violation"},
+			[]string{FileShips, `ship "cog"`, "slot_size", "must be 0 for a ship without cargo slots"},
+		},
+		{
+			"cargo ship with attack", FileShips,
+			[]string{`"length_tiles": 2
+  },`, `"length_tiles": 2, "attack": 3
+  },`},
+			[]string{FileShips, `ship "cog"`, "attack", "only ships without cargo slots"},
 		},
 		{
 			"ship unknown field", FileShips,
@@ -556,12 +566,12 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"shipyard unknown ship", FileBuildings,
-			[]string{`"ships": ["cog", "hulk", "carrack"]`, `"ships": ["frigate"]`},
+			[]string{`"ships": ["cog", "hulk", "carrack", "balinger", "war_cog", "war_carrack"]`, `"ships": ["frigate"]`},
 			[]string{FileBuildings, `building "shipyard"`, "shipyard.ships[0]", `unknown ship "frigate"`},
 		},
 		{
 			"shipyard without ships", FileBuildings,
-			[]string{`"ships": ["cog", "hulk", "carrack"]`, `"ships": []`},
+			[]string{`"ships": ["cog", "hulk", "carrack", "balinger", "war_cog", "war_carrack"]`, `"ships": []`},
 			[]string{FileBuildings, `building "shipyard"`, "schema violation"},
 		},
 		{
@@ -598,6 +608,12 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
     "service": { "chain": "faith"`, `"pause_category": "never",
     "service": { "chain": "faith"`},
 			[]string{FileBuildings, "schema violation", "missing property 'look'"},
+		},
+		{
+			"gate on a public building", FileBuildings,
+			[]string{`"cost": { "gold": 100, "planks": 6 },`, `"cost": { "gold": 100, "planks": 6 },
+    "gate": true,`},
+			[]string{FileBuildings, `building "chapel"`, "gate", "square military building"},
 		},
 		{
 			"smoke on a public building", FileBuildings,

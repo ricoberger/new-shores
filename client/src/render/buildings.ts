@@ -38,6 +38,8 @@ import { buildingColor, DOOR, INACTIVE_TINT, PAUSED_TINT, roofColor, SELECTION }
 import { skyFill } from "./lighting";
 import { addJitter, JIT_VPT_ATTRIBUTE, jitterGrid, LITE_VPT, MODEL_VPT } from "./jitter";
 import { addSway } from "./sway";
+import { groundPaintOf } from "./groundpaint";
+import type { DrawnBuilding } from "./paintjoin";
 import { ColoredInstances } from "./shipmesh";
 import { chunkAt, liteGroupOf } from "../display/chunks";
 
@@ -421,7 +423,9 @@ export class BuildingLayer {
 
   /** The model file and data to draw for a building (wanted detail, else the other one), or null (placeholder). */
   private modelOf(b: BuildingDisplay, def: ContentBuilding, detail: Detail): Item | null {
-    const entry = this.registry?.entry(b.type);
+    // A paint family's join piece (render/paintjoin.ts), else the type's own model.
+    const model = (b as DrawnBuilding).model;
+    const entry = (model ? this.registry?.entry(model) : undefined) ?? this.registry?.entry(b.type);
     if (!entry || !this.registry) return null;
     const main = modelFileFor(entry, b);
     if (!main) return null;
@@ -448,8 +452,9 @@ export class BuildingLayer {
     this.hasFields = false;
     for (const b of buildings) {
       const def = defs.get(b.type);
-      // Roads are strips of their own; fields without a model stay in the field layers.
-      if (!def || def.category === "roads") continue;
+      // Roads are strips of their own; fields without a model stay in the field layers; a ground paint
+      // family (the square, D-077 §2) is paint in the terrain (render/groundpaint.ts).
+      if (!def || def.category === "roads" || groundPaintOf(def)) continue;
       // Fields have no lite model: the lite detail (far LOD) draws them as ground patches in the
       // lite terrain (render/farfields.ts), so they count as drawn and never rise in there.
       if (def.field) this.hasFields = true;

@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
 import { t } from "../i18n";
-import { buildCost, buildMenuGroups, buildTierTabs, defaultBuildTier, serviceNeedCategory } from "../display/buildMenu";
+import { buildCost, buildingNotes, buildMenuGroups, buildTierTabs, defaultBuildTier, serviceNeedCategory } from "../display/buildMenu";
 import { perMin, tons, units } from "../display/format";
 import { depositName, fertilityName, fertilityNeed, lockReason } from "../display/tiers";
 import { goodIcon, needGroupIcon, needIcon, resourceIcon, toolIcon } from "../theme/iconSet";
@@ -212,7 +212,14 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                         </span>
                       ) : (
                         <span className={`${styles.small} ${styles.cardLine}`} data-testid={`build-info-${b.id}`}>
-                          <span>{t("infoPanel.upkeepRate", { rate: perMin(b.upkeep_per_min) })}</span>
+                          {/* An ornament shows its cost only (no upkeep, D-077 §2); the D-077 notes follow (dormant values say so). */}
+                          {b.category !== "ornaments" && <span>{t("infoPanel.upkeepRate", { rate: perMin(b.upkeep_per_min) })}</span>}
+                          {buildingNotes(b).map((note, i) => (
+                            <Fragment key={note}>
+                              {(i > 0 || b.category !== "ornaments") && <span aria-hidden="true">·</span>}
+                              <span data-testid={`build-note-${b.id}-${i}`}>{note}</span>
+                            </Fragment>
+                          ))}
                           {(b.recipe || b.service) && <span aria-hidden="true">·</span>}
                           {b.recipe && (
                             <span className={styles.flow}>

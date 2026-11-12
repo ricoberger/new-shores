@@ -77,6 +77,8 @@ class GroundMapTest(unittest.TestCase):
 
     def test_the_water_models_are_the_content_ids_with_water_rows(self):
         water = {cid for cid, d in CONTENT["buildings"].items() if (d.get("water_rows") or {}).get("max", d.get("water_tiles", 0))}
+        # The D-062 water structures with the shore placement since D-077 §5 keep their authored deck rows.
+        water |= {cid for cid in config.SHORE_DECK_ROWS if CONTENT["buildings"][cid].get("placement") == "shore"}
         self.assertEqual(set(config.WATER_MODELS), water)
 
 

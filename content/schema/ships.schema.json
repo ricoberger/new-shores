@@ -14,14 +14,14 @@
       "region": { "$ref": "#/$defs/id" },
       "tier": { "$ref": "#/$defs/id" },
       "slots": {
-        "description": "Number of cargo slots; a slot holds one good.",
+        "description": "Number of cargo slots; a slot holds one good. 0: a warship without cargo (D-077 §6).",
         "type": "integer",
-        "minimum": 1
+        "minimum": 0
       },
       "slot_size": {
-        "description": "Capacity of one cargo slot in units.",
+        "description": "Capacity of one cargo slot in units; 0 exactly when slots is 0.",
         "type": "number",
-        "exclusiveMinimum": 0
+        "minimum": 0
       },
       "speed": {
         "description": "Speed factor (1.0 = reference speed, region rule ship_speed_tiles_per_min).",
@@ -45,6 +45,11 @@
         "additionalProperties": false
       },
       "upkeep_per_min": { "type": "number", "minimum": 0 },
+      "attack": {
+        "description": "Attack value of a warship (D-077 §6). Nothing reads it until raids (D-005); the almanac shows it. Only on ships without cargo.",
+        "type": "integer",
+        "minimum": 1
+      },
       "length_tiles": {
         "description": "Hull length in tiles at model scale (display only: the client draws ships and spaces the Trading Post berths by it, CONTENT §11). Absent: the reference length 2.",
         "type": "number",

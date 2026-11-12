@@ -1,5 +1,6 @@
 import styles from "./almanac.module.css";
 import { t } from "../i18n";
+import { buildingNotes } from "../display/buildMenu";
 import { tonsPerMinText, tonsText } from "../display/format";
 import { buildingGroups, categoryName, buildingView, num, tierViews, type BuildingView, type FlowView, type Index } from "./model";
 import { A, BuildingLink, Cost, GoodAlternatives, Row, Thumb } from "./parts";
@@ -43,6 +44,12 @@ export function BuildingCard({ idx, view, linked, level = 3 }: { idx: Index; vie
           <Cost idx={idx} parts={view.cost} />
         </Row>
         {view.upkeep > 0 && <Row label={t("infoPanel.upkeep")}>{t("almanac.b.goldPerMin", { amount: num(view.upkeep) })}</Row>}
+        {(() => {
+          // The D-077 notes: paint family, gate, defence and repairs (no effect yet), uniqueness.
+          const def = idx.content.buildings?.find((b) => b.id === view.id);
+          const notes = def ? buildingNotes(def) : [];
+          return notes.length > 0 && <Row label={t("almanac.i.notes")}>{notes.join(" · ")}</Row>;
+        })()}
         {view.workforce && (
           <Row label={t("infoPanel.workers")}>
             {num(view.workforce.amount)} {idx.tierName(view.workforce.tier)}

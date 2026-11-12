@@ -63,12 +63,12 @@ export interface paths {
          * Advance the world to now and apply one command.
          * @description Commands (`command.type`): `place_building`, `place_road`,
          *     `demolish`, `demolish_road`, `demolish_roads`, `place_field`,
-         *     `place_fields`, `demolish_fields`,
-         *     `set_paused`, `upgrade_building` (deprecated aliases
+         *     `place_fields`, `demolish_fields`, `place_paint`,
+         *     `demolish_paint`, `set_paused`, `upgrade_building` (deprecated aliases
          *     `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
          *     `move_building`, and the ship and route commands `order_ship`,
          *     `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
-         *     `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`,
+         *     `delete_route`, `assign_ship`, `unassign_ship`, `patrol`, `manual_shipment`,
          *     `sail_ship` and `found_island` (MECHANICS §8, §9).
          *
          *     A new world starts at sea (D-051): no island is settled and the
@@ -442,10 +442,26 @@ export interface components {
          *       D-060), `not_coastal`, `not_on_water` (a
          *       water-edge building's front rows are not on water, D-051),
          *       `needs_low_shore` (a water-edge building's land tiles are not
-         *       all at terrace level 0, D-075),
-         *       `harbour_blocked` (quay tiles, or a Trading Post moved onto
-         *       them, would close the harbour point off from the open sea,
-         *       D-060),
+         *       all at terrace level 0, D-075; also the land tiles of a shore
+         *       building, D-077),
+         *       `shore_needs_water` (a shore building covers no water tile,
+         *       D-077 §5), `shore_back_edge` (the back edge of a shore building
+         *       does not touch land or quay along its full length, D-077 §5),
+         *       `harbour_blocked` (quay tiles, a shore building, or a Trading
+         *       Post moved onto quay tiles, would close a harbour point off
+         *       from the open sea, D-060 / D-077 §8; a shore building on the
+         *       harbour lane or a berth tile of the Trading Post or a trading
+         *       pier, D-077 §5),
+         *       `quay_disconnected` (a quay tile would reach neither the
+         *       island's land nor a built building over quay tiles, D-077 §8),
+         *       `quay_would_float` (demolishing roads or a building, or moving
+         *       a building, would cut a quay off from the land, D-077 §8),
+         *       `unique_building` (the building, e.g. the Kontor, exists once
+         *       per island or per world — `unique` in the content — and one
+         *       already stands or is planned, D-076 §2),
+         *       `gate_needs_wall` (a gate, the gatehouse, needs a city wall —
+         *       built or planned — beside the middle of the two sides its
+         *       passage does not cross, D-077 §3),
          *       `no_fertility` (the island lacks the work area's or the field's
          *       fertility tag),
          *       `field_type_mismatch` (`place_field` with a type that is not a
@@ -487,8 +503,9 @@ export interface components {
          *     `move_building` can fail with 400 `bad_request`, `invalid_command`
          *     (also for a road or an invalid rotation), `out_of_bounds`; 404
          *     `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-         *     `not_coastal`, `not_on_water`, `needs_low_shore`, `no_fertility`,
-         *     `no_deposit`. Moving a farm keeps its fields (they may become
+         *     `not_coastal`, `not_on_water`, `needs_low_shore`,
+         *     `shore_needs_water`, `shore_back_edge`, `harbour_blocked`,
+         *     `quay_would_float`, `no_fertility`, `no_deposit`. Moving a farm keeps its fields (they may become
          *     inactive); a field cannot be moved (`invalid_command`). Moving is
          *     free: it never fails for gold, materials or tier. Placement never
          *     requires a road (D-042).
@@ -519,7 +536,9 @@ export interface components {
          *     `island_not_settled`. A batch without a valid tile is not an
          *     error: 200 with every tile `ok: false` and its reason, the
          *     unchanged version, no state change and no event (`place_fields`
-         *     and `demolish_fields` alike).
+         *     and `demolish_fields` alike). `place_paint` and `demolish_paint`
+         *     (D-077 §2–§3) are the batch forms for paint families and follow
+         *     the same rules.
          *
          *     `demolish_roads` is the batch form of `demolish_road` for the
          *     Demolish tool's rectangle (at most 512 tiles): the tiles with a
@@ -554,7 +573,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "shore_needs_water" | "shore_back_edge" | "quay_disconnected" | "quay_would_float" | "unique_building" | "gate_needs_wall" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -628,7 +647,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["DemolishRoadsCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["DemolishRoadsCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["PlacePaintCommand"] | components["schemas"]["DemolishPaintCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["PatrolCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -926,6 +945,49 @@ export interface components {
              * @description Building ID of the owning farm (BuildingDisplay.id).
              */
             farm_id: number;
+            tiles: components["schemas"]["FieldTileList"];
+        };
+        /**
+         * @description Paint the `tiles` with a paint family (D-077 §2–§3, MECHANICS §3:
+         *     hedge, garden wall, city wall, square): one 1×1 building per
+         *     tile, each checked like a placement (`occupied`, `terrain`, …)
+         *     and charged cumulatively like `place_fields`. A city wall may
+         *     stand on a road tile (the road crosses it). The valid tiles are
+         *     placed in one state change; `tile_results` reports every tile.
+         *     Without a valid tile it answers 200 with every tile rejected and
+         *     the unchanged version (no state change, no event).
+         */
+        PlacePaintCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "place_paint";
+            island_id: string;
+            /** @description Content building ID with a `paint_family`. */
+            building_type: string;
+            tiles: components["schemas"]["FieldTileList"];
+            /**
+             * @description Optional, default false. Make plans instead (D-071): no tier
+             *     lock, nothing charged.
+             */
+            planned?: boolean;
+        };
+        /**
+         * @description Demolish the paint-family buildings and plans on the `tiles`
+         *     (D-077 §2–§3): each like `demolish` (refund of 50 % of the
+         *     materials, a plan for free); a road under a city wall stays. A
+         *     tile without one is rejected (`building_not_found`, or
+         *     `out_of_bounds`); without a valid tile it succeeds like
+         *     `place_paint` with the unchanged version.
+         */
+        DemolishPaintCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "demolish_paint";
+            island_id: string;
             tiles: components["schemas"]["FieldTileList"];
         };
         SetPausedCommand: {
@@ -1250,7 +1312,9 @@ export interface components {
         /**
          * @description Remove a ship from its route. A ship on a leg finishes it as a
          *     manual leg (unloads everything at arrival and ends idle); an
-         *     anchored ship stays anchored.
+         *     anchored ship stays anchored. A patrolling ship ends its patrol
+         *     (D-077 §6): it idles at the patrolled island, at the loop point
+         *     nearest the island's harbour.
          */
         UnassignShipCommand: {
             /**
@@ -1263,6 +1327,29 @@ export interface components {
              * @description Ship ID (unscaled integer identifier, from ShipDisplay.id).
              */
             ship_id: number;
+        };
+        /**
+         * @description Send an idle ship to patrol `island_id` (D-077 §6, MECHANICS §9.1):
+         *     an island of the ship's region, settled or not (not a skerry —
+         *     `route_invalid`, as for another region or an island without a
+         *     loop). The server builds the coast loop once; the ship sails the
+         *     approach and then round the loop at its speed (`patrol` in
+         *     ShipDisplay). Nothing else changes while it patrols; upkeep as
+         *     usual. `unassign_ship` ends the patrol, an insolvency pause too.
+         *     `ship_not_idle` for a ship that is not idle.
+         */
+        PatrolCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "patrol";
+            /**
+             * Format: int64
+             * @description Ship ID (unscaled integer identifier, from ShipDisplay.id).
+             */
+            ship_id: number;
+            island_id: string;
         };
         CargoEntry: {
             good: string;
@@ -1675,7 +1762,8 @@ export interface components {
          *     `queued_at`, D-051: the arrival's unloading and loading wait for a
          *     free berth), `anchored_unpaid` (paused for insolvency at
          *     `island_id`; on a leg it anchors at arrival); `on_world_map` is
-         *     reserved. While handling cargo before `leg.depart_at` the ship is
+         *     reserved; `patrolling` (D-077 §6) sails `patrol` round an island,
+         *     `island_id` empty. While handling cargo before `leg.depart_at` the ship is
          *     at the leg's origin, holding a berth until `berth_until`;
          *     afterwards `island_id` is empty.
          */
@@ -1690,7 +1778,7 @@ export interface components {
             /** @description The ship's name (D-055); "<ship type name> <id>" until `rename_ship` renames it. */
             name: string;
             /** @enum {string} */
-            state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map";
+            state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map" | "patrolling";
             /** @description Island where the ship is; empty while travelling or at sea. */
             island_id: string;
             /** @description Region whose map the ship is on — its island's, its leg's destination's or, at sea, its own (D-076); null on a passage leg between regions (`leg.passage`), when the ship is "between regions". */
@@ -1729,6 +1817,33 @@ export interface components {
             queued_at: string | null;
             /** @description End of the ship's handling at a berth of `island_id` (RFC 3339, UTC, ms) — the departure of a route ship, the end of unloading after a manual leg; null when it holds no berth. */
             berth_until: string | null;
+            patrol?: components["schemas"]["PatrolDisplay"];
+        };
+        /**
+         * @description The patrol of a patrolling ship (D-077 §6; absent otherwise): from
+         *     `started_at` the ship covers `approach` in `approach_ms`, then the
+         *     closed `loop` (its last point connects back to the first) once
+         *     every `loop_ms`, each at constant speed (linear in length). The
+         *     client places the ship from these alone.
+         */
+        PatrolDisplay: {
+            island_id: string;
+            /** @description Start of the patrol (RFC 3339, UTC, ms). */
+            started_at: string;
+            /** @description From the ship's position at the start to `loop[0]` (archipelago tiles). */
+            approach: components["schemas"]["SeaPosition"][];
+            /**
+             * Format: int64
+             * @description Travel time of the approach (ms).
+             */
+            approach_ms: number;
+            /** @description The coast loop (archipelago tiles), at least 3 points. */
+            loop: components["schemas"]["SeaPosition"][];
+            /**
+             * Format: int64
+             * @description Travel time of one round of the loop (ms).
+             */
+            loop_ms: number;
         };
         /** @description A position at sea. */
         SeaPosition: {
@@ -2461,11 +2576,11 @@ export interface components {
              */
             source_name?: string;
             tier: string;
-            /** @description Cargo slots (count). */
+            /** @description Cargo slots (count); 0 for a warship without cargo (D-077 §6). */
             slots: number;
             /**
              * Format: int64
-             * @description Capacity of one slot (milli-units).
+             * @description Capacity of one slot (milli-units); 0 when slots is 0.
              */
             slot_size: number;
             /**
@@ -2480,6 +2595,11 @@ export interface components {
              *     reference length (2 000, the cog).
              */
             length_milli_tiles?: number;
+            /**
+             * @description Attack value of a warship (D-077 §6; `slots` 0, no cargo).
+             *     Dormant: nothing reads it until raids. Absent for cargo ships.
+             */
+            attack?: number;
             /**
              * Format: int64
              * @description Build time at the shipyard (ms).
@@ -2645,7 +2765,9 @@ export interface components {
             name: string;
             tier: string;
             /**
-             * @description Build-menu group derived by the server from the capability
+             * @description Build-menu group: `ornaments` and `military` come from the
+             *     content (D-077 §2–§3); the repair crane and the Kontor are
+             *     harbour. Otherwise derived by the server from the capability
              *     blocks: house → houses, recipe, field or warehouse →
              *     production, service → public, trading_post, shipyard, pier,
              *     depot or a shallows road (the quay) → harbour, any other
@@ -2654,7 +2776,7 @@ export interface components {
              *     menu.
              * @enum {string}
              */
-            category: "houses" | "production" | "public" | "harbour" | "roads" | "other";
+            category: "houses" | "production" | "public" | "harbour" | "roads" | "ornaments" | "military" | "other";
             /** @description Footprint width at rotation 0 (tiles). */
             width: number;
             /** @description Footprint height at rotation 0 (tiles). */
@@ -2674,6 +2796,51 @@ export interface components {
                 /** @description Maximum sea-water tiles per column (tiles). */
                 max: number;
             };
+            /**
+             * @description `shore` (D-077 §5): every footprint tile is sea water
+             *     (shallows included) or level-0 land or quay, at least one is
+             *     water, the back edge (bottom at 0, left at 90, top at 180,
+             *     right at 270) touches land or quay along its full length, and
+             *     no tile lies on the harbour lane or berth tiles of the
+             *     island's Trading Post or trading piers; the footprint is land
+             *     for ships. Absent for other buildings (never with water_rows).
+             * @enum {string}
+             */
+            placement?: "shore";
+            /**
+             * @description Defence value of a military building (D-077 §3). Dormant:
+             *     nothing reads it until raids. Absent for other buildings.
+             */
+            defence?: number;
+            /**
+             * @description Uniqueness scope (D-076 §2): one per island or one per world
+             *     (the Kontor), built or planned (`unique_building`). Absent:
+             *     no limit.
+             * @enum {string}
+             */
+            unique?: "island" | "world";
+            /**
+             * @description A 1x1 building painted tile by tile with the road tools whose
+             *     tiles join their neighbours of the family (D-077 §2–§3):
+             *     hedge, garden wall, city wall, square.
+             */
+            paint_family?: {
+                /**
+                 * @description The ground kind the tile paints instead of a model (the square).
+                 * @enum {string}
+                 */
+                ground?: "cobbles_fine";
+                /** @description A road may cross a tile of the family (the city wall, drawn as an arch). */
+                road_crossing?: boolean;
+            };
+            /** @description The building repairs ships (the repair crane, D-077 §4). Dormant until raids. */
+            repairs?: boolean;
+            /**
+             * @description A gate in the city wall (the gatehouse, D-077 §3): it needs a
+             *     city wall on two opposite sides (`gate_needs_wall`) and a road
+             *     may run along its centre line.
+             */
+            gate?: boolean;
             requires_road: boolean;
             cost: {
                 /**

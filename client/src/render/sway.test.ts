@@ -41,6 +41,8 @@ describe("cloth sway", () => {
     expect(sailing({ leg: {} }, { atSea: false })).toBe(false);
     expect(sailing({}, { atSea: true })).toBe(false);
     expect(sailing({ leg: {} }, null)).toBe(false);
+    // A patrol (D-077 §6) is under way too.
+    expect(sailing({ patrol: {} }, { atSea: true })).toBe(true);
   });
 
   it("bobs ships waiting at anchor, deterministically, not those on a leg or moored", () => {
@@ -48,6 +50,7 @@ describe("cloth sway", () => {
     expect(waiting({ leg: {} }, undefined)).toBe(false);
     expect(waiting({}, { queued: true })).toBe(true);
     expect(waiting({}, {})).toBe(false);
+    expect(waiting({ patrol: {} }, undefined)).toBe(false);
     const a = { ...anchorBob(3, 12_345) };
     expect(anchorBob(3, 12_345)).toEqual(a);
     expect(anchorBob(4, 12_345)).not.toEqual(a);

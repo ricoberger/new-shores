@@ -4,8 +4,10 @@ warm sandstone with a tall arched passage on the road axis (through y, six
 voxels wide, paved ground under it), a raised iron portcullis in the upper
 part of the arch, a crenellated top with two corner bartizans under slate
 caps and a banner. A wall stub of the same stone leaves the two opposite
-sides (x- and x+) at the height of the wall, so a `city_wall` meets the
-gatehouse from both sides and the road passes between. 8 voxels per tile.
+sides (x- and x+) at the height and thickness of the wall, on the middle
+tile's centre line (voxels 10..14, the city wall's 2..6), so a `city_wall`
+meets the gatehouse from both sides and the road passes between. 8 voxels
+per tile.
 """
 
 from nsvoxel import parts as P
@@ -15,7 +17,7 @@ from nsvoxel.mats import BRASS, IRON, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
 BANNER = mat("dye-blue", 1.1)
 ROOF = mat("slate", 0.95)
-STUB_H = 9
+STUB_H = 8
 
 
 def build(ctx):
@@ -24,10 +26,10 @@ def build(ctx):
     x0, x1, y0, y1, top = 5, 19, 3, 21, 20
     O.ashlar_box(v, x0 - 1, y0 - 1, x1 + 1, y1 + 1, 0, 2, O.ASHLAR_DARK, course=1)
     O.ashlar_box(v, x0, y0, x1, y1, 2, top, O.ASHLAR, course=2)
-    # The wall stubs on the x sides (the same thickness as the gate's arms, to the tile edge).
+    # The wall stubs on the x sides (the city wall's thickness and height, to the tile edge).
     for a, b in ((0, x0 - 1), (x1 + 1, 24)):
-        O.ashlar_box(v, a, 9, b, 15, 0, STUB_H, O.ASHLAR, course=2)
-        v.box(a, 9, STUB_H - 1, b, 15, STUB_H, O.CAP)
+        O.ashlar_box(v, a, 10, b, 14, 0, STUB_H, O.ASHLAR, course=2)
+        v.box(a, 10, STUB_H - 1, b, 14, STUB_H, O.CAP)
     # The passage: a stepped arch six wide, eleven high at the crown, through the whole block.
     for i, x in enumerate(range(9, 15)):
         h = (8, 10, 11, 11, 10, 8)[i]

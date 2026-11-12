@@ -46,6 +46,8 @@ const manifest = JSON.parse(readFileSync(join(MODELS, "manifest.json"), "utf8"))
 interface ContentJson {
   id: string;
   road?: unknown;
+  /** A ground paint family (the square, D-077 §2) is a ground kind, not a model. */
+  paint_family?: { ground?: string };
   field?: unknown;
   recipe?: unknown;
   smoke?: boolean;
@@ -56,7 +58,7 @@ interface ContentJson {
   shipyard?: unknown;
 }
 const CONTENT_BUILDINGS = JSON.parse(readFileSync(join(REPO, "content", "old_coast", "buildings.json"), "utf8")) as ContentJson[];
-const CONTENT_SHIPS = JSON.parse(readFileSync(join(REPO, "content", "old_coast", "ships.json"), "utf8")) as { id: string }[];
+const CONTENT_SHIPS = JSON.parse(readFileSync(join(REPO, "content", "old_coast", "ships.json"), "utf8")) as { id: string; slots: number }[];
 
 const engine = new NullEngine();
 const scene = new Scene(engine);
@@ -135,8 +137,14 @@ describe("committed models are consistent with the manifest", () => {
     const palette = readFileSync(join(REPO, "assets", "palette.json"));
     expect(manifest.palette_sha256).toBe(createHash("sha256").update(palette).digest("hex"));
     expect(manifest.voxels_per_tile).toBe(8);
-    const ids = [...CONTENT_BUILDINGS.filter((b) => !b.road).map((b) => b.id), ...CONTENT_SHIPS.map((s) => s.id)];
-    expect(Object.keys(manifest.models).sort()).toEqual([...ids].sort());
+    const ids = [...CONTENT_BUILDINGS.filter((b) => !b.road && !b.paint_family?.ground).map((b) => b.id), ...CONTENT_SHIPS.map((s) => s.id)];
+    // The paint families' join pieces are models `<id>.<piece>` of a content ID (D-077 §2, ART_DIRECTION §7).
+    const joins = Object.keys(manifest.models).filter((id) => id.includes("."));
+    expect(Object.keys(manifest.models).filter((id) => !id.includes(".")).sort()).toEqual([...ids].sort());
+    expect(joins.sort()).toEqual(
+      ["hedge", "garden_wall", "city_wall"].flatMap((f) => [...(f === "city_wall" ? ["arch"] : []), "corner", "cross", "end", "t"].map((p) => `${f}.${p}`)).sort(),
+    );
+    for (const id of joins) expect(ids, id).toContain(id.split(".")[0]);
     // Placeholders: content IDs whose model the build generated (no recipe yet); each still has a model entry.
     expect(manifest.placeholders).toEqual([...manifest.placeholders].sort());
     for (const id of manifest.placeholders) expect(manifest.models[id], id).toBeDefined();
@@ -145,7 +153,8 @@ describe("committed models are consistent with the manifest", () => {
     expect(manifest.models.house_citizens?.variants).toHaveLength(3);
     expect(Object.keys(manifest.models.warehouse?.levels ?? {})).toEqual(["1", "2", "3", "4"]);
     expect(Object.keys(manifest.models.trading_post?.levels ?? {})).toEqual(["1", "2", "3", "4"]);
-    for (const s of CONTENT_SHIPS) expect(manifest.models[s.id]?.attachments?.cargo, s.id).toBeDefined();
+    // Cargo props on the cargo ships only; the warships carry none (D-077 §6).
+    for (const s of CONTENT_SHIPS) expect(manifest.models[s.id]?.attachments?.cargo !== undefined, s.id).toBe(s.slots > 0);
   });
 
   it("carries each model's voxels per tile (V7: 8, 12 or 16 for buildings and fields; the top-level value is the default)", () => {
@@ -162,7 +171,7 @@ describe("committed models are consistent with the manifest", () => {
 
   it("every building and field model has the anchors its content needs (door, status, smoke, carts, boats, berths, slip, pasture animals)", () => {
     for (const b of CONTENT_BUILDINGS) {
-      if (b.road) continue;
+      if (b.road || b.paint_family?.ground) continue;
       const a: Record<string, unknown> = manifest.models[b.id]?.anchors ?? {};
       expect(a.status, b.id).toBeDefined();
       if (!b.field) expect(a.door, b.id).toBeDefined();

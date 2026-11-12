@@ -191,3 +191,17 @@ export function roadsUnder(tiles: readonly TilePos[], is: Pick<IslandDisplay, "r
   const roads = new Set<string>([...is.roads.map(tileKey), ...plannedRoadTiles(is).map(tileKey)]);
   return tiles.filter((p) => roads.has(tileKey(p))).map(({ x, y }) => ({ x, y }));
 }
+
+/**
+ * The tiles of a rectangle with a paint-family building or plan (D-077:
+ * hedge, garden wall, city wall, square): what the Demolish tool's one
+ * demolish_paint sends.
+ */
+export function paintUnder(tiles: readonly TilePos[], is: Pick<IslandDisplay, "buildings" | "plans">, defs: ReadonlyMap<string, ContentBuilding>): TilePos[] {
+  return tiles
+    .filter((p) => {
+      const b = buildingAt(is.buildings, defs, p.x, p.y) ?? planAt(is, defs, p.x, p.y);
+      return b !== undefined && defs.get(b.type)?.paint_family !== undefined;
+    })
+    .map(({ x, y }) => ({ x, y }));
+}

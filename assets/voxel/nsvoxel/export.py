@@ -23,6 +23,13 @@ SIDE_TILT = 0.5
 #: weight rising from 0 at the canopy's bottom to CANOPY_SWAY at its top.
 CANOPY = "canopy"
 CANOPY_SWAY = 0.45
+#: The sway group of a rigid swinging arm (the repair crane's jib, D-077):
+#: ordinary normals, a sway weight rising with the horizontal distance from
+#: the pivot (the group's voxel nearest the footprint's centre) to ARM_SWAY
+#: at its far end, so the shader's sideways offset bends the arm about the
+#: pivot (a small yaw) instead of moving it off its post.
+ARM = "arm"
+ARM_SWAY = 0.5
 
 _ROLES = None
 _SHADOWS = None
@@ -60,14 +67,21 @@ def build_tris(cells, w, d, scale, ao=True, offset=(0.0, 0.0, 0.0)):
     colors = {}
     keys = {}
     groups = {}
+    arm = []
     for (x, y, z), m in cells.items():
         if len(m) > 2:
             lo, hi = groups.get(m[2], (math.inf, -math.inf))
             groups[m[2]] = (min(lo, z), max(hi, z + 1))
+            if m[2] == ARM:
+                arm.append((x + 0.5, y + 0.5))
+    pivot, reach = None, 1.0
+    if arm:
+        pivot = min(sorted(arm), key=lambda p: math.hypot(p[0] - w / 2, p[1] - d / 2))
+        reach = max(1.0, max(math.hypot(p[0] - pivot[0], p[1] - pivot[1]) for p in arm))
     any_sway = False
     for corners, m, levels, axis, sign in mesh.triangles(mesh.greedy(cells, ao=ao)):
         pts = [to_recipe(p, w, d, scale, offset) for p in corners]
-        canopy = len(m) > 2 and m[2] == CANOPY
+        canopy = len(m) > 2 and m[2] in (CANOPY, ARM)
         if (len(m) > 2 and not canopy) or axis == 2:
             normal = (0.0, 0.0, 1.0)
         else:
@@ -88,7 +102,10 @@ def build_tris(cells, w, d, scale, ao=True, offset=(0.0, 0.0, 0.0)):
             any_sway = True
             lo, hi = groups[m[2]]
             h = hi - lo
-            if canopy:
+            if m[2] == ARM:
+                # The arm: still at its pivot voxel (its corners too), ARM_SWAY at its far end (horizontal distance).
+                sway.append(tuple(ARM_SWAY * min(1.0, max(0.0, math.hypot(c[0] - pivot[0], c[1] - pivot[1]) - 0.75) / reach) for c in corners))
+            elif canopy:
                 # Leaves: still at the bottom of the canopy, CANOPY_SWAY at its top.
                 sway.append(tuple(CANOPY_SWAY * min(1.0, max(0.0, (c[2] - lo) / h if h else 1.0)) for c in corners))
             else:

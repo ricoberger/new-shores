@@ -170,5 +170,6 @@ describe("the Demolish tool's count", () => {
     expect(demolishStatus(3, 1, 12, false)).toBe("Remove 3 fields, 1 plan, 12 road tiles");
     expect(demolishStatus(0, 0, 1, true)).toBe("Remove 1 road tile · clipped to 512 tiles");
     expect(demolishStatus(0, 0, 0, false)).toBe("Nothing to remove");
+    expect(demolishStatus(0, 0, 0, false, 5)).toBe("Remove 5 wall, hedge or square tiles");
   });
 });

@@ -226,7 +226,7 @@ func TestWaterRowsHarbourFromFront(t *testing.T) {
 	for rotation, want := range map[int]Pos{0: {107, 204}, 90: {115, 207}, 180: {107, 215}, 270: {104, 207}} {
 		for _, r := range []content.WaterRows{{Min: 1, Max: 1}, {Min: 2, Max: 3}, {Min: 0, Max: 0}} {
 			def.WaterRows = &r
-			if got := HarbourAt(is, def, 6, 6, rotation); got != want {
+			if got := HarbourAt(nil, is, def, 6, 6, rotation); got != want {
 				t.Errorf("rotation %d, rows %+v: harbour %v, want %v", rotation, r, got, want)
 			}
 		}

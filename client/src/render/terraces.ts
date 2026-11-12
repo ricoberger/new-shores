@@ -474,7 +474,8 @@ export function plinthFill(cols: ReliefColumns, plinth: Int8Array, width: number
   if (yards.length === 0) return out;
   const vpt = cols.nx / width;
   const kinds = new Map<number, number>();
-  for (const t of yards) kinds.set(t.y * width + t.x, FILL_KINDS.indexOf(t.kind));
+  // A square's fine cobbles (D-077 §2) fill like a paved yard.
+  for (const t of yards) kinds.set(t.y * width + t.x, FILL_KINDS.indexOf(t.kind === "cobbles_fine" ? "paved" : t.kind));
   for (let k = 0; k < out.length; k++) {
     if ((plinth[k] as number) <= 0) continue;
     const tx = Math.floor((k % cols.nx) / vpt);

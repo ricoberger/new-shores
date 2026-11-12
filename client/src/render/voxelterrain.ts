@@ -64,6 +64,8 @@ export const SIDE_ROCK = 3;
 export const SIDE_CLIFF = 4;
 /** Earth walls of the second terrace band variant (more earth, less rock; chosen per column by noise). */
 export const SIDE_EARTH_B = 5;
+/** A quay wall in deeper water (D-077 §8): dressed stone courses, a capping course, darker and wet toward the foot. */
+export const SIDE_QUAY = 6;
 
 const RIM = c3(ISLAND.sand_rim);
 const SAND = c3(TERRAIN.sand);
@@ -75,6 +77,9 @@ const SCREE = Color3.Lerp(c3(ISLAND.rock_light), c3(ISLAND.rock), 0.4);
 const SCREE_DARK = c3(ISLAND.rock_deep);
 const SCREE_LIGHT = c3(ISLAND.rock_light).scale(1.04);
 const CLIFF_FOOT = c3(ISLAND.cliff_foot);
+/** The quay wall's ashlar (render/groundpaint.ts STONE, the deck's stone) and its wet foot. */
+const QUAY_STONE = c3(ISLAND.rock_light);
+const QUAY_WET = Color3.Lerp(c3(ISLAND.rock), c3(WATER.shallows), 0.25).scale(0.8);
 /** Earth and rock bands of a grass edge over the sea, top to foot (darker at the base). */
 const EARTH_BANDS = [Color3.Lerp(c3(TERRAIN.road_dirt), c3(ISLAND.rock_deep), 0.3), c3(ISLAND.cliff_upper), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_lower), c3(ISLAND.cliff_foot)];
 /** Sand walls of the beach steps, top to foot. */
@@ -227,11 +232,19 @@ export function distanceTo(on: Uint8Array, nx: number, ny: number, cap: number):
 export function coastSide(z: number, kind: number): Color3 {
   const p = ((z % LEVEL_STEPS) + LEVEL_STEPS) % LEVEL_STEPS;
   if (kind === SIDE_FALL) return FALL_BANDS[p] as Color3;
+  if (kind === SIDE_QUAY) return quaySide(z);
   if (kind === SIDE_ROCK && z >= 0) return rockStrata(z);
   if (kind === SIDE_CLIFF) return z >= 0 ? rockStrata(z) : Color3.Lerp(rockStrata(z), CLIFF_FOOT, Math.min(0.85, -z / 6));
   if (z >= 0) return (kind === SIDE_EARTH_B ? TERRACE_BANDS_B : TERRACE_BANDS)[p] as Color3;
   const bands = kind === SIDE_SAND ? SAND_BANDS : EARTH_BANDS;
   return bands[Math.min(bands.length - 1, Math.max(0, -z - 1))] as Color3;
+}
+
+/** A quay wall's course z (≥ 0 the capping course, then the ashlar in alternating shades, wet below the waterline). */
+export function quaySide(z: number): Color3 {
+  if (z >= 0) return QUAY_STONE.scale(1.04);
+  const course = QUAY_STONE.scale(z % 2 === 0 ? 0.8 : 0.9);
+  return z <= -3 ? Color3.Lerp(course, QUAY_WET, Math.min(1, (-z - 2) / 3)) : course;
 }
 
 /** Whether a river column's surface is above a neighbouring river column's (a rapid of the estuary). */

@@ -169,11 +169,11 @@ generous refunds (D-019).
 - **No loss condition.** Inactive worlds are archived after 3 months and
   restored on login.
 
-## Monetisation summary (D-021)
+## Monetisation summary (D-021, D-077 §1)
 
-Cosmetic only, via a premium currency (Doubloons) fully decoupled from gold:
-decorations, ship skins, building visual variants. No time skips, resources or
-power. Details in [MONETIZATION.md](MONETIZATION.md).
+A monthly supporter subscription with a supporter badge; nothing is gated
+yet, and ornaments are gold buildings for everyone. No premium currency, no
+time skips, resources or power. Details in [MONETIZATION.md](MONETIZATION.md).
 
 ## Future features (explicitly out of launch scope)
 

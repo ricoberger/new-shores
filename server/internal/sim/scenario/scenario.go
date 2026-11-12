@@ -306,9 +306,12 @@ type Step struct {
 	UnassignShip    *ShipStep      `json:"unassign_ship,omitempty"`
 	ManualShipment  *ShipmentStep  `json:"manual_shipment,omitempty"`
 	SailShip        *SailStep      `json:"sail_ship,omitempty"`
-	FoundIsland     *FoundStep     `json:"found_island,omitempty"`
-	ScrapShip       *ShipStep      `json:"scrap_ship,omitempty"`
-	ClaimQuest      *ClaimStep     `json:"claim_quest,omitempty"`
+	// Patrol sends ship Ship to patrol island To (sim.StartPatrol,
+	// D-077 §6).
+	Patrol      *SailStep  `json:"patrol,omitempty"`
+	FoundIsland *FoundStep `json:"found_island,omitempty"`
+	ScrapShip   *ShipStep  `json:"scrap_ship,omitempty"`
+	ClaimQuest  *ClaimStep `json:"claim_quest,omitempty"`
 	// RerollArchipelago (true) replaces a generated archipelago by its
 	// next roll (archipelago.Reroll, D-053).
 	RerollArchipelago bool        `json:"reroll_archipelago,omitempty"`
@@ -327,7 +330,14 @@ type Step struct {
 	// DemolishRoads removes the roads and planned roads in a rectangle
 	// (sim.DemolishRoads, the Demolish tool's drag): every tile of Rect
 	// in row order; tiles without a road are skipped.
-	DemolishRoads *RectStep    `json:"demolish_roads,omitempty"`
+	DemolishRoads *RectStep `json:"demolish_roads,omitempty"`
+	// Paint paints a paint family (sim.PlacePaint, D-077 §2–§3) along
+	// the L path of Road (Type is the family); the step fails with the
+	// first tile's error when no tile is accepted.
+	Paint *Road `json:"paint,omitempty"`
+	// DemolishPaint removes the paint families in a rectangle
+	// (sim.DemolishPaint); tiles without one are skipped.
+	DemolishPaint *RectStep    `json:"demolish_paint,omitempty"`
 	Pause         *At          `json:"pause,omitempty"`
 	Resume        *At          `json:"resume,omitempty"`
 	Upgrade       *At          `json:"upgrade,omitempty"`
@@ -345,11 +355,11 @@ func (s Step) kind() (string, error) {
 	var kinds []string
 	for name, set := range map[string]bool{
 		"place": s.Place != nil, "place_grid": s.PlaceGrid != nil, "road": s.Road != nil,
-		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "demolish_roads": s.DemolishRoads != nil, "pause": s.Pause != nil,
+		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "demolish_roads": s.DemolishRoads != nil, "paint": s.Paint != nil, "demolish_paint": s.DemolishPaint != nil, "pause": s.Pause != nil,
 		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "build_plan": s.BuildPlan != nil, "move": s.Move != nil, "fields": s.Fields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
-		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
+		"unassign_ship": s.UnassignShip != nil, "patrol": s.Patrol != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
 		"upgrade_building": s.UpgradeBuilding != nil,
 		"scrap_ship":       s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil, "upgrade_trading_post": s.UpgradeTradingPost != nil,
 		"claim_quest": s.ClaimQuest != nil, "away_summary": s.AwaySummary,
@@ -861,6 +871,20 @@ func (r *runner) apply(cmd sim.Command) error {
 	return nil
 }
 
+// rectTiles lists the tiles of a rectangle step in row order.
+func rectTiles(s *RectStep) []sim.Pos {
+	x0, y0, x1, y1 := s.Rect[0], s.Rect[1], s.Rect[2], s.Rect[3]
+	x0, x1 = min(x0, x1), max(x0, x1)
+	y0, y1 = min(y0, y1), max(y0, y1)
+	var tiles []sim.Pos
+	for y := y0; y <= y1; y++ {
+		for x := x0; x <= x1; x++ {
+			tiles = append(tiles, sim.Pos{X: x, Y: y})
+		}
+	}
+	return tiles
+}
+
 // parseUnits converts unit amounts of a scenario to milli-units.
 func parseUnits(n json.Number) (int64, error) { return content.ParseFixed(n, 3) }
 
@@ -948,16 +972,20 @@ func (r *runner) step(i int, st Step) error {
 	case st.DemolishRd != nil:
 		return r.apply(sim.DemolishRoad{IslandID: r.islandID(st.DemolishRd.Island), Tiles: lPath(st.DemolishRd)})
 	case st.DemolishRoads != nil:
-		x0, y0, x1, y1 := st.DemolishRoads.Rect[0], st.DemolishRoads.Rect[1], st.DemolishRoads.Rect[2], st.DemolishRoads.Rect[3]
-		x0, x1 = min(x0, x1), max(x0, x1)
-		y0, y1 = min(y0, y1), max(y0, y1)
-		var tiles []sim.Pos
-		for y := y0; y <= y1; y++ {
-			for x := x0; x <= x1; x++ {
-				tiles = append(tiles, sim.Pos{X: x, Y: y})
-			}
+		return r.apply(sim.DemolishRoads{IslandID: r.islandID(st.DemolishRoads.Island), Tiles: rectTiles(st.DemolishRoads)})
+	case st.Paint != nil:
+		cmd := sim.PlacePaint{IslandID: r.islandID(st.Paint.Island), Type: st.Paint.Type, Tiles: lPath(st.Paint), Planned: st.Paint.Planned}
+		res, err := sim.ApplyWithResult(r.w, r.c, cmd, r.l)
+		if err != nil {
+			return err
 		}
-		return r.apply(sim.DemolishRoads{IslandID: r.islandID(st.DemolishRoads.Island), Tiles: tiles})
+		if len(res.Tiles) > 0 && res.Unchanged {
+			return res.Tiles[0].Err
+		}
+		sim.MarkSeen(r.w)
+		return nil
+	case st.DemolishPaint != nil:
+		return r.apply(sim.DemolishPaint{IslandID: r.islandID(st.DemolishPaint.Island), Tiles: rectTiles(st.DemolishPaint)})
 	case st.Demolish != nil:
 		id, b, err := r.buildingAt(st.Demolish)
 		if err != nil {
@@ -1045,6 +1073,8 @@ func (r *runner) step(i int, st Step) error {
 		return r.apply(sim.AssignShip{ShipID: st.AssignShip.Ship, RouteID: st.AssignShip.Route})
 	case st.UnassignShip != nil:
 		return r.apply(sim.UnassignShip{ShipID: st.UnassignShip.Ship})
+	case st.Patrol != nil:
+		return r.apply(sim.StartPatrol{ShipID: st.Patrol.Ship, IslandID: st.Patrol.To})
 	case st.ScrapShip != nil:
 		return r.apply(sim.ScrapShip{ShipID: st.ScrapShip.Ship})
 	case st.ManualShipment != nil:
@@ -1250,7 +1280,7 @@ func Sentinels() map[string]error {
 		"unknown_island": sim.ErrUnknownIsland, "unknown_building": sim.ErrUnknownBuilding,
 		"building_not_found": sim.ErrBuildingNotFound, "invalid_command": sim.ErrInvalidCommand,
 		"out_of_bounds": sim.ErrOutOfBounds, "occupied": sim.ErrOccupied, "terrain": sim.ErrTerrain,
-		"not_coastal": sim.ErrNotCoastal, "not_on_water": sim.ErrNotOnWater, "harbour_blocked": sim.ErrHarbourBlocked, "needs_low_shore": sim.ErrNeedsLowShore, "no_fertility": sim.ErrNoFertility,
+		"not_coastal": sim.ErrNotCoastal, "not_on_water": sim.ErrNotOnWater, "harbour_blocked": sim.ErrHarbourBlocked, "needs_low_shore": sim.ErrNeedsLowShore, "shore_needs_water": sim.ErrShoreNeedsWater, "shore_back_edge": sim.ErrShoreBackEdge, "quay_disconnected": sim.ErrQuayDisconnected, "quay_would_float": sim.ErrQuayWouldFloat, "unique_building": sim.ErrUniqueBuilding, "gate_needs_wall": sim.ErrGateNeedsWall, "no_fertility": sim.ErrNoFertility,
 		"no_deposit": sim.ErrNoDeposit, "insufficient_gold": sim.ErrInsufficientGold,
 		"insufficient_materials": sim.ErrInsufficientMaterials, "surplus_loss": sim.ErrSurplusLoss,
 		"not_pausable": sim.ErrNotPausable, "no_road": sim.ErrNoRoad, "over_capacity": sim.ErrOverCapacity,

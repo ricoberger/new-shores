@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { chunkAt } from "../display/chunks";
 import { cobbleTop, DIRT, KERB, STONE, STONE_DARK } from "./groundpaint";
-import { BOLLARD_H, fieldBase, fieldGround, paintFields, paintRoads, QUAY_H, touchedChunks } from "./roadvoxels";
+import { BOLLARD_H, fieldBase, fieldGround, isDeepQuay, paintFields, paintRoads, POST_H, QUAY_H, touchedChunks } from "./roadvoxels";
 import { fieldPatchTops } from "./farfields";
-import { type Field, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
+import { type Field, quaySide, SIDE_QUAY, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
 
 /** A flat grass field of w × h tiles at TERRAIN_VPT columns per tile. */
 function flat(w: number, h: number): Field {
@@ -35,12 +35,16 @@ describe("voxel roads", () => {
     const quay = [0, 1, 2, 3].map((x) => ({ x, y: 1, type: "quay" }));
     paintRoads(f, base, quay, 5);
     const col = (x: number, y: number, a: number, b: number) => (y * TERRAIN_VPT + b) * f.nx + x * TERRAIN_VPT + a;
-    // The deck covers the whole tile at the shore's level, with stone walls.
+    // The deck covers the whole tile at the shore's level; in deeper water (D-077 §8) with dressed-stone walls.
     expect(f.h[col(1, 1, 1, 1)]).toBe(QUAY_H);
-    expect(f.kind?.[col(1, 1, 1, 1)]).toBe(SIDE_ROCK);
+    expect(f.kind?.[col(1, 1, 1, 1)]).toBe(SIDE_QUAY);
     // A bollard on the open (south) edge of every third tile ((x + y) % 3 === 0: tile 2 of 0..3).
     const bollards = (x: number) => [0, 1, 2, 3].filter((a) => f.h[col(x, 1, a, TERRAIN_VPT - 1)] === BOLLARD_H).length;
     expect([0, 1, 2, 3].map(bollards)).toEqual([0, 0, 1, 0]);
+    // A timber mooring post on the deep quay's tiles after a bollard ((x + y) % 3 === 1: tiles 0 and 3).
+    // (Tile 3's first open edge is the east end.)
+    const posts = (x: number) => [0, 1, 2, 3].flatMap((a) => [0, 1, 2, 3].filter((b) => f.h[col(x, 1, a, b)] === POST_H)).length;
+    expect([0, 1, 2, 3].map(posts)).toEqual([1, 0, 0, 1]);
     // The fender (south edge) is timber, not the deck's stone; no fender toward the land (north).
     expect(f.top[col(1, 1, 1, TERRAIN_VPT - 1)]).not.toBe(f.top[col(1, 1, 1, 1)]);
     // The sea next to the quay stays.
@@ -49,6 +53,25 @@ describe("voxel roads", () => {
     paintRoads(f, base, [], 5);
     expect(Array.from(f.h)).toEqual(Array.from(base.h));
     expect(Array.from(f.kind ?? [])).toEqual(new Array(f.nx * f.ny).fill(0));
+  });
+
+  it("keeps the D-060 quay on the sand shelf and dresses only the deep quay's wall (D-077 §8)", () => {
+    // Row 1 is the sand shelf (-2), row 2 deeper water (-6).
+    const f = flat(3, 3);
+    for (let j = TERRAIN_VPT; j < f.ny; j++) for (let i = 0; i < f.nx; i++) f.h[j * f.nx + i] = j < 2 * TERRAIN_VPT ? -2 : -6;
+    const base = fieldBase(f);
+    expect(isDeepQuay(base, f.nx, f.ny, 1, 1)).toBe(false);
+    expect(isDeepQuay(base, f.nx, f.ny, 1, 2)).toBe(true);
+    paintRoads(f, base, [{ x: 1, y: 1, type: "quay" }, { x: 1, y: 2, type: "quay" }], 5);
+    const col = (x: number, y: number, a: number, b: number) => (y * TERRAIN_VPT + b) * f.nx + x * TERRAIN_VPT + a;
+    expect(f.kind?.[col(1, 1, 1, 1)]).toBe(SIDE_ROCK);
+    expect(f.kind?.[col(1, 2, 1, 1)]).toBe(SIDE_QUAY);
+    // No posts on the shelf: (1 + 1) % 3 = 2 neither bollard nor post; (1 + 2) % 3 = 0 a bollard.
+    expect(Array.from(f.h).filter((h) => h === POST_H)).toEqual([]);
+    // The wall: a light capping course, darker ashlar, a wet foot.
+    expect(quaySide(0).r).toBeGreaterThan(quaySide(-1).r);
+    expect(quaySide(-1)).not.toEqual(quaySide(-2));
+    expect(quaySide(-5).r).toBeLessThan(quaySide(-1).r);
   });
 
   it("paints a two-column path flush with the ground, with arms to the road neighbours (joins and junctions are unions; D-068)", () => {
