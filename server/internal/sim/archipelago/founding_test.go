@@ -83,8 +83,8 @@ func TestFoundingVoyage(t *testing.T) {
 					if lx, ly := end.X-is.X, end.Y-is.Y; lx >= x && ly >= y && lx < x+w && ly < y+h {
 						t.Errorf("%s site (%d,%d) r%d: leg ends inside the footprint at %v", is.ID, x, y, rotation, end)
 					}
-					if end != sim.HarbourAt(is, tp, x, y, rotation) {
-						t.Errorf("%s site (%d,%d) r%d: leg ends at %v, not the harbour %v", is.ID, x, y, rotation, end, sim.HarbourAt(is, tp, x, y, rotation))
+					if end != sim.HarbourAt(c, is, tp, x, y, rotation) {
+						t.Errorf("%s site (%d,%d) r%d: leg ends at %v, not the harbour %v", is.ID, x, y, rotation, end, sim.HarbourAt(c, is, tp, x, y, rotation))
 					}
 					if fx, fy, bad := pathLand(world.Islands(), path); bad {
 						t.Errorf("%s site (%d,%d) r%d: path %v crosses land at (%.2f,%.2f)", is.ID, x, y, rotation, path, fx, fy)

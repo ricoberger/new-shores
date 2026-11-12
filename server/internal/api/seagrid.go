@@ -3,6 +3,7 @@ package api
 import (
 	"sync"
 
+	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 )
 
@@ -23,8 +24,8 @@ type seaGridCache struct {
 
 // get returns the world's grid, built on first use; nil when the world
 // is not cacheable (no seed).
-func (c *seaGridCache) get(w *sim.World, generatorVersion int) *sim.SeaGrid {
-	key := sim.SeaGridKey(w, generatorVersion)
+func (c *seaGridCache) get(w *sim.World, cat *content.Catalogue, generatorVersion int) *sim.SeaGrid {
+	key := sim.SeaGridKey(w, cat, generatorVersion)
 	if key == "" {
 		return nil
 	}
@@ -33,7 +34,7 @@ func (c *seaGridCache) get(w *sim.World, generatorVersion int) *sim.SeaGrid {
 	if g, ok := c.grids[key]; ok {
 		return g
 	}
-	g := sim.BuildSeaGrid(w.Islands())
+	g := sim.BuildSeaGrid(cat, w.Islands())
 	if c.grids == nil {
 		c.grids = map[string]*sim.SeaGrid{}
 	}

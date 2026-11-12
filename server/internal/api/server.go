@@ -580,7 +580,7 @@ func tileDigit(v int) byte { return '0' + byte(min(max(v, 0), 9)) } // #nosec G1
 // display is sim.Display plus the generator version, which the sim
 // cannot know (package archipelago imports it).
 func (s *Server) display(w *sim.World, now time.Time) (sim.DisplayState, error) {
-	if g := s.seaGrids.get(w, archipelago.GeneratorVersion); g != nil {
+	if g := s.seaGrids.get(w, s.cfg.Catalogue, archipelago.GeneratorVersion); g != nil {
 		w.SetSeaGrid(g)
 		defer w.SetSeaGrid(nil)
 	}

@@ -862,7 +862,7 @@ func (g *gen) site(lp *layout.Planner, island string, def *content.Building, anc
 				g.trialFails["filtered"]++
 				continue
 			}
-			if !chk.Valid(def, s.X, s.Y, s.Rot) {
+			if !layout.ValidSite(chk, def, s.X, s.Y, s.Rot) {
 				g.trialFails["invalid"]++
 				continue
 			}

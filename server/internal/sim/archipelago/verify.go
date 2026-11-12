@@ -93,6 +93,27 @@ func TradingPost(c *content.Catalogue) *content.Building {
 	return firstBuilding(c, func(b *content.Building) bool { return b.TradingPost != nil })
 }
 
+// shipyardSiteMin and shipyardSiteMax are the water rows of the shipyard site an island must
+// offer (D-062: 3–4 rows in front of an 8 x 12 footprint). The shipyard
+// has the more permissive shore placement since D-077 §5; the generator
+// keeps verifying this stricter site, so that islands, and with them every
+// seed, stay as they were (and a strict site is always a valid shore site
+// on a fresh island).
+const shipyardSiteMin, shipyardSiteMax = 3, 4
+
+// harbourSite is the building whose sites verifyIsland requires for a
+// shipyard: the shipyard itself, or for a shore shipyard the same
+// footprint with those water rows (harbourSite never changes content).
+func harbourSite(yard *content.Building) *content.Building {
+	if !yard.Shore() {
+		return yard
+	}
+	site := *yard
+	site.Placement = ""
+	site.WaterRows = &content.WaterRows{Min: shipyardSiteMin, Max: shipyardSiteMax}
+	return &site
+}
+
 // Island rule errors.
 var (
 	ErrTradingPostSites = errors.New("too few trading post sites")
@@ -133,7 +154,7 @@ func verifyIsland(is *sim.Island, c *content.Catalogue) error {
 	if _, ok := slotFootprints(chk, is, c, Rect{}); !ok {
 		return ErrSlotUnminable
 	}
-	if yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil }); yard != nil && !slices.ContainsFunc(sites(chk, is, yard), reach) {
+	if yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil }); yard != nil && !slices.ContainsFunc(sites(chk, is, harbourSite(yard)), reach) {
 		return ErrShipyardSite
 	}
 	return minesReachable(is, c)

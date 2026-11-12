@@ -277,7 +277,8 @@ Everything is provisional and re-verified against §12.
 
 Footprint in tiles as width × depth (depth away from the road; for
 harbour buildings the front faces the water); `water_rows` bounds the
-sea-water prefix independently per column (D-062); upkeep in gold/min;
+sea-water prefix independently per column (D-062), `shore` marks the
+shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 `R` = requires road connection; workforce as `amount tier` (S/C/M/P).
 
 | ID | Tier | Footprint | water_rows | Anno 117 reference | Cost (gold / planks / stone / bricks / glass, up to the tier) | Upkeep | Workforce | Notes |
@@ -295,7 +296,7 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `sheep_farm` | 1 | 3×3 + 3 `pasture` | — | Sheep Farm | 60 / 6 | 1 | 4 S | R, cycle 90 s |
 | `pasture` | 1 | 3×3 field | — | pasture module | 15 g / 1 plank | 0 | — | sheep_farm only; grass; edge-adjacent chain |
 | `weaver_wool` | 1 | 3×4 | — | Spinner | 60 / 6 | 2 | 6 S | R, cycle 90 s |
-| `shipyard` | 2 | 8×12 | 3–4 | Shipyard | 300 / 45 / 0 | 0 | — | R, never auto-paused; tier 2 since D-056; builds every unlocked ship type |
+| `shipyard` | 2 | 8×12 | shore | Shipyard | 300 / 45 / 0 | 0 | — | R, never auto-paused; tier 2 since D-056; builds every unlocked ship type |
 | `house_citizens` | 2 | 3×3 | — | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | — | road | see text | 0 | — | 3 gold / 1 stone |
 | `quay` | 2 | 1×1 on shallows | — | road (D-060) | see text | 0 | — | 5 gold / 2 stone; 0.6 s/tile; water-edge buildings stand on it |
@@ -331,8 +332,8 @@ sea-water prefix independently per column (D-062); upkeep in gold/min;
 | `church` | 3 | 6×10 | — | Sanctuary | 3000 / 60 / 30 / 0 | 12 | — | R, radius 28; faith rank 2 (D-065); cost and upkeep ×2 (D-072) |
 | `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 60 / 120 / 60 | 30 | — | R, radius 38 (tier 3 since D-056); culture rank 2 (D-065); materials and upkeep ×2, gold kept (D-072: the Merchants game waits for its gold) |
 | `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, fire protection; radius 22 (D-072), one level (D-065) |
-| `trading_pier` | 3 | 6×9 | 5–6 | Pier class (ours) | 250 / 20 / 10 | 0 | — | R, never auto-paused; +2 berths for the island (D-060); no levels; Merchants since D-069 §5 |
-| `depot` | 3 | 4×11 | 7–9 | Depot class (ours) | 280 / 20 / 10 | 0 | — | R, never auto-paused; +150 capacity per good, no levels; any number (D-062); Merchants since D-069 §5 |
+| `trading_pier` | 3 | 6×9 | shore | Pier class (ours) | 250 / 20 / 10 | 0 | — | R, never auto-paused; +2 berths for the island (D-060); no levels; Merchants since D-069 §5 |
+| `depot` | 3 | 4×11 | shore | Depot class (ours) | 280 / 20 / 10 | 0 | — | R, never auto-paused; +150 capacity per good, no levels; any number (D-062); Merchants since D-069 §5 |
 | `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 4 | — | R, radius 28 (D-072), health; one level, glass cost (D-062) |
 | `harbourmaster_office` | 3 | 5×5 | (reserve) | Repair Crane class | 1000 / 60 / 45 / 0 | 6 | — | world map, expeditions, contracts |
 | `butcher` | 3 | 4×5 | — | Victualler class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
@@ -611,6 +612,10 @@ World schema **16**, content **old_coast-0.21.1** (D-076 `regions.json`, island 
 ones need a fresh local database (`make down VOLUMES=1 && make up`).
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.
+Optional `placement: "shore"` (D-077 §5) places a building by the shore
+rule of MECHANICS §2; it excludes `water_rows`, `coastal`, a deposit and
+the trading_post, road, field and house blocks; a `pier` needs
+`water_rows` or the shore placement.
 What a building *does* is defined by the optional blocks
 it carries:
 
@@ -619,7 +624,7 @@ it carries:
 | `recipe` (later `recipes[]`, D-041) | `inputs[] {good, amount}` (may be empty), `outputs[] {good, amount}` (non-empty), `cycle_seconds` | producers |
 | `house` | `tier` | residences |
 | `trading_post` | `levels[] {capacity, throughput_per_min, reach?, upkeep_per_min?, berths, tier?, cost?}` — level 1 has no cost or tier (founding places it), later levels have a cost (`upgrade_trading_post`) and name the tier they need (D-065); with `water_rows` (per-column water prefix) | Trading Post, one per island |
-| `pier` | `berths` (≥ 1) — berths added to the island's pool; needs `water_rows`; no collector, service or levels (D-060) | trading_pier |
+| `pier` | `berths` (≥ 1) — berths added to the island's pool; needs `water_rows` or `placement: shore`; no collector, service or levels (D-060) | trading_pier |
 | `depot` | `capacity` — fixed capacity per good added to the island; no levels, collector, service or pier (D-062) | depot |
 | `warehouse` | `levels[] {throughput_per_min, reach?, upkeep_per_min?, tier?, cost?}` — collector only, no capacity (`upgrade_warehouse`); every later level names the tier it needs (D-065) | inland Warehouse |
 | `road` | `seconds_per_tile`, `shallows?` (true: laid on the shallows instead of land, D-060) (building must be 1×1) | roads, quay |

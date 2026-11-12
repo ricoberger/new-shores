@@ -640,8 +640,8 @@ func unmoor(w *World, islandID string) {
 // harbour point of the demolished building (computed from its footprint,
 // which no longer stands). Ships that are on a leg (loading for a
 // departure) keep none; the departure clears it anyway.
-func moorOffshore(w *World, is *Island, def *content.Building, b *Building) {
-	at := HarbourAt(is, def, b.X, b.Y, b.Rotation)
+func moorOffshore(w *World, c *content.Catalogue, is *Island, def *content.Building, b *Building) {
+	at := HarbourAt(c, is, def, b.X, b.Y, b.Rotation)
 	for _, s := range w.Ships {
 		if s.IslandID == is.ID && s.Leg == nil && s.Offshore == nil {
 			p := at
@@ -1229,7 +1229,7 @@ func foundingHarbour(w *World, c *content.Catalogue, is *Island, site *FoundingS
 	if err := checkSite(is, c, is.occupancy(c), def, site.X, site.Y, site.Rotation); err != nil {
 		return Pos{}, false, err
 	}
-	return HarbourAt(is, def, site.X, site.Y, site.Rotation), true, nil
+	return HarbourAt(c, is, def, site.X, site.Y, site.Rotation), true, nil
 }
 
 func scrapShip(w *World, c *content.Catalogue, cmd ScrapShip, l *Ledger) error {

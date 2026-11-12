@@ -254,11 +254,11 @@ func TestQuayIsLandForShips(t *testing.T) {
 	c := shippedCatalogue(t)
 	w := quayWorld(t, c, 2, quayCoast()...)
 	is := w.Island("main")
-	if newSeaGrid(w.Islands()).land[newSeaGrid(w.Islands()).cellOf(16, 5)] {
+	if newSeaGrid(nil, w.Islands()).land[newSeaGrid(nil, w.Islands()).cellOf(16, 5)] {
 		t.Fatal("cell of (16,5) is land before the quay")
 	}
 	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: quayRow(6, 16, 19)})
-	g := newSeaGrid(w.Islands())
+	g := newSeaGrid(nil, w.Islands())
 	if !g.land[g.cellOf(16, 5)] || !g.landAt(17, 6) || g.landAt(17, 5) {
 		t.Error("quay tiles are not land for ships")
 	}

@@ -233,7 +233,7 @@ describe("footprintText (D-054)", () => {
     expect(of("wheat_farm")).toBe("3×4 + 140 fields");
     expect(of("sheep_farm")).toBe("3×3 + 3 pastures of 3×3");
     expect(of("trading_post")).toBe("6×6 (1–2 rows on water)");
-    expect(of("shipyard")).toBe("8×12 (3–4 rows on water)");
+    expect(of("shipyard")).toBe("8×12 (on the shore)");
     expect(of("house_settlers")).toBe("3×3");
     expect(of("wheat_field")).toBe("1×1");
   });

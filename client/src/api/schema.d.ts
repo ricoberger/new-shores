@@ -442,10 +442,15 @@ export interface components {
          *       D-060), `not_coastal`, `not_on_water` (a
          *       water-edge building's front rows are not on water, D-051),
          *       `needs_low_shore` (a water-edge building's land tiles are not
-         *       all at terrace level 0, D-075),
+         *       all at terrace level 0, D-075; also the land tiles of a shore
+         *       building, D-077),
+         *       `shore_needs_water` (a shore building covers no water tile,
+         *       D-077 §5), `shore_back_edge` (the back edge of a shore building
+         *       does not touch land or quay along its full length, D-077 §5),
          *       `harbour_blocked` (quay tiles, or a Trading Post moved onto
          *       them, would close the harbour point off from the open sea,
-         *       D-060),
+         *       D-060; a shore building on the harbour lane or a berth tile of
+         *       the Trading Post or a trading pier, D-077 §5),
          *       `no_fertility` (the island lacks the work area's or the field's
          *       fertility tag),
          *       `field_type_mismatch` (`place_field` with a type that is not a
@@ -554,7 +559,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "shore_needs_water" | "shore_back_edge" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -2674,6 +2679,17 @@ export interface components {
                 /** @description Maximum sea-water tiles per column (tiles). */
                 max: number;
             };
+            /**
+             * @description `shore` (D-077 §5): every footprint tile is sea water
+             *     (shallows included) or level-0 land or quay, at least one is
+             *     water, the back edge (bottom at 0, left at 90, top at 180,
+             *     right at 270) touches land or quay along its full length, and
+             *     no tile lies on the harbour lane or berth tiles of the
+             *     island's Trading Post or trading piers; the footprint is land
+             *     for ships. Absent for other buildings (never with water_rows).
+             * @enum {string}
+             */
+            placement?: "shore";
             requires_road: boolean;
             cost: {
                 /**

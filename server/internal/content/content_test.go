@@ -258,7 +258,7 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 	}
 	sy := c.BuildingByID["shipyard"]
-	if sy.Shipyard == nil || sy.Tier != "citizens" || strings.Join(sy.Shipyard.Ships, ",") != "cog,hulk,carrack" || sy.Width != 8 || sy.Height != 12 || waterRange(sy).Max != 4 || sy.Coastal || !sy.RequiresRoad ||
+	if sy.Shipyard == nil || sy.Tier != "citizens" || strings.Join(sy.Shipyard.Ships, ",") != "cog,hulk,carrack" || sy.Width != 8 || sy.Height != 12 || !sy.Shore() || sy.WaterRows != nil || sy.Coastal || !sy.RequiresRoad ||
 		sy.Cost.Gold != 300_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 45_000}) ||
 		sy.UpkeepPerMin != 0 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
 		t.Errorf("shipyard = %+v", sy)

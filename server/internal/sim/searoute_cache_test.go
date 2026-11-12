@@ -30,40 +30,40 @@ func gridTestWorld() *World {
 func TestSeaGridLentEqualsFresh(t *testing.T) {
 	w := gridTestWorld()
 	a, b := Pos{2, 10}, Pos{80, 10}
-	want := SeaRoute(w.Islands(), a, b)
-	w.SetSeaGrid(BuildSeaGrid(w.Islands()))
-	if got := w.seaGridFor(a, b); got.nx == 0 {
+	want := SeaRoute(nil, w.Islands(), a, b)
+	w.SetSeaGrid(BuildSeaGrid(nil, w.Islands()))
+	if got := w.seaGridFor(nil, a, b); got.nx == 0 {
 		t.Fatal("empty grid")
 	}
-	if got := seaRoute(w.seaGridFor(a, b), a, b); !reflect.DeepEqual(got, want) {
+	if got := seaRoute(w.seaGridFor(nil, a, b), a, b); !reflect.DeepEqual(got, want) {
 		t.Fatalf("lent grid route %v, want %v", got, want)
 	}
 	// A point outside the islands' bounds falls back to a fresh grid.
 	far := Pos{-200, -200}
-	if g := w.seaGridFor(a, far); g == w.seaGrid {
+	if g := w.seaGridFor(nil, a, far); g == w.seaGrid {
 		t.Fatal("outside point used the lent grid")
 	}
 }
 
 func TestSeaGridKey(t *testing.T) {
 	w := gridTestWorld()
-	k := SeaGridKey(w, 1)
-	if k == "" || k != SeaGridKey(w, 1) {
+	k := SeaGridKey(w, nil, 1)
+	if k == "" || k != SeaGridKey(w, nil, 1) {
 		t.Fatalf("key unstable: %q", k)
 	}
-	if SeaGridKey(w, 2) == k {
+	if SeaGridKey(w, nil, 2) == k {
 		t.Error("generator version not in the key")
 	}
 	w.Islands()[0].Roads[5*20+5] = "road" // land tile
-	if SeaGridKey(w, 1) != k {
+	if SeaGridKey(w, nil, 1) != k {
 		t.Error("a road on land changed the key")
 	}
 	w.Islands()[0].Roads[1] = "quay" // water tile
-	if SeaGridKey(w, 1) == k {
+	if SeaGridKey(w, nil, 1) == k {
 		t.Error("a road on water did not change the key")
 	}
 	w.Seed = 0
-	if SeaGridKey(w, 1) != "" {
+	if SeaGridKey(w, nil, 1) != "" {
 		t.Error("unseeded world has a key")
 	}
 }

@@ -63,7 +63,7 @@ func quayAt(is *Island, c *content.Catalogue, i int) bool {
 // standsOnQuay reports whether a building may stand on quay tiles: a
 // coastal or water-edge building (D-060).
 func standsOnQuay(def *content.Building) bool {
-	return def.Coastal || def.WaterRows != nil
+	return def.Coastal || def.WaterRows != nil || def.Shore()
 }
 
 // checkQuayTiles validates the tiles of a quay placement: on the island,
@@ -100,10 +100,11 @@ func clearQuay(is *Island, c *content.Catalogue, def *content.Building, b *Build
 }
 
 // seaLand reports whether an island tile blocks ships: land, river,
-// islet or a road on the water (a quay, D-060).
-func seaLand(is *Island, x, y int) bool {
+// islet, a road on the water (a quay, D-060) or the footprint of a shore
+// building (decks: shoreDecks, D-077 §5).
+func seaLand(is *Island, decks []bool, x, y int) bool {
 	i := y*is.Width + x
-	return is.Tiles[i].Terrain != content.TerrainWater || is.Roads[i] != ""
+	return is.Tiles[i].Terrain != content.TerrainWater || is.Roads[i] != "" || (decks != nil && decks[i])
 }
 
 // harbourRoutable reports whether the harbour point (HarbourAt) of every
@@ -116,12 +117,13 @@ func harbourRoutable(c *content.Catalogue, is *Island) bool {
 	if len(is.Tiles) != is.Width*is.Height {
 		return true
 	}
+	decks := shoreDecks(c, is)
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
 		if b.Berths <= 0 || def == nil {
 			continue
 		}
-		if !seaReachable(is, HarbourAt(is, def, b.X, b.Y, b.Rotation)) {
+		if !seaReachable(is, decks, HarbourAt(c, is, def, b.X, b.Y, b.Rotation)) {
 			return false
 		}
 	}
@@ -130,12 +132,12 @@ func harbourRoutable(c *content.Catalogue, is *Island) bool {
 
 // seaReachable reports whether ships reach the point p (archipelago
 // tiles) from the edge of the island's grid (harbourRoutable).
-func seaReachable(is *Island, p Pos) bool {
+func seaReachable(is *Island, decks []bool, p Pos) bool {
 	x, y := p.X-is.X, p.Y-is.Y
 	if !is.InBounds(x, y) {
 		return true
 	}
-	if seaLand(is, x, y) {
+	if seaLand(is, decks, x, y) {
 		return false
 	}
 	seen := make([]bool, is.Width*is.Height)
@@ -149,7 +151,7 @@ func seaReachable(is *Island, p Pos) bool {
 			if !is.InBounds(nx, ny) {
 				return true
 			}
-			if i := is.index(nx, ny); !seen[i] && !seaLand(is, nx, ny) {
+			if i := is.index(nx, ny); !seen[i] && !seaLand(is, decks, nx, ny) {
 				seen[i] = true
 				queue = append(queue, Pos{nx, ny})
 			}
@@ -175,7 +177,7 @@ func checkHarbourAfter(is *Island, c *content.Catalogue, def *content.Building, 
 		}
 	}
 	if !onQuay {
-		if seaReachable(is, HarbourAt(is, def, at.X, at.Y, at.Rotation)) {
+		if seaReachable(is, shoreDecks(c, is), HarbourAt(c, is, def, at.X, at.Y, at.Rotation)) {
 			return nil
 		}
 		return fmt.Errorf("%w: %s at (%d,%d) has no way out to the open sea", ErrHarbourBlocked, def.ID, at.X, at.Y)

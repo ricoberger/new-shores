@@ -585,6 +585,7 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 	}
 	depths := waterDepths(is, s.c, def, x, y, rotation)
 	mountain := def.RequiresDeposit != ""
+	shore := def.Shore()
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
 			i := is.index(tx, ty)
@@ -592,6 +593,8 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 			switch {
 			case s.occ[i] != 0:
 				return false
+			case shore && t == content.TerrainWater && !is.roadOrPlan(i):
+				// Shore water (D-077 §5).
 			case waterAt(def, depths, x, y, rotation, tx, ty):
 				if t != content.TerrainWater || is.roadOrPlan(i) {
 					return false
@@ -621,6 +624,9 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 	// arithmetic: x+fw could wrap for extreme anchors.
 	if fw < 1 || fh < 1 || x < 0 || y < 0 || x > is.Width-fw || y > is.Height-fh {
 		return fmt.Errorf("%w: %s footprint at (%d,%d)", ErrOutOfBounds, def.ID, x, y)
+	}
+	if def.Shore() {
+		return checkShoreSite(is, c, occ, def, x, y, rotation)
 	}
 	depths := waterDepths(is, c, def, x, y, rotation)
 	tiles := make([]Pos, 0, fw*fh)
@@ -976,7 +982,7 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	}
 	removeBuilding(is, b.ID)
 	if b.Berths > 0 && !hasBerthSource(w, is.ID) {
-		moorOffshore(w, is, def, b)
+		moorOffshore(w, c, is, def, b)
 	}
 
 	for _, good := range surplus {

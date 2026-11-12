@@ -381,7 +381,7 @@ type Site struct{ X, Y, Rot, D int }
 func Candidates(is *sim.Island, def *content.Building, anchor sim.Pos) []Site {
 	var out []Site
 	rots := Rotations()
-	if def.Width == def.Height && def.WaterRows == nil {
+	if def.Width == def.Height && def.WaterRows == nil && !def.Shore() {
 		rots = rots[:1] // the rotations of a square footprint cover the same tiles
 	}
 	for _, rot := range rots {
@@ -630,4 +630,36 @@ func Ring(x, y, w, h int) []sim.Pos {
 		out = append(out, sim.Pos{X: x - 1, Y: ty}, sim.Pos{X: x + w, Y: ty})
 	}
 	return out
+}
+
+// d062Rows are the D-062 water rows of the buildings that have the shore
+// placement since D-077 §5 (ok false for any other building).
+func d062Rows(id string) (content.WaterRows, bool) {
+	switch id {
+	case "shipyard":
+		return content.WaterRows{Min: 3, Max: 4}, true
+	case "trading_pier":
+		return content.WaterRows{Min: 5, Max: 6}, true
+	case "depot":
+		return content.WaterRows{Min: 7, Max: 9}, true
+	}
+	return content.WaterRows{}, false
+}
+
+// ValidSite is the site check of the planners (plan generator, dev
+// fixtures): chk accepts the site, and for a shore building that had D-062
+// water rows (shipyard, trading pier, depot) the site is also one of
+// those rows. The planners so keep choosing the sites they chose before
+// D-077 §5 widened the shore buildings' placement, and the reference
+// plans and dev fixtures replay unchanged.
+func ValidSite(chk *sim.SiteChecker, def *content.Building, x, y, rot int) bool {
+	if rows, ok := d062Rows(def.ID); ok && def.Shore() {
+		legacy := *def
+		legacy.Placement = ""
+		legacy.WaterRows = &rows
+		if !chk.Valid(&legacy, x, y, rot) {
+			return false
+		}
+	}
+	return chk.Valid(def, x, y, rot)
 }

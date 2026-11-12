@@ -37,13 +37,14 @@ func depotRows(x, y, rotation int, columns [4]string) []string {
 	return rows
 }
 
-// The depot (4×11, water rows 7–9, D-062 correction) fits a coast in every
-// rotation when each column has 7–9 water tiles then land, also on a
-// diagonal coast; it is refused with 6 or 10 water tiles in a column.
+// The depot (4×11) is a shore building (D-077 §5): it fits a coast in
+// every rotation with any mix of water and level-0 land as long as one
+// tile is water and the back edge touches land; an all-land site, open
+// water behind it or land on a terrace is refused.
 func TestDepotPlacementPerRotation(t *testing.T) {
 	c := shippedCatalogue(t)
 	def := c.BuildingByID["depot"]
-	if def.Width != 4 || def.Height != 11 || def.WaterRows == nil || def.WaterRows.Min != 7 || def.WaterRows.Max != 9 {
+	if def.Width != 4 || def.Height != 11 || def.WaterRows != nil || !def.Shore() {
 		t.Fatalf("depot content: %+v", def)
 	}
 	w7, w8, w9 := "~~~~~~~cccc", "~~~~~~~~ccc", "~~~~~~~~~cc"
@@ -56,9 +57,12 @@ func TestDepotPlacementPerRotation(t *testing.T) {
 			{"seven", [4]string{w7, w7, w7, w7}, nil},
 			{"nine", [4]string{w9, w9, w9, w9}, nil},
 			{"diagonal", [4]string{w7, w8, w9, w8}, nil},
-			{"too-short", [4]string{w7, "~~~~~~cc..."[:11], w7, w7}, ErrNotOnWater},
-			{"too-far-out", [4]string{w9, w9, "~~~~~~~~~~c", w9}, ErrTerrain},
-			{"water-after-land", [4]string{w8, "~~~~~~~~c~c", w8, w8}, ErrTerrain},
+			{"short", [4]string{w7, "~~~~~~cc...", w7, w7}, nil},
+			{"far-out", [4]string{w9, w9, "~~~~~~~~~~c", w9}, nil},
+			{"water-after-land", [4]string{w8, "~~~~~~~~c~c", w8, w8}, nil},
+			{"open-back", [4]string{w8, w8, "~~~~~~~~~~~", w8}, ErrShoreBackEdge},
+			{"all-land", [4]string{"ccccccccccc", "ccccccccccc", "ccccccccccc", "ccccccccccc"}, ErrShoreNeedsWater},
+			{"river", [4]string{w8, "~~~~~~~rccc", w8, w8}, ErrTerrain},
 		} {
 			t.Run(fmt.Sprintf("%s/%d", tc.name, rotation), func(t *testing.T) {
 				is := islandFromRows("main", depotRows(10, 10, rotation, tc.columns)...)
@@ -74,11 +78,9 @@ func TestDepotPlacementPerRotation(t *testing.T) {
 	}
 }
 
-// A depot is never a berth holder, and its water rows are not land for
-// ships (like the pier's): placing one beside, or right in front of, a
-// Trading Post cannot cut the Trading Post's harbour point off the open
-// sea, so harbour_blocked has nothing to refuse. A depot whose land rows
-// stand on quays replaces them, which only opens water.
+// A depot is never a berth holder; its footprint is land for ships
+// (D-077 §5), but beside a Trading Post it leaves the Trading Post's
+// harbour point open, and in front of one it is refused (occupied).
 func TestDepotNextToTradingPostKeepsTheHarbourOpen(t *testing.T) {
 	c := shippedCatalogue(t)
 	// Sea above row 18, land below; a Trading Post at x 4..9, y 16..21
@@ -126,7 +128,7 @@ func TestDepotNextToTradingPostKeepsTheHarbourOpen(t *testing.T) {
 			} else if err != nil {
 				t.Fatalf("depot: %v", err)
 			}
-			if !harbourRoutable(c, is) || !seaReachable(is, HarbourAt(is, c.BuildingByID["trading_post"], tp.X, tp.Y, tp.Rotation)) {
+			if !harbourRoutable(c, is) || !seaReachable(is, shoreDecks(c, is), HarbourAt(c, is, c.BuildingByID["trading_post"], tp.X, tp.Y, tp.Rotation)) {
 				t.Fatal("a depot must not close the Trading Post's harbour")
 			}
 		})

@@ -44,6 +44,12 @@ const (
 	LookHarbour = "harbour"
 )
 
+// PlacementShore is the shore placement rule of a building (D-077 §5,
+// MECHANICS §2): every footprint tile is water (shallows included) or
+// level-0 land or quay, at least one is water, the back edge touches land
+// or quay along its full length; the footprint is land for ships.
+const PlacementShore = "shore"
+
 // Terrain types of island tiles (MECHANICS §2).
 const (
 	TerrainWater    = "water"
@@ -297,7 +303,10 @@ type Building struct {
 	Coastal bool
 	// WaterRows is nil for inland buildings. At rotation 0 the front
 	// is the top row (smallest y); each column has its own water depth.
-	WaterRows    *WaterRows
+	WaterRows *WaterRows
+	// Placement is "" (the footprint rules above) or PlacementShore
+	// (D-077 §5).
+	Placement    string
 	RequiresRoad bool
 	Cost         Cost
 	// UpkeepPerMin is in milli-gold per minute.
@@ -510,6 +519,9 @@ type WarehouseLevel struct {
 // Collector reports whether the building collects producer output (a
 // Trading Post or a Warehouse, MECHANICS §5).
 func (b *Building) Collector() bool { return b.TradingPost != nil || b.Warehouse != nil }
+
+// Shore reports whether the building has the shore placement (D-077 §5).
+func (b *Building) Shore() bool { return b.Placement == PlacementShore }
 
 // LevelCount is the number of levels of a Trading Post or Warehouse (0
 // for every other building).

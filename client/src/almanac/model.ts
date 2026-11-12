@@ -353,6 +353,8 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
   if (b.field?.fertility) needsSite.push(t("almanac.site.fertility", { name: titleCase(fertilityName(b.field.fertility)) }));
   // D-075 §1: a water-edge building's land tiles stand at sea level.
   if (b.water_rows) needsSite.push(t("almanac.site.lowShore"));
+  // D-077 §5: a shore building stands on water and sea-level land against the shore.
+  if (b.placement === "shore") needsSite.push(t("almanac.site.shore"));
   const levels: LevelView[] = [];
   b.trading_post?.levels?.forEach((l, i) =>
     levels.push({ level: i + 1, cost: costParts(l.cost), capacity: l.capacity / 1000, throughput: l.throughput_per_min / 1000, berths: l.berths, reach: l.reach, upkeep: upkeepOf(l), tier: l.tier }),
@@ -378,7 +380,9 @@ export function buildingView(idx: Index, b: ContentBuilding): BuildingView {
       ? b.water_rows.min === b.water_rows.max
         ? t("almanac.footprintWater", { width: b.width, height: b.height, count: b.water_rows.min })
         : t("almanac.footprintWaterRange", { width: b.width, height: b.height, ...b.water_rows })
-      : `${b.width} × ${b.height}`,
+      : b.placement === "shore"
+        ? t("almanac.footprintShore", { width: b.width, height: b.height })
+        : `${b.width} × ${b.height}`,
     requiresRoad: b.requires_road,
     cost: costParts(b.cost),
     upkeep: (b.upkeep_per_min ?? 0) / 1000,

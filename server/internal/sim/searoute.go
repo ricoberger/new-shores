@@ -37,6 +37,9 @@ const (
 type seaGrid struct {
 	x0, y0, nx, ny int
 	land           []bool
+	// decks are the shore-building footprints per island ID (shoreDecks):
+	// land for ships (D-077 §5).
+	decks map[string][]bool
 	// lagoon marks the sea cells closed as land (closeLagoons).
 	lagoon  []bool
 	islands []*Island
@@ -52,14 +55,15 @@ type seaGrid struct {
 type SeaGrid = seaGrid
 
 // BuildSeaGrid builds the sea grid over the islands alone.
-func BuildSeaGrid(islands []*Island) *SeaGrid { return newSeaGrid(islands) }
+func BuildSeaGrid(c *content.Catalogue, islands []*Island) *SeaGrid { return newSeaGrid(c, islands) }
 
 // SeaGridKey identifies everything the world's sea grid depends on: the
 // archipelago (seed, roll, generator version) with the islands' rectangles
-// and the roads on water tiles (quays, D-060), the only ship-relevant
-// state buildings change. It is empty for a world without a seed (hand-made
-// islands whose tiles the key cannot vouch for): such a grid is not cached.
-func SeaGridKey(w *World, generatorVersion int) string {
+// and the roads on water tiles (quays, D-060) and the shore buildings
+// (D-077 §5), the only ship-relevant state buildings change. It is empty
+// for a world without a seed (hand-made islands whose tiles the key cannot
+// vouch for): such a grid is not cached.
+func SeaGridKey(w *World, c *content.Catalogue, generatorVersion int) string {
 	if w.Seed == 0 {
 		return ""
 	}
@@ -75,6 +79,14 @@ func SeaGridKey(w *World, generatorVersion int) string {
 				fmt.Fprintf(h, ",%d", i)
 			}
 		}
+		for _, b := range is.Buildings {
+			if c == nil {
+				break
+			}
+			if def := c.BuildingByID[b.Type]; def != nil && def.Shore() {
+				fmt.Fprintf(h, ";%s@%d,%d,%d", b.Type, b.X, b.Y, b.Rotation)
+			}
+		}
 	}
 	return hex.EncodeToString(h.Sum(nil)[:16])
 }
@@ -87,20 +99,20 @@ func (w *World) SetSeaGrid(g *SeaGrid) { w.seaGrid = g }
 
 // seaGridFor is the grid of a leg: the lent one (re-pointed at the current
 // islands) when both end points lie inside its bounds, else a fresh one.
-func (w *World) seaGridFor(a, b Pos) *seaGrid {
+func (w *World) seaGridFor(c *content.Catalogue, a, b Pos) *seaGrid {
 	if g := w.seaGrid; g != nil {
 		in := func(p Pos) bool { return p.X >= g.bx0 && p.Y >= g.by0 && p.X+1 <= g.bx1 && p.Y+1 <= g.by1 }
 		if in(a) && in(b) {
-			c := *g
-			c.islands = w.Islands()
-			return &c
+			cp := *g
+			cp.islands = w.Islands()
+			return &cp
 		}
 	}
-	return newSeaGrid(w.Islands(), a, b)
+	return newSeaGrid(c, w.Islands(), a, b)
 }
 
 // newSeaGrid builds the grid over the islands' rectangles and the points.
-func newSeaGrid(islands []*Island, pts ...Pos) *seaGrid {
+func newSeaGrid(c *content.Catalogue, islands []*Island, pts ...Pos) *seaGrid {
 	minX, minY, maxX, maxY := 0, 0, 0, 0
 	first := true
 	grow := func(x0, y0, x1, y1 int) {
@@ -132,9 +144,16 @@ func newSeaGrid(islands []*Island, pts ...Pos) *seaGrid {
 		if len(is.Tiles) != is.Width*is.Height {
 			continue
 		}
+		decks := shoreDecks(c, is)
+		if decks != nil {
+			if g.decks == nil {
+				g.decks = map[string][]bool{}
+			}
+			g.decks[is.ID] = decks
+		}
 		for y := range is.Height {
 			for x := range is.Width {
-				if !seaLand(is, x, y) {
+				if !seaLand(is, decks, x, y) {
 					continue
 				}
 				g.land[g.cellOf(is.X+x, is.Y+y)] = true
@@ -200,7 +219,7 @@ func (g *seaGrid) landAt(x, y int) bool {
 	for _, is := range g.islands {
 		lx, ly := x-is.X, y-is.Y
 		if lx >= 0 && ly >= 0 && lx < is.Width && ly < is.Height && len(is.Tiles) == is.Width*is.Height &&
-			seaLand(is, lx, ly) {
+			seaLand(is, g.decks[is.ID], lx, ly) {
 			return true
 		}
 	}
@@ -353,8 +372,8 @@ func (g *seaGrid) search(s, t int) []int {
 // line crosses no land (or no way around exists). The waypoints are the
 // searched cell centres pulled tight (each one the farthest cell still
 // in sight of the previous point).
-func SeaRoute(islands []*Island, a, b Pos) []Pos {
-	return seaRoute(newSeaGrid(islands, a, b), a, b)
+func SeaRoute(c *content.Catalogue, islands []*Island, a, b Pos) []Pos {
+	return seaRoute(newSeaGrid(c, islands, a, b), a, b)
 }
 
 // seaRoute is SeaRoute over a built grid. The straight line is returned
@@ -588,7 +607,7 @@ func harbour(c *content.Catalogue, is *Island) (Pos, bool) {
 		if b.Berths <= 0 || def == nil {
 			continue
 		}
-		return HarbourAt(is, def, b.X, b.Y, b.Rotation), true
+		return HarbourAt(c, is, def, b.X, b.Y, b.Rotation), true
 	}
 	return Pos{}, false
 }
@@ -603,9 +622,13 @@ const harbourSearch = 12
 // (water with no land or quay within one tile: a tight bay) it is the nearest open
 // water tile outside the footprint (Euclidean; ties: ring order), the
 // tile itself when there is none within harbourSearch. Tiles outside the
-// island's grid are water.
-func HarbourAt(is *Island, def *content.Building, x, y, rotation int) Pos {
+// island's grid are water. Shore buildings are land (D-077 §5).
+func HarbourAt(c *content.Catalogue, is *Island, def *content.Building, x, y, rotation int) Pos {
 	w, h := footprint(def, rotation)
+	var decks []bool
+	if len(is.Tiles) == is.Width*is.Height {
+		decks = shoreDecks(c, is)
+	}
 	var p Pos
 	switch rotation {
 	case 90:
@@ -619,7 +642,7 @@ func HarbourAt(is *Island, def *content.Building, x, y, rotation int) Pos {
 	}
 	land := func(tx, ty int) bool {
 		return tx >= 0 && ty >= 0 && tx < is.Width && ty < is.Height && len(is.Tiles) == is.Width*is.Height &&
-			seaLand(is, tx, ty)
+			seaLand(is, decks, tx, ty)
 	}
 	open := func(tx, ty int) bool {
 		if tx >= x && ty >= y && tx < x+w && ty < y+h {
@@ -657,7 +680,7 @@ func HarbourAt(is *Island, def *content.Building, x, y, rotation int) Pos {
 // nearest to a point (ties: the first in row order), or the island's
 // centre when it has none. Only water that ships reach from the open sea
 // counts (seaWater): never a closed pool or a tile behind quays.
-func shore(is *Island, toward Pos) Pos {
+func shore(c *content.Catalogue, is *Island, toward Pos) Pos {
 	best, bestD := Pos{is.X + is.Width/2, is.Y + is.Height/2}, -1
 	if len(is.Tiles) != is.Width*is.Height {
 		return best
@@ -665,7 +688,7 @@ func shore(is *Island, toward Pos) Pos {
 	land := func(x, y int) bool {
 		return x >= 0 && y >= 0 && x < is.Width && y < is.Height && is.Tiles[y*is.Width+x].Terrain != content.TerrainWater
 	}
-	sea := seaWater(is)
+	sea := seaWater(is, shoreDecks(c, is))
 	for y := range is.Height {
 		for x := range is.Width {
 			if land(x, y) || !sea[y*is.Width+x] || !land(x-1, y) && !land(x+1, y) && !land(x, y-1) && !land(x, y+1) {
@@ -683,12 +706,12 @@ func shore(is *Island, toward Pos) Pos {
 // seaWater marks the island's tiles that ships reach from the edge of its
 // grid (seaReachable for every tile at once): water, not land for ships
 // (seaLand), 4-connected to the edge.
-func seaWater(is *Island) []bool {
+func seaWater(is *Island, decks []bool) []bool {
 	open := make([]bool, is.Width*is.Height)
 	var queue []Pos
 	for y := range is.Height {
 		for x := range is.Width {
-			if (x == 0 || y == 0 || x == is.Width-1 || y == is.Height-1) && !seaLand(is, x, y) {
+			if (x == 0 || y == 0 || x == is.Width-1 || y == is.Height-1) && !seaLand(is, decks, x, y) {
 				open[is.index(x, y)] = true
 				queue = append(queue, Pos{x, y})
 			}
@@ -699,7 +722,7 @@ func seaWater(is *Island) []bool {
 		queue = queue[1:]
 		for _, nb := range neighbours() {
 			nx, ny := q.X+nb.X, q.Y+nb.Y
-			if is.InBounds(nx, ny) && !open[is.index(nx, ny)] && !seaLand(is, nx, ny) {
+			if is.InBounds(nx, ny) && !open[is.index(nx, ny)] && !seaLand(is, decks, nx, ny) {
 				open[is.index(nx, ny)] = true
 				queue = append(queue, Pos{nx, ny})
 			}
@@ -716,12 +739,12 @@ func Ends(c *content.Catalogue, from, to *Island) (Pos, Pos) {
 	b, okB := harbour(c, to)
 	switch {
 	case !okA && !okB:
-		a = shore(from, Pos{to.X + to.Width/2, to.Y + to.Height/2})
-		b = shore(to, a)
+		a = shore(c, from, Pos{to.X + to.Width/2, to.Y + to.Height/2})
+		b = shore(c, to, a)
 	case !okA:
-		a = shore(from, b)
+		a = shore(c, from, b)
 	case !okB:
-		b = shore(to, a)
+		b = shore(c, to, a)
 	}
 	return a, b
 }
@@ -732,13 +755,13 @@ func Arrival(c *content.Catalogue, from Pos, to *Island) Pos {
 	if b, ok := harbour(c, to); ok {
 		return b
 	}
-	return shore(to, from)
+	return shore(c, to, from)
 }
 
 // Voyage is the polyline (a, the waypoints around land, b) and travel
 // time of a leg for a ship of the given speed.
 func Voyage(w *World, c *content.Catalogue, speedPermille int64, a, b Pos) ([]Pos, int64) {
-	path := append(append([]Pos{a}, seaRoute(w.seaGridFor(a, b), a, b)...), b)
+	path := append(append([]Pos{a}, seaRoute(w.seaGridFor(c, a, b), a, b)...), b)
 	return path, PathMs(path, speedPermille, c.Region.Rules.ShipSpeedMilliTilesPerMin)
 }
 

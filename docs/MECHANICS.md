@@ -138,13 +138,39 @@ handlers only.
   Quays count as land, terminate the water prefix, and are replaced without
   refund when covered by a valid land part (§3); required water cannot
   carry quay. Values: Trading Post 1–2, fisher/salt pans 2–3,
-  shipyard/oyster beds 3–4, trading pier 5–6, depot 7–9 rows (a 4×11 platform).
+  oyster beds 3–4 rows (shipyard, trading pier and depot have the shore
+  placement since D-077, below).
   A zero minimum permits an all-land footprint. Other coastal buildings
   still need a coast tile (quay counts). Harbour points remain two tiles
   off the **front row**, not the variable water/land boundary (§9).
   Error codes stay `not_on_water`, `terrain` and `occupied`.
+- **Shore placement** (D-077 §5, `placement: shore`: trading pier,
+  depot, shipyard, repair crane, harbour tower, harbour statue, Kontor).
+  Every footprint tile is free sea water (shallows included, never
+  river) or free buildable land at terrace level 0 or a quay (replaced
+  without refund, as for water-edge buildings); `terrain`, `occupied`
+  and `needs_low_shore` as above. At least one tile is water
+  (`shore_needs_water`). The **back edge** — the side opposite the
+  front (bottom row at 0°, left column at 90°, top row at 180°, right
+  column at 270°) — touches land or quay along its full length: for
+  every back-row tile, the tile itself or the tile behind it is the
+  island's own land or a quay (`shore_back_edge`). So a shore building
+  stands on the beach (straddling the water line, any mix of water and
+  land per column) or fully on the water against a quay. No footprint
+  tile may lie on the **harbour lane** — the strip in front of the
+  front edge of the island's Trading Post and of each trading pier,
+  its width and three tiles deep (one beyond the harbour point) — on a
+  trading pier's **berth tiles** (the water tiles of the columns beside
+  its two flanks) or on a harbour point (`harbour_blocked`). For ships
+  the whole footprint is **land** (sea grid, harbour points, open-sea
+  checks; the API's cached sea grid is keyed on the shore buildings);
+  plans are not. The rule holds for `place_building`, plans (placing,
+  moving, building) and `move_building`. The archipelago generator
+  keeps verifying the stricter D-062 shipyard site (8 × 12 with 3–4
+  water rows), which is always a valid shore site on a fresh island,
+  so seeds are unchanged.
 - **Low shore** (D-075 §1): every land tile of a water-edge building
-  (any `water_rows`, the depot's all-land footprint included) is at
+  (any `water_rows`) or a shore building is at
   terrace level 0 (§10), else `needs_low_shore`; cliffs are not pier
   coasts. Quay tiles are shallows and need no level. The rule holds for
   `place_building`, plans (placing, moving and building them), `move_building`,

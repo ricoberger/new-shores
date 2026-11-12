@@ -34,6 +34,8 @@ class Ctx:
         self.level = level
         rows = self.defn.get("water_rows")
         self.water = int(rows["max"] if isinstance(rows, dict) else self.defn.get("water_tiles", 0))
+        if not self.water and self.defn.get("placement") == "shore":
+            self.water = config.SHORE_DECK_ROWS.get(cid, 0)
         #: First land row (voxels): rows below it stand over the sea.
         self.land = self.water * scale
         #: A shore building (D-077 §5): a deck under every tile, so the model may reach below z = 0 like a water structure.

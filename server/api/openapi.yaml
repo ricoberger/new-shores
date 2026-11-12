@@ -811,10 +811,15 @@ components:
           D-060), `not_coastal`, `not_on_water` (a
           water-edge building's front rows are not on water, D-051),
           `needs_low_shore` (a water-edge building's land tiles are not
-          all at terrace level 0, D-075),
+          all at terrace level 0, D-075; also the land tiles of a shore
+          building, D-077),
+          `shore_needs_water` (a shore building covers no water tile,
+          D-077 §5), `shore_back_edge` (the back edge of a shore building
+          does not touch land or quay along its full length, D-077 §5),
           `harbour_blocked` (quay tiles, or a Trading Post moved onto
           them, would close the harbour point off from the open sea,
-          D-060),
+          D-060; a shore building on the harbour lane or a berth tile of
+          the Trading Post or a trading pier, D-077 §5),
           `no_fertility` (the island lacks the work area's or the field's
           fertility tag),
           `field_type_mismatch` (`place_field` with a type that is not a
@@ -936,6 +941,8 @@ components:
         - not_coastal
         - not_on_water
         - needs_low_shore
+        - shore_needs_water
+        - shore_back_edge
         - harbour_blocked
         - no_fertility
         - no_deposit
@@ -3890,6 +3897,17 @@ components:
               type: integer
               minimum: 0
               description: Maximum sea-water tiles per column (tiles).
+        placement:
+          type: string
+          enum: [shore]
+          description: |
+            `shore` (D-077 §5): every footprint tile is sea water
+            (shallows included) or level-0 land or quay, at least one is
+            water, the back edge (bottom at 0, left at 90, top at 180,
+            right at 270) touches land or quay along its full length, and
+            no tile lies on the harbour lane or berth tiles of the
+            island's Trading Post or trading piers; the footprint is land
+            for ships. Absent for other buildings (never with water_rows).
         requires_road:
           type: boolean
         cost:

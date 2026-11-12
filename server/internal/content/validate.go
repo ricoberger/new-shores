@@ -217,8 +217,8 @@ func checkReferences(c *Catalogue) error {
 			if pr.Berths < 1 {
 				col.add(FileBuildings, ent, "pier.berths", "must be >= 1")
 			}
-			if b.WaterRows == nil || b.WaterRows.Min < 1 || b.TradingPost != nil || b.Warehouse != nil || b.Service != nil {
-				col.add(FileBuildings, ent, "pier", "a pier is a water-edge building (min >= 1) and neither a collector nor a public building")
+			if (!b.Shore() && (b.WaterRows == nil || b.WaterRows.Min < 1)) || b.TradingPost != nil || b.Warehouse != nil || b.Service != nil {
+				col.add(FileBuildings, ent, "pier", "a pier is a shore or water-edge building (min >= 1) and neither a collector nor a public building")
 			}
 		}
 		if d := b.Depot; d != nil {
@@ -228,6 +228,20 @@ func checkReferences(c *Catalogue) error {
 			if b.TradingPost != nil || b.Warehouse != nil || b.Service != nil || b.Pier != nil {
 				col.add(FileBuildings, ent, "depot", "a depot is neither a collector, a public building nor a pier")
 			}
+		}
+		switch b.Placement {
+		case "":
+		case PlacementShore:
+			switch {
+			case b.WaterRows != nil:
+				col.add(FileBuildings, ent, "placement", "a shore building has no water_rows")
+			case b.Coastal:
+				col.add(FileBuildings, ent, "placement", "a shore building is not also coastal")
+			case b.RequiresDeposit != "", b.TradingPost != nil, b.Road != nil, b.Field != nil, b.House != nil:
+				col.add(FileBuildings, ent, "placement", "a shore building is no deposit building, trading post, road, field or house")
+			}
+		default:
+			col.add(FileBuildings, ent, "placement", "must be shore or absent, got %q", b.Placement)
 		}
 		if rows := b.WaterRows; rows != nil {
 			switch {

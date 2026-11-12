@@ -91,6 +91,10 @@
           "max": { "type": "integer", "minimum": 0 }
         }
       },
+      "placement": {
+        "description": "Shore placement (D-077 \u00a75, MECHANICS \u00a72): every footprint tile is water (shallows included) or level-0 land or quay, at least one tile is water, the back edge (the side opposite the front: the bottom row at rotation 0) touches land or quay along its full length, the harbour lane and berth tiles of the island's Trading Post and trading piers stay free; the footprint is land for ships. Excludes water_rows and coastal. Absent: the normal land / water_rows rules.",
+        "enum": ["shore"]
+      },
       "trading_post": {
         "description": "The Trading Post (MECHANICS §5, D-051): one per island, placed only by founding; its level sets the island's capacity per good, a collector throughput and the berths of its pier.",
         "type": "object",

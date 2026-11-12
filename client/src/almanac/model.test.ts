@@ -267,7 +267,8 @@ describe("almanac model of the harbour buildings (D-060)", () => {
 
   it("shows the pier's berths, the depot's fixed capacity and the quay's site", () => {
     const pier = buildingView(idx, idx.building("trading_pier")!);
-    expect(pier).toMatchObject({ category: "harbour", pierBerths: 2, waterRows: { min: 5, max: 6 }, levels: [] });
+    expect(pier).toMatchObject({ category: "harbour", pierBerths: 2, footprint: "6 × 9, on the shore", levels: [] });
+    expect(pier.waterRows).toBeUndefined();
     const depot = buildingView(idx, idx.building("depot")!);
     expect(depot.category).toBe("harbour");
     expect(depot).toMatchObject({ depotCapacity: 150, levels: [] });
@@ -282,8 +283,12 @@ describe("almanac model of the harbour buildings (D-060)", () => {
 
   it("names the low shore of every water-edge building (D-075)", () => {
     const low = "Needs a low shore (land tiles at sea level, not on a terrace)";
-    for (const id of ["trading_post", "trading_pier", "fisher", "shipyard", "depot"]) {
+    for (const id of ["trading_post", "fisher"]) {
       expect(buildingView(idx, idx.building(id)!).needsSite, id).toContain(low);
+    }
+    // D-077 §5: the shore buildings name their own rule.
+    for (const id of ["trading_pier", "shipyard", "depot"]) {
+      expect(buildingView(idx, idx.building(id)!).needsSite, id).toContain("Stands on the shore: water and sea-level land, its back against land or a quay");
     }
     expect(buildingView(idx, idx.building("quay")!).needsSite).not.toContain(low);
     expect(buildingView(idx, idx.building("sawmill")!).needsSite).not.toContain(low);

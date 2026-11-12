@@ -44,6 +44,7 @@ export function loadContent(dir: string): Content {
       height: b.footprint[1],
       coastal: !!b.coastal,
       water_rows: b.water_rows,
+      placement: b.placement,
       ...(b.description ? { description: b.description } : {}),
       requires_road: !!b.requires_road,
       cost: cost(b.cost),

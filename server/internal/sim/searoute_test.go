@@ -23,7 +23,7 @@ func wall(id string, x, y int) *Island {
 func TestSeaRouteStraight(t *testing.T) {
 	islands := []*Island{wall("w", 100, 100)}
 	a, b := Pos{0, 0}, Pos{30, 40}
-	if got := SeaRoute(islands, a, b); got != nil {
+	if got := SeaRoute(nil, islands, a, b); got != nil {
 		t.Fatalf("waypoints %v", got)
 	}
 	if PathMs([]Pos{a, b}, 1000, 60_000) != TravelMs(0, 0, 30, 40, 1000, 60_000) {
@@ -37,15 +37,15 @@ func TestSeaRouteStraight(t *testing.T) {
 func TestSeaRouteAroundLand(t *testing.T) {
 	islands := []*Island{wall("w", 20, -10)}
 	a, b := Pos{0, 10}, Pos{50, 12}
-	path := SeaRoute(islands, a, b)
+	path := SeaRoute(nil, islands, a, b)
 	if len(path) == 0 {
 		t.Fatal("no waypoints around the wall")
 	}
-	if again := SeaRoute(islands, a, b); !slices.Equal(path, again) {
+	if again := SeaRoute(nil, islands, a, b); !slices.Equal(path, again) {
 		t.Fatalf("not deterministic: %v vs %v", path, again)
 	}
 	full := append(append([]Pos{a}, path...), b)
-	g := newSeaGrid(islands, a, b)
+	g := newSeaGrid(nil, islands, a, b)
 	for i := 1; i < len(full); i++ {
 		if !g.clear(full[i-1], full[i]) {
 			t.Errorf("segment %v-%v crosses land", full[i-1], full[i])
@@ -86,7 +86,7 @@ func TestSeaRouteEnclosed(t *testing.T) {
 		"..........",
 	)
 	ring.X, ring.Y = 0, 0
-	if got := SeaRoute([]*Island{ring}, Pos{5, 5}, Pos{40, 5}); got != nil {
+	if got := SeaRoute(nil, []*Island{ring}, Pos{5, 5}, Pos{40, 5}); got != nil {
 		t.Fatalf("waypoints %v out of a closed ring", got)
 	}
 }
@@ -113,12 +113,12 @@ func TestSeaRouteLagoon(t *testing.T) {
 	bay := islandFromRows("b", rows...)
 	bay.X, bay.Y = 40, 40
 	a, b := Pos{0, 46}, Pos{45, 46}
-	path := SeaRoute([]*Island{bay}, a, b)
+	path := SeaRoute(nil, []*Island{bay}, a, b)
 	if len(path) == 0 {
 		t.Fatal("no waypoints into the bay")
 	}
 	full := append(append([]Pos{a}, path...), b)
-	g := newSeaGrid([]*Island{bay}, a, b)
+	g := newSeaGrid(nil, []*Island{bay}, a, b)
 	for i := 1; i < len(full); i++ {
 		p, q := full[i-1], full[i]
 		n := max(absInt(q.X-p.X), absInt(q.Y-p.Y))
@@ -161,11 +161,11 @@ func TestSeaRouteLongChannel(t *testing.T) {
 	is := islandFromRows("c", rows...)
 	is.X, is.Y = 40, 40
 	a, b := Pos{45, 43}, Pos{46, 0}
-	path := SeaRoute([]*Island{is}, a, b)
+	path := SeaRoute(nil, []*Island{is}, a, b)
 	if len(path) == 0 {
 		t.Fatal("straight out of the channel")
 	}
-	tileClear(t, newSeaGrid([]*Island{is}, a, b), append(append([]Pos{a}, path...), b))
+	tileClear(t, newSeaGrid(nil, []*Island{is}, a, b), append(append([]Pos{a}, path...), b))
 }
 
 // TestSeaRouteClosedLagoon (polish 8): two ends in the same closed
@@ -187,11 +187,11 @@ func TestSeaRouteClosedLagoon(t *testing.T) {
 	}
 	is := islandFromRows("l", rows...)
 	a, b := Pos{4, 4}, Pos{15, 4}
-	path := SeaRoute([]*Island{is}, a, b)
+	path := SeaRoute(nil, []*Island{is}, a, b)
 	if len(path) == 0 {
 		t.Fatal("straight across the spit")
 	}
-	tileClear(t, newSeaGrid([]*Island{is}, a, b), append(append([]Pos{a}, path...), b))
+	tileClear(t, newSeaGrid(nil, []*Island{is}, a, b), append(append([]Pos{a}, path...), b))
 }
 
 // TestLineTiles: the supercover of a segment, corners included.

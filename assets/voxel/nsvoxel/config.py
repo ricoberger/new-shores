@@ -66,6 +66,10 @@ GROUND_ROLES = {"road-paved": "paved", "road-dirt": "dirt", "sand": "sand"}
 #: The water structures of D-068 §5: they stand on deck voxels over their water rows (the
 #: content's water_rows); only the land part of the footprint follows the ground map.
 WATER_MODELS = ("depot", "fisher", "oyster_beds", "salt_pans", "shipyard", "trading_pier", "trading_post")
+#: The water rows the D-062 water structures that became shore buildings (D-077 §5:
+#: `placement: shore`, no `water_rows` in the content) are authored with: their recipes lay out the
+#: deck over these front rows (rotation 0) as before, so the models stay as they were.
+SHORE_DECK_ROWS = {"depot": 9, "shipyard": 4, "trading_pier": 6}
 #: The shore buildings of D-077 §5 (planned `placement: shore`): a deck under every tile, no plate check, may reach
 #: below z = 0 (piles) like the water structures. They are models of their own kind (authored at ground z = 0).
 #: Models whose point is a flat layer at z = 0 (the pond's water, D-077 §5): exempt from the plate check.

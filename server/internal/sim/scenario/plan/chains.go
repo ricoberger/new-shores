@@ -236,7 +236,7 @@ func (g *gen) reserveChainPlot(island, typ string, open []*chainNeed, served map
 			break
 		}
 		fw, fh := layout.Dims(def, s.Rot)
-		if !cl.plotFree(s.X, s.Y, fw, fh, served) || !layout.Touches(is, reach, s.X, s.Y, fw, fh) || !chk.Valid(def, s.X, s.Y, s.Rot) {
+		if !cl.plotFree(s.X, s.Y, fw, fh, served) || !layout.Touches(is, reach, s.X, s.Y, fw, fh) || !layout.ValidSite(chk, def, s.X, s.Y, s.Rot) {
 			continue
 		}
 		n := 0
