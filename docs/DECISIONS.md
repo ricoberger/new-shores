@@ -2785,3 +2785,48 @@ never read by a rule. MONETIZATION.md rewritten for §1. Fixtures
 `harbour-basin`, `castle-town`; far budgets 16 / 224 k, 11 / 198 k,
 13 / 201 k.
 
+
+## D-078 Playtest 3, first pass: harbour lane, military at Patricians, stone harbour plinths, monument-sized castle
+
+- **Date:** 2026-11-12
+- **Status:** accepted (amends D-077 §2, §3, §5; D-077 text stays as recorded)
+- **Context:** the owner's first look at the `castle-town` and
+  `harbour-basin` fixtures after #78: a quay could be built straight in
+  front of the Trading Post; the harbour tower read as a lighthouse;
+  ornaments were available from Settlers and military from Citizens;
+  harbour buildings stood on timber decks; the castle (8 × 8, 5 000
+  gold) was smaller and lower than the university and the city wall
+  (one tile high) lower than a well.
+- **Decision:**
+  1. **Harbour lane is a hard rule.** Every berth holder (Trading Post,
+     trading pier, depot, shipyard, Kontor, repair crane) owns a lane in
+     front of its water edge: footprint width + 1 tile on each side,
+     4 rows deep. Neither quays nor shore buildings may occupy lane
+     tiles (`ErrHarbourLane`); the lane is shown in the placing ghost.
+     The D-077 §8 open-harbour reachability check stays in addition.
+  2. **Tiers.** Ornaments: Citizens = hedge, garden wall, ornamental
+     tree, flower bed, well, maypole, pillory; Merchants = pond,
+     fountain, statue, cemetery, square, harbour statue; Patricians =
+     gold statue. Military (wall, tower, gatehouse, harbour tower,
+     castle): **Patricians** — defence is dormant until raids, a
+     Patricians-era feature.
+  3. **Stone plinths.** Harbour-look shore buildings (trading pier,
+     depot, shipyard, repair crane, harbour tower, harbour statue,
+     Kontor) stand on the quay block (level-0 stone, stone side face,
+     mooring posts), not on timber decks. Rural water buildings (fisher,
+     salt pans, oyster beds) keep their timber.
+  4. **Harbour tower = the tower model on a quay plinth** (no beacon,
+     no light). One recipe, two IDs.
+  5. **Castle is the third monument** beside university and cathedral:
+     12 × 12, keep clearly higher than the university's tower, corner
+     towers higher than the curtain; cost 80 000 gold / 200 stone /
+     150 bricks, maintenance 40, `defence` 30 unchanged.
+  6. **Heights.** City wall footprint stays one tile; height two tiles
+     with wall-walk and parapet; tower four tiles; gatehouse three and
+     a half. The well (≈ 1.5 tiles) must sit below the wall.
+- **Rejected:** all ornaments at Merchants; harbour-tower as its own
+  silhouette; keeping the 8 × 8 castle with a taller keep only.
+- **Consequences:** content 0.22.1; sim quay / shore placement rule +
+  goldens; seven re-plinthed models, castle / wall / tower / gatehouse
+  rebuilt; `castle-town` fixture re-laid for 12 × 12; MECHANICS §2–§3,
+  CONTENT §7, ART_DIRECTION §7 updated by the implementing session.
