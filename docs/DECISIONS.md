@@ -2638,6 +2638,18 @@ bonus × 1.6, advances split into ≤ 12 pieces.
   creation; exclusive fertilities per region; region-2 goods as hard
   gates for existing tiers.
 
+*As built (#76):* content 0.21.1 (`regions.json`, `oc-NN`), sim schema
+16 with a migration that wraps the islands into `regions[0]` and
+prefixes IDs (tested on fixtures and the owner's snapshots; the D-066
+content-version check still refuses older snapshots before migration —
+by design); `GET /content` returns `regions`; cross-region destinations
+answer `no_passage` (409) until passage legs exist; the region name
+shows only in the switcher (hidden with one region — top bar unchanged);
+a migrated world's passage point is set on first use, no fix-up. The
+five reference scenarios are byte-identical to the base except island
+IDs and content version. Still needed for region 2: region content, the
+expedition command, passage legs end to end.
+
 ## D-077 Beauty and defence: gold ornaments, military with a dormant defence value, warships and patrol, shore placement, subscription instead of Doubloons, 32 MiB of models
 
 - **Status:** accepted (2026-11-09); amends D-021 / MONETIZATION
