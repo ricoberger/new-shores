@@ -48,7 +48,7 @@ func (p *propCase) shipPropWorld(recovery bool) {
 		"~~~~~~~~~~~~",
 	)
 	wild.X, wild.Y = -5-p.rng.IntN(10), 2+p.rng.IntN(10)
-	w.Islands = append(w.Islands, isle, wild)
+	w.SetIslands(append(w.Islands(), isle, wild)...)
 	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "isle", Type: "trading_post", X: 1, Y: 1}, p.l); err != nil {
 		p.fail("isle trading post: %v", err)
 	}

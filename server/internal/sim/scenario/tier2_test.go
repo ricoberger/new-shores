@@ -115,7 +115,7 @@ func TestTierTwoSteps(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	if d := is.Tile(13, 2).Deposit; is.Tile(13, 2).Terrain != "mountain" || d == nil || d.Kind != "stone" || d.Quantity != -1 {
 		t.Errorf("S tile = %+v", is.Tile(13, 2))
 	}

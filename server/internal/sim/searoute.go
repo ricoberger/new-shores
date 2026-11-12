@@ -64,8 +64,8 @@ func SeaGridKey(w *World, generatorVersion int) string {
 		return ""
 	}
 	h := sha256.New()
-	fmt.Fprintf(h, "%d|%d|%d|%d", w.Seed, w.ArchipelagoRoll, generatorVersion, len(w.Islands))
-	for _, is := range w.Islands {
+	fmt.Fprintf(h, "%d|%d|%d|%d", w.Seed, w.ArchipelagoRoll, generatorVersion, len(w.Islands()))
+	for _, is := range w.Islands() {
 		fmt.Fprintf(h, "|%s,%d,%d,%d,%d", is.ID, is.X, is.Y, is.Width, is.Height)
 		if len(is.Tiles) != is.Width*is.Height {
 			continue
@@ -92,11 +92,11 @@ func (w *World) seaGridFor(a, b Pos) *seaGrid {
 		in := func(p Pos) bool { return p.X >= g.bx0 && p.Y >= g.by0 && p.X+1 <= g.bx1 && p.Y+1 <= g.by1 }
 		if in(a) && in(b) {
 			c := *g
-			c.islands = w.Islands
+			c.islands = w.Islands()
 			return &c
 		}
 	}
-	return newSeaGrid(w.Islands, a, b)
+	return newSeaGrid(w.Islands(), a, b)
 }
 
 // newSeaGrid builds the grid over the islands' rectangles and the points.

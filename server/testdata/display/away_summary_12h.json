@@ -29,6 +29,20 @@
         }
       }
     ],
+    "regions": [
+      {
+        "id": "old_coast",
+        "unlocked": true,
+        "seed": 0,
+        "passage_point": null,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 90,
+          "height": 104
+        }
+      }
+    ],
     "archipelago": {
       "seed": 0,
       "roll": 0,
@@ -44,6 +58,7 @@
     "islands": [
       {
         "id": "start",
+        "region_id": "old_coast",
         "name": "Start",
         "size_class": "",
         "scenic": false,
@@ -749,6 +764,7 @@
       },
       {
         "id": "island2",
+        "region_id": "old_coast",
         "name": "Island 2",
         "size_class": "",
         "scenic": false,
@@ -915,6 +931,7 @@
         "name": "Cog 1",
         "state": "idle",
         "island_id": "island2",
+        "region_id": "old_coast",
         "route_id": 0,
         "stop_index": 0,
         "leg": null,
@@ -1003,6 +1020,7 @@
       "islands": [
         {
           "id": "start",
+          "region_id": "old_coast",
           "goods": {
             "fish": {
               "produced": 0,
@@ -1032,6 +1050,7 @@
         },
         {
           "id": "island2",
+          "region_id": "old_coast",
           "goods": {}
         }
       ],
@@ -1040,16 +1059,19 @@
       "still_unpaid": [
         {
           "island_id": "start",
+          "region_id": "old_coast",
           "building_id": 3,
           "type": "lumberjack"
         },
         {
           "island_id": "start",
+          "region_id": "old_coast",
           "building_id": 4,
           "type": "lumberjack"
         },
         {
           "island_id": "start",
+          "region_id": "old_coast",
           "building_id": 5,
           "type": "sawmill"
         }
@@ -1099,6 +1121,20 @@
             }
           }
         ],
+        "regions": [
+          {
+            "id": "old_coast",
+            "unlocked": true,
+            "seed": 0,
+            "passage_point": null,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 90,
+              "height": 104
+            }
+          }
+        ],
         "archipelago": {
           "seed": 0,
           "roll": 0,
@@ -1114,6 +1150,7 @@
         "islands": [
           {
             "id": "start",
+            "region_id": "old_coast",
             "name": "Start",
             "size_class": "",
             "scenic": false,
@@ -1819,6 +1856,7 @@
           },
           {
             "id": "island2",
+            "region_id": "old_coast",
             "name": "Island 2",
             "size_class": "",
             "scenic": false,
@@ -1985,6 +2023,7 @@
             "name": "Cog 1",
             "state": "idle",
             "island_id": "island2",
+            "region_id": "old_coast",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
@@ -2073,6 +2112,7 @@
           "islands": [
             {
               "id": "start",
+              "region_id": "old_coast",
               "goods": {
                 "fish": {
                   "produced": 0,
@@ -2102,6 +2142,7 @@
             },
             {
               "id": "island2",
+              "region_id": "old_coast",
               "goods": {}
             }
           ],
@@ -2110,16 +2151,19 @@
           "still_unpaid": [
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 3,
               "type": "lumberjack"
             },
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 4,
               "type": "lumberjack"
             },
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 5,
               "type": "sawmill"
             }
@@ -2169,6 +2213,20 @@
             }
           }
         ],
+        "regions": [
+          {
+            "id": "old_coast",
+            "unlocked": true,
+            "seed": 0,
+            "passage_point": null,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 90,
+              "height": 104
+            }
+          }
+        ],
         "archipelago": {
           "seed": 0,
           "roll": 0,
@@ -2184,6 +2242,7 @@
         "islands": [
           {
             "id": "start",
+            "region_id": "old_coast",
             "name": "Start",
             "size_class": "",
             "scenic": false,
@@ -2889,6 +2948,7 @@
           },
           {
             "id": "island2",
+            "region_id": "old_coast",
             "name": "Island 2",
             "size_class": "",
             "scenic": false,
@@ -3055,6 +3115,7 @@
             "name": "Cog 1",
             "state": "idle",
             "island_id": "island2",
+            "region_id": "old_coast",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
@@ -3143,6 +3204,7 @@
           "islands": [
             {
               "id": "start",
+              "region_id": "old_coast",
               "goods": {
                 "fish": {
                   "produced": 0,
@@ -3172,6 +3234,7 @@
             },
             {
               "id": "island2",
+              "region_id": "old_coast",
               "goods": {}
             }
           ],
@@ -3180,16 +3243,19 @@
           "still_unpaid": [
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 3,
               "type": "lumberjack"
             },
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 4,
               "type": "lumberjack"
             },
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 5,
               "type": "sawmill"
             }
@@ -3239,6 +3305,20 @@
             }
           }
         ],
+        "regions": [
+          {
+            "id": "old_coast",
+            "unlocked": true,
+            "seed": 0,
+            "passage_point": null,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 90,
+              "height": 104
+            }
+          }
+        ],
         "archipelago": {
           "seed": 0,
           "roll": 0,
@@ -3254,6 +3334,7 @@
         "islands": [
           {
             "id": "start",
+            "region_id": "old_coast",
             "name": "Start",
             "size_class": "",
             "scenic": false,
@@ -3959,6 +4040,7 @@
           },
           {
             "id": "island2",
+            "region_id": "old_coast",
             "name": "Island 2",
             "size_class": "",
             "scenic": false,
@@ -4125,6 +4207,7 @@
             "name": "Cog 1",
             "state": "idle",
             "island_id": "island2",
+            "region_id": "old_coast",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
@@ -4213,6 +4296,7 @@
           "islands": [
             {
               "id": "start",
+              "region_id": "old_coast",
               "goods": {
                 "fish": {
                   "produced": 0,
@@ -4242,6 +4326,7 @@
             },
             {
               "id": "island2",
+              "region_id": "old_coast",
               "goods": {}
             }
           ],
@@ -4250,16 +4335,19 @@
           "still_unpaid": [
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 3,
               "type": "lumberjack"
             },
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 4,
               "type": "lumberjack"
             },
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 5,
               "type": "sawmill"
             }
@@ -4309,6 +4397,20 @@
             }
           }
         ],
+        "regions": [
+          {
+            "id": "old_coast",
+            "unlocked": true,
+            "seed": 0,
+            "passage_point": null,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 90,
+              "height": 104
+            }
+          }
+        ],
         "archipelago": {
           "seed": 0,
           "roll": 0,
@@ -4324,6 +4426,7 @@
         "islands": [
           {
             "id": "start",
+            "region_id": "old_coast",
             "name": "Start",
             "size_class": "",
             "scenic": false,
@@ -5029,6 +5132,7 @@
           },
           {
             "id": "island2",
+            "region_id": "old_coast",
             "name": "Island 2",
             "size_class": "",
             "scenic": false,
@@ -5195,6 +5299,7 @@
             "name": "Cog 1",
             "state": "idle",
             "island_id": "island2",
+            "region_id": "old_coast",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
@@ -5283,6 +5388,7 @@
           "islands": [
             {
               "id": "start",
+              "region_id": "old_coast",
               "goods": {
                 "fish": {
                   "produced": 0,
@@ -5312,6 +5418,7 @@
             },
             {
               "id": "island2",
+              "region_id": "old_coast",
               "goods": {}
             }
           ],
@@ -5320,16 +5427,19 @@
           "still_unpaid": [
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 3,
               "type": "lumberjack"
             },
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 4,
               "type": "lumberjack"
             },
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 5,
               "type": "sawmill"
             }
@@ -5379,6 +5489,20 @@
             }
           }
         ],
+        "regions": [
+          {
+            "id": "old_coast",
+            "unlocked": true,
+            "seed": 0,
+            "passage_point": null,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 90,
+              "height": 104
+            }
+          }
+        ],
         "archipelago": {
           "seed": 0,
           "roll": 0,
@@ -5394,6 +5518,7 @@
         "islands": [
           {
             "id": "start",
+            "region_id": "old_coast",
             "name": "Start",
             "size_class": "",
             "scenic": false,
@@ -6099,6 +6224,7 @@
           },
           {
             "id": "island2",
+            "region_id": "old_coast",
             "name": "Island 2",
             "size_class": "",
             "scenic": false,
@@ -6265,6 +6391,7 @@
             "name": "Cog 1",
             "state": "idle",
             "island_id": "island2",
+            "region_id": "old_coast",
             "route_id": 0,
             "stop_index": 0,
             "leg": null,
@@ -6353,6 +6480,7 @@
           "islands": [
             {
               "id": "start",
+              "region_id": "old_coast",
               "goods": {
                 "fish": {
                   "produced": 0,
@@ -6382,6 +6510,7 @@
             },
             {
               "id": "island2",
+              "region_id": "old_coast",
               "goods": {}
             }
           ],
@@ -6390,16 +6519,19 @@
           "still_unpaid": [
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 3,
               "type": "lumberjack"
             },
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 4,
               "type": "lumberjack"
             },
             {
               "island_id": "start",
+              "region_id": "old_coast",
               "building_id": 5,
               "type": "sawmill"
             }

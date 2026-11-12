@@ -49,13 +49,13 @@ func TestCollectorReachBoundary(t *testing.T) {
 		c := reachCatalogue(t, []int{tc.reach}, []int{4})
 		w := testWorld(t, c)
 		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})
-		b := w.Islands[0].Building(2)
+		b := w.Islands()[0].Building(2)
 		if b.AssignedWarehouseID != tc.want || b.OutOfReach != (tc.want == 0) {
 			t.Fatalf("reach %d: assigned %d, out of reach %v", tc.reach, b.AssignedWarehouseID, b.OutOfReach)
 		}
 		mustAdvance(t, w, c, 10*time.Minute)
 		bd := displayed(t, w, c, 2)
-		fish := w.Islands[0].Inventory.Stock["fish"]
+		fish := w.Islands()[0].Inventory.Stock["fish"]
 		if tc.want == 0 {
 			// Stalls: no output, nothing buffered, nothing lost (D-009).
 			if bd.Status != StatusNoCollectorInReach || bd.Rates.Outputs["fish"] != 0 || fish != 0 || len(b.Buffer) != 0 {
@@ -75,16 +75,16 @@ func TestCollectorReachAssignment(t *testing.T) {
 	w := testWorld(t, c)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 8, Y: 5}) // 2: x 8..9, 7 tiles away
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})   // 3
-	if b := w.Islands[0].Building(3); b.AssignedWarehouseID != 1 {
+	if b := w.Islands()[0].Building(3); b.AssignedWarehouseID != 1 {
 		t.Fatalf("fisher assigned to %d, want the Trading Post (the warehouse is nearer by road, out of reach)", b.AssignedWarehouseID)
 	}
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 14, Y: 5}) // 4: 1 tile away
-	if b := w.Islands[0].Building(3); b.AssignedWarehouseID != 4 {
+	if b := w.Islands()[0].Building(3); b.AssignedWarehouseID != 4 {
 		t.Fatalf("fisher assigned to %d, want the warehouse in reach", b.AssignedWarehouseID)
 	}
 	// Demolishing it hands the fisher back to the Trading Post.
 	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: 4})
-	if b := w.Islands[0].Building(3); b.AssignedWarehouseID != 1 || b.OutOfReach {
+	if b := w.Islands()[0].Building(3); b.AssignedWarehouseID != 1 || b.OutOfReach {
 		t.Fatalf("fisher assigned to %d (out of reach %v), want the Trading Post", b.AssignedWarehouseID, b.OutOfReach)
 	}
 }
@@ -98,11 +98,11 @@ func TestCollectorReachGrowsWithLevel(t *testing.T) {
 		t.Fatal(err)
 	}
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})
-	if b := w.Islands[0].Building(2); !b.OutOfReach {
+	if b := w.Islands()[0].Building(2); !b.OutOfReach {
 		t.Fatal("fisher in reach of a level 1 Trading Post")
 	}
 	mustApply(t, w, c, UpgradeTradingPost{IslandID: "main", BuildingID: 1})
-	if b := w.Islands[0].Building(2); b.AssignedWarehouseID != 1 || b.OutOfReach {
+	if b := w.Islands()[0].Building(2); b.AssignedWarehouseID != 1 || b.OutOfReach {
 		t.Fatalf("after the upgrade: assigned %d, out of reach %v", b.AssignedWarehouseID, b.OutOfReach)
 	}
 }
@@ -113,7 +113,7 @@ func TestCollectorReachNeedsRoadFirst(t *testing.T) {
 	c := reachCatalogue(t, []int{2}, []int{4})
 	w := testWorld(t, c)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 14, Y: 7})
-	b := w.Islands[0].Building(2)
+	b := w.Islands()[0].Building(2)
 	if b.AssignedWarehouseID != 0 || b.OutOfReach {
 		t.Fatalf("assigned %d, out of reach %v", b.AssignedWarehouseID, b.OutOfReach)
 	}
@@ -136,7 +136,7 @@ func TestCollectorReachOnTheCircle(t *testing.T) {
 		mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{13, 5}, {13, 6}}})
 		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 12, Y: 7}) // 2
 		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})    // 3
-		b := w.Islands[0].Building(3)
+		b := w.Islands()[0].Building(3)
 		if b.AssignedWarehouseID != tc.want || b.OutOfReach != (tc.want == 0) {
 			t.Fatalf("reach %d: assigned %d, out of reach %v", tc.reach, b.AssignedWarehouseID, b.OutOfReach)
 		}
@@ -144,7 +144,7 @@ func TestCollectorReachOnTheCircle(t *testing.T) {
 			continue
 		}
 		mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: 2})
-		if b := w.Islands[0].Building(3); b.AssignedWarehouseID != 0 || !b.OutOfReach {
+		if b := w.Islands()[0].Building(3); b.AssignedWarehouseID != 0 || !b.OutOfReach {
 			t.Fatalf("after the demolition: assigned %d, out of reach %v", b.AssignedWarehouseID, b.OutOfReach)
 		}
 		if bd := displayed(t, w, c, 3); bd.Status != StatusNoCollectorInReach {

@@ -63,8 +63,9 @@ const (
 )
 
 // IslandID returns the ID of the i-th island (0-based) of a generated
-// archipelago.
-func IslandID(i int) string { return fmt.Sprintf("isle-%02d", i+1) }
+// archipelago of the region with the island ID prefix prefix
+// (regions.json, D-076): "<prefix>-NN", e.g. "oc-01".
+func IslandID(prefix string, i int) string { return fmt.Sprintf("%s-%02d", prefix, i+1) }
 
 // RollSeed returns the seed of re-roll number roll of a world seed
 // (reroll_archipelago, D-053 part 2): the world seed itself for roll 0,
@@ -106,13 +107,13 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 	home := slices.IndexFunc(plans, func(p *plan) bool { return p.home })
 	plans = append(append([]*plan{plans[home]}, plans[:home]...), plans[home+1:]...)
 
-	a := &Archipelago{Seed: seed, Home: IslandID(0), Islands: make([]*sim.Island, len(plans))}
+	a := &Archipelago{Seed: seed, Home: IslandID(c.Region.Prefix, 0), Islands: make([]*sim.Island, len(plans))}
 	for i := range plans {
 		is, err := buildIsland(derive(sub, 100+uint64(i)), plans[i], c) // #nosec G115 -- i >= 0
 		if err != nil {
 			return nil, err
 		}
-		is.ID = IslandID(i)
+		is.ID = IslandID(c.Region.Prefix, i)
 		a.Islands[i] = is
 	}
 	if n := buildableArea(a.Islands); !rules.BuildableRange().Contains(n) {
@@ -130,7 +131,7 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 	for i, is := range a.Islands {
 		is.Name = names[i]
 	}
-	if a.Islands, err = skerries(newRNG(derive(sub, 50)), a.Islands, rules); err != nil {
+	if a.Islands, err = skerries(newRNG(derive(sub, 50)), a.Islands, rules, c.Region.Prefix); err != nil {
 		return nil, err
 	}
 	ship, ok := spawn(a.Islands)
@@ -138,6 +139,9 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 		return nil, errors.New("no sea tile for the start ship")
 	}
 	a.Ship = ship
+	for _, is := range a.Islands {
+		is.RegionID = c.Region.ID
+	}
 	if err := Verify(a, c); err != nil {
 		return nil, err
 	}

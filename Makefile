@@ -32,7 +32,7 @@
 #                     Parameters FIXTURE, VIEW, DEVICE (lists or all), ROTATION, ISLAND, ZOOM,
 #                     X Y, OUT, SET, HUD=0, PRESET (info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, cog, build-menu, warnings, away, ship-panel, ship-rename, route-editor, route-rename, route-paused, island-card, top-bar-popups, top-bar-materials, forest-near, forest-mid, farm-selected, hemp-farm-selected, field-selected, field-ghost, field-paint, field-paint-result, field-paint-pasture, archipelago-far, far-labels, reroll, rename, merchant-house-card, house-upgraded, roof-pick, merchant-build-menu, patrician-house-card, patrician-build-menu, harbour, all),
 #                     SEED (the dev server's archipelago, default the dev seed), CONTENT (the dev
-#                     server's content directory, default content/old_coast), STATS=1 (draws,
+#                     server's content directory, default content), STATS=1 (draws,
 #                     triangles and meshes of each shot's frame, first-frame and focused-island
 #                     full-tiles times since navigation; STATS=2: the active meshes by layer),
 #                     QUERY (extra URL parameters, e.g.
@@ -57,7 +57,7 @@
 
 SERVER_DIR := server
 CLIENT_DIR := client
-CONTENT := ../content/old_coast
+CONTENT := ../content
 TIME_SCALE ?= 1
 
 COMPOSE := docker compose -f deploy/docker-compose.yaml

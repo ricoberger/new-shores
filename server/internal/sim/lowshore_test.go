@@ -18,7 +18,7 @@ func TestLowShore(t *testing.T) {
 	bx, by := x+fw-1, y+fh-1
 
 	raise := func(w *World, level int) {
-		is := w.Islands[0]
+		is := w.Islands()[0]
 		is.Tiles[is.index(bx, by)].Level = level
 	}
 	expect := func(w *World, cmd Command) {
@@ -33,7 +33,7 @@ func TestLowShore(t *testing.T) {
 	}
 
 	w := testWorld(t, c)
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	if err := CheckSite(is, c, fisher, x, y, 0); err != nil {
 		t.Fatalf("level-0 site: %v", err)
 	}

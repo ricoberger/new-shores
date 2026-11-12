@@ -842,6 +842,8 @@ components:
           Trading Post of an island with other buildings; roads may stay), `not_connected`
           (a shipyard without a road to the Trading Post or a Warehouse
           cannot order),
+          `no_passage` (a leg or route between two regions: no passage
+          leg exists yet, D-076),
           `quest_not_completed`, `quest_already_claimed` (rewards are
           credited once), `reroll_not_allowed` (`reroll_archipelago` after
           an island was settled, while a ship is under way, or on a world
@@ -949,6 +951,7 @@ components:
         - needs_unmet
         - upgrade_only
         - route_invalid
+        - no_passage
         - ship_not_found
         - route_not_found
         - shipyard_busy
@@ -1937,7 +1940,8 @@ components:
         like `found_island`'s (`island_already_settled`, `invalid_command`,
         `unknown_building`, `tier_locked`, `out_of_bounds`, `not_on_water`,
         `needs_low_shore`, `terrain`, ...). Errors: `ship_not_found`, `ship_not_idle`,
-        `route_invalid` (unknown destination or the ship's own island).
+        `route_invalid` (unknown destination or the ship's own island),
+        `no_passage` (a destination in another region, D-076).
       required: [type, ship_id, to_island_id]
       properties:
         type:
@@ -2068,7 +2072,7 @@ components:
         Authoritative state at `evaluated_at` plus the rates the client
         extrapolates linearly until `next_change_at` (D-027).
       required:
-        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, archipelago, islands, ships, routes, insolvency, quests, away_summary, last_seen_at]
+        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, regions, archipelago, islands, ships, routes, insolvency, quests, away_summary, last_seen_at]
       properties:
         evaluated_at:
           type: string
@@ -2099,6 +2103,12 @@ components:
           description: Tiers in progression order.
           items:
             $ref: "#/components/schemas/TierDisplay"
+        regions:
+          type: array
+          description: The world's regions in content order (`content/regions.json`), the home region first (D-076). Islands, ships and route stops name their region; island and ship positions are region coordinates.
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/RegionDisplay"
         archipelago:
           $ref: "#/components/schemas/ArchipelagoDisplay"
         islands:
@@ -2320,6 +2330,9 @@ components:
       properties:
         id:
           type: string
+        region_id:
+          type: string
+          description: The island's region (D-076 §5); absent in a summary stored before the regions.
         goods:
           type: object
           description: Every good with a flow during the interval or stock at `to`.
@@ -2361,6 +2374,9 @@ components:
         island_id:
           type: string
           description: Island of the building or ship (empty for a ship at sea).
+        region_id:
+          type: string
+          description: Region of the island or ship (D-076 §5); absent in a summary stored before the regions.
         building_id:
           type: integer
           format: int64
@@ -2441,7 +2457,7 @@ components:
         reserved. While handling cargo before `leg.depart_at` the ship is
         at the leg's origin, holding a berth until `berth_until`;
         afterwards `island_id` is empty.
-      required: [id, type, name, state, island_id, route_id, stop_index, leg, cargo, slots, slot_size, upkeep_per_min, paused, paused_reason, position, queued_at, berth_until]
+      required: [id, type, name, state, island_id, region_id, route_id, stop_index, leg, cargo, slots, slot_size, upkeep_per_min, paused, paused_reason, position, queued_at, berth_until]
       properties:
         id:
           type: integer
@@ -2459,6 +2475,10 @@ components:
         island_id:
           type: string
           description: Island where the ship is; empty while travelling or at sea.
+        region_id:
+          type: string
+          nullable: true
+          description: Region whose map the ship is on — its island's, its leg's destination's or, at sea, its own (D-076); null on a passage leg between regions (`leg.passage`), when the ship is "between regions".
         position:
           nullable: true
           description: Archipelago position of an idle or anchored ship at sea or at an island without berths (the start ship of a new world, D-051; a founding ship before its Trading Post, the end of the leg that brought it, or the harbour point of the Trading Post demolished under it; `island_id` stays set there); null at an island with berths or on a leg.
@@ -2544,6 +2564,9 @@ components:
           description: The voyage around land (D-058 §5, archipelago tiles) — the origin's harbour (or sea position), the waypoints, the destination's harbour (a Trading Post's water edge, else the shore nearest the other end); its length sets the travel time. Absent on legs from before sea routing.
           items:
             $ref: "#/components/schemas/SeaPosition"
+        passage:
+          type: boolean
+          description: An off-map leg between two regions (D-076 §1) — no path, fixed passage time; absent otherwise. None exists while the content lists one region.
     CargoDisplay:
       type: object
       additionalProperties: false
@@ -2623,10 +2646,13 @@ components:
     RouteStopDisplay:
       type: object
       additionalProperties: false
-      required: [island_id, load, unload]
+      required: [island_id, region_id, load, unload]
       properties:
         island_id:
           type: string
+        region_id:
+          type: string
+          description: The stop island's region (D-076).
         load:
           type: array
           items:
@@ -2705,30 +2731,65 @@ components:
           type: boolean
           description: "`reroll_archipelago` is allowed: a generated archipelago, no island settled, no ship under way."
         bounds:
-          type: object
-          additionalProperties: false
-          required: [x, y, width, height]
-          description: Bounding box of the islands (archipelago tiles).
-          properties:
-            x:
-              type: integer
-              description: Left column (archipelago tiles).
-            y:
-              type: integer
-              description: Top row (archipelago tiles).
-            width:
-              type: integer
-              description: Columns (archipelago tiles).
-            height:
-              type: integer
-              description: Rows (archipelago tiles).
-    IslandDisplay:
+          description: Bounding box of the home region's islands (archipelago tiles).
+          allOf:
+            - $ref: "#/components/schemas/BoundsDisplay"
+    BoundsDisplay:
       type: object
       additionalProperties: false
-      required: [id, name, size_class, scenic, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source, fertilities, deposits, terrain_mask]
+      required: [x, y, width, height]
+      description: A rectangle (archipelago tiles of a region).
+      properties:
+        x:
+          type: integer
+          description: Left column (archipelago tiles).
+        y:
+          type: integer
+          description: Top row (archipelago tiles).
+        width:
+          type: integer
+          description: Columns (archipelago tiles).
+        height:
+          type: integer
+          description: Rows (archipelago tiles).
+    RegionDisplay:
+      type: object
+      additionalProperties: false
+      description: One region of the world (D-076, MECHANICS §9.4) — its own archipelago and map.
+      required: [id, unlocked, seed, passage_point, bounds]
       properties:
         id:
           type: string
+          description: Content region ID (`regions.json`); "" for a hand-made world.
+        unlocked:
+          type: boolean
+          description: The home region always; a later region once it is opened.
+        seed:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 9007199254740991
+          description: The region's archipelago seed (world seed + region index); 0 for a hand-made world.
+        passage_point:
+          nullable: true
+          description: Where a ship from a passage enters the region's map (region tiles; the generator's start position); null when unknown (a world migrated from before the regions).
+          allOf:
+            - $ref: "#/components/schemas/SeaPosition"
+        bounds:
+          description: Bounding box of the region's islands (region tiles); zero without islands.
+          allOf:
+            - $ref: "#/components/schemas/BoundsDisplay"
+    IslandDisplay:
+      type: object
+      additionalProperties: false
+      required: [id, region_id, name, size_class, scenic, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source, fertilities, deposits, terrain_mask]
+      properties:
+        id:
+          type: string
+          description: Island ID, unique in the world, with its region's prefix (`oc-01`, D-076).
+        region_id:
+          type: string
+          description: The island's region (D-076).
         name:
           type: string
           description: Display name (may be empty); generated islands draw it from the region's word list, `rename_island` renames a settled one.
@@ -3353,6 +3414,22 @@ components:
                 type: string
         region:
           $ref: "#/components/schemas/ContentRegion"
+        regions:
+          type: array
+          description: |
+            The regions of `regions.json` in order, the home region first
+            (D-076); top level only. The other fields of the payload are the
+            home region's catalogue (`goods` holds every region's goods: one
+            ID space); a later region's own catalogue is its entry's
+            `catalogue`.
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ContentRegionEntry"
+        passages:
+          type: array
+          description: Passages between regions (D-076 §1; off-map legs with a fixed time in both directions); top level only, empty with one region.
+          items:
+            $ref: "#/components/schemas/ContentPassage"
         quests:
           type: array
           description: Quests in content order (a quest is active when its prerequisites are completed).
@@ -3579,6 +3656,42 @@ components:
           type: integer
           format: int64
           description: Upkeep (milli-gold per minute).
+    ContentRegionEntry:
+      type: object
+      additionalProperties: false
+      required: [id, prefix, home, gate, catalogue]
+      description: One region of `regions.json` (D-076).
+      properties:
+        id:
+          type: string
+        prefix:
+          type: string
+          description: Island ID prefix of the region's archipelago (`<prefix>-NN`, e.g. `oc-01`).
+        home:
+          type: boolean
+          description: The home region (every world starts there; the first entry).
+        gate:
+          type: string
+          nullable: true
+          description: Building that opens the region (D-076 §2); null for the home region.
+        catalogue:
+          nullable: true
+          description: The region's own catalogue (without `regions` and `passages`); null for the home region, whose catalogue is the top level.
+          allOf:
+            - $ref: "#/components/schemas/Content"
+    ContentPassage:
+      type: object
+      additionalProperties: false
+      required: [from, to, ms]
+      properties:
+        from:
+          type: string
+        to:
+          type: string
+        ms:
+          type: integer
+          format: int64
+          description: Passage time (milliseconds at scale 1), both directions.
     ContentRegion:
       type: object
       additionalProperties: false

@@ -42,7 +42,9 @@ export function WarningsPanel({ model, content, onFocus, onClose }: Props) {
   );
 }
 
-/** The buildings with a status other than ok, with their sentences. */
+/** The buildings with a status other than ok, with their sentences and their island's region (D-076 §5). */
 export function warningEntries(model: DisplayState, content: Content) {
-  return model.islands.flatMap((is) => is.buildings.filter((b) => b.status !== "ok").map((b) => ({ b, is, text: statusText(b, is, model, content) })));
+  return model.islands.flatMap((is) =>
+    is.buildings.filter((b) => b.status !== "ok").map((b) => ({ b, is, regionId: is.region_id, text: statusText(b, is, model, content) })),
+  );
 }

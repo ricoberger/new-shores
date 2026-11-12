@@ -54,16 +54,38 @@ func (e *Error) Error() string {
 	return s + ": " + e.Msg
 }
 
-// Load reads and validates the region directory dir (e.g.
-// "content/old_coast"). The JSON Schemas are read from the sibling directory
-// "schema" (i.e. filepath.Join(dir, "..", "schema")), so the result does not
-// depend on the working directory beyond dir itself.
+// Load reads and validates the content root dir ("content": regions.json
+// and one directory per region, D-076) or a single region directory (e.g.
+// a test catalogue). The JSON Schemas are read from "schema" inside a
+// content root, else from the region directory's sibling "schema"
+// (filepath.Join(dir, "..", "schema")), so the result does not depend on
+// the working directory beyond dir itself.
 func Load(dir string) (*Catalogue, error) {
+	if _, err := os.Stat(filepath.Join(dir, FileRegions)); err == nil {
+		return LoadWithSchemas(dir, filepath.Join(dir, "schema"))
+	}
 	return LoadWithSchemas(dir, filepath.Join(filepath.Dir(filepath.Clean(dir)), "schema"))
 }
 
-// LoadWithSchemas is Load with an explicit schema directory.
+// LoadWithSchemas is Load with an explicit schema directory. A dir with
+// a regions.json is a content root (D-076, LoadRoot); any other dir is a
+// single region directory, the only region of its catalogue (test
+// content).
 func LoadWithSchemas(dir, schemaDir string) (*Catalogue, error) {
+	if _, err := os.Stat(filepath.Join(dir, FileRegions)); err == nil {
+		return loadRoot(dir, schemaDir)
+	}
+	c, err := loadRegion(dir, schemaDir)
+	if err != nil {
+		return nil, err
+	}
+	c.Region.Prefix = defaultPrefix(c.Region.ID)
+	c.Regions = []*RegionEntry{{ID: c.Region.ID, Prefix: c.Region.Prefix, Home: true, Catalogue: c}}
+	return c, nil
+}
+
+// loadRegion reads and validates one region directory.
+func loadRegion(dir, schemaDir string) (*Catalogue, error) {
 	raw := make(map[string][]byte, len(contentFiles))
 	var errs []error
 	for _, name := range contentFiles {

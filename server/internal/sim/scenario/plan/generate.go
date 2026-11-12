@@ -277,7 +277,7 @@ func (g *gen) segment(s segment) error {
 	for i, a := range actions {
 		g.logf("action %d %s (gold %d, %d steps)", i, a.describe(), g.world().Gold/1000, len(g.steps))
 		if err := g.action(a); err != nil {
-			for _, is := range g.world().Islands {
+			for _, is := range g.world().Islands() {
 				if g.cells[is.ID] != nil {
 					g.dumpIsland(g.log, is.ID)
 				}
@@ -456,7 +456,7 @@ func (g *gen) upkeep(w *sim.World) sim.Qty {
 			n += def.UpkeepPerMin
 		}
 	}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for _, b := range is.Buildings {
 			if def := g.c.BuildingByID[b.Type]; def != nil {
 				n += def.UpkeepAt(b.Level)
@@ -469,7 +469,7 @@ func (g *gen) upkeep(w *sim.World) sim.Qty {
 // unpaid counts the buildings paused for insolvency.
 func unpaid(w *sim.World) int {
 	n := 0
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for _, b := range is.Buildings {
 			if b.Paused && b.PausedReason == sim.PausedReasonUnpaid {
 				n++

@@ -108,7 +108,7 @@ func parseConfig(args []string, getenv func(string) string, stderr io.Writer) (o
 	fs.SetOutput(stderr)
 	fs.BoolVar(&o.dev, "dev", false, "serve one in-memory world (no persistence; restarting resets it)")
 	fs.StringVar(&o.addr, "addr", envOr(getenv, "LISTEN_ADDR", ":8080"), "listen address (env LISTEN_ADDR)")
-	fs.StringVar(&o.content, "content", envOr(getenv, "CONTENT_DIR", "../content/old_coast"), "region content directory (env CONTENT_DIR)")
+	fs.StringVar(&o.content, "content", envOr(getenv, "CONTENT_DIR", "../content"), "content directory: regions.json and the region folders (env CONTENT_DIR)")
 	corsOrigin := fs.String("cors-origin", envOr(getenv, "ALLOWED_ORIGINS", defaultCORSOrigins),
 		"comma-separated browser origins allowed to call /api/ (scheme://host[:port]); also the CSRF and WebSocket origin list (env ALLOWED_ORIGINS)")
 	fs.Float64Var(&o.timeScale, "time-scale", 1, "world seconds per wall-clock second (> 0; --dev only)")

@@ -113,7 +113,7 @@ func (p *propCase) randomWorld() *World {
 		}
 	}
 	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
-	w.Islands = []*Island{NewIsland("main", width, height, tiles)}
+	w.SetIslands(NewIsland("main", width, height, tiles))
 	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, p.l); err != nil {
 		p.fail("seed warehouse: %v", err)
 	}
@@ -137,7 +137,7 @@ func (p *propCase) randomWorld() *World {
 	for range 1 + p.rng.IntN(3) {
 		x := 3 + p.rng.IntN(width-5)
 		for y := 5; y < 5+p.rng.IntN(height-6); y++ {
-			if w.Islands[0].Tile(x, y).Terrain != content.TerrainMountain {
+			if w.Islands()[0].Tile(x, y).Terrain != content.TerrainMountain {
 				road = append(road, Pos{x, y})
 			} else {
 				break
@@ -180,7 +180,7 @@ func (p *propCase) townWorld() *World {
 		rows[y] = string(row)
 	}
 	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
-	w.Islands = []*Island{islandFromRows("main", rows...)}
+	w.SetIslands(islandFromRows("main", rows...))
 	free := func(typ string, x, y, rot int) {
 		// Only first-tier buildings: the town is a Settler town (the
 		// shipped content's tier-2 bakery needs flour and Citizens).
@@ -221,7 +221,7 @@ func (p *propCase) townWorld() *World {
 	free("lumberjack", 26, 8, 0)
 	// Chained fields around the town's farms (D-051 part 4), so that their
 	// chains run.
-	for _, farm := range slices.Clone(w.Islands[0].Buildings) {
+	for _, farm := range slices.Clone(w.Islands()[0].Buildings) {
 		fd := p.c.BuildingByID[farm.Type]
 		if fd == nil || fd.Fields == nil || fd.Tier != p.c.Tiers[0].ID {
 			continue
@@ -229,7 +229,7 @@ func (p *propCase) townWorld() *World {
 		def := p.c.FieldByType[fd.Fields.Type]
 		for range 4 * (1 + p.rng.IntN(4)) {
 			x, y := farm.X-3+p.rng.IntN(9), farm.Y-3+p.rng.IntN(9)
-			if CheckFieldSite(w.Islands[0], p.c, farm, def, x, y, 0) == nil {
+			if CheckFieldSite(w.Islands()[0], p.c, farm, def, x, y, 0) == nil {
 				if err := PlaceFieldFree(w, p.c, PlaceField{IslandID: "main", FarmID: farm.ID, Type: def.ID, X: x, Y: y}, p.l); err != nil {
 					p.fail("town field: %v", err)
 				}
@@ -238,7 +238,7 @@ func (p *propCase) townWorld() *World {
 	}
 	// Every lumberjack gets one tree plot without drawing random numbers,
 	// so that the town produces wood.
-	for _, farm := range slices.Clone(w.Islands[0].Buildings) {
+	for _, farm := range slices.Clone(w.Islands()[0].Buildings) {
 		if farm.Type != "lumberjack" || farm.Efficiency > 0 {
 			continue
 		}
@@ -263,13 +263,13 @@ func (p *propCase) townWorld() *World {
 }
 
 func (p *propCase) randomPos() (int, int) {
-	is := p.w.Islands[0]
+	is := p.w.Islands()[0]
 	return p.rng.IntN(is.Width), p.rng.IntN(is.Height)
 }
 
 // randomCommand returns a random command; many of them are invalid.
 func (p *propCase) randomCommand() Command {
-	is := p.w.Islands[0]
+	is := p.w.Islands()[0]
 	switch r := p.rng.IntN(100); {
 	case r < 8:
 		x, y := p.randomPos()
@@ -353,7 +353,7 @@ func (p *propCase) randomCommand() Command {
 // anchor near it (mostly adjacent to the farm or its fields, sometimes far
 // away or of a wrong type, which fail). Nil without farms.
 func (p *propCase) randomFieldCommand() Command {
-	is := p.w.Islands[0]
+	is := p.w.Islands()[0]
 	var farms []*Building
 	for _, b := range is.Buildings {
 		if def := p.c.BuildingByID[b.Type]; def != nil && def.Fields != nil {
@@ -392,7 +392,7 @@ func (p *propCase) placeAtRoad() Command {
 }
 
 func (p *propCase) placeAtRoadOnce() Command {
-	is := p.w.Islands[0]
+	is := p.w.Islands()[0]
 	if len(is.Roads) == 0 {
 		return nil
 	}
@@ -411,7 +411,7 @@ func (p *propCase) placeAtRoadOnce() Command {
 // randomMove returns a move of a random building to a random target,
 // preferring (up to 20 attempts) a valid one; nil without buildings.
 func (p *propCase) randomMove() Command {
-	is := p.w.Islands[0]
+	is := p.w.Islands()[0]
 	if len(is.Buildings) == 0 {
 		return nil
 	}
@@ -542,7 +542,7 @@ func (p *propCase) checkInvariants(stage string) {
 	}
 	// Berths (MECHANICS §9.3): never more holders than berths, none at an
 	// island without a pier; a queue only while every berth is busy.
-	for _, is := range p.w.Islands {
+	for _, is := range p.w.Islands() {
 		total, holders := berthTotal(is), berthHolders(p.w, is.ID, now)
 		if len(holders) > total {
 			p.fail("%s: %s has %d berth holders for %d berths", stage, is.ID, len(holders), total)
@@ -554,7 +554,7 @@ func (p *propCase) checkInvariants(stage string) {
 	for _, g := range p.c.Goods {
 		good := g.ID
 		var world, flows int64
-		for _, is := range p.w.Islands {
+		for _, is := range p.w.Islands() {
 			capFine := capacityFine(is, p.c)
 			s := is.Inventory.fine(good)
 			if s < 0 || s > capFine {
@@ -580,7 +580,7 @@ func (p *propCase) checkInvariants(stage string) {
 	if p.w.Gold < 0 || p.w.GoldSub < 0 || p.w.GoldSub >= GoldSubPerMilli {
 		p.fail("%s: gold %d sub %d", stage, p.w.Gold, p.w.GoldSub)
 	}
-	for _, is := range p.w.Islands {
+	for _, is := range p.w.Islands() {
 		for _, b := range is.Buildings {
 			def := p.c.BuildingByID[b.Type]
 			if b.PausedReason == PausedReasonUnpaid && (!b.Paused || def.UpkeepPerMin <= 0 || b.PauseSeq <= 0 || b.PausedAtMs <= 0 || b.PausedAtMs > now) {
@@ -907,7 +907,7 @@ func TestPropertyComposition(t *testing.T) {
 func (p *propCase) recoveryWorld() *World {
 	p.l = NewLedger()
 	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
-	w.Islands = []*Island{islandFromRows("main", townRows()...)}
+	w.SetIslands(islandFromRows("main", townRows()...))
 	free := func(typ string, x, y, rot int) {
 		// Only first-tier buildings: the town is a Settler town (the
 		// shipped content's tier-2 bakery needs flour and Citizens).
@@ -977,7 +977,7 @@ func (p *propCase) runRecovery() map[string]int {
 		switch p.rng.IntN(8) {
 		case 0:
 			var producers []*Building
-			for _, b := range p.w.Islands[0].Buildings {
+			for _, b := range p.w.Islands()[0].Buildings {
 				if def := p.c.BuildingByID[b.Type]; def.Recipe != nil {
 					producers = append(producers, b)
 				}
@@ -1074,7 +1074,7 @@ func TestPropertyPauseResumeInterplay(t *testing.T) {
 		p := newPropCase(t, c, 60_000+seed)
 		p.l = NewLedger()
 		w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
-		w.Islands = []*Island{islandFromRows("main", townRows()...)}
+		w.SetIslands(islandFromRows("main", townRows()...))
 		p.w = w
 		free := func(typ string, x, y, rot int) {
 			if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: typ, X: x, Y: y, Rotation: rot}, p.l); err != nil {
@@ -1100,7 +1100,7 @@ func TestPropertyPauseResumeInterplay(t *testing.T) {
 				free("house_settlers", x, 5, 180)
 			}
 		}
-		for _, b := range w.Islands[0].Buildings {
+		for _, b := range w.Islands()[0].Buildings {
 			if b.House != nil {
 				b.House.Residents = Qty(6+p.rng.IntN(3)) * 1000
 			}
@@ -1145,7 +1145,7 @@ func TestPropertyResumeEligibility(t *testing.T) {
 		c := fishWeaverCatalogue(base, []int64{60_000, 300_000, 900_000}[rng.IntN(3)])
 		p := &propCase{t: t, c: c, rng: rng, l: NewLedger(), splitKinds: map[string]int{}, maxPieces: 8}
 		w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
-		w.Islands = []*Island{islandFromRows("main", townRows()...)}
+		w.SetIslands(islandFromRows("main", townRows()...))
 		p.w = w
 		free := func(typ string, x, y, rot int) int64 {
 			id := w.NextBuildingID
@@ -1179,7 +1179,7 @@ func TestPropertyResumeEligibility(t *testing.T) {
 		}
 		n := Qty(0)
 		for _, id := range houses {
-			h := w.Islands[0].Building(id).House
+			h := w.Islands()[0].Building(id).House
 			h.Residents = Qty(7+p.rng.IntN(2)) * 1000
 			n += h.Residents
 		}
@@ -1194,9 +1194,9 @@ func TestPropertyResumeEligibility(t *testing.T) {
 		now := w.LastEvaluatedAt.UnixMilli()
 		rate := needRate(n, 10_000) * int64(90+p.rng.IntN(21)) / 100
 		seg := TransitSegment{Good: "fish", FromMs: now, ToMs: now + 7_200_000, RateSub: rate}
-		w.Islands[0].Building(houses[0]).Transit = []TransitSegment{seg}
+		w.Islands()[0].Building(houses[0]).Transit = []TransitSegment{seg}
 		p.l.flow("main", "fish").Granted += seg.RateSub * (seg.ToMs - seg.FromMs)
-		b := w.Islands[0].Building(wv)
+		b := w.Islands()[0].Building(wv)
 		w.PauseSeq = 1
 		b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = true, PausedReasonUnpaid, 1, now-1
 		w.Gold = Qty(p.rng.IntN(30_000))
@@ -1248,7 +1248,7 @@ func moveWorld(t *testing.T, c *content.Catalogue, seed uint64) *propCase {
 // validMove returns a valid random move of a random building (false when
 // none was found).
 func (p *propCase) validMove() (MoveBuilding, bool) {
-	is := p.w.Islands[0]
+	is := p.w.Islands()[0]
 	if len(is.Buildings) == 0 {
 		return MoveBuilding{}, false
 	}
@@ -1275,7 +1275,7 @@ func TestPropertyMovePreservesState(t *testing.T) {
 				if !ok {
 					continue
 				}
-				is := p.w.Islands[0]
+				is := p.w.Islands()[0]
 				old := is.Building(cmd.BuildingID).clone()
 				now := p.w.LastEvaluatedAt.UnixMilli()
 				transit := map[string]int64{}
@@ -1396,15 +1396,15 @@ func TestPropertyMoveRoundTrip(t *testing.T) {
 					continue
 				}
 				before := p.w.Clone()
-				b := p.w.Islands[0].Building(cmd.BuildingID)
+				b := p.w.Islands()[0].Building(cmd.BuildingID)
 				back := MoveBuilding{IslandID: "main", BuildingID: b.ID, X: b.X, Y: b.Y, Rotation: b.Rotation}
 				p.apply(cmd)
 				if err := ApplyWithLedger(p.w, p.c, back, p.l); err != nil {
 					p.fail("seed %d: move back %+v: %v", seed, back, err)
 				}
 				p.checkInvariants("after move back")
-				clearRegimes(before.Islands[0])
-				clearRegimes(p.w.Islands[0])
+				clearRegimes(before.Islands()[0])
+				clearRegimes(p.w.Islands()[0])
 				if x, y := encode(t, before), encode(t, p.w); !bytes.Equal(x, y) {
 					p.fail("seed %d: round trip %+v differs:\nbefore: %s\nafter:  %s", seed, cmd, x, y)
 				}
@@ -1514,7 +1514,7 @@ func abs(v int) int {
 // checkFields asserts the field invariants of the first island and
 // returns the number of inactive fields.
 func (p *propCase) checkFields(seed uint64) int {
-	is := p.w.Islands[0]
+	is := p.w.Islands()[0]
 	inactive := 0
 	for _, farm := range is.Buildings {
 		fd := p.c.BuildingByID[farm.Type]

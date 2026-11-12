@@ -29,6 +29,20 @@
         }
       }
     ],
+    "regions": [
+      {
+        "id": "old_coast",
+        "unlocked": true,
+        "seed": 0,
+        "passage_point": null,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 56,
+          "height": 40
+        }
+      }
+    ],
     "archipelago": {
       "seed": 0,
       "roll": 0,
@@ -44,6 +58,7 @@
     "islands": [
       {
         "id": "start",
+        "region_id": "old_coast",
         "name": "Start",
         "size_class": "",
         "scenic": false,
@@ -1449,6 +1464,20 @@
             }
           }
         ],
+        "regions": [
+          {
+            "id": "old_coast",
+            "unlocked": true,
+            "seed": 0,
+            "passage_point": null,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 56,
+              "height": 40
+            }
+          }
+        ],
         "archipelago": {
           "seed": 0,
           "roll": 0,
@@ -1464,6 +1493,7 @@
         "islands": [
           {
             "id": "start",
+            "region_id": "old_coast",
             "name": "Start",
             "size_class": "",
             "scenic": false,
@@ -2869,6 +2899,20 @@
             }
           }
         ],
+        "regions": [
+          {
+            "id": "old_coast",
+            "unlocked": true,
+            "seed": 0,
+            "passage_point": null,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 56,
+              "height": 40
+            }
+          }
+        ],
         "archipelago": {
           "seed": 0,
           "roll": 0,
@@ -2884,6 +2928,7 @@
         "islands": [
           {
             "id": "start",
+            "region_id": "old_coast",
             "name": "Start",
             "size_class": "",
             "scenic": false,
@@ -4289,6 +4334,20 @@
             }
           }
         ],
+        "regions": [
+          {
+            "id": "old_coast",
+            "unlocked": true,
+            "seed": 0,
+            "passage_point": null,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 56,
+              "height": 40
+            }
+          }
+        ],
         "archipelago": {
           "seed": 0,
           "roll": 0,
@@ -4304,6 +4363,7 @@
         "islands": [
           {
             "id": "start",
+            "region_id": "old_coast",
             "name": "Start",
             "size_class": "",
             "scenic": false,
@@ -5709,6 +5769,20 @@
             }
           }
         ],
+        "regions": [
+          {
+            "id": "old_coast",
+            "unlocked": true,
+            "seed": 0,
+            "passage_point": null,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 56,
+              "height": 40
+            }
+          }
+        ],
         "archipelago": {
           "seed": 0,
           "roll": 0,
@@ -5724,6 +5798,7 @@
         "islands": [
           {
             "id": "start",
+            "region_id": "old_coast",
             "name": "Start",
             "size_class": "",
             "scenic": false,
@@ -7129,6 +7204,20 @@
             }
           }
         ],
+        "regions": [
+          {
+            "id": "old_coast",
+            "unlocked": true,
+            "seed": 0,
+            "passage_point": null,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 56,
+              "height": 40
+            }
+          }
+        ],
         "archipelago": {
           "seed": 0,
           "roll": 0,
@@ -7144,6 +7233,7 @@
         "islands": [
           {
             "id": "start",
+            "region_id": "old_coast",
             "name": "Start",
             "size_class": "",
             "scenic": false,

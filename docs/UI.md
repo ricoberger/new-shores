@@ -15,6 +15,22 @@ UI shows the same numbers the server uses.
 
 ### World scene
 
+- **Regions (D-076, as built: shape only).** The world scene shows one
+  region's archipelago at a time: the renderer, the minimap and the map
+  overlay (labels, ship cards) read a view of the payload narrowed to the
+  current region (`display/regions.ts` `regionView`, the renderer's
+  `RegionSource`); panels (ships, routes, quests, warnings) and the top
+  bar's gold stay world-wide. The **region switcher** — one tab per
+  unlocked region under the top bar, the current one pressed, each with
+  its warning count — appears only once a world has more than one
+  unlocked region; with one region nothing changes on screen. The region
+  name is shown only in the switcher, not in the top bar (accepted
+  reading of D-076 §5: the one-region look stays unchanged). Switching
+  rebuilds the scene for the other archipelago and places the camera
+  anew. A ship on a passage between regions is on no map; the ship list
+  shows "between regions, arrives in m:ss". Warning entries carry their
+  island's region.
+
 - **Camera.** Zoom is the vertical orthographic half-extent in tiles:
   min 7 (a 2×2 footprint ≈ ⅓ of a 360 px phone width), default 18, max =
   whole archipelago fits (the fit uses the bounds' diagonal, so it does

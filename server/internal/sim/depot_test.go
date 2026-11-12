@@ -100,7 +100,7 @@ func TestDepotNextToTradingPostKeepsTheHarbourOpen(t *testing.T) {
 	}{{"beside", 10}, {"in-front", 5}, {"beside-far", 14}} {
 		t.Run(tc.name, func(t *testing.T) {
 			w := NewWorld(t0)
-			w.Islands = []*Island{islandFromRows("main", rows...)}
+			w.SetIslands(islandFromRows("main", rows...))
 			if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 4, Y: 16}, nil); err != nil {
 				t.Fatal(err)
 			}

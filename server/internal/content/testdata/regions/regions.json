@@ -1,0 +1,7 @@
+{
+  "regions": [
+    { "id": "old_coast", "prefix": "oc", "home": true, "gate": null },
+    { "id": "south", "prefix": "so", "home": false, "gate": "sawmill" }
+  ],
+  "passages": [{ "from": "old_coast", "to": "south", "minutes": 10 }]
+}

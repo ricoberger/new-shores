@@ -45,6 +45,16 @@ by timers. Monetisation is cosmetic only.
   own tiers, goods and architecture, linked to the home region by long trade
   routes (D-010, D-012). Colonial goods (sugar, tobacco, coffee, spices,
   indigo, silk) are reserved for them.
+- **Regions in one world (D-076):** every region is its own generated
+  archipelago with its own map; ships cross between regions on an
+  off-map **passage** with a fixed time. Gold, ships, routes, quests,
+  warnings and the away summary belong to the world; islands, population
+  and tiers to their region. The Old Coast is always the home region; a
+  later region opens at Patricians through the **Kontor** and an
+  expedition. As built: the world already has the region shape (island IDs
+  `oc-NN`, regions in the save and payload, a region switcher that
+  appears with a second region); the Kontor, the expedition and a second
+  region's content come with their own sessions.
 - **Tone:** relaxed, warm, optimistic; no slavery, no religious conflict, no
   real nations or historical figures.
 

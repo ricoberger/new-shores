@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -15,18 +16,18 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// TestSchemaMigrationsRegistered: schema 15 (D-071 plans) registers the
-// one migration 14 -> 15; envelopes of schema 1-13 (the game was not
+// TestSchemaMigrationsRegistered: schema 16 (D-076 regions) registers the
+// migrations 14 -> 15 and 15 -> 16; envelopes of schema 1-13 (the game was not
 // deployed), envelopes without a version and newer ones fail loudly with
 // ErrSchemaVersion.
 func TestSchemaMigrationsRegistered(t *testing.T) {
 	m := SchemaMigrations(catalogue(t))
-	if SchemaVersion != 15 || len(m) != 1 || m[14] == nil {
+	if SchemaVersion != 16 || len(m) != 2 || m[14] == nil || m[15] == nil {
 		t.Fatalf("SchemaVersion %d with %d migrations: add migration tests", SchemaVersion, len(m))
 	}
 	for _, raw := range []string{
 		`{"schema_version":0,"content_version":"x","world":{}}`,
-		`{"schema_version":16,"content_version":"x","world":{}}`,
+		`{"schema_version":17,"content_version":"x","world":{}}`,
 		`{"schema_version":13,"content_version":"old_coast-0.17.0","world":{}}`,
 		`{"schema_version":12,"content_version":"old_coast-0.16.0","world":{}}`,
 		`{"schema_version":11,"content_version":"old_coast-0.15.0","world":{}}`,
@@ -77,10 +78,10 @@ func TestOldSchemaFixturesFailToLoad(t *testing.T) {
 	}
 }
 
-// TestMigrate14to15: every committed schema-14 envelope (before the D-071
-// plans) decodes through the registered migration into a world without
-// plans that re-encodes as schema 15 with the same world JSON, and
-// advances and displays.
+// TestMigrate14to15: migrate14to15 leaves the world JSON of every
+// committed schema-14 envelope (before the D-071 plans) unchanged; through
+// the registered migrations (14 -> 15 -> 16) it decodes into a world
+// without plans that advances and displays.
 func TestMigrate14to15(t *testing.T) {
 	catalogues := map[string]*content.Catalogue{}
 	for _, c := range []*content.Catalogue{catalogue(t), shippedCatalogue(t)} {
@@ -113,18 +114,19 @@ func TestMigrate14to15(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			for _, is := range w.Islands {
+			for _, is := range w.Islands() {
 				if len(is.Plans) != 0 || len(is.PlannedRoads) != 0 {
 					t.Fatalf("island %s has plans after the migration", is.ID)
 				}
 			}
-			state, _, err := EncodeState(w, cv)
-			if err != nil {
+			var head struct {
+				World json.RawMessage `json:"world"`
+			}
+			if err := json.Unmarshal(data, &head); err != nil {
 				t.Fatal(err)
 			}
-			want := bytes.Replace(bytes.TrimSuffix(data, []byte("\n")), []byte(`"schema_version":14`), []byte(`"schema_version":15`), 1)
-			if !bytes.Equal(state, want) {
-				t.Fatal("the migrated world differs from the schema-14 world")
+			if out, err := migrate14to15(RawEnvelope{ContentVersion: cv, World: head.World}, &MigrationNotes{}); err != nil || !bytes.Equal(out.World, head.World) {
+				t.Fatalf("migrate14to15 changed the world (%v)", err)
 			}
 			end := w.LastEvaluatedAt.Add(time.Hour)
 			if _, err := Advance(w, c, end); err != nil {
@@ -267,4 +269,162 @@ func TestSchemaFixturesDecode(t *testing.T) {
 			}
 		})
 	}
+}
+
+// fixtureCatalogue returns the catalogue of a fixture's content version.
+func fixtureCatalogue(t *testing.T, data []byte) *content.Catalogue {
+	t.Helper()
+	for _, c := range []*content.Catalogue{catalogue(t), shippedCatalogue(t)} {
+		if bytes.Contains(data, []byte(`"content_version":"`+c.Region.Version+`"`)) {
+			return c
+		}
+	}
+	t.Fatal("no catalogue for the fixture's content version")
+	return nil
+}
+
+// TestMigrate15to16: every committed schema-15 envelope (before the D-076
+// regions) decodes through migrate15to16 with its terrain into a world
+// whose islands are the home region's, with region-prefixed generated
+// IDs, region_id on islands and ships; re-encoded it equals the schema-16
+// fixture of the same scenario (the current binary's encoding of the same
+// end state) but for the passage point, which a migrated world does not
+// know; it advances and displays.
+func TestMigrate15to16(t *testing.T) {
+	files, err := filepath.Glob(filepath.Join("testdata", "schema15_*.json"))
+	if err != nil || len(files) < 4 {
+		t.Fatalf("schema 15 fixtures %v (%v)", files, err)
+	}
+	for _, f := range files {
+		t.Run(filepath.Base(f), func(t *testing.T) {
+			data, err := os.ReadFile(f) // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			terrain, err := os.ReadFile(strings.TrimSuffix(f, ".json") + ".terrain.gz") // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			c := fixtureCatalogue(t, data)
+			w, cv, _, err := DecodeState(data, terrain, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(w.Regions) != len(c.Regions) || w.Regions[0].ID != c.Regions[0].ID || !w.Regions[0].Unlocked || w.Regions[0].PassagePoint != nil {
+				t.Fatalf("regions %+v", w.Regions)
+			}
+			for _, is := range w.Islands() {
+				if is.RegionID != c.Regions[0].ID || (w.Seed != 0 && !strings.HasPrefix(is.ID, c.Region.Prefix+"-")) {
+					t.Fatalf("island %s in region %q", is.ID, is.RegionID)
+				}
+			}
+			for _, s := range w.Ships {
+				if s.RegionID != c.Regions[0].ID {
+					t.Fatalf("ship %d in region %q", s.ID, s.RegionID)
+				}
+			}
+			state, terrain16, err := EncodeState(w, cv)
+			if err != nil {
+				t.Fatal(err)
+			}
+			base := strings.Replace(strings.TrimSuffix(f, ".json"), "schema15_", "schema16_", 1)
+			want, err := os.ReadFile(base + ".json") // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			wantTerrain, err := os.ReadFile(base + ".terrain.gz") // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			want = regexp.MustCompile(`"passage_point":\{"x":-?\d+,"y":-?\d+\},`).ReplaceAll(bytes.TrimSuffix(want, []byte("\n")), nil)
+			if !bytes.Equal(state, want) || !bytes.Equal(terrain16, wantTerrain) {
+				t.Fatal("the migrated world differs from the schema-16 fixture")
+			}
+			end := w.LastEvaluatedAt.Add(time.Hour)
+			if _, err := Advance(w, c, end); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := Display(w, c, end); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+// TestMigrate15to16Renames: the rename of generated island IDs and its
+// limits — hand-made IDs stay, an ID already prefixed stays, every
+// occurrence as a JSON string (ships, legs, routes) follows.
+func TestMigrate15to16Renames(t *testing.T) {
+	legacy := "isle" + "-" // the pre-D-076 form (grep gate)
+	for id, want := range map[string]string{legacy + "01": "oc-01", legacy + "13": "oc-13", "oc-02": "oc-02", "main": "main", "wild-x": "wild-x", "a-b-1": "a-b-1", "-01": "-01", "Old-01": "Old-01"} {
+		if got := prefixedIslandID(id, "oc"); got != want {
+			t.Errorf("prefixedIslandID(%q) = %q, want %q", id, got, want)
+		}
+	}
+	raw := strings.ReplaceAll(`{"seed":7,"islands":[{"id":"L-01","name":"L-02 bay"},{"id":"L-02"}],"ships":[{"id":1,"island_id":"L-02","leg":{"from_island":"L-01","to_island":"L-02"}}],"routes":[{"id":1,"stops":[{"island_id":"L-01"}]}]}`, "L-", legacy)
+	out, err := migrate15to16(shippedCatalogue(t))(RawEnvelope{World: json.RawMessage(raw)}, &MigrationNotes{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `{"regions":[{"id":"old_coast","islands":[{"id":"oc-01","name":"` + legacy + `02 bay","region_id":"old_coast"},{"id":"oc-02","region_id":"old_coast"}],"seed":7,"unlocked":true}],"routes":[{"id":1,"stops":[{"island_id":"oc-01"}]}],"seed":7,"ships":[{"id":1,"island_id":"oc-02","leg":{"from_island":"oc-01","to_island":"oc-02"},"region_id":"old_coast"}]}`
+	if string(out.World) != want {
+		t.Fatalf("migrated\n%s\nwant\n%s", out.World, want)
+	}
+	if _, err := migrate15to16(nil)(RawEnvelope{World: json.RawMessage(raw)}, &MigrationNotes{}); err == nil {
+		t.Fatal("migrated without content regions")
+	}
+}
+
+// TestMigrate15to16Snapshots: the owner's dev snapshots in .snapshots/
+// (D-066, git-ignored; skipped when there are none) migrate from schema 15
+// with the shipped content, keep every island under its prefixed ID and
+// advance and display. Their content version may be older than the
+// catalogue's; the dev server rejects that with 409 (D-066), the
+// migration itself does not depend on it.
+func TestMigrate15to16Snapshots(t *testing.T) {
+	files, _ := filepath.Glob(filepath.Join(repoRoot(t), ".snapshots", "*.json"))
+	if len(files) == 0 {
+		t.Skip("no snapshots in .snapshots/")
+	}
+	c := shippedCatalogue(t)
+	for _, f := range files {
+		t.Run(filepath.Base(f), func(t *testing.T) {
+			data, err := os.ReadFile(f) // #nosec G304 -- local snapshot path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !bytes.Contains(data[:min(len(data), 64)], []byte(`"schema_version":15`)) {
+				t.Skip("not a schema-15 snapshot")
+			}
+			w, _, _, err := Decode(data, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(w.Regions) != 1 || len(w.Islands()) == 0 {
+				t.Fatalf("%d regions, %d islands", len(w.Regions), len(w.Islands()))
+			}
+			for _, is := range w.Islands() {
+				if !strings.HasPrefix(is.ID, "oc-") || is.RegionID != "old_coast" || len(is.Tiles) != is.Width*is.Height {
+					t.Fatalf("island %s region %q", is.ID, is.RegionID)
+				}
+			}
+			if bytes.Contains(must(Encode(w, "x")), []byte(`"isle`+`-`)) {
+				t.Fatal("an old island ID survived the migration")
+			}
+			end := w.LastEvaluatedAt.Add(time.Minute)
+			if _, err := Advance(w, c, end); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := Display(w, c, end); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func must(data []byte, err error) []byte {
+	if err != nil {
+		panic(err)
+	}
+	return data
 }

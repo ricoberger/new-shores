@@ -16,7 +16,7 @@ import (
 func d058World(t *testing.T, c *content.Catalogue) *World {
 	t.Helper()
 	w := testWorld(t, c)
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	for y := 5; y <= 8; y++ {
 		is.Tiles[is.index(10, y)].Terrain = content.TerrainRiver
 	}
@@ -46,7 +46,7 @@ func TestTerrainD058RoundTrip(t *testing.T) {
 	if err != nil || !bytes.Equal(encode(t, got), full) {
 		t.Fatalf("round trip: %v", err)
 	}
-	is := got.Islands[0]
+	is := got.Islands()[0]
 	if is.Tile(10, 6).Terrain != content.TerrainRiver || is.Tile(19, 0).Terrain != content.TerrainIslet ||
 		is.Tile(18, 1).Terrain != content.TerrainCliff || is.Tile(8, 5).Level != 1 || is.Tile(2, 5).Level != 0 || is.Tile(18, 2).Height != 3 {
 		t.Errorf("decoded tiles lost the D-058 terrain")
@@ -56,7 +56,7 @@ func TestTerrainD058RoundTrip(t *testing.T) {
 	if doc.Islands[0].Levels != "" || doc.Islands[0].Heights != "" {
 		t.Errorf("a flat world writes levels %q heights %q", doc.Islands[0].Levels, doc.Islands[0].Heights)
 	}
-	w.Islands[0].Tiles[0].Level = 10
+	w.Islands()[0].Tiles[0].Level = 10
 	if _, _, err := EncodeState(w, "test"); err == nil {
 		t.Error("level 10 encoded")
 	}
@@ -94,7 +94,7 @@ func TestTerrainD058Rules(t *testing.T) {
 		want error
 	}{{2, nil}, {3, ErrTerrain}} {
 		w := d058World(t, c)
-		is := w.Islands[0]
+		is := w.Islands()[0]
 		for x := 10; x < 10+tt.wide; x++ {
 			for y := 5; y <= 8; y++ {
 				is.Tiles[is.index(x, y)].Terrain = content.TerrainRiver

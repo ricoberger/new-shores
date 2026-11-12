@@ -20,7 +20,7 @@ func TestReferenceGamesCollectorReach(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			r := replay(t, name)
 			warehouses := 0
-			for _, is := range r.w.Islands {
+			for _, is := range r.w.Islands() {
 				var collectors []*sim.Building
 				for _, b := range is.Buildings {
 					if def := r.c.BuildingByID[b.Type]; def != nil && def.Collector() {

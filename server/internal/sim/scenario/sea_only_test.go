@@ -26,10 +26,10 @@ func landTile(islands []*sim.Island, x, y int) bool {
 // every 1/8 tile along the ship's centre line (tile centres).
 func seaOnly(w *sim.World, seen map[string]bool) error {
 	for _, s := range w.Ships {
-		if p := s.AtSea; p != nil && landTile(w.Islands, p.X, p.Y) {
+		if p := s.AtSea; p != nil && landTile(w.Islands(), p.X, p.Y) {
 			return fmt.Errorf("ship %d at sea on land at %v", s.ID, *p)
 		}
-		if p := s.Offshore; p != nil && landTile(w.Islands, p.X, p.Y) {
+		if p := s.Offshore; p != nil && landTile(w.Islands(), p.X, p.Y) {
 			return fmt.Errorf("ship %d idle at island %s on land at %v", s.ID, s.IslandID, *p)
 		}
 		if s.Leg == nil || len(s.Leg.Path) == 0 {
@@ -47,7 +47,7 @@ func seaOnly(w *sim.World, seen map[string]bool) error {
 			for k := 0; k <= n; k++ {
 				fx := float64(p.X) + 0.5 + float64(q.X-p.X)*float64(k)/float64(n)
 				fy := float64(p.Y) + 0.5 + float64(q.Y-p.Y)*float64(k)/float64(n)
-				if landTile(w.Islands, int(math.Floor(fx)), int(math.Floor(fy))) {
+				if landTile(w.Islands(), int(math.Floor(fx)), int(math.Floor(fy))) {
 					return fmt.Errorf("ship %d leg %s→%s path %v on land at (%.2f,%.2f)", s.ID, s.Leg.FromIsland, s.Leg.ToIsland, path, fx, fy)
 				}
 			}
@@ -104,7 +104,7 @@ func TestSeaOnly(t *testing.T) {
 			}
 			// Every leg between the islands with a Trading Post at the end.
 			var ports []*sim.Island
-			for _, is := range r.w.Islands {
+			for _, is := range r.w.Islands() {
 				for _, b := range is.Buildings {
 					if b.Berths > 0 {
 						ports = append(ports, is)
@@ -112,7 +112,7 @@ func TestSeaOnly(t *testing.T) {
 					}
 				}
 			}
-			probe := &sim.World{Islands: r.w.Islands}
+			probe := &sim.World{Regions: r.w.Regions}
 			for _, from := range ports {
 				for _, to := range ports {
 					if from == to {

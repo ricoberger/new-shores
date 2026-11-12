@@ -793,12 +793,12 @@ func TestSeedWorkforceBounds(t *testing.T) {
 		}
 	}
 	w, err := build(strconv.FormatInt(limit, 10))
-	if err != nil || w.Islands[0].WorkforceGrant["settlers"] != limit*1000 {
+	if err != nil || w.Islands()[0].WorkforceGrant["settlers"] != limit*1000 {
 		t.Fatalf("largest grant: %v %v", err, w)
 	}
 	// A further grant that would overflow is rejected and changes nothing.
 	before, _ := sim.Encode(w, "x")
-	if err := sim.GrantWorkforce(w, c, w.Islands[0].ID, "settlers", 1000*1000); !errors.Is(err, sim.ErrInvalidCommand) {
+	if err := sim.GrantWorkforce(w, c, w.Islands()[0].ID, "settlers", 1000*1000); !errors.Is(err, sim.ErrInvalidCommand) {
 		t.Errorf("overflowing grant: %v", err)
 	}
 	if after, _ := sim.Encode(w, "x"); !bytes.Equal(before, after) {
@@ -808,8 +808,8 @@ func TestSeedWorkforceBounds(t *testing.T) {
 	if ds, err := sim.Display(w, c, w.LastEvaluatedAt); err != nil || ds.Islands[0].Workforce["settlers"].FactorPermille != 1000 {
 		t.Errorf("display: %v %+v", err, ds.Islands[0].Workforce)
 	}
-	if w, err := build("0"); err != nil || len(w.Islands[0].WorkforceGrant) != 0 {
-		t.Errorf("zero grant: %v %v", err, w.Islands[0].WorkforceGrant)
+	if w, err := build("0"); err != nil || len(w.Islands()[0].WorkforceGrant) != 0 {
+		t.Errorf("zero grant: %v %v", err, w.Islands()[0].WorkforceGrant)
 	}
 }
 

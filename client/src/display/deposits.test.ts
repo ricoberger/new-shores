@@ -24,7 +24,7 @@ describe("deposit highlight (UI.md §3)", () => {
   });
 
   it("tints the tiles of the kind's free slots: a building on one tile of a slot takes the whole slot", () => {
-    const is = island("isle-02");
+    const is = island("oc-02");
     expect(depositTiles(is, "clay", defs)).toHaveLength(4);
     expect(freeDepositSlots(is, "clay", defs)).toHaveLength(2);
     expect(depositTiles(is, "gold", defs)).toEqual([]);
@@ -38,14 +38,14 @@ describe("deposit highlight (UI.md §3)", () => {
   });
 
   it("puts the deposit's icon and slot count on the island labels with it, only while the tool is on", () => {
-    expect(depositCount(island("isle-10"), "iron")).toBe(2);
-    expect(depositCount(island("isle-10"), null)).toBe(0);
+    expect(depositCount(island("oc-10"), "iron")).toBe(2);
+    expect(depositCount(island("oc-10"), null)).toBe(0);
     const render = (deposit: string | null) =>
       renderToStaticMarkup(createElement(WorldOverlay, { renderer: null, model: base, selectedShip: null, nowMs: 0, onIsland: () => {}, deposit }));
     const on = render("iron");
-    expect(on).toContain('data-testid="island-label-deposit-isle-10"');
-    expect(on).toContain('data-testid="island-label-deposit-isle-02"');
-    expect(on).not.toContain('data-testid="island-label-deposit-isle-03"');
+    expect(on).toContain('data-testid="island-label-deposit-oc-10"');
+    expect(on).toContain('data-testid="island-label-deposit-oc-02"');
+    expect(on).not.toContain('data-testid="island-label-deposit-oc-03"');
     expect(render(null)).not.toContain("island-label-deposit-");
   });
 });

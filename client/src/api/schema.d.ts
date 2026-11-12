@@ -473,6 +473,8 @@ export interface components {
          *       Trading Post of an island with other buildings; roads may stay), `not_connected`
          *       (a shipyard without a road to the Trading Post or a Warehouse
          *       cannot order),
+         *       `no_passage` (a leg or route between two regions: no passage
+         *       leg exists yet, D-076),
          *       `quest_not_completed`, `quest_already_claimed` (rewards are
          *       credited once), `reroll_not_allowed` (`reroll_archipelago` after
          *       an island was settled, while a ship is under way, or on a world
@@ -552,7 +554,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -1303,7 +1305,8 @@ export interface components {
          *     like `found_island`'s (`island_already_settled`, `invalid_command`,
          *     `unknown_building`, `tier_locked`, `out_of_bounds`, `not_on_water`,
          *     `needs_low_shore`, `terrain`, ...). Errors: `ship_not_found`, `ship_not_idle`,
-         *     `route_invalid` (unknown destination or the ship's own island).
+         *     `route_invalid` (unknown destination or the ship's own island),
+         *     `no_passage` (a destination in another region, D-076).
          */
         SailShipCommand: {
             /**
@@ -1430,6 +1433,8 @@ export interface components {
             upkeep_rate_per_min: number;
             /** @description Tiers in progression order. */
             tiers: components["schemas"]["TierDisplay"][];
+            /** @description The world's regions in content order (`content/regions.json`), the home region first (D-076). Islands, ships and route stops name their region; island and ship positions are region coordinates. */
+            regions: components["schemas"]["RegionDisplay"][];
             archipelago: components["schemas"]["ArchipelagoDisplay"];
             islands: components["schemas"]["IslandDisplay"][];
             /** @description Ships by ascending ID. */
@@ -1568,6 +1573,8 @@ export interface components {
         };
         AwayIsland: {
             id: string;
+            /** @description The island's region (D-076 §5); absent in a summary stored before the regions. */
+            region_id?: string;
             /** @description Every good with a flow during the interval or stock at `to`. */
             goods: {
                 [key: string]: components["schemas"]["AwayGood"];
@@ -1605,6 +1612,8 @@ export interface components {
         AwayUnpaid: {
             /** @description Island of the building or ship (empty for a ship at sea). */
             island_id: string;
+            /** @description Region of the island or ship (D-076 §5); absent in a summary stored before the regions. */
+            region_id?: string;
             /**
              * Format: int64
              * @description Building ID (absent for a ship).
@@ -1684,6 +1693,8 @@ export interface components {
             state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map";
             /** @description Island where the ship is; empty while travelling or at sea. */
             island_id: string;
+            /** @description Region whose map the ship is on — its island's, its leg's destination's or, at sea, its own (D-076); null on a passage leg between regions (`leg.passage`), when the ship is "between regions". */
+            region_id: string | null;
             /** @description Archipelago position of an idle or anchored ship at sea or at an island without berths (the start ship of a new world, D-051; a founding ship before its Trading Post, the end of the leg that brought it, or the harbour point of the Trading Post demolished under it; `island_id` stays set there); null at an island with berths or on a leg. */
             position: components["schemas"]["SeaPosition"] | null;
             /**
@@ -1739,6 +1750,8 @@ export interface components {
             arrive_at: string;
             /** @description The voyage around land (D-058 §5, archipelago tiles) — the origin's harbour (or sea position), the waypoints, the destination's harbour (a Trading Post's water edge, else the shore nearest the other end); its length sets the travel time. Absent on legs from before sea routing. */
             path?: components["schemas"]["SeaPosition"][];
+            /** @description An off-map leg between two regions (D-076 §1) — no path, fixed passage time; absent otherwise. None exists while the content lists one region. */
+            passage?: boolean;
         };
         CargoDisplay: {
             good: string;
@@ -1785,6 +1798,8 @@ export interface components {
         };
         RouteStopDisplay: {
             island_id: string;
+            /** @description The stop island's region (D-076). */
+            region_id: string;
             load: components["schemas"]["LoadRule"][];
             unload: components["schemas"]["UnloadRule"][];
         };
@@ -1833,20 +1848,41 @@ export interface components {
             generator_version: number;
             /** @description `reroll_archipelago` is allowed: a generated archipelago, no island settled, no ship under way. */
             rerollable: boolean;
-            /** @description Bounding box of the islands (archipelago tiles). */
-            bounds: {
-                /** @description Left column (archipelago tiles). */
-                x: number;
-                /** @description Top row (archipelago tiles). */
-                y: number;
-                /** @description Columns (archipelago tiles). */
-                width: number;
-                /** @description Rows (archipelago tiles). */
-                height: number;
-            };
+            /** @description Bounding box of the home region's islands (archipelago tiles). */
+            bounds: components["schemas"]["BoundsDisplay"];
+        };
+        /** @description A rectangle (archipelago tiles of a region). */
+        BoundsDisplay: {
+            /** @description Left column (archipelago tiles). */
+            x: number;
+            /** @description Top row (archipelago tiles). */
+            y: number;
+            /** @description Columns (archipelago tiles). */
+            width: number;
+            /** @description Rows (archipelago tiles). */
+            height: number;
+        };
+        /** @description One region of the world (D-076, MECHANICS §9.4) — its own archipelago and map. */
+        RegionDisplay: {
+            /** @description Content region ID (`regions.json`); "" for a hand-made world. */
+            id: string;
+            /** @description The home region always; a later region once it is opened. */
+            unlocked: boolean;
+            /**
+             * Format: int64
+             * @description The region's archipelago seed (world seed + region index); 0 for a hand-made world.
+             */
+            seed: number;
+            /** @description Where a ship from a passage enters the region's map (region tiles; the generator's start position); null when unknown (a world migrated from before the regions). */
+            passage_point: components["schemas"]["SeaPosition"] | null;
+            /** @description Bounding box of the region's islands (region tiles); zero without islands. */
+            bounds: components["schemas"]["BoundsDisplay"];
         };
         IslandDisplay: {
+            /** @description Island ID, unique in the world, with its region's prefix (`oc-01`, D-076). */
             id: string;
+            /** @description The island's region (D-076). */
+            region_id: string;
             /** @description Display name (may be empty); generated islands draw it from the region's word list, `rename_island` renames a settled one. */
             name: string;
             /** @description Content size class of a generated island (`islands.json`), "" for a hand-made one. */
@@ -2315,6 +2351,16 @@ export interface components {
                 name: string;
             }[];
             region: components["schemas"]["ContentRegion"];
+            /**
+             * @description The regions of `regions.json` in order, the home region first
+             *     (D-076); top level only. The other fields of the payload are the
+             *     home region's catalogue (`goods` holds every region's goods: one
+             *     ID space); a later region's own catalogue is its entry's
+             *     `catalogue`.
+             */
+            regions?: components["schemas"]["ContentRegionEntry"][];
+            /** @description Passages between regions (D-076 §1; off-map legs with a fixed time in both directions); top level only, empty with one region. */
+            passages?: components["schemas"]["ContentPassage"][];
             /** @description Quests in content order (a quest is active when its prerequisites are completed). */
             quests: components["schemas"]["ContentQuest"][];
             /** @description Tiers in progression order. */
@@ -2455,6 +2501,27 @@ export interface components {
              * @description Upkeep (milli-gold per minute).
              */
             upkeep_per_min: number;
+        };
+        /** @description One region of `regions.json` (D-076). */
+        ContentRegionEntry: {
+            id: string;
+            /** @description Island ID prefix of the region's archipelago (`<prefix>-NN`, e.g. `oc-01`). */
+            prefix: string;
+            /** @description The home region (every world starts there; the first entry). */
+            home: boolean;
+            /** @description Building that opens the region (D-076 §2); null for the home region. */
+            gate: string | null;
+            /** @description The region's own catalogue (without `regions` and `passages`); null for the home region, whose catalogue is the top level. */
+            catalogue: components["schemas"]["Content"] | null;
+        };
+        ContentPassage: {
+            from: string;
+            to: string;
+            /**
+             * Format: int64
+             * @description Passage time (milliseconds at scale 1), both directions.
+             */
+            ms: number;
         };
         ContentRegion: {
             id: string;

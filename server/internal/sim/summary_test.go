@@ -66,7 +66,7 @@ func TestAwaySummaryContents(t *testing.T) {
 	for _, good := range []string{"fish", "planks", "wood"} {
 		g, f := goods[good], l.Flow("main", good)
 		if g.Produced != FineToMilli(f.Produced) || g.Consumed != FineToMilli(f.Consumed) || g.Lost != FineToMilli(f.Lost) ||
-			g.StockAfter != roundFine(w.Islands[0].Inventory.fine(good)) || g.Capacity != 300_000 {
+			g.StockAfter != roundFine(w.Islands()[0].Inventory.fine(good)) || g.Capacity != 300_000 {
 			t.Errorf("%s = %+v, ledger %+v", good, g, f)
 		}
 	}
@@ -167,7 +167,7 @@ func TestAwaySummaryEvents(t *testing.T) {
 		t.Errorf("arrivals %d %v, boundaries %d", sum.ShipsArrived, sum.Arrivals, countKind(bs, BoundaryShipArrived))
 	}
 	unpaid := 0
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for _, b := range is.Buildings {
 			if b.PausedReason == PausedReasonUnpaid {
 				unpaid++

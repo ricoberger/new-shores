@@ -86,6 +86,7 @@ new-shores/
 │       ├── planned/            footprints of IDs content does not define yet
 │       └── tests/              `make assets-test`
 ├── content/
+│   ├── regions.json            the regions of a world in order, the home region first, passages (D-076)
 │   ├── schema/                 JSON Schema per entity
 │   └── old_coast/              tiers, goods, buildings, needs, ships, quests, islands, decorations
 ├── deploy/                     docker-compose.yaml, Dockerfiles, later Helm/Kustomize
@@ -120,8 +121,11 @@ gone).
 
 ### 4.1 Simulation package (`internal/sim`)
 
-- `type World struct` — islands, buildings, inventories, houses, ships, routes,
-  gold, rng state, `LastEvaluatedAt`. Serialises to the JSONB column via a
+- `type World struct` — regions (D-076: `World.Regions[]`, each with its
+  ID, seed, unlocked flag, passage point and islands; `World.Islands()`
+  lists the islands of all regions, so `Advance` sees one list),
+  buildings, inventories, houses, ships, routes, gold, rng state,
+  `LastEvaluatedAt`. Serialises to the JSONB column via a
   versioned envelope `{schema_version, content_version, world}`.
 - `func Advance(w *World, c *content.Catalogue, to time.Time) ([]Boundary, error)`
   — pure; returns the boundary list for debugging/UI; `to` before
@@ -195,16 +199,20 @@ return Display(w, now)
   `failed` events do not hold a world back.
 - Worlds are unique per `(player_id, region)`; world IDs never come from
   the client — the session resolves the player and the region picks the
-  world. The world row is stored as the sim envelope `{schema_version,
+  world. The column holds the home region; the world holds every region
+  of the content (D-076), so a later region adds no row. The world row is stored as the sim envelope `{schema_version,
   content_version, world}`; decoding runs the sim's pure migration hook
   and fails with `ErrSchemaVersion` (HTTP 500, own code) when no migration
   is registered for an older version — never a silent reset. Migrations
   are pure functions over the raw envelope that may take the content
   catalogue and return **notes** (e.g. the 2→3 fields migration reports
   farms whose efficiency could not be preserved); the store logs the
-  notes, the sim never does. Current schema: 8; the only registered
-  migration is 7→8 (default ship names, D-055) — older versions were
-  bumped without a migration (local databases are recreated). **Rule
+  notes, the sim never does. Current schema: 16; the registered
+  migrations are 14→15 (plans, D-071) and 15→16 (regions, D-076: the
+  islands move into `regions[0]`, generated island IDs get the region
+  prefix, islands and ships get `region_id`; the separately stored
+  terrain is matched by the IDs' digits) — older versions were bumped
+  without a migration (local databases are recreated). **Rule
   while undeployed:** a trivial additive migration (a defaulted field)
   may be written when it is cheaper than a reset; structural changes
   (envelope layout, tiles, islands) bump the schema without a migration
@@ -319,14 +327,21 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `settled`, `position`, `quests`, `away_summary`, `insolvency`,
   per-island `bounds`, `size_class`, `scenic`, fertilities, deposit slots
   and a 1:4 terrain `mask` (PR #26; tile rows are **not** in the world
-  payload); `GET /world/islands/{id}/tiles?v=<seed>-<roll>` → the full
+  payload), and since D-076 the world's `regions[]` (`id`, `unlocked`,
+  `seed`, `passage_point`, `bounds`; content order, the home region
+  first) with `region_id` on every island, ship (`null` on a passage leg
+  between regions, `leg.passage`), route stop and away-summary entry
+  (`archipelago` stays the home region's); `GET /world/islands/{id}/tiles?v=<seed>-<roll>` → the full
   rows, `ETag` = sha256(seed, roll, island id), `Cache-Control: private,
   max-age=31536000, immutable`, 304 on `If-None-Match`, `no-store` when
   `v` names another roll; `GET /content[?lang=<code>]` → catalogue in the same fixed-point units
   as the display payload, with its text fields in the requested language
   (D-061: `lang` or `Accept-Language`, an unknown `lang` is 400; the
   payload names `language`, `languages`, `island_names` and carries
-  `Content-Language`); `GET /healthz`.
+  `Content-Language`; its fields are the home region's catalogue with
+  every region's goods, `regions[]` lists `regions.json` — `id`,
+  `prefix`, `home`, `gate` and each later region's own `catalogue` — and
+  `passages[]` the passage times); `GET /healthz`.
 - The sea-route grid that the display's route and ship paths search
   (D-058 §5) is built once per archipelago and cached in the API layer
   (`internal/api/seagrid.go`), keyed by seed, roll, generator version and
@@ -339,7 +354,9 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `ship_not_found`, `route_not_found`), state conflicts 409 (e.g.
   `shipyard_busy`, `ship_not_idle`, `route_in_use`, `island_not_settled`,
   `cargo_insufficient`, `last_warehouse`, `needs_low_shore` — a
-  water-edge building over a terrace, D-075 §1), internal-only sim
+  water-edge building over a terrace, D-075 §1; `no_passage` — a voyage
+  or route between two regions while no passage leg exists, D-076),
+  internal-only sim
   errors 500.
 - Implemented (M2): `POST /auth/guest`, `/auth/register`, `/auth/login`,
   `/auth/logout`, `GET /auth/me`, `PATCH /auth/me {language}` (D-061), `POST /auth/verify-email`,

@@ -96,7 +96,7 @@ func TestDevSnapshotRoundTrip(t *testing.T) {
 	}
 	// A plan (D-071) is part of the snapshot.
 	ts.mutateWorld(func(w *sim.World) {
-		is := w.Islands[0]
+		is := w.Islands()[0]
 		for i := range is.Width * is.Height {
 			if sim.Apply(w, catalogue(t), sim.PlaceBuilding{IslandID: is.ID, Type: "house_settlers", X: i % is.Width, Y: i / is.Width, Planned: true}) == nil {
 				return
@@ -294,7 +294,7 @@ func TestResumeAtShiftsEveryTime(t *testing.T) {
 			// Fields the fixtures leave unset.
 			base := testStart.UnixMilli()
 			w.LastTrialMs = base - 1000
-			w.Islands[0].Buildings[0].PausedAtMs = base - 2000
+			w.Islands()[0].Buildings[0].PausedAtMs = base - 2000
 			for _, s := range w.Ships {
 				s.PausedAtMs, s.QueuedAtMs, s.BerthUntilMs = base-3000, base-4000, base+5000
 			}

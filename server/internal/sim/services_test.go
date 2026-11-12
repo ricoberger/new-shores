@@ -115,10 +115,10 @@ func TestUpgradeBuildingServiceLevels(t *testing.T) {
 	w.Gold = 99_999
 	expectApplyErr(t, w, c, cmd, ErrInsufficientGold)
 	w.Gold = gold
-	planks := w.Islands[0].Inventory.Stock["planks"]
+	planks := w.Islands()[0].Inventory.Stock["planks"]
 	mustApply(t, w, c, cmd)
-	if b := w.Islands[0].Building(m); b.Level != 2 || w.Gold != gold-100_000 || w.Islands[0].Inventory.Stock["planks"] != planks-5_000 {
-		t.Errorf("after upgrade: level %d gold %d planks %d", b.Level, w.Gold, w.Islands[0].Inventory.Stock["planks"])
+	if b := w.Islands()[0].Building(m); b.Level != 2 || w.Gold != gold-100_000 || w.Islands()[0].Inventory.Stock["planks"] != planks-5_000 {
+		t.Errorf("after upgrade: level %d gold %d planks %d", b.Level, w.Gold, w.Islands()[0].Inventory.Stock["planks"])
 	}
 	if n := serviceNeed(t, w, c, h); n.FulfilmentPermille != 600 || n.Reason != NeedOK {
 		t.Errorf("level 2 (radius 16) at distance 14: %+v", n)
@@ -129,9 +129,9 @@ func TestUpgradeBuildingServiceLevels(t *testing.T) {
 	expectApplyErr(t, w, c, cmd, ErrUpgradeUnavailable)
 
 	// Demolishing refunds the placement and the paid level (D-019).
-	planks = w.Islands[0].Inventory.Stock["planks"]
+	planks = w.Islands()[0].Inventory.Stock["planks"]
 	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: m})
-	if got, want := w.Islands[0].Inventory.Stock["planks"]-planks, refundAmount(15_000)+refundAmount(5_000); got != want {
+	if got, want := w.Islands()[0].Inventory.Stock["planks"]-planks, refundAmount(15_000)+refundAmount(5_000); got != want {
 		t.Errorf("refund %d, want %d", got, want)
 	}
 
@@ -145,7 +145,7 @@ func TestUpgradeBuildingServiceLevels(t *testing.T) {
 	w2 := w.Clone()
 	err1 := Apply(w, c, UpgradeBuilding{IslandID: "main", BuildingID: 1})
 	err2 := Apply(w2, c, UpgradeTradingPost{IslandID: "main", BuildingID: 1})
-	if (err1 == nil) != (err2 == nil) || w.Islands[0].Building(1).Level != w2.Islands[0].Building(1).Level || w.Gold != w2.Gold {
+	if (err1 == nil) != (err2 == nil) || w.Islands()[0].Building(1).Level != w2.Islands()[0].Building(1).Level || w.Gold != w2.Gold {
 		t.Errorf("upgrade_building on the Trading Post: %v vs %v", err1, err2)
 	}
 }

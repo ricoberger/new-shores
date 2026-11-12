@@ -72,7 +72,7 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 			continue
 		}
 		perClass[sc.ID]++
-		if is.ID != IslandID(i) {
+		if is.ID != IslandID(c.Region.Prefix, i) {
 			fail("island %d has ID %s", i, is.ID)
 		}
 		// Straits: land to land, skerries included (D-058).
@@ -541,7 +541,8 @@ func landWithin(islands []*sim.Island, p sim.Pos, d int) bool {
 func checkTerrainRoundTrip(t *testing.T, c *content.Catalogue, a *Archipelago) {
 	t.Helper()
 	w := sim.NewWorld(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC))
-	w.Seed, w.Islands = a.Seed, a.Islands
+	w.Seed = a.Seed
+	w.SetIslands(a.Islands...)
 	state, terrain, err := sim.EncodeState(w, c.Region.Version)
 	if err != nil {
 		t.Fatalf("seed %d: encode state: %v", a.Seed, err)

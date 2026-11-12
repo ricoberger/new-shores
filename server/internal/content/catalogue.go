@@ -64,9 +64,16 @@ const (
 
 // Catalogue is the validated content of one region. It must be treated as
 // read-only after Load returns; the simulation shares one Catalogue between
-// all worlds.
+// all worlds. The catalogue Load returns is the home region's (D-076):
+// its Goods are the goods of every region (one ID space), Regions lists
+// every region with its own catalogue (the home entry's is this one).
 type Catalogue struct {
 	Region Region
+	// Regions are the regions of the world in regions.json order, the
+	// home region first (D-076); set on the catalogue Load returns only.
+	Regions []*RegionEntry
+	// Passages are the off-map legs between regions (regions.json).
+	Passages []Passage
 
 	// Tiers in progression order (array order of tiers.json).
 	Tiers     []*Tier
@@ -172,7 +179,10 @@ type Start struct {
 // Region holds the region identity, its content version and the
 // region-wide rule constants.
 type Region struct {
-	ID      string
+	ID string
+	// Prefix is the island ID prefix of the region's generated
+	// archipelago (<prefix>-NN, regions.json, D-076).
+	Prefix  string
 	Name    string
 	Version string
 	Rules   Rules

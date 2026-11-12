@@ -26,10 +26,13 @@ import (
 // and version 14 the collector reach (D-069: Building.OutOfReach, hub
 // upkeep per level, content old_coast-0.18.0), and version 15 the plans
 // (D-071: Island.Plans, Island.PlannedRoads; migrated from 14 unchanged,
-// a schema-14 world has no plans). Versions 1-13 have no migration path
+// a schema-14 world has no plans), and version 16 the regions (D-076:
+// World.Regions with the islands per region, Island.RegionID,
+// Ship.RegionID, Leg.Passage; generated island IDs region-prefixed,
+// migrated from 15). Versions 1-13 have no migration path
 // (the game was not deployed; a fresh database is needed: make down
 // VOLUMES=1 && make up).
-const SchemaVersion = 15
+const SchemaVersion = 16
 
 // Envelope is the versioned persistence format of a world
 // (docs/ARCHITECTURE.md §4.1).

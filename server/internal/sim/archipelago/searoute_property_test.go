@@ -101,9 +101,9 @@ func TestSeaRouteNeverCrossesLand(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		w.SetSeaGrid(sim.BuildSeaGrid(w.Islands))
+		w.SetSeaGrid(sim.BuildSeaGrid(w.Islands()))
 		var ports []*sim.Island
-		for _, is := range w.Islands {
+		for _, is := range w.Islands() {
 			if sc := c.Islands.SizeClassByID[is.SizeClass]; sc == nil || !sc.Scenic {
 				ports = append(ports, is)
 			}
@@ -111,7 +111,7 @@ func TestSeaRouteNeverCrossesLand(t *testing.T) {
 		check := func(what string, a, b sim.Pos) {
 			legs++
 			path, _ := sim.Voyage(w, c, 1000, a, b)
-			if p, bad := crossing(w.Islands, path); bad {
+			if p, bad := crossing(w.Islands(), path); bad {
 				t.Errorf("seed %d %s: path %v crosses land at %v", seed, what, path, p)
 			}
 		}

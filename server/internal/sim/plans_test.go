@@ -24,7 +24,7 @@ func planWorld(t *testing.T) *World {
 // removed.
 func stripPlans(w *World) int {
 	n := 0
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		n += len(is.Plans) + len(is.PlannedRoads)
 		is.Plans, is.PlannedRoads = nil, nil
 	}
@@ -41,7 +41,7 @@ func TestPlansInvisibleToAdvance(t *testing.T) {
 	c := catalogue(t)
 	w := planWorld(t)
 	wp := w.Clone()
-	lumberjack := wp.Islands[0].BuildingAt(c, 10, 2).ID
+	lumberjack := wp.Islands()[0].BuildingAt(c, 10, 2).ID
 	var road []Pos
 	for x := 8; x <= 15; x++ {
 		road = append(road, Pos{x, 7})
@@ -56,7 +56,7 @@ func TestPlansInvisibleToAdvance(t *testing.T) {
 	} {
 		mustApply(t, wp, c, cmd)
 	}
-	if got := len(wp.Islands[0].Plans) + len(wp.Islands[0].PlannedRoads); got != 14 {
+	if got := len(wp.Islands()[0].Plans) + len(wp.Islands()[0].PlannedRoads); got != 14 {
 		t.Fatalf("%d plans, want 14", got)
 	}
 	if wp.Gold != w.Gold {
@@ -83,7 +83,7 @@ func TestPlansInvisibleToAdvance(t *testing.T) {
 func TestPlanRules(t *testing.T) {
 	c := catalogue(t)
 	w := planWorld(t)
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	try := func(cmd Command, want error) {
 		t.Helper()
 		before := encode(t, w)

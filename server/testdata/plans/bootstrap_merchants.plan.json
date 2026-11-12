@@ -18,7 +18,7 @@
           "name": "Goods out, tools and stone home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "load": {
                 "planks": 20,
                 "wool_garments": 10
@@ -29,7 +29,7 @@
               ]
             },
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "tools": 50,
                 "stone": 50
@@ -45,7 +45,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "quarry",
         "count": 1
       }
@@ -70,7 +70,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "fisher",
         "count": 1
       },
@@ -92,14 +92,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "dairy_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "cheese_dairy",
         "count": 1
       }
@@ -113,14 +113,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tannery",
         "count": 1
       }
@@ -134,14 +134,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "apiary",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "meadery",
         "count": 1
       }
@@ -161,7 +161,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -169,7 +169,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "sawmill",
         "count": 1
       }
@@ -183,7 +183,7 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "shipyard",
         "count": 1
       }
@@ -192,12 +192,12 @@
       "note": "D-074 §4: the founding stock carries no sails; the shipyard quest's 10 sails are the first built cog's — claimed even in the games without quest claims (their only source before a sailmaker), as soon as the intro chain reaches the quest (after the wool chain).",
       "claim": {
         "quest": "citizens_shipyard",
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
       "order_ship": {
-        "island": "isle-01",
+        "island": "oc-01",
         "ship_type": "cog"
       }
     },
@@ -206,7 +206,7 @@
       "step": {
         "sail_ship": {
           "ship": 2,
-          "to": "isle-02"
+          "to": "oc-02"
         }
       }
     },
@@ -218,7 +218,7 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "quarry",
         "count": 1
       }
@@ -242,7 +242,7 @@
           "name": "Goods out, tools and stone home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "load": {
                 "planks": 20,
                 "wool_garments": 10
@@ -253,7 +253,7 @@
               ]
             },
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "tools": 50,
                 "bricks": 30
@@ -276,14 +276,14 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "clay_pit",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "brickworks",
         "count": 1
       }
@@ -292,7 +292,7 @@
       "step": {
         "manual_shipment": {
           "ship": 2,
-          "to": "isle-01",
+          "to": "oc-01",
           "cargo": {
             "bricks": 3
           }
@@ -301,14 +301,14 @@
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "charcoal_burner",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -316,77 +316,77 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "dairy_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "cheese_dairy",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "apiary",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "dairy_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "cheese_dairy",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tannery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "apiary",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "meadery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "meadery",
         "count": 1
       }
@@ -406,7 +406,7 @@
     },
     {
       "upgrade_trading_post": {
-        "island": "isle-01"
+        "island": "oc-01"
       }
     },
     {
@@ -421,7 +421,7 @@
           "name": "Garments out, bricks home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "load": {
                 "wool_garments": 5
               },
@@ -431,7 +431,7 @@
               ]
             },
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "bricks": 30,
                 "stone": 40
@@ -454,28 +454,28 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "salt_pans",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "butcher",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-02",
+        "island": "oc-02",
         "type": "hop_farm",
         "count": 1
       }
@@ -487,7 +487,7 @@
           "name": "Hops and tools home",
           "stops": [
             {
-              "island": "isle-01",
+              "island": "oc-01",
               "unload": [
                 "tools",
                 "hops",
@@ -496,7 +496,7 @@
               ]
             },
             {
-              "island": "isle-02",
+              "island": "oc-02",
               "load": {
                 "hops": 50,
                 "tools": 50
@@ -511,63 +511,63 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "wheat_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "brewery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "leather_works",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tailor",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "pig_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "tannery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "apiary",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "meadery",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "lumberjack",
         "count": 1,
         "near": "forest"
@@ -575,14 +575,14 @@
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "paper_mill",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "isle-01",
+        "island": "oc-01",
         "type": "printing_press",
         "count": 1
       }

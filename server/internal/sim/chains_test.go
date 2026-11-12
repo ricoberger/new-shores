@@ -126,7 +126,7 @@ func levelWorld(t *testing.T, c *content.Catalogue) *World {
 		rows = append(rows, strings.Repeat(ch, 40))
 	}
 	w := NewWorld(t0)
-	w.Islands = []*Island{islandFromRows("main", rows...)}
+	w.SetIslands(islandFromRows("main", rows...))
 	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 4, Y: 16}, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -179,7 +179,7 @@ func TestLevelTierGates(t *testing.T) {
 			}
 			w.UnlockedTiers = append(w.UnlockedTiers, tier)
 			mustApply(t, w, c, cmd)
-			if b := w.Islands[0].Building(tc.id); b.Level != level+2 {
+			if b := w.Islands()[0].Building(tc.id); b.Level != level+2 {
 				t.Fatalf("%s level %d, want %d", tc.typ, b.Level, level+2)
 			}
 			w.UnlockedTiers = w.UnlockedTiers[:len(w.UnlockedTiers)-1]
@@ -196,7 +196,7 @@ func TestLevelTierGates(t *testing.T) {
 
 	w.UnlockedTiers = []string{"citizens", "merchants", "patricians"}
 	for id, r := range map[int64]int{guard: 26, fire: 22} {
-		b := w.Islands[0].Building(id)
+		b := w.Islands()[0].Building(id)
 		def := c.BuildingByID[b.Type]
 		if def.Service == nil || len(def.Service.Levels) != 1 || def.Service.RadiusAt(1) != r || def.Service.Chain != "" {
 			t.Errorf("%s service %+v", b.Type, def.Service)

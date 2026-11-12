@@ -17,7 +17,7 @@ import (
 
 func TestParseFlags(t *testing.T) {
 	o, err := parseFlags([]string{"--dev", "--time-scale", "10", "--addr", ":9000"}, io.Discard)
-	if err != nil || !o.dev || o.timeScale != 10 || o.addr != ":9000" || o.content != "../content/old_coast" ||
+	if err != nil || !o.dev || o.timeScale != 10 || o.addr != ":9000" || o.content != "../content" ||
 		!slices.Equal(o.corsOrigins, []string{"http://localhost:5173", "http://127.0.0.1:5173"}) {
 		t.Fatalf("parseFlags = %+v, %v", o, err)
 	}
@@ -149,7 +149,7 @@ func TestFixtureAndSnapshotFlags(t *testing.T) {
 // TestDevStartWorld: the start world is the fixture or the snapshot; a
 // snapshot keeps its times unless --resume-now moves them to the start.
 func TestDevStartWorld(t *testing.T) {
-	cat, err := content.Load("../../../content/old_coast")
+	cat, err := content.Load("../../../content")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -157,7 +157,7 @@ func TestDevStartWorld(t *testing.T) {
 	start := time.Date(2026, 3, 1, 12, 0, 0, 0, time.UTC)
 
 	w, err := devStartWorld(options{fixture: "town", seed: devworld.DevSeed}, cat, start, logger)
-	if err != nil || len(w.Islands[0].Buildings) == 0 || !w.LastEvaluatedAt.Equal(start) {
+	if err != nil || len(w.Islands()[0].Buildings) == 0 || !w.LastEvaluatedAt.Equal(start) {
 		t.Fatalf("--fixture town: %v (evaluated %v)", err, w)
 	}
 

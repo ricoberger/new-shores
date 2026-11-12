@@ -1,6 +1,6 @@
 {
   "name": "trading_post_tier_gate",
-  "content_version": "old_coast-0.21.0",
+  "content_version": "old_coast-0.21.1",
   "boundary_count": 0,
   "totals": {
     "main": {
@@ -135,6 +135,20 @@
         "buildings": {}
       }
     ],
+    "regions": [
+      {
+        "id": "old_coast",
+        "unlocked": true,
+        "seed": 0,
+        "passage_point": null,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 40,
+          "height": 11
+        }
+      }
+    ],
     "archipelago": {
       "seed": 0,
       "roll": 0,
@@ -150,6 +164,7 @@
     "islands": [
       {
         "id": "main",
+        "region_id": "old_coast",
         "name": "",
         "size_class": "",
         "scenic": false,

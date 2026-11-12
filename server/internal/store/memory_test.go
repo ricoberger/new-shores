@@ -119,7 +119,7 @@ func dueWorld(start, due time.Time) *sim.World {
 	w := sim.NewWorld(start)
 	is := sim.NewIsland("a", 1, 1, []sim.Tile{{Terrain: "coast"}})
 	is.Buildings = []*sim.Building{{ID: 1, Type: "shipyard", Order: &sim.ShipOrder{Type: "cog", OrderedAtMs: start.UnixMilli(), DueAtMs: due.UnixMilli()}}}
-	w.Islands = []*sim.Island{is}
+	w.SetIslands(is)
 	return w
 }
 
@@ -150,7 +150,7 @@ func TestMemoryDueEvents(t *testing.T) {
 	}
 	// A second order: one more pending event, the first one not duplicated.
 	_, _ = m.Update(ctx, "w", func(w *sim.World, _ int64, _ time.Time) (bool, error) {
-		w.Islands[0].Buildings = append(w.Islands[0].Buildings, &sim.Building{ID: 2, Type: "shipyard",
+		w.Islands()[0].Buildings = append(w.Islands()[0].Buildings, &sim.Building{ID: 2, Type: "shipyard",
 			Order: &sim.ShipOrder{Type: "cog", DueAtMs: due.Add(time.Minute).UnixMilli()}})
 		return true, nil
 	})
@@ -220,7 +220,7 @@ func TestMemoryProcessNext(t *testing.T) {
 		if len(pending) != 0 || !ev.DueAt.Equal(due) {
 			t.Errorf("event %+v pending %+v", ev, pending)
 		}
-		w.Islands[0].Buildings[0].Order = nil // the effect
+		w.Islands()[0].Buildings[0].Order = nil // the effect
 		w.LastEvaluatedAt = due
 		return []MemEvent{{DueAt: due.Add(time.Hour), Kind: "advance_to", Payload: json.RawMessage(`{}`)}}, nil
 	})

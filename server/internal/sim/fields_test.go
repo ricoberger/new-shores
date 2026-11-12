@@ -16,7 +16,7 @@ import (
 func fieldsWorld(t *testing.T, c *content.Catalogue) (*World, int64) {
 	t.Helper()
 	w := NewWorld(t0)
-	w.Islands = []*Island{islandFromRows("main",
+	w.SetIslands(islandFromRows("main",
 		"~~~~~~~~~~~~~~~~~~~~~~~~",
 		"~~~~~cccccccccccccccccc~",
 		"~......................~",
@@ -31,7 +31,7 @@ func fieldsWorld(t *testing.T, c *content.Catalogue) (*World, int64) {
 		"~......................~",
 		"~......................~",
 		"~~~~~~~~~~~~~~~~~~~~~~~~",
-	)}
+	))
 	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -69,7 +69,7 @@ func fieldDisplay(t *testing.T, w *World, c *content.Catalogue, id int64) Buildi
 
 func fieldsOf(w *World, c *content.Catalogue) []*Building {
 	var out []*Building
-	for _, b := range w.Islands[0].Buildings {
+	for _, b := range w.Islands()[0].Buildings {
 		if def := c.BuildingByID[b.Type]; def != nil && def.Field != nil {
 			out = append(out, b)
 		}
@@ -157,7 +157,7 @@ func TestFieldChain(t *testing.T) {
 	w, farm := fieldsWorld(t, c)
 	f1 := putField(t, w, c, farm, "pasture", 11, 5)
 	f2 := putField(t, w, c, farm, "pasture", 13, 5)
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	if is.Building(farm).Efficiency != 500 || is.Building(f2).Inactive {
 		t.Fatalf("chain: efficiency %d, f2 inactive %v", is.Building(farm).Efficiency, is.Building(f2).Inactive)
 	}
@@ -197,8 +197,8 @@ func TestFieldAdjacencyIsFourEdge(t *testing.T) {
 	putField(t, w, c, farm, "pasture", 11, 7)                                                                              // edge, east (one row overlap)
 	// A field touching a field only at a corner is not adjacent either.
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 13, Y: 9}, ErrFieldNotAdjacent) // corner of (11,7)
-	if w.Islands[0].Building(farm).Efficiency != 500 {
-		t.Errorf("efficiency %d", w.Islands[0].Building(farm).Efficiency)
+	if w.Islands()[0].Building(farm).Efficiency != 500 {
+		t.Errorf("efficiency %d", w.Islands()[0].Building(farm).Efficiency)
 	}
 }
 
@@ -231,7 +231,7 @@ func TestFieldsOfOtherFarmsDoNotChain(t *testing.T) {
 	c := catalogue(t)
 	w, sheepA := fieldsWorld(t, c)
 	w.UnlockedTiers = []string{"citizens"}
-	w.Islands[0].Fertilities = []string{"wheat"}
+	w.Islands()[0].Fertilities = []string{"wheat"}
 	if err := AddStock(w, c, "main", "stone", 50_000, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -239,7 +239,7 @@ func TestFieldsOfOtherFarmsDoNotChain(t *testing.T) {
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "wheat_farm", X: 14, Y: 5})
 	sheepB := w.NextBuildingID
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sheep_farm", X: 8, Y: 9})
-	is := w.Islands[0]
+	is := w.Islands()[0]
 
 	// Wrong farm type: a pasture from the wheat farm, a wheat field from a
 	// sheep farm, a field from a building that is no farm.
@@ -284,7 +284,7 @@ func TestFieldMoveFarmKeepsFields(t *testing.T) {
 	w, farm := fieldsWorld(t, c)
 	f1 := putField(t, w, c, farm, "pasture", 11, 5)
 	f2 := putField(t, w, c, farm, "pasture", 13, 5)
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	expectApplyErr(t, w, c, MoveBuilding{IslandID: "main", BuildingID: farm, X: 9, Y: 5}, ErrOccupied)
 	expectApplyErr(t, w, c, MoveBuilding{IslandID: "main", BuildingID: f1, X: 11, Y: 7}, ErrInvalidCommand)
 	// Away: nothing adjacent any more.
@@ -322,7 +322,7 @@ func TestFarmDemolishRefundsEachFieldOnce(t *testing.T) {
 	// A field refunds half of its 2 planks; a 3-plank field would refund 1:
 	// the per-field rounding is visible with an odd cost.
 	cc := withCost(c, "pasture", content.Cost{Gold: 15_000, Materials: []content.GoodAmount{{Good: "planks", Amount: 3_000}}})
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	planks, gold := is.Inventory.Stock["planks"], w.Gold
 	mustApply(t, w, cc, Demolish{IslandID: "main", BuildingID: farm})
 	// Farm 10 planks -> 5; three pastures at 3 planks -> 1 each (not 4 for a bulk 9/2).
@@ -342,9 +342,9 @@ func TestFarmDemolishRefundsEachFieldOnce(t *testing.T) {
 	}{{withCost(c, "pasture", content.Cost{Gold: 15_000, Materials: []content.GoodAmount{{Good: "planks", Amount: 2_000}}}), 1_000}, {c, 0}} {
 		w2, farm2 := fieldsWorld(t, tc.cat)
 		f := putField(t, w2, tc.cat, farm2, "pasture", 11, 5)
-		p2, g2 := w2.Islands[0].Inventory.Stock["planks"], w2.Gold
+		p2, g2 := w2.Islands()[0].Inventory.Stock["planks"], w2.Gold
 		mustApply(t, w2, tc.cat, Demolish{IslandID: "main", BuildingID: f})
-		if got := w2.Islands[0].Inventory.Stock["planks"] - p2; got != tc.want || w2.Gold != g2 {
+		if got := w2.Islands()[0].Inventory.Stock["planks"] - p2; got != tc.want || w2.Gold != g2 {
 			t.Errorf("field refund %d planks, %d gold, want %d planks", got, w2.Gold-g2, tc.want)
 		}
 	}
@@ -394,30 +394,30 @@ func TestPlaceFieldErrors(t *testing.T) {
 	if err := AddStock(w, c, "main", "stone", 50_000, nil); err != nil {
 		t.Fatal(err)
 	}
-	w.Islands[0].Fertilities = []string{"wheat"}
+	w.Islands()[0].Fertilities = []string{"wheat"}
 	wheat := w.NextBuildingID
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "wheat_farm", X: 16, Y: 5})
-	w.Islands[0].Fertilities = []string{"hemp"}
+	w.Islands()[0].Fertilities = []string{"hemp"}
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: wheat, Type: "wheat_field", X: 1, Y: 12}, ErrNoFertility)
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: wheat, Type: "wheat_field", X: 15, Y: 5}, ErrNoFertility)
 
 	// Cost: gold (15) is charged, checked after the site; materials are
 	// charged too when a content cost has them.
-	gold, planks := w.Gold, w.Islands[0].Inventory.Stock["planks"]
+	gold, planks := w.Gold, w.Islands()[0].Inventory.Stock["planks"]
 	mustApply(t, w, c, place("pasture", 11, 5))
-	if gold-w.Gold != 15_000 || planks != w.Islands[0].Inventory.Stock["planks"] {
-		t.Errorf("charged %d gold, %d planks", gold-w.Gold, planks-w.Islands[0].Inventory.Stock["planks"])
+	if gold-w.Gold != 15_000 || planks != w.Islands()[0].Inventory.Stock["planks"] {
+		t.Errorf("charged %d gold, %d planks", gold-w.Gold, planks-w.Islands()[0].Inventory.Stock["planks"])
 	}
 	w.Gold = 14_999
 	expectApplyErr(t, w, c, place("pasture", 13, 5), ErrInsufficientGold)
 	w.Gold = 10_000_000
 	cc := withCost(c, "pasture", content.Cost{Gold: 15_000, Materials: []content.GoodAmount{{Good: "planks", Amount: 2_000}}})
-	planks = w.Islands[0].Inventory.Stock["planks"]
+	planks = w.Islands()[0].Inventory.Stock["planks"]
 	mustApply(t, w, cc, place("pasture", 13, 5))
-	if got := planks - w.Islands[0].Inventory.Stock["planks"]; got != 2_000 {
+	if got := planks - w.Islands()[0].Inventory.Stock["planks"]; got != 2_000 {
 		t.Errorf("charged %d planks", got)
 	}
-	w.Islands[0].Inventory.Stock["planks"] = 1_999
+	w.Islands()[0].Inventory.Stock["planks"] = 1_999
 	expectApplyErr(t, w, cc, place("pasture", 11, 7), ErrInsufficientMaterials)
 	// A crop field costs 5 gold.
 	if c.BuildingByID["wheat_field"].Cost.Gold != 5_000 {
@@ -425,7 +425,7 @@ func TestPlaceFieldErrors(t *testing.T) {
 	}
 	// Settlement is required.
 	w2, farm2 := fieldsWorld(t, c)
-	w2.Islands = append(w2.Islands, islandFromRows("wild", "~~~~", "~..~", "~~~~"))
+	w2.SetIslands(append(w2.Islands(), islandFromRows("wild", "~~~~", "~..~", "~~~~"))...)
 	expectApplyErr(t, w2, c, PlaceField{IslandID: "wild", FarmID: farm2, Type: "pasture", X: 1, Y: 1}, ErrBuildingNotFound)
 }
 
@@ -435,7 +435,7 @@ func TestFarmPlacementWithoutWorkArea(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
 	// Surrounded by forest and water.
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	for i := range is.Tiles {
 		if is.Tiles[i].Terrain == content.TerrainGrass {
 			is.Tiles[i].Terrain = content.TerrainForest
@@ -456,7 +456,7 @@ func TestDiagonalOnlyFieldIsInactive(t *testing.T) {
 	c := catalogue(t)
 	w, farm := fieldsWorld(t, c)
 	f := putField(t, w, c, farm, "pasture", 11, 5) // x 11..12, y 5..6, touches the farm's east edge
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	// Farm at (8,7): x 8..10, y 7..9 meets the field at the corner (10,7)-(11,6) only.
 	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: farm, X: 8, Y: 7})
 	if !is.Building(f).Inactive || is.Building(farm).Efficiency != 0 {
@@ -490,7 +490,7 @@ func plantTreePlots(t testing.TB, w *World, c *content.Catalogue, farm int64, n 
 	gold := w.Gold
 	w.Gold += 1_000_000
 	defer func() { w.Gold = gold }()
-	is := w.Islands[0]
+	is := w.Islands()[0]
 	b := is.Building(farm)
 	if b == nil || b.Type != "lumberjack" {
 		t.Fatalf("building %d is no lumberjack", farm)

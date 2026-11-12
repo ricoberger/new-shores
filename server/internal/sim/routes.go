@@ -157,6 +157,11 @@ func validateRoute(w *World, c *content.Catalogue, name string, stops []Stop) er
 			}
 			loads[lr.Good] = true
 		}
+		if next := w.Island(stops[(i+1)%len(stops)].IslandID); next != nil {
+			if err := checkPassage(c, is.RegionID, next.RegionID); err != nil {
+				return err
+			}
+		}
 		unloads := map[string]bool{}
 		for _, g := range st.Unload {
 			switch {

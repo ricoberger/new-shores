@@ -42,7 +42,7 @@ func TestFixtures(t *testing.T) {
 			if !w.LastEvaluatedAt.Equal(want) || !w.LastSeenAt.Equal(want) || w.PendingSummary != nil {
 				t.Fatalf("evaluated %s, last seen %s, summary %v; want %s and none", w.LastEvaluatedAt, w.LastSeenAt, w.PendingSummary, want)
 			}
-			home := w.Islands[0].ID
+			home := w.Islands()[0].ID
 			switch name {
 			case FixtureSeafaring:
 				if len(w.Ships) != 1 || w.Ships[0].AtSea == nil || len(w.Island(home).Buildings) != 0 {
@@ -73,7 +73,7 @@ func TestFixtures(t *testing.T) {
 			if name == FixtureSettled {
 				second := w.Ships[1].RouteID
 				var island2 string
-				for _, is := range w.Islands[1:] {
+				for _, is := range w.Islands()[1:] {
 					if count(w, is.ID, "trading_post") == 1 {
 						island2 = is.ID
 					}
@@ -111,7 +111,7 @@ func TestFixtures(t *testing.T) {
 			if _, err := sim.Advance(w, c, w.LastEvaluatedAt.Add(time.Hour)); err != nil {
 				t.Fatal(err)
 			}
-			for _, is := range w.Islands {
+			for _, is := range w.Islands() {
 				for _, b := range is.Buildings {
 					if b.Paused {
 						t.Errorf("%s %s %d paused (%s) within an hour of world time", is.ID, b.Type, b.ID, b.PausedReason)
@@ -133,7 +133,7 @@ func checkCitizens(t *testing.T, c *content.Catalogue, w *sim.World) {
 	if !sim.TierUnlocked(w, c, citizensTier) {
 		t.Fatal("citizens not unlocked")
 	}
-	home := w.Islands[0].ID
+	home := w.Islands()[0].ID
 	def := c.BuildingByID[citizensFarm]
 	var farm *sim.Building
 	for _, b := range w.Island(home).Buildings {
@@ -168,10 +168,10 @@ func checkMerchants(t *testing.T, c *content.Catalogue, w *sim.World) {
 	if !sim.TierUnlocked(w, c, citizensTier) || !sim.TierUnlocked(w, c, merchantsTier) {
 		t.Fatal("citizens or merchants not unlocked")
 	}
-	home := w.Islands[0].ID
+	home := w.Islands()[0].ID
 	n := map[string]map[string]int{}
 	var market *sim.Building
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for _, b := range is.Buildings {
 			if n[is.ID] == nil {
 				n[is.ID] = map[string]int{}
@@ -215,10 +215,10 @@ func checkPatricians(t *testing.T, c *content.Catalogue, w *sim.World) {
 			t.Fatalf("%s not unlocked", tier)
 		}
 	}
-	home := w.Islands[0].ID
+	home := w.Islands()[0].ID
 	n := map[string]map[string]int{}
 	var market *sim.Building
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for _, b := range is.Buildings {
 			if n[is.ID] == nil {
 				n[is.ID] = map[string]int{}
@@ -268,7 +268,7 @@ func TestPatriciansFixtureNeedsQuartz(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for i := range is.Tiles {
 			if d := is.Tiles[i].Deposit; d != nil && d.Kind == patriciansDeposit {
 				is.Tiles[i].Deposit = nil
@@ -296,7 +296,7 @@ func TestMerchantsFixtureNeedsClay(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for i := range is.Tiles {
 			if d := is.Tiles[i].Deposit; d != nil && d.Kind == merchantsDeposit {
 				is.Tiles[i].Deposit = nil

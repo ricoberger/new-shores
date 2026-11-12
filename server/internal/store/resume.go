@@ -35,7 +35,7 @@ func ResumeAt(w *sim.World, now time.Time) {
 		shift(&q.CompletedAtMs)
 		w.Quests[id] = q
 	}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for _, b := range is.Buildings {
 			shift(&b.PausedAtMs)
 			if b.Order != nil {

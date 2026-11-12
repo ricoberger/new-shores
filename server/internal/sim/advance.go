@@ -124,7 +124,7 @@ func AdvanceWithLedger(w *World, c *content.Catalogue, to time.Time, l *Ledger) 
 			if due := nextDue(w, now); due < now+dt {
 				dt = due - now
 			}
-			for i, is := range w.Islands {
+			for i, is := range w.Islands() {
 				step(is, c, wr.islands[i], now, dt, true, l)
 			}
 			stepWorld(w, wr, dt)
@@ -134,7 +134,7 @@ func AdvanceWithLedger(w *World, c *content.Catalogue, to time.Time, l *Ledger) 
 
 		at, cands := nextBoundary(w, c, wr, now)
 		stepEnd := min(at, end, now+maxStepMs)
-		for i, is := range w.Islands {
+		for i, is := range w.Islands() {
 			step(is, c, wr.islands[i], now, stepEnd-now, false, l)
 		}
 		stepWorld(w, wr, stepEnd-now)
@@ -190,7 +190,7 @@ func nextBoundary(w *World, c *content.Catalogue, wr *worldRates, now int64) (in
 		}
 	}
 
-	for i, is := range w.Islands {
+	for i, is := range w.Islands() {
 		r := wr.islands[i]
 		inv := &is.Inventory
 		capFine := capacityFine(is, c)

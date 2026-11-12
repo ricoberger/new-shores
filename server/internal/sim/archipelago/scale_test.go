@@ -27,11 +27,11 @@ func TestEncodedStateSize(t *testing.T) {
 		t.Fatal(err)
 	}
 	tiles := 0
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		tiles += len(is.Tiles)
 	}
 	t.Logf("%d islands, %d tiles, %d buildable; full envelope %d bytes, state %d bytes, terrain %d bytes (gzip)",
-		len(w.Islands), tiles, buildableArea(w.Islands), len(full), len(state), len(terrain))
+		len(w.Islands()), tiles, buildableArea(w.Islands()), len(full), len(state), len(terrain))
 	if len(state) >= 1<<20 {
 		t.Errorf("state %d bytes without tiles: past the ~1 MB compression threshold", len(state))
 	}

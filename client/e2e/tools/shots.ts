@@ -41,18 +41,18 @@ type Target = { x: number; y: number; half?: number };
  * loaded world (the generated layout moves with the archipelago rules, D-058).
  */
 const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<Record<View, Target>>; town?: { mid: number; shipyard?: boolean } }> = {
-  // The home island of every generated archipelago (D-053), isle-01:
+  // The home island of every generated archipelago (D-053), oc-01:
   // near on the street between the Trading Post and the sheep farm, mid over the settlement (settled: with the shipyard).
-  settled: { island: "isle-01", town: { mid: 36, shipyard: true } },
-  town: { island: "isle-01", town: { mid: 32 } },
-  default: { island: "isle-01" }, // the home island founded, nothing built
-  seafaring: { island: "isle-01" }, // a new world: the start cog at sea, nothing settled
-  citizens: { island: "isle-01", town: { mid: 32 } }, // town plus a bare wheat farm
-  merchants: { island: "isle-01", town: { mid: 32 } }, // citizens plus the tier-3 street end and a clay island
+  settled: { island: "oc-01", town: { mid: 36, shipyard: true } },
+  town: { island: "oc-01", town: { mid: 32 } },
+  default: { island: "oc-01" }, // the home island founded, nothing built
+  seafaring: { island: "oc-01" }, // a new world: the start cog at sea, nothing settled
+  citizens: { island: "oc-01", town: { mid: 32 } }, // town plus a bare wheat farm
+  merchants: { island: "oc-01", town: { mid: 32 } }, // citizens plus the tier-3 street end and a clay island
   // town plus the full services ladder (university, cathedral), a Patrician house, the roast-beef chain and a quartz island (D-056 C4).
-  patricians: { island: "isle-01", town: { mid: 36 } },
+  patricians: { island: "oc-01", town: { mid: 36 } },
   // The Patricians reference game replayed (devworld played.go): a town grown by play.
-  played: { island: "isle-01", town: { mid: 48 } },
+  played: { island: "oc-01", town: { mid: 48 } },
 };
 
 function sleep(ms: number): Promise<void> {
@@ -636,7 +636,7 @@ async function selectBuilding(page: Page, type: string, offset: { x: number; y: 
  * Post's four first, so the fifth (the carrack) lies at the pier. The page
  * is reloaded afterwards (see below).
  */
-const HARBOUR_ISLAND = "isle-01";
+const HARBOUR_ISLAND = "oc-01";
 const HARBOUR_COMMANDS = [
   { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "trading_pier", x: 144, y: 176, rotation: 90 },
   { type: "place_building", island_id: HARBOUR_ISLAND, building_type: "depot", x: 135, y: 179, rotation: 0 },
@@ -1645,7 +1645,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
     run: async (page) => {
       // A spot in the home town (no deposit there: the quarry's ghost is red).
       const at = await page.evaluate(() => {
-        const is = window.__newShores!.getServer()!.display.islands.find((i) => i.id === "isle-01")!;
+        const is = window.__newShores!.getServer()!.display.islands.find((i) => i.id === "oc-01")!;
         const b = is.buildings.find((x) => x.type === "house_settlers")!;
         return { x: b.x, y: b.y, ox: is.position.x, oy: is.position.y };
       });
@@ -1654,7 +1654,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.getByTestId("dock-build").click();
       await openBuildTab(page, "quarry");
       await page.getByTestId("build-quarry").click();
-      const p = await tileAt(page, "isle-01", at.x, at.y);
+      const p = await tileAt(page, "oc-01", at.x, at.y);
       await page.mouse.move(p.x, p.y);
       await page.waitForFunction(() => window.__newShores!.ghostValidity() === "invalid", undefined, { timeout: 10_000 });
     },
@@ -1977,7 +1977,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       const r = await page.evaluate(() => {
         const d = window.__newShores!.getServer()!.display;
         const centre = (i: { position: { x: number; y: number }; width: number; height: number }) => ({ x: i.position.x + i.width / 2, y: i.position.y + i.height / 2 });
-        const home = d.islands.find((i) => i.id === "isle-01")!;
+        const home = d.islands.find((i) => i.id === "oc-01")!;
         const h = centre(home);
         const others = d.islands.filter((i) => i.id !== home.id && !i.scenic).map((i) => ({ id: i.id, ...centre(i) }));
         others.sort((a, b) => Math.hypot(a.x - h.x, a.y - h.y) - Math.hypot(b.x - h.x, b.y - h.y));
@@ -2165,7 +2165,7 @@ async function main(): Promise<number> {
       VITE_TIME_SCALE: String(E2E_TIME_SCALE),
     };
     // CONTENT: another content directory (e.g. a local variant with larger islands for measurements).
-    const base = args.content === undefined ? API_SERVER_COMMAND : API_SERVER_COMMAND.replace("--content ../content/old_coast", `--content '${resolve(REPO, args.content)}'`);
+    const base = args.content === undefined ? API_SERVER_COMMAND : API_SERVER_COMMAND.replace("--content ../content", `--content '${resolve(REPO, args.content)}'`);
     const apiCommand = args.seed === undefined ? base : `${base} --seed ${args.seed}`;
     servers.push(await start(apiCommand, resolve(REPO, "server"), `http://localhost:${API_PORT}/healthz`, process.env));
     servers.push(await start(WEB_SERVER_COMMAND, CLIENT_DIR, `http://localhost:${WEB_PORT}`, env));

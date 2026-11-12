@@ -127,7 +127,7 @@ func TestDevSchedulerRearms(t *testing.T) {
 	}
 	far := worldStart.Add(time.Hour)
 	near := worldStart.Add(2 * time.Minute) // the second order, placed at worldStart
-	w.Islands[0].Building(2).Order.DueAtMs = far.UnixMilli()
+	w.Islands()[0].Building(2).Order.DueAtMs = far.UnixMilli()
 	mem := store.NewMemory("dev", w, clock.Now)
 	if p := mem.Pending(); len(p) != 1 || !p[0].DueAt.Equal(far) {
 		t.Fatalf("pending = %+v", p)
@@ -232,7 +232,7 @@ func TestDevSchedulerRearms(t *testing.T) {
 		t.Errorf("pending after processing = %+v", p)
 	}
 	_, _ = mem.Update(ctx, "dev", func(w *sim.World, _ int64, now time.Time) (bool, error) {
-		if s := w.Ships[0]; s.IslandID != "start" || s.State != sim.ShipIdle || w.Islands[0].Building(3).Order != nil || w.Islands[0].Building(2).Order == nil {
+		if s := w.Ships[0]; s.IslandID != "start" || s.State != sim.ShipIdle || w.Islands()[0].Building(3).Order != nil || w.Islands()[0].Building(2).Order == nil {
 			t.Errorf("world after ship_built: %+v", s)
 		}
 		return false, nil

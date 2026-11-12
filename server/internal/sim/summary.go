@@ -242,8 +242,11 @@ type AwayPopulation struct {
 
 // AwayIsland lists the goods of an island with any flow or stock.
 type AwayIsland struct {
-	ID    string              `json:"id"`
-	Goods map[string]AwayGood `json:"goods"`
+	ID string `json:"id"`
+	// RegionID is the island's region (D-076 §5: entries name their
+	// region); "" in a summary stored before schema 16.
+	RegionID string              `json:"region_id,omitempty"`
+	Goods    map[string]AwayGood `json:"goods"`
 }
 
 // AwayGood is the summary of one good on one island.
@@ -259,7 +262,9 @@ type AwayGood struct {
 // AwayUnpaid is a building (BuildingID set) or ship (ShipID set) paused for
 // insolvency at the end of the interval.
 type AwayUnpaid struct {
-	IslandID   string `json:"island_id"`
+	IslandID string `json:"island_id"`
+	// RegionID is the region of the island or ship (D-076 §5).
+	RegionID   string `json:"region_id,omitempty"`
 	BuildingID int64  `json:"building_id,omitempty"`
 	ShipID     int64  `json:"ship_id,omitempty"`
 	Type       string `json:"type"`
@@ -303,8 +308,8 @@ func ProduceSummary(w *World, c *content.Catalogue) *AwaySummary {
 			s.Population[tier] = p
 		}
 	}
-	for _, is := range w.Islands {
-		ai := AwayIsland{ID: is.ID, Goods: map[string]AwayGood{}}
+	for _, is := range w.Islands() {
+		ai := AwayIsland{ID: is.ID, RegionID: is.RegionID, Goods: map[string]AwayGood{}}
 		capMilli := capacityMilli(is, c)
 		flows := a.Flows[is.ID]
 		goods := sortedKeys(flows)
@@ -329,13 +334,13 @@ func ProduceSummary(w *World, c *content.Catalogue) *AwaySummary {
 		s.Islands = append(s.Islands, ai)
 		for _, b := range is.Buildings {
 			if b.Paused && b.PausedReason == PausedReasonUnpaid {
-				s.StillUnpaid = append(s.StillUnpaid, AwayUnpaid{IslandID: is.ID, BuildingID: b.ID, Type: b.Type})
+				s.StillUnpaid = append(s.StillUnpaid, AwayUnpaid{IslandID: is.ID, RegionID: is.RegionID, BuildingID: b.ID, Type: b.Type})
 			}
 		}
 	}
 	for _, sh := range w.Ships {
 		if sh.Paused && sh.PausedReason == PausedReasonUnpaid {
-			s.StillUnpaid = append(s.StillUnpaid, AwayUnpaid{IslandID: sh.IslandID, ShipID: sh.ID, Type: sh.Type})
+			s.StillUnpaid = append(s.StillUnpaid, AwayUnpaid{IslandID: sh.IslandID, RegionID: shipRegionID(w, sh), ShipID: sh.ID, Type: sh.Type})
 		}
 	}
 	for _, e := range a.Arrivals {
@@ -375,7 +380,7 @@ func (s *AwaySummary) clone() *AwaySummary {
 	c.Population = maps.Clone(s.Population)
 	c.Islands = make([]AwayIsland, len(s.Islands))
 	for i, is := range s.Islands {
-		c.Islands[i] = AwayIsland{ID: is.ID, Goods: maps.Clone(is.Goods)}
+		c.Islands[i] = AwayIsland{ID: is.ID, RegionID: is.RegionID, Goods: maps.Clone(is.Goods)}
 	}
 	c.StillUnpaid = slices.Clone(s.StillUnpaid)
 	c.Arrivals = slices.Clone(s.Arrivals)

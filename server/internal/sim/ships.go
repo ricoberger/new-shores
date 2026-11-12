@@ -84,6 +84,10 @@ type Ship struct {
 	// until the player renames it (rename_ship; empty restores the default).
 	Name  string `json:"name"`
 	State string `json:"state"`
+	// RegionID is the region whose map the ship is on (D-076): the
+	// region of its island, leg or sea position; "" on a passage leg
+	// (Leg.Passage), which is on no map.
+	RegionID string `json:"region_id,omitempty"`
 	// IslandID is where the ship is ("" while travelling or at sea).
 	IslandID string `json:"island_id,omitempty"`
 	// AtSea is the archipelago position (tiles) of an idle ship that is at
@@ -134,6 +138,11 @@ type Leg struct {
 	// harbour (or From) around land to the destination's (Ends, SeaRoute);
 	// its length sets the travel time (PathMs).
 	Path []Pos `json:"path,omitempty"`
+	// Passage marks an off-map leg between two regions (D-076 §1): no
+	// path, the fixed passage time of the region pair, the ship is
+	// "between regions". No passage exists while the content lists one
+	// region.
+	Passage bool `json:"passage,omitempty"`
 }
 
 // Slot is one cargo slot holding Amount milli-units of Good.
@@ -455,7 +464,7 @@ type dueEvent struct {
 
 func dueList(w *World) []dueEvent {
 	var out []dueEvent
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		for _, b := range is.Buildings {
 			if b.Order != nil {
 				out = append(out, dueEvent{DueEvent{Kind: DueShipBuilt, IslandID: is.ID, BuildingID: b.ID}, b.Order.DueAtMs})
@@ -586,7 +595,7 @@ func applyShipBuilt(w *World, c *content.Catalogue, is *Island, b *Building) {
 	if w.NextShipID < 1 {
 		w.NextShipID = 1
 	}
-	w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: typ, Name: DefaultShipName(c, typ, w.NextShipID), State: ShipIdle, IslandID: is.ID})
+	w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: typ, Name: DefaultShipName(c, typ, w.NextShipID), State: ShipIdle, RegionID: is.RegionID, IslandID: is.ID})
 	w.NextShipID++
 	clearRegimes(is)
 }
@@ -1026,6 +1035,9 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 	if to == from {
 		return fmt.Errorf("%w: destination %q is the ship's island", ErrRouteInvalid, to.ID)
 	}
+	if err := checkPassage(c, from.RegionID, to.RegionID); err != nil {
+		return err
+	}
 	ship := c.ShipByID[s.Type]
 	if ship == nil {
 		return fmt.Errorf("%w: %q", ErrUnknownShipType, s.Type)
@@ -1077,7 +1089,7 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 // returns it. The founding cargo is exempt from the slot limit (D-056 §9:
 // the 2-slot start cog carries the whole start stock); slots limit only
 // what a player loads. Like PlaceFree it is meant for world creation (the
-// start ship of a new world, D-051), never for player commands.
+// start ship of a new world, D-051), never for player commands. The ship is on the home region's map.
 func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo map[string]Qty) (*Ship, error) {
 	def := c.ShipByID[typ]
 	if def == nil {
@@ -1100,7 +1112,7 @@ func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo m
 	if w.NextShipID < 1 {
 		w.NextShipID = 1
 	}
-	s := &Ship{ID: w.NextShipID, Type: def.ID, Name: DefaultShipName(c, def.ID, w.NextShipID), State: ShipIdle, AtSea: &Pos{at.X, at.Y}}
+	s := &Ship{ID: w.NextShipID, Type: def.ID, Name: DefaultShipName(c, def.ID, w.NextShipID), State: ShipIdle, RegionID: w.HomeRegion().ID, AtSea: &Pos{at.X, at.Y}}
 	setCargo(s, def.SlotSize, amounts)
 	w.NextShipID++
 	w.Ships = append(w.Ships, s)
@@ -1112,6 +1124,29 @@ func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo m
 func scenic(is *Island, c *content.Catalogue) bool {
 	sc := c.Islands.SizeClassByID[is.SizeClass]
 	return sc != nil && sc.Scenic
+}
+
+// shipRegionID returns the region of an idle ship: its island's, else
+// its own (a ship at sea).
+func shipRegionID(w *World, s *Ship) string {
+	if is := w.Island(s.IslandID); is != nil {
+		return is.RegionID
+	}
+	return s.RegionID
+}
+
+// checkPassage accepts a leg inside one region; a leg between two regions
+// fails with ErrNoPassage (D-076 §1): without a passage of the pair in
+// the content, and — until the passage leg is built with the expedition
+// (D-076 §2) — with one too.
+func checkPassage(c *content.Catalogue, from, to string) error {
+	if from == to {
+		return nil
+	}
+	if _, ok := c.PassageMs(from, to); !ok {
+		return fmt.Errorf("%w: %q and %q", ErrNoPassage, from, to)
+	}
+	return fmt.Errorf("%w: passage legs from %q to %q are not built yet", ErrNoPassage, from, to)
 }
 
 func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
@@ -1128,6 +1163,9 @@ func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	}
 	if to.ID == s.IslandID {
 		return fmt.Errorf("%w: destination %q is the ship's island", ErrRouteInvalid, to.ID)
+	}
+	if err := checkPassage(c, shipRegionID(w, s), to.RegionID); err != nil {
+		return err
 	}
 	ship := c.ShipByID[s.Type]
 	if ship == nil {

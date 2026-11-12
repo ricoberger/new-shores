@@ -58,6 +58,9 @@ import { InsolvencyBanner } from "./InsolvencyBanner";
 import { QuestsPanel } from "./QuestsPanel";
 import { TopBar } from "./TopBar";
 import { warningEntries, WarningsPanel } from "./WarningsPanel";
+import { RegionSwitcher } from "./RegionSwitcher";
+import { currentRegionId, regionView, warningsByRegion } from "../display/regions";
+import { RegionSource } from "../render/regionsource";
 import { SideDock, type DockPanel } from "./SideDock";
 import { claimableCount } from "../display/quests";
 import { unlockedTiers } from "../display/tiers";
@@ -170,6 +173,14 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   useEffect(() => sync.subscribeUnauthorized(onSessionEnded), [sync, onSessionEnded]);
   const snap = useSyncExternalStore(sync.subscribe, sync.getSnapshot);
   const { model, content } = snap;
+  // The region on the map (D-076): the renderer, the minimap and the map
+  // overlay show one region; panels stay world-wide. With one region
+  // everything passes through unchanged and the switcher is hidden.
+  const [chosenRegion, setChosenRegion] = useState<string | null>(null);
+  const [regionSource] = useState(() => new RegionSource(sync));
+  const regionId = model ? currentRegionId(model, chosenRegion) : "";
+  useEffect(() => regionSource.setRegion(regionId), [regionSource, regionId]);
+  const mapModel = model ? regionView(model, regionId) : null;
 
   const [vs, dispatch] = useReducer(viewReducer, undefined, initialViewState);
   const [tool, setTool] = useState<Tool>(NO_TOOL);
@@ -1169,8 +1180,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   return (
     <div className={`${styles.root} ${phone ? styles.phone : ""}`} data-layout={layout.mode} data-touch={isTouchLayout(layout.mode) ? "true" : undefined}>
-      {model && (
-        <WorldOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} onIsland={(id) => tapIsland(id)} declutter={phone} deposit={highlightedDeposit(tool, defs)} />
+      {mapModel && (
+        <WorldOverlay renderer={renderer} model={mapModel} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} onIsland={(id) => tapIsland(id)} declutter={phone} deposit={highlightedDeposit(tool, defs)} />
       )}
       <div className={styles.overlay}>
         <div className={styles.top}>
@@ -1184,6 +1195,15 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             compact={layout.mode === "phone-portrait" ? "portrait" : compactHud ? "landscape" : null}
             fewMaterials={compactHud && layout.width < 1200}
           />
+          {model && (
+            <RegionSwitcher
+              model={model}
+              content={content}
+              current={regionId}
+              warnings={content ? warningsByRegion(warningEntries(model, content)) : new Map()}
+              onSelect={setChosenRegion}
+            />
+          )}
           <InsolvencyBanner model={model} onOpenWarnings={() => togglePanel("warnings", true)} compact={phone} oneLine={tightLandscape} />
           {placementBar && isGhostTool(tool) && (
             <PlacementBar tool={tool} planning={planning} hint={ghostHint} paintStatus={paintStatus} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
@@ -1194,13 +1214,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {phone && unreachable}
         </div>
         {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
-        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} quality={quality} forceFxaa={forceFxaa} life={life} />
+        <GameCanvas sync={regionSource} tool={() => tool} events={events} onRenderer={onRenderer} quality={quality} forceFxaa={forceFxaa} life={life} />
         {showStats && <StatsBadge renderer={renderer} />}
-        {model && (
+        {mapModel && (
           <div className={styles.mapCorner}>
             <Minimap
               renderer={renderer}
-              model={model}
+              model={mapModel}
               viewport={{ width: layout.width, height: layout.height }}
               collapsible={phone}
               initiallyCollapsed={layout.mode === "phone-portrait"}

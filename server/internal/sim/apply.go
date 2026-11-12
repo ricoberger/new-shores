@@ -1313,7 +1313,7 @@ const upgradeGatePPM = 600_000
 func settledHouse(w *World, c *content.Catalogue, is *Island, id int64) *houseCalc {
 	cw := w.Clone()
 	wr, _ := settleWorld(cw, c, cw.LastEvaluatedAt.UnixMilli())
-	for i, cis := range cw.Islands {
+	for i, cis := range cw.Islands() {
 		if cis.ID != is.ID {
 			continue
 		}

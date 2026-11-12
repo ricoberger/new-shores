@@ -62,6 +62,20 @@
         }
       }
     ],
+    "regions": [
+      {
+        "id": "old_coast",
+        "unlocked": true,
+        "seed": 0,
+        "passage_point": null,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 50,
+          "height": 8
+        }
+      }
+    ],
     "archipelago": {
       "seed": 0,
       "roll": 0,
@@ -77,6 +91,7 @@
     "islands": [
       {
         "id": "home",
+        "region_id": "old_coast",
         "name": "Home",
         "size_class": "",
         "scenic": false,
@@ -228,6 +243,7 @@
       },
       {
         "id": "other",
+        "region_id": "old_coast",
         "name": "Other",
         "size_class": "",
         "scenic": false,
@@ -383,6 +399,7 @@
         "name": "Cog 1",
         "state": "manual_leg",
         "island_id": "",
+        "region_id": "old_coast",
         "route_id": 0,
         "stop_index": 0,
         "leg": {

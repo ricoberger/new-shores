@@ -38,9 +38,9 @@ afterEach(() => {
 });
 
 /** A settled island (chunks of 32 tiles, hundreds of buildings), a second settled one, an unsettled one with neither roads nor buildings and a skerry. */
-const HOME = "isle-06";
-const EMPTY = "isle-04";
-const WORLD = [HOME, "isle-02", EMPTY, "isle-13"];
+const HOME = "oc-06";
+const EMPTY = "oc-04";
+const WORLD = [HOME, "oc-02", EMPTY, "oc-13"];
 
 /**
  * A vertical chunk seam (x = 32·k) on land of an island: a row y where the
@@ -129,11 +129,11 @@ describe("per-island merged-layer rebuilds", () => {
     // A harvester's efficiency moves no tree any more: nothing rebuilds.
     w.show(
       next(moved, (is) => {
-        if (is.id !== "isle-02") return;
+        if (is.id !== "oc-02") return;
         is.buildings.find((b) => b.type === "lumberjack")!.efficiency_permille = 400;
       }),
     );
-    expect(w.details.get("isle-02")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 1 });
+    expect(w.details.get("oc-02")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 1 });
     expect(w.details.get(HOME)!.rebuilds).toEqual({ roads: 1, layout: 2, decoration: 2 });
   });
 
@@ -142,7 +142,7 @@ describe("per-island merged-layer rebuilds", () => {
     w.show(w.islands);
     w.show(next(w.islands, (is) => is.id === EMPTY && is.roads.push({ x: 1, y: 1, type: "road" } as IslandDisplay["roads"][number])));
     expect(w.details.get(EMPTY)!.rebuilds).toEqual({ roads: 2, layout: 1, decoration: 2 });
-    expect(w.details.get("isle-13")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 1 });
+    expect(w.details.get("oc-13")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 1 });
   });
 });
 
@@ -169,7 +169,7 @@ describe("chunked static layers", () => {
     expect(d.rebuilds.roads).toBe(4);
     expect(d.chunkRebuilds.roads).toEqual([]);
     // Other islands rebuilt nothing.
-    expect(w.details.get("isle-13")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 1 });
+    expect(w.details.get("oc-13")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 1 });
   });
 
   it("culls per chunk: only the chunk nodes in view are enabled", () => {

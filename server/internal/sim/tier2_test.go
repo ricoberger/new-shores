@@ -44,7 +44,7 @@ func depositWorld(t *testing.T, c *content.Catalogue) *World {
 		}
 	}
 	w := NewWorld(t0)
-	w.Islands = []*Island{NewIsland("main", len(rows[0]), len(rows), tiles)}
+	w.SetIslands(NewIsland("main", len(rows[0]), len(rows), tiles))
 	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -83,32 +83,32 @@ func TestFertility(t *testing.T) {
 	expectApplyErr(t, w, c, farm, ErrNoFertility)
 	w.Gold = gold
 
-	w.Islands[0].Fertilities = []string{"apple", "hemp"}
+	w.Islands()[0].Fertilities = []string{"apple", "hemp"}
 	expectApplyErr(t, w, c, farm, ErrNoFertility)
-	w.Islands[0].Fertilities = []string{"wheat"}
+	w.Islands()[0].Fertilities = []string{"wheat"}
 	mustApply(t, w, c, farm)
 	id := w.NextBuildingID - 1
 	// A farm with fields starts without fields (D-049).
-	if b := w.Islands[0].Building(id); b == nil || b.Type != "wheat_farm" || b.Efficiency != 0 {
+	if b := w.Islands()[0].Building(id); b == nil || b.Type != "wheat_farm" || b.Efficiency != 0 {
 		t.Fatalf("farm = %+v", b)
 	}
 	// Its fields need the fertility too.
 	mustApply(t, w, c, PlaceField{IslandID: "main", FarmID: id, Type: "wheat_field", X: 5, Y: 5})
-	w.Islands[0].Fertilities = []string{"apple"}
+	w.Islands()[0].Fertilities = []string{"apple"}
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: id, Type: "wheat_field", X: 5, Y: 6}, ErrNoFertility)
-	w.Islands[0].Fertilities = []string{"wheat"}
+	w.Islands()[0].Fertilities = []string{"wheat"}
 	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: w.NextBuildingID - 1})
 	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: id, X: 7, Y: 5})
 
 	// Moving applies the same rule; buildings without a fertility are not
 	// affected (fertility has no rate effect, MECHANICS §2).
-	w.Islands[0].Fertilities = []string{"apple"}
+	w.Islands()[0].Fertilities = []string{"apple"}
 	expectApplyErr(t, w, c, MoveBuilding{IslandID: "main", BuildingID: id, X: 6, Y: 5}, ErrNoFertility)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sheep_farm", X: 13, Y: 6})
 	cw := w.Clone()
-	w.Islands[0].Fertilities[0] = "hemp"
-	if !slices.Equal(cw.Islands[0].Fertilities, []string{"apple"}) {
-		t.Errorf("clone shares fertilities: %v", cw.Islands[0].Fertilities)
+	w.Islands()[0].Fertilities[0] = "hemp"
+	if !slices.Equal(cw.Islands()[0].Fertilities, []string{"apple"}) {
+		t.Errorf("clone shares fertilities: %v", cw.Islands()[0].Fertilities)
 	}
 }
 
@@ -144,11 +144,11 @@ func TestDeposits(t *testing.T) {
 	// Move applies the same checks.
 	expectApplyErr(t, w, c, MoveBuilding{IslandID: "main", BuildingID: quarry, X: 6, Y: 5}, ErrNoDeposit)
 	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: quarry, X: 12, Y: 2})
-	if b := w.Islands[0].Building(quarry); b.X != 12 || b.Y != 2 {
+	if b := w.Islands()[0].Building(quarry); b.X != 12 || b.Y != 2 {
 		t.Errorf("quarry at (%d,%d)", b.X, b.Y)
 	}
 	// Deposits are infinite and unchanged by placements.
-	if d := w.Islands[0].Tile(13, 2).Deposit; d == nil || d.Kind != "stone" || d.Quantity != -1 {
+	if d := w.Islands()[0].Tile(13, 2).Deposit; d == nil || d.Kind != "stone" || d.Quantity != -1 {
 		t.Errorf("deposit = %+v", d)
 	}
 }
@@ -197,22 +197,22 @@ func TestUpgradeWarehouse(t *testing.T) {
 	w.Gold = lvl2.Cost.Gold - 1
 	expectApplyErr(t, w, c, cmd, ErrInsufficientGold)
 	w.Gold = gold
-	stone := w.Islands[0].Inventory.Stock["stone"]
-	w.Islands[0].Inventory.Stock["stone"] = stoneCost - 1
+	stone := w.Islands()[0].Inventory.Stock["stone"]
+	w.Islands()[0].Inventory.Stock["stone"] = stoneCost - 1
 	expectApplyErr(t, w, c, cmd, ErrInsufficientMaterials)
-	w.Islands[0].Inventory.Stock["stone"] = stone
+	w.Islands()[0].Inventory.Stock["stone"] = stone
 
-	planks := w.Islands[0].Inventory.Stock["planks"]
+	planks := w.Islands()[0].Inventory.Stock["planks"]
 	mustApply(t, w, c, cmd)
-	b := w.Islands[0].Building(wh)
-	if b.Level != 2 || w.Gold != gold-lvl2.Cost.Gold || w.Islands[0].Inventory.Stock["stone"] != stone-stoneCost ||
-		w.Islands[0].Inventory.Stock["planks"] != planks-planksCost {
-		t.Fatalf("after upgrade: level %d gold %d stone %d planks %d", b.Level, w.Gold, w.Islands[0].Inventory.Stock["stone"], w.Islands[0].Inventory.Stock["planks"])
+	b := w.Islands()[0].Building(wh)
+	if b.Level != 2 || w.Gold != gold-lvl2.Cost.Gold || w.Islands()[0].Inventory.Stock["stone"] != stone-stoneCost ||
+		w.Islands()[0].Inventory.Stock["planks"] != planks-planksCost {
+		t.Fatalf("after upgrade: level %d gold %d stone %d planks %d", b.Level, w.Gold, w.Islands()[0].Inventory.Stock["stone"], w.Islands()[0].Inventory.Stock["planks"])
 	}
 	ds := display(t, w, c)
 	whd := buildingDisplay(t, ds, wh)
 	if *whd.Level != 2 || *whd.Capacity != lvl2.Capacity || *whd.ThroughputPerMin != lvl2.ThroughputPerMin || ds.Islands[0].Inventory["planks"].Capacity != lvl2.Capacity ||
-		whd.Berths == nil || whd.Berths.Total != lvl2.Berths || w.Islands[0].Building(wh).Berths != lvl2.Berths ||
+		whd.Berths == nil || whd.Berths.Total != lvl2.Berths || w.Islands()[0].Building(wh).Berths != lvl2.Berths ||
 		ds.Islands[0].CapacitySource == nil || ds.Islands[0].CapacitySource.Level != 2 || ds.Islands[0].CapacitySource.Capacity != lvl2.Capacity {
 		t.Errorf("display: level %d capacity %d throughput %d inventory %+v", *whd.Level, *whd.Capacity, *whd.ThroughputPerMin, ds.Islands[0].Inventory["planks"])
 	}
@@ -238,8 +238,8 @@ func TestUpgradeWarehouse(t *testing.T) {
 	// of every paid level, no gold (D-019).
 	l := NewLedger()
 	gold = w.Gold
-	planks = w.Islands[0].Inventory.Stock["planks"]
-	stone = w.Islands[0].Inventory.Stock["stone"]
+	planks = w.Islands()[0].Inventory.Stock["planks"]
+	stone = w.Islands()[0].Inventory.Stock["stone"]
 	if err := ApplyWithLedger(w, c, Demolish{IslandID: "main", BuildingID: inland}, l); err != nil {
 		t.Fatal(err)
 	}
@@ -248,8 +248,8 @@ func TestUpgradeWarehouse(t *testing.T) {
 		wantPlanks += refundAmount(cost(whDef.LevelCost(lvl), "planks"))
 		wantStone += refundAmount(cost(whDef.LevelCost(lvl), "stone"))
 	}
-	if w.Gold != gold || w.Islands[0].Inventory.Stock["planks"] != planks+wantPlanks || w.Islands[0].Inventory.Stock["stone"] != stone+wantStone {
-		t.Errorf("refund: gold %d->%d planks %d->%d stone %d->%d", gold, w.Gold, planks, w.Islands[0].Inventory.Stock["planks"], stone, w.Islands[0].Inventory.Stock["stone"])
+	if w.Gold != gold || w.Islands()[0].Inventory.Stock["planks"] != planks+wantPlanks || w.Islands()[0].Inventory.Stock["stone"] != stone+wantStone {
+		t.Errorf("refund: gold %d->%d planks %d->%d stone %d->%d", gold, w.Gold, planks, w.Islands()[0].Inventory.Stock["planks"], stone, w.Islands()[0].Inventory.Stock["stone"])
 	}
 	if f := l.Flow("main", "stone"); f.Refunded != wantStone*SubPerMilli {
 		t.Errorf("stone flow = %+v", f)

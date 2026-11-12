@@ -292,11 +292,11 @@ func buildAtomically(w *World, islandID string, l *Ledger, build func(*World, *I
 		return err
 	}
 	// Keep the island pointers callers may hold.
-	islands := w.Islands
+	islands := w.Islands()
 	*w = *cw
 	for i, is := range islands {
-		*is = *w.Islands[i]
-		w.Islands[i] = is
+		*is = *w.Islands()[i]
+		w.ReplaceIsland(is)
 	}
 	l.merge(cl)
 	return nil

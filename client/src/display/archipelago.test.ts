@@ -64,7 +64,7 @@ describe("route drafts", () => {
     const r = fixture("route_loop").routes[0]!;
     const d = draftFromRoute(r);
     expect(d.stops[0]!.load[0]).toEqual({ good: "wood", max: 100 });
-    expect(stopsFromDraft(d)).toEqual(r.stops);
+    expect(stopsFromDraft(d)).toEqual(commandStops(r.stops));
     expect(signedTons(-50_000)).toBe("−50\u00a0t");
     expect(signedTons(40_000)).toBe("+40\u00a0t");
     expect(signedTons(0)).toBe("0\u00a0t");
@@ -73,6 +73,11 @@ describe("route drafts", () => {
   });
 });
 
+/** The command stops of displayed stops: without the display's region_id (D-076). */
+function commandStops(stops: DisplayState["routes"][number]["stops"]) {
+  return stops.map((s) => ({ island_id: s.island_id, load: s.load, unload: s.unload }));
+}
+
 describe("route drafts with stop limits (D-070)", () => {
   it("round-trips keep and the unload max", () => {
     const r = fixture("route_limits").routes[0]!;
@@ -80,7 +85,7 @@ describe("route drafts with stop limits (D-070)", () => {
     expect(d.stops[0]!.load[0]).toEqual({ good: "wood", max: 100, keep: 250 });
     expect(d.stops[1]!.unload[0]).toEqual({ good: "wood", max: 30 });
     expect(d.stops[0]!.unload[0]).toEqual({ good: "planks" });
-    expect(stopsFromDraft(d)).toEqual(r.stops);
+    expect(stopsFromDraft(d)).toEqual(commandStops(r.stops));
   });
 });
 

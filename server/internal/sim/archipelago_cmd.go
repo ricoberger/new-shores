@@ -42,7 +42,7 @@ func CanReroll(w *World, c *content.Catalogue) error {
 	if w.Seed == 0 {
 		return fmt.Errorf("%w: the archipelago is not generated", ErrRerollNotAllowed)
 	}
-	for _, is := range w.Islands {
+	for _, is := range w.Islands() {
 		if settled(is, c) {
 			return fmt.Errorf("%w: island %q is settled", ErrRerollNotAllowed, is.ID)
 		}
@@ -62,7 +62,9 @@ func rerollArchipelago(w *World, c *content.Catalogue, cmd RerollArchipelago) er
 	if cmd.Roll != w.ArchipelagoRoll+1 || len(cmd.Islands) == 0 {
 		return fmt.Errorf("%w: roll %d of %d islands after roll %d", ErrInvalidCommand, cmd.Roll, len(cmd.Islands), w.ArchipelagoRoll)
 	}
-	w.Islands = cmd.Islands
+	home := w.HomeRegion()
+	home.SetIslands(cmd.Islands)
+	home.PassagePoint = &Pos{X: cmd.Spawn.X, Y: cmd.Spawn.Y}
 	w.ArchipelagoRoll = cmd.Roll
 	for _, s := range w.Ships {
 		s.IslandID = ""

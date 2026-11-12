@@ -56,7 +56,7 @@ func startInstance(t *testing.T, bin, name, dbURL, redisURL string) *instance {
 	cmd := exec.CommandContext(context.Background(), bin) // #nosec G204 -- test binary built by the test.
 	cmd.Env = append(os.Environ(),
 		"DATABASE_URL="+dbURL, "REDIS_URL="+redisURL, "LISTEN_ADDR="+in.addr, "METRICS_ADDR="+in.metrics,
-		"CONTENT_DIR="+filepath.Join(testenv.RepoRoot(), "content", "old_coast"), "INSTANCE_ID="+name,
+		"CONTENT_DIR="+filepath.Join(testenv.RepoRoot(), "content"), "INSTANCE_ID="+name,
 		"ALLOWED_ORIGINS="+testOrigin, "LOG_FORMAT=text", "FRESHNESS_INTERVAL=24h",
 		// The test sends X-Forwarded-For so that its many guests do not
 		// share one rate-limit bucket.
@@ -259,7 +259,7 @@ func TestMultiInstance(t *testing.T) {
 
 	// A new world starts at sea (D-051) in a generated archipelago (D-053):
 	// the start ship sails to its home candidate.
-	cmd := `{"command":{"type":"sail_ship","ship_id":1,"to_island_id":"` + archipelago.IslandID(0) + `"}}`
+	cmd := `{"command":{"type":"sail_ship","ship_id":1,"to_island_id":"` + archipelago.IslandID("oc", 0) + `"}}`
 	sent := time.Now()
 	res, err := httpDo(http.MethodPost, a.url("/api/v1/world/commands"), cmd, map[string]string{"Authorization": "Bearer " + token, "Content-Type": "application/json"})
 	if err != nil || res.status != 200 {
