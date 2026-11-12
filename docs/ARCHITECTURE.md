@@ -626,6 +626,22 @@ CI runs `gofmt`, `go vet`, `golangci-lint` (config in repo), `go test ./...`,
 `tsc`, `eslint`, Vitest, the client build and `assets-check` on every
 labelled PR.
 
+Pitfalls for local runs:
+
+- **The reference-game replay is slow.** `TestPlansRegenerate`
+  (`internal/sim/scenario/plan`) regenerates the four reference games and
+  compares them byte for byte; it takes about 26 min. It is skipped with
+  `-short` (`make check`) and runs in `make server-test-full` and
+  `make server-integration`. Run it on its own in the background
+  (`go test -timeout 60m ./internal/sim/scenario/plan -run
+  TestPlansRegenerate`; `-update` rewrites the scenarios).
+- **A new dev fixture in its own file needs the shots test.** The
+  fixture names are read from Go source by `client/e2e/tools/shots-args.test.ts`
+  (fixtures.go plus a fixed list of files: `played.go`, `basin.go`,
+  `castle.go`). A fixture constant in a new file must be added to that
+  list, to `FIXTURES` in `shots-args.ts` and to `FIXTURE_INFO` in
+  `shots.ts`, or `make check` fails.
+
 ## 11. Alternatives considered
 
 | Option | Why not |
