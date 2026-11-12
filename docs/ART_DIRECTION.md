@@ -756,13 +756,15 @@ land buildings).
     their own). A piece is a core on the tile's centre line plus an arm
     to each named tile edge (`join_cells`): the hedge two voxels wide
     (3..5) and five high, the garden wall two wide and four high with a
-    coping course, the city wall four wide (2..6) and eight high on a
-    darker footing with merlons (every other pair of voxels) on its
-    outline (`join_rim`) around the wall-walk. The client draws each
+    coping course, the city wall four wide (2..6) and two tiles high
+    (D-078 §6: the wall-walk at z = 14 between a one-voxel parapet on its
+    outline, `join_rim`, and merlons on every other pair of voxels above
+    it — 16 voxels) on a darker footing; the `arch` opening 7–9 voxels
+    high. The client draws each
     tile with the piece whose turned arms meet its neighbours
     (`render/paintjoin.ts`, like roads join).
   - *Military* (`civic`): `tower` 2 × 2 with wall stubs (four voxels
-    thick, eight high under a cap course) on the centre line of every
+    thick, sixteen high under a cap course, D-078 §6) on the centre line of every
     edge tile — voxels 2..6 and 10..14 of each side, from the battered
     foot to the footprint edge — so a city wall tile beside either of
     its tiles meets a stub; `gatehouse` 3 × 3 (arch on the y axis,
@@ -772,6 +774,23 @@ land buildings).
     0.22.1; was 8 × 8; the plan is laid out on the side and centre line, so it scales) at 12 voxels
     per tile (curtain, four round towers, gatehouse, keep, cobbled
     `path()` yard). The warm sandstone of the city guard, slate caps.
+  - *Heights* (D-078 §5–§6, as built; masonry = the top of the merlons'
+    cap, roofs and finials above; `tests/test_d077.py`):
+
+    | Model | vpt | Masonry | Top (with roof) |
+    |---|---|---|---|
+    | `city_wall` (every piece) | 8 | 16 (2 tiles) | 16 |
+    | `well` (for scale) | 8 | — | 14 (1.75 tiles, below the wall) |
+    | `tower`, `harbour_tower` (+1 plinth) | 8 | 32 (4 tiles) | 43 / 44 (5.4 / 5.5) |
+    | `gatehouse` | 8 | 28 (3.5 tiles; bartizans 29) | 34 (4.25) |
+    | `castle` curtain | 12 | 30 (2.5 tiles) | — |
+    | `castle` corner towers | 12 | 60 (5 tiles) | cones ≈ 72 |
+    | `castle` gatehouse | 12 | 44 | bartizan roofs above |
+    | `castle` keep | 12 | 88 walls (7.3 tiles) | 111 (9.25 tiles, turret finial) |
+    | `university` (reference) | 8 | — | 60 (7.5 tiles, its tower) |
+
+    The keep's walls alone pass the university's tower's top; its roof
+    ridge (≈ 103) and turret clearly do.
   - *Warships* (`_warships.py`, 20 voxels per tile, `length_tiles` 2 / 2.6 /
     3.2): `balinger`, `war_cog`, `war_carrack` from the cargo ships' hull
     builder; sails `sail`, banners `flag`, lite models, budgets 3 600 /

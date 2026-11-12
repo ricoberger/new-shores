@@ -110,9 +110,9 @@ LITE_BUDGET_PER_TILE = {"building": 40, "house": 45}
 #: file by footprint in tiles): at 500 / 40 per tile a 1 × 1 ornament would get 500 triangles for a tree, a well
 #: with its roof and a figure; the dense small footprints get the densest of their class with ~50 % headroom.
 #: Only the IDs in FOOTPRINT_CLASS_IDS use it; the castle, the Kontor and the cemetery stay per tile.
-#: D-078: the 2 × 2 lite budget 200 → 260 for the harbour tower's quay plinth (its side face and posts) under
-#: the taller tower.
-BUDGET_BY_FOOTPRINT = {(1, 1): (900, 72), (2, 2): (2600, 260), (3, 3): (5600, 400)}
+#: D-078: the 2 × 2 budgets 2 600 / 200 → 3 300 / 260 for the four-tile tower (D-078 §6: 2 786 triangles) and
+#: the harbour tower, the same tower on the quay plinth (3 066 / 204).
+BUDGET_BY_FOOTPRINT = {(1, 1): (900, 72), (2, 2): (3300, 260), (3, 3): (5600, 400)}
 FOOTPRINT_CLASS_IDS = (
     "tree_ornament", "flower_bed", "well", "pillory", "maypole", "fountain", "statue", "harbour_statue",
     "pond", "gold_statue", "tower", "harbour_tower", "gatehouse", "repair_crane",
