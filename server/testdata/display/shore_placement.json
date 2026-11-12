@@ -652,7 +652,7 @@
                 "bricks": 10000,
                 "stone": 20000
               },
-              "reason": "insufficient_materials"
+              "reason": "tier_locked"
             }
           }
         ],
@@ -1361,7 +1361,7 @@
                     "bricks": 10000,
                     "stone": 20000
                   },
-                  "reason": "insufficient_materials"
+                  "reason": "tier_locked"
                 }
               }
             ],
@@ -2070,7 +2070,7 @@
                     "bricks": 10000,
                     "stone": 20000
                   },
-                  "reason": "insufficient_materials"
+                  "reason": "tier_locked"
                 }
               }
             ],
@@ -2779,7 +2779,7 @@
                     "bricks": 10000,
                     "stone": 20000
                   },
-                  "reason": "insufficient_materials"
+                  "reason": "tier_locked"
                 }
               }
             ],
@@ -3488,7 +3488,7 @@
                     "bricks": 10000,
                     "stone": 20000
                   },
-                  "reason": "insufficient_materials"
+                  "reason": "tier_locked"
                 }
               }
             ],
@@ -4197,7 +4197,7 @@
                     "bricks": 10000,
                     "stone": 20000
                   },
-                  "reason": "insufficient_materials"
+                  "reason": "tier_locked"
                 }
               }
             ],

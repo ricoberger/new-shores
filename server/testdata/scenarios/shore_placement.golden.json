@@ -1,6 +1,6 @@
 {
   "name": "shore_placement",
-  "content_version": "old_coast-0.22.0",
+  "content_version": "old_coast-0.22.1",
   "boundary_count": 0,
   "totals": {
     "start": {
@@ -745,7 +745,7 @@
                 "bricks": 10000,
                 "stone": 20000
               },
-              "reason": "insufficient_materials"
+              "reason": "tier_locked"
             }
           }
         ],

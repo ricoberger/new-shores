@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.22.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.22.1" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 80 {
@@ -1370,5 +1370,38 @@ func TestBuildingLooks(t *testing.T) {
 				t.Errorf("%s (processes inputs) look %q, want workshop", b.ID, b.Look)
 			}
 		}
+	}
+}
+
+// TestOrnamentAndMilitaryTiers pins D-078 §2–§5: the ornaments spread over
+// Citizens, Merchants and Patricians, every military building comes with
+// the Patricians, and the castle is the 12 × 12 monument.
+func TestOrnamentAndMilitaryTiers(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{
+		"hedge": "citizens", "garden_wall": "citizens", "tree_ornament": "citizens", "flower_bed": "citizens",
+		"well": "citizens", "maypole": "citizens", "pillory": "citizens",
+		"pond": "merchants", "fountain": "merchants", "statue": "merchants", "cemetery": "merchants",
+		"square": "merchants", "harbour_statue": "merchants",
+		"gold_statue": "patricians",
+		"city_wall":   "patricians", "tower": "patricians", "gatehouse": "patricians", "harbour_tower": "patricians", "castle": "patricians",
+	}
+	for id, tier := range want {
+		if b := c.BuildingByID[id]; b == nil || b.Tier != tier {
+			t.Errorf("%s: tier %v, want %s", id, b, tier)
+		}
+	}
+	for _, b := range c.Buildings {
+		if (b.Category == CategoryOrnaments || b.Category == CategoryMilitary) && want[b.ID] == "" {
+			t.Errorf("%s (%s) has no D-078 tier", b.ID, b.Category)
+		}
+	}
+	castle := c.BuildingByID["castle"]
+	got := fmt.Sprintf("%dx%d %d %v %d", castle.Width, castle.Height, castle.Cost.Gold, castle.Cost.Materials, castle.UpkeepPerMin)
+	if want := "12x12 80000000 [{bricks 150000} {stone 200000}] 40000"; got != want {
+		t.Errorf("castle = %s, want %s", got, want)
 	}
 }

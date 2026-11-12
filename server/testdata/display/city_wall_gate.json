@@ -38,7 +38,7 @@
       },
       {
         "id": "patricians",
-        "unlocked": false,
+        "unlocked": true,
         "population": {
           "merchants": {
             "have": 0,
@@ -1001,7 +1001,7 @@
           },
           {
             "id": "patricians",
-            "unlocked": false,
+            "unlocked": true,
             "population": {
               "merchants": {
                 "have": 0,
@@ -1964,7 +1964,7 @@
           },
           {
             "id": "patricians",
-            "unlocked": false,
+            "unlocked": true,
             "population": {
               "merchants": {
                 "have": 0,
@@ -2927,7 +2927,7 @@
           },
           {
             "id": "patricians",
-            "unlocked": false,
+            "unlocked": true,
             "population": {
               "merchants": {
                 "have": 0,
@@ -3890,7 +3890,7 @@
           },
           {
             "id": "patricians",
-            "unlocked": false,
+            "unlocked": true,
             "population": {
               "merchants": {
                 "have": 0,
@@ -4853,7 +4853,7 @@
           },
           {
             "id": "patricians",
-            "unlocked": false,
+            "unlocked": true,
             "population": {
               "merchants": {
                 "have": 0,

@@ -10,9 +10,10 @@ import (
 )
 
 // FixtureCastleTown is the D-077 showcase on the patricians fixture: a
-// castle near the street's end inside a walled quarter (a ring of city
-// wall one tile out from the castle, arched where it crosses a land road,
-// with a tower on two of its corners), the Kontor on the home island's
+// castle (12 × 12 since D-078 §5) near the street's end inside a walled
+// quarter (a ring of city wall one tile out from the castle, arched where
+// it crosses a land road, with a tower on each of its four corners), the
+// Kontor on the home island's
 // coast and two warships — a balinger patrolling the home island and a
 // war cog patrolling the quartz island — for shots and the owner's
 // playtest (D-077 §2–§6).
@@ -28,6 +29,10 @@ const (
 	wallType     = "city_wall"
 	towerType    = "tower"
 	castlePatrol = 5 * time.Minute
+	// castleRingMin is the fewest wall tiles of a castle site's ring (of
+	// 60 round the 12 × 12 castle; roads cross as arches, the corners
+	// carry the towers).
+	castleRingMin = 48
 )
 
 // castleWarships are the fixture's warships: the type and the island it
@@ -52,17 +57,13 @@ func castleTown(f *fixture) {
 	}
 	castle := f.c.BuildingByID[castleType]
 	f.grant(home, &castle.Cost)
-	id := f.placeNear(home, castleType, f.streetEnd(home))
+	// A site counts when all four corner towers and most of the ring fit
+	// (castleRingMin wall tiles).
+	f.placeNearThen(home, castleType, f.streetEnd(home), func(id int64) bool {
+		towers, walls := castleRing(f, home, f.w.Island(home).Building(id), castle)
+		return f.err == nil && towers == 4 && walls >= castleRingMin
+	})
 	if f.err != nil {
-		return
-	}
-	b := f.w.Island(home).Building(id)
-	walls := castleRing(f, home, b, castle)
-	if f.err != nil {
-		return
-	}
-	if walls == 0 {
-		f.err = fmt.Errorf("the %s fixture placed no %s round the castle", FixtureCastleTown, wallType)
 		return
 	}
 	f.grant(home, &f.c.BuildingByID[kontorType].Cost)
@@ -74,19 +75,23 @@ func castleTown(f *fixture) {
 }
 
 // castleRing paints the city wall ring one tile out from the castle's
-// footprint, with a tower on its north-west and south-east corners
-// (where they fit); tiles the server refuses (buildings, water, quays)
-// stay open. Returns the wall tiles placed.
-func castleRing(f *fixture, island string, b *sim.Building, def *content.Building) int {
+// footprint (a free tile between them), with a tower on each of its four
+// corners (where they fit), the tower's inner tile on the ring's corner;
+// tiles the server refuses (buildings, water, quays) stay open. Returns
+// the towers and the wall tiles placed.
+func castleRing(f *fixture, island string, b *sim.Building, def *content.Building) (int, int) {
 	w, h := def.Width, def.Height
 	if b.Rotation == 90 || b.Rotation == 270 {
 		w, h = h, w
 	}
 	x0, y0, x1, y1 := b.X-2, b.Y-2, b.X+w+1, b.Y+h+1
 	tower := f.c.BuildingByID[towerType]
-	for _, p := range []sim.Pos{{X: x0 - 1, Y: y0 - 1}, {X: x1, Y: y1}} {
+	towers := 0
+	for _, p := range []sim.Pos{{X: x0 - 1, Y: y0 - 1}, {X: x1, Y: y0 - 1}, {X: x0 - 1, Y: y1}, {X: x1, Y: y1}} {
 		f.grant(island, &tower.Cost)
-		f.try(sim.PlaceBuilding{IslandID: island, Type: towerType, X: p.X, Y: p.Y})
+		if f.try(sim.PlaceBuilding{IslandID: island, Type: towerType, X: p.X, Y: p.Y}) {
+			towers++
+		}
 	}
 	var ring []sim.Pos
 	for x := x0; x <= x1; x++ {
@@ -113,7 +118,7 @@ func castleRing(f *fixture, island string, b *sim.Building, def *content.Buildin
 			n++
 		}
 	}
-	return n
+	return towers, n
 }
 
 // castleWarshipsOnPatrol builds the warships one after the other at the

@@ -57,7 +57,7 @@ class D077Test(unittest.TestCase):
     def test_the_footprints_are_the_d077_ones(self):
         want = {"tree_ornament": (1, 1), "flower_bed": (1, 1), "well": (1, 1), "pillory": (1, 1), "maypole": (2, 2), "pond": (3, 3),
                 "fountain": (2, 2), "statue": (2, 2), "cemetery": (4, 4), "harbour_statue": (2, 2), "gold_statue": (3, 3),
-                "tower": (2, 2), "gatehouse": (3, 3), "harbour_tower": (2, 2), "castle": (8, 8), "kontor": (4, 11), "repair_crane": (3, 3)}
+                "tower": (2, 2), "gatehouse": (3, 3), "harbour_tower": (2, 2), "castle": (12, 12), "kontor": (4, 11), "repair_crane": (3, 3)}
         for cid, fp in want.items():
             self.assertEqual(tuple(CONTENT["buildings"][cid]["footprint"]), fp, cid)
 

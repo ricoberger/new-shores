@@ -2974,7 +2974,7 @@
         "door": [
           0.0,
           0.0,
-          -2.8333
+          -4.8333
         ],
         "status": [
           0.0,
@@ -2984,31 +2984,31 @@
       },
       "bounds": {
         "max": [
-          3.9167,
+          5.9167,
           5.25,
-          3.9167
+          5.9167
         ],
         "min": [
-          -3.9167,
+          -5.9167,
           0.0,
-          -3.9167
+          -5.9167
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            3.9167,
+            5.9167,
             5.25,
-            3.9167
+            5.9167
           ],
           "min": [
-            -3.9167,
+            -5.9167,
             0.0,
-            -3.9167
+            -5.9167
           ]
         },
-        "budget": 32000,
-        "bytes": 820688,
+        "budget": 72000,
+        "bytes": 920344,
         "ground": [
           [
             "none",
@@ -3018,34 +3018,22 @@
             "none",
             "none",
             "none",
-            "none"
-          ],
-          [
-            "none",
-            "paved",
             "none",
             "none",
             "none",
             "none",
-            "paved",
-            "none"
-          ],
-          [
-            "none",
-            "paved",
-            "none",
-            "none",
-            "none",
-            "none",
-            "paved",
             "none"
           ],
           [
             "none",
             "paved",
             "paved",
-            "paved",
-            "paved",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
             "paved",
             "paved",
             "none"
@@ -3054,6 +3042,38 @@
             "none",
             "paved",
             "paved",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "paved",
+            "paved",
+            "none"
+          ],
+          [
+            "none",
+            "paved",
+            "paved",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "none",
+            "paved",
+            "paved",
+            "none"
+          ],
+          [
+            "none",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
             "paved",
             "paved",
             "paved",
@@ -3068,6 +3088,10 @@
             "paved",
             "paved",
             "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
             "none"
           ],
           [
@@ -3078,9 +3102,73 @@
             "paved",
             "paved",
             "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
             "none"
           ],
           [
+            "none",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "none"
+          ],
+          [
+            "none",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "none"
+          ],
+          [
+            "none",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "none"
+          ],
+          [
+            "none",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "paved",
+            "none"
+          ],
+          [
+            "none",
+            "none",
+            "none",
+            "none",
             "none",
             "none",
             "none",
@@ -3094,29 +3182,29 @@
         "lite": {
           "bounds": {
             "max": [
-              4.0,
+              6.0,
               5.0,
-              4.0
+              6.0
             ],
             "min": [
-              -4.0,
+              -6.0,
               0.0,
-              -4.0
+              -6.0
             ]
           },
-          "budget": 2560,
-          "bytes": 31164,
+          "budget": 5760,
+          "bytes": 32500,
           "path": "castle.lite.glb",
-          "sha256": "80de7531e256dc6adb0e6154cfe60976856bedae26b048609a9d008eeb2f59ee",
-          "triangles": 942
+          "sha256": "6599b659451c5a8c7a03fd954a1f0adbe7f8b2615322be042fcc2788451a12b2",
+          "triangles": 972
         },
         "path": "castle.glb",
-        "sha256": "64b863cf5abf9a77fc53a626c1b6d14c99836a9b7b4ee995fa3749bc3948c3d3",
-        "triangles": 26346
+        "sha256": "d89ee5b709228e1a454e5233272f07e62a658e2ce82a9943fd7914b35e89013f",
+        "triangles": 29894
       },
       "footprint": {
-        "h": 8,
-        "w": 8
+        "h": 12,
+        "w": 12
       },
       "kind": "building",
       "sway": [

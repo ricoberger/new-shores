@@ -748,7 +748,8 @@ land buildings).
     its tiles meets a stub; `gatehouse` 3 × 3 (arch on the y axis,
     portcullis, stubs of the same section on x- and x+ at its middle
     tile's centre line, voxels 10..14, paved `path()` through the
-    passage); the city wall joins both (and the castle) as neighbours, `castle` 8 × 8 at 12 voxels
+    passage); the city wall joins both (and the castle) as neighbours, `castle` 12 × 12 (D-078 §5, content
+    0.22.1; was 8 × 8; the plan is laid out on the side and centre line, so it scales) at 12 voxels
     per tile (curtain, four round towers, gatehouse, keep, cobbled
     `path()` yard). The warm sandstone of the city guard, slate caps.
   - *Warships* (`_warships.py`, 20 voxels per tile, `length_tiles` 2 / 2.6 /

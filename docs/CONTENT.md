@@ -458,22 +458,23 @@ Harbour additions (D-077 §4, D-076 §2, content 0.22.0; provisional):
 Both are `look: harbour`, stand in the build menu's Harbour group (the
 server derives the category from `repairs` / `unique`) and need no road.
 
-### Ornaments (D-077 §2, content 0.22.0)
+### Ornaments (D-077 §2, content 0.22.0; tiers D-078 §2, 0.22.1)
 
-Zero effect, no maintenance (the price is the sink; `upkeep_per_min: 0`,
+Ornaments start with the Citizens (D-078 §2: none at Settlers); the
+pond moved to the Merchants. Zero effect, no maintenance (the price is the sink; `upkeep_per_min: 0`,
 `pause_category: never`), `look: civic`, no road needed, movable,
 `category: ornaments` (build-menu group Ornaments). Costs provisional.
 
 | ID | Tier | Footprint | Cost (gold) | Notes |
 |---|---|---|---|---|
-| `hedge` | 1 | 1×1 | 10 | paint family: tiles join like roads (join pieces `hedge.<piece>`, ART_DIRECTION §7) |
-| `garden_wall` | 1 | 1×1 | 15 | paint family (join pieces) |
-| `tree_ornament` | 1 | 1×1 | 20 | 3 voxel variants |
-| `flower_bed` | 1 | 1×1 | 15 | |
-| `well` | 1 | 1×1 | 40 | |
+| `hedge` | 2 | 1×1 | 10 | paint family: tiles join like roads (join pieces `hedge.<piece>`, ART_DIRECTION §7) |
+| `garden_wall` | 2 | 1×1 | 15 | paint family (join pieces) |
+| `tree_ornament` | 2 | 1×1 | 20 | 3 voxel variants |
+| `flower_bed` | 2 | 1×1 | 15 | |
+| `well` | 2 | 1×1 | 40 | |
 | `maypole` | 2 | 2×2 | 120 | |
 | `pillory` | 2 | 1×1 | 60 | |
-| `pond` | 2 | 3×3 | 250 | ground kind `water_still` |
+| `pond` | 3 | 3×3 | 250 | ground kind `water_still` |
 | `fountain` | 3 | 2×2 | 600 | |
 | `statue` | 3 | 2×2 | 800 | |
 | `cemetery` | 3 | 4×4 | 500 | |
@@ -481,20 +482,21 @@ Zero effect, no maintenance (the price is the sink; `upkeep_per_min: 0`,
 | `harbour_statue` | 3 | 2×2 | 1 000 | shore placement |
 | `gold_statue` | 4 | 3×3 | 2 000 | |
 
-### Military (D-077 §3, content 0.22.0)
+### Military (D-077 §3, content 0.22.0; tiers D-078 §3, 0.22.1)
 
-`category: military` (build-menu group Military), `look: civic`, no road
+Every military building arrives with the Patricians (D-078 §3: walls
+are a late-game statement). `category: military` (build-menu group Military), `look: civic`, no road
 needed, small maintenance (`pause_category: public`), a `defence` value
 that **nothing reads** until raids (D-005) — the almanac and the card
 show it. Costs provisional.
 
 | ID | Tier | Footprint | Defence | Upkeep | Cost | Notes |
 |---|---|---|---|---|---|---|
-| `city_wall` | 2 | 1×1 | 1 | 0.1 per tile | 15 gold, 2 stone | paint family; a road may cross a tile (`road_crossing`, drawn as an arch) |
-| `tower` | 2 | 2×2 | 5 | 2 | 200 gold, 10 stone | joins a wall line: wall stubs on every edge tile (ART_DIRECTION §7 wall set) |
-| `gatehouse` | 2 | 3×3 | 5 | 3 | 300 gold, 15 stone | `gate: true`: wall on two opposite sides (stubs there), the road through its centre line |
-| `harbour_tower` | 3 | 2×2 | 8 | 4 | 600 gold, 20 stone, 10 bricks | shore placement |
-| `castle` | 4 | 8×8 | 30 | 15 | 5 000 gold, 100 stone, 60 bricks | keep, curtain and gate |
+| `city_wall` | 4 | 1×1 | 1 | 0.1 per tile | 15 gold, 2 stone | paint family; a road may cross a tile (`road_crossing`, drawn as an arch) |
+| `tower` | 4 | 2×2 | 5 | 2 | 200 gold, 10 stone | joins a wall line: wall stubs on every edge tile (ART_DIRECTION §7 wall set) |
+| `gatehouse` | 4 | 3×3 | 5 | 3 | 300 gold, 15 stone | `gate: true`: wall on two opposite sides (stubs there), the road through its centre line |
+| `harbour_tower` | 4 | 2×2 | 8 | 4 | 600 gold, 20 stone, 10 bricks | shore placement |
+| `castle` | 4 | 12×12 | 30 | 40 | 80 000 gold, 200 stone, 150 bricks | the monument (D-078 §5): keep, curtain, four corner towers and gate |
 
 ## 8. Ships
 
@@ -663,7 +665,7 @@ Every building has `id`, `name`, `region` (must equal the region id),
 called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min`,
 `pause_category` and `look`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **17** (D-077 patrol), content **old_coast-0.22.0** (D-077 ornaments, military, repair crane, Kontor, warships, `placement`, `category`, `defence`, `unique`, `paint_family`, `repairs`, `attack`; 0.21.1 D-076 `regions.json`, island IDs `oc-NN`, worlds with `regions[]`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): schema-15 and schema-16 worlds migrate (MECHANICS §9.4, ARCHITECTURE §4.2); older
+World schema **17** (D-077 patrol), content **old_coast-0.22.1** (D-078 `harbour_lane`, ornament and military tiers, the 12 × 12 castle; 0.22.0 D-077 ornaments, military, repair crane, Kontor, warships, `placement`, `category`, `defence`, `unique`, `paint_family`, `repairs`, `attack`; 0.21.1 D-076 `regions.json`, island IDs `oc-NN`, worlds with `regions[]`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): schema-15 and schema-16 worlds migrate (MECHANICS §9.4, ARCHITECTURE §4.2); older
 ones need a fresh local database (`make down VOLUMES=1 && make up`).
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.

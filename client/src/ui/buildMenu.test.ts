@@ -98,8 +98,8 @@ describe("build menu groups", () => {
     expect(production?.[0]).toBe("production");
     // The market serves a public-group need (D-065): it stands with the service buildings.
     expect(pub).toEqual(["public", ["market", "chapel"]]);
-    // The Settlers' ornaments (D-077 §2) in content order.
-    expect(rest).toEqual([["ornaments", ["hedge", "garden_wall", "tree_ornament", "flower_bed", "well"]]]);
+    // No ornaments before the Citizens (D-078 §2).
+    expect(rest).toEqual([]);
     // The Trading Post is never listed; later houses are upgrade-only.
     expect(JSON.stringify(groups("settlers"))).not.toContain("trading_post");
     expect(JSON.stringify(groups("patricians"))).not.toContain("house_patricians");
@@ -107,13 +107,22 @@ describe("build menu groups", () => {
 
   it("puts the quay in Harbour after the shipyard, pier and depot", () => {
     const citizens = groups("citizens");
-    expect(citizens.map(([g]) => g)).toEqual(["general", "production", "public", "harbour", "ornaments", "military"]);
+    expect(citizens.map(([g]) => g)).toEqual(["general", "production", "public", "harbour", "ornaments"]);
     expect(citizens[0]).toEqual(["general", ["road_paved"]]);
     // Pier and depot arrive with the Merchants (D-069 §5).
     expect(citizens[3]).toEqual(["harbour", ["shipyard", "quay"]]);
     expect(groups("merchants").find(([g]) => g === "harbour")).toEqual(["harbour", ["trading_pier", "depot", "repair_crane"]]);
     expect(groups("patricians").find(([g]) => g === "harbour")).toEqual(["harbour", ["kontor"]]);
-    expect(groups("citizens").find(([g]) => g === "military")).toEqual(["military", ["city_wall", "tower", "gatehouse"]]);
+    // The Citizens' ornaments in content order (D-078 §2); military only with the Patricians (D-078 §3).
+    expect(groups("citizens").find(([g]) => g === "ornaments")).toEqual([
+      "ornaments",
+      ["hedge", "garden_wall", "tree_ornament", "flower_bed", "well", "maypole", "pillory"],
+    ]);
+    expect(groups("merchants").find(([g]) => g === "military")).toBeUndefined();
+    expect(groups("patricians").find(([g]) => g === "military")).toEqual([
+      "military",
+      ["city_wall", "tower", "gatehouse", "harbour_tower", "castle"],
+    ]);
   });
 
   it("orders Production along the chains: raw first, then intermediate, then final goods", () => {
@@ -131,9 +140,10 @@ describe("build menu groups", () => {
   it("renders the groups in the strip, each with its label", () => {
     const html = render();
     expect(ids(html).slice(0, 3)).toEqual(["house_settlers", "road_dirt", "warehouse"]);
-    expect([...html.matchAll(/data-testid="build-group-([a-z]+)"/g)].map((m) => m[1])).toEqual(["general", "production", "public", "ornaments"]);
+    expect([...html.matchAll(/data-testid="build-group-([a-z]+)"/g)].map((m) => m[1])).toEqual(["general", "production", "public"]);
     expect(text(html.match(/data-testid="build-group-general"[^>]*><div[^>]*>(.*?)<\/div>/)![1]!)).toBe("General");
-    expect(text(html.match(/data-testid="build-group-ornaments"[^>]*><div[^>]*>(.*?)<\/div>/)![1]!)).toBe("Ornaments");
+    const citizens = render({ initialTier: "citizens" });
+    expect(text(citizens.match(/data-testid="build-group-ornaments"[^>]*><div[^>]*>(.*?)<\/div>/)![1]!)).toBe("Ornaments");
   });
 });
 
