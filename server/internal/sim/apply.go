@@ -489,6 +489,9 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if def.Field != nil {
 		return fmt.Errorf("%w: %s is placed from its %s (place_field)", ErrFieldNeedsFarm, def.ID, strings.Join(def.Field.Farms, " or "))
 	}
+	if err := checkUnique(w, is, def); err != nil {
+		return err
+	}
 	if def.Road != nil {
 		if !charge {
 			return fmt.Errorf("%w: roads cannot be placed free", ErrInvalidCommand)
@@ -1480,4 +1483,29 @@ func goodsOnIsland(is *Island) []string {
 		}
 	}
 	return sortedKeys(set)
+}
+
+// checkUnique enforces a building's uniqueness scope (D-076 §2, D-077):
+// one per island or one per world, built or planned. Building a plan
+// removes the plan first, so it never counts against itself.
+func checkUnique(w *World, is *Island, def *content.Building) error {
+	var scope []*Island
+	switch def.Unique {
+	case content.UniqueIsland:
+		scope = []*Island{is}
+	case content.UniqueWorld:
+		scope = w.Islands()
+	default:
+		return nil
+	}
+	for _, o := range scope {
+		for _, list := range [][]*Building{o.Buildings, o.Plans} {
+			for _, b := range list {
+				if b.Type == def.ID {
+					return fmt.Errorf("%w: %s (one per %s) already stands or is planned on %s", ErrUniqueBuilding, def.ID, def.Unique, o.ID)
+				}
+			}
+		}
+	}
+	return nil
 }

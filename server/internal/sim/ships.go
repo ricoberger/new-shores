@@ -3,6 +3,7 @@ package sim
 import (
 	"cmp"
 	"fmt"
+	"math"
 	"math/bits"
 	"slices"
 	"strconv"
@@ -288,11 +289,16 @@ func cargoAmounts(s *Ship) map[string]Qty {
 	return out
 }
 
-// slotsUsed is the number of slots the amounts occupy.
+// slotsUsed is the number of slots the amounts occupy. A ship without
+// cargo slots (slot size 0, a warship, D-077 §6) fits nothing: any amount
+// takes more slots than it has.
 func slotsUsed(amounts map[string]Qty, size Qty) int {
 	n := 0
 	for _, a := range amounts {
 		if a > 0 {
+			if size <= 0 {
+				return math.MaxInt32
+			}
 			n += int(ceilDiv(a, size))
 		}
 	}
@@ -303,6 +309,10 @@ func slotsUsed(amounts map[string]Qty, size Qty) int {
 // slots then one partial slot per good).
 func setCargo(s *Ship, size Qty, amounts map[string]Qty) {
 	var slots []Slot
+	if size <= 0 {
+		s.Cargo = nil // no cargo slots: callers never load one (slotsUsed, cargoRoom)
+		return
+	}
 	for _, g := range sortedKeys(amounts) {
 		for a := amounts[g]; a > 0; a -= min(a, size) {
 			slots = append(slots, Slot{Good: g, Amount: min(a, size)})
@@ -314,6 +324,9 @@ func setCargo(s *Ship, size Qty, amounts map[string]Qty) {
 // cargoRoom is how much more of good fits aboard: the free slots plus the
 // room of the good's partial slot.
 func cargoRoom(amounts map[string]Qty, good string, size Qty, slots int) Qty {
+	if size <= 0 {
+		return 0
+	}
 	room := Qty(max(slots-slotsUsed(amounts, size), 0)) * size
 	if r := amounts[good] % size; r != 0 {
 		room += size - r

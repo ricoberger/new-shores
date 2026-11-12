@@ -146,7 +146,7 @@ class V5ShipsTest(unittest.TestCase):
         return model.build_grid(recipe, "ship", key, ctx)
 
     def test_hull_length_at_the_waterline_matches_the_content(self):
-        for cid in config.MODEL_SHIPS:
+        for cid in config.CARGO_SHIPS:
             v = self.build(cid)
             xs = [x for (x, _, z) in v.cells if z == 1]
             length = max(xs) - min(xs) + 1
@@ -161,12 +161,12 @@ class V5ShipsTest(unittest.TestCase):
             self.assertEqual(v.anchors["wake"][2], 0, cid)
 
     def test_sails_and_flags_sway(self):
-        for cid in config.MODEL_SHIPS:
+        for cid in config.CARGO_SHIPS:
             groups = {m[2] for m in self.build(cid).cells.values() if len(m) > 2}
             self.assertEqual(groups, {"sail", "flag"}, cid)
 
     def test_one_cargo_prop_per_slot_on_free_deck(self):
-        for cid in config.MODEL_SHIPS:
+        for cid in config.CARGO_SHIPS:
             slots = CONTENT["ships"][cid]["slots"]
             self.assertEqual(len(self.ships.CARGO_SPOTS[cid]), slots, cid)
             hull = self.build(cid)

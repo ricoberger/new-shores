@@ -220,7 +220,7 @@ class ShipLiteTest(unittest.TestCase):
 
     def test_every_ship_has_a_lite_model_within_its_budget_and_the_full_length(self):
         recipes = model.recipe_modules()
-        for cid in config.MODEL_SHIPS:
+        for cid in config.CARGO_SHIPS:  # the warships: test_d077
             with self.subTest(cid=cid):
                 files, entry, problems = model.build_id(cid, "ship", recipes[cid], CONTENT)
                 self.assertEqual(problems, [])

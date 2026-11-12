@@ -21,6 +21,8 @@ function cost(c: Raw | undefined) {
 }
 
 function category(b: Raw): string {
+  if (b.category) return b.category;
+  if (b.repairs || b.unique === "world") return "harbour";
   if (b.house) return "houses";
   if (b.recipe || b.field || b.warehouse) return "production";
   if (b.service) return "public";
@@ -45,6 +47,10 @@ export function loadContent(dir: string): Content {
       coastal: !!b.coastal,
       water_rows: b.water_rows,
       placement: b.placement,
+      ...(b.defence ? { defence: b.defence } : {}),
+      ...(b.unique ? { unique: b.unique } : {}),
+      ...(b.paint_family ? { paint_family: b.paint_family } : {}),
+      ...(b.repairs ? { repairs: true } : {}),
       ...(b.description ? { description: b.description } : {}),
       requires_road: !!b.requires_road,
       cost: cost(b.cost),
@@ -155,6 +161,7 @@ export function loadContent(dir: string): Content {
       slot_size: m(s.slot_size),
       speed_permille: m(s.speed),
       ...(s.length_tiles === undefined ? {} : { length_milli_tiles: m(s.length_tiles) }),
+      ...(s.attack ? { attack: s.attack } : {}),
       build_ms: m(s.build_seconds),
       cost: cost(s.cost),
       upkeep_per_min: m(s.upkeep_per_min),

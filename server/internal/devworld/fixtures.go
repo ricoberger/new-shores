@@ -62,8 +62,8 @@ import (
 //     DevSeed included).
 //   - played: the Patricians reference game replayed (played.go), with
 //     plans (D-071, plans.go).
-//   - harbour-basin: town plus a 60-tile pier with a trading pier at its
-//     head (D-077 §8, basin.go).
+//   - harbour-basin: town plus a 60-tile pier with a trading pier and a
+//     harbour tower at its head (D-077 §8, basin.go).
 const (
 	FixtureDefault    = "default"
 	FixtureSeafaring  = "seafaring"

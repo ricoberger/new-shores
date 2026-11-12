@@ -59,7 +59,7 @@ func TestFixtures(t *testing.T) {
 					}
 				}
 				for _, b := range w.Island(home).Buildings {
-					if def := c.BuildingByID[b.Type]; def.Field == nil && def.Pier == nil && !def.Collector() && b.AssignedWarehouseID == 0 {
+					if def := c.BuildingByID[b.Type]; def.Field == nil && def.Pier == nil && def.Category == "" && !def.Collector() && b.AssignedWarehouseID == 0 {
 						t.Errorf("%s %d not connected", b.Type, b.ID)
 					}
 				}
@@ -78,11 +78,11 @@ func TestFixtures(t *testing.T) {
 						quays++
 					}
 				}
-				if quays != basinQuayTiles || count(w, home, basinPier) != 1 {
-					t.Errorf("harbour-basin: %d quay tiles, %d %s", quays, count(w, home, basinPier), basinPier)
+				if quays != basinQuayTiles || count(w, home, basinPier) != 1 || count(w, home, basinTower) != 1 {
+					t.Errorf("harbour-basin: %d quay tiles, %d %s, %d %s", quays, count(w, home, basinPier), basinPier, count(w, home, basinTower), basinTower)
 				}
 				for _, b := range is.Buildings {
-					if b.Type != basinPier {
+					if b.Type != basinPier && b.Type != basinTower {
 						continue
 					}
 					def := c.BuildingByID[b.Type]
@@ -259,7 +259,7 @@ func checkPatricians(t *testing.T, c *content.Catalogue, w *sim.World) {
 			if b.Type == patriciansHouse && (b.House == nil || b.House.Residents < c.TierByID[patriciansTier].ResidentsFloor) {
 				t.Errorf("patrician house %d residents %+v", b.ID, b.House)
 			}
-			if def := c.BuildingByID[b.Type]; def.Field == nil && def.Pier == nil && !def.Collector() && b.AssignedWarehouseID == 0 {
+			if def := c.BuildingByID[b.Type]; def.Field == nil && def.Pier == nil && def.Category == "" && !def.Collector() && b.AssignedWarehouseID == 0 {
 				t.Errorf("%s: %s %d not connected", is.ID, b.Type, b.ID)
 			}
 		}

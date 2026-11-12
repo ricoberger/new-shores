@@ -1,11 +1,14 @@
 """
-The D-077 models (ornaments, military, Kontor, repair crane, warships): planned
-and held (built, checked, sheeted, not published until the content defines
-them), so the committed-manifest tests never see them; this builds each one
-with a recipe and applies the same checks (budgets, footprint, floating
-voxels, ground plate, anchors).
+The D-077 models (ornaments, military, Kontor, repair crane, warships):
+planned in planned/d077.json and, since content 0.22.0, published (the
+content defines them; the tier tests leave them to this file). This builds
+each one with its recipe and applies the same checks (budgets, footprint,
+floating voxels, ground plate, anchors); the paint families (hedge, garden
+wall, city wall) have recipes too, the square is a ground kind without a
+model.
 """
 
+import json
 import os
 import sys
 import unittest
@@ -19,13 +22,17 @@ from nsvoxel import config, content as content_mod, model  # noqa: E402
 
 CONTENT = content_mod.load()
 RECIPES = model.recipe_modules()
-PLANNED = [cid for cid in content_mod.held_ids(CONTENT) if cid in RECIPES]
+#: The planned D-077 models (planned/d077.json).
+with open(os.path.join(config.PLANNED_DIR, "d077.json"), encoding="utf-8") as _f:
+    PLANNED = [e["id"] for e in json.load(_f)]
+PAINT = ("hedge", "garden_wall", "city_wall")
 SHORE = ("harbour_statue", "harbour_tower", "kontor", "repair_crane")
 
 
 class D077Test(unittest.TestCase):
-    def test_every_held_model_builds_without_problems(self):
-        for cid in PLANNED:
+    def test_every_d077_model_builds_without_problems(self):
+        self.assertTrue({"kontor", "castle", "balinger"} <= set(PLANNED))
+        for cid in PLANNED + list(PAINT):
             kind = build.kind_for(CONTENT, cid)
             files, entry, problems = model.build_id(cid, kind, RECIPES[cid], CONTENT)
             self.assertEqual(problems, [], cid)
@@ -54,10 +61,12 @@ class D077Test(unittest.TestCase):
         for cid, fp in want.items():
             self.assertEqual(tuple(CONTENT["buildings"][cid]["footprint"]), fp, cid)
 
-    def test_a_held_model_is_not_published(self):
-        held = set(content_mod.held_ids(CONTENT))
+    def test_the_d077_models_are_published_and_the_square_has_none(self):
+        self.assertEqual(content_mod.held_ids(CONTENT), [])
         required = {cid for cid, _ in build.targets(CONTENT, RECIPES)}
-        self.assertTrue(held.isdisjoint(required))
+        d077 = {cid for cid in CONTENT["buildings"] if content_mod.is_d077(CONTENT, cid)} | set(config.WARSHIPS)
+        self.assertEqual(sorted(d077 - required), ["square"])
+        self.assertEqual(content_mod.kind_of(CONTENT, "square"), "road")
 
 
 if __name__ == "__main__":

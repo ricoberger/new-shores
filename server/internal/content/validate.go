@@ -269,6 +269,7 @@ func checkReferences(c *Catalogue) error {
 				col.add(FileBuildings, ent, "shipyard.ships", "must not be empty")
 			}
 		}
+		checkD077(col, ent, b)
 		if b.Smoke && (b.Recipe == nil || b.Field != nil) {
 			col.add(FileBuildings, ent, "smoke", "only producers (a recipe, not a field) can smoke")
 		}
@@ -304,11 +305,17 @@ func checkReferences(c *Catalogue) error {
 			col.add(FileShips, ent, "region", "must be %q, got %q", c.Region.ID, s.Region)
 		}
 		tier(FileShips, ent, "tier", s.Tier)
-		if s.Slots < 1 {
-			col.add(FileShips, ent, "slots", "must be >= 1")
-		}
-		if s.SlotSize <= 0 {
+		switch {
+		case s.Slots < 0:
+			col.add(FileShips, ent, "slots", "must be >= 0")
+		case s.Slots == 0 && s.SlotSize != 0:
+			col.add(FileShips, ent, "slot_size", "must be 0 for a ship without cargo slots")
+		case s.Slots > 0 && s.SlotSize <= 0:
 			col.add(FileShips, ent, "slot_size", "must be > 0")
+		}
+		// The dormant attack value belongs to warships (D-077 §6).
+		if s.Attack < 0 || (s.Attack > 0 && s.Slots > 0) {
+			col.add(FileShips, ent, "attack", "only ships without cargo slots carry an attack value (>= 1)")
 		}
 		if s.SpeedPermille <= 0 {
 			col.add(FileShips, ent, "speed", "must be > 0")
@@ -677,5 +684,52 @@ func checkLevels(col *collector, ent string, b *Building) {
 	}
 	if withReach > 0 && withReach != len(levels) {
 		col.add(FileBuildings, ent, prefix+".levels", "reach must be set on every level or on none")
+	}
+}
+
+// checkD077 validates the D-077 building fields: category, the dormant
+// defence value, the uniqueness scope, paint families and repairs.
+func checkD077(col *collector, ent string, b *Building) {
+	blocks := b.Recipe != nil || b.House != nil || b.TradingPost != nil || b.Warehouse != nil || b.Road != nil ||
+		b.Service != nil || b.Shipyard != nil || b.Pier != nil || b.Depot != nil || b.Field != nil || b.Fields != nil
+	switch b.Category {
+	case "":
+	case CategoryOrnaments, CategoryMilitary:
+		// Ornaments and military buildings have no effect (D-077 §2–§3).
+		if blocks || b.Workforce != nil || b.WorkArea != nil || b.RequiresDeposit != "" || b.WaterRows != nil {
+			col.add(FileBuildings, ent, "category", "an ornament or military building has no capability block")
+		}
+		if b.Category == CategoryOrnaments && b.UpkeepPerMin != 0 {
+			col.add(FileBuildings, ent, "upkeep_per_min", "an ornament has no maintenance")
+		}
+	default:
+		col.add(FileBuildings, ent, "category", "must be ornaments, military or absent, got %q", b.Category)
+	}
+	if b.Defence < 0 || (b.Defence > 0) != (b.Category == CategoryMilitary) {
+		col.add(FileBuildings, ent, "defence", "a military building has a defence value (>= 1), other buildings none")
+	}
+	switch b.Unique {
+	case "", UniqueIsland, UniqueWorld:
+	default:
+		col.add(FileBuildings, ent, "unique", "must be island, world or absent, got %q", b.Unique)
+	}
+	if b.Unique != "" && (b.TradingPost != nil || b.Road != nil || b.Field != nil || b.House != nil) {
+		col.add(FileBuildings, ent, "unique", "a trading post, road, field or house cannot be unique")
+	}
+	if pf := b.PaintFamily; pf != nil {
+		if b.Width != 1 || b.Height != 1 || blocks || b.Shore() || b.Unique != "" || b.Coastal || b.WaterRows != nil {
+			col.add(FileBuildings, ent, "paint_family", "a paint family is a 1x1 land building without capability blocks or uniqueness")
+		}
+		switch pf.Ground {
+		case "", GroundCobblesFine:
+		default:
+			col.add(FileBuildings, ent, "paint_family.ground", "unknown ground kind %q", pf.Ground)
+		}
+		if pf.Ground != "" && pf.RoadCrossing {
+			col.add(FileBuildings, ent, "paint_family", "a ground paint family cannot carry a road crossing")
+		}
+	}
+	if b.Repairs && !b.Shore() {
+		col.add(FileBuildings, ent, "repairs", "a repairing building stands on the shore")
 	}
 }

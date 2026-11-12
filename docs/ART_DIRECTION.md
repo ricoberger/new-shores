@@ -670,12 +670,16 @@ land buildings).
 | slaughterhouse, oyster house, cooperage, winepress, malt house, grain distillery, thread spinner, lace maker, candle foundry, copper smelter, gold smelter | Patricians | workshop | tier II: rubble, half-timber, terracotta; furnace towers, kilns, the oast cone and the strongroom keep their own stone and slate |
 | fashion house, goldsmith, optician, luthier, glass smelter | Patricians | workshop | tier II framing under the dark burgundy tile (`tile-dark`, the grand workshops: five of sixteen) |
 
-- **D-077 models (as built; held).** The planned entries of
-  `assets/voxel/planned/d077.json` are built, checked and sheeted but
-  carry `hold`: they are not written to `client/public/models` or the
-  manifest until the content defines the IDs (the client test requires
-  the manifest's models to equal the content's); `tests/test_d077.py`
-  builds every one. The planned schema gained `placement: shore`, `look`
+- **D-077 models (as built; published with content 0.22.0).** The
+  planned entries of `assets/voxel/planned/d077.json` were built,
+  checked and sheeted while held (`hold`); since the content defines the
+  IDs they are published (the client test requires the manifest's models
+  to equal the content's); `tests/test_d077.py` builds every one, the
+  tier tests leave them to it (`content.is_d077`). The paint families
+  `hedge`, `garden_wall` and `city_wall` have straight-piece recipes
+  until their join sets (§7 wall set); the `square` is a ground kind
+  and has no model (`kind_of` → road). The warships are
+  `config.WARSHIPS` beside `config.CARGO_SHIPS` (no cargo attachment). The planned schema gained `placement: shore`, `look`
   and `length_tiles`; ships may have 0 slots.
   - *Ornaments* (`look: civic`, 8 voxels per tile, no ground paint
     unless noted): `tree_ornament` 1 × 1 (three variants: lime, oak,
@@ -788,8 +792,8 @@ land buildings).
   far only `tree_plot` (450, slack 4: the forest trees at forest scale,
   D-068 as built). The committed GLBs are 23.20 MiB (24 322 124 B) of a
   **32 MiB folder limit** (D-077 §7, raised from 24 MiB) after the
-  D-077 re-dress; the held D-077 models add 2.26 MiB once published
-  (≈ 25.5 MiB); what remains per triangle is indices and AO/normal-split
+  D-077 re-dress; with the D-077 models published (content 0.22.0) they
+  are 25.47 MiB (26 704 448 B); what remains per triangle is indices and AO/normal-split
   vertices.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at

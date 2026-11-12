@@ -353,7 +353,8 @@ func TestTierThreeMatchesPlannedModels(t *testing.T) {
 		// (the models session plans and builds them).
 		// The trading pier and the depot are D-060 harbour models planned
 		// in d060.json; D-069 §5 moved them to the Merchants.
-		if b.Tier == "merchants" && !seen[b.ID] && b.ID != "fire_station" && b.ID != "playhouse" && b.ID != "trading_pier" && b.ID != "depot" {
+		// D-077's buildings are planned in d077.json (TestD077MatchesPlannedModels).
+		if b.Tier == "merchants" && !seen[b.ID] && b.ID != "fire_station" && b.ID != "playhouse" && b.ID != "trading_pier" && b.ID != "depot" && !d077Building(b) {
 			t.Errorf("%s is not in the planned tier-3 models", b.ID)
 		}
 		if b.Boat != (b.ID == "fisher" || b.ID == "oyster_beds") {

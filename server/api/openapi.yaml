@@ -825,6 +825,9 @@ components:
           island's land nor a built building over quay tiles, D-077 §8),
           `quay_would_float` (demolishing roads or a building, or moving
           a building, would cut a quay off from the land, D-077 §8),
+          `unique_building` (the building, e.g. the Kontor, exists once
+          per island or per world — `unique` in the content — and one
+          already stands or is planned, D-076 §2),
           `no_fertility` (the island lacks the work area's or the field's
           fertility tag),
           `field_type_mismatch` (`place_field` with a type that is not a
@@ -951,6 +954,7 @@ components:
         - shore_back_edge
         - quay_disconnected
         - quay_would_float
+        - unique_building
         - harbour_blocked
         - no_fertility
         - no_deposit
@@ -3631,11 +3635,11 @@ components:
           type: string
         slots:
           type: integer
-          description: Cargo slots (count).
+          description: Cargo slots (count); 0 for a warship without cargo (D-077 §6).
         slot_size:
           type: integer
           format: int64
-          description: Capacity of one slot (milli-units).
+          description: Capacity of one slot (milli-units); 0 when slots is 0.
         speed_permille:
           type: integer
           format: int64
@@ -3647,6 +3651,12 @@ components:
             Hull length in milli-tiles (display only): the client draws the
             ship and spaces the Trading Post's berths by it. Absent: the
             reference length (2 000, the cog).
+        attack:
+          type: integer
+          minimum: 1
+          description: |
+            Attack value of a warship (D-077 §6; `slots` 0, no cargo).
+            Dormant: nothing reads it until raids. Absent for cargo ships.
         build_ms:
           type: integer
           format: int64
@@ -3868,9 +3878,11 @@ components:
           type: string
         category:
           type: string
-          enum: [houses, production, public, harbour, roads, other]
+          enum: [houses, production, public, harbour, roads, ornaments, military, other]
           description: |
-            Build-menu group derived by the server from the capability
+            Build-menu group: `ornaments` and `military` come from the
+            content (D-077 §2–§3); the repair crane and the Kontor are
+            harbour. Otherwise derived by the server from the capability
             blocks: house → houses, recipe, field or warehouse →
             production, service → public, trading_post, shipyard, pier,
             depot or a shallows road (the quay) → harbour, any other
@@ -3916,6 +3928,37 @@ components:
             no tile lies on the harbour lane or berth tiles of the
             island's Trading Post or trading piers; the footprint is land
             for ships. Absent for other buildings (never with water_rows).
+        defence:
+          type: integer
+          minimum: 1
+          description: |
+            Defence value of a military building (D-077 §3). Dormant:
+            nothing reads it until raids. Absent for other buildings.
+        unique:
+          type: string
+          enum: [island, world]
+          description: |
+            Uniqueness scope (D-076 §2): one per island or one per world
+            (the Kontor), built or planned (`unique_building`). Absent:
+            no limit.
+        paint_family:
+          type: object
+          additionalProperties: false
+          description: |
+            A 1x1 building painted tile by tile with the road tools whose
+            tiles join their neighbours of the family (D-077 §2–§3):
+            hedge, garden wall, city wall, square.
+          properties:
+            ground:
+              type: string
+              enum: [cobbles_fine]
+              description: The ground kind the tile paints instead of a model (the square).
+            road_crossing:
+              type: boolean
+              description: A road may cross a tile of the family (the city wall, drawn as an arch).
+        repairs:
+          type: boolean
+          description: The building repairs ships (the repair crane, D-077 §4). Dormant until raids.
         requires_road:
           type: boolean
         cost:

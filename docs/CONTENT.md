@@ -448,6 +448,54 @@ depot would question its own capacity). Both arrive with the Merchants
 (D-069 §5: they matter once several routes run); shipyard and quay stay
 at Citizens.
 
+Harbour additions (D-077 §4, D-076 §2, content 0.22.0; provisional):
+
+| ID | Tier | Footprint | Placement | Cost | Upkeep | Notes |
+|---|---|---|---|---|---|---|
+| `repair_crane` | 3 | 3×3 | shore | 400 gold, 20 planks, 10 stone | 2 (`public`) | `repairs: true`; dormant until ship health comes with raids |
+| `kontor` | 4 | 4×11 (depot class) | shore | 3 000 gold, 60 planks, 40 bricks, 20 glass | 10 (`public`) | `unique: world` (one per world, built or planned: `unique_building`); later opens expeditions and the online features (D-076 §2); DE name *Hansekontor* (the Trading Post is already *Kontor* in German) |
+
+Both are `look: harbour`, stand in the build menu's Harbour group (the
+server derives the category from `repairs` / `unique`) and need no road.
+
+### Ornaments (D-077 §2, content 0.22.0)
+
+Zero effect, no maintenance (the price is the sink; `upkeep_per_min: 0`,
+`pause_category: never`), `look: civic`, no road needed, movable,
+`category: ornaments` (build-menu group Ornaments). Costs provisional.
+
+| ID | Tier | Footprint | Cost (gold) | Notes |
+|---|---|---|---|---|
+| `hedge` | 1 | 1×1 | 10 | paint family: tiles join like roads |
+| `garden_wall` | 1 | 1×1 | 15 | paint family |
+| `tree_ornament` | 1 | 1×1 | 20 | 3 voxel variants |
+| `flower_bed` | 1 | 1×1 | 15 | |
+| `well` | 1 | 1×1 | 40 | |
+| `maypole` | 2 | 2×2 | 120 | |
+| `pillory` | 2 | 1×1 | 60 | |
+| `pond` | 2 | 3×3 | 250 | ground kind `water_still` |
+| `fountain` | 3 | 2×2 | 600 | |
+| `statue` | 3 | 2×2 | 800 | |
+| `cemetery` | 3 | 4×4 | 500 | |
+| `square` | 3 | 1×1 | 20 | paint family, ground kind `cobbles_fine` (no model) |
+| `harbour_statue` | 3 | 2×2 | 1 000 | shore placement |
+| `gold_statue` | 4 | 3×3 | 2 000 | |
+
+### Military (D-077 §3, content 0.22.0)
+
+`category: military` (build-menu group Military), `look: civic`, no road
+needed, small maintenance (`pause_category: public`), a `defence` value
+that **nothing reads** until raids (D-005) — the almanac and the card
+show it. Costs provisional.
+
+| ID | Tier | Footprint | Defence | Upkeep | Cost | Notes |
+|---|---|---|---|---|---|---|
+| `city_wall` | 2 | 1×1 | 1 | 0.1 per tile | 15 gold, 2 stone | paint family; a road may cross a tile (`road_crossing`, drawn as an arch) |
+| `tower` | 2 | 2×2 | 5 | 2 | 200 gold, 10 stone | joins a wall line |
+| `gatehouse` | 2 | 3×3 | 5 | 3 | 300 gold, 15 stone | wall on two opposite sides, the road through |
+| `harbour_tower` | 3 | 2×2 | 8 | 4 | 600 gold, 20 stone, 10 bricks | shore placement |
+| `castle` | 4 | 8×8 | 30 | 15 | 5 000 gold, 100 stone, 60 bricks | keep, curtain and gate |
+
 ## 8. Ships
 
 | ID | Tier | Slots × size | Speed | Build | Cost | Upkeep |
@@ -455,6 +503,9 @@ at Citizens.
 | `cog` | 2 (start ship from tier 1) | 2 × 50 | 1.2 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
 | `hulk` | 3 | 4 × 50 | 1.0 | 5 min | 1 500 gold, 60 planks, 20 sails, 10 tools | 4 |
 | `carrack` | 4 | 6 × 60 | 0.85 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
+| `balinger` | 4 | — (attack 4) | 1.3 | 5 min | 800 gold, 40 planks, 15 sails, 10 tools | 3 |
+| `war_cog` | 4 | — (attack 10) | 1.0 | 7.5 min | 2 500 gold, 80 planks, 30 sails, 20 tools | 5 |
+| `war_carrack` | 4 | — (attack 20) | 0.8 | 10 min | 6 000 gold, 150 planks, 50 sails, 40 tools | 8 |
 
 \*The sails for the first built cog are the reward of the tier-2
 "Build a shipyard" quest (D-056) — the only source of sails before a
@@ -463,8 +514,13 @@ ship is a cog and carries the founding stock, 100 planks in its two
 50-t slots (D-051).
 
 Ships live in `ships.json` (`{ id, name, tier, slots, slot_size, speed,
-build_seconds, cost, upkeep_per_min, length_tiles? }`, schema under
-`content/schema/`); all three are authored. `length_tiles` is the hull
+build_seconds, cost, upkeep_per_min, length_tiles?, attack? }`, schema
+under `content/schema/`); all six are authored and built at the
+shipyard. The **warships** (D-077 §6; DE Balinger, Friedeschiff,
+Kriegskraweel) carry no cargo — `slots: 0`, `slot_size: 0` (the loader
+requires both zero together) — and an `attack` value that nothing reads
+until raids (only ships without slots may carry one). Build times and
+upkeep provisional (D-077 names cost, speed and attack only). `length_tiles` is the hull
 length at model scale (cog 2, hulk 2.6, carrack 3.2; absent: 2), display
 only: the client draws each ship and spaces the berths of Trading Posts
 and trading piers by it (MECHANICS §9.1). Speeds differ (D-059,
@@ -494,12 +550,11 @@ Sizes, counts, pools and ranges live in `islands.json`; the generator
 reads them and the content loader validates that the ranges are
 satisfiable (pool size × max ≥ islands × min fertilities, etc.).
 
-## 10. Decorations (cosmetic, Doubloons)
+## 10. Decorations (cosmetic)
 
-Launch set (examples): hedge, hedge corner, flower bed, lantern, well, small
-statue, fountain, pond, old tree, bell tower, pillory, graveyard, maypole;
-seasonal items later. Zero gameplay effect (D-021). Also cosmetic: ship skins
-and house facade variants per tier.
+The ornaments are gold buildings since D-077 §2 (§7 Ornaments; no
+Doubloons, D-077 §1). Possible later cosmetics: ship skins and house
+facade variants per tier (MONETIZATION.md). Zero gameplay effect (D-021).
 
 ## 11. Content data format
 
@@ -608,7 +663,7 @@ Every building has `id`, `name`, `region` (must equal the region id),
 called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min`,
 `pause_category` and `look`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **16**, content **old_coast-0.21.1** (D-076 `regions.json`, island IDs `oc-NN`, worlds with `regions[]`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): schema-15 worlds migrate (MECHANICS §9.4, ARCHITECTURE §4.2); older
+World schema **16**, content **old_coast-0.22.0** (D-077 ornaments, military, repair crane, Kontor, warships, `placement`, `category`, `defence`, `unique`, `paint_family`, `repairs`, `attack`; 0.21.1 D-076 `regions.json`, island IDs `oc-NN`, worlds with `regions[]`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): schema-15 worlds migrate (MECHANICS §9.4, ARCHITECTURE §4.2); older
 ones need a fresh local database (`make down VOLUMES=1 && make up`).
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.
@@ -616,6 +671,15 @@ Optional `placement: "shore"` (D-077 §5) places a building by the shore
 rule of MECHANICS §2; it excludes `water_rows`, `coastal`, a deposit and
 the trading_post, road, field and house blocks; a `pier` needs
 `water_rows` or the shore placement.
+D-077 fields: `category` (`ornaments` or `military`; absent: derived
+from the blocks) — such a building carries no capability block, an
+ornament no upkeep; `defence` (integer ≥ 1, exactly on military
+buildings; dormant); `unique` (`island` or `world`: one per scope, built
+or planned, `unique_building`; not on a trading post, road, field or
+house); `paint_family` (`{ ground?: "cobbles_fine", road_crossing?:
+bool }`: a 1×1 land building without blocks painted with the road tools
+whose tiles join, MECHANICS §3); `repairs` (boolean, shore buildings
+only; dormant).
 What a building *does* is defined by the optional blocks
 it carries:
 
@@ -683,8 +747,8 @@ assignment:
 |---|---|
 | `rural` | lumberjack, tree_plot, sheep_farm, pasture, fisher, wheat_farm, wheat_field, dairy_farm, cattle_pasture, orchard, orchard_plot, apiary, meadow, hemp_farm, hemp_field, pig_farm, pig_pen, quarry, iron_mine, charcoal_burner, hop_farm, hop_field, woad_farm, woad_field, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, vine_row, quartz_quarry, copper_mine, gold_mine, road_dirt, road_paved |
 | `workshop` | sawmill, weaver_wool, mill, bakery, cheese_dairy, cidery, meadery, weaver_linen, tannery, sailmaker, smelter, toolmaker, butcher, pastry_kitchen, brewery, distillery, leather_works, tailor, dyer_works, dyer, paper_mill, printing_press, rendering_house, soap_maker, salt_works, brickworks, slaughterhouse, oyster_house, cooperage, winepress, malt_house, grain_distillery, fashion_house, thread_spinner, lace_maker, candle_foundry, glass_smelter, copper_smelter, optician, gold_smelter, goldsmith, luthier |
-| `civic` | house_settlers, house_citizens, house_merchants, house_patricians, market, chapel, church, cathedral, school, university, tavern, playhouse, city_guard, fire_station, surgery |
-| `harbour` | trading_post, warehouse, shipyard, quay, trading_pier, depot |
+| `civic` | house_settlers, house_citizens, house_merchants, house_patricians, market, chapel, church, cathedral, school, university, tavern, playhouse, city_guard, fire_station, surgery, every ornament and military building (D-077) |
+| `harbour` | trading_post, warehouse, shipyard, quay, trading_pier, depot, repair_crane, kontor |
 
 Fisher, salt pans and oyster beds are primary producers on the water
 (`rural`); the quay is a harbour structure although it is a road.

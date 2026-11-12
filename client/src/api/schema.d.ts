@@ -456,6 +456,9 @@ export interface components {
          *       island's land nor a built building over quay tiles, D-077 §8),
          *       `quay_would_float` (demolishing roads or a building, or moving
          *       a building, would cut a quay off from the land, D-077 §8),
+         *       `unique_building` (the building, e.g. the Kontor, exists once
+         *       per island or per world — `unique` in the content — and one
+         *       already stands or is planned, D-076 §2),
          *       `no_fertility` (the island lacks the work area's or the field's
          *       fertility tag),
          *       `field_type_mismatch` (`place_field` with a type that is not a
@@ -565,7 +568,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "shore_needs_water" | "shore_back_edge" | "quay_disconnected" | "quay_would_float" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "shore_needs_water" | "shore_back_edge" | "quay_disconnected" | "quay_would_float" | "unique_building" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -2472,11 +2475,11 @@ export interface components {
              */
             source_name?: string;
             tier: string;
-            /** @description Cargo slots (count). */
+            /** @description Cargo slots (count); 0 for a warship without cargo (D-077 §6). */
             slots: number;
             /**
              * Format: int64
-             * @description Capacity of one slot (milli-units).
+             * @description Capacity of one slot (milli-units); 0 when slots is 0.
              */
             slot_size: number;
             /**
@@ -2491,6 +2494,11 @@ export interface components {
              *     reference length (2 000, the cog).
              */
             length_milli_tiles?: number;
+            /**
+             * @description Attack value of a warship (D-077 §6; `slots` 0, no cargo).
+             *     Dormant: nothing reads it until raids. Absent for cargo ships.
+             */
+            attack?: number;
             /**
              * Format: int64
              * @description Build time at the shipyard (ms).
@@ -2656,7 +2664,9 @@ export interface components {
             name: string;
             tier: string;
             /**
-             * @description Build-menu group derived by the server from the capability
+             * @description Build-menu group: `ornaments` and `military` come from the
+             *     content (D-077 §2–§3); the repair crane and the Kontor are
+             *     harbour. Otherwise derived by the server from the capability
              *     blocks: house → houses, recipe, field or warehouse →
              *     production, service → public, trading_post, shipyard, pier,
              *     depot or a shallows road (the quay) → harbour, any other
@@ -2665,7 +2675,7 @@ export interface components {
              *     menu.
              * @enum {string}
              */
-            category: "houses" | "production" | "public" | "harbour" | "roads" | "other";
+            category: "houses" | "production" | "public" | "harbour" | "roads" | "ornaments" | "military" | "other";
             /** @description Footprint width at rotation 0 (tiles). */
             width: number;
             /** @description Footprint height at rotation 0 (tiles). */
@@ -2696,6 +2706,34 @@ export interface components {
              * @enum {string}
              */
             placement?: "shore";
+            /**
+             * @description Defence value of a military building (D-077 §3). Dormant:
+             *     nothing reads it until raids. Absent for other buildings.
+             */
+            defence?: number;
+            /**
+             * @description Uniqueness scope (D-076 §2): one per island or one per world
+             *     (the Kontor), built or planned (`unique_building`). Absent:
+             *     no limit.
+             * @enum {string}
+             */
+            unique?: "island" | "world";
+            /**
+             * @description A 1x1 building painted tile by tile with the road tools whose
+             *     tiles join their neighbours of the family (D-077 §2–§3):
+             *     hedge, garden wall, city wall, square.
+             */
+            paint_family?: {
+                /**
+                 * @description The ground kind the tile paints instead of a model (the square).
+                 * @enum {string}
+                 */
+                ground?: "cobbles_fine";
+                /** @description A road may cross a tile of the family (the city wall, drawn as an arch). */
+                road_crossing?: boolean;
+            };
+            /** @description The building repairs ships (the repair crane, D-077 §4). Dormant until raids. */
+            repairs?: boolean;
             requires_road: boolean;
             cost: {
                 /**

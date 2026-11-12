@@ -37,5 +37,47 @@
     "cost": { "gold": 6000, "planks": 120, "sails": 40, "tools": 30 },
     "upkeep_per_min": 8,
     "length_tiles": 3.2
+  },
+  {
+    "id": "balinger",
+    "name": "Balinger",
+    "region": "old_coast",
+    "tier": "patricians",
+    "slots": 0,
+    "slot_size": 0,
+    "speed": 1.3,
+    "build_seconds": 300,
+    "cost": { "gold": 800, "planks": 40, "sails": 15, "tools": 10 },
+    "upkeep_per_min": 3,
+    "length_tiles": 2,
+    "attack": 4
+  },
+  {
+    "id": "war_cog",
+    "name": "War cog",
+    "region": "old_coast",
+    "tier": "patricians",
+    "slots": 0,
+    "slot_size": 0,
+    "speed": 1.0,
+    "build_seconds": 450,
+    "cost": { "gold": 2500, "planks": 80, "sails": 30, "tools": 20 },
+    "upkeep_per_min": 5,
+    "length_tiles": 2.6,
+    "attack": 10
+  },
+  {
+    "id": "war_carrack",
+    "name": "War carrack",
+    "region": "old_coast",
+    "tier": "patricians",
+    "slots": 0,
+    "slot_size": 0,
+    "speed": 0.8,
+    "build_seconds": 600,
+    "cost": { "gold": 6000, "planks": 150, "sails": 50, "tools": 40 },
+    "upkeep_per_min": 8,
+    "length_tiles": 3.2,
+    "attack": 20
   }
 ]

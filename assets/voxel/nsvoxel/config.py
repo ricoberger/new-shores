@@ -151,7 +151,10 @@ STATUS_ABOVE = 0.25
 #: Content IDs that need a model: tier 1–4 buildings except roads (fields
 #: included) and these ships (D-056 ship ladder); planned IDs always do.
 MODEL_TIERS = ("settlers", "citizens", "merchants", "patricians")
-MODEL_SHIPS = ("cog", "hulk", "carrack")
+#: The cargo ships (cargo attachment, one cargo prop per slot) and the D-077 warships (no cargo; _warships.py).
+CARGO_SHIPS = ("cog", "hulk", "carrack")
+WARSHIPS = ("balinger", "war_cog", "war_carrack")
+MODEL_SHIPS = CARGO_SHIPS + WARSHIPS
 
 #: Positions and normals are rounded to this many decimals before export (stable bytes).
 POSITION_DECIMALS = 5

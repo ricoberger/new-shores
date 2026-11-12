@@ -13,7 +13,8 @@ import (
 // citizens and merchants tiers (granted), a pier of basinQuayTiles quay
 // tiles on the home island — a stem from the coast out to basinDepth
 // tiles off the land, then an arm along the coast at that distance — and
-// a trading pier fully on the water against the pier's head.
+// a trading pier fully on the water against the pier's head, with a
+// harbour tower beside it (D-077 §3).
 const FixtureHarbourBasin = "harbour-basin"
 
 // harbourBasinHistory: the town's history plus a minute for the basin.
@@ -27,6 +28,8 @@ const (
 	basinDepth = 5
 	// basinPier is the shore building at the pier's head.
 	basinPier = "trading_pier"
+	// basinTower watches over the pier's head.
+	basinTower = "harbour_tower"
 )
 
 // harbourBasin builds the fixture's pier and the trading pier at its head.
@@ -43,14 +46,16 @@ func harbourBasin(f *fixture) {
 	is := f.w.Island(home)
 	quay := f.c.BuildingByID["quay"]
 	pier := f.c.BuildingByID[basinPier]
-	if quay == nil || pier == nil {
-		f.err = fmt.Errorf("the %s fixture needs quay and %s content", FixtureHarbourBasin, basinPier)
+	tower := f.c.BuildingByID[basinTower]
+	if quay == nil || pier == nil || tower == nil {
+		f.err = fmt.Errorf("the %s fixture needs quay, %s and %s content", FixtureHarbourBasin, basinPier, basinTower)
 		return
 	}
 	for range basinQuayTiles {
 		f.grant(home, &quay.Cost)
 	}
 	f.grant(home, &pier.Cost)
+	f.grant(home, &tower.Cost)
 	dist := landDistances(is)
 	centre := f.tradingPostCentre(home)
 	for _, start := range basinStarts(is, is.Occupancy(f.c), dist, centre) {
@@ -68,7 +73,7 @@ func harbourBasin(f *fixture) {
 			f.w = backup
 			continue
 		}
-		if f.placeAtHead(home, pier, tiles[len(tiles)-1]) {
+		if head := tiles[len(tiles)-1]; f.placeAtHead(home, pier, head) && f.placeAtHead(home, tower, head) {
 			f.advance(time.Minute)
 			return
 		}

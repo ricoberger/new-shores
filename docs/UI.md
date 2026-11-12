@@ -211,9 +211,10 @@ UI shows the same numbers the server uses.
   (ordered along the chains: no inputs first, then by the depth of the
   recipe's inputs, content order within a step; fields are not listed),
   **Public** (the Market first — it serves a `public`-group need, D-065 —
-  then the service buildings in content order) and **Harbor** (shipyard,
-  pier, depot, then the quay, a road on the shallows that the server files
-  under harbour). The groups follow the server's `category`, except
+  then the service buildings in content order), **Harbor** (shipyard,
+  pier, depot, repair crane, Kontor, then the quay, a road on the
+  shallows that the server files under harbour), **Ornaments** and
+  **Military** (D-077, content order; the content's `category`). The groups follow the server's `category`, except
   houses, roads and the Warehouse, which are General; the Trading Post is
   never listed and houses of later tiers are upgrade-only.
   A card shows the name and the 128 px model **thumbnail** in its upper
