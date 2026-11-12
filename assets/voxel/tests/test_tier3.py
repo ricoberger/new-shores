@@ -32,7 +32,7 @@ SWAY_ALLOWED = {"dyer.glb", "dyer_works.glb", "tailor.glb", "surgery.glb", "play
 
 def tier_ids():
     """Every placed tier-3 content ID with a model, and the extra IDs."""
-    ids = {cid for cid, b in CONTENT["buildings"].items() if b.get("tier") == "merchants" and content.kind_of(CONTENT, cid) in ("building", "field")}
+    ids = {cid for cid, b in CONTENT["buildings"].items() if b.get("tier") == "merchants" and not b.get("held") and content.kind_of(CONTENT, cid) in ("building", "field")}
     return sorted(ids | set(EXTRA))
 
 

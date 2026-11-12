@@ -31,7 +31,7 @@ SWAY_ALLOWED = {"weaver_wool.glb", "weaver_linen.glb", "sailmaker.glb", "trading
 
 def tier_ids():
     """Every placed tier 1–2 content ID (roads have no model)."""
-    return sorted(cid for cid, b in CONTENT["buildings"].items() if b.get("tier") in TIERS and content.kind_of(CONTENT, cid) in ("building", "field"))
+    return sorted(cid for cid, b in CONTENT["buildings"].items() if b.get("tier") in TIERS and not b.get("held") and content.kind_of(CONTENT, cid) in ("building", "field"))
 
 
 class TierDetailTest(unittest.TestCase):

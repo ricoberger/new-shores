@@ -66,6 +66,11 @@ GROUND_ROLES = {"road-paved": "paved", "road-dirt": "dirt", "sand": "sand"}
 #: The water structures of D-068 §5: they stand on deck voxels over their water rows (the
 #: content's water_rows); only the land part of the footprint follows the ground map.
 WATER_MODELS = ("depot", "fisher", "oyster_beds", "salt_pans", "shipyard", "trading_pier", "trading_post")
+#: The shore buildings of D-077 §5 (planned `placement: shore`): a deck under every tile, no plate check, may reach
+#: below z = 0 (piles) like the water structures. They are models of their own kind (authored at ground z = 0).
+#: Models whose point is a flat layer at z = 0 (the pond's water, D-077 §5): exempt from the plate check.
+PLATE_EXEMPT = ("pond",)
+SHORE_MODELS = ("harbour_statue", "harbour_tower", "kontor", "repair_crane")
 #: Plate check (D-068 §6): a land model's flat ground-layer cells (z = 0, nothing above) may
 #: cover at most this share of its footprint.
 PLATE_SHARE = 0.35
@@ -86,6 +91,15 @@ SHADOW_GROUP = "shadows"
 #: densities were measured on 1 × 1 to 8 × 12 footprints).
 BUDGET_PER_TILE = {"building": 500, "house": 540, "field": 410}
 LITE_BUDGET_PER_TILE = {"building": 40, "house": 45}
+#: Small-footprint classes of the D-077 ornaments, towers and cranes (triangles of the full file and of the lite
+#: file by footprint in tiles): at 500 / 40 per tile a 1 × 1 ornament would get 500 triangles for a tree, a well
+#: with its roof and a figure; the dense small footprints get the densest of their class with ~50 % headroom.
+#: Only the IDs in FOOTPRINT_CLASS_IDS use it; the castle, the Kontor and the cemetery stay per tile.
+BUDGET_BY_FOOTPRINT = {(1, 1): (900, 72), (2, 2): (2600, 200), (3, 3): (5600, 400)}
+FOOTPRINT_CLASS_IDS = (
+    "tree_ornament", "flower_bed", "well", "pillory", "maypole", "fountain", "statue", "harbour_statue",
+    "pond", "gold_statue", "tower", "harbour_tower", "gatehouse", "repair_crane",
+)
 #: Per-model exceptions (full file, flat triangles; replaces the class's per-tile number): the tree
 #: plot's forest-scale trees (the unchanged decor_tree_c conifer is 440 triangles).
 BUDGET_OVERRIDE = {"tree_plot": 450}
@@ -94,7 +108,7 @@ BUDGET_OVERRIDE = {"tree_plot": 450}
 SLACK_OVERRIDE = {"tree_plot": 4}
 #: Ships (no footprint): prototype cog 1 882, hulk 3 948, carrack 5 096
 #: triangles, cargo attachments 192, each with ~50 % headroom.
-BUDGET_SHIPS = {"cog": 2800, "hulk": 6000, "carrack": 7600}
+BUDGET_SHIPS = {"cog": 2800, "hulk": 6000, "carrack": 7600, "balinger": 1800, "war_cog": 4200, "war_carrack": 9000}
 BUDGET_SHIP_CARGO = 300
 #: Lite (far LOD) ship models (V7): a recipe's `lite` builder at its scale /
 #: SHIP_LITE_DOWNSAMPLE voxels per tile (20 → 5: at the far ship scale about
@@ -102,7 +116,7 @@ BUDGET_SHIP_CARGO = 300
 #: sail silhouettes, no cargo attachment. Budgets from the far-budget
 #: brief (cog / hulk / carrack ≈ 300 / 600 / 800).
 SHIP_LITE_DOWNSAMPLE = 4
-LITE_BUDGET_SHIPS = {"cog": 300, "hulk": 600, "carrack": 800}
+LITE_BUDGET_SHIPS = {"cog": 300, "hulk": 600, "carrack": 800, "balinger": 250, "war_cog": 450, "war_carrack": 900}
 #: Decoration (kind "decor": trees, bushes, rocks, crags, tufts, stumps,
 #: outcrops; merged by the hundreds per island chunk): prototype max 384
 #: (decor_tree_a).
