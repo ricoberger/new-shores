@@ -24,7 +24,29 @@ def load(content_dir=None, planned_dir=config.PLANNED_DIR):
     out = {"buildings": buildings, "ships": ships}
     if planned_dir is not None:
         merge_planned(out, load_planned(planned_dir))
+    add_joins(out)
     return out
+
+
+def add_joins(content):
+    """
+    The paint families' join pieces (config.PAINT_JOINS) as model IDs
+    `<id>.<piece>`: the family's definition with `join_of` and `join`, so
+    footprint, kind, budgets and tests treat them like the family. Not
+    content: the server never sees them; the client picks one per tile.
+    """
+    for cid, pieces in config.PAINT_JOINS.items():
+        base = content["buildings"].get(cid)
+        if base is None:
+            continue
+        for piece in pieces:
+            jid = f"{cid}.{piece}"
+            content["buildings"][jid] = dict(base, id=jid, join_of=cid, join=piece)
+
+
+def join_of(content, cid):
+    """The paint family of a join piece's model ID (`hedge.corner` → `hedge`), else None."""
+    return (content["buildings"].get(cid) or {}).get("join_of")
 
 
 def load_planned(planned_dir=config.PLANNED_DIR, schema_path=config.PLANNED_SCHEMA_PATH):

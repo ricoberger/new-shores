@@ -136,7 +136,8 @@ describe("fields in the HUD (D-051 part 4)", () => {
   it("has a committed thumbnail for every building with a model", () => {
     const dir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "public", "models");
     const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")) as { models: Record<string, unknown> };
-    const ids = Object.keys(manifest.models).filter((id) => !id.startsWith("decor_"));
+    // Join pieces (`<id>.<piece>`, D-077 §2) share their family's card thumbnail.
+    const ids = Object.keys(manifest.models).filter((id) => !id.startsWith("decor_") && !id.includes("."));
     expect(ids.length).toBeGreaterThan(20);
     for (const id of ids) expect(existsSync(join(dir, thumbUrl(id).replace("/models/", ""))), id).toBe(true);
   });

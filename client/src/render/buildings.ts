@@ -39,6 +39,7 @@ import { skyFill } from "./lighting";
 import { addJitter, JIT_VPT_ATTRIBUTE, jitterGrid, LITE_VPT, MODEL_VPT } from "./jitter";
 import { addSway } from "./sway";
 import { groundPaintOf } from "./groundpaint";
+import type { DrawnBuilding } from "./paintjoin";
 import { ColoredInstances } from "./shipmesh";
 import { chunkAt, liteGroupOf } from "../display/chunks";
 
@@ -422,7 +423,9 @@ export class BuildingLayer {
 
   /** The model file and data to draw for a building (wanted detail, else the other one), or null (placeholder). */
   private modelOf(b: BuildingDisplay, def: ContentBuilding, detail: Detail): Item | null {
-    const entry = this.registry?.entry(b.type);
+    // A paint family's join piece (render/paintjoin.ts), else the type's own model.
+    const model = (b as DrawnBuilding).model;
+    const entry = (model ? this.registry?.entry(model) : undefined) ?? this.registry?.entry(b.type);
     if (!entry || !this.registry) return null;
     const main = modelFileFor(entry, b);
     if (!main) return null;

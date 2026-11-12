@@ -318,7 +318,12 @@ UI shows the same numbers the server uses.
   and not sent; the city wall may cross a land road, never a quay. The
   release sends one `place_paint` (planning mode: plans) and the server
   answers per tile; every tile is a 1×1 building (click to inspect or
-  demolish it). The Demolish tool's rectangle also takes the paint tiles
+  demolish it). Hedge, garden wall and city wall tiles are drawn with
+  the join piece (straight, end, corner, T, cross) whose arms meet their
+  family's neighbours, the city wall also meeting a tower's, gatehouse's
+  or castle's wall stubs, and as an arch over a land road
+  (`render/paintjoin.ts`; ART_DIRECTION §7 wall set); a plan shows the
+  straight piece. The Demolish tool's rectangle also takes the paint tiles
   under it, built or planned, with one `demolish_paint` ("Remove 5 wall,
   hedge or square tiles").
   Quays render as a stone wharf with a timber fender and a bollard every

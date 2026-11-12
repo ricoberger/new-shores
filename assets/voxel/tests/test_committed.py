@@ -112,7 +112,8 @@ class CommittedTest(unittest.TestCase):
         self.assertEqual(on_disk, listed)
         self.assertLessEqual(total, config.MODELS_FOLDER_LIMIT, f"{total} bytes of GLBs")
         thumbs = set(os.listdir(os.path.join(config.MODELS_DIR, "thumbs")))
-        self.assertEqual(thumbs, {f"{cid}.png" for cid in self.manifest["models"]})
+        # The paint families' join pieces (`<id>.<piece>`) share their family's thumbnail.
+        self.assertEqual(thumbs, {f"{cid}.png" for cid in self.manifest["models"] if not content.join_of(CONTENT, cid)})
 
     def test_budgets_per_footprint_tile(self):
         for cid, entry in self.placed():

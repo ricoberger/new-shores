@@ -4427,7 +4427,7 @@
           ]
         },
         "budget": 500,
-        "bytes": 4724,
+        "bytes": 5204,
         "lite": {
           "bounds": {
             "max": [
@@ -4448,8 +4448,358 @@
           "triangles": 10
         },
         "path": "city_wall.glb",
-        "sha256": "9ed48240b5593f235a2baf8d95965fdcc3f44dc0397574d07d1b4a35bfc05476",
-        "triangles": 122
+        "sha256": "df71cc787cd774f98951581f7829577f5efefbe39c004d0827eb7c3f9067cb52",
+        "triangles": 138
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "city_wall.arch": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          1.5,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          1.25,
+          0.25
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.25
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            1.25,
+            0.25
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.25
+          ]
+        },
+        "budget": 500,
+        "bytes": 7136,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              1.0,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1612,
+          "path": "city_wall.arch.lite.glb",
+          "sha256": "64304ec2820835d54e7ad7ba35cc0f23003230cb0b883ba0e9fa8254e99ca098",
+          "triangles": 10
+        },
+        "path": "city_wall.arch.glb",
+        "sha256": "a7ce289afc435d367dbd7784ccf7f1557bd8a91f69d251c99605fc929921ceb6",
+        "triangles": 202
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "city_wall.corner": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          1.5,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          1.25,
+          0.25
+        ],
+        "min": [
+          -0.25,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            1.25,
+            0.25
+          ],
+          "min": [
+            -0.25,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 500,
+        "bytes": 5956,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              1.0,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1616,
+          "path": "city_wall.corner.lite.glb",
+          "sha256": "52666bcb336df0c20f4ba7c4b21ed9b3b3d0a2e5c26d1cf8f101e0590e5823e4",
+          "triangles": 10
+        },
+        "path": "city_wall.corner.glb",
+        "sha256": "c6f4349d1a2480bf1fcaf2a4e92840718f3b3e271e57126678f006882554c92e",
+        "triangles": 160
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "city_wall.cross": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          1.5,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          1.25,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            1.25,
+            0.5
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 500,
+        "bytes": 8112,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              1.0,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1612,
+          "path": "city_wall.cross.lite.glb",
+          "sha256": "40c79953832ee254af3d6c5792529c6e27da7d7cf63f687e11ba9ee6647fd9c7",
+          "triangles": 10
+        },
+        "path": "city_wall.cross.glb",
+        "sha256": "24d28d4a4302f1df079d9c36b869d7cb65746f0c16ece3f27e806e3a0d806ab4",
+        "triangles": 236
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "city_wall.end": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          1.5,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          1.25,
+          0.25
+        ],
+        "min": [
+          -0.25,
+          0.0,
+          -0.25
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            1.25,
+            0.25
+          ],
+          "min": [
+            -0.25,
+            0.0,
+            -0.25
+          ]
+        },
+        "budget": 500,
+        "bytes": 4756,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              1.0,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1608,
+          "path": "city_wall.end.lite.glb",
+          "sha256": "3fe24c3d17e58d8bda1076d941141f8aa33a1ed1c12c84b43c4b9192761339bc",
+          "triangles": 10
+        },
+        "path": "city_wall.end.glb",
+        "sha256": "82b23fa7165ac75a2dc7685cf1dc637b7bfae4630b090fab1d4a2bbcac088829",
+        "triangles": 118
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "city_wall.t": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          1.5,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          1.25,
+          0.25
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            1.25,
+            0.25
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 500,
+        "bytes": 7008,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              1.0,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1604,
+          "path": "city_wall.t.lite.glb",
+          "sha256": "0a36c24fe0b7d20d377f3e2f01c05134265ae62ba278e3c561c3c18d0fba152f",
+          "triangles": 10
+        },
+        "path": "city_wall.t.glb",
+        "sha256": "0aa63805e2234712c67934a995f34d828f1a69c1d3cc3b595005af1f2d6d4a2a",
+        "triangles": 200
       },
       "footprint": {
         "h": 1,
@@ -6352,6 +6702,286 @@
       "kind": "building",
       "voxels_per_tile": 8
     },
+    "garden_wall.corner": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          0.75,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          0.5,
+          0.125
+        ],
+        "min": [
+          -0.125,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            0.5,
+            0.125
+          ],
+          "min": [
+            -0.125,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 500,
+        "bytes": 2564,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1832,
+          "path": "garden_wall.corner.lite.glb",
+          "sha256": "816a1016be688542c42d11f810ddcc0eec20c51196b77f34e8890a74db07fdbe",
+          "triangles": 16
+        },
+        "path": "garden_wall.corner.glb",
+        "sha256": "cc4a7b6b06fc82ce8eb2af81210dca6e355a5821845df8e86c4a7cf187cf8134",
+        "triangles": 40
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "garden_wall.cross": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          0.75,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 500,
+        "bytes": 4364,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1616,
+          "path": "garden_wall.cross.lite.glb",
+          "sha256": "765197054c12219c175633a2fca89ad1227fa63de45bf1d517d69b0c342141e4",
+          "triangles": 10
+        },
+        "path": "garden_wall.cross.glb",
+        "sha256": "21c723c6b786fdcf9d2ceebee61d462c4df86dce9b383e551ab3fbc8f60760a7",
+        "triangles": 102
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "garden_wall.end": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          0.75,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          0.5,
+          0.125
+        ],
+        "min": [
+          -0.125,
+          0.0,
+          -0.125
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            0.5,
+            0.125
+          ],
+          "min": [
+            -0.125,
+            0.0,
+            -0.125
+          ]
+        },
+        "budget": 500,
+        "bytes": 1924,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "min": [
+              0.0,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1612,
+          "path": "garden_wall.end.lite.glb",
+          "sha256": "0d31540d49b2e91bb5bec9dab4496ad46d086f4f5b9dec3f24842f3650022a1e",
+          "triangles": 10
+        },
+        "path": "garden_wall.end.glb",
+        "sha256": "e733d673142d6bf7e9d8f9a1f151096b299c25ee724f9fd96b528d2fae81b3b6",
+        "triangles": 18
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "garden_wall.t": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          0.75,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          0.5,
+          0.125
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            0.5,
+            0.125
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 500,
+        "bytes": 3136,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1608,
+          "path": "garden_wall.t.lite.glb",
+          "sha256": "26b3e5a2fce9002e66f43d8cd925b0a541e7e854c7cc7a2065827ea3d2875c62",
+          "triangles": 10
+        },
+        "path": "garden_wall.t.glb",
+        "sha256": "75e6a02c8daf5fb6582699fa6f0a1cc3b1255a01f706cb53271a6f7bea0101d7",
+        "triangles": 60
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
     "gatehouse": {
       "anchors": {
         "door": [
@@ -6391,7 +7021,7 @@
           ]
         },
         "budget": 5600,
-        "bytes": 56756,
+        "bytes": 56148,
         "ground": [
           [
             "none",
@@ -6423,14 +7053,14 @@
             ]
           },
           "budget": 400,
-          "bytes": 6368,
+          "bytes": 6100,
           "path": "gatehouse.lite.glb",
-          "sha256": "efe50bbefd8dbde2867e1c109b21832fdde1b0b6924de0dde546dced9e074341",
-          "triangles": 170
+          "sha256": "32bd722338fd1edec0f88884b2bc6c903feb2bb87e93cd886980c7b0b679a44d",
+          "triangles": 158
         },
         "path": "gatehouse.glb",
-        "sha256": "d4698f687023f3f9a2c0c77f939f75ad8d9c4e2c38eb497f781108364aca9324",
-        "triangles": 1788
+        "sha256": "6cd065586399bfe84ee76dfe2b9890fa991e8b21f5d559fa147dd1b5ee3a9f50",
+        "triangles": 1772
       },
       "footprint": {
         "h": 3,
@@ -7317,6 +7947,286 @@
         "path": "hedge.glb",
         "sha256": "0e068462d7fb643a41766933ff259f486b918dbb3bafb43ee6020f6500457827",
         "triangles": 18
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "hedge.corner": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          0.875,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          0.625,
+          0.125
+        ],
+        "min": [
+          -0.125,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            0.625,
+            0.125
+          ],
+          "min": [
+            -0.125,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 500,
+        "bytes": 2552,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1820,
+          "path": "hedge.corner.lite.glb",
+          "sha256": "7fa5c39be504dc2a1f323f42bcbc9a22fa52421db63f3532ec003d9feab366fa",
+          "triangles": 16
+        },
+        "path": "hedge.corner.glb",
+        "sha256": "42e389102a2b551721fe1b99d21fdcf46d9f00a04478bb4a8ac32cdabbc119a2",
+        "triangles": 40
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "hedge.cross": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          0.875,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          0.625,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            0.625,
+            0.5
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 500,
+        "bytes": 4352,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1604,
+          "path": "hedge.cross.lite.glb",
+          "sha256": "055f296d4d4f77a31c783a864e9d8c54694262a5693b2465d8f92427e72363d3",
+          "triangles": 10
+        },
+        "path": "hedge.cross.glb",
+        "sha256": "1a0867da4f845fd3cdf2edbf33bb70aa5a634258cba2c6593141f9b6d83a8f65",
+        "triangles": 102
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "hedge.end": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          0.875,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          0.625,
+          0.125
+        ],
+        "min": [
+          -0.125,
+          0.0,
+          -0.125
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            0.625,
+            0.125
+          ],
+          "min": [
+            -0.125,
+            0.0,
+            -0.125
+          ]
+        },
+        "budget": 500,
+        "bytes": 1912,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "min": [
+              0.0,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1600,
+          "path": "hedge.end.lite.glb",
+          "sha256": "cd905e4dc9433530e37031636d7605eec72e19705ba5d831d3117c22f151c7c9",
+          "triangles": 10
+        },
+        "path": "hedge.end.glb",
+        "sha256": "15cc916179042a7e0e75edf77d55ff69222c1fbb969158a512da2befc58e7404",
+        "triangles": 18
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "building",
+      "voxels_per_tile": 8
+    },
+    "hedge.t": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          0.875,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          0.625,
+          0.125
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            0.625,
+            0.125
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 500,
+        "bytes": 3124,
+        "lite": {
+          "bounds": {
+            "max": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "min": [
+              -0.5,
+              0.0,
+              -0.5
+            ]
+          },
+          "budget": 40,
+          "bytes": 1596,
+          "path": "hedge.t.lite.glb",
+          "sha256": "86c178a9b5d879c9a17d59214daed58959c0c17bf52e8b5df271ce18ec1a4784",
+          "triangles": 10
+        },
+        "path": "hedge.t.glb",
+        "sha256": "acba3f4bc44d36f1b8930a83f3f0fc72fee5696e9913997cce98c94273cdb954",
+        "triangles": 60
       },
       "footprint": {
         "h": 1,
@@ -11934,7 +12844,7 @@
           ]
         },
         "budget": 5600,
-        "bytes": 74456,
+        "bytes": 74952,
         "lite": {
           "bounds": {
             "max": [
@@ -11955,7 +12865,7 @@
           "triangles": 218
         },
         "path": "repair_crane.glb",
-        "sha256": "244356716eb97beef90ee0af53d0a29142ce74f53e40b0cd5ac79f88aa3820fc",
+        "sha256": "e9a1a3d1626752c4fe302e5433434ee48aa1b5e5cb423cf28ff41b8367e90df5",
         "triangles": 2492
       },
       "footprint": {
@@ -14148,7 +15058,7 @@
           ]
         },
         "budget": 2600,
-        "bytes": 46692,
+        "bytes": 59960,
         "lite": {
           "bounds": {
             "max": [
@@ -14163,14 +15073,14 @@
             ]
           },
           "budget": 200,
-          "bytes": 6072,
+          "bytes": 6360,
           "path": "tower.lite.glb",
-          "sha256": "6f892b00531e95d8ddcbcc48e98e24a234b5818a84a3ffb12998822e23ddc3fb",
-          "triangles": 152
+          "sha256": "3871a12c0e5ae5c5e71e7465a5831a2e71866e45c66f725291b7c7f1497bb0ba",
+          "triangles": 162
         },
         "path": "tower.glb",
-        "sha256": "b1e43054a08573ac08bd197df3f45608fbacbbf2d3762221c92469a1e41a7f3d",
-        "triangles": 1516
+        "sha256": "3c7e33f6612265b69dc23530d5df328278e7d96c51c20c4b01533e17749ebb13",
+        "triangles": 1956
       },
       "footprint": {
         "h": 2,

@@ -32,6 +32,8 @@ class Ctx:
         self.defn = defn or {}
         self.variant = variant
         self.level = level
+        #: A paint family's join piece (config.PAINT_JOINS; "straight": the family's own model).
+        self.join = self.defn.get("join", "straight")
         rows = self.defn.get("water_rows")
         self.water = int(rows["max"] if isinstance(rows, dict) else self.defn.get("water_tiles", 0))
         if not self.water and self.defn.get("placement") == "shore":
@@ -83,6 +85,9 @@ def recipe_modules(recipes_dir=RECIPES_DIR):
                 "ground_z": getattr(mod, "GROUND_Z", 0),
                 "file": fname,
             }
+            # A paint family's join pieces (config.PAINT_JOINS): the same recipe, ctx.join tells the piece.
+            for piece in config.PAINT_JOINS.get(cid, ()):
+                out[f"{cid}.{piece}"] = out[cid]
     return out
 
 

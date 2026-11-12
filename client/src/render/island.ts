@@ -46,6 +46,7 @@ import { type Builder, buildTerrain, CoastWater, NO_TERRAIN, TerrainBuild, type 
 import { type DetailPlaced, scatterDetail } from "./decorscatter";
 import { farFieldColor } from "./farfields";
 import { groundPaintOf, groundTiles, type YardTile } from "./groundpaint";
+import { joinedBuildings } from "./paintjoin";
 import type { FieldTile } from "./roadvoxels";
 import { pack } from "./voxelterrain";
 import { type DecorMaterials, decorMaterials, Decoration, FarTrees, TREE_MODELS } from "./trees";
@@ -386,7 +387,7 @@ export class IslandDetail {
     this.ground.setRoads(display.roads);
     b.terrain = new TerrainBuild(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), this.root);
     yield;
-    this.buildings.update(display.buildings, defs);
+    this.buildings.update(joinedBuildings(display, defs), defs);
     yield;
     this.updateLife(display, defs);
     this.icons.update(display.buildings, defs, this.statusY);
@@ -452,7 +453,7 @@ export class IslandDetail {
     const defsChanged = this.builtFrom?.defs !== defs;
     this.builtFrom = { display, defs };
     this.layerDefs = defs;
-    this.buildings.update(display.buildings, defs);
+    this.buildings.update(joinedBuildings(display, defs), defs);
     this.chunkRebuilds.fields = this.fields.update(this.fieldsByChunk(display), defsChanged);
     this.updateLife(display, defs);
     this.icons.update(display.buildings, defs, this.statusY);

@@ -70,6 +70,17 @@ WATER_MODELS = ("depot", "fisher", "oyster_beds", "salt_pans", "shipyard", "trad
 #: `placement: shore`, no `water_rows` in the content) are authored with: their recipes lay out the
 #: deck over these front rows (rotation 0) as before, so the models stay as they were.
 SHORE_DECK_ROWS = {"depot": 9, "shipyard": 4, "trading_pier": 6}
+
+#: The join pieces of the paint families (D-077 §2–§3; ART_DIRECTION §7 wall
+#: set): the content ID's own model is the straight piece; each piece here is
+#: published as the model `<id>.<piece>` (the manifest's variant convention,
+#: parallel to D-076's `<id>.<region>`), built by the family's recipe with
+#: `ctx.join`. The city wall's `arch` is the straight piece over a road.
+PAINT_JOINS = {
+    "hedge": ("corner", "cross", "end", "t"),
+    "garden_wall": ("corner", "cross", "end", "t"),
+    "city_wall": ("arch", "corner", "cross", "end", "t"),
+}
 #: The shore buildings of D-077 §5 (planned `placement: shore`): a deck under every tile, no plate check, may reach
 #: below z = 0 (piles) like the water structures. They are models of their own kind (authored at ground z = 0).
 #: Models whose point is a flat layer at z = 0 (the pond's water, D-077 §5): exempt from the plate check.

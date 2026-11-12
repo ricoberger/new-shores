@@ -138,7 +138,13 @@ describe("committed models are consistent with the manifest", () => {
     expect(manifest.palette_sha256).toBe(createHash("sha256").update(palette).digest("hex"));
     expect(manifest.voxels_per_tile).toBe(8);
     const ids = [...CONTENT_BUILDINGS.filter((b) => !b.road && !b.paint_family?.ground).map((b) => b.id), ...CONTENT_SHIPS.map((s) => s.id)];
-    expect(Object.keys(manifest.models).sort()).toEqual([...ids].sort());
+    // The paint families' join pieces are models `<id>.<piece>` of a content ID (D-077 §2, ART_DIRECTION §7).
+    const joins = Object.keys(manifest.models).filter((id) => id.includes("."));
+    expect(Object.keys(manifest.models).filter((id) => !id.includes(".")).sort()).toEqual([...ids].sort());
+    expect(joins.sort()).toEqual(
+      ["hedge", "garden_wall", "city_wall"].flatMap((f) => [...(f === "city_wall" ? ["arch"] : []), "corner", "cross", "end", "t"].map((p) => `${f}.${p}`)).sort(),
+    );
+    for (const id of joins) expect(ids, id).toContain(id.split(".")[0]);
     // Placeholders: content IDs whose model the build generated (no recipe yet); each still has a model entry.
     expect(manifest.placeholders).toEqual([...manifest.placeholders].sort());
     for (const id of manifest.placeholders) expect(manifest.models[id], id).toBeDefined();

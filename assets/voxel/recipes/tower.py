@@ -3,9 +3,11 @@ Tower (2 × 2, D-077 §6, Citizens, `look: civic`): a square watch tower of
 coursed warm sandstone with a slight batter at the foot, arrow slits, a
 timber door with a stone arch on the front (y+), a projecting crenellated
 gallery on corbels under a pointed slate roof with a brass finial and a
-pennant. A wall stub of the same stone runs from the middle of each of the
-four sides to the tile edge (stub joins on four sides), so a `city_wall`
-line of ghost tiles meets it from any direction. 8 voxels per tile.
+pennant. Wall stubs of the same stone, as thick as the city wall (4
+voxels), run from the foot to the footprint edge on the centre line of
+each edge tile (two per side, voxels 2..6 and 10..14: the line a
+`city_wall` tile's pieces run on, ART_DIRECTION §7), so a wall meets the
+tower from any side. 8 voxels per tile.
 """
 
 from nsvoxel import parts as P
@@ -18,16 +20,16 @@ ROOF = mat("slate", 0.95)
 STUB_H = 8
 
 
-def stubs(v, cx, cy, x0, y0, x1, y1, w, h, sides="nsew"):
-    """Wall stubs of w voxels thickness and h height from the block's sides to the footprint edge, with a cap course."""
-    lo, hi = cx - w // 2, cx - w // 2 + w
-    lo_y, hi_y = cy - w // 2, cy - w // 2 + w
+def stubs(v, centres, x0, y0, x1, y1, w, h, sides="nsew"):
+    """Wall stubs of w voxels thickness and h height from the block's sides to the footprint edge on each centre line, with a cap course."""
     fw, fd = v.w, v.d
-    spans = {"w": (0, lo_y, x0, hi_y), "e": (x1, lo_y, fw, hi_y), "s": (lo, 0, hi, y0), "n": (lo, y1, hi, fd)}
-    for side in sides:
-        a, b, c, d = spans[side]
-        O.ashlar_box(v, a, b, c, d, 0, h, O.ASHLAR, course=2)
-        v.box(a, b, h - 1, c, d, h, O.CAP)
+    for c in centres:
+        lo, hi = c - w // 2, c - w // 2 + w
+        spans = {"w": (0, lo, x0, hi), "e": (x1, lo, fw, hi), "s": (lo, 0, hi, y0), "n": (lo, y1, hi, fd)}
+        for side in sides:
+            a, b, cc, d = spans[side]
+            O.ashlar_box(v, a, b, cc, d, 0, h, O.ASHLAR, course=2)
+            v.box(a, b, h - 1, cc, d, h, O.CAP)
 
 
 def build(ctx):
@@ -36,7 +38,7 @@ def build(ctx):
     x0, y0, x1, y1 = 3, 3, 13, 13
     O.ashlar_box(v, x0 - 1, y0 - 1, x1 + 1, y1 + 1, 0, 3, O.ASHLAR_DARK, course=1)  # the battered foot
     O.ashlar_box(v, x0, y0, x1, y1, 3, 22, O.ASHLAR, course=2)
-    stubs(v, 8, 8, x0 - 1, y0 - 1, x1 + 1, y1 + 1, 4, STUB_H)
+    stubs(v, (4, 12), x0 - 1, y0 - 1, x1 + 1, y1 + 1, 4, STUB_H)
     # Arrow slits on the three other faces, the door arch on the front.
     for z in (10, 16):
         for x in (7, 8):

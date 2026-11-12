@@ -81,7 +81,8 @@ def _job(args):
         return cid, kind, [], None, [f"no recipe for {kind}"], None, 0.0, placeholder
     files, entry, problems = model.build_id(cid, kind, recipe, _CONTENT)
     thumb = None
-    if thumbs and kind in ("building", "field", "ship") and files:
+    # A paint family's join pieces share the family's card: no thumbnail of their own.
+    if thumbs and kind in ("building", "field", "ship") and files and not content_mod.join_of(_CONTENT, cid):
         thumb = thumbnail(files[0])
     out_files = [(f[0], f[1], f[2]) for f in files]
     return cid, kind, out_files, entry, problems, thumb, time.time() - t0, placeholder

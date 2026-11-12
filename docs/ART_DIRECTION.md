@@ -651,8 +651,13 @@ land buildings).
   side normals tilted toward up so walls turned from the sun stay warm.
   The alpha byte carries the role's **jitter class** (255 − class,
   `nsvoxel/jitter.py`; the shader's per-voxel jitter, §2) or, on cloth
-  and leaf voxels (sway groups `sail`, `flag`, `cloth`, `canopy`), the
-  sway weight (≤ 245); the manifest lists each model's sway groups.
+  and leaf voxels (sway groups `sail`, `flag`, `cloth`, `canopy`, `arm`), the
+  sway weight (≤ 245); the manifest lists each model's sway groups. The
+  `arm` group (the repair crane's jib, D-077) is rigid timber with
+  ordinary normals whose weight rises with the horizontal distance from
+  its pivot (the group's voxel nearest the footprint centre: 0 there,
+  `export.ARM_SWAY` 0.5 at the tip), so the shared sway shader bends it
+  about its root, a slow small swing, instead of shifting it off its post.
 - **Roles for the model rework (V7 roles, applied by the tier
   sessions):** roofs per tier (T1 thatch, T2 orange terracotta, T3
   `tile-dark`, T4 slate) and the `brick` / `tile-dark` roles follow
@@ -692,9 +697,9 @@ land buildings).
   IDs they are published (the client test requires the manifest's models
   to equal the content's); `tests/test_d077.py` builds every one, the
   tier tests leave them to it (`content.is_d077`). The paint families
-  `hedge`, `garden_wall` and `city_wall` have straight-piece recipes
-  until their join sets (§7 wall set); the `square` is a ground kind
-  and has no model (`kind_of` → road). The warships are
+  `hedge`, `garden_wall` and `city_wall` have their join sets (wall set,
+  below); the `square` is a ground kind and has no model (`kind_of` →
+  road). The warships are
   `config.WARSHIPS` beside `config.CARGO_SHIPS` (no cargo attachment). The planned schema gained `placement: shore`, `look`
   and `length_tiles`; ships may have 0 slots.
   - *Ornaments* (`look: civic`, 8 voxels per tile, no ground paint
@@ -719,9 +724,31 @@ land buildings).
     in sway group `arm`) and `kontor` (4 × 11, the depot class's
     footprint: the first model with `brick` as its main role, crow-step
     gables, crane beam, banner `flag`).
-  - *Military* (`civic`): `tower` 2 × 2 with wall stubs on four sides,
-    `gatehouse` 3 × 3 (arch on the y axis, portcullis, stubs on x- and
-    x+, paved `path()` through the passage), `castle` 8 × 8 at 12 voxels
+  - *Wall set* (D-077 §2–§3; `config.PAINT_JOINS`,
+    `parts_d077.JOIN_ARMS`): each paint family's recipe builds, besides
+    its own model (the straight piece, along x), the join pieces
+    `end`, `corner`, `t` and `cross` — and the city wall's `arch`, the
+    straight piece with a stepped passage through y for a land road —
+    published as the models `<id>.<piece>` (the manifest's convention
+    for variants of one content ID, parallel to D-076's `<id>.<region>`;
+    `content.add_joins` gives them the family's definition with
+    `join_of`, so budgets and checks are the family's; no thumbnails of
+    their own). A piece is a core on the tile's centre line plus an arm
+    to each named tile edge (`join_cells`): the hedge two voxels wide
+    (3..5) and five high, the garden wall two wide and four high with a
+    coping course, the city wall four wide (2..6) and eight high on a
+    darker footing with merlons (every other pair of voxels) on its
+    outline (`join_rim`) around the wall-walk. The client draws each
+    tile with the piece whose turned arms meet its neighbours
+    (`render/paintjoin.ts`, like roads join).
+  - *Military* (`civic`): `tower` 2 × 2 with wall stubs (four voxels
+    thick, eight high under a cap course) on the centre line of every
+    edge tile — voxels 2..6 and 10..14 of each side, from the battered
+    foot to the footprint edge — so a city wall tile beside either of
+    its tiles meets a stub; `gatehouse` 3 × 3 (arch on the y axis,
+    portcullis, stubs of the same section on x- and x+ at its middle
+    tile's centre line, voxels 10..14, paved `path()` through the
+    passage); the city wall joins both (and the castle) as neighbours, `castle` 8 × 8 at 12 voxels
     per tile (curtain, four round towers, gatehouse, keep, cobbled
     `path()` yard). The warm sandstone of the city guard, slate caps.
   - *Warships* (`_warships.py`, 20 voxels per tile, `length_tiles` 2 / 2.6 /
