@@ -31,6 +31,17 @@ class D077Test(unittest.TestCase):
             self.assertEqual(problems, [], cid)
             self.assertTrue(files, cid)
 
+    def test_the_warships_have_the_d077_lengths_and_budgets(self):
+        for cid, length in (("balinger", 2.0), ("war_cog", 2.6), ("war_carrack", 3.2)):
+            self.assertEqual(CONTENT["ships"][cid]["length_tiles"], length, cid)
+            self.assertEqual(RECIPES[cid]["ship"]["length_tiles"], length, cid)
+            files, entry, problems = model.build_id(cid, "ship", RECIPES[cid], CONTENT)
+            self.assertEqual(problems, [], cid)
+            self.assertEqual(entry["ship"]["length_tiles"], length, cid)
+            self.assertIn("sail", entry["sway"], cid)
+            self.assertLessEqual(entry["file"]["lite"]["triangles"], config.LITE_BUDGET_SHIPS[cid], cid)
+            self.assertNotIn("cargo", entry.get("attachments", {}), cid)
+
     def test_shore_buildings_are_planned_as_shore_and_listed(self):
         for cid in SHORE:
             self.assertEqual(CONTENT["buildings"][cid].get("placement"), "shore", cid)

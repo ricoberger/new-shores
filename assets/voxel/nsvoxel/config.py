@@ -107,8 +107,10 @@ BUDGET_OVERRIDE = {"tree_plot": 450}
 #: crown may overhang the tile by up to half a tile, so neighbouring crowns overlap into a canopy.
 SLACK_OVERRIDE = {"tree_plot": 4}
 #: Ships (no footprint): prototype cog 1 882, hulk 3 948, carrack 5 096
-#: triangles, cargo attachments 192, each with ~50 % headroom.
-BUDGET_SHIPS = {"cog": 2800, "hulk": 6000, "carrack": 7600, "balinger": 1800, "war_cog": 4200, "war_carrack": 9000}
+#: triangles, cargo attachments 192, each with ~50 % headroom. The D-077 warships (balinger 3 160, war cog 4 240,
+#: war carrack 8 088 triangles; oars, shields, castles and gun ports cost more than the cargo ships' hulls) get
+#: ~15 % headroom over what they are.
+BUDGET_SHIPS = {"cog": 2800, "hulk": 6000, "carrack": 7600, "balinger": 3600, "war_cog": 5000, "war_carrack": 9000}
 BUDGET_SHIP_CARGO = 300
 #: Lite (far LOD) ship models (V7): a recipe's `lite` builder at its scale /
 #: SHIP_LITE_DOWNSAMPLE voxels per tile (20 → 5: at the far ship scale about
