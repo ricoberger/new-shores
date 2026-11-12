@@ -34,9 +34,9 @@ import { skyFill } from "./lighting";
 import type { RoadTile } from "./roads";
 import { fieldPatchTops } from "./farfields";
 import { paintYards, type YardTile } from "./groundpaint";
-import { type FieldBase, fieldBase, type FieldTile, isQuayTile, paintFields, paintRoads, QUAY_H, touchedChunks } from "./roadvoxels";
+import { type FieldBase, fieldBase, type FieldTile, isDeepQuay, isQuayTile, paintFields, paintRoads, QUAY_H, touchedChunks } from "./roadvoxels";
 import { LEVEL_STEPS } from "./terraces";
-import { COAST_REACH, downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, roundDistanceTo, SIDE_ROCK, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
+import { COAST_REACH, downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, roundDistanceTo, SIDE_QUAY, SIDE_ROCK, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
 import { riverWater } from "./water";
 
 /** Height of the sea surface: the coast's columns drop from the ground (0) to below it. */
@@ -363,13 +363,15 @@ export class TerrainBuild {
       const h = lite.h.slice();
       const kind = lite.kind ? lite.kind.slice() : new Uint8Array(lite.nx * lite.ny);
       for (const t of this.quays) {
+        // A deep quay's wall is dressed stone (D-077 §8), a stone-coloured line at the far view.
+        const side = isDeepQuay(lite, lite.nx, lite.ny, t.x, t.y, LITE_VPT) ? SIDE_QUAY : SIDE_ROCK;
         for (let b = 0; b < LITE_VPT; b++) {
           for (let a = 0; a < LITE_VPT; a++) {
             const i = t.x * LITE_VPT + a;
             const j = t.y * LITE_VPT + b;
             if (i < 0 || j < 0 || i >= lite.nx || j >= lite.ny) continue;
             h[j * lite.nx + i] = QUAY_H;
-            kind[j * lite.nx + i] = SIDE_ROCK;
+            kind[j * lite.nx + i] = side;
           }
         }
       }

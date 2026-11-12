@@ -81,6 +81,9 @@ func TestFixtures(t *testing.T) {
 				if quays != basinQuayTiles || count(w, home, basinPier) != 1 || count(w, home, basinTower) != 1 {
 					t.Errorf("harbour-basin: %d quay tiles, %d %s, %d %s", quays, count(w, home, basinPier), basinPier, count(w, home, basinTower), basinTower)
 				}
+				if n := count(w, home, basinSquare); n != basinSquareSide*basinSquareSide {
+					t.Errorf("harbour-basin: %d %s tiles, want %d", n, basinSquare, basinSquareSide*basinSquareSide)
+				}
 				for _, b := range is.Buildings {
 					if b.Type != basinPier && b.Type != basinTower {
 						continue

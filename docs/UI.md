@@ -322,7 +322,10 @@ UI shows the same numbers the server uses.
   under it, built or planned, with one `demolish_paint` ("Remove 5 wall,
   hedge or square tiles").
   Quays render as a stone wharf with a timber fender and a bollard every
-  third tile, and in the paved road's colour on the minimap.
+  third tile, and in the paved road's colour on the minimap; a quay in
+  deeper water has a dressed-stone wall and mooring posts (D-077 §8,
+  ART_DIRECTION §4). A square tile is fine cobbles in the ground, no
+  model (D-077 §2).
 - **Fields** (D-051 part 4): fields are not in the build menu. The farm
   card has a fields block (active / required with a bar, placed and max, a
   warning line when fields are not connected; no field list) and **"Add field"**, which enters a field tool bound to that

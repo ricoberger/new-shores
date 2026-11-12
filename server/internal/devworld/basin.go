@@ -14,7 +14,9 @@ import (
 // tiles on the home island — a stem from the coast out to basinDepth
 // tiles off the land, then an arm along the coast at that distance — and
 // a trading pier fully on the water against the pier's head, with a
-// harbour tower beside it (D-077 §3).
+// harbour tower beside it (D-077 §3), and a 3×3 town square (D-077 §2)
+// near the Trading Post: the quay wall and the square's fine cobbles of
+// UI.md §3 in one fixture.
 const FixtureHarbourBasin = "harbour-basin"
 
 // harbourBasinHistory: the town's history plus a minute for the basin.
@@ -30,6 +32,10 @@ const (
 	basinPier = "trading_pier"
 	// basinTower watches over the pier's head.
 	basinTower = "harbour_tower"
+	// basinSquare is the ground paint family of the fixture's town square.
+	basinSquare = "square"
+	// basinSquareSide is the town square's side (tiles).
+	basinSquareSide = 3
 )
 
 // harbourBasin builds the fixture's pier and the trading pier at its head.
@@ -47,8 +53,9 @@ func harbourBasin(f *fixture) {
 	quay := f.c.BuildingByID["quay"]
 	pier := f.c.BuildingByID[basinPier]
 	tower := f.c.BuildingByID[basinTower]
-	if quay == nil || pier == nil || tower == nil {
-		f.err = fmt.Errorf("the %s fixture needs quay, %s and %s content", FixtureHarbourBasin, basinPier, basinTower)
+	square := f.c.BuildingByID[basinSquare]
+	if quay == nil || pier == nil || tower == nil || square == nil {
+		f.err = fmt.Errorf("the %s fixture needs quay, %s, %s and %s content", FixtureHarbourBasin, basinPier, basinTower, basinSquare)
 		return
 	}
 	for range basinQuayTiles {
@@ -74,6 +81,10 @@ func harbourBasin(f *fixture) {
 			continue
 		}
 		if head := tiles[len(tiles)-1]; f.placeAtHead(home, pier, head) && f.placeAtHead(home, tower, head) {
+			f.townSquare(home, square, centre)
+			if f.err != nil {
+				return
+			}
 			f.advance(time.Minute)
 			return
 		}
@@ -215,6 +226,51 @@ func basinPath(is *sim.Island, dist []int, start sim.Pos) []sim.Pos {
 
 // placeAtHead places def fully on the open water (no quay under it) with
 // its back edge against the pier's head, the site nearest the head first.
+// townSquare paints a basinSquareSide square of the paint family on the
+// free land nearest the anchor (the first 3×3 the server accepts).
+func (f *fixture) townSquare(island string, def *content.Building, anchor sim.Pos) {
+	is := f.w.Island(island)
+	type site struct{ x, y, d int }
+	var sites []site
+	const reach = 20
+	for y := anchor.Y - reach; y <= anchor.Y+reach; y++ {
+		for x := anchor.X - reach; x <= anchor.X+reach; x++ {
+			if x < 0 || y < 0 || x+basinSquareSide > is.Width || y+basinSquareSide > is.Height {
+				continue
+			}
+			dx, dy := 2*x+basinSquareSide-2*anchor.X, 2*y+basinSquareSide-2*anchor.Y
+			sites = append(sites, site{x, y, dx*dx + dy*dy})
+		}
+	}
+	slices.SortStableFunc(sites, func(a, b site) int { return a.d - b.d })
+	occ := is.Occupancy(f.c)
+	for _, s := range sites {
+		var tiles []sim.Pos
+		for ty := s.y; ty < s.y+basinSquareSide; ty++ {
+			for tx := s.x; tx < s.x+basinSquareSide; tx++ {
+				if occ[ty*is.Width+tx] != 0 || is.RoadAt(tx, ty) != "" || is.PlannedRoadAt(tx, ty) != "" || !ownLand(is.Tile(tx, ty).Terrain) {
+					tiles = nil
+					break
+				}
+				tiles = append(tiles, sim.Pos{X: tx, Y: ty})
+			}
+			if tiles == nil {
+				break
+			}
+		}
+		if len(tiles) != basinSquareSide*basinSquareSide {
+			continue
+		}
+		for range tiles {
+			f.grant(island, &def.Cost)
+		}
+		if f.try(sim.PlacePaint{IslandID: island, Type: def.ID, Tiles: tiles}) {
+			return
+		}
+	}
+	f.err = fmt.Errorf("no site for the %s fixture's %s on %s", FixtureHarbourBasin, def.ID, island)
+}
+
 func (f *fixture) placeAtHead(island string, def *content.Building, head sim.Pos) bool {
 	is := f.w.Island(island)
 	const reach = 12

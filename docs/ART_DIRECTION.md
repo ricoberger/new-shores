@@ -285,6 +285,22 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   colour in the lite terrain's ground texture, and the quays' decks are
   columns of the island's one lite terrain mesh (rebuilt when the quays
   change) — no road or quay mesh of their own.
+- **Quay walls (D-077 §8).** A quay tile in deeper water (every ground
+  column below the wet sand line, `isDeepQuay`: a harbour basin's pier)
+  is a level-0 block whose side is dressed stone (`SIDE_QUAY`,
+  `quaySide`: a light capping course, ashlar courses in two shades, a
+  wet green-grey foot) instead of the D-060 rock-and-earth bands, and
+  its fender carries a timber **mooring post** (3 steps) on the tile
+  after each bollard tile. A quay on the beach or sand shelf next to the
+  land keeps the D-060 look. At far LOD the deep quay is a column of the
+  lite mesh with the same stone side: a stone-coloured line.
+- **The square (D-077 §2)** is paint, not a model: each tile of the
+  paint family with `paint_family.ground: cobbles_fine` paints **fine
+  cobbles** (one-column setts in a light–dark checker, lighter than the
+  road's cobbles, a darker sett now and then; `fineCobbleTop`) into the
+  ground texture like a yard (`yardTiles`/`paintYards`), so near and far
+  views show it; on a terrace plinth it fills like a paved yard. Its
+  plan shows the gold outline only.
 - **Field ground** is painted into the ground texture too (furrows for
   crops, pasture, orchard grass; meadows and tree plots keep the
   terrain's grass) over the whole footprint; the field models have no

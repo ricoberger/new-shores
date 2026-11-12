@@ -91,11 +91,25 @@ export function fillSide(z: number): Color3 {
   return FILL_EARTH.scale(z % 2 === 0 ? 0.9 : 1);
 }
 
-/** A yard tile on the island: its kind (never "none"). */
+/** A yard tile on the island: its kind (never "none"); `cobbles_fine` is a ground paint family's tile (the square, D-077 §2). */
 export interface YardTile {
   x: number;
   y: number;
-  kind: Exclude<GroundKind, "none">;
+  kind: Exclude<GroundKind, "none"> | GroundPaint;
+}
+
+/** The ground kinds a paint family paints instead of a model (content `paint_family.ground`). */
+export type GroundPaint = NonNullable<NonNullable<ContentBuilding["paint_family"]>["ground"]>;
+
+/** The ground a building paints instead of a model (the square, D-077 §2), or undefined: it has a model. */
+export function groundPaintOf(def: Pick<ContentBuilding, "paint_family"> | undefined): GroundPaint | undefined {
+  return def?.paint_family?.ground;
+}
+
+/** Fine cobbles (the square, D-077 §2): one-column setts in two shades, a checker of light and dark, lighter than the road's. */
+export function fineCobbleTop(i: number, j: number, r: number): number {
+  const light = ((i + j) & 1) === 0;
+  return pack(r > 0.96 ? STONE.scale(0.9) : PAVED.scale((light ? 1.1 : 1.0) + 0.04 * r));
 }
 
 /**
@@ -152,6 +166,9 @@ export function paintYards(f: Field, base: PaintBase, yards: readonly YardTile[]
         switch (t.kind) {
           case "paved":
             f.top[k] = cobbleTop(r);
+            break;
+          case "cobbles_fine":
+            f.top[k] = fineCobbleTop(i, j, r);
             break;
           case "dirt": {
             const edge = kindAt(i - 1, j) !== "dirt" || kindAt(i + 1, j) !== "dirt" || kindAt(i, j - 1) !== "dirt" || kindAt(i, j + 1) !== "dirt";

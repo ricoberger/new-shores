@@ -45,7 +45,7 @@ import { jitterShade, setJitterLod } from "./jitter";
 import { type Builder, buildTerrain, CoastWater, NO_TERRAIN, TerrainBuild, type TerrainMeshes } from "./terrain";
 import { type DetailPlaced, scatterDetail } from "./decorscatter";
 import { farFieldColor } from "./farfields";
-import { groundTiles, type YardTile } from "./groundpaint";
+import { groundPaintOf, groundTiles, type YardTile } from "./groundpaint";
 import type { FieldTile } from "./roadvoxels";
 import { pack } from "./voxelterrain";
 import { type DecorMaterials, decorMaterials, Decoration, FarTrees, TREE_MODELS } from "./trees";
@@ -577,7 +577,7 @@ export class IslandDetail {
         height = p.height;
       } else {
         r = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-        height = def.field ? 0.05 : 1;
+        height = def.field || groundPaintOf(def) ? 0.05 : 1;
       }
       out.push({
         min: { x: ox + r.cx - r.w / 2, y: base, z: oz + r.cz - r.h / 2 },
@@ -624,7 +624,7 @@ export class IslandDetail {
     const rects = [];
     for (const b of display.buildings) {
       const def = defs.get(b.type);
-      if (!def || def.category === "roads" || def.field) continue;
+      if (!def || def.category === "roads" || def.field || groundPaintOf(def)) continue;
       const entry = this.registry?.entry(b.type);
       if (entry && entry.kind === "building") {
         const p = placement(entry, def, b);
@@ -816,6 +816,12 @@ export function yardTiles(display: Pick<IslandDisplay, "buildings">, defs: Reado
   for (const b of display.buildings) {
     const def = defs.get(b.type);
     if (!def || def.field) continue;
+    // A ground paint family's tile (the square, D-077 §2) is its paint, no model.
+    const paint = groundPaintOf(def);
+    if (paint) {
+      out.push({ x: b.x, y: b.y, kind: paint });
+      continue;
+    }
     const entry = registry?.entry(b.type);
     if (entry?.kind !== "building") continue;
     const ground = modelFileFor(entry, b)?.ground;
