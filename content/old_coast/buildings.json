@@ -40,6 +40,7 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "harbour",
+    "harbour_lane": true,
     "trading_post": {
       "levels": [
         { "capacity": 300, "throughput_per_min": 10, "reach": 24, "upkeep_per_min": 0, "berths": 1 },
@@ -292,6 +293,7 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "harbour",
+    "harbour_lane": true,
     "shipyard": { "ships": ["cog", "hulk", "carrack", "balinger", "war_cog", "war_carrack"] }
   },
   {
@@ -349,6 +351,7 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "harbour",
+    "harbour_lane": true,
     "pier": { "berths": 2 }
   },
   {
@@ -364,6 +367,7 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "harbour",
+    "harbour_lane": true,
     "depot": { "capacity": 150 }
   },
   {
@@ -2185,6 +2189,7 @@
     "upkeep_per_min": 2,
     "pause_category": "public",
     "look": "harbour",
+    "harbour_lane": true,
     "repairs": true
   },
   {
@@ -2201,6 +2206,7 @@
     "upkeep_per_min": 10,
     "pause_category": "public",
     "look": "harbour",
+    "harbour_lane": true,
     "unique": "world"
   }
 ]

@@ -513,6 +513,9 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
 		return err
 	}
+	if err := checkHarbourLane(is, c, def, cmd.X, cmd.Y, cmd.Rotation, 0); err != nil {
+		return err
+	}
 	if berths := def.InitialBerths(); berths > 0 || def.Shore() {
 		at := &Building{ID: -1, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: berths}
 		if err := checkHarbourAfter(is, c, def, at, -1); err != nil {
@@ -781,6 +784,9 @@ func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
 	if err := checkSite(is, c, occ, def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
 		return err
 	}
+	if err := checkHarbourLane(is, c, def, cmd.X, cmd.Y, cmd.Rotation, b.ID); err != nil {
+		return err
+	}
 
 	if b.Berths > 0 || def.Shore() {
 		at := &Building{ID: b.ID, Type: b.Type, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: b.Berths}
@@ -865,6 +871,9 @@ func checkRoadSite(is *Island, c *content.Catalogue, def *content.Building, tile
 		// A quay (D-060) stands on free shallows and keeps the harbour
 		// open (quay.go).
 		if err := checkQuayTiles(is, is.occupancy(c), tiles); err != nil {
+			return err
+		}
+		if err := checkQuayLane(is, c, tiles); err != nil {
 			return err
 		}
 		tmp := *is

@@ -682,6 +682,12 @@ whose tiles join, MECHANICS §3); `repairs` (boolean, shore buildings
 only; dormant); `gate` (boolean: the gatehouse — a square military
 building with an odd side ≥ 3 that needs a city wall on two opposite
 sides and lets a road along its centre line, MECHANICS §3).
+D-078 field: `harbour_lane` (boolean; needs the shore placement or
+`water_rows`): the building is a berth holder with a harbour lane in
+front of its water edge — its width plus one tile on each side, four
+rows deep — on which quays, shore buildings and paint tiles are refused
+(MECHANICS §2). Set on `trading_post`, `trading_pier`, `depot`,
+`shipyard`, `repair_crane` and `kontor`.
 What a building *does* is defined by the optional blocks
 it carries:
 

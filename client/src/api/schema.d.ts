@@ -449,9 +449,13 @@ export interface components {
          *       does not touch land or quay along its full length, D-077 §5),
          *       `harbour_blocked` (quay tiles, a shore building, or a Trading
          *       Post moved onto quay tiles, would close a harbour point off
-         *       from the open sea, D-060 / D-077 §8; a shore building on the
-         *       harbour lane or a berth tile of the Trading Post or a trading
+         *       from the open sea, D-060 / D-077 §8; a shore building on a
+         *       harbour point or a berth tile of the Trading Post or a trading
          *       pier, D-077 §5),
+         *       `harbour_lane` (a quay tile, a shore building or a paint tile
+         *       on the harbour lane of a berth holder — its footprint's width
+         *       plus one tile on each side, four rows in front of its water
+         *       edge — or a berth holder whose lane would cover one, D-078 §1),
          *       `quay_disconnected` (a quay tile would reach neither the
          *       island's land nor a built building over quay tiles, D-077 §8),
          *       `quay_would_float` (demolishing roads or a building, or moving
@@ -505,7 +509,7 @@ export interface components {
          *     `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
          *     `not_coastal`, `not_on_water`, `needs_low_shore`,
          *     `shore_needs_water`, `shore_back_edge`, `harbour_blocked`,
-         *     `quay_would_float`, `no_fertility`, `no_deposit`. Moving a farm keeps its fields (they may become
+         *     `harbour_lane`, `quay_would_float`, `no_fertility`, `no_deposit`. Moving a farm keeps its fields (they may become
          *     inactive); a field cannot be moved (`invalid_command`). Moving is
          *     free: it never fails for gold, materials or tier. Placement never
          *     requires a road (D-042).
@@ -573,7 +577,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "shore_needs_water" | "shore_back_edge" | "quay_disconnected" | "quay_would_float" | "unique_building" | "gate_needs_wall" | "harbour_blocked" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "needs_low_shore" | "shore_needs_water" | "shore_back_edge" | "quay_disconnected" | "quay_would_float" | "unique_building" | "gate_needs_wall" | "harbour_blocked" | "harbour_lane" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "no_passage" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "plan_not_found" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -2835,6 +2839,13 @@ export interface components {
             };
             /** @description The building repairs ships (the repair crane, D-077 §4). Dormant until raids. */
             repairs?: boolean;
+            /**
+             * @description A berth holder (D-078 §1): it owns a harbour lane in front of
+             *     its water edge — the footprint's width plus one tile on each
+             *     side, four rows deep — on which quays, shore buildings and
+             *     paint tiles are rejected (`harbour_lane`).
+             */
+            harbour_lane?: boolean;
             /**
              * @description A gate in the city wall (the gatehouse, D-077 §3): it needs a
              *     city wall on two opposite sides (`gate_needs_wall`) and a road

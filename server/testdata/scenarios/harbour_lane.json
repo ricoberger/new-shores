@@ -1,0 +1,216 @@
+{
+  "name": "harbour_lane",
+  "description": "Harbour lanes (D-078 §1) on the shipped content: the Trading Post at (4,16) owns the lane x 3..10, y 12..15 (its width plus one column on each side, four rows in front). A quay straight in front of it and one on the lane's corner tile, diagonally in front, fail (harbour_lane); a depot whose footprint reaches into the lane's side column fails, placed and planned; a quay right beside the Trading Post and a quay column beside the lane succeed. A trading pier at (20,12) owns its own lane: quays on its flank are fine, a harbour statue standing on them inside the lane fails. A depot whose own lane would cover a quay fails (the rule is symmetric), one column further succeeds. Every failed step leaves the world byte-identical.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "fertilities": [],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 4,
+      "y": 16,
+      "rotation": 0
+    },
+    "gold": "2000000",
+    "stock": {
+      "planks": 290,
+      "stone": 290
+    },
+    "unlocked_tiers": [
+      "citizens",
+      "merchants"
+    ]
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "quay",
+        "from": [
+          6,
+          15
+        ],
+        "to": [
+          6,
+          15
+        ]
+      },
+      "expect_error": "harbour_lane"
+    },
+    {
+      "road": {
+        "type": "quay",
+        "from": [
+          10,
+          15
+        ],
+        "to": [
+          10,
+          15
+        ]
+      },
+      "expect_error": "harbour_lane"
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 10,
+        "y": 7,
+        "rotation": 0
+      },
+      "expect_error": "harbour_lane"
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 10,
+        "y": 7,
+        "rotation": 0,
+        "planned": true
+      },
+      "expect_error": "harbour_lane"
+    },
+    {
+      "road": {
+        "type": "quay",
+        "from": [
+          10,
+          17
+        ],
+        "to": [
+          10,
+          17
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "quay",
+        "from": [
+          11,
+          17
+        ],
+        "to": [
+          11,
+          14
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "trading_pier",
+        "x": 20,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "type": "quay",
+        "from": [
+          27,
+          17
+        ],
+        "to": [
+          27,
+          12
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "quay",
+        "from": [
+          26,
+          12
+        ],
+        "to": [
+          26,
+          12
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "harbour_statue",
+        "x": 26,
+        "y": 10,
+        "rotation": 0
+      },
+      "expect_error": "harbour_lane"
+    },
+    {
+      "road": {
+        "type": "quay",
+        "from": [
+          32,
+          17
+        ],
+        "to": [
+          32,
+          10
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 33,
+        "y": 12,
+        "rotation": 0
+      },
+      "expect_error": "harbour_lane"
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 34,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

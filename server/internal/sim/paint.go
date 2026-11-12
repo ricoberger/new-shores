@@ -64,6 +64,9 @@ func placePaint(w *World, c *content.Catalogue, cmd PlacePaint, l *Ledger) ([]Ti
 	var order []Pos
 	for i, p := range cmd.Tiles {
 		err := checkSite(is, c, occ, def, p.X, p.Y, 0)
+		if err == nil {
+			err = checkHarbourLane(is, c, def, p.X, p.Y, 0, 0)
+		}
 		if err == nil && !cmd.Planned {
 			err = checkCost(w, is, def.Cost, int64(len(order)+1))
 		}

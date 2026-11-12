@@ -121,6 +121,10 @@
         "description": "The building repairs ships (repair crane, D-077 §4). Dormant: ship health comes with raids. Absent is false.",
         "type": "boolean"
       },
+      "harbour_lane": {
+        "description": "The building is a berth holder with a harbour lane in front of its water edge (D-078 §1): the footprint's width plus one tile on each side, four rows deep; quays, shore buildings and paint tiles are rejected on it. Needs shore placement or water rows. Absent is false.",
+        "type": "boolean"
+      },
       "gate": {
         "description": "The building is a gate in the city wall (gatehouse, D-077 §3): placed with a road-crossing paint family on two opposite sides, a road may run along its centre line. Absent is false.",
         "type": "boolean"

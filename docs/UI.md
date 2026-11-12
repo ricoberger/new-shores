@@ -295,7 +295,8 @@ UI shows the same numbers the server uses.
   water") and a back-edge column on open water with open water behind it
   ("Its back must touch land or a quay — rotate it (R) to face the sea")
   tint their tiles red, in that order of the hint text. The harbor lane
-  and berth keep-out are the server's (`harbour_blocked`).
+  (`harbour_lane`, D-078 §1) and the berth keep-out (`harbour_blocked`)
+  are the server's; the placement error names them.
 - Roads: drag to draw; auto-connect; cost preview. While dragging, the
   L-path of the drag shows as a ghost on the ground, one mark per tile in
   the field paint's tints: green where the client expects a road, red

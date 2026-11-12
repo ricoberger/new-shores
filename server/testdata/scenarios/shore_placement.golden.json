@@ -26,12 +26,12 @@
     {
       "step": 1,
       "error": "harbour_blocked",
-      "message": "harbour closed off from the open sea: depot at (26,9) covers the harbour lane or a berth at (26,12)"
+      "message": "harbour closed off from the open sea: depot at (26,9) covers a harbour point or a berth at (26,12)"
     },
     {
       "step": 2,
       "error": "harbour_blocked",
-      "message": "harbour closed off from the open sea: depot at (16,9) covers the harbour lane or a berth at (19,12)"
+      "message": "harbour closed off from the open sea: depot at (16,9) covers a harbour point or a berth at (19,12)"
     },
     {
       "step": 4,
@@ -51,7 +51,7 @@
     {
       "step": 8,
       "error": "shore_back_edge",
-      "message": "the back edge of a shore building must touch land or quay: trading_pier at (11,8): back edge at (16,16) is open water"
+      "message": "the back edge of a shore building must touch land or quay: trading_pier at (12,8): back edge at (17,16) is open water"
     },
     {
       "step": 11,
@@ -640,11 +640,6 @@
         },
         "roads": [
           {
-            "x": 10,
-            "y": 17,
-            "type": "quay"
-          },
-          {
             "x": 11,
             "y": 17,
             "type": "quay"
@@ -666,6 +661,11 @@
           },
           {
             "x": 15,
+            "y": 17,
+            "type": "quay"
+          },
+          {
+            "x": 16,
             "y": 17,
             "type": "quay"
           }
@@ -721,7 +721,7 @@
           {
             "id": 4,
             "type": "trading_pier",
-            "x": 10,
+            "x": 11,
             "y": 8,
             "rotation": 0,
             "paused": false,
@@ -734,16 +734,18 @@
         "plans": [
           {
             "id": 5,
-            "type": "shipyard",
-            "x": 31,
-            "y": 8,
+            "type": "harbour_tower",
+            "x": 35,
+            "y": 16,
             "rotation": 0,
             "planned": true,
             "plan_cost": {
-              "gold": 300000,
+              "gold": 600000,
               "materials": {
-                "planks": 45000
-              }
+                "bricks": 10000,
+                "stone": 20000
+              },
+              "reason": "insufficient_materials"
             }
           }
         ],

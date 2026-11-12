@@ -364,6 +364,8 @@ type buildingJSON struct {
 	PaintFamily *paintFamilyJSON `json:"paint_family,omitempty"`
 	// Repairs marks the repair crane (D-077 §4; dormant until raids).
 	Repairs bool `json:"repairs,omitempty"`
+	// HarbourLane marks a berth holder with a harbour lane (D-078 §1).
+	HarbourLane bool `json:"harbour_lane,omitempty"`
 	// Gate marks the gatehouse (D-077 §3).
 	Gate          bool             `json:"gate,omitempty"`
 	RequiresRoad  bool             `json:"requires_road"`
@@ -606,7 +608,7 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 		Description: tx.c.Translate(tx.lang, content.TextKey("buildings", b.ID, "description"), b.Description),
 		ID:          b.ID, Name: tx.name("buildings", b.ID, b.Name), Tier: b.Tier, Category: buildingCategory(b),
 		Width: b.Width, Height: b.Height, Coastal: b.Coastal, WaterRows: b.WaterRows, Placement: b.Placement, RequiresRoad: b.RequiresRoad,
-		Defence: b.Defence, Unique: b.Unique, Repairs: b.Repairs, Gate: b.Gate,
+		Defence: b.Defence, Unique: b.Unique, Repairs: b.Repairs, HarbourLane: b.HarbourLane, Gate: b.Gate,
 		Cost:         newCostJSON(b.Cost),
 		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit, Smoke: b.Smoke, Boat: b.Boat,
 	}

@@ -337,6 +337,10 @@ type Building struct {
 	PaintFamily *PaintFamily
 	// Repairs marks the repair crane (D-077 §4); dormant until raids.
 	Repairs bool
+	// HarbourLane marks a berth holder that owns a harbour lane in front
+	// of its water edge (D-078 §1): quays, shore buildings and paint
+	// tiles stay off it.
+	HarbourLane bool
 	// Gate marks the gatehouse (D-077 §3): it needs a road-crossing
 	// paint family (the city wall) on two opposite sides and lets a road
 	// through its centre line.

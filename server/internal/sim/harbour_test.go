@@ -107,9 +107,11 @@ func TestQuayMustNotCutOffPier(t *testing.T) {
 	}
 	w := quayWorld(t, c, 3, rows...)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "trading_pier", X: 12, Y: 6})
-	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: quayRow(2, 12, 14)})
+	// The bay's mouth (row 2) lies on the pier's harbour lane (rows 2..5,
+	// D-078 §1): the quays close it one row further out.
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: quayRow(1, 11, 14)})
 	before := encode(t, w)
-	if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: []Pos{{15, 2}}}); !errors.Is(err, ErrHarbourBlocked) {
+	if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: []Pos{{15, 1}}}); !errors.Is(err, ErrHarbourBlocked) {
 		t.Fatalf("closing the pier's bay: err = %v, want ErrHarbourBlocked", err)
 	}
 	if string(encode(t, w)) != string(before) {
@@ -118,7 +120,7 @@ func TestQuayMustNotCutOffPier(t *testing.T) {
 
 	// A pier placed in a bay already closed by quays has no way out.
 	w = quayWorld(t, c, 3, rows...)
-	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: quayRow(2, 12, 15)})
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: quayRow(1, 11, 15)})
 	if err := Apply(w, c, PlaceBuilding{IslandID: "main", Type: "trading_pier", X: 12, Y: 6}); !errors.Is(err, ErrHarbourBlocked) {
 		t.Fatalf("pier in a closed bay: err = %v, want ErrHarbourBlocked", err)
 	}

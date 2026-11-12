@@ -369,6 +369,7 @@ export const de: Record<keyof typeof en, string> = {
   "error.not_coastal": "Das Gebäude muss an der Küste stehen.",
   "error.not_on_water": "Die vorderen Reihen eines Gebäudes am Wasser müssen im Wasser stehen.",
   "error.harbour_blocked": "Das würde den Hafen vom offenen Meer abschneiden.",
+  "error.harbour_lane": "Die Hafeneinfahrt muss frei bleiben: Vor einem Anleger, an dem Schiffe festmachen, darf nichts stehen.",
   "error.needs_low_shore": "Dieses Gebäude braucht ein flaches Ufer: Seine Landfelder müssen auf Meereshöhe liegen, nicht auf einer Terrasse.",
   "error.shore_needs_water": "Ein Ufergebäude braucht mindestens ein Wasserfeld.",
   "error.shore_back_edge": "Die Rückseite eines Ufergebäudes muss auf ganzer Länge an Land oder einen Kai grenzen.",

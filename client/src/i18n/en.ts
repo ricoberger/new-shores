@@ -367,6 +367,7 @@ export const en = {
   "error.not_coastal": "The building must touch the coast.",
   "error.not_on_water": "The front rows of a water-edge building must stand on the water.",
   "error.harbour_blocked": "That would close the harbor off from the open sea.",
+  "error.harbour_lane": "Keep the harbor lane clear: nothing may stand in front of a pier where the ships come in.",
   "error.needs_low_shore": "This building needs a low shore: its land tiles must be at sea level, not on a terrace.",
   "error.shore_needs_water": "A shore building needs at least one water tile.",
   "error.shore_back_edge": "The back of a shore building must touch land or a quay along its whole length.",

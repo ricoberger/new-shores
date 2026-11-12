@@ -157,9 +157,7 @@ handlers only.
   island's own land or a quay (`shore_back_edge`). So a shore building
   stands on the beach (straddling the water line, any mix of water and
   land per column) or fully on the water against a quay. No footprint
-  tile may lie on the **harbour lane** — the strip in front of the
-  front edge of the island's Trading Post and of each trading pier,
-  its width and three tiles deep (one beyond the harbour point) — on a
+  tile may lie on a **harbour lane** (below, `harbour_lane`), on a
   trading pier's **berth tiles** (the water tiles of the columns beside
   its two flanks) or on a harbour point (`harbour_blocked`). For ships
   the whole footprint is **land** (sea grid, harbour points, open-sea
@@ -169,6 +167,28 @@ handlers only.
   keeps verifying the stricter D-062 shipyard site (8 × 12 with 3–4
   water rows), which is always a valid shore site on a fresh island,
   so seeds are unchanged.
+- **Harbour lane** (D-078 §1, `lane.go`): every **berth holder** —
+  a building with `harbour_lane` in the content: the Trading Post,
+  trading pier, depot, shipyard, repair crane and Kontor — built or
+  planned owns a lane in front of its water edge (the front row of its
+  water rows or of its shore placement, rotation-aware): its
+  footprint's width **plus one tile on each side**, **four rows** deep,
+  every tile of that rectangle on the island (water or land). Neither
+  a **quay** tile (§3), nor a footprint tile of a **shore building**,
+  nor a **paint-family** tile (§3) may lie on another building's lane
+  (`harbour_lane`); symmetrically a berth holder may not be placed,
+  planned or moved so that its own lane covers a quay (built or
+  planned), a shore building or a paint tile. A building never blocks
+  itself (a moved holder ignores its old lane). Other buildings (land
+  buildings, fishers, salt pans) are not bound by lanes. The check runs
+  after the site rules (`terrain`, `occupied`, water rows, shore rules)
+  and before the open-harbour check (`harbour_blocked`, §3), which stays
+  in addition; for quays after the shallows and occupancy checks. It
+  holds for `place_building`, `place_road` (quays), `place_paint`, plans
+  (placing, moving, building) and `move_building`; `found_island` is
+  unaffected (an unsettled island has no quays). The archipelago
+  generator and the reference plans are unaffected; the dev fixtures
+  choose their quay and shore sites through the same rule.
 - **Low shore** (D-075 §1): every land tile of a water-edge building
   (any `water_rows`) or a shore building is at
   terrace level 0 (§10), else `needs_low_shore`; cliffs are not pier
@@ -341,7 +361,9 @@ handlers only.
   connection and carts like any other; for a **water-edge or coastal
   building** it counts as coast: the building's land rows may stand on
   quay tiles, which it replaces (no refund), while its water rows need
-  free water without quay. Other buildings never stand on a quay. For
+  free water without quay. Other buildings never stand on a quay. A quay
+  tile never lies on a **harbour lane** (§2, `harbour_lane`, D-078 §1),
+  placed or planned. For
   ships a quay tile is **land** (sea grid, approach, harbour point,
   §9.1). Quay tiles, a shore building (§2), or a berth holder moved onto
   quay tiles must leave every harbour point of the island (Trading
@@ -373,7 +395,8 @@ handlers only.
   refund, a plan for free; single tiles also go with `demolish`).
   Neighbouring tiles of one family join (display only: the client picks
   the piece). The square is a ground kind (`cobbles_fine`) with no model;
-  it is not a road. Nothing else reads a paint family.
+  it is not a road. No paint tile lies on a **harbour lane** (§2,
+  `harbour_lane`, D-078 §1). Nothing else reads a paint family.
 - **City wall and gate** (D-077 §3): a road may share a tile with a
   **road-crossing** paint family (the city wall, drawn as an arch) in
   either order — a road placed over the wall or the wall painted over a
