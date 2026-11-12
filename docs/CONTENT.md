@@ -466,8 +466,8 @@ Zero effect, no maintenance (the price is the sink; `upkeep_per_min: 0`,
 
 | ID | Tier | Footprint | Cost (gold) | Notes |
 |---|---|---|---|---|
-| `hedge` | 1 | 1×1 | 10 | paint family: tiles join like roads |
-| `garden_wall` | 1 | 1×1 | 15 | paint family |
+| `hedge` | 1 | 1×1 | 10 | paint family: tiles join like roads (join pieces `hedge.<piece>`, ART_DIRECTION §7) |
+| `garden_wall` | 1 | 1×1 | 15 | paint family (join pieces) |
 | `tree_ornament` | 1 | 1×1 | 20 | 3 voxel variants |
 | `flower_bed` | 1 | 1×1 | 15 | |
 | `well` | 1 | 1×1 | 40 | |
@@ -491,8 +491,8 @@ show it. Costs provisional.
 | ID | Tier | Footprint | Defence | Upkeep | Cost | Notes |
 |---|---|---|---|---|---|---|
 | `city_wall` | 2 | 1×1 | 1 | 0.1 per tile | 15 gold, 2 stone | paint family; a road may cross a tile (`road_crossing`, drawn as an arch) |
-| `tower` | 2 | 2×2 | 5 | 2 | 200 gold, 10 stone | joins a wall line |
-| `gatehouse` | 2 | 3×3 | 5 | 3 | 300 gold, 15 stone | `gate: true`: wall on two opposite sides, the road through its centre line |
+| `tower` | 2 | 2×2 | 5 | 2 | 200 gold, 10 stone | joins a wall line: wall stubs on every edge tile (ART_DIRECTION §7 wall set) |
+| `gatehouse` | 2 | 3×3 | 5 | 3 | 300 gold, 15 stone | `gate: true`: wall on two opposite sides (stubs there), the road through its centre line |
 | `harbour_tower` | 3 | 2×2 | 8 | 4 | 600 gold, 20 stone, 10 bricks | shore placement |
 | `castle` | 4 | 8×8 | 30 | 15 | 5 000 gold, 100 stone, 60 bricks | keep, curtain and gate |
 

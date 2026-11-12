@@ -386,6 +386,20 @@ handlers only.
   passage (north–south at rotation 0 and 180, east–west at 90 and 270),
   in either order. Every other building tile stays `occupied` for roads.
   Military buildings have a `defence` value nothing reads (raids, D-005).
+- **Ornaments and dormant values** (D-077 §2–§4, §6): ornaments are
+  ordinary buildings with no inputs, outputs, residents, need or
+  maintenance (`upkeep_per_min: 0`, never paused); their gold price is
+  the only effect. A military building's `defence`, a warship's `attack`
+  and the repair crane's `repairs` are content only: nothing in the
+  simulation reads them until raids and ship health come (D-005); the
+  military buildings' maintenance is ordinary upkeep. Neither needs a
+  road (`requires_road: false`), so none is "not connected".
+- **Unique buildings** (D-076 §2, D-077 §4; `unique` in the content): a
+  building with `unique: island` exists at most once per island, one
+  with `unique: world` (the Kontor) once in the world; a building or a
+  plan of the type counts, so placing (or planning) a second fails with
+  `unique_building` (`ErrUniqueBuilding`); building the plan itself and
+  moving the building never do.
 - Each connected producer is **assigned** to the nearest collector whose
   reach covers it (§5, D-069) by road distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile
