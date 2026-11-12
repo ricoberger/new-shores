@@ -16,18 +16,18 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// TestSchemaMigrationsRegistered: schema 16 (D-076 regions) registers the
-// migrations 14 -> 15 and 15 -> 16; envelopes of schema 1-13 (the game was not
+// TestSchemaMigrationsRegistered: schema 17 (D-077 patrol) registers the
+// migrations 14 -> 15, 15 -> 16 and 16 -> 17; envelopes of schema 1-13 (the game was not
 // deployed), envelopes without a version and newer ones fail loudly with
 // ErrSchemaVersion.
 func TestSchemaMigrationsRegistered(t *testing.T) {
 	m := SchemaMigrations(catalogue(t))
-	if SchemaVersion != 16 || len(m) != 2 || m[14] == nil || m[15] == nil {
+	if SchemaVersion != 17 || len(m) != 3 || m[14] == nil || m[15] == nil || m[16] == nil {
 		t.Fatalf("SchemaVersion %d with %d migrations: add migration tests", SchemaVersion, len(m))
 	}
 	for _, raw := range []string{
 		`{"schema_version":0,"content_version":"x","world":{}}`,
-		`{"schema_version":17,"content_version":"x","world":{}}`,
+		`{"schema_version":18,"content_version":"x","world":{}}`,
 		`{"schema_version":13,"content_version":"old_coast-0.17.0","world":{}}`,
 		`{"schema_version":12,"content_version":"old_coast-0.16.0","world":{}}`,
 		`{"schema_version":11,"content_version":"old_coast-0.15.0","world":{}}`,
@@ -337,8 +337,70 @@ func TestMigrate15to16(t *testing.T) {
 				t.Fatal(err)
 			}
 			want = regexp.MustCompile(`"passage_point":\{"x":-?\d+,"y":-?\d+\},`).ReplaceAll(bytes.TrimSuffix(want, []byte("\n")), nil)
+			// Through 16 -> 17 (unchanged world) the envelope is schema 17.
+			want = bytes.Replace(want, []byte(`"schema_version":16`), []byte(`"schema_version":17`), 1)
 			if !bytes.Equal(state, want) || !bytes.Equal(terrain16, wantTerrain) {
 				t.Fatal("the migrated world differs from the schema-16 fixture")
+			}
+			end := w.LastEvaluatedAt.Add(time.Hour)
+			if _, err := Advance(w, c, end); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := Display(w, c, end); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+// TestMigrate16to17: migrate16to17 leaves the world JSON of every
+// committed schema-16 envelope (before the D-077 patrol) unchanged; the
+// decoded world has no patrolling ship and re-encodes to the schema-17
+// fixture of the same scenario; it advances and displays.
+func TestMigrate16to17(t *testing.T) {
+	files, err := filepath.Glob(filepath.Join("testdata", "schema16_*.json"))
+	if err != nil || len(files) < 4 {
+		t.Fatalf("schema 16 fixtures %v (%v)", files, err)
+	}
+	for _, f := range files {
+		t.Run(filepath.Base(f), func(t *testing.T) {
+			data, err := os.ReadFile(f) // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			terrain, err := os.ReadFile(strings.TrimSuffix(f, ".json") + ".terrain.gz") // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			c := fixtureCatalogue(t, data)
+			w, cv, _, err := DecodeState(data, terrain, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, s := range w.Ships {
+				if s.Patrol != nil || s.State == ShipPatrolling {
+					t.Fatalf("ship %d patrols after the migration", s.ID)
+				}
+			}
+			var head struct {
+				World json.RawMessage `json:"world"`
+			}
+			if err := json.Unmarshal(data, &head); err != nil {
+				t.Fatal(err)
+			}
+			if out, err := migrate16to17(RawEnvelope{ContentVersion: cv, World: head.World}, &MigrationNotes{}); err != nil || !bytes.Equal(out.World, head.World) {
+				t.Fatalf("migrate16to17 changed the world (%v)", err)
+			}
+			state, _, err := EncodeState(w, cv)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want, err := os.ReadFile(strings.Replace(f, "schema16_", "schema17_", 1)) // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !bytes.Equal(state, bytes.TrimSuffix(want, []byte("\n"))) {
+				t.Fatal("the migrated world differs from the schema-17 fixture")
 			}
 			end := w.LastEvaluatedAt.Add(time.Hour)
 			if _, err := Advance(w, c, end); err != nil {

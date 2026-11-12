@@ -236,6 +236,8 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Resul
 		err = foundIsland(w, c, cmd, l)
 	case AssignShip:
 		err = assignShip(w, c, cmd, l)
+	case StartPatrol:
+		err = startPatrol(w, c, cmd)
 	case UnassignShip:
 		err = unassignShip(w, cmd)
 	case ManualShipment:

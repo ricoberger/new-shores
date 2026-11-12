@@ -207,11 +207,12 @@ return Display(w, now)
   are pure functions over the raw envelope that may take the content
   catalogue and return **notes** (e.g. the 2→3 fields migration reports
   farms whose efficiency could not be preserved); the store logs the
-  notes, the sim never does. Current schema: 16; the registered
-  migrations are 14→15 (plans, D-071) and 15→16 (regions, D-076: the
+  notes, the sim never does. Current schema: 17; the registered
+  migrations are 14→15 (plans, D-071), 15→16 (regions, D-076: the
   islands move into `regions[0]`, generated island IDs get the region
   prefix, islands and ships get `region_id`; the separately stored
-  terrain is matched by the IDs' digits) — older versions were bumped
+  terrain is matched by the IDs' digits) and 16→17 (patrol, D-077 §6:
+  `Ship.Patrol`, unchanged JSON) — older versions were bumped
   without a migration (local databases are recreated). **Rule
   while undeployed:** a trivial additive migration (a defaulted field)
   may be written when it is cheaper than a reset; structural changes

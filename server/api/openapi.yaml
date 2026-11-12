@@ -149,7 +149,7 @@ paths:
         `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
         `move_building`, and the ship and route commands `order_ship`,
         `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
-        `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`,
+        `delete_route`, `assign_ship`, `unassign_ship`, `patrol`, `manual_shipment`,
         `sail_ship` and `found_island` (MECHANICS §8, §9).
 
         A new world starts at sea (D-051): no island is settled and the
@@ -1174,6 +1174,7 @@ components:
         - $ref: "#/components/schemas/DeleteRouteCommand"
         - $ref: "#/components/schemas/AssignShipCommand"
         - $ref: "#/components/schemas/UnassignShipCommand"
+        - $ref: "#/components/schemas/PatrolCommand"
         - $ref: "#/components/schemas/ManualShipmentCommand"
         - $ref: "#/components/schemas/SailShipCommand"
         - $ref: "#/components/schemas/FoundIslandCommand"
@@ -1210,6 +1211,7 @@ components:
           delete_route: "#/components/schemas/DeleteRouteCommand"
           assign_ship: "#/components/schemas/AssignShipCommand"
           unassign_ship: "#/components/schemas/UnassignShipCommand"
+          patrol: "#/components/schemas/PatrolCommand"
           manual_shipment: "#/components/schemas/ManualShipmentCommand"
           sail_ship: "#/components/schemas/SailShipCommand"
           found_island: "#/components/schemas/FoundIslandCommand"
@@ -1956,7 +1958,9 @@ components:
       description: |
         Remove a ship from its route. A ship on a leg finishes it as a
         manual leg (unloads everything at arrival and ends idle); an
-        anchored ship stays anchored.
+        anchored ship stays anchored. A patrolling ship ends its patrol
+        (D-077 §6): it idles at the patrolled island, at the loop point
+        nearest the island's harbour.
       required: [type, ship_id]
       properties:
         type:
@@ -1966,6 +1970,29 @@ components:
           type: integer
           format: int64
           description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
+    PatrolCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Send an idle ship to patrol `island_id` (D-077 §6, MECHANICS §9.1):
+        an island of the ship's region, settled or not (not a skerry —
+        `route_invalid`, as for another region or an island without a
+        loop). The server builds the coast loop once; the ship sails the
+        approach and then round the loop at its speed (`patrol` in
+        ShipDisplay). Nothing else changes while it patrols; upkeep as
+        usual. `unassign_ship` ends the patrol, an insolvency pause too.
+        `ship_not_idle` for a ship that is not idle.
+      required: [type, ship_id, island_id]
+      properties:
+        type:
+          type: string
+          enum: [patrol]
+        ship_id:
+          type: integer
+          format: int64
+          description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
+        island_id:
+          type: string
     CargoEntry:
       type: object
       additionalProperties: false
@@ -2531,7 +2558,8 @@ components:
         `queued_at`, D-051: the arrival's unloading and loading wait for a
         free berth), `anchored_unpaid` (paused for insolvency at
         `island_id`; on a leg it anchors at arrival); `on_world_map` is
-        reserved. While handling cargo before `leg.depart_at` the ship is
+        reserved; `patrolling` (D-077 §6) sails `patrol` round an island,
+        `island_id` empty. While handling cargo before `leg.depart_at` the ship is
         at the leg's origin, holding a berth until `berth_until`;
         afterwards `island_id` is empty.
       required: [id, type, name, state, island_id, region_id, route_id, stop_index, leg, cargo, slots, slot_size, upkeep_per_min, paused, paused_reason, position, queued_at, berth_until]
@@ -2548,7 +2576,7 @@ components:
           description: The ship's name (D-055); "<ship type name> <id>" until `rename_ship` renames it.
         state:
           type: string
-          enum: [idle, on_route, manual_leg, waiting_for_berth, anchored_unpaid, on_world_map]
+          enum: [idle, on_route, manual_leg, waiting_for_berth, anchored_unpaid, on_world_map, patrolling]
         island_id:
           type: string
           description: Island where the ship is; empty while travelling or at sea.
@@ -2602,6 +2630,42 @@ components:
           type: string
           nullable: true
           description: End of the ship's handling at a berth of `island_id` (RFC 3339, UTC, ms) — the departure of a route ship, the end of unloading after a manual leg; null when it holds no berth.
+        patrol:
+          $ref: "#/components/schemas/PatrolDisplay"
+    PatrolDisplay:
+      type: object
+      additionalProperties: false
+      description: |
+        The patrol of a patrolling ship (D-077 §6; absent otherwise): from
+        `started_at` the ship covers `approach` in `approach_ms`, then the
+        closed `loop` (its last point connects back to the first) once
+        every `loop_ms`, each at constant speed (linear in length). The
+        client places the ship from these alone.
+      required: [island_id, started_at, approach, approach_ms, loop, loop_ms]
+      properties:
+        island_id:
+          type: string
+        started_at:
+          type: string
+          description: Start of the patrol (RFC 3339, UTC, ms).
+        approach:
+          type: array
+          description: From the ship's position at the start to `loop[0]` (archipelago tiles).
+          items:
+            $ref: "#/components/schemas/SeaPosition"
+        approach_ms:
+          type: integer
+          format: int64
+          description: Travel time of the approach (ms).
+        loop:
+          type: array
+          description: The coast loop (archipelago tiles), at least 3 points.
+          items:
+            $ref: "#/components/schemas/SeaPosition"
+        loop_ms:
+          type: integer
+          format: int64
+          description: Travel time of one round of the loop (ms).
     SeaPosition:
       type: object
       additionalProperties: false

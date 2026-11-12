@@ -68,7 +68,7 @@ export interface paths {
          *     `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
          *     `move_building`, and the ship and route commands `order_ship`,
          *     `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
-         *     `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`,
+         *     `delete_route`, `assign_ship`, `unassign_ship`, `patrol`, `manual_shipment`,
          *     `sail_ship` and `found_island` (MECHANICS §8, §9).
          *
          *     A new world starts at sea (D-051): no island is settled and the
@@ -647,7 +647,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["DemolishRoadsCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["PlacePaintCommand"] | components["schemas"]["DemolishPaintCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["DemolishRoadsCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["PlacePaintCommand"] | components["schemas"]["DemolishPaintCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["PatrolCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -1312,7 +1312,9 @@ export interface components {
         /**
          * @description Remove a ship from its route. A ship on a leg finishes it as a
          *     manual leg (unloads everything at arrival and ends idle); an
-         *     anchored ship stays anchored.
+         *     anchored ship stays anchored. A patrolling ship ends its patrol
+         *     (D-077 §6): it idles at the patrolled island, at the loop point
+         *     nearest the island's harbour.
          */
         UnassignShipCommand: {
             /**
@@ -1325,6 +1327,29 @@ export interface components {
              * @description Ship ID (unscaled integer identifier, from ShipDisplay.id).
              */
             ship_id: number;
+        };
+        /**
+         * @description Send an idle ship to patrol `island_id` (D-077 §6, MECHANICS §9.1):
+         *     an island of the ship's region, settled or not (not a skerry —
+         *     `route_invalid`, as for another region or an island without a
+         *     loop). The server builds the coast loop once; the ship sails the
+         *     approach and then round the loop at its speed (`patrol` in
+         *     ShipDisplay). Nothing else changes while it patrols; upkeep as
+         *     usual. `unassign_ship` ends the patrol, an insolvency pause too.
+         *     `ship_not_idle` for a ship that is not idle.
+         */
+        PatrolCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "patrol";
+            /**
+             * Format: int64
+             * @description Ship ID (unscaled integer identifier, from ShipDisplay.id).
+             */
+            ship_id: number;
+            island_id: string;
         };
         CargoEntry: {
             good: string;
@@ -1737,7 +1762,8 @@ export interface components {
          *     `queued_at`, D-051: the arrival's unloading and loading wait for a
          *     free berth), `anchored_unpaid` (paused for insolvency at
          *     `island_id`; on a leg it anchors at arrival); `on_world_map` is
-         *     reserved. While handling cargo before `leg.depart_at` the ship is
+         *     reserved; `patrolling` (D-077 §6) sails `patrol` round an island,
+         *     `island_id` empty. While handling cargo before `leg.depart_at` the ship is
          *     at the leg's origin, holding a berth until `berth_until`;
          *     afterwards `island_id` is empty.
          */
@@ -1752,7 +1778,7 @@ export interface components {
             /** @description The ship's name (D-055); "<ship type name> <id>" until `rename_ship` renames it. */
             name: string;
             /** @enum {string} */
-            state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map";
+            state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map" | "patrolling";
             /** @description Island where the ship is; empty while travelling or at sea. */
             island_id: string;
             /** @description Region whose map the ship is on — its island's, its leg's destination's or, at sea, its own (D-076); null on a passage leg between regions (`leg.passage`), when the ship is "between regions". */
@@ -1791,6 +1817,33 @@ export interface components {
             queued_at: string | null;
             /** @description End of the ship's handling at a berth of `island_id` (RFC 3339, UTC, ms) — the departure of a route ship, the end of unloading after a manual leg; null when it holds no berth. */
             berth_until: string | null;
+            patrol?: components["schemas"]["PatrolDisplay"];
+        };
+        /**
+         * @description The patrol of a patrolling ship (D-077 §6; absent otherwise): from
+         *     `started_at` the ship covers `approach` in `approach_ms`, then the
+         *     closed `loop` (its last point connects back to the first) once
+         *     every `loop_ms`, each at constant speed (linear in length). The
+         *     client places the ship from these alone.
+         */
+        PatrolDisplay: {
+            island_id: string;
+            /** @description Start of the patrol (RFC 3339, UTC, ms). */
+            started_at: string;
+            /** @description From the ship's position at the start to `loop[0]` (archipelago tiles). */
+            approach: components["schemas"]["SeaPosition"][];
+            /**
+             * Format: int64
+             * @description Travel time of the approach (ms).
+             */
+            approach_ms: number;
+            /** @description The coast loop (archipelago tiles), at least 3 points. */
+            loop: components["schemas"]["SeaPosition"][];
+            /**
+             * Format: int64
+             * @description Travel time of one round of the loop (ms).
+             */
+            loop_ms: number;
         };
         /** @description A position at sea. */
         SeaPosition: {

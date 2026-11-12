@@ -174,6 +174,22 @@ type ShipDisplay struct {
 	// (a route ship's departure, the end of unloading after a manual leg);
 	// null when it holds no berth.
 	BerthUntil *string `json:"berth_until"`
+	// Patrol is the patrol of a patrolling ship (D-077 §6); absent
+	// otherwise.
+	Patrol *PatrolDisplay `json:"patrol,omitempty"`
+}
+
+// PatrolDisplay is a ship's patrol (D-077 §6): from StartedAt the ship
+// sails Approach in ApproachMs, then round the closed Loop (its last
+// point connects back to the first) once every LoopMs, at constant speed
+// (archipelago tiles).
+type PatrolDisplay struct {
+	IslandID   string            `json:"island_id"`
+	StartedAt  string            `json:"started_at"`
+	Approach   []PositionDisplay `json:"approach"`
+	ApproachMs int64             `json:"approach_ms"`
+	Loop       []PositionDisplay `json:"loop"`
+	LoopMs     int64             `json:"loop_ms"`
 }
 
 // LegDisplay is a ship's current voyage (RFC 3339 timestamps with ms): the
@@ -774,6 +790,16 @@ func displayShip(w *World, s *Ship, c *content.Catalogue, hasBerths bool) ShipDi
 	}
 	if s.BerthUntilMs > 0 {
 		d.BerthUntil = ptr(formatMs(s.BerthUntilMs))
+	}
+	if p := s.Patrol; p != nil {
+		d.Patrol = &PatrolDisplay{IslandID: p.IslandID, StartedAt: formatMs(p.StartedAtMs), ApproachMs: p.ApproachMs, LoopMs: p.LoopMs,
+			Approach: make([]PositionDisplay, len(p.Approach)), Loop: make([]PositionDisplay, len(p.Loop))}
+		for i, q := range p.Approach {
+			d.Patrol.Approach[i] = PositionDisplay(q)
+		}
+		for i, q := range p.Loop {
+			d.Patrol.Loop[i] = PositionDisplay(q)
+		}
 	}
 	for _, sl := range s.Cargo {
 		d.Cargo = append(d.Cargo, CargoDisplay(sl))

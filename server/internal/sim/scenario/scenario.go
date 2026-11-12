@@ -306,9 +306,12 @@ type Step struct {
 	UnassignShip    *ShipStep      `json:"unassign_ship,omitempty"`
 	ManualShipment  *ShipmentStep  `json:"manual_shipment,omitempty"`
 	SailShip        *SailStep      `json:"sail_ship,omitempty"`
-	FoundIsland     *FoundStep     `json:"found_island,omitempty"`
-	ScrapShip       *ShipStep      `json:"scrap_ship,omitempty"`
-	ClaimQuest      *ClaimStep     `json:"claim_quest,omitempty"`
+	// Patrol sends ship Ship to patrol island To (sim.StartPatrol,
+	// D-077 §6).
+	Patrol      *SailStep  `json:"patrol,omitempty"`
+	FoundIsland *FoundStep `json:"found_island,omitempty"`
+	ScrapShip   *ShipStep  `json:"scrap_ship,omitempty"`
+	ClaimQuest  *ClaimStep `json:"claim_quest,omitempty"`
 	// RerollArchipelago (true) replaces a generated archipelago by its
 	// next roll (archipelago.Reroll, D-053).
 	RerollArchipelago bool        `json:"reroll_archipelago,omitempty"`
@@ -356,7 +359,7 @@ func (s Step) kind() (string, error) {
 		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "build_plan": s.BuildPlan != nil, "move": s.Move != nil, "fields": s.Fields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
-		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
+		"unassign_ship": s.UnassignShip != nil, "patrol": s.Patrol != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
 		"upgrade_building": s.UpgradeBuilding != nil,
 		"scrap_ship":       s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil, "upgrade_trading_post": s.UpgradeTradingPost != nil,
 		"claim_quest": s.ClaimQuest != nil, "away_summary": s.AwaySummary,
@@ -1070,6 +1073,8 @@ func (r *runner) step(i int, st Step) error {
 		return r.apply(sim.AssignShip{ShipID: st.AssignShip.Ship, RouteID: st.AssignShip.Route})
 	case st.UnassignShip != nil:
 		return r.apply(sim.UnassignShip{ShipID: st.UnassignShip.Ship})
+	case st.Patrol != nil:
+		return r.apply(sim.StartPatrol{ShipID: st.Patrol.Ship, IslandID: st.Patrol.To})
 	case st.ScrapShip != nil:
 		return r.apply(sim.ScrapShip{ShipID: st.ScrapShip.Ship})
 	case st.ManualShipment != nil:

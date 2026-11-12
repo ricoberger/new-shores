@@ -45,7 +45,7 @@ import (
 //   - Ships pay upkeep while not paused; every unpaused ship with upkeep is
 //     an insolvency candidate of step 4 (economy.go).
 
-// Ship states (MECHANICS §9.1).
+// Ship states (MECHANICS §9.1; ShipPatrolling in patrol.go).
 const (
 	ShipIdle           = "idle"
 	ShipOnRoute        = "on_route"
@@ -121,6 +121,9 @@ type Ship struct {
 	// of its island: the departure of a route ship, the end of unloading
 	// after a manual leg; 0 when the ship holds no berth.
 	BerthUntilMs int64 `json:"berth_until_ms,omitempty"`
+	// Patrol is the patrol of a patrolling ship (state patrolling,
+	// D-077 §6, patrol.go); nil otherwise.
+	Patrol *Patrol `json:"patrol,omitempty"`
 }
 
 // Leg is a voyage between two islands: the ship handles cargo at the origin
@@ -173,6 +176,9 @@ func (s *Ship) clone() *Ship {
 	}
 	if s.Cargo != nil {
 		c.Cargo = append([]Slot(nil), s.Cargo...)
+	}
+	if s.Patrol != nil {
+		c.Patrol = s.Patrol.clone()
 	}
 	return &c
 }
@@ -704,6 +710,11 @@ func resumeShip(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
 // pauseShip pauses a ship for insolvency (R-27, R-28).
 func pauseShip(s *Ship, seq, now int64) {
 	s.Paused, s.PausedReason, s.PauseSeq, s.PausedAtMs = true, PausedReasonUnpaid, seq, now
+	if s.State == ShipPatrolling {
+		// A paused patrol ends (D-077 §6): the ship anchors at the
+		// patrolled island.
+		stopPatrol(s)
+	}
 	if s.State == ShipIdle {
 		s.State = ShipAnchoredUnpaid
 	}
@@ -1015,6 +1026,10 @@ func unassignShip(w *World, cmd UnassignShip) error {
 	s, err := lookupShip(w, cmd.ShipID)
 	if err != nil {
 		return err
+	}
+	if s.State == ShipPatrolling {
+		stopPatrol(s)
+		return nil
 	}
 	if s.RouteID == 0 {
 		return fmt.Errorf("%w: ship %d", ErrShipNotOnRoute, s.ID)

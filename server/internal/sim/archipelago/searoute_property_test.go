@@ -80,8 +80,9 @@ func crossing(islands []*sim.Island, path []sim.Pos) (sim.Pos, bool) {
 
 // TestSeaRouteNeverCrossesLand (polish 8, D-058 §5): on the archipelagos
 // of seeds 1–50, every leg between two islands (Ends, as a route or a
-// manual shipment sails it) and the founding voyage from the start
-// position to every island's best Trading Post site (layout) follow
+// manual shipment sails it), the founding voyage from the start
+// position to every island's best Trading Post site (layout) and every
+// island's patrol loop (D-077 §6, closed) with its approach follow
 // polylines whose segments touch no land tile. -short checks seeds 1–5.
 func TestSeaRouteNeverCrossesLand(t *testing.T) {
 	_, file, _, _ := runtime.Caller(0)
@@ -95,7 +96,7 @@ func TestSeaRouteNeverCrossesLand(t *testing.T) {
 		last = 5
 	}
 	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	legs := 0
+	legs, loops := 0, 0
 	for seed := uint64(1); seed <= last; seed++ {
 		w, err := archipelago.NewWorld(c, seed, start)
 		if err != nil {
@@ -130,6 +131,20 @@ func TestSeaRouteNeverCrossesLand(t *testing.T) {
 			}
 			check("founding "+is.ID, spawn, sim.HarbourAt(c, is, tp, r.X, r.Y, r.Rotation))
 		}
+		// The patrol loops (D-077 §6), closed, and the approach to each
+		// from the spawn.
+		for _, is := range ports {
+			loop := sim.PatrolLoop(w, c, is)
+			if len(loop) < 3 {
+				t.Errorf("seed %d %s: patrol loop %v", seed, is.ID, loop)
+				continue
+			}
+			loops++
+			if p, bad := crossing(w.Islands(), append(loop, loop[0])); bad {
+				t.Errorf("seed %d %s: patrol loop %v crosses land at %v", seed, is.ID, loop, p)
+			}
+			check("patrol approach "+is.ID, spawn, loop[0])
+		}
 	}
-	t.Logf("%d legs", legs)
+	t.Logf("%d legs, %d patrol loops", legs, loops)
 }

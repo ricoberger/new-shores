@@ -819,7 +819,9 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
   2 min, tier 2), *Hulk* (4 × 50, 1.0, 5 min, tier 3), *Carrack* (6 × 60,
   0.85, 10 min, tier 4): small and fast for founding and short hops,
   large and slow for bulk; the ETA uses each ship's speed over the
-  routed path length. Later: war ships (D-005). Defined
+  routed path length. **Warships** (D-077 §6: balinger, war cog, war
+  carrack, tier 4) carry no cargo (`slots: 0`) and an `attack` value
+  nothing reads until raids (D-005). Defined
   in `ships.json`; the shipyard (tier 2, no levels) offers the types
   whose tier is unlocked (`ErrTierLocked` otherwise). The start ship is a
   cog; its **founding cargo** (start stock) is exempt from the slot
@@ -842,9 +844,34 @@ at zero until taxes cover it (a demolished hub stops its upkeep).
   with a pending order refunds the order like a cancel.
 - Ships have upkeep (gold/min; counts in `balance_rate`) and a `state`:
   `idle@island`, `on_route`, `manual_leg`, `on_world_map` (reserved),
-  `anchored_unpaid`. Insolvency step 4 (§7) applies to **every** ship with
+  `anchored_unpaid`, `patrolling`. Insolvency step 4 (§7) applies to **every** ship with
   upkeep, idle ones included: a ship on a leg finishes it, then anchors
-  without unloading; it resumes at its arrival stop.
+  without unloading; it resumes at its arrival stop. A patrolling ship
+  ends its patrol and anchors at the patrolled island (below).
+- **Patrol** (D-077 §6, `patrol.go`): `patrol {ship_id, island_id}` sends
+  an idle ship — warship or cargo ship — round an island of its region,
+  settled or not (not a skerry; `route_invalid` otherwise, also for an
+  island of another region; `ship_not_idle`). The server builds the
+  **coast loop** once: the convex hull of the island's land for ships
+  (quays and shore decks included) grown by 10 tiles (the shallows'
+  8 + 2) in each direction — a square per land tile, so every hull edge
+  keeps at least 10 tiles (Chebyshev) from the island's land — with
+  hull corners on another island's land dropped and every edge that is
+  not clear water (another island, a skerry) replaced by the sea route
+  round it (§9.1 routing, string-pulled); integer-only, deterministic.
+  The loop starts at its point nearest the ship; the **approach** is
+  the voyage from the ship's position (at sea, offshore, its island's
+  harbour or shore) to it. The ship stores both with their travel times
+  at its speed and the start (`Ship.Patrol`, schema 17) and is at no
+  island; the client places it on the approach and then round the loop
+  for ever (display `patrol`). No boundary event: nothing changes while
+  it patrols but the upkeep. `unassign_ship` ends the patrol: the ship
+  idles at the patrolled island, offshore at the loop point nearest the
+  island's harbour at the start (the loop's first point without one); an
+  insolvency pause ends it the same way (`anchored_unpaid`). The loop is
+  not rebuilt when quays or shore buildings grow later. A property test
+  checks that no loop of the generated archipelagos (seeds 1–50) or its
+  approach touches land.
 - **Names** (D-055): a new ship is named "<type name> <id>" ("Cog 1");
   `rename_ship` renames it in any state — trimmed, 1–24 printable runes
   (the island rule), not unique; an empty name restores the default.
