@@ -730,12 +730,15 @@ land buildings).
     decks: the deck layer z = 0 of stone slabs (`rock-light`, the quay
     deck's stone; slabs of `vpt / 4` voxels in two shades, a darker one
     now and then) under the whole footprint, a light capping course on
-    its rim, the side face from z = −6 (× `vpt / 8`) up in dressed
-    courses of two shades darkening to a wet `rock` foot, and timber
+    its rim, the side face from 0.75 tiles below the deck up
+    (`Q.depth_of(vpt)`: 6 voxels at 8 per tile, 9 at 12, 12 at 16) in dressed
+    courses (`Q.course(vpt)`: 1 voxel at 8, 2 at 12 and 16) of two shades
+    darkening to a wet `rock` foot, and timber
     mooring posts with iron caps every two tiles on the named water edges
     (the front y− at rotation 0; the flanks too for the trading pier and
     the small 2 × 2 models). Iron mooring rings sit in the face. The
-    trading pier, depot and shipyard dropped their `GROUND_Z = 1` plate,
+    trading pier, depot and shipyard (12 voxels per tile since D-078
+    step 6, as are the playhouse, university and cathedral) dropped their `GROUND_Z = 1` plate,
     yards, ramps and piles: everything stands on the plinth at z = 1; the
     shipyard's slipway runs down a channel cut through the plinth over
     its four front rows, the channel's walls dressed like the face. The
@@ -787,7 +790,7 @@ land buildings).
     | `castle` corner towers | 12 | 60 (5 tiles) | cones ≈ 72 |
     | `castle` gatehouse | 12 | 44 | bartizan roofs above |
     | `castle` keep | 12 | 88 walls (7.3 tiles) | 111 (9.25 tiles, turret finial) |
-    | `university` (reference) | 8 | — | 60 (7.5 tiles, its tower) |
+    | `university` (reference) | 12 | — | 90 (7.5 tiles, its tower) |
 
     The keep's walls alone pass the university's tower's top; its roof
     ridge (≈ 103) and turret clearly do.

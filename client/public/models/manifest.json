@@ -3229,12 +3229,12 @@
         "max": [
           5.5,
           11.75,
-          7.5
+          7.4167
         ],
         "min": [
           -5.5,
           0.0,
-          -7.875
+          -7.8333
         ]
       },
       "file": {
@@ -3242,16 +3242,16 @@
           "max": [
             5.5,
             11.75,
-            7.5
+            7.4167
           ],
           "min": [
             -5.5,
             0.0,
-            -7.875
+            -7.8333
           ]
         },
         "budget": 96000,
-        "bytes": 552688,
+        "bytes": 1102600,
         "ground": [
           [
             "none",
@@ -3482,31 +3482,31 @@
           "bounds": {
             "max": [
               5.5,
-              11.5,
+              11.0,
               7.5
             ],
             "min": [
-              -5.5,
+              -5.0,
               0.0,
               -8.0
             ]
           },
           "budget": 7680,
-          "bytes": 62328,
+          "bytes": 53412,
           "path": "cathedral.lite.glb",
-          "sha256": "b08dbfd32af8f31daf43c112e6888c6423077c1a426b86bb37da5dd3ec10cecd",
-          "triangles": 1998
+          "sha256": "0d7f3a9c46f3716cc9e9c631b8197c49ee0232ebbe69f94652117877f8981995",
+          "triangles": 1760
         },
         "path": "cathedral.glb",
-        "sha256": "434288fc8e6564605802b2ffc7134e306b33abb162d90f313bc40bd5778026e2",
-        "triangles": 19060
+        "sha256": "37dc39bc9d0a98e430c8630140dac90989f9831052f62bf711aaa1b6378e15c3",
+        "triangles": 37908
       },
       "footprint": {
         "h": 16,
         "w": 12
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "cattle_farm": {
       "anchors": {
@@ -5717,14 +5717,14 @@
         ],
         "status": [
           0.0,
-          2.375,
+          2.3333,
           0.5
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          2.875,
+          2.8333,
           5.5
         ],
         "min": [
@@ -5737,7 +5737,7 @@
         "bounds": {
           "max": [
             2.0,
-            2.875,
+            2.8333,
             5.5
           ],
           "min": [
@@ -5747,7 +5747,7 @@
           ]
         },
         "budget": 22000,
-        "bytes": 304148,
+        "bytes": 494644,
         "lite": {
           "bounds": {
             "max": [
@@ -5762,21 +5762,21 @@
             ]
           },
           "budget": 1760,
-          "bytes": 19936,
+          "bytes": 17500,
           "path": "depot.lite.glb",
-          "sha256": "04a5e53a97cb9c86162ea9e8a0bb8053bf1cdffc6bf7d78f5c4b06cd6c8afe3e",
-          "triangles": 546
+          "sha256": "c36ca3d0055a2aba5d1f24bc8ef963b8650004945fb5c8b9e3d1116d9e598a96",
+          "triangles": 522
         },
         "path": "depot.glb",
-        "sha256": "6cabb421a251d6a27d45558cb76cf593280d87c870bdb609c1c5be5b76fe4010",
-        "triangles": 9732
+        "sha256": "889319f8742ce0a7c0ef5de2a233781061e263e5d4808443d30057240cbdfb12",
+        "triangles": 15830
       },
       "footprint": {
         "h": 11,
         "w": 4
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "distillery": {
       "anchors": {
@@ -12057,37 +12057,37 @@
         ],
         "status": [
           0.0,
-          7.25,
+          7.0833,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          5.25,
-          7.0,
+          5.0833,
+          6.8333,
           6.75
         ],
         "min": [
-          -5.375,
+          -5.25,
           0.0,
-          -6.75
+          -6.6667
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            5.25,
-            7.0,
+            5.0833,
+            6.8333,
             6.75
           ],
           "min": [
-            -5.375,
+            -5.25,
             0.0,
-            -6.75
+            -6.6667
           ]
         },
         "budget": 77000,
-        "bytes": 821296,
+        "bytes": 1785104,
         "ground": [
           [
             "none",
@@ -12275,25 +12275,25 @@
         "lite": {
           "bounds": {
             "max": [
-              5.5,
-              7.0,
+              5.0,
+              6.5,
               7.0
             ],
             "min": [
               -5.5,
               0.0,
-              -7.0
+              -6.0
             ]
           },
           "budget": 6160,
-          "bytes": 72208,
+          "bytes": 58916,
           "path": "playhouse.lite.glb",
-          "sha256": "99ecc78c6cb61cd29269e8aac7ea4c5ee0968b19f1b55d6bee0f5ea18b0bbc5e",
-          "triangles": 2178
+          "sha256": "caf791d3911883d8382c8a2e947181746812b907c3bffe3b914c6c688cb9c8a0",
+          "triangles": 1800
         },
         "path": "playhouse.glb",
-        "sha256": "cff7fbae51c23ba429eace4aa716236837e63a48068d5286c39cbf777232ba48",
-        "triangles": 25828
+        "sha256": "bce67ea7929e780e9bbabf987f89153cf9a34ae8d27d49f089df35ed28ce4543",
+        "triangles": 46604
       },
       "footprint": {
         "h": 14,
@@ -12303,7 +12303,7 @@
       "sway": [
         "flag"
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "pond": {
       "anchors": {
@@ -13799,14 +13799,14 @@
         ],
         "status": [
           0.0,
-          4.125,
+          4.0,
           0.0
         ]
       },
       "bounds": {
         "max": [
           4.0,
-          3.875,
+          3.75,
           6.0
         ],
         "min": [
@@ -13819,7 +13819,7 @@
         "bounds": {
           "max": [
             4.0,
-            3.875,
+            3.75,
             6.0
           ],
           "min": [
@@ -13829,12 +13829,12 @@
           ]
         },
         "budget": 48000,
-        "bytes": 266832,
+        "bytes": 460292,
         "lite": {
           "bounds": {
             "max": [
               4.0,
-              4.0,
+              3.5,
               6.0
             ],
             "min": [
@@ -13844,21 +13844,21 @@
             ]
           },
           "budget": 3840,
-          "bytes": 33360,
+          "bytes": 31476,
           "path": "shipyard.lite.glb",
-          "sha256": "345d0faf8fd413d0b37a95858dad9612ef5a0b05576cefe6bbb98eddac1be130",
-          "triangles": 1046
+          "sha256": "4fc5a14e452da7e8cb048823643a73a8c2c03a1a9f0a63950d375342660d99df",
+          "triangles": 956
         },
         "path": "shipyard.glb",
-        "sha256": "44f2b56db229bb2e1d063078c7142837fc3bb35ae0f2c3f007ecac5a6f49c394",
-        "triangles": 9122
+        "sha256": "2e5cc04c1a289608f46a3c01935aa10aa947ca2f4c76668067739615dace9f50",
+        "triangles": 15578
       },
       "footprint": {
         "h": 12,
         "w": 8
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "slaughterhouse": {
       "anchors": {
@@ -15017,18 +15017,18 @@
         ],
         "status": [
           0.0,
-          2.25,
+          2.3333,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          3.0,
-          2.0,
-          4.625
+          3.0833,
+          2.0833,
+          4.5833
         ],
         "min": [
-          -3.0,
+          -3.0833,
           -0.75,
           -4.5
         ]
@@ -15036,18 +15036,18 @@
       "file": {
         "bounds": {
           "max": [
-            3.0,
-            2.0,
-            4.625
+            3.0833,
+            2.0833,
+            4.5833
           ],
           "min": [
-            -3.0,
+            -3.0833,
             -0.75,
             -4.5
           ]
         },
         "budget": 27000,
-        "bytes": 160132,
+        "bytes": 246288,
         "lite": {
           "bounds": {
             "max": [
@@ -15062,21 +15062,21 @@
             ]
           },
           "budget": 2160,
-          "bytes": 17408,
+          "bytes": 15876,
           "path": "trading_pier.lite.glb",
-          "sha256": "c7ca3469547fddacf0ceec632f3082c24d6b6ad3df4c490f238249ea7f893bab",
-          "triangles": 486
+          "sha256": "3aa0f2072fdbc52ba15d6e7156d61bbc302e271f9741e43a2840d9a3bd782dcc",
+          "triangles": 444
         },
         "path": "trading_pier.glb",
-        "sha256": "ef49b5ff705309b7490c52540b13936fb5a02d95ffca3d3660ee0d0e11632ef7",
-        "triangles": 5504
+        "sha256": "f87262892d31340e172714b2da5023ee0ab6be8459a6806b4774d31dfaaa9b4c",
+        "triangles": 8310
       },
       "footprint": {
         "h": 9,
         "w": 6
       },
       "kind": "building",
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "trading_post": {
       "anchors": {
@@ -15803,31 +15803,31 @@
       },
       "bounds": {
         "max": [
-          5.375,
+          5.3333,
           7.5,
-          5.625
+          5.5833
         ],
         "min": [
-          -5.375,
+          -5.3333,
           0.0,
-          -5.375
+          -5.3333
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            5.375,
+            5.3333,
             7.5,
-            5.625
+            5.5833
           ],
           "min": [
-            -5.375,
+            -5.3333,
             0.0,
-            -5.375
+            -5.3333
           ]
         },
         "budget": 72000,
-        "bytes": 514624,
+        "bytes": 899564,
         "ground": [
           [
             "none",
@@ -15919,7 +15919,7 @@
             "none",
             "none",
             "none",
-            "none",
+            "paved",
             "paved",
             "none",
             "none",
@@ -16002,8 +16002,8 @@
           "bounds": {
             "max": [
               5.5,
-              7.0,
-              6.0
+              6.5,
+              5.5
             ],
             "min": [
               -5.5,
@@ -16012,14 +16012,14 @@
             ]
           },
           "budget": 5760,
-          "bytes": 44612,
+          "bytes": 31004,
           "path": "university.lite.glb",
-          "sha256": "56307053f4ff2cc74f4409d5aa51f79664eb4b532890a5d86f2495c3465cf192",
-          "triangles": 1424
+          "sha256": "c0075d119d4465a6f58ecba940b332d9c4011e7de892f11e4ed9a4602c640e6e",
+          "triangles": 972
         },
         "path": "university.glb",
-        "sha256": "1d46aa7748dcc7a91e860dedcb0e6019e53c36d11a1452d7709fb12a2868022c",
-        "triangles": 17604
+        "sha256": "12e763935544ef9da44e5e8cf28233f53cfa9ac14c5c209bcba08e40cff790f1",
+        "triangles": 29576
       },
       "footprint": {
         "h": 12,
@@ -16029,7 +16029,7 @@
       "sway": [
         "cloth"
       ],
-      "voxels_per_tile": 8
+      "voxels_per_tile": 12
     },
     "vine_row": {
       "anchors": {

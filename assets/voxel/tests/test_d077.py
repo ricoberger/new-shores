@@ -105,7 +105,7 @@ class D077Test(unittest.TestCase):
 
     def test_the_d078_heights(self):
         # D-078 §6 (voxels at 8 per tile): the city wall two tiles, the tower four to its merlons' cap, the gatehouse
-        # three and a half, the well below the wall; the castle (12 per tile) higher than the university's tower.
+        # three and a half, the well below the wall; the castle higher than the university's tower (both 12 per tile).
         def top(cid, ymax=None):
             # The model's top and its masonry's (stone; y < ymax leaves out the gatehouse's bartizans on its y+ corners).
             files, _, problems = model.build_id(cid, "building", RECIPES[cid], CONTENT)
@@ -122,7 +122,8 @@ class D077Test(unittest.TestCase):
         self.assertEqual((tower, gate), (32, 28))
         castle, _ = top("castle")
         university, _ = top("university")
-        self.assertGreater(castle / 12, university / 8 + 1.0)
+        self.assertEqual(university, 90)  # 7.5 tiles at 12 per tile (D-078 step 6; 60 at 8 per tile before)
+        self.assertGreater(castle / 12, university / 12 + 1.0)
 
     def test_the_crane_arm_sways_from_its_root(self):
         # export.ARM: weight 0 at the jib's root (rigid there), rising to ARM_SWAY at its tip.
