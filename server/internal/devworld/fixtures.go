@@ -62,6 +62,8 @@ import (
 //     DevSeed included).
 //   - played: the Patricians reference game replayed (played.go), with
 //     plans (D-071, plans.go).
+//   - harbour-basin: town plus a 60-tile pier with a trading pier at its
+//     head (D-077 §8, basin.go).
 const (
 	FixtureDefault    = "default"
 	FixtureSeafaring  = "seafaring"
@@ -82,7 +84,7 @@ var ErrFixtureSeed = errors.New("not available on this seed")
 
 // Fixtures lists the fixture names.
 func Fixtures() []string {
-	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants, FixturePatricians, FixturePlayed}
+	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants, FixturePatricians, FixturePlayed, FixtureHarbourBasin}
 }
 
 // History of the fixtures before now (world time): long enough for the
@@ -142,6 +144,12 @@ func NewFixtureWith(c *content.Catalogue, name string, seed uint64, now time.Tim
 			foundHome(f)
 			town(f)
 			merchants(f)
+		})
+	case FixtureHarbourBasin:
+		return replay(c, seed, now, harbourBasinHistory, func(f *fixture) {
+			foundHome(f)
+			town(f)
+			harbourBasin(f)
 		})
 	case FixturePatricians:
 		return replay(c, seed, now, patriciansHistory, func(f *fixture) {

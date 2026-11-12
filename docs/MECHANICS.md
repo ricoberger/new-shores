@@ -333,7 +333,8 @@ handlers only.
   for free. The command touches no building or field (the tool removes
   fields and plans under the rectangle with their own commands).
 - **Quays** (D-060) are roads on the island's **shallows**: water tiles
-  of its grid, not river, within 3 tiles (Chebyshev) of its own land
+  of its grid, not river, within 8 tiles (Chebyshev, D-077 §8; was 3;
+  `ShallowsReach` in `quay.go`, mirrored in the client) of its own land
   (any tile but water, river and islet; derived from the tiles, no
   generator field). A quay tile must be free (no road, no footprint —
   the water rows of water-edge buildings included). A quay is a road for
@@ -342,9 +343,22 @@ handlers only.
   quay tiles, which it replaces (no refund), while its water rows need
   free water without quay. Other buildings never stand on a quay. For
   ships a quay tile is **land** (sea grid, approach, harbour point,
-  §9.1). Quay tiles, or a berth holder moved onto them, must leave the
-  island's harbour point a 4-connected way over water to the edge of
-  the island's grid (`harbour_blocked`). Cost and speed are content
+  §9.1). Quay tiles, a shore building (§2), or a berth holder moved onto
+  quay tiles must leave every harbour point of the island (Trading
+  Post and trading piers; `HarbourAt`, which moves to the nearest water
+  a ship reaches as quays cover it) a 4-connected way over water to the
+  edge of the island's grid (`harbour_blocked`), placed or planned.
+  **Harbour basins** (D-077 §8): quays are **connected** — every quay
+  tile of a placement reaches the island's own land or the footprint of
+  a built building over edge-adjacent quay tiles (a batch may connect
+  itself; a diagonal touch does not count), else `quay_disconnected`.
+  A planned quay may also rest on planned quays and plans (the plan
+  view, D-071); a built one only on built ground. Demolishing road
+  tiles (single or rectangle, plans included), a building or a plan, or
+  moving a building, is rejected with `quay_would_float` when a quay
+  tile that reached the land before would no longer (built quays over
+  built ground, planned ones over the plan view); quays that floated
+  before D-077 never block a change. Cost and speed are content
   (provisional 5 gold / 2 stone per tile, 0.6 s/tile like the paved
   road).
 - Each connected producer is **assigned** to the nearest collector whose
@@ -1017,10 +1031,12 @@ route: { name?, stops: [{island, load: [{good, max_amount, keep?}], unload: [{go
     buildability; the only placement rule that reads levels is the low
     shore of water-edge buildings (§2, D-075 §1). The client draws
     plinths, ramps and waterfalls.
-- **Shallows** (D-060): an island's water tiles (not river) within 3
-  tiles (Chebyshev) of its own land — islets are not own land — derived
-  from the tiles; the ground of quays (§3). D-036 stands: the shallows
-  band bounds the harbour area.
+- **Shallows** (D-060, D-077 §8): an island's water tiles (not river)
+  within 8 tiles (Chebyshev; 3 before D-077) of its own land — islets
+  are not own land — derived from the tiles; the ground of quays (§3).
+  D-036 stands, with the wider band: the shallows still bound the
+  harbour area, so a basin of connected quays never reaches more than
+  8 tiles out (shore buildings at a pier head may stand beyond it).
 - **Skerries** (size class `scenic`, D-058, D-073): 5–18 tiles of rock with a
   grass or sand top, placed after the islands within the nearest
   neighbour distance. They have no sites, fertilities, deposits or name,

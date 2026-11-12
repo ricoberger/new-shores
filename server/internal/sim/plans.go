@@ -187,7 +187,7 @@ func movePlan(is *Island, c *content.Catalogue, p *Building, cmd MoveBuilding) e
 	if err := checkSite(is, c, occ, def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
 		return err
 	}
-	if berths := def.InitialBerths(); berths > 0 {
+	if berths := def.InitialBerths(); berths > 0 || def.Shore() {
 		at := &Building{ID: -1, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: berths}
 		if err := checkHarbourAfter(is, c, def, at, -1); err != nil {
 			return err

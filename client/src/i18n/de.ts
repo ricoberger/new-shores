@@ -355,6 +355,8 @@ export const de: Record<keyof typeof en, string> = {
   "error.needs_low_shore": "Dieses Gebäude braucht ein flaches Ufer: Seine Landfelder müssen auf Meereshöhe liegen, nicht auf einer Terrasse.",
   "error.shore_needs_water": "Ein Ufergebäude braucht mindestens ein Wasserfeld.",
   "error.shore_back_edge": "Die Rückseite eines Ufergebäudes muss auf ganzer Länge an Land oder einen Kai grenzen.",
+  "error.quay_disconnected": "Ein Kai muss an Land oder an einen mit dem Land verbundenen Kai grenzen.",
+  "error.quay_would_float": "Dadurch wäre ein Kai vom Land abgeschnitten.",
   "error.no_work_area": "In seinem Arbeitsbereich gibt es keine nutzbaren Felder.",
   "error.no_fertility": "Der Insel fehlt der nötige Boden.",
   "error.no_deposit": "Unter dem Gebäude liegt kein passendes Vorkommen.",

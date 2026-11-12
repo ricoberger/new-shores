@@ -816,10 +816,15 @@ components:
           `shore_needs_water` (a shore building covers no water tile,
           D-077 §5), `shore_back_edge` (the back edge of a shore building
           does not touch land or quay along its full length, D-077 §5),
-          `harbour_blocked` (quay tiles, or a Trading Post moved onto
-          them, would close the harbour point off from the open sea,
-          D-060; a shore building on the harbour lane or a berth tile of
-          the Trading Post or a trading pier, D-077 §5),
+          `harbour_blocked` (quay tiles, a shore building, or a Trading
+          Post moved onto quay tiles, would close a harbour point off
+          from the open sea, D-060 / D-077 §8; a shore building on the
+          harbour lane or a berth tile of the Trading Post or a trading
+          pier, D-077 §5),
+          `quay_disconnected` (a quay tile would reach neither the
+          island's land nor a built building over quay tiles, D-077 §8),
+          `quay_would_float` (demolishing roads or a building, or moving
+          a building, would cut a quay off from the land, D-077 §8),
           `no_fertility` (the island lacks the work area's or the field's
           fertility tag),
           `field_type_mismatch` (`place_field` with a type that is not a
@@ -861,8 +866,9 @@ components:
         `move_building` can fail with 400 `bad_request`, `invalid_command`
         (also for a road or an invalid rotation), `out_of_bounds`; 404
         `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-        `not_coastal`, `not_on_water`, `needs_low_shore`, `no_fertility`,
-        `no_deposit`. Moving a farm keeps its fields (they may become
+        `not_coastal`, `not_on_water`, `needs_low_shore`,
+        `shore_needs_water`, `shore_back_edge`, `harbour_blocked`,
+        `quay_would_float`, `no_fertility`, `no_deposit`. Moving a farm keeps its fields (they may become
         inactive); a field cannot be moved (`invalid_command`). Moving is
         free: it never fails for gold, materials or tier. Placement never
         requires a road (D-042).
@@ -943,6 +949,8 @@ components:
         - needs_low_shore
         - shore_needs_water
         - shore_back_edge
+        - quay_disconnected
+        - quay_would_float
         - harbour_blocked
         - no_fertility
         - no_deposit

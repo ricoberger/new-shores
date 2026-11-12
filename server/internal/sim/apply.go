@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"maps"
 	"math"
+	"slices"
 	"strings"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -501,7 +502,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
 		return err
 	}
-	if berths := def.InitialBerths(); berths > 0 {
+	if berths := def.InitialBerths(); berths > 0 || def.Shore() {
 		at := &Building{ID: -1, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: berths}
 		if err := checkHarbourAfter(is, c, def, at, -1); err != nil {
 			return err
@@ -748,9 +749,20 @@ func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
 		return err
 	}
 
-	if b.Berths > 0 {
+	if b.Berths > 0 || def.Shore() {
 		at := &Building{ID: b.ID, Type: b.Type, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Berths: b.Berths}
 		if err := checkHarbourAfter(is, c, def, at, b.ID); err != nil {
+			return err
+		}
+	}
+	if hasQuay(is, c) {
+		// The building leaves its old site: no quay anchored to it may
+		// float (D-077 §8).
+		moved := *b
+		moved.X, moved.Y, moved.Rotation = cmd.X, cmd.Y, cmd.Rotation
+		after := islandWith(is, b.ID, &moved)
+		clearQuay(after, c, def, &moved)
+		if err := checkQuaysStay(is, after, c); err != nil {
 			return err
 		}
 	}
@@ -833,7 +845,7 @@ func checkRoadSite(is *Island, c *content.Catalogue, def *content.Building, tile
 		if !harbourRoutable(c, &tmp) {
 			return fmt.Errorf("%w: the quay would close the harbour of %q", ErrHarbourBlocked, is.ID)
 		}
-		return nil
+		return checkQuaysConnected(is, c, tmp.Roads, tiles)
 	}
 	// A land road replaces a road of a lower type on its tile (MECHANICS
 	// §3): the old road's demolition refund, the new road's cost, and the
@@ -937,6 +949,12 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	b := is.Building(cmd.BuildingID)
 	if b == nil {
 		if is.Plan(cmd.BuildingID) != nil {
+			// No planned quay anchored to the plan may float (D-077 §8).
+			after := islandWith(is, -1, nil)
+			after.Plans = slices.DeleteFunc(slices.Clone(is.Plans), func(p *Building) bool { return p.ID == cmd.BuildingID })
+			if err := checkQuaysStay(is, after, c); err != nil {
+				return err
+			}
 			demolishPlan(is, c, cmd.BuildingID)
 			return nil
 		}
@@ -969,6 +987,10 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	}
 	if len(surplus) > 0 && !cmd.AcceptSurplusLoss {
 		return fmt.Errorf("%w: %v", ErrSurplusLoss, surplus)
+	}
+	// No quay anchored to the building may float (D-077 §8).
+	if err := checkQuaysStay(is, islandWith(is, b.ID, nil), c); err != nil {
+		return err
 	}
 
 	// Validation complete: mutate.
@@ -1085,6 +1107,18 @@ func demolishRoad(w *World, c *content.Catalogue, cmd DemolishRoad, l *Ledger) e
 		}
 		count[rt]++
 		real++
+	}
+	if hasQuay(is, c) {
+		// No remaining quay may float (D-077 §8), plans included.
+		after := islandWith(is, -1, nil)
+		after.Roads, after.PlannedRoads = maps.Clone(is.Roads), maps.Clone(is.PlannedRoads)
+		for _, p := range cmd.Tiles {
+			delete(after.Roads, is.index(p.X, p.Y))
+			delete(after.PlannedRoads, is.index(p.X, p.Y))
+		}
+		if err := checkQuaysStay(is, after, c); err != nil {
+			return err
+		}
 	}
 
 	now := w.LastEvaluatedAt.UnixMilli()
@@ -1379,6 +1413,25 @@ func afterChange(is *Island, c *content.Catalogue) {
 func clearRegimes(is *Island) {
 	is.Inventory.Starved = nil
 	is.Inventory.Full = nil
+}
+
+// islandWith returns a shallow copy of the island for a check of the
+// state after a change: its own Roads (cloned) and Buildings with the
+// building id replaced by b (nil: removed; id -1: unchanged).
+func islandWith(is *Island, id int64, b *Building) *Island {
+	tmp := *is
+	tmp.Roads = maps.Clone(is.Roads)
+	tmp.Buildings = make([]*Building, 0, len(is.Buildings))
+	for _, x := range is.Buildings {
+		if x.ID == id {
+			if b == nil {
+				continue
+			}
+			x = b
+		}
+		tmp.Buildings = append(tmp.Buildings, x)
+	}
+	return &tmp
 }
 
 func removeBuilding(is *Island, id int64) {

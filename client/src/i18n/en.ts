@@ -353,6 +353,8 @@ export const en = {
   "error.needs_low_shore": "This building needs a low shore: its land tiles must be at sea level, not on a terrace.",
   "error.shore_needs_water": "A shore building needs at least one water tile.",
   "error.shore_back_edge": "The back of a shore building must touch land or a quay along its whole length.",
+  "error.quay_disconnected": "A quay must touch land or a quay that is connected to land.",
+  "error.quay_would_float": "This would leave a quay cut off from the land.",
   "error.no_work_area": "There are no usable tiles in its work area.",
   "error.no_fertility": "The island lacks the needed fertility.",
   "error.no_deposit": "There is no matching deposit under the building.",

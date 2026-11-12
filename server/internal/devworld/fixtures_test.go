@@ -52,14 +52,14 @@ func TestFixtures(t *testing.T) {
 				if count(w, home, "trading_post") != 1 || len(w.Ships) != 1 || w.Ships[0].IslandID != home || w.Ships[0].State != sim.ShipIdle || len(w.Ships[0].Cargo) != 0 {
 					t.Errorf("default: home island not founded from the start ship: ships %+v", w.Ships)
 				}
-			case FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants, FixturePatricians:
+			case FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants, FixturePatricians, FixtureHarbourBasin:
 				for typ, n := range map[string]int{"lumberjack": 1, "tree_plot": 48, "sawmill": 1, "house_settlers": 4, "sheep_farm": 1, "pasture": 3} {
 					if got := count(w, home, typ); got != n {
 						t.Errorf("%s: %d %s, want %d", home, got, typ, n)
 					}
 				}
 				for _, b := range w.Island(home).Buildings {
-					if def := c.BuildingByID[b.Type]; def.Field == nil && !def.Collector() && b.AssignedWarehouseID == 0 {
+					if def := c.BuildingByID[b.Type]; def.Field == nil && def.Pier == nil && !def.Collector() && b.AssignedWarehouseID == 0 {
 						t.Errorf("%s %d not connected", b.Type, b.ID)
 					}
 				}
@@ -67,6 +67,35 @@ func TestFixtures(t *testing.T) {
 				for _, q := range c.Quests[:3] {
 					if st, ok := w.Quests[q.ID]; !ok || !st.Claimed {
 						t.Errorf("quest %s not claimed", q.ID)
+					}
+				}
+			}
+			if name == FixtureHarbourBasin {
+				is := w.Island(home)
+				quays := 0
+				for _, rt := range is.Roads {
+					if rt == "quay" {
+						quays++
+					}
+				}
+				if quays != basinQuayTiles || count(w, home, basinPier) != 1 {
+					t.Errorf("harbour-basin: %d quay tiles, %d %s", quays, count(w, home, basinPier), basinPier)
+				}
+				for _, b := range is.Buildings {
+					if b.Type != basinPier {
+						continue
+					}
+					def := c.BuildingByID[b.Type]
+					w, h := def.Width, def.Height
+					if b.Rotation == 90 || b.Rotation == 270 {
+						w, h = h, w
+					}
+					for y := b.Y; y < b.Y+h; y++ {
+						for x := b.X; x < b.X+w; x++ {
+							if is.Tile(x, y).Terrain != content.TerrainWater {
+								t.Errorf("harbour-basin: the %s stands on land at (%d,%d)", basinPier, x, y)
+							}
+						}
 					}
 				}
 			}
@@ -230,7 +259,7 @@ func checkPatricians(t *testing.T, c *content.Catalogue, w *sim.World) {
 			if b.Type == patriciansHouse && (b.House == nil || b.House.Residents < c.TierByID[patriciansTier].ResidentsFloor) {
 				t.Errorf("patrician house %d residents %+v", b.ID, b.House)
 			}
-			if def := c.BuildingByID[b.Type]; def.Field == nil && !def.Collector() && b.AssignedWarehouseID == 0 {
+			if def := c.BuildingByID[b.Type]; def.Field == nil && def.Pier == nil && !def.Collector() && b.AssignedWarehouseID == 0 {
 				t.Errorf("%s: %s %d not connected", is.ID, b.Type, b.ID)
 			}
 		}

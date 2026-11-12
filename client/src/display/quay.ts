@@ -7,7 +7,7 @@
 import type { TilePos } from "./geometry";
 
 /** Distance (tiles, Chebyshev) from the island's own land within which water is shallow. */
-export const SHALLOWS_REACH = 3;
+export const SHALLOWS_REACH = 8;
 
 /** The terrain rows an island's shallows are derived from. */
 export interface ShallowsInput {

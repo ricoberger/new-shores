@@ -71,9 +71,9 @@ func TestShallows(t *testing.T) {
 		want bool
 	}{
 		{10, 8, true},   // next to the coast
-		{10, 6, true},   // 3 tiles out
-		{10, 5, false},  // 4 tiles out
-		{20, 3, false},  // next to the islet only: not the island's own land
+		{10, 1, true},   // 8 tiles out (D-077 §8)
+		{10, 0, false},  // 9 tiles out
+		{20, 3, true},   // next to the islet, 6 tiles off the coast
 		{20, 6, true},   // 3 tiles off the river mouth's neighbours
 		{20, 9, false},  // the river mouth
 		{10, 9, false},  // land
@@ -84,6 +84,16 @@ func TestShallows(t *testing.T) {
 		if got := Shallow(is, tc.x, tc.y); got != tc.want {
 			t.Errorf("Shallow(%d,%d) = %v, want %v", tc.x, tc.y, got, tc.want)
 		}
+	}
+	// An islet is not the island's own land: water next to it, more than
+	// ShallowsReach tiles off the coast, is deep.
+	rows := []string{"~~~~~", "~~i~~"}
+	for range ShallowsReach + 1 {
+		rows = append(rows, "~~~~~")
+	}
+	rows = append(rows, "ccccc")
+	if is := islandFromRows("islet", rows...); Shallow(is, 2, 0) || !Shallow(is, 2, 2+1) {
+		t.Errorf("islet shallows: (2,0) %v, (2,3) %v", Shallow(is, 2, 0), Shallow(is, 2, 3))
 	}
 }
 
@@ -158,10 +168,10 @@ func TestPlaceQuay(t *testing.T) {
 		tiles []Pos
 		want  error
 	}{
-		{"deep water", "quay", quayRow(5, 10, 12), ErrTerrain},
+		{"deep water", "quay", quayRow(0, 10, 12), ErrTerrain},
+		{"disconnected", "quay", quayRow(5, 10, 12), ErrQuayDisconnected},
 		{"land", "quay", quayRow(9, 10, 12), ErrTerrain},
 		{"river", "quay", []Pos{{20, 9}}, ErrTerrain},
-		{"islet shallows", "quay", []Pos{{20, 3}}, ErrTerrain},
 		{"trading post water rows", "quay", quayRow(8, 6, 9), ErrOccupied},
 		{"off the grid", "quay", []Pos{{24, 8}}, ErrOutOfBounds},
 		{"land road on water", "road_dirt", quayRow(8, 10, 12), ErrTerrain},
@@ -257,7 +267,7 @@ func TestQuayIsLandForShips(t *testing.T) {
 	if newSeaGrid(nil, w.Islands()).land[newSeaGrid(nil, w.Islands()).cellOf(16, 5)] {
 		t.Fatal("cell of (16,5) is land before the quay")
 	}
-	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: quayRow(6, 16, 19)})
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: append(quayRow(6, 16, 19), Pos{16, 7}, Pos{16, 8})})
 	g := newSeaGrid(nil, w.Islands())
 	if !g.land[g.cellOf(16, 5)] || !g.landAt(17, 6) || g.landAt(17, 5) {
 		t.Error("quay tiles are not land for ships")

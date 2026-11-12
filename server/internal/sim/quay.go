@@ -3,6 +3,7 @@ package sim
 import (
 	"fmt"
 	"maps"
+	"slices"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
@@ -19,13 +20,18 @@ import (
 //     coastal or water-edge building, whose land rows may stand on it
 //     (placing or moving the building there replaces the quay tiles), and
 //     land for ship routing (searoute.go).
-//   - Neither placing quay tiles nor moving a berth holder onto them may
-//     leave the island's harbour point without a way out to the open
-//     sea (ErrHarbourBlocked).
+//   - Neither placing quay tiles nor placing or moving a berth holder or a
+//     shore building may leave a harbour point of the island without a
+//     way out to the open sea (ErrHarbourBlocked, D-077 §8).
+//   - Quays are connected (D-077 §8): a placed quay tile reaches the
+//     island's own land or a built building over edge-adjacent quay
+//     tiles, built or planned (ErrQuayDisconnected); demolishing roads or
+//     a building, or moving a building, may not cut a quay tile that
+//     reached it off (ErrQuayWouldFloat).
 
 // ShallowsReach is the distance (tiles, Chebyshev) from the island's own
-// land within which water is shallow.
-const ShallowsReach = 3
+// land within which water is shallow (D-077 §8: 8, was 3).
+const ShallowsReach = 8
 
 // ownLand reports whether a tile is the island's own land (not water,
 // river or islet).
@@ -160,12 +166,12 @@ func seaReachable(is *Island, decks []bool, p Pos) bool {
 	return false
 }
 
-// checkHarbourAfter rejects placing or moving a berth holder (at; the
-// moved building's ID, or -1 for a new one: a Trading Post or a trading
-// pier) when a harbour point of the island would be closed off by quays
-// afterwards (D-060, harbourRoutable). Only a site on quay tiles can
-// close off another berth holder; the new site's own harbour point is
-// always checked.
+// checkHarbourAfter rejects placing or moving a berth holder or a shore
+// building (at; the moved building's ID, or -1 for a new one) when a
+// harbour point of the island would be closed off afterwards (D-060,
+// D-077 §8, harbourRoutable). For a berth holder off quay tiles only its
+// own harbour point is checked (nothing else changes for ships); a shore
+// building's footprint is land for ships, so every harbour point is.
 func checkHarbourAfter(is *Island, c *content.Catalogue, def *content.Building, at *Building, replaces int64) error {
 	onQuay := false
 	fw, fh := footprint(def, at.Rotation)
@@ -176,7 +182,7 @@ func checkHarbourAfter(is *Island, c *content.Catalogue, def *content.Building, 
 			}
 		}
 	}
-	if !onQuay {
+	if !onQuay && !def.Shore() {
 		if seaReachable(is, shoreDecks(c, is), HarbourAt(c, is, def, at.X, at.Y, at.Rotation)) {
 			return nil
 		}
@@ -197,6 +203,139 @@ func checkHarbourAfter(is *Island, c *content.Catalogue, def *content.Building, 
 	clearQuay(&tmp, c, def, at)
 	if !harbourRoutable(c, &tmp) {
 		return fmt.Errorf("%w: %s at (%d,%d) has no way out to the open sea", ErrHarbourBlocked, def.ID, at.X, at.Y)
+	}
+	return nil
+}
+
+// quayAnchored returns the quay tiles (built in roads or planned in
+// plans) that reach an anchor over edge-adjacent quay tiles: the island's
+// own land or a tile in solid (the footprints of built buildings,
+// buildingTiles). Anchors and the flood are 4-connected (D-077 §8).
+func quayAnchored(is *Island, c *content.Catalogue, roads, plans map[int]string, solid []bool) map[int]bool {
+	quay := func(i int) bool {
+		return (roads[i] != "" && isQuay(c, roads[i])) || (plans[i] != "" && isQuay(c, plans[i]))
+	}
+	anchored := map[int]bool{}
+	var queue []int
+	seed := func(tiles map[int]string) {
+		for i := range tiles {
+			if anchored[i] || !quay(i) {
+				continue
+			}
+			x, y := i%is.Width, i/is.Width
+			for _, nb := range neighbours() {
+				nx, ny := x+nb.X, y+nb.Y
+				if !is.InBounds(nx, ny) {
+					continue
+				}
+				j := is.index(nx, ny)
+				if ownLand(is.Tiles[j].Terrain) || (solid != nil && solid[j]) {
+					anchored[i] = true
+					queue = append(queue, i)
+					break
+				}
+			}
+		}
+	}
+	seed(roads)
+	seed(plans)
+	for len(queue) > 0 {
+		i := queue[0]
+		queue = queue[1:]
+		x, y := i%is.Width, i/is.Width
+		for _, nb := range neighbours() {
+			nx, ny := x+nb.X, y+nb.Y
+			if !is.InBounds(nx, ny) {
+				continue
+			}
+			if j := is.index(nx, ny); !anchored[j] && quay(j) {
+				anchored[j] = true
+				queue = append(queue, j)
+			}
+		}
+	}
+	return anchored
+}
+
+// buildingTiles marks the footprints of the island's built buildings,
+// with plans: also its planned ones (D-071): solid ground a quay may be
+// anchored to.
+func buildingTiles(is *Island, c *content.Catalogue, plans bool) []bool {
+	solid := make([]bool, is.Width*is.Height)
+	all := is.Buildings
+	if plans {
+		all = slices.Concat(is.Buildings, is.Plans)
+	}
+	for _, b := range all {
+		def := c.BuildingByID[b.Type]
+		if def == nil {
+			continue
+		}
+		w, h := footprint(def, b.Rotation)
+		for y := b.Y; y < b.Y+h; y++ {
+			for x := b.X; x < b.X+w; x++ {
+				if is.InBounds(x, y) {
+					solid[is.index(x, y)] = true
+				}
+			}
+		}
+	}
+	return solid
+}
+
+// hasQuay reports whether the island has a built or planned quay tile.
+func hasQuay(is *Island, c *content.Catalogue) bool {
+	for _, tiles := range []map[int]string{is.Roads, is.PlannedRoads} {
+		for _, rt := range tiles {
+			if isQuay(c, rt) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// checkQuaysConnected rejects quay tiles of a placement that would not
+// reach the island's land or a building over quay tiles
+// (ErrQuayDisconnected): roads are the quay tiles that count with the
+// placement, solid what the buildings anchor (buildingTiles). A built
+// quay counts built quays and buildings, a planned one also plans (the
+// plan view, D-071).
+func checkQuaysConnected(is *Island, c *content.Catalogue, roads map[int]string, tiles []Pos) error {
+	anchored := quayAnchored(is, c, roads, nil, buildingTiles(is, c, false))
+	for _, p := range tiles {
+		if !anchored[is.index(p.X, p.Y)] {
+			return fmt.Errorf("%w: (%d,%d) touches neither land nor a quay connected to land", ErrQuayDisconnected, p.X, p.Y)
+		}
+	}
+	return nil
+}
+
+// checkQuaysStay rejects a change after which a quay tile that reached the
+// island's land or a building before no longer does (ErrQuayWouldFloat):
+// built quays over built quays and buildings, planned ones over both
+// built and planned (D-071). after is the island after the change, a copy
+// with its own Roads, PlannedRoads, Buildings and Plans. Quays that
+// floated before (placed before D-077) never block a change.
+func checkQuaysStay(before, after *Island, c *content.Catalogue) error {
+	if !hasQuay(before, c) {
+		return nil
+	}
+	for _, plans := range []bool{false, true} {
+		var pb, pa map[int]string
+		if plans {
+			pb, pa = before.PlannedRoads, after.PlannedRoads
+		}
+		was := quayAnchored(before, c, before.Roads, pb, buildingTiles(before, c, plans))
+		now := quayAnchored(after, c, after.Roads, pa, buildingTiles(after, c, plans))
+		for _, i := range slices.Sorted(maps.Keys(was)) {
+			if now[i] {
+				continue
+			}
+			if (after.Roads[i] != "" && isQuay(c, after.Roads[i])) || (pa[i] != "" && isQuay(c, pa[i])) {
+				return fmt.Errorf("%w: the quay at (%d,%d) would touch neither land nor a quay connected to land", ErrQuayWouldFloat, i%before.Width, i/before.Width)
+			}
+		}
 	}
 	return nil
 }
