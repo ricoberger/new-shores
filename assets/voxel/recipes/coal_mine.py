@@ -4,6 +4,9 @@ black coal seams and a timbered adit, a tall timber headframe with its
 sheave wheel, rails with two tubs of coal, a black coal heap and a sooty
 spoil tip, a stone-and-timber winding house under dark burgundy tiles, pit
 props and a cart. No smoke. 12 voxels per tile.
+Re-dressed in the rural look (D-075 §3, `look: rural`): the tier-I look — boarded
+walls on a stone band under weathered thatch — whatever the unlock tier; the
+props and the signature parts are unchanged.
 """
 
 from nsvoxel import parts as P
@@ -22,5 +25,5 @@ def build(ctx):
     seed = 83
     K.mine(v, seed, COAL, COAL, frame=True, spoil=SPOIL, share=0.5)
     K.ground(v, 18, 72, 15, 22, seed)
-    K.workshop(v, 22, 68, 35, 90, 3, "a", seed, door=("x-", 74), wins=[])
+    K.workshop(v, 22, 68, 35, 90, 1, "a", seed, door=("x-", 74), wins=[])
     return P.colour_jitter(v, seed=seed)

@@ -3,6 +3,9 @@ Pastry kitchen (4 × 5; V7 variety pass, tier III): an L-plan stone-and-
 timber bakehouse with a slim chimney (smoke); in front a big striped awning
 over a long display of golden pastries and a brick-accent oven with a round
 dome. 12 voxels per tile; massing and signature prop in NOTES.md.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -22,7 +25,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 211
     K.ground(v, 24, 48, 21, 14, seed)
-    h = K.workshop(v, 6, 6, 48 - 6, 30, 3, "c", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
+    h = K.workshop(v, 6, 6, 48 - 6, 30, 2, "c", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
     V.face_awning(h.face("y+"), 28, 44, 10, depth=5)
     v.box(8, 40, 1, 40, 46, 5, TIMBER_LIGHT)
     for i, x in enumerate(range(9, 39, 5)):

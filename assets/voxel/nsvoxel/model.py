@@ -36,6 +36,8 @@ class Ctx:
         self.water = int(rows["max"] if isinstance(rows, dict) else self.defn.get("water_tiles", 0))
         #: First land row (voxels): rows below it stand over the sea.
         self.land = self.water * scale
+        #: A shore building (D-077 §5): a deck under every tile, so the model may reach below z = 0 like a water structure.
+        self.shore = self.defn.get("placement") == "shore"
         self.tier = self.defn.get("tier", "settlers")
         self.smoke = False
         self.needs = []
@@ -131,10 +133,10 @@ def check_grid(v, ctx, needed):
         s = config.SLACK_OVERRIDE.get(ctx.cid, FOOTPRINT_SLACK) * ctx.vpt // VPT
         if x0 < -s or y0 < -s or x1 > ctx.W + s or y1 > ctx.D + s:
             problems.append(f"outside the footprint {ctx.W}×{ctx.D} voxels: x {x0}..{x1}, y {y0}..{y1}")
-        floor = -2 * ctx.vpt if ctx.water else 0
+        floor = -2 * ctx.vpt if (ctx.water or ctx.shore) else 0
         if z0 < floor:
             problems.append(f"below the ground: z {z0}")
-    if ctx.kind in ("building", "field") and ctx.cid not in config.WATER_MODELS:
+    if ctx.kind in ("building", "field") and ctx.cid not in config.WATER_MODELS and ctx.cid not in config.SHORE_MODELS and ctx.cid not in config.PLATE_EXEMPT:
         share = plate_share(v, ctx)
         if share > config.PLATE_SHARE:
             problems.append(f"ground plate: {share:.0%} of the footprint is a flat layer at z = 0 (at most {config.PLATE_SHARE:.0%}; ground cover is the yard map, D-068)")
@@ -402,10 +404,14 @@ def budget_of(cid, kind, content, key=None):
     if cid in config.BUDGET_OVERRIDE:
         return config.BUDGET_OVERRIDE[cid]
     w, h = content_mod.footprint(content, cid)
+    if cid in config.FOOTPRINT_CLASS_IDS and (w, h) in config.BUDGET_BY_FOOTPRINT:
+        return config.BUDGET_BY_FOOTPRINT[(w, h)][0]
     return config.BUDGET_PER_TILE[model_class(content, cid)] * w * h
 
 
 def lite_budget_of(cid, content):
     """Triangle budget of a building's lite file (per footprint tile)."""
     w, h = content_mod.footprint(content, cid)
+    if cid in config.FOOTPRINT_CLASS_IDS and (w, h) in config.BUDGET_BY_FOOTPRINT:
+        return config.BUDGET_BY_FOOTPRINT[(w, h)][1]
     return config.LITE_BUDGET_PER_TILE[model_class(content, cid)] * w * h

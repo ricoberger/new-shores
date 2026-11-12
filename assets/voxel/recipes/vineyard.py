@@ -4,6 +4,9 @@ winegrower's house with a plank drying tower at its west end under slate (no
 chimney); in front three rows of tall staked vines hung with green leaf and
 dark grapes, and a big grape vat. 12 voxels per tile; massing and signature
 prop in NOTES.md.
+Re-dressed in the rural look (D-075 §3, `look: rural`): the tier-I look — boarded
+walls on a stone band under weathered thatch — whatever the unlock tier; the
+props and the signature parts are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -23,7 +26,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 171
     K.ground(v, 24, 47, 21, 15, seed, "paved")
-    h = K.workshop(v, 6, 6, 48 - 6, 28, 4, "e", seed, door=("y+", 22), wins=[], out="tower")
+    h = K.workshop(v, 6, 6, 48 - 6, 28, 1, "e", seed, door=("y+", 22), wins=[], out="tower")
     for y in (36, 44, 52):
         for x in range(6, 44, 4):
             v.box(x, y, 1, x + 1, y + 1, 10, TIMBER_DARK)

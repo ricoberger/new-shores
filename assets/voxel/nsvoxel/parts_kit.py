@@ -72,11 +72,12 @@ def _n_panels(a0, a1):
     return len(W.bays(a0, a1)) - 1
 
 
-def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, smoke=False, chim=None, rise=None, windows=True, wins=None, ov=None, hip=False, stone=None, chimney=False, plinth=None, upper=None, tall=False, dressed=None):
+def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, smoke=False, chim=None, rise=None, windows=True, wins=None, ov=None, hip=False, stone=None, chimney=False, plinth=None, upper=None, tall=False, dressed=None, dark=False):
     """
     The main block in the vocabulary of `tier` (1–4) over x0..x1 × y0..y1. `door` = (side, a) with `a` the first
     voxel of a four-wide door along the side (default: the middle of the y+ face); `storeys` = (ground, top) of
-    tiers II–IV (tier I: wall height); `smoke` sets the chimney and smoke anchors with a slim chimney at `chim`.
+    tiers II–IV (tier I: wall height); `smoke` sets the chimney and smoke anchors with a slim chimney at `chim`; `dark` puts the tier III burgundy
+    tile on a tier II block (a grand tier-4 workshop in the workshop look, D-075 §3).
     Returns a namespace with `.roof`, `.ridge`, `.face(side)`, `.top` and the rectangle `.rect`.
     """
     side, a = door if door else ("y+", (x0 + x1) // 2 - 2 if along == "x" else (x0 + x1) // 2 - 2)
@@ -106,7 +107,7 @@ def hall(v, x0, y0, x1, y1, tier, along="x", seed=0, door=None, storeys=None, sm
         _openings(v, face, (x0, y0, x1, y1), tier, side, a, windows, wins, 2, g, dressed)
     else:
         kw = {}
-        if tier == 3:
+        if tier == 3 or dark:
             kw = dict(roof=TILE_DARK, ridge=TILE_RIDGE, shades=(1.2, 0.84), verge=0.62)
         upx0, upx1, upy0, upy1 = x0 - 1, x1 + 1, y0 - 1, y1 + 1
         win = {}
@@ -426,6 +427,7 @@ def workshop(v, x0, y0, x1, y1, tier, mass="a", seed=0, door=None, smoke=False, 
     side, a = door if door else ("y+", None)
     cx, cy = chim if chim else (None, None)
     g = _EAVE[tier]
+    lt = 3 if kw.get("dark") and tier == 2 else tier  # the lean-tos follow the roof
     if tier == 4 and wins == []:
         wins = None  # arched ground windows: relief on the plain two-storey wall
     if side != "y+":
@@ -446,7 +448,7 @@ def workshop(v, x0, y0, x1, y1, tier, mass="a", seed=0, door=None, smoke=False, 
     if mass == "b":
         lw = _clamp(w // 3, 6, 10)
         main = place(x0 + lw, y0, x1, y1, "y", a)
-        lean(v, x0, x0 + lw + 1, y0 + 3, y1 - 3, g - 1, "x-", tier=tier, posts=True, seed=seed)
+        lean(v, x0, x0 + lw + 1, y0 + 3, y1 - 3, g - 1, "x-", tier=lt, posts=True, seed=seed)
         return main
     if mass == "c":
         ym = y0 + _clamp(int(d * 0.58), 12, d - 10)
@@ -458,7 +460,7 @@ def workshop(v, x0, y0, x1, y1, tier, mass="a", seed=0, door=None, smoke=False, 
         ld = 10
         main = place(x0, y0, x1, y1, "x" if w >= d else "y", a)
         z = g + 1
-        lean(v, x0 + 1, x1 - 1, y1, y1 + ld, z, "y+", tier=tier, posts=True, seed=seed)
+        lean(v, x0 + 1, x1 - 1, y1, y1 + ld, z, "y+", tier=lt, posts=True, seed=seed)
         for px in range(x0 + 12, x1 - 6, 12):
             v.box(px, y1 + ld - 1, 1, px + 1, y1 + ld, z + 1, TIMBER)
         return main
@@ -472,15 +474,15 @@ def workshop(v, x0, y0, x1, y1, tier, mass="a", seed=0, door=None, smoke=False, 
         elif out == "silo":
             silo(v, x0 + ow // 2, oy + ow // 2, ow // 2 - 1, 20)
         elif out == "tower":
-            _tower(v, x0 + 1, oy, 10, 10, 24)
+            _tower(v, x0 + 1, oy, 10, 10, 24, tier=tier)
         else:
             hall(v, x0, oy, x0 + ow + 2, oy + 16, 1, "y", seed + 2, door=("y+", None), windows=False)
         return main
     raise ValueError(f"mass {mass!r}")
 
 
-def _tower(v, x, y, w, d, h):
-    """A plank drying tower: dark boards with louvre slots, a small tiled hip roof."""
+def _tower(v, x, y, w, d, h, tier=2):
+    """A plank drying tower: dark boards with louvre slots, a small hip roof (thatch in the tier I look, else terracotta tiles)."""
     P.boarded(v, x, y, x + w, y + d, 1, h, m=BOARDS, batten=TIMBER_DARK, every=3)
     for z in range(5, h - 3, 4):
         for i in range(2, w - 2, 2):
@@ -488,6 +490,10 @@ def _tower(v, x, y, w, d, h):
             v.set(x + i, y + d - 1, z + 1, TIMBER_DARK)
         for j in range(2, d - 2, 2):
             v.set(x, y + j, z, TIMBER_DARK)
+    if tier == 1:
+        r = P.roof(v, x, x + w, y, y + d, h, "thatch", along="x", rise=1.2, ov=1, gable=BOARDS, seed=seed_of(x, y), m=THATCH, hip=True)
+        W.thatch_finish(v, r, seed_of(x, y))
+        return
     P.roof(v, x, x + w, y, y + d, h, "tiles", along="x", rise=1.2, ov=1, gable=BOARDS, seed=seed_of(x, y), m=TERRACOTTA, hip=True)
 
 

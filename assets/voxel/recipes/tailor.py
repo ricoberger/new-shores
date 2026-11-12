@@ -1,9 +1,12 @@
 """
 Tailor (4 × 5; V7 rework after the Anno 1404 furrier's workshop, tier III):
 a half-timbered workshop gabled to the street (stone ground floor, framed
-storey, dark burgundy tiles) with a hanging sign, pelts and furs stretched
+storey, terracotta tiles) with a hanging sign, pelts and furs stretched
 in hide frames and hung on drying racks in the yard, a tanning tub and a
 cart of cloth. No chimney: the tailor makes no smoke. 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -25,7 +28,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 61
     K.ground(v, 24, 40, 20, 17, seed)
-    h = K.workshop(v, 6, 5, 30, 28, 3, "c", seed, door=("y+", 16), wins=[])
+    h = K.workshop(v, 6, 5, 30, 28, 2, "c", seed, door=("y+", 16), wins=[])
     P.trade_sign(h.face("y+"), 24, 10, mat("dye-blue", 1.0))
     # Hide frames with pelts along the east and across the yard, a drying rack with furs.
     V.hide_frame(v, 34, 8, 1, 6, 6, FUR, frame=TIMBER_DARK, along="y")

@@ -3,6 +3,9 @@ Printing press (4 × 5; V7 variety pass, tier III): a stone-and-timber print
 shop with an open work bay (no chimney); under it a giant timber screw press
 with its bar, tall stacks of pale paper and ink barrels. 12 voxels per tile;
 massing and signature prop in NOTES.md.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,7 +24,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 60
     seed = 213
     K.ground(v, 24, 48, 21, 14, seed)
-    h = K.workshop(v, 6, 6, 48 - 6, 30, 3, "d", seed, door=("y+", 22), wins=[])
+    h = K.workshop(v, 6, 6, 48 - 6, 30, 2, "d", seed, door=("y+", 22), wins=[])
     for dx in (0, 12):
         v.box(8 + dx, 48, 1, 11 + dx, 51, 24, TIMBER_DARK)
     v.box(8, 48, 20, 23, 51, 23, TIMBER)

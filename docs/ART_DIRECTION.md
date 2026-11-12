@@ -656,9 +656,58 @@ land buildings).
   whatever its tier; a `workshop` the tier-2 look — terracotta,
   half-timber, stone plinth, `tile-dark` allowed on tier-4 workshops;
   size and props tell the tier. The assignment is the `look` table in
-  CONTENT (under buildings.json); re-dressing the 12–15 tier-3/4
-  production models that still wear their unlock tier's roof is an art
-  session's task.
+  CONTENT (under buildings.json); the re-dress of the 42 tier-3/4
+  production models is done (table below).
+- **Look table (D-075 §3, as built).** Every production building's look
+  is its content `look`; the tier column is the unlock tier, the
+  last column the look the model wears.
+
+| Building | Tier | `look` | Model wears |
+|---|---|---|---|
+| hop farm, woad farm, clay pit, salt pans, salt mine, coal mine | Merchants | rural | tier I: boarded walls / stone-and-timber on a stone band, weathered thatch |
+| cattle farm, oyster beds, vineyard, quartz quarry, copper mine, gold mine | Patricians | rural | tier I: as above; mines keep their timber headframes, pits their sheds |
+| butcher, pastry kitchen, brewery, distillery, leather works, tailor, dyer works, dyer, paper mill, printing press, rendering house, soap maker, salt works, brickworks | Merchants | workshop | tier II: rubble ground floor, half-timber, terracotta; kettle caps and kilns stay |
+| slaughterhouse, oyster house, cooperage, winepress, malt house, grain distillery, thread spinner, lace maker, candle foundry, copper smelter, gold smelter | Patricians | workshop | tier II: rubble, half-timber, terracotta; furnace towers, kilns, the oast cone and the strongroom keep their own stone and slate |
+| fashion house, goldsmith, optician, luthier, glass smelter | Patricians | workshop | tier II framing under the dark burgundy tile (`tile-dark`, the grand workshops: five of sixteen) |
+
+- **D-077 models (as built; held).** The planned entries of
+  `assets/voxel/planned/d077.json` are built, checked and sheeted but
+  carry `hold`: they are not written to `client/public/models` or the
+  manifest until the content defines the IDs (the client test requires
+  the manifest's models to equal the content's); `tests/test_d077.py`
+  builds every one. The planned schema gained `placement: shore`, `look`
+  and `length_tiles`; ships may have 0 slots.
+  - *Ornaments* (`look: civic`, 8 voxels per tile, no ground paint
+    unless noted): `tree_ornament` 1 × 1 (three variants: lime, oak,
+    pollarded willow), `flower_bed` 1 × 1 (red, yellow, blue and white
+    rows in a timber edge), `well` 1 × 1 (thatched roof, windlass),
+    `pillory` 1 × 1, `maypole` 2 × 2 (spiral pole, eight ribbons in
+    sway group `flag`, a paved ring as `path()`), `pond` 3 × 3 (a
+    model-contained layer of `shallows` voxels, a stone rim, reeds;
+    exempt from the plate check by `config.PLATE_EXEMPT`), `fountain`
+    2 × 2, `statue` 2 × 2, `cemetery` 4 × 4 (wall, lych-gate, graves,
+    yew, a dirt `path()`), `harbour_statue` 2 × 2 shore and
+    `gold_statue` 3 × 3 (`brass`, 12 voxels per tile). The 1 × 1 to
+    3 × 3 ornaments use `config.BUDGET_BY_FOOTPRINT`
+    (900 / 2 600 / 5 600 triangles, lite 72 / 200 / 400) instead of 500
+    per tile.
+  - *Shore models* (`placement: shore`, `config.SHORE_MODELS`): the model
+    carries a plank deck at z = 0 under every tile and timber piles under
+    its edge; the plate check does not apply and the model may reach
+    below z = 0 like the water structures. `harbour_statue`,
+    `harbour_tower` 2 × 2, `repair_crane` 3 × 3 (treadwheel; jib and hook
+    in sway group `arm`) and `kontor` (4 × 11, the depot class's
+    footprint: the first model with `brick` as its main role, crow-step
+    gables, crane beam, banner `flag`).
+  - *Military* (`civic`): `tower` 2 × 2 with wall stubs on four sides,
+    `gatehouse` 3 × 3 (arch on the y axis, portcullis, stubs on x- and
+    x+, paved `path()` through the passage), `castle` 8 × 8 at 12 voxels
+    per tile (curtain, four round towers, gatehouse, keep, cobbled
+    `path()` yard). The warm sandstone of the city guard, slate caps.
+  - *Warships* (`_warships.py`, 20 voxels per tile, `length_tiles` 2 / 2.6 /
+    3.2): `balinger`, `war_cog`, `war_carrack` from the cargo ships' hull
+    builder; sails `sail`, banners `flag`, lite models, budgets 3 600 /
+    5 000 / 9 000 (lite 250 / 450 / 900).
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual
   only, D-042); one material (vertex colours). Every building reads by
@@ -737,9 +786,11 @@ land buildings).
   Per-model exceptions live in `config.py` (`BUDGET_OVERRIDE`,
   `SLACK_OVERRIDE`) and must be justified in the recipe docstring — so
   far only `tree_plot` (450, slack 4: the forest trees at forest scale,
-  D-068 as built). The committed GLBs are 23.35 MiB after the V7 rework
-  (#66) of a **24 MiB folder limit** (23.33 MiB with the D-075 ships); what remains per triangle is
-  indices and AO/normal-split vertices.
+  D-068 as built). The committed GLBs are 23.20 MiB (24 322 124 B) of a
+  **32 MiB folder limit** (D-077 §7, raised from 24 MiB) after the
+  D-077 re-dress; the held D-077 models add 2.26 MiB once published
+  (≈ 25.5 MiB); what remains per triangle is indices and AO/normal-split
+  vertices.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at
   near/mid, lite chunks at far, both built once and toggled. Building

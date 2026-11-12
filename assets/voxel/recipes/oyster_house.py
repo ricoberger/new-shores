@@ -4,6 +4,9 @@ a cream plaster kitchen on an ashlar floor under slate with a slim chimney
 (smoke) and, against its flank, an open sorting shed on posts under tiles
 with tables of oysters and tubs of brine; in the paved yard big pale heaps
 of shells, packed crates and barrels, a well and a cart. 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -23,7 +26,7 @@ def build(ctx):
     v = ctx.vox()  # 72 × 72
     seed = 227
     K.ground(v, 36, 52, 30, 16, seed, "paved")
-    K.workshop(v, 6, 6, 30, 34, 4, "d", seed, door=("y+", 14), smoke=True, chim=(10, 10), wins=[])
+    K.workshop(v, 6, 6, 30, 34, 2, "d", seed, door=("y+", 14), smoke=True, chim=(10, 10), wins=[])
     # Under the open work bay: tables of oysters and tubs of brine.
     for x in (10, 20):
         v.box(x, 36, 1, x + 8, 40, 4, TIMBER_LIGHT)

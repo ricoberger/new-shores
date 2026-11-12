@@ -68,13 +68,26 @@
         },
         "slots": {
           "type": "integer",
-          "minimum": 1,
+          "minimum": 0,
           "maximum": 8,
-          "description": "Ships: cargo slots (CONTENT §8); the cargo attachment shows one prop per slot."
+          "description": "Ships: cargo slots (CONTENT §8); the cargo attachment shows one prop per slot (0: no cargo, the warships of D-077 §6)."
         },
         "override": {
           "type": "boolean",
           "description": "For an ID the content already defines: this footprint and water_tiles replace the content's while its footprint differs (D-062 re-fit before the content lands); omit `levels` to drop the content-less planned levels."
+        },
+        "placement": {
+          "const": "shore",
+          "description": "D-077 §5: a shore building. Every footprint tile is water, shallows, level-0 land or quay and at least one is water, so the model carries a deck under every tile (it is listed in config.WATER_MODELS and may reach below z = 0 like the water structures). Default: the building stands on land."
+        },
+        "look": {
+          "enum": ["rural", "workshop", "civic", "harbour"],
+          "description": "The content `look` (D-075 §3) the model is dressed in; documentation only, nothing reads it."
+        },
+        "length_tiles": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Ships: the hull length in tiles (the content's length_tiles; the recipe's SHIP dict must agree)."
         },
         "hold": {
           "type": "boolean",

@@ -14,10 +14,10 @@ CONTENT = content_mod.load()
 
 
 def land_ids(recipes):
-    """Building and field IDs with a recipe, but the water structures of D-068 §5."""
+    """Building and field IDs with a recipe, but the water structures of D-068 §5 and the shore buildings of D-077 §5."""
     for cid in sorted(recipes):
         kind = build.kind_for(CONTENT, cid)
-        if kind in ("building", "field") and cid not in config.WATER_MODELS:
+        if kind in ("building", "field") and cid not in config.WATER_MODELS and cid not in config.SHORE_MODELS and cid not in config.PLATE_EXEMPT:
             yield cid, kind
 
 

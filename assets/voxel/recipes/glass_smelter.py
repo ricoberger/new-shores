@@ -4,6 +4,9 @@ glowing mouth and a slim stack (smoke) beside a cream-plaster casting hall
 under slate, a heap of sand, a cart. Its own outbuildings on the camera side
 (V7 leftovers): a round brick kiln, a beehive of brick with a glowing mouth, and
 a rack of bottles and panes in the window role. 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor and half-timber — under the dark burgundy tile, one of the grand
+tier-4 workshops that may wear it; the props are unchanged.
 """
 
 from nsvoxel import parts as P
@@ -65,7 +68,7 @@ def build(ctx):
     seed = 147
     K.ground(v, 24, 50, 20, 18, seed, "paved")
     K.furnace(v, 14, 18, glow=GLOW)
-    K.workshop(v, 26, 8, 44, 34, 4, "a", seed, door=("x-", 22), wins=[])
+    K.workshop(v, 26, 8, 44, 34, 2, "a", seed, door=("x-", 22), wins=[], dark=True)
     round_kiln(v, 14, 54, 8)
     glass_rack(v, 28, 46, 52)
     P.handcart(v, 30, 62, 1, along="x", load=GOODS)

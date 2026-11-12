@@ -3,6 +3,9 @@ Soap maker (3 × 4; V7 variety pass, tier III): a stone-and-timber house
 gabled to the street with a lean-to shed and a slim chimney (smoke); in
 front a big copper cauldron, a tall stack of pale soap bars and lye barrels.
 12 voxels per tile; massing and signature prop in NOTES.md.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -21,7 +24,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 219
     K.ground(v, 18, 40, 15, 10, seed)
-    h = K.workshop(v, 6, 6, 36 - 6, 26, 3, "b", seed, door=("y+", 16), smoke=True, chim=(22, 10), wins=[])
+    h = K.workshop(v, 6, 6, 36 - 6, 26, 2, "b", seed, door=("y+", 16), smoke=True, chim=(22, 10), wins=[])
     V.vat(v, 12, 38, 1, r=6, h=8, m=mat("terracotta", 1.2), liquid=GOODS)
     K.pile(v, 22, 32, 1, 10, 8, 10, GOODS, seed)
     P.cask(v, 6, 46, 1, h=5, lid=CANVAS)

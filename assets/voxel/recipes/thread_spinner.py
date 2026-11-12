@@ -3,6 +3,9 @@ Thread spinner (3 × 4; V7 variety pass, tier IV): a two-storey cream plaster
 house with an open work bay under slate (no chimney); under it a giant
 spinning wheel on a stand, a tall rack of coloured skeins and wool bales. 12
 voxels per tile; massing and signature prop in NOTES.md.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -24,7 +27,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 169
     K.ground(v, 18, 42, 15, 8, seed, "paved")
-    h = K.workshop(v, 6, 6, 36 - 6, 30, 4, "d", seed, door=("y+", 16), wins=[])
+    h = K.workshop(v, 6, 6, 36 - 6, 30, 2, "d", seed, door=("y+", 16), wins=[])
     Q.wheel(v, 12, 42, 11, 9, plane="xz")
     v.box(10, 42, 1, 15, 43, 3, TIMBER_DARK)
     v.box(12, 42, 1, 13, 43, 12, TIMBER_DARK)

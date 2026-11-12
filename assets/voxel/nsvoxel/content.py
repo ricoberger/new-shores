@@ -77,8 +77,17 @@ def planned_def(e):
     """("buildings" | "ships", a content-shaped definition) of a planned entry, marked planned."""
     tier = config.TIER_NAMES[e["tier"] - 1]
     if e["kind"] == "ship":
-        return "ships", {"id": e["id"], "tier": tier, "slots": e["slots"], "planned": True}
+        d = {"id": e["id"], "tier": tier, "slots": e["slots"], "planned": True}
+        if "length_tiles" in e:
+            d["length_tiles"] = e["length_tiles"]
+        if e.get("hold"):
+            d["held"] = True
+        return "ships", d
     d = {"id": e["id"], "tier": tier, "footprint": list(e["footprint"]), "planned": True, "smoke": e.get("smoke", False)}
+    if "placement" in e:
+        d["placement"] = e["placement"]
+    if "look" in e:
+        d["look"] = e["look"]
     if e["water_tiles"]:
         d["water_tiles"] = e["water_tiles"]
     if e["slot"]:
@@ -137,7 +146,7 @@ def is_planned(content, cid):
 
 def held_ids(content):
     """Planned IDs marked `hold`: built, checked and sheeted, but not published until the content defines them."""
-    return sorted(cid for cid, d in content["buildings"].items() if d.get("held"))
+    return sorted(cid for group in ("buildings", "ships") for cid, d in content[group].items() if d.get("held"))
 
 
 def planned_ids(content):
@@ -245,5 +254,5 @@ def required_ids(content, held=False):
         for b in content["buildings"].values()
         if (b.get("tier") in config.MODEL_TIERS or b.get("planned")) and "road" not in b and (held or not b.get("held"))
     ]
-    ids += [s["id"] for s in content["ships"].values() if s["id"] in config.MODEL_SHIPS or s.get("planned")]
+    ids += [s["id"] for s in content["ships"].values() if (s["id"] in config.MODEL_SHIPS or s.get("planned")) and (held or not s.get("held"))]
     return sorted(ids)

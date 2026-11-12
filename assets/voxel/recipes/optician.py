@@ -3,6 +3,9 @@ Optician (4 × 4; V7 variety pass, tier IV): a two-storey cream plaster house
 with a lean-to shed and a slim chimney (smoke); in front a lens-grinding
 bench with a large brass-ringed lens and a grinding wheel, and a bracket at the
 front wall with a hanging spectacles sign (V7 leftovers). 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor and half-timber — under the dark burgundy tile, one of the grand
+tier-4 workshops that may wear it; the props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -52,7 +55,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 48
     seed = 163
     K.ground(v, 24, 41, 21, 9, seed, "paved")
-    h = K.workshop(v, 6, 6, 48 - 6, 28, 4, "b", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[])
+    h = K.workshop(v, 6, 6, 48 - 6, 28, 2, "b", seed, door=("y+", 22), smoke=True, chim=(34, 10), wins=[], dark=True)
     for x in (8, 22):  # the lens-grinding bench
         for y in (33, 38):
             v.box(x, y, 1, x + 2, y + 2, 5, TIMBER_DARK)

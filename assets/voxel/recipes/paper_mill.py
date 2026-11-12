@@ -1,8 +1,11 @@
 """
 Paper mill (4 × 6; V7 rework, tier III): a stone-and-timber mill under dark
-burgundy tiles with a slim chimney (smoke), a big timber water wheel on its
+terracotta tiles with a slim chimney (smoke), a big timber water wheel on its
 west flank, racks hung with pale sheets of paper, tall stacks of paper, a
 pulp vat and a cart. 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 import math
@@ -24,7 +27,7 @@ def build(ctx):
     v = ctx.vox()  # 48 × 72
     seed = 223
     K.ground(v, 28, 44, 20, 22, seed)
-    K.workshop(v, 12, 6, 44, 30, 3, "c", seed, door=("y+", 26), smoke=True, chim=(38, 10), wins=[])
+    K.workshop(v, 12, 6, 44, 30, 2, "c", seed, door=("y+", 26), smoke=True, chim=(38, 10), wins=[])
     # The wheel: a ring of spokes and paddles in the y–z plane at x = 6.
     cy, cz, r = 18, 9, 8
     for a in range(0, 360, 6):

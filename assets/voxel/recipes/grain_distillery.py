@@ -4,6 +4,9 @@ plaster distillery under slate with a slim chimney (smoke) and a round
 granary silo at its west end; in front a giant copper still with head and
 pipe, a golden grain heap and a pyramid of spirit barrels. 12 voxels per
 tile; massing and signature prop in NOTES.md.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -23,7 +26,7 @@ def build(ctx):
     v = ctx.vox()  # 60 × 72
     seed = 157
     K.ground(v, 30, 57, 27, 17, seed, "paved")
-    h = K.workshop(v, 6, 6, 60 - 6, 36, 4, "e", seed, door=("y+", 28), smoke=True, chim=(46, 10), wins=[], out="silo")
+    h = K.workshop(v, 6, 6, 60 - 6, 36, 2, "e", seed, door=("y+", 28), smoke=True, chim=(46, 10), wins=[], out="silo")
     K.still(v, 16, 50, m=COPPER, r=7)
     K.pile(v, 34, 44, 1, 12, 8, 7, GOODS, seed)
     for row, n in enumerate((5, 4, 3)):

@@ -1,8 +1,11 @@
 """
 Leather works (3 × 4; V7 rework, tier III; no 1404 render): a stone-and-
-timber workshop under dark burgundy tiles with hides stretched in frames and
+timber workshop under terracotta tiles with hides stretched in frames and
 hung on a drying rack, a row of pale tanning vats, bundles of finished
 leather and a cart. No chimney. 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -24,7 +27,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 48
     seed = 107
     K.ground(v, 18, 28, 15, 15, seed)
-    K.workshop(v, 4, 4, 28, 22, 3, "c", seed, door=("y+", 12), wins=[])
+    K.workshop(v, 4, 4, 28, 22, 2, "c", seed, door=("y+", 12), wins=[])
     V.hide_frame(v, 30, 8, 1, 4, 7, HIDE, frame=TIMBER_DARK, along="y")
     V.hide_frame(v, 30, 18, 1, 4, 7, HIDE_DARK, frame=TIMBER_DARK, along="y")
     V.drying_frame(v, 4, 28, 40, 1, 9, (HIDE, HIDE_DARK, LEATHER), post=TIMBER_DARK, every=6, sway=False, drop=7)

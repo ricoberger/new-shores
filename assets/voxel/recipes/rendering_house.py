@@ -3,6 +3,9 @@ Rendering house (3 × 3; V7 variety pass, tier III): a long stone-and-timber
 house with a slim chimney (smoke); in front a giant iron cauldron on a
 hearth, a rail hung with dark hides and tallow barrels. 12 voxels per tile;
 massing and signature prop in NOTES.md.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -22,7 +25,7 @@ def build(ctx):
     v = ctx.vox()  # 36 × 36
     seed = 217
     K.ground(v, 18, 30, 15, 8, seed)
-    h = K.workshop(v, 6, 6, 36 - 6, 18, 3, "a", seed, door=("y+", 16), smoke=True, chim=(22, 10), wins=[])
+    h = K.workshop(v, 6, 6, 36 - 6, 18, 2, "a", seed, door=("y+", 16), smoke=True, chim=(22, 10), wins=[])
     V.vat(v, 12, 28, 1, r=6, h=8, m=mat("iron", 0.8), liquid=mat("ochre", 1.2))
     K.rack(v, 20, 32, 24, HIDE, h=15, drop=11)
     P.cask(v, 6, 20, 1, h=5, lid=GOODS)

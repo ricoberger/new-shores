@@ -4,6 +4,9 @@ a pit with layered orange clay faces and wet clay in the floor, wooden
 walkways and a ladder, heaps of clay and a barrow, a stack of tile blanks
 drying on a rack under a tiled shed, a stone-and-timber hut under dark
 burgundy tiles. No chimney. 12 voxels per tile.
+Re-dressed in the rural look (D-075 §3, `look: rural`): the tier-I look — boarded
+walls on a stone band under weathered thatch — whatever the unlock tier; the
+props and the signature parts are unchanged.
 """
 
 from nsvoxel import detail_v4 as V
@@ -42,11 +45,11 @@ def build(ctx):
     P.ladder(P.Face(v, "x-", 5), 52, 1, 4)
     # The hut and the tile blanks drying under a tiled shed, behind the pit.
     K.ground(v, 14, 16, 12, 10, seed)
-    K.lean(v, 4, 24, 4, 16, 11, "y+", tier=3)
+    K.lean(v, 4, 24, 4, 16, 11, "y+", tier=1)
     for x in range(6, 22, 4):
         v.box(x, 6, 1, x + 3, 14, 3, CLAY)
         v.box(x, 6, 3, x + 3, 14, 4, CLAY_DARK)
-    K.workshop(v, 26, 4, 46, 24, 3, "a", seed, door=("x-", 10), wins=[])
+    K.workshop(v, 26, 4, 46, 24, 1, "a", seed, door=("x-", 10), wins=[])
     P.handcart(v, 8, 26, 1, along="x", load=CLAY)
     v.anchor("cart", 14, 32, 1)
     K.tufts(v, seed, 0.02)

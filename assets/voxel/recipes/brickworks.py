@@ -4,6 +4,9 @@ building: a rectangular brick kiln with a dark chimney (smoke) and an arched
 fire-mouth under a long open tiled drying shed with racks of pale unfired
 bricks, clay heaps, a stack of fired red bricks and a cart. The kiln is the
 only big brick mass; the rest is timber and tile. 12 voxels per tile.
+Re-dressed in the workshop look (D-075 §3, `look: workshop`): the tier-II look —
+rubble ground floor, half-timber and terracotta tiles — whatever the unlock tier;
+the special roofs and signature props are unchanged.
 """
 
 from nsvoxel import parts as P
@@ -38,7 +41,7 @@ def build(ctx):
     v.box(10, y1 - 1, 1, 16, y1 + 2, 9, None)
     v.box(11, y1 - 1, 1, 15, y1 + 1, 7, EMBER)
     # Open drying shed with racks of pale unfired bricks.
-    K.lean(v, 26, 46, 6, 30, 12, "y+", tier=3, posts=True)
+    K.lean(v, 26, 46, 6, 30, 12, "y+", tier=2, posts=True)
     for y in (10, 18):
         for x in range(28, 44, 4):
             v.box(x, y, 1, x + 3, y + 6, 3, RAW)
