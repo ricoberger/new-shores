@@ -2761,3 +2761,27 @@ sheeted but held (`hold: true` in `planned/d077.json`, ≈ 2.3 MiB) until
 the content defines the IDs. Shore decks sit at z = 0 under every tile.
 The paint families (hedge, garden wall, city wall, square) and the quay
 wall come with the content / sim / client session.
+
+*As built, content / sim / client (#78):* content `old_coast-0.22.0`,
+sim schema 17. §5 shore placement as specified (harbour lane = footprint
+width × 3 rows in front of a Trading Post / pier, berths = a pier's two
+flank columns; a shore footprint blocks ships only once built; planners
+keep the D-062 rows so the reference games replay unchanged). §8
+shallows 8, `ErrQuayDisconnected` / `ErrQuayWouldFloat` /
+`ErrHarbourBlocked`, property test seeds 1–50; quay in deep water
+rendered as a level-0 block with stone side face and mooring posts. §2–§3
+paint families through the generic batch commands `place_paint` /
+`demolish_paint` (per-tile results like fields); join pieces end /
+corner / T / cross (+ `arch` for city_wall under a road) published as
+`<id>.<piece>`; `square` is the ground kind `cobbles_fine`. `unique`
+scopes `island` | `world` (Kontor; `unique_building` error; DE
+"Hansekontor"). §6 warships `slots: 0`, attack 4 / 10 / 20, build 5 /
+7.5 / 10 min, upkeep 3 / 5 / 8; `patrol {ship_id, island_id}` builds a
+deterministic coast loop (string-pulled hull at distance ≥ 2) the client
+lerps along; `unassign` stops it. Repair crane: the jib cannot yaw about a
+pivot in the merged meshes, so its sway grows with distance from the
+root (accepted). `defence`, `attack`, `repairs` are stored and shown,
+never read by a rule. MONETIZATION.md rewritten for §1. Fixtures
+`harbour-basin`, `castle-town`; far budgets 16 / 224 k, 11 / 198 k,
+13 / 201 k.
+
