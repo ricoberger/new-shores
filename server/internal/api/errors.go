@@ -208,4 +208,6 @@ type errorBody struct {
 type errorDetail struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
+	// BuildingID names the failing building or plan of a move_group.
+	BuildingID int64 `json:"building_id,omitempty"`
 }

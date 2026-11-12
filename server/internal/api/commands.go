@@ -31,6 +31,7 @@ const (
 	cmdSetPaused     = "set_paused"
 	cmdUpgradeHouse  = "upgrade_house"
 	cmdMoveBuilding  = "move_building"
+	cmdMoveGroup     = "move_group"
 	cmdBuildPlan     = "build_plan"
 
 	cmdUpgradeBuilding    = "upgrade_building"
@@ -188,6 +189,18 @@ type moveBuildingJSON struct {
 	X          *int    `json:"x"`
 	Y          *int    `json:"y"`
 	Rotation   *int    `json:"rotation"`
+}
+
+type moveGroupJSON struct {
+	Type     string  `json:"type"`
+	IslandID *string `json:"island_id"`
+	X0       *int    `json:"x0"`
+	Y0       *int    `json:"y0"`
+	X1       *int    `json:"x1"`
+	Y1       *int    `json:"y1"`
+	DX       *int    `json:"dx"`
+	DY       *int    `json:"dy"`
+	Rotation *int    `json:"rotation"`
 }
 
 type orderShipJSON struct {
@@ -354,6 +367,8 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeUpgrade(raw, head.Type)
 	case cmdMoveBuilding:
 		cmd, err = decodeMoveBuilding(raw)
+	case cmdMoveGroup:
+		cmd, err = decodeMoveGroup(raw)
 	case cmdBuildPlan:
 		cmd, err = decodeBuildPlan(raw)
 	case cmdOrderShip:
@@ -755,6 +770,29 @@ func decodeMoveBuilding(raw json.RawMessage) (sim.Command, error) {
 		return nil, missing("rotation")
 	}
 	return sim.MoveBuilding{IslandID: *c.IslandID, BuildingID: *c.BuildingID, X: *c.X, Y: *c.Y, Rotation: *c.Rotation}, nil
+}
+
+func decodeMoveGroup(raw json.RawMessage) (sim.Command, error) {
+	var c moveGroupJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	if c.IslandID == nil {
+		return nil, missing("island_id")
+	}
+	for _, f := range []struct {
+		name string
+		v    *int
+	}{{"x0", c.X0}, {"y0", c.Y0}, {"x1", c.X1}, {"y1", c.Y1}, {"dx", c.DX}, {"dy", c.DY}} {
+		if f.v == nil {
+			return nil, missing(f.name)
+		}
+	}
+	cmd := sim.MoveGroup{IslandID: *c.IslandID, X0: *c.X0, Y0: *c.Y0, X1: *c.X1, Y1: *c.Y1, DX: *c.DX, DY: *c.DY}
+	if c.Rotation != nil {
+		cmd.Rotation = *c.Rotation
+	}
+	return cmd, nil
 }
 
 func decodeBuildPlan(raw json.RawMessage) (sim.Command, error) {

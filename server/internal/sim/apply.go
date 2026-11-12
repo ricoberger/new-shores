@@ -193,6 +193,8 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Resul
 		err = placeBuilding(w, c, cmd, true, l)
 	case MoveBuilding:
 		err = moveBuilding(w, c, cmd)
+	case MoveGroup:
+		err = moveGroup(w, c, cmd)
 	case PlaceRoad:
 		err = placeRoad(w, c, cmd, l)
 	case Demolish:

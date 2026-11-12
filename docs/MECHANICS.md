@@ -252,6 +252,26 @@ handlers only.
   may be moved only to a position where it stays coastal. Moving is one
   command and is atomic (the old footprint is free for the new one, so a
   one-tile shift is valid).
+- **Group move** (D-074 §5, `move_group`): everything whose footprint lies
+  fully inside a tile rectangle — buildings, fields, paint tiles, plans,
+  road and planned road tiles — moves by one offset, optionally turned
+  about the rectangle (0/90/180/270° clockwise; paint tiles keep rotation
+  0), in one command, all or nothing and free like a single move. Pieces
+  only partly inside stay. Every piece is checked at its new site among
+  the pieces that stay and the other moved ones (tiles the move vacates
+  are free): road tiles first (terrain, overlap, shallows for quays,
+  bridges), then buildings and plans in ID order (the full placement
+  site check: terrain, overlap, water rows, low shore, shore rules,
+  coast, deposit, fertility, gate walls; a field its terrain, overlap and
+  fertility), the harbour lane (D-078 §1) for every moved piece, then an
+  open harbour (D-060, D-077 §8) and connected quays. The first failure
+  rejects the move with its rule's error, naming the piece
+  (`error.building_id`, absent for a road tile). Buildings keep their IDs
+  and state; fields keep their farm (a chain that no longer reaches it
+  makes them inactive, as after any change); a building moved onto a quay
+  replaces it. Coverage, efficiency and warehouse assignment are
+  recomputed afterwards as after any placement; a move that leaves a
+  house outside a service's radius is not refused.
 - Demolition refunds 50 % of each material **rounded down to whole units**
   and no gold (D-019), into the island where the building stood, clamped to
   free capacity (the clamped part is `lost`). Goods the building had in

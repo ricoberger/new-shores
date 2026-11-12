@@ -430,6 +430,58 @@ func TestCommandsOfEveryType(t *testing.T) {
 	}
 }
 
+// TestMoveGroup: move_group (D-074 §5) decodes, applies, and a failure
+// names the failing building in error.building_id; every response
+// validates against openapi.yaml.
+func TestMoveGroup(t *testing.T) {
+	ts := newTestServer(t, 1)
+	for _, cmd := range []string{cmdRoad, cmdSawmill} {
+		if res := ts.command(cmd, nil); res.status != http.StatusOK {
+			t.Fatalf("setup: %d %s", res.status, res.body)
+		}
+	}
+	w := ts.getWorld()
+	id := buildingIDs(t, w.Display, "sawmill")[0]
+	group := func(dx, dy int) string {
+		return fmt.Sprintf(`{"type":"move_group","island_id":"start","x0":10,"y0":5,"x1":15,"y1":10,"dx":%d,"dy":%d}`, dx, dy)
+	}
+	if res := ts.command(group(0, 0), &w.Version); res.status != http.StatusOK {
+		t.Fatalf("move_group: %d %s", res.status, res.body)
+	}
+	res := ts.do(http.MethodPost, "/api/v1/world/commands", `{"command":`+group(0, -1)+`}`, true)
+	if res.status != http.StatusConflict || errorCode(t, res) != "occupied" {
+		t.Fatalf("onto the road: %d %s", res.status, res.body)
+	}
+	ts.spec.validateSchema(t, "ErrorResponse", res.body)
+	var body struct {
+		Error struct {
+			BuildingID int64 `json:"building_id"`
+		} `json:"error"`
+	}
+	if err := json.Unmarshal(res.body, &body); err != nil || body.Error.BuildingID != id {
+		t.Fatalf("building_id %d (%v), want %d", body.Error.BuildingID, err, id)
+	}
+	for _, e := range []struct {
+		name, cmd string
+		code      string
+	}{
+		{"missing dx", `{"type":"move_group","island_id":"start","x0":10,"y0":5,"x1":15,"y1":10,"dy":0}`, "invalid_command"},
+		{"empty", `{"type":"move_group","island_id":"start","x0":30,"y0":30,"x1":30,"y1":30,"dx":1,"dy":0}`, "invalid_command"},
+		{"bad rotation", `{"type":"move_group","island_id":"start","x0":10,"y0":5,"x1":15,"y1":10,"dx":0,"dy":0,"rotation":45}`, "invalid_command"},
+	} {
+		t.Run(e.name, func(t *testing.T) {
+			res := ts.do(http.MethodPost, "/api/v1/world/commands", `{"command":`+e.cmd+`}`, false)
+			if res.status != http.StatusBadRequest || errorCode(t, res) != e.code {
+				t.Fatalf("%d %s, want 400 %s", res.status, res.body, e.code)
+			}
+			ts.spec.validateSchema(t, "ErrorResponse", res.body)
+			if strings.Contains(string(res.body), "building_id") {
+				t.Errorf("building_id on %s", res.body)
+			}
+		})
+	}
+}
+
 // TestMoveBuilding: move_building keeps the building ID, changes its
 // position, increments the version and answers with the documented error
 // codes; every response validates against openapi.yaml.

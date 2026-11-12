@@ -323,7 +323,10 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `place_building` / `place_road` / `place_fields`, `build_plan` and
   `demolish_roads` (batch, ≤ 512 tiles, per-tile results), and since
   D-077 `place_paint` / `demolish_paint` (paint-family batches, ≤ 512
-  tiles, per-tile results, MECHANICS §3), returning
+  tiles, per-tile results, MECHANICS §3), and since D-078 `move_group`
+  (D-074 §5: a rectangle, an offset and an optional turn; all or
+  nothing; a failure names the piece in `error.building_id`,
+  MECHANICS §2), returning
   `{version, display}`; the display
   payload includes `ships`, `routes` (with `loop_ms` and the estimated
   `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,

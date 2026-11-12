@@ -66,7 +66,7 @@ export interface paths {
          *     `place_fields`, `demolish_fields`, `place_paint`,
          *     `demolish_paint`, `set_paused`, `upgrade_building` (deprecated aliases
          *     `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
-         *     `move_building`, and the ship and route commands `order_ship`,
+         *     `move_building`, `move_group`, and the ship and route commands `order_ship`,
          *     `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
          *     `delete_route`, `assign_ship`, `unassign_ship`, `patrol`, `manual_shipment`,
          *     `sail_ship` and `found_island` (MECHANICS §8, §9).
@@ -411,6 +411,12 @@ export interface components {
                 code: components["schemas"]["ErrorCode"];
                 /** @description Human-readable detail (English; shown verbatim in M1b). */
                 message: string;
+                /**
+                 * Format: int64
+                 * @description The building or plan whose new site failed a `move_group`
+                 *     (D-074 §5); absent otherwise.
+                 */
+                building_id?: number;
             };
         };
         /**
@@ -513,6 +519,12 @@ export interface components {
          *     inactive); a field cannot be moved (`invalid_command`). Moving is
          *     free: it never fails for gold, materials or tier. Placement never
          *     requires a road (D-042).
+         *
+         *     `move_group` (D-074 §5) fails with the codes of `move_building`
+         *     plus `quay_disconnected` and `invalid_command` (nothing in the
+         *     rectangle); its error names the first failing piece in
+         *     `error.building_id` (absent for a road tile) — the message
+         *     carries the piece's new position.
          *
          *     `place_field` (D-051 part 4) is a separate command rather than a
          *     `farm_id` on `place_building`: its validity depends on a farm
@@ -651,7 +663,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["DemolishRoadsCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["PlacePaintCommand"] | components["schemas"]["DemolishPaintCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["PatrolCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["DemolishRoadsCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["PlacePaintCommand"] | components["schemas"]["DemolishPaintCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["MoveGroupCommand"] | components["schemas"]["BuildPlanCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["PatrolCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -1119,6 +1131,49 @@ export interface components {
              * @enum {integer}
              */
             rotation: 0 | 90 | 180 | 270;
+        };
+        /**
+         * @description Move everything whose footprint lies fully inside a rectangle by
+         *     one offset, optionally turned (D-074 §5): buildings, fields,
+         *     paint tiles, plans, road and planned road tiles, in one
+         *     transaction, all or nothing, free like `move_building`. Every
+         *     piece must be valid at its new site among the pieces that stay
+         *     and the other moved ones (tiles the move vacates count as free):
+         *     terrain, overlap, water rows and low shore, shore rules, the
+         *     harbour lane, an open harbour, connected quays. Buildings keep
+         *     their IDs and state; fields keep their farm (a chain that no
+         *     longer reaches it leaves them inactive); paint tiles keep
+         *     rotation 0. Pieces only partly inside the rectangle stay. Nothing
+         *     inside is `invalid_command`. On failure `error.building_id` names
+         *     the first failing building or plan (in ID order; road tiles are
+         *     checked first and have none).
+         */
+        MoveGroupCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "move_group";
+            island_id: string;
+            /** @description One corner of the rectangle (tiles, inclusive). */
+            x0: number;
+            /** @description One corner of the rectangle (tiles, inclusive). */
+            y0: number;
+            /** @description The opposite corner (tiles, inclusive; any order). */
+            x1: number;
+            /** @description The opposite corner (tiles, inclusive; any order). */
+            y1: number;
+            /** @description Offset of the rectangle's top-left corner (tiles). */
+            dx: number;
+            /** @description Offset of the rectangle's top-left corner (tiles). */
+            dy: number;
+            /**
+             * @description Turn of the group about the rectangle, clockwise like a
+             *     building's rotation (default 0); the turned rectangle's
+             *     top-left lands at the top-left plus (dx, dy).
+             * @enum {integer}
+             */
+            rotation?: 0 | 90 | 180 | 270;
         };
         /**
          * @description Build a plan (D-071) with the normal placement at this instant:
