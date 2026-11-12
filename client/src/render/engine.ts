@@ -38,7 +38,7 @@ import { DepositHighlight, type DepositMark } from "./deposithighlight";
 import { ReachRing } from "./reachring";
 import { DepositMarkers, type DepositMarker } from "./depositmarkers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
-import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
+import { type IslandTile, isGhostTool, isTurnTool, type Tool } from "../ui/tools";
 import { flankDocks, isFlankAnchor, withIdleAtPier } from "./moorings";
 import { ArchipelagoLayer, type ArchSelection, DOCK_STERN } from "./archipelago";
 import { CameraRig } from "./camera";
@@ -63,6 +63,7 @@ import { hintFarm, hintSite, moveTarget, planAsBuilding, planAt, plannedFarmAsBu
 import { PlanLayer, type PlanRoadTile, type PlanSpec } from "./plans";
 import { t } from "../i18n";
 import { laneGhost, laneRect, type LaneSite } from "../display/lane";
+import { groupFrame, groupGhost, groupOffset, groupRect, groupSelection, groupSize } from "../display/group";
 
 /**
  * Render resolution cap (render pixels per CSS pixel). High-DPR phones
@@ -140,6 +141,10 @@ export interface RendererEvents {
   demolish(at: IslandTile): void;
   /** The Move tool picks the building under a tile (the UI looks it up; roads and fields are not moved). */
   pickMove(at: IslandTile): void;
+  /** The Move tool's dragged rectangle (D-074 §5) holds something to move: the group move starts. */
+  pickGroup(island: string, from: TilePos, to: TilePos): void;
+  /** The group move's click (or Confirm): one move_group with the rectangle centred on the tile. */
+  moveGroup(at: IslandTile): void;
   cancelTool(): void;
   /**
    * The placement ghost's hint changed: why the server would reject the
@@ -249,7 +254,7 @@ export class GameRenderer {
   /** The tile under the pointer of the road drag (its ghost runs from roadStart to here). */
   private roadEnd: TilePos | null = null;
   /** The rectangle being dragged with the field tool (place or remove) or the Demolish tool (remove fields). */
-  private paint: (PaintDrag & { island: string; mode: "place" | "remove" }) | null = null;
+  private paint: (PaintDrag & { island: string; mode: "place" | "remove" | "group" }) | null = null;
   private readonly paintPreview: PaintPreview;
   /** Cache key of the painted rectangle's preview, and its marks' state for the release. */
   private paintKey = "";
@@ -1413,7 +1418,7 @@ export class GameRenderer {
   private takePrecisePointer(): void {
     this.precise = true;
     const tool = this.tool();
-    if (isGhostTool(tool) && tool.pending) this.events.unpend();
+    if (isTurnTool(tool) && tool.pending) this.events.unpend();
   }
 
   /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
@@ -1442,7 +1447,7 @@ export class GameRenderer {
    */
   private onRotate(steps: number, delta: number, centre: Point): void {
     if (this.blocked()) return;
-    if (isGhostTool(this.tool())) {
+    if (isTurnTool(this.tool())) {
       if (steps !== 0) this.events.rotateGhost(steps);
     } else if (delta !== 0) this.rig.rotateBy(-delta / (Math.PI / 2), centre);
   }
@@ -1549,7 +1554,7 @@ export class GameRenderer {
       return;
     }
     // Touch has no hover: a tap only positions the ghost; Confirm places it.
-    if (kind === "touch" && isGhostTool(tool)) {
+    if (kind === "touch" && isTurnTool(tool)) {
       this.events.pend(tl);
       return;
     }
@@ -1574,6 +1579,9 @@ export class GameRenderer {
         return;
       case "movePick":
         this.events.pickMove(tl);
+        return;
+      case "moveGroup":
+        if (tl.island === tool.island) this.events.moveGroup(tl);
     }
   }
 
@@ -1597,6 +1605,11 @@ export class GameRenderer {
     if (tool.kind === "field" || tool.kind === "demolish") {
       const tl = this.tileAt(p);
       if (tl) this.paint = { island: tl.island, start: tl, end: tl, mode: tool.kind === "field" && !tool.remove ? "place" : "remove" };
+    }
+    // The Move tool: a dragged rectangle picks a group (D-074 §5).
+    if (tool.kind === "movePick") {
+      const tl = this.tileAt(p);
+      if (tl) this.paint = { island: tl.island, start: tl, end: tl, mode: "group" };
     }
   }
 
@@ -1911,6 +1924,16 @@ export class GameRenderer {
       if (tl) drag = { island: tl.island, start: tl, end: tl, mode: "remove" };
     }
     const toolKey = tool.kind === "field" ? `${tool.farmId}|${tool.buildingType}|${tool.rotation}|${tool.remove ? 1 : 0}` : tool.kind;
+    // The group move's ghost (D-074 §5) follows the pointer (touch: the pending tile).
+    if (!drag && tool.kind === "moveGroup") {
+      const hovered = this.hover ? this.tileAt(this.hover) : null;
+      const at = this.precise ? hovered : (tool.pending ?? hovered);
+      const key = `group|${tool.island}|${JSON.stringify(tool.rect)}|${tool.rotation}|${at && at.island === tool.island ? `${at.x},${at.y}` : ""}|${tool.failed ?? ""}|${server?.version ?? 0}`;
+      if (key === this.paintKey) return;
+      this.paintKey = key;
+      this.updateGroupGhost(tool, at && at.island === tool.island ? at : null);
+      return;
+    }
     // The quay tool tints the free shallows of the island under the pointer (D-060).
     const quayIsland = !drag && tool.kind === "road" && isQuayType(this.defs, tool.roadType) && this.hover ? this.tileAt(this.hover)?.island : undefined;
     const road = tool.kind === "road" && this.roadStart && this.roadEnd ? { start: this.roadStart, end: this.roadEnd, type: tool.roadType } : null;
@@ -1957,6 +1980,21 @@ export class GameRenderer {
       kind,
       base: detail?.baseOf({ x, y, type: "", rotation: 0 }, { width: w, height: h }) ?? 0,
     });
+    if (drag.mode === "group") {
+      // The Move tool's rectangle: what it would move, marked like a selection.
+      const l = this.lookup(drag.island);
+      const sel = l ? groupSelection(groupRect(drag.start, drag.end), l.display, this.defs) : { pieces: [], roads: [] };
+      const marks: PaintMark[] = sel.roads.map((r) => mark(r.x, r.y, 1, 1, "ok"));
+      for (const p of sel.pieces) {
+        const def = this.defs.get(p.type);
+        if (!def) continue;
+        const [w, h] = rotatedFootprint(def.width, def.height, p.rotation);
+        marks.push(mark(p.x, p.y, w, h, "ok"));
+      }
+      this.paintPreview.set(marks);
+      this.setPaintStatus(t("move.group.select", { count: groupSize(sel) }));
+      return;
+    }
     if (drag.mode === "place") {
       const p = this.paintPlanOf(drag);
       if (!p) {
@@ -2002,6 +2040,39 @@ export class GameRenderer {
     this.setPaintStatus(t("paint.remove", { count: n, name, Name: tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? t("field.generic")) : t("field.generic"), clipped: clipped ? t("paint.removeClipped") : "" }));
   }
 
+  /**
+   * The group move's ghost (D-074 §5): every piece at its new site, green
+   * where the client expects it to fit, red where a rule would refuse it
+   * or where the server named it (display/group.ts; the server decides).
+   */
+  private updateGroupGhost(tool: Extract<Tool, { kind: "moveGroup" }>, at: TilePos | null): void {
+    const l = this.lookup(tool.island);
+    const pl = this.arch.placement(tool.island);
+    const st = l?.statics;
+    if (!l || !st || !pl || !at) {
+      this.paintPreview.set([]);
+      this.setPaintStatus(null);
+      return;
+    }
+    const sel = groupSelection(tool.rect, l.display, this.defs);
+    const { dx, dy } = groupOffset(tool.rect, tool.rotation, at);
+    const terrain = (x: number, y: number) => st.terrain[y * st.width + x] ?? "water";
+    const ghost = groupGhost(groupFrame(tool.rect, dx, dy, tool.rotation), sel, l.display, { width: st.width, height: st.height, terrain, defs: this.defs }, tool.failed);
+    const detail = this.details.get(tool.island);
+    this.paintPreview.set(
+      ghost.map((g) => ({
+        cx: pl.position.x + g.x + g.w / 2,
+        cz: -(pl.position.y + g.y + g.h / 2),
+        w: g.w,
+        h: g.h,
+        kind: g.ok ? "ok" : "bad",
+        base: detail?.baseOf({ x: g.x, y: g.y, type: "", rotation: 0 }, { width: g.w, height: g.h }) ?? 0,
+      })),
+    );
+    const bad = ghost.filter((g) => !g.ok).length;
+    this.setPaintStatus(bad > 0 ? t("move.group.blocked", { count: groupSize(sel), bad }) : t("move.group.status", { count: groupSize(sel), degrees: tool.rotation }));
+  }
+
   /** The marks of a road drag on an island (island tiles from `start` to `end`), by the client hint per tile. */
   private roadDragMarks(island: string, start: TilePos, end: TilePos, roadType: string): PaintMark[] {
     const l = this.lookup(island);
@@ -2042,8 +2113,13 @@ export class GameRenderer {
   }
 
   /** A released rectangle: one place_fields (its rejected anchors flash), or the removal of the fields under it. */
-  private commitPaint(paint: PaintDrag & { island: string; mode: "place" | "remove" }): void {
+  private commitPaint(paint: PaintDrag & { island: string; mode: "place" | "remove" | "group" }): void {
     const tool = this.tool();
+    if (paint.mode === "group") {
+      const l = this.lookup(paint.island);
+      if (tool.kind === "movePick" && l && groupSize(groupSelection(groupRect(paint.start, paint.end), l.display, this.defs)) > 0) this.events.pickGroup(paint.island, paint.start, paint.end);
+      return;
+    }
     if (paint.mode === "remove") {
       const { tiles, clipped } = paintTiles(paint);
       this.removeFieldsAt(paint.island, tiles, tool.kind === "field" ? tool.farmId : null, clipped);
@@ -2294,7 +2370,7 @@ export class GameRenderer {
     let at: ArchPoint | null = null;
     if (this.roadStart) at = mouse ?? (this.touchDrag ? this.lastTouch : null) ?? toArch(this.roadStart.island, this.roadStart);
     else if (mouse) at = mouse;
-    else if (isGhostTool(tool) && tool.pending) at = toArch(tool.pending.island, tool.pending);
+    else if (isTurnTool(tool) && tool.pending) at = toArch(tool.pending.island, tool.pending);
     at ??= this.lastTouch ?? { x: this.rig.view().x, y: this.rig.view().y };
     this.grid.set(at, this.surfaceAt(at));
   }

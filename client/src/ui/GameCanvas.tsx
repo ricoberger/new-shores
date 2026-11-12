@@ -71,6 +71,8 @@ export function GameCanvas({ sync, tool, events, onRenderer, quality, forceFxaa 
         paintStatus: (text) => ev().paintStatus(text),
         demolish: (at) => ev().demolish(at),
         pickMove: (at) => ev().pickMove(at),
+        pickGroup: (island, from, to) => ev().pickGroup(island, from, to),
+        moveGroup: (at) => ev().moveGroup(at),
         cancelTool: () => ev().cancelTool(),
         ghostHint: (text) => ev().ghostHint(text),
         inspectBuilding: (id) => ev().inspectBuilding(id),

@@ -2,7 +2,11 @@ package sim
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
+	"flag"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -162,4 +166,54 @@ func TestMoveGroupRules(t *testing.T) {
 	expectGroup(t, w, MoveGroup{IslandID: "main", X0: 14, Y0: 17, X1: 14, Y1: 17, DX: 2}, nil, -1)
 	// Out on the open water it would float.
 	expectGroup(t, w, MoveGroup{IslandID: "main", X0: 16, Y0: 17, X1: 16, Y1: 17, DY: -3}, ErrQuayDisconnected, 0)
+}
+
+var updateGroup = flag.Bool("update-group", false, "regenerate server/testdata/group/frames.json")
+
+type groupFrameFixture struct {
+	Rect     [4]int `json:"rect"` // x0, y0, x1, y1 (inclusive)
+	DX       int    `json:"dx"`
+	DY       int    `json:"dy"`
+	Rotation int    `json:"rotation"`
+	From     [4]int `json:"from"` // x, y, w, h inside the rectangle
+	To       Pos    `json:"to"`
+}
+
+// TestGroupFrameFixture writes the group frame (how move_group maps a
+// footprint inside the rectangle to its new top-left) for the client's
+// group ghost (client/src/display/group.test.ts); run with -update-group
+// after changing it.
+func TestGroupFrameFixture(t *testing.T) {
+	var out []groupFrameFixture
+	rect := [4]int{2, 3, 6, 6} // 5 × 4
+	for _, off := range []Pos{{0, 0}, {3, -1}} {
+		for _, rotation := range []int{0, 90, 180, 270} {
+			f := groupFrame{x0: rect[0], y0: rect[1], w: 5, h: 4, tx: rect[0] + off.X, ty: rect[1] + off.Y, rot: rotation}
+			for _, from := range [][4]int{{2, 3, 1, 1}, {3, 4, 2, 3}, {4, 3, 3, 2}, {6, 6, 1, 1}, {2, 3, 5, 4}} {
+				x, y := f.rect(from[0], from[1], from[2], from[3])
+				out = append(out, groupFrameFixture{Rect: rect, DX: off.X, DY: off.Y, Rotation: rotation, From: from, To: Pos{x, y}})
+			}
+		}
+	}
+	data, err := json.MarshalIndent(out, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	data = append(data, '\n')
+	path := filepath.Join(repoRoot(t), "server", "testdata", "group", "frames.json")
+	if *updateGroup {
+		if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, data, 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	want, err := os.ReadFile(path) // #nosec G304 -- test fixture.
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(want, data) {
+		t.Fatal("server/testdata/group/frames.json is stale; run go test ./internal/sim -run TestGroupFrameFixture -update-group")
+	}
 }

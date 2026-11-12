@@ -398,6 +398,21 @@ UI shows the same numbers the server uses.
   farm (fields follow their farm; the hover mark is on the farm too, and
   a planned field picks its farm or planned farm); roads are not
   buildings to pick.
+- **Group move** (D-074 §5): with the Move tool, dragging a rectangle
+  (the Demolish gesture) marks everything fully inside it — buildings,
+  fields, paint tiles, plans, road and planned road tiles — and the
+  status line counts them ("7 pieces to move"); releasing over at least
+  one piece lifts the group into a ghost centred on the pointer: one
+  tinted plate per piece at its new site, green where the client
+  expects it to fit, red where bounds, water, overlap with what stays or
+  the harbour lane would refuse it (`display/group.ts`, a hint; the
+  server decides). R (on touch the Rotate button or a twist) turns the
+  group about its rectangle; the status line reads "Move 7 pieces · 90°"
+  or "2 of 7 pieces cannot go there". A click (touch: tap, then Confirm)
+  sends one `move_group`, all or nothing; on success the Move tool comes
+  back for the next pick. A refusal toasts the reason and keeps the
+  group, with the piece the server named (`error.building_id`) red. Esc
+  or a right click steps back to the Move tool.
 - **Planning** (D-071): the build bar's **planning toggle** (pencil and
   ruler icon, before Move and Demolish; pressed while on) switches every
   placement — buildings, road drags, fields painted or tapped — to a
