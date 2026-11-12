@@ -2749,3 +2749,15 @@ expedition command, passage legs end to end.
   or maintenance; the Anno extras (flagpole, shrine, stalls, juggler
   camp — the owner found them weak); a second shipyard; cargo slots on
   warships; ship health now; lazy loading now.
+
+*As built, models part 1 (#77):* folder limit 32 MiB; the look re-dress
+of D-075 §3 for all 42 Merchants/Patricians production buildings (kit
+`tier` = look; dark tile on fashion_house, goldsmith, optician, luthier,
+glass_smelter; terracotta 30–45 % of tile roofs in the tier-3/4 shots);
+20 new models — the 11 non-paint ornaments, tower, gatehouse,
+harbour_tower, castle, kontor (4 × 11, depot class), repair_crane
+(sway group `arm`), balinger, war_cog, war_carrack — built, tested and
+sheeted but held (`hold: true` in `planned/d077.json`, ≈ 2.3 MiB) until
+the content defines the IDs. Shore decks sit at z = 0 under every tile.
+The paint families (hedge, garden wall, city wall, square) and the quay
+wall come with the content / sim / client session.
