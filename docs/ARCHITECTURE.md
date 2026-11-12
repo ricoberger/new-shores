@@ -475,7 +475,7 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   not in the OpenAPI contract) reseeds the in-memory world from a named
   fixture of the one list `devworld.Fixtures()` (`default`, `town`,
   `settled`, `seafaring`, `citizens`, `merchants`, `patricians`,
-  `played`, `harbour-basin`), clears pending dev events and publishes; `make shots` uses
+  `played`, `harbour-basin`, `castle-town`), clears pending dev events and publishes; `make shots` uses
   it for every fixture (the client no longer posts it, D-066).
   `played` (D-059) replays `server/testdata/scenarios/
   bootstrap_patricians.json` (dev server flag `--scenarios`, default

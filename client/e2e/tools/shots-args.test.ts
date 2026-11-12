@@ -97,8 +97,8 @@ describe("FIXTURES", () => {
   it("are the dev server's fixtures (devworld.Fixtures), in its order", () => {
     const dir = join(__dirname, "..", "..", "..", "server", "internal", "devworld");
     const go = readFileSync(join(dir, "fixtures.go"), "utf8");
-    // The names are constants: in fixtures.go (a block), played.go and basin.go.
-    const consts = go + readFileSync(join(dir, "played.go"), "utf8") + readFileSync(join(dir, "basin.go"), "utf8");
+    // The names are constants: in fixtures.go (a block), played.go, basin.go and castle.go.
+    const consts = go + ["played.go", "basin.go", "castle.go"].map((f) => readFileSync(join(dir, f), "utf8")).join("");
     const values = new Map([...consts.matchAll(/^(?:const)?\s*(Fixture\w+)\s*=\s*"([\w-]+)"/gm)].map((m) => [m[1]!, m[2]!] as const));
     const list = /func Fixtures\(\) \[\]string \{\s*return \[\]string\{([^}]*)\}/.exec(go)?.[1];
     expect(list, "devworld.Fixtures not found").toBeDefined();

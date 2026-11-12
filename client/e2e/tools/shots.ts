@@ -55,6 +55,8 @@ const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<R
   played: { island: "oc-01", town: { mid: 48 } },
   // town plus a 60-tile pier with a trading pier and a harbour tower at its head (D-077 §8, devworld basin.go).
   "harbour-basin": { island: "oc-01", town: { mid: 32 } },
+  // patricians plus a castle in a walled quarter (towers, arches), the Kontor and two warships on patrol (D-077, devworld castle.go).
+  "castle-town": { island: "oc-01", town: { mid: 40 } },
 };
 
 function sleep(ms: number): Promise<void> {

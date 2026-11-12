@@ -6,7 +6,7 @@
  * fixtures.go, in its order): the dev server has no endpoint that lists
  * them, so shots-args.test.ts compares this list with the Go source.
  */
-export const FIXTURES = ["default", "seafaring", "town", "settled", "citizens", "merchants", "patricians", "played", "harbour-basin"] as const;
+export const FIXTURES = ["default", "seafaring", "town", "settled", "citizens", "merchants", "patricians", "played", "harbour-basin", "castle-town"] as const;
 /**
  * Camera views; "start" is the opening camera as the game places it (no
  * camera move); "pan" is a measurement: a far → mid pan through the

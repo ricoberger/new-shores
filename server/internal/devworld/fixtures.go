@@ -84,7 +84,7 @@ var ErrFixtureSeed = errors.New("not available on this seed")
 
 // Fixtures lists the fixture names.
 func Fixtures() []string {
-	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants, FixturePatricians, FixturePlayed, FixtureHarbourBasin}
+	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants, FixturePatricians, FixturePlayed, FixtureHarbourBasin, FixtureCastleTown}
 }
 
 // History of the fixtures before now (world time): long enough for the
@@ -156,6 +156,13 @@ func NewFixtureWith(c *content.Catalogue, name string, seed uint64, now time.Tim
 			foundHome(f)
 			town(f)
 			patricians(f)
+		})
+	case FixtureCastleTown:
+		return replay(c, seed, now, castleTownHistory, func(f *fixture) {
+			foundHome(f)
+			town(f)
+			patricians(f)
+			castleTown(f)
 		})
 	}
 	return nil, fmt.Errorf("%w %q (known: %v)", ErrUnknownFixture, name, Fixtures())
