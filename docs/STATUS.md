@@ -203,8 +203,11 @@ in the sync after a task unless the task says otherwise; nobody adds the
      feel thin; tooling: shot presets `info-panel` and `service-card`
      time out on the played fixture, phone drag presets impossible in
      the shot tool;
-     the Patricians plan regenerates in ≈ 26 min (test timeout 30 min —
-     speed up the generator or split the test). Open small items — art:
+     ~~Patricians plan regeneration ≈ 26 min~~ (#80: 3.6 min, `make
+     server-test-full` ≈ 5.5 min with a 15 m timeout; the GC cost of
+     `warehouseField` on trial copies was the cause — road graph over
+     road tiles, `CloneSharingTiles`, batched field placement; CI keeps
+     30 m until a run shows the runner time). Open small items — art:
      beach a touch loud, field
      crops vary per voxel only; generator: one dead rock draw kept in
      the island plan so seeds stay byte-identical (remove with the next
