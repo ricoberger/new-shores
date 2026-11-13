@@ -107,6 +107,26 @@ type DemolishFields struct {
 func (PlaceFields) isCommand()    {}
 func (DemolishFields) isCommand() {}
 
+// placeFieldsInOrder is PlaceFields applied as its tiles' single
+// PlaceField commands one after another (PlaceFieldsInOrder).
+type placeFieldsInOrder struct{ PlaceFields }
+
+func (placeFieldsInOrder) isCommand() {}
+
+// PlaceFieldsInOrder places the fields of cmd as the PlaceField commands
+// of its tiles applied one after another would: one pass over Tiles in
+// order, every tile validated against the island plus the tiles before
+// it (never a later one, unlike PlaceFields' repeated passes). The first
+// tile that fails fails the call with its error and leaves w unchanged.
+// On success the tiles are placed in one state change: the derived state
+// (efficiency, connectivity) and the after-command evaluation run once
+// instead of per tile. The plan generator's trial placements (D-067)
+// use it; they read only whether every tile succeeds and the island's
+// occupancy afterwards.
+func PlaceFieldsInOrder(w *World, c *content.Catalogue, cmd PlaceFields) error {
+	return Apply(w, c, placeFieldsInOrder{cmd})
+}
+
 // TileResult is the outcome of one tile of a batch command: Err is nil
 // when the tile was applied, else the reason it was rejected.
 type TileResult struct {
@@ -316,8 +336,30 @@ func newFieldSites(is *Island, c *content.Catalogue, farm *Building, def *conten
 	}
 	s := &fieldSites{is: is, def: def, farm: farm, max: fdef.Fields.Max, occupied: make([]bool, is.Width*is.Height), reach: make([]bool, is.Width*is.Height)}
 	s.w, s.h = footprint(def, rotation)
-	for i, id := range is.occupancy(c) {
-		s.occupied[i] = id != 0 || is.roadOrPlan(i)
+	// occupancy(c)[i] != 0, without the ID grid: the footprints in the
+	// same order (a later one overwrites).
+	for _, list := range [2][]*Building{is.Buildings, is.Plans} {
+		for _, b := range list {
+			bd := c.BuildingByID[b.Type]
+			if bd == nil {
+				continue
+			}
+			w, h := footprint(bd, b.Rotation)
+			for y := max(b.Y, 0); y < min(b.Y+h, is.Height); y++ {
+				for x := max(b.X, 0); x < min(b.X+w, is.Width); x++ {
+					s.occupied[is.index(x, y)] = b.ID != 0
+				}
+			}
+		}
+	}
+	// Roads and planned roads (roadOrPlan) from their maps: a set, the
+	// order does not matter.
+	for _, roads := range [2]map[int]string{is.Roads, is.PlannedRoads} {
+		for i, rt := range roads {
+			if rt != "" && i >= 0 && i < len(s.occupied) {
+				s.occupied[i] = true
+			}
+		}
 	}
 	fw, fh := footprint(fdef, farm.Rotation)
 	s.mark(farm.X, farm.Y, fw, fh)
@@ -493,6 +535,12 @@ func checkBatchTiles(tiles []Pos) error {
 }
 
 func placeFields(w *World, c *content.Catalogue, cmd PlaceFields, charge bool, l *Ledger) ([]TileResult, error) {
+	return placeFieldsPasses(w, c, cmd, charge, false, l)
+}
+
+// placeFieldsPasses is placeFields; inOrder makes one pass that stops at
+// the first failing tile and fails with its error (PlaceFieldsInOrder).
+func placeFieldsPasses(w *World, c *content.Catalogue, cmd PlaceFields, charge, inOrder bool, l *Ledger) ([]TileResult, error) {
 	is, err := lookupIsland(w, cmd.IslandID)
 	if err != nil {
 		return nil, err
@@ -554,12 +602,18 @@ func placeFields(w *World, c *content.Catalogue, cmd PlaceFields, charge bool, l
 				err = checkCost(w, is, def.Cost, int64(len(order)+1))
 			}
 			results[i] = TileResult{X: p.X, Y: p.Y, Err: err}
+			if err != nil && inOrder {
+				return nil, err
+			}
 			if err != nil {
 				continue
 			}
 			sites.add(p.X, p.Y)
 			done[i], progress = true, true
 			order = append(order, i)
+		}
+		if inOrder {
+			break
 		}
 	}
 	if len(order) == 0 {

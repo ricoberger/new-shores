@@ -1000,13 +1000,22 @@ func (g *gen) fieldRoom(lp *layout.Planner, island string, def *content.Building
 // (RoadDistances of the tiles next to it; -1 when none is reached).
 func ringDistance(is *sim.Island, dists []int, x, y, w, h int) int {
 	pd := -1
-	for _, t := range layout.Ring(x, y, w, h) {
-		if !is.InBounds(t.X, t.Y) {
-			continue
+	at := func(tx, ty int) {
+		if !is.InBounds(tx, ty) {
+			return
 		}
-		if d := dists[t.Y*is.Width+t.X]; d >= 0 && (pd < 0 || d < pd) {
+		if d := dists[ty*is.Width+tx]; d >= 0 && (pd < 0 || d < pd) {
 			pd = d
 		}
+	}
+	// The tiles of layout.Ring, without building the list.
+	for tx := x; tx < x+w; tx++ {
+		at(tx, y-1)
+		at(tx, y+h)
+	}
+	for ty := y; ty < y+h; ty++ {
+		at(x-1, ty)
+		at(x+w, ty)
 	}
 	return pd
 }
@@ -1027,7 +1036,7 @@ func cmpFloat(a, b float64) int {
 // fewer or when the placement cuts land off the road network (more than
 // maxCutOff tiles that a road reached before no longer reachable).
 func (g *gen) trial(lp *layout.Planner, before []bool, island string, def *content.Building, s layout.Site, path []sim.Pos) ([]sim.Pos, bool) {
-	tw := g.world().Clone()
+	tw := g.world().CloneSharingTiles()
 	tw.Gold = richGold
 	if err := sim.PlaceFree(tw, g.c, sim.PlaceBuilding{IslandID: island, Type: def.ID, X: s.X, Y: s.Y, Rotation: s.Rot}, nil); err != nil {
 		return nil, false
@@ -1076,7 +1085,7 @@ func (g *gen) trial(lp *layout.Planner, before []bool, island string, def *conte
 		}
 		fields = placed[:def.Fields.Required]
 		// The kept fields only: the drag may have placed more.
-		tw = g.world().Clone()
+		tw = g.world().CloneSharingTiles()
 		tw.Gold = richGold
 		if err := sim.PlaceFree(tw, g.c, sim.PlaceBuilding{IslandID: island, Type: def.ID, X: s.X, Y: s.Y, Rotation: s.Rot}, nil); err != nil {
 			return nil, false
@@ -1090,8 +1099,10 @@ func (g *gen) trial(lp *layout.Planner, before []bool, island string, def *conte
 		}
 		farm = is.BuildingAt(g.c, s.X, s.Y)
 		richMaterials(is, field)
-		for _, f := range fields {
-			if err := sim.Apply(tw, g.c, sim.PlaceField{IslandID: island, FarmID: farm.ID, Type: field.ID, X: f.X, Y: f.Y}); err != nil {
+		// The kept fields one after another, as place sends them (one
+		// derived-state update instead of one per field).
+		if len(fields) > 0 {
+			if err := sim.PlaceFieldsInOrder(tw, g.c, sim.PlaceFields{IslandID: island, FarmID: farm.ID, Type: field.ID, Tiles: fields}); err != nil {
 				return nil, false
 			}
 		}

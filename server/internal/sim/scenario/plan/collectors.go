@@ -33,13 +33,33 @@ const warehouseType = "warehouse"
 // reach covers it, the generator's stand-in for the nearest by road —
 // or nil.
 func (g *gen) collectorFor(is *sim.Island, x, y, w, h int) *sim.Building {
+	return nearestCollector(g.collectorsOf(is), x, y, w, h)
+}
+
+// collector is a collector of an island with its definition.
+type collector struct {
+	b   *sim.Building
+	def *content.Building
+}
+
+// collectorsOf lists the island's collectors in building order: the
+// island's buildings scanned once for the many sites a search tests.
+func (g *gen) collectorsOf(is *sim.Island) []collector {
+	var out []collector
+	for _, b := range is.Buildings {
+		if def := g.c.BuildingByID[b.Type]; def != nil && def.Collector() {
+			out = append(out, collector{b, def})
+		}
+	}
+	return out
+}
+
+// nearestCollector is collectorFor over a collectorsOf list.
+func nearestCollector(cols []collector, x, y, w, h int) *sim.Building {
 	var best *sim.Building
 	bestD := 0
-	for _, b := range is.Buildings {
-		def := g.c.BuildingByID[b.Type]
-		if def == nil || !def.Collector() {
-			continue
-		}
+	for _, c := range cols {
+		b, def := c.b, c.def
 		d := footprintDist2(def, b, x, y, w, h)
 		if r := def.ReachAt(b.Level); r > 0 && d > r*r {
 			continue
@@ -79,6 +99,7 @@ func nominalRate(def *content.Building) int64 {
 // warehouse takes over the producers nearer to it), else collectorFor.
 func (g *gen) collectorLoads(is *sim.Island) map[int64]int64 {
 	loads := map[int64]int64{}
+	var cols []collector
 	for _, b := range is.Buildings {
 		bd := g.c.BuildingByID[b.Type]
 		if bd == nil || bd.Recipe == nil {
@@ -89,7 +110,10 @@ func (g *gen) collectorLoads(is *sim.Island) map[int64]int64 {
 			continue
 		}
 		bw, bh := layout.Dims(bd, b.Rotation)
-		if c := g.collectorFor(is, b.X, b.Y, bw, bh); c != nil {
+		if cols == nil {
+			cols = g.collectorsOf(is)
+		}
+		if c := nearestCollector(cols, b.X, b.Y, bw, bh); c != nil {
 			loads[c.ID] += nominalRate(bd)
 		}
 	}
@@ -100,8 +124,13 @@ func (g *gen) collectorLoads(is *sim.Island) map[int64]int64 {
 // warehouse: no collector reaches it, or the one it would deliver to
 // would exceed its throughput (loads: collectorLoads of the island).
 func (g *gen) needsCollector(is *sim.Island, loads map[int64]int64, def *content.Building, s layout.Site) bool {
+	return g.needsCollectorAmong(g.collectorsOf(is), loads, def, s)
+}
+
+// needsCollectorAmong is needsCollector over the island's collectorsOf.
+func (g *gen) needsCollectorAmong(cols []collector, loads map[int64]int64, def *content.Building, s layout.Site) bool {
 	w, h := layout.Dims(def, s.Rot)
-	col := g.collectorFor(is, s.X, s.Y, w, h)
+	col := nearestCollector(cols, s.X, s.Y, w, h)
 	if col == nil {
 		return true
 	}
@@ -118,8 +147,9 @@ func (g *gen) collectedSite(island string, def *content.Building, anchor sim.Pos
 	w, h := layout.Dims(def, s.Rot)
 	is := g.world().Island(island)
 	var loads map[int64]int64
+	var cols []collector
 	served := func(d *content.Building, ss layout.Site) bool {
-		return d.ID != def.ID || !g.needsCollector(is, loads, def, ss)
+		return d.ID != def.ID || !g.needsCollectorAmong(cols, loads, def, ss)
 	}
 	reaches := func(d *content.Building, ws layout.Site) bool {
 		ww, wh := layout.Dims(d, ws.Rot)
@@ -129,6 +159,7 @@ func (g *gen) collectedSite(island string, def *content.Building, anchor sim.Pos
 	again := func() (layout.Site, []sim.Pos, []sim.Pos, bool) {
 		is = g.world().Island(island)
 		loads = g.collectorLoads(is)
+		cols = g.collectorsOf(is) // the world does not change during the search
 		g.siteFilter = served
 		defer func() { g.siteFilter = nil }()
 		return g.site(g.planner(island, spare), island, def, anchor, spare)

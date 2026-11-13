@@ -635,7 +635,7 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 	if !truncMs(now).Equal(w.LastEvaluatedAt) {
 		return DisplayState{}, fmt.Errorf("%w: %s != %s", ErrDisplayTime, now.Format(timeLayout), w.LastEvaluatedAt.Format(timeLayout))
 	}
-	cw := w.Clone()
+	cw := w.CloneSharingTiles()
 	nowMs := cw.LastEvaluatedAt.UnixMilli()
 	wr, _ := settleWorld(cw, c, nowMs)
 

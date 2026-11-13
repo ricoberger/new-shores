@@ -634,13 +634,24 @@ labelled PR.
 
 Pitfalls for local runs:
 
-- **The reference-game replay is slow.** `TestPlansRegenerate`
+- **The reference-game replay takes minutes.** `TestPlansRegenerate`
   (`internal/sim/scenario/plan`) regenerates the four reference games and
-  compares them byte for byte; it takes about 26 min. It is skipped with
-  `-short` (`make check`) and runs in `make server-test-full` and
-  `make server-integration`. Run it on its own in the background
-  (`go test -timeout 60m ./internal/sim/scenario/plan -run
-  TestPlansRegenerate`; `-update` rewrites the scenarios).
+  compares them byte for byte; its subtests run in parallel and the
+  Patricians plan sets the time: about 4 min (Merchants 30 s, the
+  Citizens plans 10 s each; Apple M4 Pro). It is skipped with `-short`
+  (`make check`) and runs in `make server-test-full` (about 5 min in
+  all) and `make server-integration`. Run it on its own
+  (`go test ./internal/sim/scenario/plan -run TestPlansRegenerate`, one
+  plan with `-run TestPlansRegenerate/bootstrap_patricians`; `-update`
+  rewrites the scenarios). To time or profile the generator alone:
+  `go test ./internal/sim/scenario/plan -run '^$' -bench
+  'BenchmarkGenerate/bootstrap_patricians$' -benchtime 1x -cpuprofile
+  cpu.prof`, then `go tool pprof -top -cum plan.test cpu.prof` (both
+  files land in the directory `go test` runs in; delete them after). The
+  generator tries every candidate site with real commands on world
+  copies, so per-command work over the whole island grid multiplies:
+  discarded copies use `World.CloneSharingTiles`, and a W × H grid
+  allocated per command shows up as garbage-collector time.
 - **A new dev fixture in its own file needs the shots test.** The
   fixture names are read from Go source by `client/e2e/tools/shots-args.test.ts`
   (fixtures.go plus a fixed list of files: `played.go`, `basin.go`,

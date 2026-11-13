@@ -24,15 +24,8 @@ func TestPlansRegenerate(t *testing.T) {
 	if testing.Short() {
 		t.Skip("generates the reference games (minutes)")
 	}
-	plans, err := filepath.Glob(filepath.Join(root, "server/testdata/plans/*.plan.json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(plans) == 0 {
-		t.Fatal("no plans")
-	}
-	for _, path := range plans {
-		name := strings.TrimSuffix(filepath.Base(path), ".plan.json")
+	for _, path := range planFiles(t) {
+		name := planName(path)
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			s, err := Generate(path, root, nil)
@@ -60,6 +53,39 @@ func TestPlansRegenerate(t *testing.T) {
 		})
 	}
 }
+
+// BenchmarkGenerate generates a plan per op, one sub-benchmark per plan:
+// go test ./internal/sim/scenario/plan -run '^$' -bench
+// 'BenchmarkGenerate/bootstrap_patricians$' -benchtime 1x [-cpuprofile
+// cpu.prof] times (and profiles) the generator alone, without the
+// byte comparison.
+func BenchmarkGenerate(b *testing.B) {
+	for _, path := range planFiles(b) {
+		b.Run(planName(path), func(b *testing.B) {
+			for b.Loop() {
+				if _, err := Generate(path, root, nil); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
+}
+
+// planFiles lists the plans in server/testdata/plans.
+func planFiles(t testing.TB) []string {
+	t.Helper()
+	plans, err := filepath.Glob(filepath.Join(root, "server/testdata/plans/*.plan.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(plans) == 0 {
+		t.Fatal("no plans")
+	}
+	return plans
+}
+
+// planName is a plan's name: its file name without .plan.json.
+func planName(path string) string { return strings.TrimSuffix(filepath.Base(path), ".plan.json") }
 
 func TestLoadValidatesChains(t *testing.T) {
 	cases := map[string]string{

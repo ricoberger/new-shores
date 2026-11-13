@@ -468,7 +468,7 @@ func grassTiles(is *sim.Island, x, y, w, h int) int {
 // roads laid: the road to a further plot may branch off them.
 func (g *gen) plotPlanner(lp *layout.Planner, island string) *layout.Planner {
 	cl := g.cellsByID(island)
-	cw := g.world().Clone()
+	cw := g.world().CloneSharingTiles()
 	cis := cw.Island(island)
 	if cis.Roads == nil {
 		cis.Roads = map[int]string{}

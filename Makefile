@@ -18,8 +18,8 @@
 #                     database volume (0/false/no/unset keep it)
 #   make server-test-short  go test -short ./... (what `make check` runs: the minutes-long
 #                     reference games and 200-seed sweeps are skipped)
-#   make server-test-full   go test ./... without -short, 30 m timeout (the CI suite; also
-#                     `make server-test`)
+#   make server-test-full   go test ./... without -short (the CI suite; also `make
+#                     server-test`): about 5 min, the reference games included; 15 m timeout
 #   make makefile-test  dry-run checks of the up/down targets
 #   make server-integration  Go integration tests (PostgreSQL + Redis)
 #   make assets       rebuild client/public/models (voxel GLBs, manifest.json, thumbs/) from
@@ -104,7 +104,7 @@ server-test-short:
 	cd $(SERVER_DIR) && go test -short -timeout 30m ./...
 
 server-test-full:
-	cd $(SERVER_DIR) && go test -timeout 30m ./...
+	cd $(SERVER_DIR) && go test -timeout 15m ./...
 
 content-test:
 	cd $(SERVER_DIR) && go test ./internal/content/...

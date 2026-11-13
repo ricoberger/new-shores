@@ -676,7 +676,9 @@ func (s *Session) Step(st Step) error {
 }
 
 // Try executes steps on a copy of the session's world and returns the
-// copy; the session is unchanged.
+// copy; the session is unchanged. The copy shares the tiles with the
+// session's world (sim.World.CloneSharingTiles): callers must not
+// change them.
 func (s *Session) Try(steps ...Step) (*sim.World, error) {
 	return s.TryEach(steps, nil)
 }
@@ -684,7 +686,7 @@ func (s *Session) Try(steps ...Step) (*sim.World, error) {
 // TryEach is Try that calls each (when not nil) with the copy after every
 // step.
 func (s *Session) TryEach(steps []Step, each func(*sim.World)) (*sim.World, error) {
-	cp := &runner{s: s.r.s, c: s.r.c, w: s.r.w.Clone(), l: sim.NewLedger(), report: &Report{Name: s.r.s.Name}, noSnapshots: true}
+	cp := &runner{s: s.r.s, c: s.r.c, w: s.r.w.CloneSharingTiles(), l: sim.NewLedger(), report: &Report{Name: s.r.s.Name}, noSnapshots: true}
 	for _, st := range steps {
 		if _, err := st.kind(); err != nil {
 			return nil, err
