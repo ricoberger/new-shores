@@ -379,11 +379,16 @@ type Site struct{ X, Y, Rot, D int }
 // Candidates lists the anchors and rotations of a building on the island
 // by distance of the footprint centre from anchor.
 func Candidates(is *sim.Island, def *content.Building, anchor sim.Pos) []Site {
-	var out []Site
 	rots := Rotations()
 	if def.Width == def.Height && def.WaterRows == nil && !def.Shore() {
 		rots = rots[:1] // the rotations of a square footprint cover the same tiles
 	}
+	n := 0
+	for _, rot := range rots {
+		w, h := Dims(def, rot)
+		n += max(is.Height-h+1, 0) * max(is.Width-w+1, 0)
+	}
+	out := make([]Site, 0, n)
 	for _, rot := range rots {
 		w, h := Dims(def, rot)
 		for y := 0; y+h <= is.Height; y++ {
@@ -393,7 +398,21 @@ func Candidates(is *sim.Island, def *content.Building, anchor sim.Pos) []Site {
 			}
 		}
 	}
-	slices.SortStableFunc(out, func(a, b Site) int { return a.D - b.D })
+	// By distance, then in the order listed (rotation, row, column): a
+	// stable sort by distance, with the cheaper unstable sort over unique
+	// keys.
+	slices.SortFunc(out, func(a, b Site) int {
+		if a.D != b.D {
+			return a.D - b.D
+		}
+		if a.Rot != b.Rot {
+			return a.Rot - b.Rot
+		}
+		if a.Y != b.Y {
+			return a.Y - b.Y
+		}
+		return a.X - b.X
+	})
 	return out
 }
 

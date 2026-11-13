@@ -1000,13 +1000,22 @@ func (g *gen) fieldRoom(lp *layout.Planner, island string, def *content.Building
 // (RoadDistances of the tiles next to it; -1 when none is reached).
 func ringDistance(is *sim.Island, dists []int, x, y, w, h int) int {
 	pd := -1
-	for _, t := range layout.Ring(x, y, w, h) {
-		if !is.InBounds(t.X, t.Y) {
-			continue
+	at := func(tx, ty int) {
+		if !is.InBounds(tx, ty) {
+			return
 		}
-		if d := dists[t.Y*is.Width+t.X]; d >= 0 && (pd < 0 || d < pd) {
+		if d := dists[ty*is.Width+tx]; d >= 0 && (pd < 0 || d < pd) {
 			pd = d
 		}
+	}
+	// The tiles of layout.Ring, without building the list.
+	for tx := x; tx < x+w; tx++ {
+		at(tx, y-1)
+		at(tx, y+h)
+	}
+	for ty := y; ty < y+h; ty++ {
+		at(x-1, ty)
+		at(x+w, ty)
 	}
 	return pd
 }
