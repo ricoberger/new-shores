@@ -2433,7 +2433,9 @@ display fixtures regenerated; plans hold.
      field, plot, road tile and plan inside moves by one offset in one
      server transaction (`move_group`: every footprint valid at its
      new site, fields with their farm, roads re-laid, all or nothing,
-     free like a single move).
+     free like a single move). *Built in #79 (D-078 session): service
+     coverage is recomputed after the move, not a rejection reason —
+     same as a single move.*
   6. **Mill**: a lone windmill on 3 × 3 (Anno 1404's tower mill; no
      miller's house), cost and recipe unchanged; new V7 recipe.
 - **Why:** 1–2 make a house's size the readable mirror of its supply,
@@ -2830,3 +2832,20 @@ never read by a rule. MONETIZATION.md rewritten for §1. Fixtures
   goldens; seven re-plinthed models, castle / wall / tower / gatehouse
   rebuilt; `castle-town` fixture re-laid for 12 × 12; MECHANICS §2–§3,
   CONTENT §7, ART_DIRECTION §7 updated by the implementing session.
+
+*As built (#79):* content 0.22.1. §1 lane replaces the D-077 3-row
+keep-out (`ErrHarbourLane` / `harbour_lane`, shown in the ghost; a
+selected berth holder outlines its lane). §3–§4 plinths = the client's
+quay block (stone roles, coping, mooring posts); harbour tower is the
+tower recipe on a plinth. §5–§6 heights: wall 2, tower 4, gatehouse 3.5,
+castle curtain 2.5 / towers 5 / keep above the university tower
+(7.5 tiles); well ≈ 1.5. Also in the same PR: `move_group {island_id,
+x0, y0, x1, y1, dx, dy, rotation?}` (all or nothing, `error.building_id`
+names the failing piece; coverage recomputed after — supersedes the
+"keep working or reject" wording of D-074 §5), rectangle Move tool with
+per-piece tinted tiles (models in the group ghost later; phone drag not
+reproducible in the shot tool), and the six 8-vpt holdouts at 12 vpt
+(playhouse and shipyard 0.13 tiles lower within roof rounding; small
+props keep the 8-voxel helpers). Models 28.17 MiB; far 13 / 202 k,
+16 / 223 k, 11 / 197 k.
+
