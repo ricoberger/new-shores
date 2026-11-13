@@ -156,9 +156,10 @@ export interface WaterEdgeTile extends TilePos {
   water: boolean;
   /**
    * front: land in the water rows; land: water or unbuildable terrain behind them; low: a land tile above terrace level 0
-   * (D-075); back: a shore building's back edge on open water (D-077 §5); water: a shore footprint without water.
+   * (D-075); back: a shore building's back edge on open water (D-077 §5); water: a shore footprint without water;
+   * lane: on a harbour lane, or a holder's own lane over a quay, a shore building or a paint tile (D-078 §1, display/lane.ts).
    */
-  problem: "front" | "land" | "low" | "back" | "water" | null;
+  problem: "front" | "land" | "low" | "back" | "water" | "lane" | null;
 }
 
 /**

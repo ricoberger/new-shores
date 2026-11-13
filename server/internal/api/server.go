@@ -836,7 +836,11 @@ func (s *Server) writeError(w http.ResponseWriter, r *http.Request, err error) {
 		s.clearCookie(w)
 	}
 	ri.errorCode = code
-	s.writeJSON(w, status, errorBody{Error: errorDetail{Code: code, Message: msg}})
+	detail := errorDetail{Code: code, Message: msg}
+	if ge := (*sim.GroupMoveError)(nil); errors.As(err, &ge) {
+		detail.BuildingID = ge.BuildingID
+	}
+	s.writeJSON(w, status, errorBody{Error: detail})
 }
 
 // devResetRequest is the optional body of POST /api/v1/dev/reset.

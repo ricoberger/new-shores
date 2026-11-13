@@ -29,7 +29,7 @@ func shoreWorld(t *testing.T) *World {
 		t.Fatal(err)
 	}
 	w.Gold = 100_000_000
-	w.UnlockedTiers = append(w.UnlockedTiers, "citizens", "merchants")
+	w.UnlockedTiers = append(w.UnlockedTiers, "citizens", "merchants", "patricians") // military needs the Patricians (D-078 §3)
 	for _, g := range []string{"stone", "planks"} {
 		if err := AddStock(w, c, "main", g, 290_000, nil); err != nil {
 			t.Fatal(err)

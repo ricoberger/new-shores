@@ -54,7 +54,9 @@ func openToSea(is *sim.Island, p sim.Pos) bool {
 // the harbour point, many of them on the Trading Post's way out) never
 // leaves the harbour point (HarbourAt after the change) without a way to
 // the open sea, and every
-// accepted quay tile is connected to the land. -short checks seeds 1–5.
+// accepted quay tile is connected to the land. Runs on the Trading Post's
+// harbour lane are refused first (harbour_lane, D-078 §1). -short checks
+// seeds 1–5.
 func TestQuayGrowthNeverBlocksHarbour(t *testing.T) {
 	_, file, _, _ := runtime.Caller(0)
 	c, err := content.Load(filepath.Join(filepath.Dir(file), "..", "..", "..", "..", "content", "old_coast"))
@@ -67,7 +69,7 @@ func TestQuayGrowthNeverBlocksHarbour(t *testing.T) {
 		last = 5
 	}
 	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	accepted, blocked := 0, 0
+	accepted, blocked, lane := 0, 0, 0
 	for seed := uint64(1); seed <= last; seed++ {
 		w, err := archipelago.NewWorld(c, seed, start)
 		if err != nil {
@@ -111,6 +113,10 @@ func TestQuayGrowthNeverBlocksHarbour(t *testing.T) {
 				accepted += len(tiles)
 			case errors.Is(err, sim.ErrHarbourBlocked):
 				blocked++
+			case errors.Is(err, sim.ErrHarbourLane):
+				// The lane (D-078 §1) keeps most runs off the harbour
+				// point's way out before the reachability check.
+				lane++
 			}
 			// The harbour point follows the coast (HarbourAt: the nearest
 			// water a ship reaches) as quays cover it.
@@ -124,10 +130,10 @@ func TestQuayGrowthNeverBlocksHarbour(t *testing.T) {
 			t.Fatalf("seed %d: floating quay at %v", seed, p)
 		}
 	}
-	if accepted == 0 || blocked == 0 {
-		t.Fatalf("property not exercised: %d quay tiles accepted, %d placements blocked", accepted, blocked)
+	if accepted == 0 || blocked+lane == 0 {
+		t.Fatalf("property not exercised: %d quay tiles accepted, %d placements blocked, %d on the lane", accepted, blocked, lane)
 	}
-	t.Logf("%d quay tiles accepted, %d placements refused as harbour_blocked", accepted, blocked)
+	t.Logf("%d quay tiles accepted, %d placements refused as harbour_blocked, %d as harbour_lane", accepted, blocked, lane)
 }
 
 // floatingQuay returns a road tile of the island (only quays here) that

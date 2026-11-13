@@ -27,7 +27,8 @@ textured detail does not** (D-048, refined by D-050 and D-057):
    comes from silhouette, colour, baked ambient occlusion and motion.
 4. **Chunky stylised shapes (D-050, D-057).** Exaggerated proportions —
    tall steep roofs, fat chimneys, oversized doors — strong silhouettes,
-   built from voxels at 8 per tile; roofs as courses, window frames and
+   built from voxels at 8 per tile (12 for the buildings, §7 "Voxels per
+   tile"); roofs as courses, window frames and
    shutters, chimney pots. Hero pieces may go further later (§7).
 
 ## 2. Light, palette, time of day
@@ -714,16 +715,39 @@ land buildings).
     yew, a dirt `path()`), `harbour_statue` 2 × 2 shore and
     `gold_statue` 3 × 3 (`brass`, 12 voxels per tile). The 1 × 1 to
     3 × 3 ornaments use `config.BUDGET_BY_FOOTPRINT`
-    (900 / 2 600 / 5 600 triangles, lite 72 / 200 / 400) instead of 500
+    (900 / 2 600 / 5 600 triangles, lite 72 / 260 / 400; 2 × 2 lite 200 until D-078) instead of 500
     per tile.
   - *Shore models* (`placement: shore`, `config.SHORE_MODELS`): the model
-    carries a plank deck at z = 0 under every tile and timber piles under
-    its edge; the plate check does not apply and the model may reach
-    below z = 0 like the water structures. `harbour_statue`,
-    `harbour_tower` 2 × 2, `repair_crane` 3 × 3 (treadwheel; jib and hook
-    in sway group `arm`) and `kontor` (4 × 11, the depot class's
-    footprint: the first model with `brick` as its main role, crow-step
-    gables, crane beam, banner `flag`).
+    carries a deck at z = 0 under every tile; the plate check does not
+    apply and the model may reach below z = 0 like the water structures.
+    `harbour_statue`, `harbour_tower` 2 × 2, `repair_crane` 3 × 3
+    (treadwheel; jib and hook in sway group `arm`) and `kontor` (4 × 11,
+    the depot class's footprint: the first model with `brick` as its main
+    role, crow-step gables, crane beam, banner `flag`).
+  - *Stone quay plinths* (D-078 §3–§4, as built): the harbour-look shore
+    buildings — trading pier, depot, shipyard, repair crane, harbour
+    tower, harbour statue and Kontor — stand on the terrain's quay block
+    as a model part, `parts_d078.plinth` (imported as `Q`), not on timber
+    decks: the deck layer z = 0 of stone slabs (`rock-light`, the quay
+    deck's stone; slabs of `vpt / 4` voxels in two shades, a darker one
+    now and then) under the whole footprint, a light capping course on
+    its rim, the side face from 0.75 tiles below the deck up
+    (`Q.depth_of(vpt)`: 6 voxels at 8 per tile, 9 at 12, 12 at 16) in dressed
+    courses (`Q.course(vpt)`: 1 voxel at 8, 2 at 12 and 16) of two shades
+    darkening to a wet `rock` foot, and timber
+    mooring posts with iron caps every two tiles on the named water edges
+    (the front y− at rotation 0; the flanks too for the trading pier and
+    the small 2 × 2 models). Iron mooring rings sit in the face. The
+    trading pier, depot and shipyard (12 voxels per tile since D-078
+    step 6, as are the playhouse, university and cathedral) dropped their `GROUND_Z = 1` plate,
+    yards, ramps and piles: everything stands on the plinth at z = 1; the
+    shipyard's slipway runs down a channel cut through the plinth over
+    its four front rows, the channel's walls dressed like the face. The
+    rural water buildings (fisher, salt pans, oyster beds) keep their
+    timber decks. The **harbour tower is the tower model on a plinth**
+    (D-078 §4: no beacon, no light): `recipes/tower.py` publishes both
+    IDs (`RECIPES`, `build_harbour` raises the tower one voxel onto
+    `Q.plinth`). The 2 × 2 lite budget rose to 260 for it.
   - *Wall set* (D-077 §2–§3; `config.PAINT_JOINS`,
     `parts_d077.JOIN_ARMS`): each paint family's recipe builds, besides
     its own model (the straight piece, along x), the join pieces
@@ -736,21 +760,41 @@ land buildings).
     their own). A piece is a core on the tile's centre line plus an arm
     to each named tile edge (`join_cells`): the hedge two voxels wide
     (3..5) and five high, the garden wall two wide and four high with a
-    coping course, the city wall four wide (2..6) and eight high on a
-    darker footing with merlons (every other pair of voxels) on its
-    outline (`join_rim`) around the wall-walk. The client draws each
+    coping course, the city wall four wide (2..6) and two tiles high
+    (D-078 §6: the wall-walk at z = 14 between a one-voxel parapet on its
+    outline, `join_rim`, and merlons on every other pair of voxels above
+    it — 16 voxels) on a darker footing; the `arch` opening 7–9 voxels
+    high. The client draws each
     tile with the piece whose turned arms meet its neighbours
     (`render/paintjoin.ts`, like roads join).
   - *Military* (`civic`): `tower` 2 × 2 with wall stubs (four voxels
-    thick, eight high under a cap course) on the centre line of every
+    thick, sixteen high under a cap course, D-078 §6) on the centre line of every
     edge tile — voxels 2..6 and 10..14 of each side, from the battered
     foot to the footprint edge — so a city wall tile beside either of
     its tiles meets a stub; `gatehouse` 3 × 3 (arch on the y axis,
     portcullis, stubs of the same section on x- and x+ at its middle
     tile's centre line, voxels 10..14, paved `path()` through the
-    passage); the city wall joins both (and the castle) as neighbours, `castle` 8 × 8 at 12 voxels
+    passage); the city wall joins both (and the castle) as neighbours, `castle` 12 × 12 (D-078 §5, content
+    0.22.1; was 8 × 8; the plan is laid out on the side and centre line, so it scales) at 12 voxels
     per tile (curtain, four round towers, gatehouse, keep, cobbled
     `path()` yard). The warm sandstone of the city guard, slate caps.
+  - *Heights* (D-078 §5–§6, as built; masonry = the top of the merlons'
+    cap, roofs and finials above; `tests/test_d077.py`):
+
+    | Model | vpt | Masonry | Top (with roof) |
+    |---|---|---|---|
+    | `city_wall` (every piece) | 8 | 16 (2 tiles) | 16 |
+    | `well` (for scale) | 8 | — | 14 (1.75 tiles, below the wall) |
+    | `tower`, `harbour_tower` (+1 plinth) | 8 | 32 (4 tiles) | 43 / 44 (5.4 / 5.5) |
+    | `gatehouse` | 8 | 28 (3.5 tiles; bartizans 29) | 34 (4.25) |
+    | `castle` curtain | 12 | 30 (2.5 tiles) | — |
+    | `castle` corner towers | 12 | 60 (5 tiles) | cones ≈ 72 |
+    | `castle` gatehouse | 12 | 44 | bartizan roofs above |
+    | `castle` keep | 12 | 88 walls (7.3 tiles) | 111 (9.25 tiles, turret finial) |
+    | `university` (reference) | 12 | — | 90 (7.5 tiles, its tower) |
+
+    The keep's walls alone pass the university's tower's top; its roof
+    ridge (≈ 103) and turret clearly do.
   - *Warships* (`_warships.py`, 20 voxels per tile, `length_tiles` 2 / 2.6 /
     3.2): `balinger`, `war_cog`, `war_carrack` from the cargo ships' hull
     builder; sails `sail`, banners `flag`, lite models, budgets 3 600 /
@@ -803,6 +847,12 @@ land buildings).
 - **Voxels per tile (V7):** a building or field recipe may set
   `VOXELS_PER_TILE` — 8 by default, 12 or 16 for finer detail on large
   footprints (`ALLOWED_VOXELS_PER_TILE`; anything else fails the build).
+  Since D-078 every house, production, public and large harbour
+  building is at 12 (the last holdouts — playhouse, university,
+  cathedral, shipyard, depot, trading pier — moved in step 6); 8 remains
+  for the ornaments, the wall sets, the tower and gatehouse, the small
+  harbour pieces (kontor, repair crane, harbour statue and tower) and
+  the salt pans and oyster beds.
   The manifest records each model's `voxels_per_tile`; the client sizes
   the shader's per-voxel jitter by it (a `voxG` vertex attribute where
   models of different densities share a chunk mesh).
@@ -836,8 +886,9 @@ land buildings).
   D-068 as built). The committed GLBs are 23.20 MiB (24 322 124 B) of a
   **32 MiB folder limit** (D-077 §7, raised from 24 MiB) after the
   D-077 re-dress; with the D-077 models published (content 0.22.0) they
-  are 25.47 MiB (26 704 448 B); what remains per triangle is indices and AO/normal-split
-  vertices.
+  are 25.47 MiB (26 704 448 B), and after D-078 (quay plinths, heights,
+  the six holdouts at 12 voxels per tile) 28.17 MiB (29 535 772 B);
+  what remains per triangle is indices and AO/normal-split vertices.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at
   near/mid, lite chunks at far, both built once and toggled. Building

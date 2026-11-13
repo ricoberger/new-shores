@@ -68,7 +68,7 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
   }
   if (!content) return null;
   const tabs = buildTierTabs(model, content);
-  const moving = tool.kind === "movePick" || (tool.kind === "move" && tool.pick === true);
+  const moving = tool.kind === "movePick" || tool.kind === "moveGroup" || (tool.kind === "move" && tool.pick === true);
   // The current tier unless the player opened another one (or the chosen one is gone).
   const shown = tabs.find((tab) => tab.id === chosen)?.id ?? defaultBuildTier(tabs);
   const island = model?.islands.find((is) => is.id === islandId);

@@ -1,6 +1,6 @@
 {
   "name": "city_wall_gate",
-  "content_version": "old_coast-0.22.0",
+  "content_version": "old_coast-0.22.1",
   "boundary_count": 0,
   "totals": {
     "start": {
@@ -63,7 +63,8 @@
       "unlocked_tiers": [
         "settlers",
         "citizens",
-        "merchants"
+        "merchants",
+        "patricians"
       ]
     }
   ],
@@ -115,7 +116,7 @@
       },
       {
         "id": "patricians",
-        "unlocked": false,
+        "unlocked": true,
         "population": {
           "merchants": {
             "have": 0,

@@ -2,10 +2,10 @@ import { t } from "../i18n";
 import { toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
-import type { GhostTool } from "./tools";
+import type { TurnTool } from "./tools";
 
 interface Props {
-  tool: GhostTool;
+  tool: TurnTool;
   /** Why the server would reject the pending tile (missing fertility or deposit), or null. */
   hint: string | null;
   /** The live count of a painted field rectangle (D-054), or null. */
@@ -24,7 +24,7 @@ interface Props {
  * reason is repeated here.
  */
 export function PlacementBar({ tool, hint, paintStatus = null, planning = false, onConfirm, onRotate, onCancel }: Props) {
-  const what = tool.kind === "move" ? t("placement.move") : tool.kind === "found" ? t("placement.found") : tool.kind === "field" ? t("placement.field") : t("placement.place");
+  const what = tool.kind === "moveGroup" ? t("placement.moveGroup") : tool.kind === "move" ? t("placement.move") : tool.kind === "found" ? t("placement.found") : tool.kind === "field" ? t("placement.field") : t("placement.place");
   const removing = tool.kind === "field" && tool.remove === true;
   let text = removing
     ? t("placement.removeFields")

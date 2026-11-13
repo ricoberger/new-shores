@@ -102,6 +102,7 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
       <h3 id="tools">{t("almanac.o.tools")}</h3>
       <p>{t("almanac.o.toolsPlan")}</p>
       <p>{t("almanac.o.toolsMove")}</p>
+      <p>{t("almanac.o.toolsMoveGroup")}</p>
       <p>{t("almanac.o.toolsDemolish")}</p>
       <p>{t("almanac.o.toolsRings")}</p>
 

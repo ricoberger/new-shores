@@ -142,7 +142,9 @@ gone).
   island, free seed step, Apply/Advance steps) and produces reports with
   totals, bottlenecks and snapshots; golden reports live in
   `server/testdata/scenarios` and are the shared fixtures for client display
-  tests. A scenario may set `snapshot_every` (simulated minutes, default 1):
+  tests (with `server/testdata/display`; the harbour lane's and the group
+  move's geometry mirrors read `server/testdata/lane` and
+  `server/testdata/group`, written by `-update-lanes` / `-update-group`). A scenario may set `snapshot_every` (simulated minutes, default 1):
   the report then records a snapshot only at the first advance step, at the
   first step reaching each multiple of the interval, at every milestone (a
   tier unlocks, a tier gets its first residents) and at the last advance step
@@ -323,7 +325,10 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `place_building` / `place_road` / `place_fields`, `build_plan` and
   `demolish_roads` (batch, ≤ 512 tiles, per-tile results), and since
   D-077 `place_paint` / `demolish_paint` (paint-family batches, ≤ 512
-  tiles, per-tile results, MECHANICS §3), returning
+  tiles, per-tile results, MECHANICS §3), and since D-078 `move_group`
+  (D-074 §5: a rectangle, an offset and an optional turn; all or
+  nothing; a failure names the piece in `error.building_id`,
+  MECHANICS §2), returning
   `{version, display}`; the display
   payload includes `ships`, `routes` (with `loop_ms` and the estimated
   `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,
@@ -487,7 +492,8 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
 
 See ART_DIRECTION for the rules. Mechanically: `assets/voxel/recipes/
 <id>.py` (procedural voxel recipes on the shared parts library in
-`assets/voxel/nsvoxel`, 8 voxels per tile) + `assets/voxel/build.py`
+`assets/voxel/nsvoxel`, 8 voxels per tile by default, 12 for most
+buildings) + `assets/voxel/build.py`
 (Python 3 standard library only — no Blender, no kits, no numpy) →
 greedy-meshed quads with per-vertex colour, baked AO and sun →
 `client/public/models/*.glb` + `manifest.json` + thumbnails (committed)
@@ -641,6 +647,9 @@ Pitfalls for local runs:
   `castle.go`). A fixture constant in a new file must be added to that
   list, to `FIXTURES` in `shots-args.ts` and to `FIXTURE_INFO` in
   `shots.ts`, or `make check` fails.
+- **The shot tool cannot drag rectangles on the phone device:** the
+  Playwright mouse drag starts no rectangle there, so the group-move
+  presets (`move-group-drag`, `move-group-ghost`) are desktop only.
 
 ## 11. Alternatives considered
 

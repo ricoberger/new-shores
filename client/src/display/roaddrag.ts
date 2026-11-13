@@ -6,12 +6,13 @@
 // shown valid; the server may still reject a bridge).
 import type { BuildingDisplay } from "../api/client";
 import { buildingAt, type FootprintDef, lPath, type TilePos } from "./geometry";
+import { harbourLanes } from "./lane";
 import { isShallow, type ShallowsInput } from "./quay";
 
 /**
  * `ok`: a new road tile; `replace`: a land road of a lower type (an earlier tier) the new one replaces (MECHANICS §3);
  * `skip`: a road of this or a higher type is already there (not sent); `bad`: the server would reject the tile
- * (terrain, a building, off the shallows for a quay).
+ * (terrain, a building, off the shallows for a quay, a quay or paint tile on a harbour lane, D-078 §1).
  */
 export type RoadDragHint = "ok" | "replace" | "skip" | "bad";
 
@@ -24,7 +25,10 @@ export interface RoadDragData {
   island: ShallowsInput;
   buildings: readonly Pick<BuildingDisplay, "type" | "x" | "y" | "rotation">[];
   roads: readonly { x: number; y: number; type: string }[];
-  defs: ReadonlyMap<string, FootprintDef & { tier?: string; road?: { shallows?: boolean } | null; paint_family?: { road_crossing?: boolean; ground?: string } }>;
+  defs: ReadonlyMap<
+    string,
+    FootprintDef & { tier?: string; road?: { shallows?: boolean } | null; paint_family?: { road_crossing?: boolean; ground?: string }; harbour_lane?: boolean; placement?: string }
+  >;
   /** The content tiers (progression order by index): a road replaces one of an earlier tier. Without: nothing is replaced. */
   tiers?: readonly { id: string; index: number }[];
 }
@@ -55,10 +59,12 @@ export function isPaintType(defs: RoadDragData["defs"], type: string): boolean {
  * The drag of a paint family (D-077 §2–§3; a display mirror of the
  * server's 1×1 placement): a tile of the same family is skipped; another
  * building or plan, a road (but a land road under a road-crossing family,
- * the city wall) or terrain off the buildable land is `bad`.
+ * the city wall), terrain off the buildable land or a harbour lane (D-078
+ * §1) is `bad`.
  */
 function planPaintDrag(start: TilePos, end: TilePos, type: string, data: RoadDragData): RoadDragTile[] {
   const crossing = data.defs.get(type)?.paint_family?.road_crossing === true;
+  const lanes = laneSet(data);
   const roads = new Map(data.roads.map((r) => [`${r.x},${r.y}`, r.type]));
   const { width, height, terrain } = data.island;
   return lPath(start, end).map((p) => {
@@ -68,8 +74,13 @@ function planPaintDrag(start: TilePos, end: TilePos, type: string, data: RoadDra
     if (b) return { ...at, hint: b.type === type ? "skip" : "bad" };
     const road = roads.get(`${p.x},${p.y}`);
     if (road !== undefined && !(crossing && data.defs.get(road)?.road?.shallows !== true)) return { ...at, hint: "bad" };
-    return { ...at, hint: PAINT_TERRAIN.has(terrain[p.y * width + p.x] ?? "") ? "ok" : "bad" };
+    return { ...at, hint: PAINT_TERRAIN.has(terrain[p.y * width + p.x] ?? "") && !lanes.has(`${p.x},${p.y}`) ? "ok" : "bad" };
   });
+}
+
+/** The harbour lanes of the drag's island (built and planned holders). */
+function laneSet(data: RoadDragData): Set<string> {
+  return harbourLanes({ width: data.island.width, height: data.island.height, buildings: data.buildings, roads: data.roads, defs: data.defs });
 }
 
 /**
@@ -81,13 +92,14 @@ export function planRoadDrag(start: TilePos, end: TilePos, roadType: string, dat
   const quay = data.defs.get(roadType)?.road?.shallows === true;
   const roads = new Map(data.roads.map((r) => [`${r.x},${r.y}`, r.type]));
   const { width, height, terrain } = data.island;
+  const lanes = quay ? laneSet(data) : new Set<string>();
   const tiles: RoadDragTile[] = lPath(start, end).map((p) => {
     const at = { x: p.x, y: p.y };
     if (p.x < 0 || p.y < 0 || p.x >= width || p.y >= height) return { ...at, hint: "bad" };
     const old = roads.get(`${p.x},${p.y}`);
     if (old !== undefined) return { ...at, hint: replacesRoad(old, roadType, data) ? "replace" : "skip" };
     if (buildingAt(data.buildings, data.defs, p.x, p.y)) return { ...at, hint: "bad" };
-    const ok = quay ? isShallow(data.island, p.x, p.y) : ROAD_TERRAIN.has(terrain[p.y * width + p.x] ?? "");
+    const ok = quay ? isShallow(data.island, p.x, p.y) && !lanes.has(`${p.x},${p.y}`) : ROAD_TERRAIN.has(terrain[p.y * width + p.x] ?? "");
     return { ...at, hint: ok ? "ok" : "bad" };
   });
   return quay ? anchorQuays(tiles, data) : tiles;

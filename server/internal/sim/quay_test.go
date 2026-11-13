@@ -291,9 +291,11 @@ func TestQuayIsLandForShips(t *testing.T) {
 	if !harbourRoutable(c, w.Island("main")) {
 		t.Fatal("bay harbour not routable without quays")
 	}
-	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: quayRow(2, 3, 7)})
+	// The bay's mouth (row 2) lies on the Trading Post's harbour lane
+	// (rows 2..5, D-078 §1): the quays close it one row further out.
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: quayRow(1, 2, 7)})
 	before := encode(t, w)
-	if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: []Pos{{8, 2}}}); !errors.Is(err, ErrHarbourBlocked) {
+	if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: []Pos{{8, 1}}}); !errors.Is(err, ErrHarbourBlocked) {
 		t.Fatalf("closing the bay: err = %v, want ErrHarbourBlocked", err)
 	}
 	if string(encode(t, w)) != string(before) {

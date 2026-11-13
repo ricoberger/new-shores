@@ -1,6 +1,6 @@
 {
   "name": "shore_placement",
-  "description": "Shore placement (D-077 §5) on the shipped content: a trading pier on the beach (water and land); a depot on the pier's berth tiles (both flanks) fails (harbour_blocked), one column further succeeds; a depot on land only (shore_needs_water), on open water (shore_back_edge) and turned so its back edge faces the sea (shore_back_edge) fails; after a quay row along the coast a trading pier fully on the water against the quay succeeds, one column off the quay's end fails (shore_back_edge); a shipyard plan on the beach succeeds; moving the depot onto open water fails, one tile further out on the beach succeeds. Every failed step leaves the world byte-identical.",
+  "description": "Shore placement (D-077 §5) on the shipped content: a trading pier on the beach (water and land); a depot on the pier's berth tiles (both flanks) fails (harbour_blocked), one column further succeeds; a depot on land only (shore_needs_water), on open water (shore_back_edge) and turned so its back edge faces the sea (shore_back_edge) fails; after a quay row along the coast (clear of the Trading Post's harbour lane, D-078 §1) a trading pier fully on the water against the quay succeeds, one column off the quay's end fails (shore_back_edge); a harbour tower plan on the beach succeeds (a shipyard plan no longer fits beside the depot's harbour lane); moving the depot onto open water fails, one tile further out on the beach succeeds. Every failed step leaves the world byte-identical.",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
@@ -126,11 +126,11 @@
       "road": {
         "type": "quay",
         "from": [
-          10,
+          11,
           17
         ],
         "to": [
-          15,
+          16,
           17
         ]
       }
@@ -138,7 +138,7 @@
     {
       "place": {
         "type": "trading_pier",
-        "x": 11,
+        "x": 12,
         "y": 8,
         "rotation": 0
       },
@@ -147,16 +147,16 @@
     {
       "place": {
         "type": "trading_pier",
-        "x": 10,
+        "x": 11,
         "y": 8,
         "rotation": 0
       }
     },
     {
       "place": {
-        "type": "shipyard",
-        "x": 31,
-        "y": 8,
+        "type": "harbour_tower",
+        "x": 35,
+        "y": 16,
         "rotation": 0,
         "planned": true
       }

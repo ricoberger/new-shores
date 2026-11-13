@@ -57,7 +57,8 @@
     },
     "unlocked_tiers": [
       "citizens",
-      "merchants"
+      "merchants",
+      "patricians"
     ]
   },
   "steps": [

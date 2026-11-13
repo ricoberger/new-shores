@@ -1,0 +1,194 @@
+{
+  "name": "move_group",
+  "description": "Group move (D-074 §5, sim.MoveGroup) on the shipped content: a quarter of two houses, a dirt road and a sheep farm with three pastures moves eight tiles east in one command (IDs, the pastures' farm and the road kept, nothing charged). A group of the houses, the farm and two pastures moved three tiles further would put a pasture on a house outside the rectangle: occupied, the world unchanged. Two houses move onto the coast row; one row further, into the sea, fails (terrain). The unconnected farm is paused at the end so the display fixture's buffer stays put.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "fertilities": [],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 4,
+      "y": 16,
+      "rotation": 0
+    },
+    "gold": "100000",
+    "stock": {
+      "planks": 290,
+      "stone": 100
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          12,
+          25
+        ],
+        "to": [
+          20,
+          25
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 22,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 15,
+        "y": 22,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 18,
+        "y": 22,
+        "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          18,
+          22
+        ],
+        "tiles": [
+          [
+            21,
+            22
+          ],
+          [
+            21,
+            25
+          ],
+          [
+            24,
+            22
+          ]
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "move_group": {
+        "rect": [
+          12,
+          22,
+          26,
+          27
+        ],
+        "dx": 8,
+        "dy": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 36,
+        "y": 22,
+        "rotation": 0
+      }
+    },
+    {
+      "move_group": {
+        "rect": [
+          20,
+          22,
+          34,
+          24
+        ],
+        "dx": 3,
+        "dy": 0
+      },
+      "expect_error": "occupied"
+    },
+    {
+      "move_group": {
+        "rect": [
+          20,
+          22,
+          25,
+          24
+        ],
+        "dx": 0,
+        "dy": -5
+      },
+      "expect_error": "terrain"
+    },
+    {
+      "move_group": {
+        "rect": [
+          20,
+          22,
+          25,
+          24
+        ],
+        "dx": 0,
+        "dy": -4
+      }
+    },
+    {
+      "pause": {
+        "x": 26,
+        "y": 22
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

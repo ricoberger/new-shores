@@ -82,12 +82,15 @@ export function wsUrl(base: string = API_BASE, pageOrigin: string = globalThis.l
 export class ApiError extends Error {
   readonly code: ErrorCode;
   readonly status: number;
+  /** The building or plan a refused move_group named (D-074 §5). */
+  readonly buildingId?: number;
 
-  constructor(code: ErrorCode, message: string, status: number) {
+  constructor(code: ErrorCode, message: string, status: number, buildingId?: number) {
     super(message);
     this.name = "ApiError";
     this.code = code;
     this.status = status;
+    if (buildingId !== undefined) this.buildingId = buildingId;
   }
 }
 
@@ -115,14 +118,16 @@ async function send(path: string, init?: RequestInit): Promise<Response> {
   if (!res.ok) {
     let code: ErrorCode = "internal";
     let message = `HTTP ${res.status}`;
+    let buildingId: number | undefined;
     try {
       const body = (await res.json()) as ErrorResponse;
       code = body.error.code;
       message = body.error.message;
+      buildingId = body.error.building_id;
     } catch {
       // Not an error envelope (e.g. a proxy error page).
     }
-    throw new ApiError(code, message, res.status);
+    throw new ApiError(code, message, res.status, buildingId);
   }
   return res;
 }

@@ -57,7 +57,7 @@ class D077Test(unittest.TestCase):
     def test_the_footprints_are_the_d077_ones(self):
         want = {"tree_ornament": (1, 1), "flower_bed": (1, 1), "well": (1, 1), "pillory": (1, 1), "maypole": (2, 2), "pond": (3, 3),
                 "fountain": (2, 2), "statue": (2, 2), "cemetery": (4, 4), "harbour_statue": (2, 2), "gold_statue": (3, 3),
-                "tower": (2, 2), "gatehouse": (3, 3), "harbour_tower": (2, 2), "castle": (8, 8), "kontor": (4, 11), "repair_crane": (3, 3)}
+                "tower": (2, 2), "gatehouse": (3, 3), "harbour_tower": (2, 2), "castle": (12, 12), "kontor": (4, 11), "repair_crane": (3, 3)}
         for cid, fp in want.items():
             self.assertEqual(tuple(CONTENT["buildings"][cid]["footprint"]), fp, cid)
 
@@ -88,7 +88,7 @@ class D077Test(unittest.TestCase):
 
     def test_the_wall_stubs_line_up_with_the_city_wall(self):
         # The city wall runs on voxels 2..6 of its tile; the tower's stubs on 2..6 and 10..14 of each side,
-        # the gatehouse's on 10..14 (its middle tile) of the x sides; all eight high.
+        # the gatehouse's on 10..14 (its middle tile) of the x sides; all sixteen high (D-078 §6: the wall two tiles).
         def edge_rows(cid):
             files, _, problems = model.build_id(cid, "building", RECIPES[cid], CONTENT)
             self.assertEqual(problems, [], cid)
@@ -100,7 +100,30 @@ class D077Test(unittest.TestCase):
         self.assertEqual(tower, [2, 3, 4, 5, 10, 11, 12, 13])
         gate, gate_h = edge_rows("gatehouse")
         self.assertEqual(gate, [10, 11, 12, 13])
-        self.assertEqual((tower_h, gate_h), (7, 7))
+        self.assertEqual((tower_h, gate_h), (15, 15))
+        self.assertEqual(max(z for x, y, z in model.build_id("city_wall", "building", RECIPES["city_wall"], CONTENT)[0][0][3].cells) + 1, 16)
+
+    def test_the_d078_heights(self):
+        # D-078 §6 (voxels at 8 per tile): the city wall two tiles, the tower four to its merlons' cap, the gatehouse
+        # three and a half, the well below the wall; the castle higher than the university's tower (both 12 per tile).
+        def top(cid, ymax=None):
+            # The model's top and its masonry's (stone; y < ymax leaves out the gatehouse's bartizans on its y+ corners).
+            files, _, problems = model.build_id(cid, "building", RECIPES[cid], CONTENT)
+            self.assertEqual(problems, [], cid)
+            cells = files[0][3].cells
+            masonry = [z for (x, y, z), m in cells.items() if m[0] == "stone" and (ymax is None or y < ymax)]
+            return max(z for (_, _, z) in cells) + 1, max(masonry, default=-1) + 1
+        wall, _ = top("city_wall")
+        well, _ = top("well")
+        self.assertEqual(wall, 16)
+        self.assertLess(well, wall)
+        _, tower = top("tower")
+        _, gate = top("gatehouse", ymax=18)
+        self.assertEqual((tower, gate), (32, 28))
+        castle, _ = top("castle")
+        university, _ = top("university")
+        self.assertEqual(university, 90)  # 7.5 tiles at 12 per tile (D-078 step 6; 60 at 8 per tile before)
+        self.assertGreater(castle / 12, university / 12 + 1.0)
 
     def test_the_crane_arm_sways_from_its_root(self):
         # export.ARM: weight 0 at the jib's root (rigid there), rising to ARM_SWAY at its tip.

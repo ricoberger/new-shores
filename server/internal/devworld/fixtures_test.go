@@ -131,8 +131,8 @@ func TestFixtures(t *testing.T) {
 				checkPatricians(t, c, w)
 			}
 			if name == FixtureCastleTown {
-				// D-077: castle, a wall ring with its towers, the Kontor and two warships on patrol.
-				if count(w, home, castleType) != 1 || count(w, home, kontorType) != 1 || count(w, home, towerType) < 1 || count(w, home, wallType) < 20 {
+				// D-077 / D-078: the 12 × 12 castle, a wall ring with a tower on each corner, the Kontor and two warships on patrol.
+				if count(w, home, castleType) != 1 || count(w, home, kontorType) != 1 || count(w, home, towerType) != 4 || count(w, home, wallType) < 40 {
 					t.Errorf("castle-town: %d castle, %d kontor, %d tower, %d wall", count(w, home, castleType), count(w, home, kontorType), count(w, home, towerType), count(w, home, wallType))
 				}
 				patrols := 0

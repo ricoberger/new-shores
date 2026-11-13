@@ -51,7 +51,8 @@ import { type Toast, toastDuration, Toasts } from "./Toasts";
 import { DemolishBar, PlacementBar, RoadBar } from "./PlacementBar";
 import { Sheet } from "./Sheet";
 import { useLayout } from "./useLayout";
-import { type GhostTool, type IslandTile, isGhostTool, NO_TOOL, rotateSteps, type Tool } from "./tools";
+import { type GhostTool, type GroupTool, type IslandTile, isGhostTool, isTurnTool, leaveTool, NO_TOOL, rotateSteps, type Tool } from "./tools";
+import { groupOffset, groupRect } from "../display/group";
 import { AwayDialog } from "./AwayDialog";
 import { FoundingPanel } from "./FoundingPanel";
 import { InsolvencyBanner } from "./InsolvencyBanner";
@@ -121,6 +122,8 @@ export interface TestHook {
   planCount(): number;
   /** The reach/radius ring drawn: none, a collector's reach (yellow) or gold (a service radius or a plan's ring, D-071). */
   ring(): "none" | "reach" | "gold";
+  /** Whether the selected berth holder's gold harbour-lane outline is drawn (D-078 §1). */
+  laneRing(): boolean;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
@@ -502,8 +505,24 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     });
   };
 
+  /**
+   * The group move (D-074 §5): one move_group with the rectangle centred on
+   * the tile. On success the Move tool comes back for the next pick; a
+   * refusal keeps the group (the toast says why) and draws the building the
+   * server named red.
+   */
+  const placeGroup = (tl: GroupTool, at: IslandTile) => {
+    const { dx, dy } = groupOffset(tl.rect, tl.rotation, at);
+    const { x0, y0, x1, y1 } = tl.rect;
+    void sendCommand({ type: "move_group", island_id: tl.island, x0, y0, x1, y1, dx, dy, rotation: tl.rotation }).then(({ ok, error }) => {
+      if (ok) setTool((cur) => (cur === tl ? { kind: "movePick" } : cur));
+      else if (error) setTool((cur) => (cur === tl ? { ...tl, pending: undefined, failed: error.buildingId } : cur));
+    });
+  };
+
   const confirmPlacement = () => {
     if (isGhostTool(tool) && tool.pending) placeGhost(tool, tool.pending);
+    else if (tool.kind === "moveGroup" && tool.pending) placeGroup(tool, tool.pending);
   };
 
   /** Shows or hides the build menu (remembered); hiding it ends the tools it offers (build, road, demolish). */
@@ -512,7 +531,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     setBuildOpen(next);
     saveBuildOpen(next);
     if (!next) setBuildTier(undefined);
-    if (!next) setTool((tl) => (tl.kind === "build" || tl.kind === "road" || tl.kind === "demolish" || tl.kind === "movePick" || (tl.kind === "move" && tl.pick) ? NO_TOOL : tl));
+    if (!next) setTool((tl) => (tl.kind === "build" || tl.kind === "road" || tl.kind === "demolish" || tl.kind === "movePick" || tl.kind === "moveGroup" || (tl.kind === "move" && tl.pick) ? NO_TOOL : tl));
   };
 
   /** A click on a tier unlock toast: the build menu, open on that tier's tab. */
@@ -523,7 +542,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   };
 
   const rotateTool = (steps: number) =>
-    setTool((tl) => (isGhostTool(tl) ? { ...tl, rotation: rotateSteps(tl.rotation, steps) } : tl));
+    setTool((tl) => (isTurnTool(tl) ? { ...tl, rotation: rotateSteps(tl.rotation, steps) } : tl));
 
   /**
    * Opens a list panel (or closes it when it is open). Opening one deselects
@@ -575,8 +594,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     removeRoads,
     removePaint,
     paintStatus: (text: string | null) => setPaintStatus(text),
-    pend: (at: IslandTile) => setTool((tl) => (isGhostTool(tl) ? { ...tl, pending: at } : tl)),
-    unpend: () => setTool((tl) => (isGhostTool(tl) && tl.pending ? { ...tl, pending: undefined } : tl)),
+    pend: (at: IslandTile) => setTool((tl) => (isTurnTool(tl) ? { ...tl, pending: at } : tl)),
+    unpend: () => setTool((tl) => (isTurnTool(tl) && tl.pending ? { ...tl, pending: undefined } : tl)),
     rotateGhost: rotateTool,
     move: (at: IslandTile) => {
       if (tool.kind === "move") placeGhost(tool, at);
@@ -626,7 +645,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       if (!m) return;
       setTool({ kind: "move", buildingId: m.id, buildingType: m.type, rotation: m.rotation, pick: true });
     },
-    cancelTool: () => setTool(NO_TOOL),
+    pickGroup: (island: string, from: TilePos, to: TilePos) => setTool({ kind: "moveGroup", island, rect: groupRect(from, to), rotation: 0 }),
+    moveGroup: (at: IslandTile) => {
+      if (tool.kind === "moveGroup") placeGroup(tool, at);
+    },
+    cancelTool: () => setTool(leaveTool),
     ghostHint: (text: string | null) => setGhostHint(text),
     // Inspecting closes a list panel (it would take precedence over the
     // info panel); the active tool stays and nothing is sent.
@@ -743,7 +766,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         if (rendererRef.current?.cancelDrag()) return;
         if (cur.confirm) setConfirm(null);
         else if (cur.dialog) dispatch({ type: "closeShipment" });
-        else if (cur.tool.kind !== "none") setTool(NO_TOOL);
+        else if (cur.tool.kind !== "none") setTool(leaveTool);
         // A list sheet (ships, routes, quests) closes with Esc on phones.
         else if (cur.sheets && cur.panel !== "none") setPanel("none");
         else dispatch({ type: "escape" });
@@ -757,7 +780,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         if (e.ctrlKey || e.metaKey || e.altKey) return;
         rendererRef.current?.rotateCamera(1);
       } else if (e.key === "r" || e.key === "R") {
-        setTool((x) => (isGhostTool(x) ? { ...x, rotation: nextRotation(x.rotation) } : x));
+        setTool((x) => (isTurnTool(x) ? { ...x, rotation: nextRotation(x.rotation) } : x));
       }
     };
     window.addEventListener("keydown", onKey);
@@ -801,6 +824,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         depositMarkerCount: () => rendererRef.current?.depositMarkerCount() ?? 0,
         planCount: () => rendererRef.current?.planCount() ?? 0,
         ring: () => rendererRef.current?.ring() ?? "none",
+        laneRing: () => rendererRef.current?.laneRingShown() ?? false,
         quality: () => rendererRef.current?.quality() ?? "low",
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         assets: () =>
@@ -1079,7 +1103,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   // Touch affordances: shown for touch input (the last pointer was a finger).
   const touchUI = touchInput || isTouchLayout(layout.mode);
-  const placementBar = touchUI && isGhostTool(tool);
+  const placementBar = touchUI && isTurnTool(tool);
   const demolishBar = touchUI && tool.kind === "demolish";
   const roadBar = touchUI && tool.kind === "road";
 
@@ -1170,12 +1194,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           : t("app.hint.fieldsAdd", { name: fieldName, degrees: tool.rotation }))}
       {tool.kind === "demolish" && t("app.hint.demolish")}
       {tool.kind === "movePick" && t("app.hint.movePick")}
+      {tool.kind === "moveGroup" && t("app.hint.moveGroup")}
       {planning && (tool.kind === "build" || tool.kind === "road" || tool.kind === "field") && !(tool.kind === "field" && tool.remove) && (
         <div className={styles.hintCount} data-testid="tool-hint-planning">
           {t("app.hint.planning")}
         </div>
       )}
-      {paintStatus && (tool.kind === "field" || tool.kind === "demolish") && (
+      {paintStatus && (tool.kind === "field" || tool.kind === "demolish" || tool.kind === "movePick" || tool.kind === "moveGroup") && (
         <div className={styles.hintCount} data-testid="paint-count">
           {paintStatus}
         </div>
@@ -1220,8 +1245,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             />
           )}
           <InsolvencyBanner model={model} onOpenWarnings={() => togglePanel("warnings", true)} compact={phone} oneLine={tightLandscape} />
-          {placementBar && isGhostTool(tool) && (
-            <PlacementBar tool={tool} planning={planning} hint={ghostHint} paintStatus={paintStatus} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
+          {placementBar && isTurnTool(tool) && (
+            <PlacementBar tool={tool} planning={planning} hint={ghostHint} paintStatus={paintStatus} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(leaveTool)} />
           )}
           {demolishBar && <DemolishBar onDone={() => setTool(NO_TOOL)} />}
           {roadBar && <RoadBar planning={planning} onDone={() => setTool(NO_TOOL)} />}
@@ -1271,7 +1296,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
                 tool={tool}
                 onSelect={selectBuildItem}
                 onDemolishTool={() => setTool((tl) => (tl.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
-                onMoveTool={() => setTool((tl) => (tl.kind === "movePick" || (tl.kind === "move" && tl.pick) ? NO_TOOL : { kind: "movePick" }))}
+                onMoveTool={() => setTool((tl) => (tl.kind === "movePick" || tl.kind === "moveGroup" || (tl.kind === "move" && tl.pick) ? NO_TOOL : { kind: "movePick" }))}
                 planning={planning}
                 onPlanTool={togglePlanning}
                 dense={layout.mode === "phone-landscape"}

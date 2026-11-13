@@ -180,6 +180,17 @@ type MoveStep struct {
 	Rotation int    `json:"rotation"`
 }
 
+// MoveGroupStep moves everything fully inside Rect [x0, y0, x1, y1]
+// (inclusive corners) by (DX, DY), turned by Rotation (sim.MoveGroup,
+// D-074 §5).
+type MoveGroupStep struct {
+	Island   string `json:"island,omitempty"`
+	Rect     [4]int `json:"rect"`
+	DX       int    `json:"dx"`
+	DY       int    `json:"dy"`
+	Rotation int    `json:"rotation,omitempty"`
+}
+
 // FieldsStep places fields from the farm covering tile Farm (a
 // sim.PlaceField per field, D-051 part 4); Type defaults to the farm's
 // field building. Exactly one of Tiles and Rect is set. Tiles ([x, y]
@@ -337,14 +348,15 @@ type Step struct {
 	Paint *Road `json:"paint,omitempty"`
 	// DemolishPaint removes the paint families in a rectangle
 	// (sim.DemolishPaint); tiles without one are skipped.
-	DemolishPaint *RectStep    `json:"demolish_paint,omitempty"`
-	Pause         *At          `json:"pause,omitempty"`
-	Resume        *At          `json:"resume,omitempty"`
-	Upgrade       *At          `json:"upgrade,omitempty"`
-	Move          *MoveStep    `json:"move,omitempty"`
-	Fields        *FieldsStep  `json:"fields,omitempty"`
-	Stock         *StockGrant  `json:"stock,omitempty"`
-	Advance       *AdvanceStep `json:"advance,omitempty"`
+	DemolishPaint *RectStep      `json:"demolish_paint,omitempty"`
+	Pause         *At            `json:"pause,omitempty"`
+	Resume        *At            `json:"resume,omitempty"`
+	Upgrade       *At            `json:"upgrade,omitempty"`
+	Move          *MoveStep      `json:"move,omitempty"`
+	MoveGroup     *MoveGroupStep `json:"move_group,omitempty"`
+	Fields        *FieldsStep    `json:"fields,omitempty"`
+	Stock         *StockGrant    `json:"stock,omitempty"`
+	Advance       *AdvanceStep   `json:"advance,omitempty"`
 	// BuildPlan builds the plan covering the tile (D-071): a planned
 	// building or field, a planned road tile (its segment) or a real farm
 	// (its planned fields).
@@ -356,7 +368,7 @@ func (s Step) kind() (string, error) {
 	for name, set := range map[string]bool{
 		"place": s.Place != nil, "place_grid": s.PlaceGrid != nil, "road": s.Road != nil,
 		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "demolish_roads": s.DemolishRoads != nil, "paint": s.Paint != nil, "demolish_paint": s.DemolishPaint != nil, "pause": s.Pause != nil,
-		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "build_plan": s.BuildPlan != nil, "move": s.Move != nil, "fields": s.Fields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
+		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "build_plan": s.BuildPlan != nil, "move": s.Move != nil, "move_group": s.MoveGroup != nil, "fields": s.Fields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
 		"unassign_ship": s.UnassignShip != nil, "patrol": s.Patrol != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
@@ -1033,6 +1045,9 @@ func (r *runner) step(i int, st Step) error {
 			return err
 		}
 		return r.apply(sim.MoveBuilding{IslandID: id, BuildingID: b.ID, X: m.ToX, Y: m.ToY, Rotation: m.Rotation})
+	case st.MoveGroup != nil:
+		m := st.MoveGroup
+		return r.apply(sim.MoveGroup{IslandID: r.islandID(m.Island), X0: m.Rect[0], Y0: m.Rect[1], X1: m.Rect[2], Y1: m.Rect[3], DX: m.DX, DY: m.DY, Rotation: m.Rotation})
 	case st.Fields != nil:
 		return r.fields(st.Fields)
 	case st.Stock != nil:
@@ -1280,7 +1295,7 @@ func Sentinels() map[string]error {
 		"unknown_island": sim.ErrUnknownIsland, "unknown_building": sim.ErrUnknownBuilding,
 		"building_not_found": sim.ErrBuildingNotFound, "invalid_command": sim.ErrInvalidCommand,
 		"out_of_bounds": sim.ErrOutOfBounds, "occupied": sim.ErrOccupied, "terrain": sim.ErrTerrain,
-		"not_coastal": sim.ErrNotCoastal, "not_on_water": sim.ErrNotOnWater, "harbour_blocked": sim.ErrHarbourBlocked, "needs_low_shore": sim.ErrNeedsLowShore, "shore_needs_water": sim.ErrShoreNeedsWater, "shore_back_edge": sim.ErrShoreBackEdge, "quay_disconnected": sim.ErrQuayDisconnected, "quay_would_float": sim.ErrQuayWouldFloat, "unique_building": sim.ErrUniqueBuilding, "gate_needs_wall": sim.ErrGateNeedsWall, "no_fertility": sim.ErrNoFertility,
+		"not_coastal": sim.ErrNotCoastal, "not_on_water": sim.ErrNotOnWater, "harbour_blocked": sim.ErrHarbourBlocked, "harbour_lane": sim.ErrHarbourLane, "needs_low_shore": sim.ErrNeedsLowShore, "shore_needs_water": sim.ErrShoreNeedsWater, "shore_back_edge": sim.ErrShoreBackEdge, "quay_disconnected": sim.ErrQuayDisconnected, "quay_would_float": sim.ErrQuayWouldFloat, "unique_building": sim.ErrUniqueBuilding, "gate_needs_wall": sim.ErrGateNeedsWall, "no_fertility": sim.ErrNoFertility,
 		"no_deposit": sim.ErrNoDeposit, "insufficient_gold": sim.ErrInsufficientGold,
 		"insufficient_materials": sim.ErrInsufficientMaterials, "surplus_loss": sim.ErrSurplusLoss,
 		"not_pausable": sim.ErrNotPausable, "no_road": sim.ErrNoRoad, "over_capacity": sim.ErrOverCapacity,

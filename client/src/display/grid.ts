@@ -9,7 +9,7 @@ export const GRID_RADIUS = 8;
 
 /** Tools that place something on tiles show the grid; no tool and demolish do not. */
 export function gridOverlayVisible(kind: Tool["kind"]): boolean {
-  return kind === "build" || kind === "road" || kind === "field" || kind === "move" || kind === "found";
+  return kind === "build" || kind === "road" || kind === "field" || kind === "move" || kind === "found" || kind === "moveGroup";
 }
 
 /** Opacity of a grid line point at distance d (tiles) from the centre: full inside half the radius, 0 at the radius. */

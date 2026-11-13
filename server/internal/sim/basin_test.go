@@ -140,7 +140,9 @@ func TestShoreBuildingKeepsHarbourOpen(t *testing.T) {
 	w := setup(t)
 	mustApply(t, w, c, depot)
 	w = setup(t)
-	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: quayRow(4, 5, 17)})
+	// The quay closes the bay's mouth in row 3, just beyond the Trading
+	// Post's harbour lane (rows 4..7, D-078 §1), up to the gap x 18..20.
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "quay", Tiles: quayRow(3, 4, 17)})
 	before := encode(t, w)
 	for _, planned := range []bool{false, true} {
 		cmd := depot

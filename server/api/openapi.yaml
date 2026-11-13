@@ -147,7 +147,7 @@ paths:
         `place_fields`, `demolish_fields`, `place_paint`,
         `demolish_paint`, `set_paused`, `upgrade_building` (deprecated aliases
         `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
-        `move_building`, and the ship and route commands `order_ship`,
+        `move_building`, `move_group`, and the ship and route commands `order_ship`,
         `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
         `delete_route`, `assign_ship`, `unassign_ship`, `patrol`, `manual_shipment`,
         `sail_ship` and `found_island` (MECHANICS §8, §9).
@@ -780,6 +780,12 @@ components:
             message:
               type: string
               description: Human-readable detail (English; shown verbatim in M1b).
+            building_id:
+              type: integer
+              format: int64
+              description: |
+                The building or plan whose new site failed a `move_group`
+                (D-074 §5); absent otherwise.
     ErrorCode:
       type: string
       description: |
@@ -818,9 +824,13 @@ components:
           does not touch land or quay along its full length, D-077 §5),
           `harbour_blocked` (quay tiles, a shore building, or a Trading
           Post moved onto quay tiles, would close a harbour point off
-          from the open sea, D-060 / D-077 §8; a shore building on the
-          harbour lane or a berth tile of the Trading Post or a trading
+          from the open sea, D-060 / D-077 §8; a shore building on a
+          harbour point or a berth tile of the Trading Post or a trading
           pier, D-077 §5),
+          `harbour_lane` (a quay tile, a shore building or a paint tile
+          on the harbour lane of a berth holder — its footprint's width
+          plus one tile on each side, four rows in front of its water
+          edge — or a berth holder whose lane would cover one, D-078 §1),
           `quay_disconnected` (a quay tile would reach neither the
           island's land nor a built building over quay tiles, D-077 §8),
           `quay_would_float` (demolishing roads or a building, or moving
@@ -874,10 +884,16 @@ components:
         `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
         `not_coastal`, `not_on_water`, `needs_low_shore`,
         `shore_needs_water`, `shore_back_edge`, `harbour_blocked`,
-        `quay_would_float`, `no_fertility`, `no_deposit`. Moving a farm keeps its fields (they may become
+        `harbour_lane`, `quay_would_float`, `no_fertility`, `no_deposit`. Moving a farm keeps its fields (they may become
         inactive); a field cannot be moved (`invalid_command`). Moving is
         free: it never fails for gold, materials or tier. Placement never
         requires a road (D-042).
+
+        `move_group` (D-074 §5) fails with the codes of `move_building`
+        plus `quay_disconnected` and `invalid_command` (nothing in the
+        rectangle); its error names the first failing piece in
+        `error.building_id` (absent for a road tile) — the message
+        carries the piece's new position.
 
         `place_field` (D-051 part 4) is a separate command rather than a
         `farm_id` on `place_building`: its validity depends on a farm
@@ -962,6 +978,7 @@ components:
         - unique_building
         - gate_needs_wall
         - harbour_blocked
+        - harbour_lane
         - no_fertility
         - no_deposit
         - insufficient_gold
@@ -1165,6 +1182,7 @@ components:
         - $ref: "#/components/schemas/UpgradeWarehouseCommand"
         - $ref: "#/components/schemas/UpgradeTradingPostCommand"
         - $ref: "#/components/schemas/MoveBuildingCommand"
+        - $ref: "#/components/schemas/MoveGroupCommand"
         - $ref: "#/components/schemas/BuildPlanCommand"
         - $ref: "#/components/schemas/OrderShipCommand"
         - $ref: "#/components/schemas/CancelShipOrderCommand"
@@ -1202,6 +1220,7 @@ components:
           upgrade_warehouse: "#/components/schemas/UpgradeWarehouseCommand"
           upgrade_trading_post: "#/components/schemas/UpgradeTradingPostCommand"
           move_building: "#/components/schemas/MoveBuildingCommand"
+          move_group: "#/components/schemas/MoveGroupCommand"
           build_plan: "#/components/schemas/BuildPlanCommand"
           order_ship: "#/components/schemas/OrderShipCommand"
           cancel_ship_order: "#/components/schemas/CancelShipOrderCommand"
@@ -1729,6 +1748,56 @@ components:
           type: integer
           enum: [0, 90, 180, 270]
           description: Degrees; 90 and 270 swap width and height. Visual only.
+    MoveGroupCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Move everything whose footprint lies fully inside a rectangle by
+        one offset, optionally turned (D-074 §5): buildings, fields,
+        paint tiles, plans, road and planned road tiles, in one
+        transaction, all or nothing, free like `move_building`. Every
+        piece must be valid at its new site among the pieces that stay
+        and the other moved ones (tiles the move vacates count as free):
+        terrain, overlap, water rows and low shore, shore rules, the
+        harbour lane, an open harbour, connected quays. Buildings keep
+        their IDs and state; fields keep their farm (a chain that no
+        longer reaches it leaves them inactive); paint tiles keep
+        rotation 0. Pieces only partly inside the rectangle stay. Nothing
+        inside is `invalid_command`. On failure `error.building_id` names
+        the first failing building or plan (in ID order; road tiles are
+        checked first and have none).
+      required: [type, island_id, x0, y0, x1, y1, dx, dy]
+      properties:
+        type:
+          type: string
+          enum: [move_group]
+        island_id:
+          type: string
+        x0:
+          type: integer
+          description: One corner of the rectangle (tiles, inclusive).
+        y0:
+          type: integer
+          description: One corner of the rectangle (tiles, inclusive).
+        x1:
+          type: integer
+          description: The opposite corner (tiles, inclusive; any order).
+        y1:
+          type: integer
+          description: The opposite corner (tiles, inclusive; any order).
+        dx:
+          type: integer
+          description: Offset of the rectangle's top-left corner (tiles).
+        dy:
+          type: integer
+          description: Offset of the rectangle's top-left corner (tiles).
+        rotation:
+          type: integer
+          enum: [0, 90, 180, 270]
+          description: |
+            Turn of the group about the rectangle, clockwise like a
+            building's rotation (default 0); the turned rectangle's
+            top-left lands at the top-left plus (dx, dy).
     BuildPlanCommand:
       type: object
       additionalProperties: false
@@ -4081,6 +4150,13 @@ components:
         repairs:
           type: boolean
           description: The building repairs ships (the repair crane, D-077 §4). Dormant until raids.
+        harbour_lane:
+          type: boolean
+          description: |
+            A berth holder (D-078 §1): it owns a harbour lane in front of
+            its water edge — the footprint's width plus one tile on each
+            side, four rows deep — on which quays, shore buildings and
+            paint tiles are rejected (`harbour_lane`).
         gate:
           type: boolean
           description: |

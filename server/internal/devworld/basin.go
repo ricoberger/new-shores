@@ -10,7 +10,7 @@ import (
 )
 
 // FixtureHarbourBasin is the harbour basin of D-077 §8: town plus the
-// citizens and merchants tiers (granted), a pier of basinQuayTiles quay
+// citizens, merchants and patricians tiers (granted), a pier of basinQuayTiles quay
 // tiles on the home island — a stem from the coast out to basinDepth
 // tiles off the land, then an arm along the coast at that distance — and
 // a trading pier fully on the water against the pier's head, with a
@@ -43,7 +43,7 @@ func harbourBasin(f *fixture) {
 	if f.err != nil {
 		return
 	}
-	for _, tier := range []string{citizensTier, merchantsTier} {
+	for _, tier := range []string{citizensTier, merchantsTier, patriciansTier} { // the harbour tower is Patricians (D-078 §3)
 		if !slices.Contains(f.w.UnlockedTiers, tier) {
 			f.w.UnlockedTiers = append(f.w.UnlockedTiers, tier)
 		}

@@ -15,6 +15,7 @@ var (
 	ErrNotCoastal            = errors.New("building must touch the coast")
 	ErrNotOnWater            = errors.New("front rows of a water-edge building must be on water")
 	ErrHarbourBlocked        = errors.New("harbour closed off from the open sea")
+	ErrHarbourLane           = errors.New("tile on the harbour lane of a berth holder")
 	ErrNeedsLowShore         = errors.New("land tiles of a water-edge building must be at terrace level 0")
 	ErrQuayDisconnected      = errors.New("a quay must touch land or a connected quay")
 	ErrQuayWouldFloat        = errors.New("the change would leave a quay cut off from land")

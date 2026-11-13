@@ -20,9 +20,10 @@ import (
 //     column at 270 — touches land or quay along its full length: for
 //     each back-row tile, the tile itself or the tile behind it is the
 //     island's own land or a quay (ErrShoreBackEdge).
-//   - No footprint tile lies on the harbour lane or a berth tile of the
+//   - No footprint tile lies on a harbour point or a berth tile of the
 //     island's Trading Post or trading piers (shoreKeepOut,
-//     ErrHarbourBlocked).
+//     ErrHarbourBlocked), nor on a harbour lane (lane.go, ErrHarbourLane,
+//     D-078 §1).
 //   - For ships the footprint is land (shoreDecks): the sea grid, the
 //     harbour points and the open-sea checks treat it like a quay.
 
@@ -86,23 +87,19 @@ func checkShoreSite(is *Island, c *content.Catalogue, occ []int64, def *content.
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
 			if keep[Pos{tx, ty}] {
-				return fmt.Errorf("%w: %s at (%d,%d) covers the harbour lane or a berth at (%d,%d)", ErrHarbourBlocked, def.ID, x, y, tx, ty)
+				return fmt.Errorf("%w: %s at (%d,%d) covers a harbour point or a berth at (%d,%d)", ErrHarbourBlocked, def.ID, x, y, tx, ty)
 			}
 		}
 	}
 	return nil
 }
 
-// shoreLane is the depth (tiles) of the harbour lane in front of a berth
-// holder: up to and one beyond its harbour point (harbourOffset).
-const shoreLane = harbourOffset + 1
-
 // shoreKeepOut returns the water tiles (island tiles) a shore building
 // must leave free (D-077 §5): for every berth holder of the island (the
-// Trading Post and the trading piers), its harbour lane — the strip in
-// front of its front edge, the footprint's width, shoreLane tiles deep — and its harbour point (HarbourAt); for a
+// Trading Post and the trading piers) its harbour point (HarbourAt); for a
 // trading pier also its berth tiles, the two flank columns beside its
-// whole depth. Only water tiles count.
+// whole depth. Only water tiles count. The harbour lane in front of every
+// berth holder is its own rule since D-078 (lane.go, ErrHarbourLane).
 func shoreKeepOut(is *Island, c *content.Catalogue) map[Pos]bool {
 	out := map[Pos]bool{}
 	add := func(p Pos) {
@@ -114,11 +111,6 @@ func shoreKeepOut(is *Island, c *content.Catalogue) map[Pos]bool {
 		def := c.BuildingByID[b.Type]
 		if def == nil || (def.TradingPost == nil && def.Pier == nil) {
 			continue
-		}
-		for column := range def.Width {
-			for row := 1; row <= shoreLane; row++ {
-				add(waterPosition(def, b.X, b.Y, b.Rotation, column, -row))
-			}
 		}
 		if def.Pier != nil {
 			for row := range def.Height {

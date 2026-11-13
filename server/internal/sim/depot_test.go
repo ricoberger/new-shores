@@ -78,9 +78,10 @@ func TestDepotPlacementPerRotation(t *testing.T) {
 	}
 }
 
-// A depot is never a berth holder; its footprint is land for ships
-// (D-077 §5), but beside a Trading Post it leaves the Trading Post's
-// harbour point open, and in front of one it is refused (occupied).
+// A depot's footprint is land for ships (D-077 §5), but beside a Trading
+// Post it leaves the Trading Post's harbour point open; in front of one
+// it is refused (occupied), and right beside it, in the lane's side
+// column, too (harbour_lane, D-078 §1).
 func TestDepotNextToTradingPostKeepsTheHarbourOpen(t *testing.T) {
 	c := shippedCatalogue(t)
 	// Sea above row 18, land below; a Trading Post at x 4..9, y 16..21
@@ -99,7 +100,7 @@ func TestDepotNextToTradingPostKeepsTheHarbourOpen(t *testing.T) {
 	for _, tc := range []struct {
 		name string
 		x    int
-	}{{"beside", 10}, {"in-front", 5}, {"beside-far", 14}} {
+	}{{"lane-column", 10}, {"beside", 11}, {"in-front", 5}, {"beside-far", 14}} {
 		t.Run(tc.name, func(t *testing.T) {
 			w := NewWorld(t0)
 			w.SetIslands(islandFromRows("main", rows...))
@@ -121,11 +122,16 @@ func TestDepotNextToTradingPostKeepsTheHarbourOpen(t *testing.T) {
 			// Depot: water y 9..17, land 18..19; "in-front" overlaps the Trading
 			// Post's own water rows and must be refused as occupied.
 			err := Apply(w, c, PlaceBuilding{IslandID: "main", Type: "depot", X: tc.x, Y: 9})
-			if tc.name == "in-front" {
+			switch {
+			case tc.name == "in-front":
 				if !errors.Is(err, ErrOccupied) {
 					t.Fatalf("depot over the Trading Post: %v", err)
 				}
-			} else if err != nil {
+			case tc.name == "lane-column":
+				if !errors.Is(err, ErrHarbourLane) {
+					t.Fatalf("depot in the lane's side column: %v", err)
+				}
+			case err != nil:
 				t.Fatalf("depot: %v", err)
 			}
 			if !harbourRoutable(c, is) || !seaReachable(is, shoreDecks(c, is), HarbourAt(c, is, c.BuildingByID["trading_post"], tp.X, tp.Y, tp.Rotation)) {

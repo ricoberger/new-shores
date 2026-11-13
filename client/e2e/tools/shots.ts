@@ -887,6 +887,37 @@ function moveTool(stage: "pick" | "ghost", target: "sawmill" | "field" = "sawmil
 }
 
 /**
+ * The Move tool's group move (D-074 §5) on the played fixture: a rectangle
+ * dragged (not released) around the sheep farm and its pastures marks the
+ * pieces it takes ("drag"); released, the group's ghost follows the
+ * pointer a few tiles away, turned once with R ("ghost").
+ */
+function moveGroupTool(stage: "drag" | "ghost"): { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> } {
+  return {
+    fixture: "played",
+    device: "desktop",
+    run: async (page) => {
+      const s = await sheepFarm(page);
+      const xs = [s.farm.x, ...s.fields.map((f) => f.x)];
+      const ys = [s.farm.y, ...s.fields.map((f) => f.y)];
+      const a = { x: Math.min(...xs) - 1, y: Math.min(...ys) - 1 };
+      const b = { x: Math.max(...xs) + 3, y: Math.max(...ys) + 3 };
+      await setCamera(page, { x: s.ox + (a.x + b.x) / 2 + 3, y: s.oy + (a.y + b.y) / 2 + 2, half: 16, rotation: 0 });
+      await settle(page);
+      if (!(await page.getByTestId("build-menu").isVisible())) await page.getByTestId("dock-build").click();
+      await page.getByTestId("tool-move").click();
+      await dragTiles(page, s.island, a, b, stage === "ghost");
+      if (stage === "drag") return settle(page);
+      await page.keyboard.press("r");
+      const q = await tileAt(page, s.island, Math.round((a.x + b.x) / 2) + 6, Math.round((a.y + b.y) / 2) + 3);
+      await page.mouse.move(q.x, q.y, { steps: 4 });
+      await settle(page);
+      console.log(`move group: ${s.island} (${a.x},${a.y})..(${b.x},${b.y})`);
+    },
+  };
+}
+
+/**
  * The Demolish tool dragged (not released) over the planned dirt street of
  * the played fixture and the real roads next to it: the road and planned
  * road tiles under the rectangle tint red, with the plans and fields, and
@@ -1696,6 +1727,8 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   "demolish-roads-drag": demolishRoadsDrag(),
   // The Move tool over a pasture picks its sheep farm: the hover mark on the farm, then the farm's ghost (step 6 of D-071's polish).
   "move-pick-field": moveTool("pick", "field"),
+  "move-group-drag": moveGroupTool("drag"),
+  "move-group-ghost": moveGroupTool("ghost"),
   "move-ghost-field": moveTool("ghost", "field"),
   // Planning mode (D-071): the toggle on with a house ghost beside the played world's planned quarter, and the quarter itself (desktop and phone).
   "planning-mode": planningShot(true),

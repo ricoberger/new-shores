@@ -19,6 +19,7 @@ func TestPaintCommands(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	w.UnlockedTiers = append(w.UnlockedTiers, "citizens") // ornaments start with the Citizens (D-078 §2)
 	// Two free tiles side by side and a free third one after them.
 	is := w.Islands()[0]
 	hedge := c.BuildingByID["hedge"]

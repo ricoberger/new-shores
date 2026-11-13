@@ -72,6 +72,7 @@ func PlanReasons() []PlanReason {
 		{ErrNotCoastal, "not_coastal"},
 		{ErrNotOnWater, "not_on_water"},
 		{ErrHarbourBlocked, "harbour_blocked"},
+		{ErrHarbourLane, "harbour_lane"},
 		{ErrNeedsLowShore, "needs_low_shore"},
 		{ErrShoreNeedsWater, "shore_needs_water"},
 		{ErrShoreBackEdge, "shore_back_edge"},
@@ -168,6 +169,9 @@ func checkBuildingPlan(w *World, c *content.Catalogue, is *Island, p *Building) 
 		}
 	}
 	if err := checkSite(is, c, occ, def, p.X, p.Y, p.Rotation); err != nil {
+		return cost, err
+	}
+	if err := checkHarbourLane(is, c, def, p.X, p.Y, p.Rotation, p.ID); err != nil {
 		return cost, err
 	}
 	if berths := def.InitialBerths(); berths > 0 || def.Shore() {

@@ -1,7 +1,8 @@
 """
 Repair crane (3 × 3 shore, D-077 §6, Merchants, `look: harbour`): the
-shipyard's treadwheel crane on a plank deck that lies under every tile
-(piles under the edge): a timber frame of four posts with cross braces, a
+shipyard's treadwheel crane on the stone quay plinth of the harbour
+buildings (D-078 §3, parts_d078.plinth: slabs under every tile, a dressed
+side face into the water, mooring posts on the sea edge): a timber frame of four posts with cross braces, a
 big treadwheel (a ring with rungs and spokes, a walker's platform inside it)
 turning on the windlass shaft, a jib over the water carrying the block and
 hook with a hanging crate, and a stone-weighted counter-arm at the back.
@@ -15,6 +16,7 @@ import math
 
 from nsvoxel import parts as P
 from nsvoxel import parts_d077 as O
+from nsvoxel import parts_d078 as Q
 from nsvoxel.grid import mat
 from nsvoxel.mats import IRON, PLANK, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
@@ -26,7 +28,7 @@ ROPE = mat("timber", 1.5, "arm")
 def build(ctx):
     v = ctx.vox()  # 24 × 24
     seed = 83
-    O.deck(v, 0, 0, 24, 24)
+    Q.plinth(v, 0, 0, 24, 24, vpt=8, edges=("y-",), seed=seed)
     # Four posts of the frame, braces between them, a top plate.
     for x in (6, 17):
         for y in (8, 15):
@@ -66,7 +68,5 @@ def build(ctx):
     # The counter-arm to the back with stones.
     v.box(11, 17, 21, 13, 23, 22, TIMBER_DARK)
     v.box(10, 20, 17, 14, 23, 21, STONE)
-    for x, y in ((5, 5), (18, 5)):
-        O.bollard(v, x, y, 1, 2)
     P.box_crate(v, 11, 0, 5, s=3)
     return P.colour_jitter(v, seed=seed)

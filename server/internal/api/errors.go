@@ -116,6 +116,7 @@ var simErrors = []simError{
 	{sim.ErrUniqueBuilding, "unique_building", http.StatusConflict},
 	{sim.ErrGateNeedsWall, "gate_needs_wall", http.StatusConflict},
 	{sim.ErrHarbourBlocked, "harbour_blocked", http.StatusConflict},
+	{sim.ErrHarbourLane, "harbour_lane", http.StatusConflict},
 	{sim.ErrNoFertility, "no_fertility", http.StatusConflict},
 	{sim.ErrNoDeposit, "no_deposit", http.StatusConflict},
 	{sim.ErrInsufficientGold, "insufficient_gold", http.StatusConflict},
@@ -207,4 +208,6 @@ type errorBody struct {
 type errorDetail struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
+	// BuildingID names the failing building or plan of a move_group.
+	BuildingID int64 `json:"building_id,omitempty"`
 }
