@@ -211,6 +211,8 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Resul
 	case PlaceFields:
 		res.Tiles, err = placeFields(w, c, cmd, true, l)
 		res.Unchanged = err == nil && noTileApplied(res.Tiles)
+	case placeFieldsInOrder:
+		_, err = placeFieldsPasses(w, c, cmd.PlaceFields, true, true, l)
 	case DemolishFields:
 		res.Tiles, err = demolishFields(w, c, cmd, l)
 		res.Unchanged = err == nil && noTileApplied(res.Tiles)
@@ -1396,7 +1398,7 @@ const upgradeGatePPM = 600_000
 // when it has none). It settles a copy of the world, so the world itself
 // is not changed.
 func settledHouse(w *World, c *content.Catalogue, is *Island, id int64) *houseCalc {
-	cw := w.Clone()
+	cw := w.CloneSharingTiles()
 	wr, _ := settleWorld(cw, c, cw.LastEvaluatedAt.UnixMilli())
 	for i, cis := range cw.Islands() {
 		if cis.ID != is.ID {

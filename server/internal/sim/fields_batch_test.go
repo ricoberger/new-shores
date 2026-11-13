@@ -456,3 +456,86 @@ func (p *propCase) checkDemolishFields(seed uint64, farm int64) {
 	}
 	p.checkFields(seed)
 }
+
+// TestPropertyPlaceFieldsInOrder: on the random worlds of
+// TestPropertyPlaceFields, PlaceFieldsInOrder succeeds exactly when the
+// tiles' single PlaceField commands, applied one after another, all do;
+// then the worlds are byte-identical, otherwise its world is unchanged.
+func TestPropertyPlaceFieldsInOrder(t *testing.T) {
+	cats := propertyCatalogues(t)
+	cats["shipped"] = shippedCatalogue(t)
+	for name, c := range cats {
+		c := withoutQuests(c)
+		t.Run(name, func(t *testing.T) {
+			applied, failed := 0, 0
+			for seed := range uint64(propertyCases) {
+				var p *propCase
+				if name == "shipped" {
+					p = shippedFieldsCase(t, c, 320_000+seed)
+				} else {
+					p = moveWorld(t, c, 320_000+seed)
+				}
+				for range 6 {
+					cmd, ok := p.randomFieldBatch()
+					if !ok {
+						break
+					}
+					if p.rng.IntN(3) > 0 {
+						// The tiles in the order the passes accept them
+						// (a chain that succeeds in order), sometimes
+						// shuffled or with a tile of the drag in front.
+						probe := p.w.Clone()
+						var chain []Pos
+						done := make([]bool, len(cmd.Tiles))
+						for progress := true; progress; {
+							progress = false
+							for i, q := range cmd.Tiles {
+								if !done[i] && Apply(probe, p.c, PlaceField{IslandID: cmd.IslandID, FarmID: cmd.FarmID, Type: cmd.Type, X: q.X, Y: q.Y, Rotation: cmd.Rotation}) == nil {
+									done[i], progress = true, true
+									chain = append(chain, q)
+								}
+							}
+						}
+						if len(chain) > 0 {
+							switch p.rng.IntN(4) {
+							case 0:
+								p.rng.Shuffle(len(chain), func(i, j int) { chain[i], chain[j] = chain[j], chain[i] })
+							case 1:
+								chain = append([]Pos{cmd.Tiles[p.rng.IntN(len(cmd.Tiles))]}, chain...)
+							}
+							cmd.Tiles = chain
+						}
+					}
+					ref := p.w.Clone()
+					before := encodeWorld(t, p.w)
+					all := true
+					for _, q := range cmd.Tiles {
+						if Apply(ref, p.c, PlaceField{IslandID: cmd.IslandID, FarmID: cmd.FarmID, Type: cmd.Type, X: q.X, Y: q.Y, Rotation: cmd.Rotation}) != nil {
+							all = false
+							break
+						}
+					}
+					err := PlaceFieldsInOrder(p.w, p.c, cmd)
+					if (err == nil) != all {
+						t.Fatalf("seed %d: in order %v, single commands all applied %v", seed, err, all)
+					}
+					if err != nil {
+						failed++
+						if !bytes.Equal(before, encodeWorld(t, p.w)) {
+							t.Fatalf("seed %d: failed call (%v) changed the world", seed, err)
+						}
+						continue
+					}
+					applied++
+					if !bytes.Equal(encodeWorld(t, ref), encodeWorld(t, p.w)) {
+						t.Fatalf("seed %d: the world differs from the single commands'", seed)
+					}
+				}
+			}
+			t.Logf("%d applied, %d failed", applied, failed)
+			if applied == 0 || failed == 0 {
+				t.Error("the cases miss applied or failed calls")
+			}
+		})
+	}
+}

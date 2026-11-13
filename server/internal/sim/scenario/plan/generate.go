@@ -1036,7 +1036,7 @@ func cmpFloat(a, b float64) int {
 // fewer or when the placement cuts land off the road network (more than
 // maxCutOff tiles that a road reached before no longer reachable).
 func (g *gen) trial(lp *layout.Planner, before []bool, island string, def *content.Building, s layout.Site, path []sim.Pos) ([]sim.Pos, bool) {
-	tw := g.world().Clone()
+	tw := g.world().CloneSharingTiles()
 	tw.Gold = richGold
 	if err := sim.PlaceFree(tw, g.c, sim.PlaceBuilding{IslandID: island, Type: def.ID, X: s.X, Y: s.Y, Rotation: s.Rot}, nil); err != nil {
 		return nil, false
@@ -1085,7 +1085,7 @@ func (g *gen) trial(lp *layout.Planner, before []bool, island string, def *conte
 		}
 		fields = placed[:def.Fields.Required]
 		// The kept fields only: the drag may have placed more.
-		tw = g.world().Clone()
+		tw = g.world().CloneSharingTiles()
 		tw.Gold = richGold
 		if err := sim.PlaceFree(tw, g.c, sim.PlaceBuilding{IslandID: island, Type: def.ID, X: s.X, Y: s.Y, Rotation: s.Rot}, nil); err != nil {
 			return nil, false
@@ -1099,8 +1099,10 @@ func (g *gen) trial(lp *layout.Planner, before []bool, island string, def *conte
 		}
 		farm = is.BuildingAt(g.c, s.X, s.Y)
 		richMaterials(is, field)
-		for _, f := range fields {
-			if err := sim.Apply(tw, g.c, sim.PlaceField{IslandID: island, FarmID: farm.ID, Type: field.ID, X: f.X, Y: f.Y}); err != nil {
+		// The kept fields one after another, as place sends them (one
+		// derived-state update instead of one per field).
+		if len(fields) > 0 {
+			if err := sim.PlaceFieldsInOrder(tw, g.c, sim.PlaceFields{IslandID: island, FarmID: farm.ID, Type: field.ID, Tiles: fields}); err != nil {
 				return nil, false
 			}
 		}

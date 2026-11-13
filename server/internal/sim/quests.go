@@ -78,7 +78,7 @@ type questEnv struct {
 
 func (e *questEnv) rates() *worldRates {
 	if e.wr == nil {
-		cw := e.w.Clone()
+		cw := e.w.CloneSharingTiles()
 		e.wr, _ = settleWorld(cw, e.c, e.now)
 	}
 	return e.wr

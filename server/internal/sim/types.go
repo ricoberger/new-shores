@@ -530,7 +530,19 @@ func (b *Building) setBufferFine(good string, f int64) {
 }
 
 // Clone returns a deep copy of the world.
-func (w *World) Clone() *World {
+func (w *World) Clone() *World { return w.clone(false) }
+
+// CloneSharingTiles is Clone, except that the copy shares the islands'
+// tiles (terrain, level, height, deposit) with w. No command, Advance or
+// Display writes a tile once a world is built (DecodeTerrain replaces
+// the slice), so the copies that are tried and discarded — derived
+// displays, trial commands, the plan generator's searches (D-067) —
+// need not copy the largest part of a world. Neither w nor the copy may
+// write a tile afterwards; a copy that is kept and may be changed as a
+// whole uses Clone.
+func (w *World) CloneSharingTiles() *World { return w.clone(true) }
+
+func (w *World) clone(shareTiles bool) *World {
 	c := *w
 	if w.UnlockedTiers != nil {
 		c.UnlockedTiers = append([]string(nil), w.UnlockedTiers...)
@@ -544,7 +556,7 @@ func (w *World) Clone() *World {
 		}
 		cr.Islands = make([]*Island, len(r.Islands))
 		for j, is := range r.Islands {
-			cr.Islands[j] = is.clone()
+			cr.Islands[j] = is.clone(shareTiles)
 		}
 		c.Regions[i] = &cr
 	}
@@ -566,14 +578,16 @@ func (w *World) Clone() *World {
 	return &c
 }
 
-func (is *Island) clone() *Island {
+func (is *Island) clone(shareTiles bool) *Island {
 	c := *is
-	c.Tiles = make([]Tile, len(is.Tiles))
-	for i, t := range is.Tiles {
-		c.Tiles[i] = t
-		if t.Deposit != nil {
-			d := *t.Deposit
-			c.Tiles[i].Deposit = &d
+	if !shareTiles {
+		c.Tiles = make([]Tile, len(is.Tiles))
+		for i, t := range is.Tiles {
+			c.Tiles[i] = t
+			if t.Deposit != nil {
+				d := *t.Deposit
+				c.Tiles[i].Deposit = &d
+			}
 		}
 	}
 	if is.Fertilities != nil {

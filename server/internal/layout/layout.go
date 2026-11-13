@@ -420,7 +420,8 @@ func Candidates(is *sim.Island, def *content.Building, anchor sim.Pos) []Site {
 // ring around the farm that fits MaxFieldTiles, nearest anchors first, to
 // a copy of the world, and returns the copy and the anchors of the fields
 // placed in drag order (nil when the drag fails). keep (if set) filters
-// the drag's tiles.
+// the drag's tiles. The copy shares the tiles with p.W
+// (sim.World.CloneSharingTiles).
 func (p *Planner) FieldDrag(island string, farmID int64, typ string, keep func(x, y int) bool) (*sim.World, []sim.Pos) {
 	is := p.W.Island(island)
 	if is == nil {
@@ -449,7 +450,7 @@ func (p *Planner) FieldDrag(island string, farmID int64, typ string, keep func(x
 		return dx*dx + dy*dy
 	}
 	slices.SortStableFunc(tiles, func(a, b sim.Pos) int { return dist(a) - dist(b) })
-	w := p.W.Clone()
+	w := p.W.CloneSharingTiles()
 	res, err := sim.ApplyWithResult(w, p.C, sim.PlaceFields{IslandID: island, FarmID: farmID, Type: typ, Tiles: tiles}, nil)
 	if err != nil {
 		return nil, nil

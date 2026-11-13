@@ -151,7 +151,7 @@ func balanceAfterResume(w *World, c *content.Catalogue, now int64, p pauseTarget
 		balance -= p.upkeep(c)
 	}
 	for _, ois := range w.Islands() {
-		cis := ois.clone()
+		cis := ois.clone(true) // discarded: the tiles are shared
 		if p.b != nil && ois == p.is {
 			cb := cis.Building(p.b.ID)
 			cb.Paused, cb.PausedReason, cb.PauseSeq, cb.PausedAtMs = false, "", 0, 0
@@ -174,7 +174,7 @@ func balanceAllResumed(w *World, c *content.Catalogue, now int64) int64 {
 		}
 	}
 	for _, ois := range w.Islands() {
-		cis := ois.clone()
+		cis := ois.clone(true) // discarded: the tiles are shared
 		for _, b := range cis.Buildings {
 			if b.Paused && b.PausedReason == PausedReasonUnpaid {
 				b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = false, "", 0, 0

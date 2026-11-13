@@ -598,7 +598,7 @@ func (p *propCase) checkInvariants(stage string) {
 				p.fail("%s: growth accumulator %d outside (-1, +1) resident", stage, h.Growth)
 			}
 		}
-		r := computeRates(is.clone(), p.c, now)
+		r := computeRates(is.clone(false), p.c, now)
 		for _, pr := range r.producers {
 			if pr.workforce < 0 || pr.workforce > 1000 {
 				p.fail("%s: workforce factor %d of building %d", stage, pr.workforce, pr.b.ID)

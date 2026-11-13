@@ -172,7 +172,25 @@ func (is *Island) BuildingAt(c *content.Catalogue, x, y int) *Building {
 	if !is.InBounds(x, y) {
 		return nil
 	}
-	id := is.occupancy(c)[is.index(x, y)]
+	// occupancy(c)[is.index(x, y)] without the grid: the last footprint
+	// covering the tile in occupancy's order (buildings, then plans).
+	var id int64
+	for k := len(is.Buildings) + len(is.Plans) - 1; k >= 0; k-- {
+		var o *Building
+		if k < len(is.Buildings) {
+			o = is.Buildings[k]
+		} else {
+			o = is.Plans[k-len(is.Buildings)]
+		}
+		def := c.BuildingByID[o.Type]
+		if def == nil {
+			continue
+		}
+		if w, h := footprint(def, o.Rotation); x >= o.X && x < o.X+w && y >= o.Y && y < o.Y+h {
+			id = o.ID
+			break
+		}
+	}
 	if id == 0 {
 		return nil
 	}
