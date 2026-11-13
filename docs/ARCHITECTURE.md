@@ -647,6 +647,9 @@ Pitfalls for local runs:
   `castle.go`). A fixture constant in a new file must be added to that
   list, to `FIXTURES` in `shots-args.ts` and to `FIXTURE_INFO` in
   `shots.ts`, or `make check` fails.
+- **The shot tool cannot drag rectangles on the phone device:** the
+  Playwright mouse drag starts no rectangle there, so the group-move
+  presets (`move-group-drag`, `move-group-ghost`) are desktop only.
 
 ## 11. Alternatives considered
 

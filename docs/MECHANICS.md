@@ -271,7 +271,10 @@ handlers only.
   makes them inactive, as after any change); a building moved onto a quay
   replaces it. Coverage, efficiency and warehouse assignment are
   recomputed afterwards as after any placement; a move that leaves a
-  house outside a service's radius is not refused.
+  house outside a service's radius is not refused (as built: D-074 §5's
+  "radius-based services keep working or the move is rejected" is
+  superseded by recompute-after, as for a single move — the coverage
+  result shows at once and the player can move back).
 - Demolition refunds 50 % of each material **rounded down to whole units**
   and no gold (D-019), into the island where the building stood, clamped to
   free capacity (the clamped part is `lost`). Goods the building had in
