@@ -185,7 +185,7 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "rural",
-    "field": { "type": "pasture", "farm": "sheep_farm", "terrain": ["grass"] }
+    "field": { "type": "pasture", "farm": "sheep_farm", "terrain": ["grass", "forest"] }
   },
   {
     "id": "dairy_farm",
@@ -218,7 +218,7 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "rural",
-    "field": { "type": "cattle_pasture", "farm": "dairy_farm", "terrain": ["grass"] }
+    "field": { "type": "cattle_pasture", "farm": "dairy_farm", "terrain": ["grass", "forest"] }
   },
   {
     "id": "weaver_wool",
@@ -329,7 +329,7 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "rural",
-    "field": { "type": "wheat_field", "farm": "wheat_farm", "terrain": ["grass"], "fertility": "wheat" }
+    "field": { "type": "wheat_field", "farm": "wheat_farm", "terrain": ["grass", "forest"], "fertility": "wheat" }
   },
   {
     "id": "mill",
@@ -402,7 +402,7 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "rural",
-    "field": { "type": "orchard_plot", "farm": "orchard", "terrain": ["grass"], "fertility": "apple" }
+    "field": { "type": "orchard_plot", "farm": "orchard", "terrain": ["grass", "forest"], "fertility": "apple" }
   },
   {
     "id": "cidery",
@@ -456,7 +456,7 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "rural",
-    "field": { "type": "hemp_field", "farm": "hemp_farm", "terrain": ["grass"], "fertility": "hemp" }
+    "field": { "type": "hemp_field", "farm": "hemp_farm", "terrain": ["grass", "forest"], "fertility": "hemp" }
   },
   {
     "id": "weaver_linen",

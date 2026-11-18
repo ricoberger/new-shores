@@ -862,7 +862,7 @@ func TestHealthAndContent(t *testing.T) {
 				t.Errorf("%s work area %+v fields %+v", b.ID, b.WorkArea, b.Fields)
 			}
 		case "wheat_field", "orchard_plot", "hemp_field", "pasture":
-			if b.Field == nil || b.Field.Type != b.ID || strings.Join(b.Field.Terrain, ",") != "grass" ||
+			if b.Field == nil || b.Field.Type != b.ID || strings.Join(b.Field.Terrain, ",") != "grass,forest" ||
 				b.Field.Fertility != map[string]string{"wheat_field": "wheat", "orchard_plot": "apple", "hemp_field": "hemp"}[b.ID] || b.WorkArea != nil ||
 				b.Field.Farm != map[string]string{"wheat_field": "wheat_farm", "orchard_plot": "orchard", "hemp_field": "hemp_farm", "pasture": "sheep_farm"}[b.ID] {
 				t.Errorf("%s field %+v", b.ID, b.Field)

@@ -290,11 +290,11 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 / 10 / 40 / 60 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 20; lvl 2 (tier 2) radius 24, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 28, 2000 gold / 30 planks / 60 stone; lvl 4 (tier 4) radius 32, 10000 gold / 30 planks / 90 stone / 30 bricks (D-065; radii, and cost and upkeep of levels 3–4 ×2, D-072) |
 | `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 0 | — | R, radius 16; faith rank 1 (D-065) |
 | `lumberjack` | 1 | 3×3 + 48 `tree_plot` | — | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest; 24 plots before content 0.20.0 — a forest of 48 reads as a wood, polish 7) |
-| `tree_plot` | 1 | 1×1 field | — | field tile | 1 g | 0 | — | lumberjack only; painted; grass or forest, no fertility (D-059) |
+| `tree_plot` | 1 | 1×1 field | — | field tile | 1 g | 0 | — | lumberjack only; painted; grass or forest, no fertility (D-059; every field since D-079) |
 | `sawmill` | 1 | 4×6 | — | Sawmill | 120 / 9 | 2 | 4 S | R |
 | `fisher` | 1 | 3×8 | 2–3 | Fishing Hut | 60 / 6 | 2 | 4 S | R |
 | `sheep_farm` | 1 | 3×3 + 3 `pasture` | — | Sheep Farm | 60 / 6 | 1 | 4 S | R, cycle 90 s |
-| `pasture` | 1 | 3×3 field | — | pasture module | 15 g / 1 plank | 0 | — | sheep_farm only; grass; edge-adjacent chain |
+| `pasture` | 1 | 3×3 field | — | pasture module | 15 g / 1 plank | 0 | — | sheep_farm only; grass or forest (D-079); edge-adjacent chain |
 | `weaver_wool` | 1 | 3×4 | — | Spinner | 60 / 6 | 2 | 6 S | R, cycle 90 s |
 | `shipyard` | 2 | 8×12 | shore | Shipyard | 300 / 45 / 0 | 0 | — | R, never auto-paused; tier 2 since D-056; builds every unlocked ship type |
 | `house_citizens` | 2 | 3×3 | — | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
@@ -310,19 +310,19 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `mill` | 2 | 3×3 | — | Grain Mill | 180 / 6 / 6 | 2 | 4 C | R (no river slot: plain land); a lone windmill, no miller's house and no chimney (D-074 §6; 4×6 before content 0.20.0) |
 | `bakery` | 2 | 4×5 | — | Bakery | 230 / 5 / 9 | 4 | 6 C | R |
 | `dairy_farm` | 2 | 4×5 + 5 `cattle_pasture` | — | Pig Farm class, large | 170 / 5 / 6 | 2 | 6 S | R, grass |
-| `cattle_pasture` | 2 | 4×7 field | — | pasture module | 30 g / 5 planks | 0 | — | dairy_farm and cattle_farm; grass |
+| `cattle_pasture` | 2 | 4×7 field | — | pasture module | 30 g / 5 planks | 0 | — | dairy_farm and cattle_farm; grass or forest (D-079) |
 | `cheese_dairy` | 2 | 4×5 | — | Garum Works class | 180 / 6 / 6 | 3 | 6 C | R |
 | `orchard` | 2 | 4×4 + 160 `orchard_plot` | — | Olive Grower | 230 / 5 / 9 | 2 | 6 S | R, apple fertility |
 | `orchard_plot` | 2 | 1×1 field | — | field tile | 1 g | 0 | — | orchard only |
 | `cidery` | 2 | 5×6 | — | Olive Press | 240 / 6 / 9 | 4 | 6 C | R |
 | `apiary` | 2 | 5×5 + 100 `meadow` | — | Apiary | 290 / 5 / 12 | 4 | 4 S | R |
-| `meadow` | 2 | 1×1 field | — | field tile | 1 g | 0 | — | apiary only; grass |
+| `meadow` | 2 | 1×1 field | — | field tile | 1 g | 0 | — | apiary only; grass or forest (D-079) |
 | `meadery` | 2 | 4×5 | — | Victualler class | 180 / 6 / 6 | 3 | 6 C | R |
 | `hemp_farm` | 2 | 3×4 + 60 `hemp_field` | — | Hemp Farm | 60 / 6 / 0 | 1 | 6 S | R, hemp fertility |
 | `hemp_field` | 2 | 1×1 field | — | field tile | 2 g | 0 | — | hemp_farm only |
 | `weaver_linen` | 2 | 4×5 | — | Loom Weavery | 410 / 5 / 18 | 5 | 6 C | R |
 | `pig_farm` | 2 | 3×4 + 5 `pig_pen` | — | Pig Farm | 170 / 5 / 6 | 2 | 6 S | R, grass |
-| `pig_pen` | 2 | 3×4 field | — | pasture module | 20 g / 5 planks | 0 | — | pig_farm only; grass |
+| `pig_pen` | 2 | 3×4 field | — | pasture module | 20 g / 5 planks | 0 | — | pig_farm only; grass or forest (D-079) |
 | `tannery` | 2 | 3×4 | — | Tannery | 180 / 6 / 6 | 2 | 8 C | R |
 | `sailmaker` | 2 | 4×8 | — | Ropemaker | 240 / 6 / 9 | 2 | 6 C | R |
 | `tavern` | 2 | 4×6 | — | Tavern | 250 / 15 / 0 | 2 | — | R, radius 20 (D-072); culture rank 1 (D-065) |

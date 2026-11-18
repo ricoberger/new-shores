@@ -2849,3 +2849,29 @@ reproducible in the shot tool), and the six 8-vpt holdouts at 12 vpt
 props keep the 8-voxel helpers). Models 28.17 MiB; far 13 / 202 k,
 16 / 223 k, 11 / 197 k.
 
+
+## D-079 Forest counts as grass for fields
+
+- **Date:** 2026-11-13
+- **Status:** accepted
+- **Context:** playtest 3 — a sheep farm could be placed in a forest
+  (forest is buildable decor since D-059), but no pasture could be laid
+  there: every field except the tree plot listed `grass` only. A farm
+  without fields, and no way to clear the trees.
+- **Decision:** every field's `terrain` lists `grass` and `forest`.
+  Forest is decoration the generator paints; buildings and fields alike
+  stand on it and remove its cover where they stand (Anno 1404
+  behaviour). No clearing action, no clearing cost, generator unchanged,
+  no schema change. Fertility rules unchanged. Applied directly on main
+  (content + tests + docs), content version kept at 0.22.1 so the running
+  playtest snapshot still loads.
+- **Rejected:** removing forests from the generator in favour of
+  player-planted ornamental trees (islands lose their far-view
+  character; 20 gold per tile is a chore at Settlers); a "clear forest"
+  action (a new mechanic plus a schema bump for a decor problem); a
+  placement rule that refuses farms without field space (would have
+  blocked legal forest sites instead of opening them).
+- **Consequences:** islands gain field area (forest tiles were already
+  buildable for houses); the client already hides decor trees under
+  fields (`display/scatter.ts`). Test content copies under
+  `server/testdata/content/*` carry the same terrain lists.

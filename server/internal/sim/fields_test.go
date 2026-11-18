@@ -192,8 +192,9 @@ func TestFieldAdjacencyIsFourEdge(t *testing.T) {
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 12, Y: 5}, ErrFieldNotAdjacent) // gap at x=11
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 11, Y: 9}, ErrFieldNotAdjacent) // gap at y=8
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 11, Y: 8}, ErrFieldNotAdjacent) // corner (10,7)-(11,8) only
-	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 6, Y: 8}, ErrTerrain)           // (forest; the corner case again below)
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 6, Y: 8}, ErrFieldNotAdjacent)  // the corner case again below
 	putField(t, w, c, farm, "pasture", 6, 5)                                                                               // edge, west
+	w.Islands()[0].Tiles[w.Islands()[0].index(11, 7)].Terrain = content.TerrainForest                                      // forest counts as grass for fields (D-079)
 	putField(t, w, c, farm, "pasture", 11, 7)                                                                              // edge, east (one row overlap)
 	// A field touching a field only at a corner is not adjacent either.
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 13, Y: 9}, ErrFieldNotAdjacent) // corner of (11,7)
@@ -372,7 +373,7 @@ func TestPlaceFieldErrors(t *testing.T) {
 		{"tier locked", place("wheat_field", 11, 5), ErrTierLocked},
 		{"out of bounds east", place("pasture", 23, 5), ErrOutOfBounds},
 		{"out of bounds negative", place("pasture", -1, 5), ErrOutOfBounds},
-		{"forest", place("pasture", 6, 8), ErrTerrain},
+		{"mountain", place("pasture", 20, 10), ErrTerrain},
 		{"water", place("pasture", 0, 5), ErrTerrain},
 		{"coast", place("pasture", 8, 1), ErrTerrain},
 		{"road", place("pasture", 9, 3), ErrOccupied},

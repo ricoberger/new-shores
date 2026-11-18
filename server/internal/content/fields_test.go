@@ -71,7 +71,7 @@ func TestLoadFields(t *testing.T) {
 			t.Errorf("%s fields %+v", farm, b.Fields)
 		}
 		fb := c.FieldByType[w.field]
-		if fb == nil || fb.ID != w.field || fb.Field.Type != w.field || fb.Field.Farm != farm || !fb.Field.MatchesTerrain("grass") || fb.Field.MatchesTerrain("forest") ||
+		if fb == nil || fb.ID != w.field || fb.Field.Type != w.field || fb.Field.Farm != farm || !fb.Field.MatchesTerrain("grass") || !fb.Field.MatchesTerrain("forest") || fb.Field.MatchesTerrain("mountain") ||
 			fb.Width != w.size || fb.Height != w.size || fb.UpkeepPerMin != 0 || fb.PauseCategory != "never" || fb.RequiresRoad || fb.Recipe != nil {
 			t.Errorf("field %s = %+v", w.field, fb)
 		}
@@ -92,7 +92,7 @@ func TestLoadFields(t *testing.T) {
 // fields and field blocks.
 func TestLoadRejectsInvalidFields(t *testing.T) {
 	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
-	const pasture = `"field": { "type": "pasture", "farm": "sheep_farm", "terrain": ["grass"] }`
+	const pasture = `"field": { "type": "pasture", "farm": "sheep_farm", "terrain": ["grass", "forest"] }`
 	tests := []struct {
 		name    string
 		replace []string
@@ -177,7 +177,7 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 		},
 		{
 			"field without a farm",
-			[]string{`"field": { "type": "pasture", "farm": "sheep_farm", "terrain": ["grass"] }`, `"field": { "type": "pasture", "terrain": ["grass"] }`},
+			[]string{`"field": { "type": "pasture", "farm": "sheep_farm", "terrain": ["grass", "forest"] }`, `"field": { "type": "pasture", "terrain": ["grass", "forest"] }`},
 			[]string{FileBuildings, `building "pasture"`, "schema violation"},
 		},
 		{
@@ -207,7 +207,7 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 		},
 		{
 			"duplicate field type",
-			[]string{`"field": { "type": "orchard_plot", "farm": "orchard", "terrain": ["grass"], "fertility": "apple" }`, `"field": { "type": "wheat_field", "farm": "orchard", "terrain": ["grass"], "fertility": "apple" }`},
+			[]string{`"field": { "type": "orchard_plot", "farm": "orchard", "terrain": ["grass", "forest"], "fertility": "apple" }`, `"field": { "type": "wheat_field", "farm": "orchard", "terrain": ["grass", "forest"], "fertility": "apple" }`},
 			[]string{FileBuildings, `building "orchard_plot"`, "field.type", `field type "wheat_field" already declared by building "wheat_field"`},
 		},
 	}
@@ -277,10 +277,7 @@ func TestShippedFields(t *testing.T) {
 		}
 		f := c.FieldByType[b.Fields.Type]
 		wantGold, wantPlanks := w.gold, w.planks
-		wantTerrain := "grass"
-		if b.ID == "lumberjack" {
-			wantTerrain = "grass,forest"
-		}
+		wantTerrain := "grass,forest" // forest counts as grass for every field (D-079)
 		if f == nil || f.ID != w.field || f.Tier != w.tier || !f.Field.BelongsTo(b.ID) || f.Field.Fertility != w.fertility || strings.Join(f.Field.Terrain, ",") != wantTerrain ||
 			f.Width != w.w || f.Height != w.h || f.Cost.Gold != wantGold || len(f.Cost.Materials) != min(wantPlanks, 1) ||
 			(wantPlanks > 0 && f.Cost.Materials[0].Amount != int64(wantPlanks)*1000) {

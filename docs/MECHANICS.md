@@ -220,8 +220,11 @@ handlers only.
     likewise; `place_building` rejects field types with
     `field_needs_farm`). A field **belongs to
     the farm instance it was placed from** (`farm_id`). It is valid where
-    its footprint is on matching terrain (and the island has the
-    fertility), free, below the farm's `fields.max`
+    its footprint is on matching terrain — every field lists `grass`
+    and `forest`: forest is decor (D-059) and counts as grass for
+    fields as it does for buildings, its cover vanishing under the field
+    (D-079) — (and the island has the fertility), free, below the farm's
+    `fields.max`
     (`field_max_reached`), and **shares at least one tile edge with the
     farm's footprint or with an *active* field of that farm**
     (`field_not_adjacent`; corner contact does not count). A field is
