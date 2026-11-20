@@ -44,13 +44,17 @@ there is no passage and no gate.
 
 | # | ID | Name | Residents (floor–max) | Tax/res/min | House cost | Workforce role |
 |---|---|---|---|---|---|---|
-| 1 | `settlers` | Settlers | 2–8 | 0.20 | 5 planks (§7) | farms, fishers, lumber, gatherers |
-| 2 | `citizens` | Citizens | 5–15 | 0.80 | §7 `house_citizens` | mines, kilns, mills, basic workshops |
-| 3 | `merchants` | Merchants | 8–25 | 1.50 | §7 `house_merchants` | refined workshops, printing, brewing |
-| 4 | `patricians` | Patricians | 12–40 | 2.70 | §7 `house_patricians` | fine crafts, opticians (small numbers) |
+| 1 | `settlers` | Settlers | 2–6 | 1.18 | 5 planks (§7) | farms, fishers, lumber, gatherers |
+| 2 | `citizens` | Citizens | 5–14 | 1.01 | §7 `house_citizens` | mines, kilns, mills, basic workshops |
+| 3 | `merchants` | Merchants | 8–26 | 1.82 | §7 `house_merchants` | refined workshops, printing, brewing |
+| 4 | `patricians` | Patricians | 12–43 | 2.70 | §7 `house_patricians` | fine crafts, opticians (small numbers) |
 
-Residents and tax for tiers 3–4 per D-056 (provisional; the reference
-games tune the tax).
+House sizes are Anno 117's (D-080 §1; 8 / 15 / 25 / 40 before content
+0.23.0); the unlocks (below) are 20 / 26 / 46 full houses. Tax follows
+Anno's `Money` per full house divided by its size, 6 / 6 : 12 / 14 :
+40 / 26 : 98 / 43 = 1.00 : 0.86 : 1.54 : 2.28 per resident, times one
+scale `k_tax` (D-080 §5, table D; start value 1.18, which keeps the
+Patricians at 2.70; the reference games tune it, §12).
 
 ### Unlock conditions (archipelago-wide)
 
@@ -73,12 +77,20 @@ Every alternative of a category with two or more alternatives has
 **share 0.6**; a category with exactly one alternative has share 1.0
 (D-056 amendment); category coverage = `min(1, Σ shares of supplied
 alternatives)` — one of two alternatives gives 60 %, both give 100 %.
-Tax rates are tuned to the one-alternative baseline (§2). Consumption in units per resident per minute (provisional;
-a 60 s cycle producer making 1 unit = 1 unit/min). A house also has the
+Tax rates are tuned to the one-alternative baseline (§2). Consumption in units per resident per minute
+(a 60 s cycle producer making 1 unit = 1 unit/min). Since D-080 §2 the
+own-tier rate of every good is its Anno 117 counterpart's per-house rate
+divided by the Anno house size (D-080 table A, e.g. fish = Sardines
+0.01785 / 6 = 0.002975: one fisher feeds 56 Settler houses). A house also has the
 categories of every **lower tier** (cumulative, D-056 §2) at reduced
 rates: `rate × (own max residents / higher max residents) × 0.5^(tier
-distance / 3)`, e.g. fish 0.010 → Citizens 0.0042, Merchants 0.0020,
-Patricians 0.0010. Weights: the own tier's categories share 0.6 of
+distance / 3)`, e.g. fish 0.002975 → Citizens 0.001012, Merchants
+0.000432, Patricians 0.000208. The rates are **generated, not typed**:
+`content/tools/needs_gen.py` holds table A and writes every goods rate
+of `needs.json`, own and carried, with that formula and the house sizes
+of `tiers.json`, rounded half-even to six decimals (the content's
+micro-unit resolution); `make content-gen` runs it and `make
+content-test` fails when `needs.json` differs from its output. Weights: the own tier's categories share 0.6 of
 satisfaction, all lower tiers' categories 0.4 together (split equally
 per lower tier, then by the lower tier's own weights). Public services
 (D-065, MECHANICS §6.2): every tier has a **market** category (the
@@ -96,16 +108,27 @@ relative within the tier; chains as `faith ≥ 2`).
 
 | Tier | Goods categories → acceptable goods | Building needs (radius) |
 |---|---|---|
-| Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | market 0.12: `market` 20 · faith ≥ 1 0.18: `chapel` 16 |
-| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | market 0.12: `market` 24 · faith ≥ 1, education ≥ 1 (`school` 20), culture ≥ 1 (`tavern` 20) 0.06 each · safety 0.1: `city_guard` 26 |
-| Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.09: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | market 0.096: `market` 28 · faith ≥ 2 (`church` 28), education ≥ 1, culture ≥ 2 (`playhouse` 38) 0.048 each · safety 0.08: `city_guard` 26, fire protection 0.08: `fire_station` 22 |
-| Patricians | food 0.14: roast_beef 0.005 \| oysters 0.004 · drink 0.14: wine 0.004 \| grain_spirit 0.003 · clothing 0.14: fine_garments 0.003 \| lace 0.003 · comfort 0.14: candles 0.004 \| spectacles 0.002 · luxury 0.14: jewellery 0.001 \| instruments 0.001 | market 0.04: `market` 32 · faith ≥ 3 (`cathedral` 50), education ≥ 2 (`university` 46), culture ≥ 2 0.02 each · safety/fire protection 0.06 each, health 0.08: `surgery` 28 |
+| Settlers | food 0.5: **fish** 0.002975 · clothing 0.2: **wool_garments** 0.002975 | market 0.12: `market` 20 · faith ≥ 1 0.18: `chapel` 16 |
+| Citizens | food 0.2: bread 0.001156 \| cheese 0.000621 · drink 0.2: cider 0.001099 \| mead 0.000621 · clothing 0.2: linen_garments 0.001018 \| leather_jerkins 0.000465 | market 0.12: `market` 24 · faith ≥ 1, education ≥ 1 (`school` 20), culture ≥ 1 (`tavern` 20) 0.06 each · safety 0.1: `city_guard` 28 |
+| Merchants | food 0.17: sausages 0.000431 \| pies 0.000220 · drink 0.17: beer 0.000496 \| brandy 0.000220 · clothing 0.09: coats 0.000385 \| dyed_garments 0.000218 · comfort 0.17: books 0.000192 \| soap 0.000189 | market 0.096: `market` 28 · faith ≥ 2 (`church` 28), education ≥ 1, culture ≥ 2 (`playhouse` 38) 0.048 each · safety 0.08: `city_guard` 28, fire protection 0.08: `fire_station` 28 |
+| Patricians | food 0.14: roast_beef 0.000175 \| oysters 0.000140 · drink 0.14: wine 0.000140 \| grain_spirit 0.000130 · clothing 0.14: fine_garments 0.000201 \| lace 0.000127 · comfort 0.14: candles 0.000119 \| spectacles 0.000104 · luxury 0.14: jewellery 0.000124 \| instruments 0.000158 | market 0.04: `market` 32 · faith ≥ 3 (`cathedral` 50), education ≥ 2 (`university` 46), culture ≥ 2 0.02 each · safety/fire protection 0.06 each, health 0.08: `surgery` 28 |
 
 The market radius is that of its level (20/24/28/32, level *n* from
 tier *n*, D-065); the table lists the level the tier unlocks. The radii
 are Anno 117's (D-072 §3, on the islands of D-072; before 12/15/18/21
 for the market, tavern 14, school 16, church 20, playhouse 24,
-university 24, cathedral 28, guard and fire 16, surgery 20).
+university 24, cathedral 28, guard and fire 16, surgery 20); the three
+civic services share 28 since D-080 §7 (guard 26 and fire 22 before).
+
+Houses per final producer at the own-tier rate (residents × rate against
+the producer's output per minute, D-080 table A): fisher and weaver 56
+Settler houses; bakery 62, cheese dairy and meadery 115, cidery 43,
+linen weaver 70, tannery 77 Citizen houses; butcher 89, pastry kitchen
+175, brewery 78, distillery 117, tailor 100, dyer 176, printing press
+100, soap maker 204 Merchant houses; slaughterhouse 133, oyster house
+166, winepress 221, grain distillery 119, fashion house 58, lace maker
+122, candle foundry 261, optician 112, goldsmith 125, luthier 147
+Patrician houses.
 
 Variety reserve (D-056, IDs reserved, not in the tier plan): fur_coats,
 tableware, confectionery, paintings.

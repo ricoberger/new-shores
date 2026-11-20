@@ -3,7 +3,7 @@
     "id": "settlers",
     "name": "Settlers",
     "residents": { "floor": 2, "max": 6 },
-    "tax_per_resident_per_min": 0.2,
+    "tax_per_resident_per_min": 1.18,
     "house": "house_settlers",
     "unlock": { "population": {} }
   },
@@ -11,7 +11,7 @@
     "id": "citizens",
     "name": "Citizens",
     "residents": { "floor": 5, "max": 14 },
-    "tax_per_resident_per_min": 0.8,
+    "tax_per_resident_per_min": 1.01,
     "house": "house_citizens",
     "unlock": { "population": { "settlers": 120 } }
   },
@@ -19,7 +19,7 @@
     "id": "merchants",
     "name": "Merchants",
     "residents": { "floor": 8, "max": 26 },
-    "tax_per_resident_per_min": 1.5,
+    "tax_per_resident_per_min": 1.82,
     "house": "house_merchants",
     "unlock": { "population": { "citizens": 360 } }
   },
@@ -27,7 +27,7 @@
     "id": "patricians",
     "name": "Patricians",
     "residents": { "floor": 12, "max": 43 },
-    "tax_per_resident_per_min": 2.7,
+    "tax_per_resident_per_min": 2.70,
     "house": "house_patricians",
     "unlock": { "population": { "merchants": 1200 } }
   }

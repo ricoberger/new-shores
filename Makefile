@@ -26,6 +26,8 @@
 #                     assets/voxel/recipes (Python 3 standard library, see README "Asset build")
 #   make assets-check rebuild into a temp dir and compare with client/public/models (byte for byte)
 #   make assets-test  asset build tests (Python 3 standard library; part of `make check`)
+#   make content-gen  regenerate the goods rates of content/old_coast/needs.json from
+#                     content/tools/needs_gen.py (D-080 table A; `make content-test` fails on drift)
 #   make shots        PNGs of the game in .experiment/shots/<set>/ (the dev server's
 #                     fixtures, default settled, played × near/mid/far ×
 #                     desktop/phone, fixed camera and clock; about 4 min). Needs the Playwright browsers, free ports 18080/4174.
@@ -83,7 +85,7 @@ DEV_START_FLAGS := $(if $(FIXTURE),--fixture '$(FIXTURE)') $(if $(SNAPSHOT),--sn
 .PHONY: check server-check server-fmt server-vet server-lint server-test server-test-short server-test-full content-test \
 	client-install client-check client-lint client-typecheck client-test client-build dev preview snapshot snapshot-load \
 	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet \
-	island-atlas
+	island-atlas content-gen
 
 check: server-check content-test client-check makefile-test assets-test
 
@@ -108,6 +110,11 @@ server-test-full:
 
 content-test:
 	cd $(SERVER_DIR) && go test ./internal/content/...
+	python3 -m unittest discover -s content/tools -t content/tools
+
+# The generated goods rates of needs.json (D-080; Python 3 standard library).
+content-gen:
+	python3 content/tools/needs_gen.py
 
 client-install:
 	cd $(CLIENT_DIR) && npm ci

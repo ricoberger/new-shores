@@ -142,8 +142,8 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 	}
 	want := []string{
 		// Own categories: 0.17 each (clothing 0.09) and services 0.16 of the own 0.6.
-		"merchants_food:food:sausages=6000/pies=5000:102000", "merchants_drink:drink:beer=6000/brandy=4000:102000",
-		"merchants_clothing:clothing:coats=4000/dyed_garments=4000:54000", "merchants_comfort:comfort:books=2000/soap=3000:102000",
+		"merchants_food:food:sausages=431/pies=220:102000", "merchants_drink:drink:beer=496/brandy=220:102000",
+		"merchants_clothing:clothing:coats=385/dyed_garments=218:54000", "merchants_comfort:comfort:books=192/soap=189:102000",
 		// D-065: market 40 % of the former services weight, the three
 		// chains the rest; faith rank 2 (church), education 1, culture 2.
 		"merchants_market:market:market=1000000:57600", "merchants_faith:faith:faith>=2:28800",
@@ -153,9 +153,9 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 		// like services) from services.
 		"merchants_safety:safety:city_guard=1000000:48000", "merchants_fire_protection:fire_protection:fire_station=1000000:48000",
 		// Lower tiers: 0.2 each, split by their own weights (rounding to the last).
-		"merchants_settlers_food:food:fish=1500:142857", "merchants_settlers_clothing:clothing:wool_garments=700:57142",
-		"merchants_citizens_food:food:bread=3400/cheese=2600:66666", "merchants_citizens_drink:drink:cider=2600/mead=2100:66666",
-		"merchants_citizens_clothing:clothing:linen_garments=2100/leather_jerkins=1700:66669",
+		"merchants_settlers_food:food:fish=432:142857", "merchants_settlers_clothing:clothing:wool_garments=432:57142",
+		"merchants_citizens_food:food:bread=494/cheese=265:66666", "merchants_citizens_drink:drink:cider=470/mead=265:66666",
+		"merchants_citizens_clothing:clothing:linen_garments=435/leather_jerkins=199:66669",
 	}
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("merchants needs = %v (weights %d), want %v", got, weights, want)

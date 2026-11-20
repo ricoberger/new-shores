@@ -53,8 +53,8 @@ func TestLoadCitizensContent(t *testing.T) {
 	}
 	want := []string{
 		// Two alternatives per category from tier 2 (D-056 §5).
-		"citizens_food:food:bread=8000/cheese=6000:120000", "citizens_drink:drink:cider=6000/mead=5000:120000",
-		"citizens_clothing:clothing:linen_garments=5000/leather_jerkins=4000:120000",
+		"citizens_food:food:bread=1156/cheese=621:120000", "citizens_drink:drink:cider=1099/mead=621:120000",
+		"citizens_clothing:clothing:linen_garments=1018/leather_jerkins=465:120000",
 		// D-065: the former services category split into the market (40 %
 		// of its 0.3) and the faith / education / culture chains (the rest,
 		// equally); each chain is served by any building of rank >= 1.
@@ -63,7 +63,7 @@ func TestLoadCitizensContent(t *testing.T) {
 		// Civic service (D-060): safety, 0.1 taken from services.
 		"citizens_safety:safety:city_guard=1000000:60000",
 		// Lower-tier categories (D-056): 0.4 split 0.5 : 0.2.
-		"citizens_settlers_food:food:fish=3400:285714", "citizens_settlers_clothing:clothing:wool_garments=1700:114286",
+		"citizens_settlers_food:food:fish=1012:285714", "citizens_settlers_clothing:clothing:wool_garments=1012:114286",
 	}
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("citizens needs = %v (weights %d), want %v", got, weights, want)

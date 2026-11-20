@@ -257,9 +257,9 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 	}
 	want := []string{
 		// Own categories: 0.14 each and services 0.3 of the own 0.6.
-		"patricians_food:food:roast_beef=5000/oysters=4000:84000", "patricians_drink:drink:wine=4000/grain_spirit=3000:84000",
-		"patricians_clothing:clothing:fine_garments=3000/lace=3000:84000", "patricians_comfort:comfort:candles=4000/spectacles=2000:84000",
-		"patricians_luxury:luxury:jewellery=1000/instruments=1000:84000",
+		"patricians_food:food:roast_beef=175/oysters=140:84000", "patricians_drink:drink:wine=140/grain_spirit=130:84000",
+		"patricians_clothing:clothing:fine_garments=201/lace=127:84000", "patricians_comfort:comfort:candles=119/spectacles=104:84000",
+		"patricians_luxury:luxury:jewellery=124/instruments=158:84000",
 		// D-065: faith rank 3 (cathedral), education 2 (university), culture 2.
 		"patricians_market:market:market=1000000:24000", "patricians_faith:faith:faith>=3:12000",
 		"patricians_education:education:education>=2:12000", "patricians_culture:culture:culture>=2:12000",
@@ -267,13 +267,13 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 		"patricians_safety:safety:city_guard=1000000:36000", "patricians_fire_protection:fire_protection:fire_station=1000000:36000",
 		"patricians_health:health:surgery=1000000:48000",
 		// Lower tiers: 0.4/3 each, split by their own weights (rounding to the last);
-		// rates × (own max / Patricians max) × 0.5^(distance/3), 4 decimals.
-		"patricians_settlers_food:food:fish=700:95237", "patricians_settlers_clothing:clothing:wool_garments=300:38095",
-		"patricians_citizens_food:food:bread=1600/cheese=1200:44444", "patricians_citizens_drink:drink:cider=1200/mead=1000:44444",
-		"patricians_citizens_clothing:clothing:linen_garments=1000/leather_jerkins=800:44444",
-		"patricians_merchants_food:food:sausages=2900/pies=2400:33333", "patricians_merchants_drink:drink:beer=2900/brandy=1900:33333",
-		"patricians_merchants_clothing:clothing:coats=1900/dyed_garments=1900:33333",
-		"patricians_merchants_comfort:comfort:books=1000/soap=1400:33337",
+		// rates × (own max / Patricians max) × 0.5^(distance/3), 6 decimals (D-080).
+		"patricians_settlers_food:food:fish=208:95237", "patricians_settlers_clothing:clothing:wool_garments=208:38095",
+		"patricians_citizens_food:food:bread=237/cheese=127:44444", "patricians_citizens_drink:drink:cider=225/mead=127:44444",
+		"patricians_citizens_clothing:clothing:linen_garments=209/leather_jerkins=95:44444",
+		"patricians_merchants_food:food:sausages=207/pies=106:33333", "patricians_merchants_drink:drink:beer=238/brandy=106:33333",
+		"patricians_merchants_clothing:clothing:coats=185/dyed_garments=105:33333",
+		"patricians_merchants_comfort:comfort:books=92/soap=91:33337",
 	}
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("patricians needs = %v (weights %d), want %v", got, weights, want)
@@ -281,7 +281,7 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 
 	// Every carried rate follows the formula of CONTENT §2 from the lower
 	// tier's own rate: rate × (lower max / Patricians max) × 0.5^(distance/3), rounded
-	// to 0.0001 per resident and minute.
+	// to 0.000001 per resident and minute (content/tools/needs_gen.py, D-080).
 	index := map[string]int{}
 	for i, tr := range c.Tiers {
 		index[tr.ID] = i
@@ -298,7 +298,7 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 				continue
 			}
 			for i, g := range own.Goods {
-				want := int64(math.Round(float64(g.PerResidentPerMin)*factor/100)) * 100
+				want := int64(math.Round(float64(g.PerResidentPerMin) * factor))
 				if i >= len(n.Goods) || n.Goods[i].Good != g.Good || n.Goods[i].PerResidentPerMin != want {
 					t.Errorf("%s %s: carried %+v, want %d", n.ID, g.Good, n.Goods, want)
 				}
