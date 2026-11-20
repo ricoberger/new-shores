@@ -470,6 +470,18 @@ function fourAtThePier(w: WorldResponse): void {
   tp.berths = { total: 4, busy: 4, ships: ids.slice(0, 4), queue: [905] };
 }
 
+/** The first level-1 Warehouse reported as not linked to the Trading Post (D-081, the warehouse-unlinked shot). */
+function unlinkWarehouse(w: WorldResponse): void {
+  for (const is of w.display.islands) {
+    const b = is.buildings.find((x) => x.type === "warehouse" && x.level === 1);
+    if (b) {
+      b.status = "not_connected";
+      return;
+    }
+  }
+  throw new Error("unlinkWarehouse: no level-1 warehouse");
+}
+
 /** A pending away summary like a night away (the owner's playtest): gold, settlers, six goods (two at capacity), a ship arrival. */
 function awayOvernight(w: WorldResponse): void {
   const d = w.display;
@@ -1510,6 +1522,16 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
     device: "desktop",
     run: async (page) => {
       await selectBuilding(page, "warehouse", { x: 1, y: 1 }, HALF.near, { level: 1 });
+    },
+  },
+  // A Warehouse no road links to the Trading Post (D-081): its card names not_connected and its reach ring is grey.
+  // The played town's warehouses are all linked, so the display marks the first level-1 one (a look, not a rule).
+  "warehouse-unlinked": {
+    fixture: "played",
+    device: "desktop",
+    patch: unlinkWarehouse,
+    run: async (page) => {
+      await selectBuilding(page, "warehouse", { x: 1, y: 1 }, HALF.near, { level: 1, notOk: true });
     },
   },
   // The warehouse card with its Producers section expanded (every assigned producer listed).
