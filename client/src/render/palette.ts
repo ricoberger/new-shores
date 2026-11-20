@@ -77,6 +77,8 @@ export const GHOST_NO_ROAD = c3(STATUS.ghost_no_road);
  */
 export const GHOST_INVALID = c3(STATUS.ghost_invalid);
 export const SELECTION = c3(STATUS.selection);
+/** The reach ring of a Warehouse not linked to the Trading Post by road (D-081): the neutral ghost grey. */
+export const RING_UNLINKED = c3(STATUS.ghost_ok);
 /**
  * Gold (D-071): the outline of a plan and the service radius ring — the
  * buildings' brass lifted toward the selection yellow, so it reads on

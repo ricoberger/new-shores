@@ -352,11 +352,22 @@ handlers only.
 
 ## 3. Roads and connection (D-014)
 
+- **The Trading Post is the single root of the road network (D-081).** A
+  **Warehouse** is *active* only while a road path joins a road tile
+  adjacent to its footprint to a road tile adjacent to the Trading Post's
+  footprint (one flood fill over the road tiles from the Trading Post); an
+  inactive Warehouse collects nothing, connects nothing, still pays its
+  upkeep like any unconnected building and shows `not_connected`
+  (`assigned_warehouse_id` of an active one is the Trading Post's ID,
+  derived like every assignment). The Trading Post is always active; depots,
+  trading piers and the Kontor are never roots.
 - A building is **connected** if there is a road path from a road tile
-  adjacent to its footprint to a road tile adjacent to a **collector's**
-  (Trading Post or Warehouse) footprint on the same island (D-042). This is the single connectivity
+  adjacent to its footprint to a road tile adjacent to an **active
+  collector's** (Trading Post or active Warehouse) footprint on the same
+  island (D-042) — equivalently, a road path to the Trading Post. This is the single connectivity
   rule for producers, public buildings and houses alike; a house on a road
-  stub that does not reach a warehouse is *not* connected. A planned
+  stub that does not reach a warehouse is *not* connected, and neither is a
+  building that only an inactive Warehouse's road reaches. A planned
   road tile (D-071, §2) is never a road for this rule. Roads are tiles;
   dirt roads (tier 1), paved roads (tier 2, +speed) and quays (tier 2,
   D-060) are the types.
@@ -449,7 +460,7 @@ handlers only.
   plan of the type counts, so placing (or planning) a second fails with
   `unique_building` (`ErrUniqueBuilding`); building the plan itself and
   moving the building never do.
-- Each connected producer is **assigned** to the nearest collector whose
+- Each connected producer is **assigned** to the nearest active collector whose
   reach covers it (§5, D-069) by road distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile
   adjacent to the collector, both ends included. Equal lengths prefer the
@@ -549,7 +560,9 @@ cycle:   seconds               at 100 % efficiency
   between the nearest tiles of the two footprints (tile centres, like a
   service radius, §6.2) is at most the reach — the producer's **building
   footprint** only, never its fields, plots or pastures — and it is
-  road-connected to it (§3). Each producer is assigned to the nearest
+  road-connected to it (§3). Only **active** collectors take producers: a
+  Warehouse is active while a road links it to the Trading Post (§3,
+  D-081); an inactive one has load 0. Each producer is assigned to the nearest
   assignable collector by road (ties: lowest ID). A producer that is
   road-connected only to collectors out of reach has the status
   **`no_collector_in_reach`** and **stalls**: rate 0, its buffer kept,

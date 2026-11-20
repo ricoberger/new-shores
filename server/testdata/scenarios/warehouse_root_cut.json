@@ -1,0 +1,129 @@
+{
+  "name": "warehouse_root_cut",
+  "description": "D-081: a quarter with its own warehouse, a lumberjack and a Settler house on the road from the Trading Post. Cutting the road at x 15..16 cuts the quarter from the root: the warehouse goes inactive (not_connected, collects nothing, still costs its upkeep), the lumberjack and the house are not connected although the warehouse is next to them. Restoring the two road tiles relinks the quarter.",
+  "content": "server/testdata/content/old_coast_pre_d054",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~ffffffffffffffffffffffffffffffffff~",
+      "~~~~~ffffffffffffffffffffffffffffffffff~",
+      "~....ffffffffffffffffffffffffffffffffff~",
+      "~....ffffffffffffffffffffffffffffffffff~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 5000,
+    "workforce": {
+      "settlers": 1000
+    },
+    "stock": {
+      "planks": 200
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          38,
+          5
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "warehouse",
+        "x": 25,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 30,
+        "y": 3,
+        "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          30,
+          3
+        ],
+        "tiles": [
+          [
+            30,
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 34,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "demolish_road": {
+        "type": "road_dirt",
+        "from": [
+          15,
+          5
+        ],
+        "to": [
+          16,
+          5
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          15,
+          5
+        ],
+        "to": [
+          16,
+          5
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    }
+  ]
+}

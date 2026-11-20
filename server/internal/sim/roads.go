@@ -149,6 +149,13 @@ func warehouseField(is *Island, net *roadNet, start []Pos) roadField {
 // delay of producers. The buffer of a producer that becomes connected is not touched here: it leaves with the
 // producer's output stream during Advance (see step), so it is subject to
 // throughput and the warehouse-full rule and is never lost.
+//
+// The Trading Post is the single root of the road network (D-081): a
+// Warehouse is active (collects, connects) only while a road path joins one
+// of its adjacent road tiles to a road tile adjacent to the Trading Post;
+// an active Warehouse gets the Trading Post's ID as AssignedWarehouseID, an
+// inactive one 0. Only active collectors are assigned to, so a building is
+// connected exactly when a road path reaches the Trading Post.
 func recomputeConnectivity(is *Island, c *content.Catalogue) {
 	type wh struct {
 		id    int64
@@ -159,15 +166,53 @@ func recomputeConnectivity(is *Island, c *content.Catalogue) {
 	var whs []wh
 	var net *roadNet
 	var at []int // per building: the road index of every adjacent road tile
+	// The roots first (the Trading Post; one per island), then the
+	// warehouses their road component reaches.
+	var rootID int64
+	var rootFields []roadField
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
-		if def == nil || !def.Collector() {
+		if def == nil || def.TradingPost == nil {
 			continue
 		}
 		if net == nil {
 			net = newRoadNet(is, c)
 		}
+		f := warehouseField(is, net, is.buildingRoads(def, b))
+		rootFields = append(rootFields, f)
+		if rootID == 0 {
+			rootID = b.ID
+		}
+		b.AssignedWarehouseID = 0
+	}
+	reached := func(start []Pos) bool {
+		for _, p := range start {
+			i := net.at(is.index(p.X, p.Y))
+			for _, f := range rootFields {
+				if f.dist[i] != unreachable {
+					return true
+				}
+			}
+		}
+		return false
+	}
+	root := 0
+	for _, b := range is.Buildings {
+		def := c.BuildingByID[b.Type]
+		if def == nil || !def.Collector() {
+			continue
+		}
+		if def.TradingPost != nil {
+			whs = append(whs, wh{id: b.ID, b: b, def: def, field: rootFields[root]})
+			root++
+			continue
+		}
+		b.AssignedWarehouseID = 0
 		start := is.buildingRoads(def, b)
+		if len(rootFields) == 0 || !reached(start) {
+			continue // inactive: collects nothing, connects nothing
+		}
+		b.AssignedWarehouseID = rootID
 		whs = append(whs, wh{id: b.ID, b: b, def: def, field: warehouseField(is, net, start)})
 	}
 

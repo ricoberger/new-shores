@@ -89,11 +89,13 @@ export function statusText(b: BuildingDisplay, island: IslandDisplay, display: D
         fix: t("status.paused_unpaid.fix"),
       };
     case "not_connected": {
-      const shipyard = content.buildings.find((d) => d.id === b.type)?.shipyard !== undefined;
+      const def = content.buildings.find((d) => d.id === b.type);
+      // A Warehouse collects only when a road links it to the Trading Post (D-081).
+      if (def?.warehouse !== undefined) return { key, sentence: t("status.not_connected.warehouse"), fix: t("status.not_connected.fixWarehouse") };
       return {
         key,
         sentence: t("status.not_connected.sentence"),
-        fix: shipyard ? t("status.not_connected.fixShipyard") : t("status.not_connected.fix"),
+        fix: def?.shipyard !== undefined ? t("status.not_connected.fixShipyard") : t("status.not_connected.fix"),
       };
     }
     case "no_collector_in_reach":

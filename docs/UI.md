@@ -473,6 +473,18 @@ UI shows the same numbers the server uses.
   server-side hard failures the client can know from content and island
   data without rules: missing fertility tag, no deposit under the
   footprint, locked tier, upgrade-only house.
+- **Warehouse linked to the Trading Post (D-081):** a Warehouse collects
+  only while a road links it to the Trading Post. Its placing (and
+  moving) ghost is red with the hint "Not linked to the Trading Post by
+  road" when no road tile next to its footprint has a road path to a road
+  tile next to the Trading Post (`unlinkedWarehouseHint` in
+  `display/roadpath.ts`, the BFS the carts draw with — a hint, the click
+  is not blocked); a built one the server reports `not_connected` shows
+  that sentence on its card and in the warnings panel with the fix
+  "Build a road from it to the Trading Post or to a road that leads
+  there…", and its reach ring (ghost or selection) is grey (the neutral
+  ghost colour) instead of the selection yellow. The buildings only it
+  reached show `not_connected` as usual.
 - **Deposit highlight:** while a mine or quarry (a building with
   `requires_deposit`) is the build tool, the tiles of its deposit kind are
   tinted in the selection yellow on every island drawn in detail (near
