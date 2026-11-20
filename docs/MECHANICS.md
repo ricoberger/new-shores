@@ -594,8 +594,8 @@ cycle:   seconds               at 100 % efficiency
 ### 6.1 Houses
 
 - A house belongs to a tier and has `residents` in `[floor, max]`
-  (Settlers 2–8, Citizens 5–15, Merchants 8–25, Patricians 12–40; tiers
-  3–4 provisional). `floor` is the minimum that never leaves (D-009). Residents are
+  (Settlers 2–6, Citizens 5–14, Merchants 8–26, Patricians 12–43: Anno
+  117's house sizes, D-080 §1). `floor` is the minimum that never leaves (D-009). Residents are
   **whole numbers**; growth accumulates in a signed per-house accumulator
   that steps residents by ±1 when it reaches a full resident (each step is
   a boundary, since it changes consumption, taxes and workforce). The
@@ -604,7 +604,7 @@ cycle:   seconds               at 100 % efficiency
 - **Target (D-074):** a house fills with its satisfaction. Its **target
   residents** are `floor + (max − floor) × satisfaction`, rounded down to a
   whole resident (never below `floor`; `max` only at satisfaction 1): a
-  Citizen house (5–15) at 0.54 holds 10, at 0.3 holds 8. There is no
+  Citizen house (5–14) at 0.54 holds 9, at 0.3 holds 7. There is no
   growth threshold.
 - **Growth rate** = `growth_per_min × satisfaction` while residents are
   below the target; **decline rate** = `decline_per_min × (1 −
@@ -612,11 +612,11 @@ cycle:   seconds               at 100 % efficiency
   its value there). Provisional constants (region.json): `growth_per_min`
   1, `decline_per_min` 0.5 — i.e. +1 resident/min at full satisfaction and
   −0.5/min at zero satisfaction. The display carries the target
-  (`residents_target`); the house card shows "↑ 8 → 10 / 15" while the
-  house moves and "→ 10 / 15" at its target.
+  (`residents_target`); the house card shows "↑ 7 → 9 / 14" while the
+  house moves and "→ 9 / 14" at its target.
 - **Upgrade** to the next tier is a player action on a *full* house —
   at its target residents (not necessarily `max`: one alternative per
-  category settles a Citizen house at 13 / 15, and the second alternative
+  category settles a Citizen house at 12 / 14, and the second alternative
   is never needed to progress, D-056 §4) — that passes the upgrade gate
   (§12: every required need of the
   *current* tier, carried lower-tier needs included, at coverage ≥ 0.6, as
@@ -723,8 +723,11 @@ covers 0.6 and both cover it fully. A need is either:
   every lower tier (`from_tier`), with that tier's goods at a reduced
   rate: `rate × (own max / higher max) × 0.5^(dist / 3)`, where *own max*
   is the lower tier's house maximum, *higher max* the carrying tier's
-  and *dist* the tier distance (Citizens eat fish at 0.01 × 8/15 ×
-  0.5^(1/3) ≈ 0.0042). The loader normalises the satisfaction weights:
+  and *dist* the tier distance (Citizens eat fish at 0.002975 × 6/14 ×
+  0.5^(1/3) ≈ 0.001012). Since D-080 the own-tier rates are Anno 117's
+  per-house rates over its house size and every rate, own and carried,
+  is generated into the content (CONTENT §4); the rule here is
+  unchanged. The loader normalises the satisfaction weights:
   the tier's own required needs share 0.6 (their authored weights sum to
   1), the lower tiers share 0.4 equally, each split by the authored
   weights of its categories.
@@ -747,8 +750,9 @@ accepted by at most one input of a recipe.
 ### 6.3 Taxes
 
 - `tax_rate[tier]` gold per resident per minute (content, CONTENT §2;
-  Settlers 0.20, Citizens 0.80, Merchants 1.50, Patricians 2.70 — tuned
-  to the one-alternative baseline, D-056 amendment), multiplied by
+  Settlers 1.18, Citizens 1.01, Merchants 1.82, Patricians 2.70 — Anno
+  117's tax per resident times `k_tax` 1.18, D-080 §5 and table D),
+  multiplied by
   `satisfaction`, rounding down.
 - Taxes only accrue from houses; nothing else creates gold (D-018).
 
