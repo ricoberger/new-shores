@@ -51,27 +51,27 @@ func TestLoadPatriciansChains(t *testing.T) {
 	const ng, im = "need_goods", "intermediate"
 	chains := map[string]chain{
 		"cattle_farm":      {"", "cattle", 120_000, "settlers", 8000, "", "", im, "410/5/9/6/0", 4, false},
-		"slaughterhouse":   {"cattle,salt", "roast_beef", 60_000, "patricians", 8000, "", "", ng, "390/6/6/3/3", 8, true},
+		"slaughterhouse":   {"cattle,salt", "roast_beef", 60_000, "patricians", 8000, "", "", ng, "390/6/6/3/3", 20, true},
 		"oyster_beds":      {"", "raw_oysters", 90_000, "settlers", 6000, "", "", im, "480/12/9/6/0", 3, false},
-		"oyster_house":     {"raw_oysters,salt", "oysters", 60_000, "patricians", 6000, "", "", ng, "510/6/6/3/6", 10, true},
+		"oyster_house":     {"raw_oysters,salt", "oysters", 60_000, "patricians", 6000, "", "", ng, "510/6/6/3/6", 20, true},
 		"vineyard":         {"", "grapes", 90_000, "settlers", 8000, "grapes", "", im, "330/6/9/3/0", 2, false},
-		"cooperage":        {"planks,iron", "barrels", 60_000, "citizens", 8000, "", "", im, "840/9/12/9/6", 7, true},
-		"winepress":        {"grapes,barrels", "wine", 60_000, "patricians", 8000, "", "", ng, "540/6/15/6/0", 8, true},
+		"cooperage":        {"planks,iron", "barrels", 45_000, "citizens", 8000, "", "", im, "840/9/12/9/6", 7, true},
+		"winepress":        {"grapes,barrels", "wine", 45_000, "patricians", 8000, "", "", ng, "540/6/15/6/0", 15, true},
 		"malt_house":       {"wheat", "malt", 60_000, "citizens", 6000, "", "", im, "270/6/6/3/0", 2, true},
-		"grain_distillery": {"malt,barrels,charcoal|coal", "grain_spirit", 90_000, "patricians", 8000, "", "", ng, "600/6/9/6/6", 5, true},
-		"fashion_house":    {"dyed_garments,thread", "fine_garments", 120_000, "patricians", 10_000, "", "", ng, "900/6/9/6/12", 7, false},
+		"grain_distillery": {"malt,barrels,charcoal|coal", "grain_spirit", 90_000, "patricians", 8000, "", "", ng, "600/6/9/6/6", 10, true},
+		"fashion_house":    {"dyed_garments,thread", "fine_garments", 120_000, "patricians", 10_000, "", "", ng, "900/6/9/6/12", 14, false},
 		"thread_spinner":   {"hemp", "thread", 45_000, "citizens", 6000, "", "", im, "240/6/0/6/0", 2, false},
-		"lace_maker":       {"thread", "lace", 120_000, "patricians", 10_000, "", "", ng, "650/5/3/6/9", 4, false},
-		"candle_foundry":   {"tallow,hemp", "candles", 45_000, "patricians", 6000, "", "", ng, "680/5/0/9/9", 12, true},
+		"lace_maker":       {"thread", "lace", 90_000, "patricians", 10_000, "", "", ng, "650/5/3/6/9", 8, false},
+		"candle_foundry":   {"tallow,hemp", "candles", 45_000, "patricians", 6000, "", "", ng, "680/5/0/9/9", 8, true},
 		"quartz_quarry":    {"", "quartz", 60_000, "citizens", 10_000, "", "quartz", im, "300/6/3/6/0", 4, false},
 		"glass_smelter":    {"quartz,charcoal|coal", "glass", 60_000, "citizens", 8000, "", "", im, "270/6/6/3/0", 3, true},
 		"copper_mine":      {"", "copper_ore", 60_000, "citizens", 10_000, "", "copper", im, "210/6/3/3/0", 5, false},
 		"copper_smelter":   {"copper_ore,charcoal|coal", "brass", 60_000, "citizens", 8000, "", "", im, "740/5/9/9/6", 6, true},
-		"optician":         {"glass,brass", "spectacles", 90_000, "patricians", 8000, "", "", ng, "680/5/0/9/9", 12, true},
+		"optician":         {"glass,brass", "spectacles", 120_000, "patricians", 8000, "", "", ng, "680/5/0/9/9", 13, true},
 		"gold_mine":        {"", "gold_ore", 120_000, "citizens", 10_000, "", "gold", im, "210/6/3/3/0", 5, false},
 		"gold_smelter":     {"gold_ore,charcoal|coal", "gold_bars", 60_000, "citizens", 8000, "", "", im, "740/5/9/9/6", 6, true},
-		"goldsmith":        {"gold_bars", "jewellery", 90_000, "patricians", 6000, "", "", ng, "680/5/0/9/9", 12, true},
-		"luthier":          {"planks,brass", "instruments", 120_000, "patricians", 8000, "", "", ng, "870/6/9/9/9", 8, false},
+		"goldsmith":        {"gold_bars", "jewellery", 90_000, "patricians", 6000, "", "", ng, "680/5/0/9/9", 24, true},
+		"luthier":          {"planks,brass", "instruments", 60_000, "patricians", 8000, "", "", ng, "870/6/9/9/9", 15, false},
 	}
 	var tier4 []string
 	for _, b := range c.Buildings {
@@ -267,20 +267,20 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 		"patricians_safety:safety:city_guard=1000000:36000", "patricians_fire_protection:fire_protection:fire_station=1000000:36000",
 		"patricians_health:health:surgery=1000000:48000",
 		// Lower tiers: 0.4/3 each, split by their own weights (rounding to the last);
-		// rates × (own max / 40) × 0.5^(distance/3), 4 decimals.
-		"patricians_settlers_food:food:fish=1000:95237", "patricians_settlers_clothing:clothing:wool_garments=500:38095",
-		"patricians_citizens_food:food:bread=1900/cheese=1400:44444", "patricians_citizens_drink:drink:cider=1400/mead=1200:44444",
-		"patricians_citizens_clothing:clothing:linen_garments=1200/leather_jerkins=900:44444",
-		"patricians_merchants_food:food:sausages=3000/pies=2500:33333", "patricians_merchants_drink:drink:beer=3000/brandy=2000:33333",
-		"patricians_merchants_clothing:clothing:coats=2000/dyed_garments=2000:33333",
-		"patricians_merchants_comfort:comfort:books=1000/soap=1500:33337",
+		// rates × (own max / Patricians max) × 0.5^(distance/3), 4 decimals.
+		"patricians_settlers_food:food:fish=700:95237", "patricians_settlers_clothing:clothing:wool_garments=300:38095",
+		"patricians_citizens_food:food:bread=1600/cheese=1200:44444", "patricians_citizens_drink:drink:cider=1200/mead=1000:44444",
+		"patricians_citizens_clothing:clothing:linen_garments=1000/leather_jerkins=800:44444",
+		"patricians_merchants_food:food:sausages=2900/pies=2400:33333", "patricians_merchants_drink:drink:beer=2900/brandy=1900:33333",
+		"patricians_merchants_clothing:clothing:coats=1900/dyed_garments=1900:33333",
+		"patricians_merchants_comfort:comfort:books=1000/soap=1400:33337",
 	}
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("patricians needs = %v (weights %d), want %v", got, weights, want)
 	}
 
 	// Every carried rate follows the formula of CONTENT §2 from the lower
-	// tier's own rate: rate × (lower max / 40) × 0.5^(distance/3), rounded
+	// tier's own rate: rate × (lower max / Patricians max) × 0.5^(distance/3), rounded
 	// to 0.0001 per resident and minute.
 	index := map[string]int{}
 	for i, tr := range c.Tiers {
@@ -292,7 +292,7 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 			continue
 		}
 		low := c.TierByID[n.FromTier]
-		factor := float64(low.ResidentsMax) / 40_000 * math.Pow(0.5, float64(index["patricians"]-index[n.FromTier])/3)
+		factor := float64(low.ResidentsMax) / float64(c.TierByID["patricians"].ResidentsMax) * math.Pow(0.5, float64(index["patricians"]-index[n.FromTier])/3)
 		for _, own := range c.NeedsByTier[n.FromTier] {
 			if own.FromTier != "" || own.Category != n.Category {
 				continue

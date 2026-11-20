@@ -128,7 +128,7 @@
     "kind": "required",
     "weight": 0.5,
     "category": "food",
-    "goods": [{ "good": "fish", "per_resident_per_min": 0.0042 }]
+    "goods": [{ "good": "fish", "per_resident_per_min": 0.0034 }]
   },
   {
     "id": "citizens_settlers_clothing",
@@ -138,7 +138,7 @@
     "kind": "required",
     "weight": 0.2,
     "category": "clothing",
-    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.0021 }]
+    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.0017 }]
   },
   {
     "id": "merchants_food",
@@ -253,7 +253,7 @@
     "kind": "required",
     "weight": 0.5,
     "category": "food",
-    "goods": [{ "good": "fish", "per_resident_per_min": 0.002 }]
+    "goods": [{ "good": "fish", "per_resident_per_min": 0.0015 }]
   },
   {
     "id": "merchants_settlers_clothing",
@@ -263,7 +263,7 @@
     "kind": "required",
     "weight": 0.2,
     "category": "clothing",
-    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.001 }]
+    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.0007 }]
   },
   {
     "id": "merchants_citizens_food",
@@ -274,8 +274,8 @@
     "weight": 0.2,
     "category": "food",
     "goods": [
-      { "good": "bread", "per_resident_per_min": 0.0038 },
-      { "good": "cheese", "per_resident_per_min": 0.0029 }
+      { "good": "bread", "per_resident_per_min": 0.0034 },
+      { "good": "cheese", "per_resident_per_min": 0.0026 }
     ]
   },
   {
@@ -287,8 +287,8 @@
     "weight": 0.2,
     "category": "drink",
     "goods": [
-      { "good": "cider", "per_resident_per_min": 0.0029 },
-      { "good": "mead", "per_resident_per_min": 0.0024 }
+      { "good": "cider", "per_resident_per_min": 0.0026 },
+      { "good": "mead", "per_resident_per_min": 0.0021 }
     ]
   },
   {
@@ -300,8 +300,8 @@
     "weight": 0.2,
     "category": "clothing",
     "goods": [
-      { "good": "linen_garments", "per_resident_per_min": 0.0024 },
-      { "good": "leather_jerkins", "per_resident_per_min": 0.0019 }
+      { "good": "linen_garments", "per_resident_per_min": 0.0021 },
+      { "good": "leather_jerkins", "per_resident_per_min": 0.0017 }
     ]
   },
   {
@@ -438,7 +438,7 @@
     "kind": "required",
     "weight": 0.5,
     "category": "food",
-    "goods": [{ "good": "fish", "per_resident_per_min": 0.001 }]
+    "goods": [{ "good": "fish", "per_resident_per_min": 0.0007 }]
   },
   {
     "id": "patricians_settlers_clothing",
@@ -448,7 +448,7 @@
     "kind": "required",
     "weight": 0.2,
     "category": "clothing",
-    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.0005 }]
+    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.0003 }]
   },
   {
     "id": "patricians_citizens_food",
@@ -459,8 +459,8 @@
     "weight": 0.2,
     "category": "food",
     "goods": [
-      { "good": "bread", "per_resident_per_min": 0.0019 },
-      { "good": "cheese", "per_resident_per_min": 0.0014 }
+      { "good": "bread", "per_resident_per_min": 0.0016 },
+      { "good": "cheese", "per_resident_per_min": 0.0012 }
     ]
   },
   {
@@ -472,8 +472,8 @@
     "weight": 0.2,
     "category": "drink",
     "goods": [
-      { "good": "cider", "per_resident_per_min": 0.0014 },
-      { "good": "mead", "per_resident_per_min": 0.0012 }
+      { "good": "cider", "per_resident_per_min": 0.0012 },
+      { "good": "mead", "per_resident_per_min": 0.001 }
     ]
   },
   {
@@ -485,8 +485,8 @@
     "weight": 0.2,
     "category": "clothing",
     "goods": [
-      { "good": "linen_garments", "per_resident_per_min": 0.0012 },
-      { "good": "leather_jerkins", "per_resident_per_min": 0.0009 }
+      { "good": "linen_garments", "per_resident_per_min": 0.001 },
+      { "good": "leather_jerkins", "per_resident_per_min": 0.0008 }
     ]
   },
   {
@@ -498,8 +498,8 @@
     "weight": 0.17,
     "category": "food",
     "goods": [
-      { "good": "sausages", "per_resident_per_min": 0.003 },
-      { "good": "pies", "per_resident_per_min": 0.0025 }
+      { "good": "sausages", "per_resident_per_min": 0.0029 },
+      { "good": "pies", "per_resident_per_min": 0.0024 }
     ]
   },
   {
@@ -511,8 +511,8 @@
     "weight": 0.17,
     "category": "drink",
     "goods": [
-      { "good": "beer", "per_resident_per_min": 0.003 },
-      { "good": "brandy", "per_resident_per_min": 0.002 }
+      { "good": "beer", "per_resident_per_min": 0.0029 },
+      { "good": "brandy", "per_resident_per_min": 0.0019 }
     ]
   },
   {
@@ -524,8 +524,8 @@
     "weight": 0.17,
     "category": "clothing",
     "goods": [
-      { "good": "coats", "per_resident_per_min": 0.002 },
-      { "good": "dyed_garments", "per_resident_per_min": 0.002 }
+      { "good": "coats", "per_resident_per_min": 0.0019 },
+      { "good": "dyed_garments", "per_resident_per_min": 0.0019 }
     ]
   },
   {
@@ -538,7 +538,7 @@
     "category": "comfort",
     "goods": [
       { "good": "books", "per_resident_per_min": 0.001 },
-      { "good": "soap", "per_resident_per_min": 0.0015 }
+      { "good": "soap", "per_resident_per_min": 0.0014 }
     ]
   }
 ]

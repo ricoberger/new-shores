@@ -195,7 +195,7 @@ func TestLevelTierGates(t *testing.T) {
 	}
 
 	w.UnlockedTiers = []string{"citizens", "merchants", "patricians"}
-	for id, r := range map[int64]int{guard: 26, fire: 22} {
+	for id, r := range map[int64]int{guard: 28, fire: 28} {
 		b := w.Islands()[0].Building(id)
 		def := c.BuildingByID[b.Type]
 		if def.Service == nil || len(def.Service.Levels) != 1 || def.Service.RadiusAt(1) != r || def.Service.Chain != "" {

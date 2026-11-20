@@ -63,7 +63,7 @@ func TestLoadCitizensContent(t *testing.T) {
 		// Civic service (D-060): safety, 0.1 taken from services.
 		"citizens_safety:safety:city_guard=1000000:60000",
 		// Lower-tier categories (D-056): 0.4 split 0.5 : 0.2.
-		"citizens_settlers_food:food:fish=4200:285714", "citizens_settlers_clothing:clothing:wool_garments=2100:114286",
+		"citizens_settlers_food:food:fish=3400:285714", "citizens_settlers_clothing:clothing:wool_garments=1700:114286",
 	}
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("citizens needs = %v (weights %d), want %v", got, weights, want)
@@ -104,9 +104,9 @@ func TestLoadCitizensContent(t *testing.T) {
 		"mill":            {"wheat", "flour", 30_000, "citizens", 4000, "", "", "intermediate"},
 		"bakery":          {"flour", "bread", 60_000, "citizens", 6000, "", "", "need_goods"},
 		"orchard":         {"", "apples", 90_000, "settlers", 6000, "apple", "", "intermediate"},
-		"cidery":          {"apples", "cider", 45_000, "citizens", 6000, "", "", "need_goods"},
+		"cidery":          {"apples", "cider", 90_000, "citizens", 6000, "", "", "need_goods"},
 		"hemp_farm":       {"", "hemp", 60_000, "settlers", 6000, "hemp", "", "intermediate"},
-		"weaver_linen":    {"hemp", "linen_garments", 45_000, "citizens", 6000, "", "", "need_goods"},
+		"weaver_linen":    {"hemp", "linen_garments", 60_000, "citizens", 6000, "", "", "need_goods"},
 		"sailmaker":       {"hemp", "sails", 60_000, "citizens", 6000, "", "", "intermediate"},
 		"quarry":          {"", "stone", 45_000, "settlers", 8000, "", "stone", "intermediate"},
 		"iron_mine":       {"", "iron_ore", 60_000, "settlers", 10_000, "", "iron", "intermediate"},
@@ -119,7 +119,7 @@ func TestLoadCitizensContent(t *testing.T) {
 		"apiary":       {"", "honey", 90_000, "settlers", 4000, "", "", "intermediate"},
 		"meadery":      {"honey", "mead", 60_000, "citizens", 6000, "", "", "need_goods"},
 		"pig_farm":     {"", "pigs", 90_000, "settlers", 6000, "", "", "intermediate"},
-		"tannery":      {"pigs", "leather_jerkins", 60_000, "citizens", 8000, "", "", "need_goods"},
+		"tannery":      {"pigs", "leather_jerkins", 120_000, "citizens", 8000, "", "", "need_goods"},
 	}
 	for id, w := range chains {
 		b := c.BuildingByID[id]
@@ -453,9 +453,12 @@ func chainCapacity(c *Catalogue, good string, demand int64, counts map[string]in
 
 // TestBalanceChecklist (CONTENT §12, R-21): at each tier's unlock
 // population (Settlers 120 from content, Citizens 400 from the CONTENT §2
-// Merchants row) one good per category supports the population with at
-// most 25 % surplus, taxes cover the upkeep of the balanced chain set with
-// a 20 % margin, and the set's workforce leaves 20 % slack.
+// Merchants row) one good per category is supported by the balanced chain
+// set, taxes cover the set's upkeep with a 20 % margin, and the set's
+// workforce leaves 20 % slack. Since D-080 one final producer feeds 43–260
+// houses (CONTENT §2), so at the unlock populations the set is mostly a
+// single producer with a large surplus: the former 25 % surplus bound
+// measured the old rates' granularity and is gone.
 func TestBalanceChecklist(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
@@ -480,8 +483,8 @@ func TestBalanceChecklist(t *testing.T) {
 			capacity := chainCapacity(c, n.Goods[0].Good, demand, counts)
 			surplus := capacity*1000/demand - 1000
 			t.Logf("%s @%d: %s demand %d, capacity %d milli/min: surplus %d ‰", tc.tier, tc.population, n.Goods[0].Good, demand, capacity, surplus)
-			if surplus < 0 || surplus > 250 {
-				t.Errorf("%s: %s surplus %d ‰, want 0..250", tc.tier, n.Goods[0].Good, surplus)
+			if surplus < 0 {
+				t.Errorf("%s: %s surplus %d ‰, want >= 0", tc.tier, n.Goods[0].Good, surplus)
 			}
 		}
 		var upkeep, workforce int64
