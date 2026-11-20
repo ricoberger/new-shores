@@ -538,7 +538,7 @@
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 26972,
+            "stock": 28600,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -611,7 +611,7 @@
             },
             "residents": 5000,
             "residents_floor": 5000,
-            "residents_max": 15000,
+            "residents_max": 14000,
             "residents_target": 5000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
@@ -1359,7 +1359,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 26972,
+                "stock": 28600,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -1432,7 +1432,7 @@
                 },
                 "residents": 5000,
                 "residents_floor": 5000,
-                "residents_max": 15000,
+                "residents_max": 14000,
                 "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
@@ -2180,7 +2180,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 26972,
+                "stock": 28600,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -2253,7 +2253,7 @@
                 },
                 "residents": 5000,
                 "residents_floor": 5000,
-                "residents_max": 15000,
+                "residents_max": 14000,
                 "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
@@ -3001,7 +3001,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 26972,
+                "stock": 28600,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -3074,7 +3074,7 @@
                 },
                 "residents": 5000,
                 "residents_floor": 5000,
-                "residents_max": 15000,
+                "residents_max": 14000,
                 "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
@@ -3822,7 +3822,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 26972,
+                "stock": 28600,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -3895,7 +3895,7 @@
                 },
                 "residents": 5000,
                 "residents_floor": 5000,
-                "residents_max": 15000,
+                "residents_max": 14000,
                 "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
@@ -4643,7 +4643,7 @@
                 "in_transit_rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 26972,
+                "stock": 28600,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -4716,7 +4716,7 @@
                 },
                 "residents": 5000,
                 "residents_floor": 5000,
-                "residents_max": 15000,
+                "residents_max": 14000,
                 "residents_target": 5000,
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,

@@ -134,7 +134,7 @@ describe("tier 3 in the cards (D-056)", () => {
     const house = home.buildings.find((b) => b.type === "house_merchants")!;
     const html = panel(house);
     const t = text(html);
-    expect(t).toContain("Residents→ 21 / 25");
+    expect(t).toContain("Residents→ 21 / 26");
     const rows = [...html.matchAll(/data-testid="house-need-(?!group-)([a-z_]+)"/g)].map((m) => m[1]);
     expect(rows).toEqual([
       "merchants_settlers_food",

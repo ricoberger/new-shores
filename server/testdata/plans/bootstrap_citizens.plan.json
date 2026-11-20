@@ -290,7 +290,7 @@
           "ship": 1,
           "to": "oc-02",
           "cargo": {
-            "planks": 50
+            "planks": 58
           }
         }
       }
@@ -383,14 +383,7 @@
           172
         ]
       },
-      "note": "D-074: by the third sheep farm, away from the Trading Post too."
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "fisher",
-        "count": 1
-      }
+      "note": "D-074: by the third sheep farm, away from the Trading Post too. D-080: no third fisher here any more (one fisher feeds 56 Settler houses)."
     },
     {
       "upgrade": {
@@ -422,8 +415,9 @@
     {
       "houses": {
         "quarter": "isle2-1",
-        "count": 8
-      }
+        "count": 10
+      },
+      "note": "D-080: ten six-resident houses give the iron chain about the workforce eight eight-resident houses gave (the founding load carries their planks)."
     },
     {
       "build": {

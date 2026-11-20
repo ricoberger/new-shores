@@ -85,6 +85,9 @@
           "stops": [
             {
               "island": "oc-01",
+              "load": {
+                "planks": 20
+              },
               "unload": [
                 "hops",
                 "tools",
@@ -98,11 +101,15 @@
               "load": {
                 "hops": 50,
                 "stone": 50
-              }
+              },
+              "unload": [
+                "planks"
+              ]
             }
           ]
         }
-      }
+      },
+      "note": "D-080: planks to isle 2 as well; its six-resident Settler houses take more houses (and planks) than the Merchants game leaves there."
     },
     {
       "build": {
@@ -2802,11 +2809,15 @@
               "load": {
                 "hops": 50,
                 "iron": 30
-              }
+              },
+              "unload": [
+                "planks"
+              ]
             }
           ]
         }
-      }
+      },
+      "note": "D-080: the ship still unloads the planks of the opening's route on isle 2 (they would block a slot)."
     },
     {
       "step": {
