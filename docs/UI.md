@@ -738,7 +738,8 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
 - Every number in the UI is a server number or a linear extrapolation of one;
   never a client-side rule result (D-027).
 - Every negative state has a cause and a suggested fix in one sentence.
-- Rates are always shown per minute; quantities as integers. Goods are measured
+- Rates are always shown per minute (one decimal; below 0.1 t/min two, so a
+  few houses' D-080 consumption does not read as 0.0); quantities as integers. Goods are measured
   in tonnes, abbreviated `t`, everywhere: rates `{rate} t/min`, stocks `{n} t`,
   capacities and buffers `{n}/{cap} t`, ship cargo and slot sizes, costs,
   rewards and trading offers (catalogue keys `unit.t`, `unit.tRatio`,
@@ -793,7 +794,12 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   hardcoded (no tier, building or good names). `model.ts` turns the
   payload into view models; the only arithmetic is the one of the
   CONTENT tables (per-minute rates from cycle times, a full house's tax,
-  shares as percent). Unknown or missing fields render nothing.
+  shares as percent, and the full houses a producer of a needed good
+  supplies: its output per minute ÷ (own-tier rate × house size),
+  rounded, as "about 56 full Settlers houses with Fish" on its building
+  page, D-080). The Needs page gives goods rates **per 100 residents**
+  (D-080 rates are 0.0001–0.003 per resident) and words the carry
+  formula of CONTENT §2 in one sentence. Unknown or missing fields render nothing.
   `questText.ts` words every objective kind of MECHANICS §12a. The
   Islands page shows each size class's size, count, per-island
   fertility and deposit ranges, shape (plain, massifs, rivers, terraces,

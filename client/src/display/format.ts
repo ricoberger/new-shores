@@ -52,9 +52,16 @@ export function signedTons(milli: number): string {
   return t("unit.t", { n: v === "0" ? "0" : milli < 0 ? `−${v}` : `+${v}` });
 }
 
-/** A goods rate in milli-units per minute as tonnes per minute: "1.5 t/min". */
+/**
+ * A goods rate in milli-units per minute as tonnes per minute: "1.5 t/min"; below 0.1 t/min with two decimals
+ * ("0.04 t/min"), so that the small consumption of a few houses (D-080) does not read as 0.0.
+ */
 export function tonsPerMin(milliPerMin: number, signed = false, locale: string = currentLocale()): string {
-  return t("unit.tPerMin", { rate: perMin(milliPerMin, signed, locale) });
+  const abs = Math.abs(milliPerMin);
+  if (abs === 0 || abs >= 95) return t("unit.tPerMin", { rate: perMin(milliPerMin, signed, locale) });
+  const v = decimal(abs / 1000, 2, locale);
+  const sign = v.replace(/[^0-9]/g, "").replace(/0/g, "") === "" ? "" : milliPerMin < 0 ? (signed ? "−" : "-") : signed ? "+" : "";
+  return t("unit.tPerMin", { rate: `${sign}${v}` });
 }
 
 /** A goods rate given as an already formatted number: "1.5 t/min". */

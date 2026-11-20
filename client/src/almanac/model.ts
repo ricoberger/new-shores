@@ -280,6 +280,35 @@ export function needsByTier(idx: Index): TierNeeds[] {
   });
 }
 
+/** Full houses one producer supplies with a good of its tier's own needs (CONTENT §2, D-080). */
+export interface HousesSupplied {
+  good: string;
+  tier: string;
+  /** Output per minute ÷ (own-tier rate per resident × the tier's house size), at full efficiency. */
+  houses: number;
+}
+
+/**
+ * The full houses a producer supplies with each output good that a tier's own needs ask for: content arithmetic
+ * (the almanac's "per minute at full efficiency"), not a rule — the server decides the supply.
+ */
+export function housesSupplied(idx: Index, building: string): HousesSupplied[] {
+  const def = idx.building(building);
+  const r = def?.recipe;
+  if (!r || !r.cycle_ms) return [];
+  const out: HousesSupplied[] = [];
+  for (const o of r.outputs ?? []) {
+    for (const n of idx.needsOfGood(o.good)) {
+      const rate = (n.goods ?? []).find((g) => g.good === o.good)?.per_resident_per_min ?? 0;
+      const size = (idx.tier(n.tier)?.residents_max ?? 0) / 1000;
+      if (rate <= 0 || size <= 0) continue;
+      const perMin = perMinute(o.amount, r.cycle_ms);
+      out.push({ good: o.good, tier: n.tier, houses: perMin / ((rate / 1_000_000) * size) });
+    }
+  }
+  return out;
+}
+
 // --------------------------------------------------------------- buildings
 
 export interface FlowView {

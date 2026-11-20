@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Content } from "../api/client";
-import { buildIndex, buildingGroups, buildingView, chain, goodView, islandsView, needsByTier, num, perMinute, search, searchEntries, shipView, tierViews, type ChainNode } from "./model";
+import { buildIndex, buildingGroups, buildingView, chain, goodView, housesSupplied, islandsView, needsByTier, num, perMinute, search, searchEntries, shipView, tierViews, type ChainNode } from "./model";
 import { objectiveSentence, questViews } from "./questText";
 import { loadContent } from "./testContent";
 
@@ -121,6 +121,17 @@ describe("arithmetic of the tables", () => {
     expect(lumberjack.cycleSeconds).toBe(30);
   });
 
+  it("derives the full houses a producer supplies from the own-tier rate (D-080 table A)", () => {
+    const houses = (id: string) => housesSupplied(idx, id).map((s) => [s.good, s.tier, Math.round(s.houses)]);
+    expect(houses("fisher")).toEqual([["fish", "settlers", 56]]);
+    expect(houses("bakery")).toEqual([["bread", "citizens", 62]]);
+    expect(houses("cidery")).toEqual([["cider", "citizens", 43]]);
+    expect(houses("slaughterhouse")).toEqual([["roast_beef", "patricians", 133]]);
+    // Intermediates and materials supply no house.
+    expect(houses("mill")).toEqual([]);
+    expect(houses("sawmill")).toEqual([]);
+  });
+
   it("keeps recipe input alternatives in one slot", () => {
     const smelter = buildingView(idx, idx.building("smelter")!);
     expect(smelter.inputs.map((i) => i.goods)).toEqual([["iron_ore"], ["charcoal", "coal"]]);
@@ -128,17 +139,17 @@ describe("arithmetic of the tables", () => {
 
   it("reads tiers, residents and tax", () => {
     const t = tierViews(idx);
-    expect(t[1]).toMatchObject({ id: "citizens", residentsFloor: 5, residentsMax: 15, tax: 0.8 });
+    expect(t[1]).toMatchObject({ id: "citizens", residentsFloor: 5, residentsMax: 14, tax: 1.01 });
     expect(t[1]?.unlock.population).toEqual([{ tier: "settlers", amount: 120 }]);
-    expect(t[1]?.taxFullHouse).toBeCloseTo(12);
+    expect(t[1]?.taxFullHouse).toBeCloseTo(14.14);
   });
 
   it("lists need alternatives with shares, rates and services with radii", () => {
     const citizens = needsByTier(idx).find((t) => t.tier === "citizens")!;
     const food = citizens.own.find((n) => n.category === "food")!;
     expect(food.alternatives.map((a) => [a.id, a.share, a.perResident])).toEqual([
-      ["bread", 0.6, 0.008],
-      ["cheese", 0.6, 0.006],
+      ["bread", 0.6, 0.001156],
+      ["cheese", 0.6, 0.000621],
     ]);
     expect(food.alternatives[0]?.providers.length).toBeGreaterThan(0);
     const tiers = needsByTier(idx);
