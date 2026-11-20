@@ -2875,3 +2875,219 @@ props keep the 8-voxel helpers). Models 28.17 MiB; far 13 / 202 k,
   buildable for houses); the client already hides decor trees under
   fields (`display/scatter.ts`). Test content copies under
   `server/testdata/content/*` carry the same terrain lists.
+
+## D-080 Anno 117 baseline for houses, consumption and production rates
+
+- **Date:** 2026-11-20
+- **Status:** accepted — amends D-056 (rates, house sizes),
+  D-033/D-056 carry formula kept; supersedes the "fisher feeds ~19
+  houses" baseline of D-056 and the house sizes of D-029/D-056
+- **Context:** playtest 3 — a town of 762 Settlers and 476 Citizens
+  needed 6.4 fishers; the same town needs 2.7 fishing huts in Anno 117.
+  Our consumption per resident is 3.4–4.5× Anno's at tier 1 and the gap
+  widens to 15–30× in buildings per house at tiers 3–4, so a New Shores
+  town reads as production belt where an Anno town reads as houses. The
+  comparison used `anno117.tools/data/game-data.json` (kept out of the
+  repo at `~/Desktop/new-shores/needs/anno-117-game-data.json`): a
+  residence's capacity is the sum of the `Population` attribute over its
+  regular (non-buff) needs, each need carries a per-house `rate`, every
+  Roman producer its `cycle`, `inputs`/`outputs`, `cost`, `upkeep`.
+- **Decision:** adopt the Anno 117 numbers wholesale as the baseline;
+  tune only the absolute gold scale ourselves.
+  1. **House sizes** `max` 6 / 14 / 26 / 43 (floors stay 2 / 5 / 8 / 12;
+     growth model of D-074 unchanged). Unlocks stay 120 / 360 / 1 200
+     residents (= 20 / 26 / 46 full houses).
+  2. **Own-tier consumption** per resident = Anno per-house rate ÷ Anno
+     house size of the counterpart good (table A). Counterpart by name
+     when Anno has the good at the same tier; otherwise the Anno
+     alternative of the same tier and category role (first alternative
+     ← Anno's higher-rate regular alternative, second ← the lower one);
+     our *drink* category, which Anno folds into Food, takes the Food
+     rates Anno files under drink-like goods (Wine, Beer) where they
+     exist at that tier.
+  3. **Carried consumption** keeps the D-056 formula
+     `rate × (max_own / max_t) × 0.5^(distance/3)` — checked against
+     Anno's own carried rates: within −17 … +3 % over all goods, always
+     on the player's side at the top (table B). Carried entries in
+     `needs.json` are generated, not typed: a small script under
+     `content/tools/` holds table A and writes the carried rows.
+  4. **Production cycles** of final-good producers = the Anno
+     counterpart's cycle (table C); the fisher goes 40 → 60 s (1 t/min).
+     Upstream producers keep their output amounts; their cycles are
+     adjusted only where the chain ratio in CONTENT §4 would otherwise
+     stop being whole (the session lists every change). Footprints
+     (D-062), workforce (already ≈ Anno) and recipes stay.
+  5. **Maintenance ladder** relative per Anno (table C, `gold` column —
+     fisher 6 : bakery 14 : Epicure 40 : Jeweller 48); **tax ladder**
+     relative per Anno's `Money` per full house: 6 / 12 / 40 / 98 →
+     per resident 1.00 : 0.86 : 1.54 : 2.28. Both get one absolute
+     scale factor each, tuned by the reference-game replay so that
+     every reference game keeps gold ≥ 0 without auto-pause and reaches
+     its D-067 milestones no later than today; starting point: tax
+     `k_tax` such that Patricians stay at 2.7 gold/res/min
+     (1.18 / 1.01 / 1.82 / 2.70), maintenance `k_upkeep` = 0.5 × Anno's
+     gold column (fisher 3, bakery 7, slaughterhouse 20, goldsmith 24).
+     Both provisional; the replay decides.
+  6. **Need weights** (`Population` shares: Liberti food 4/6, market and
+     tavern 1/6 each, clothing adds income only) are *recorded as the
+     source* but not adopted now — clothing with zero growth weight is
+     a behaviour change the playtest did not ask for. Revisit after
+     playtest 4.
+  7. **Civic service radii** unified: `city_guard` 26 → 28 and
+     `fire_station` 22 → 28, the surgery's radius (playtest 3: the three
+     radii differed without meaning; Anno 117's own small institutions
+     are 16 / 20 / 16, so 28 is already generous). Warehouses stay
+     collectors without a road requirement to the Trading Post (D-014,
+     island-wide stock as in Anno 1404 / 117) — considered, kept.
+  8. Content `old_coast-0.23.0`; sim unchanged; reference games
+     regenerated (they will get faster — fewer producers — targets stay;
+     CONTENT reference tables rewritten); almanac numbers follow from
+     content.
+- **Rejected:** a flat ×0.4 on our rates (keeps our tier ladder, which
+  Anno's data shows to be 3–5× too steep in buildings per house above
+  tier 1); Anno rates with our producer speeds (untraceable mix); Anno's
+  per-need resident model instead of satisfaction (D-074 stays).
+- **Consequences:** per-resident rates drop ×0.30 at tier 1 and
+  ×0.07–0.15 above; a fisher feeds 56 Settler houses, a bakery 62
+  Citizen houses, a slaughterhouse ~130 Patrician houses; fields per farm
+  (D-054 counts) unchanged, so farm footprints stay large while fewer
+  are needed; the Patricians plan shrinks (replay faster); the house
+  card's "→ 10 / 15" becomes "/ 14"; `max` is content, residents state —
+  houses above the new max are clamped by the existing path, no
+  migration. Playtest snapshots at 0.22.x no longer load (D-066).
+
+### Table A — own-tier consumption (per resident per minute)
+
+| Tier (size) | Category | Good | today | Anno counterpart (per house ÷ size) | **new** | houses per producer (new cycle) |
+|---|---|---|---|---|---|---|
+| Settlers (6) | food | fish | 0.0100 | Sardines 0.01785 ÷ 6 | **0.002975** | fisher 1.0 t/min → 56 |
+| | clothing | wool_garments | 0.0050 | Tunics 0.01785 ÷ 6 | **0.002975** | weaver 1.0 → 56 |
+| Citizens (14) | food | bread | 0.0080 | Bread 0.016185 ÷ 14 | **0.001156** | bakery 1.0 → 62 |
+| | | cheese | 0.0060 | Garum 0.0087 ÷ 14 (role: 2nd food) | **0.000621** | cheese dairy 1.0 → 115 |
+| | drink | cider | 0.0060 | Wine 0.015385 ÷ 14 (Anno Food) | **0.001099** | cidery 0.67 (90 s, Olive Press) → 43 |
+| | | mead | 0.0050 | Garum 0.0087 ÷ 14 (role) | **0.000621** | meadery 1.0 → 115 |
+| | clothing | linen_garments | 0.0050 | Soap 0.01425 ÷ 14 (Anno Fashion, 1st) | **0.001018** | weaver_linen 1.0 → 70 |
+| | | leather_jerkins | 0.0040 | Sandals 0.006504 ÷ 14 | **0.000465** | tannery 0.5 (120 s, Sandal Maker) → 77 |
+| Merchants (26) | food | sausages | 0.0060 | Dates 0.0112 ÷ 26 (role: 1st regular food) | **0.000431** | butcher 1.0 → 89 |
+| | | pies | 0.0050 | Cheese 0.005725 ÷ 26 | **0.000220** | pastry kitchen 1.0 → 175 |
+| | drink | beer | 0.0060 | Wine 0.012902 ÷ 26 | **0.000496** | brewery 1.0 → 78 |
+| | | brandy | 0.0040 | Cheese 0.005725 ÷ 26 (role) | **0.000220** | distillery 0.67 → 117 |
+| | clothing | coats | 0.0040 | Togas 0.01 ÷ 26 | **0.000385** | tailor 1.0 (60 s, Loom Weavery) → 100 |
+| | | dyed_garments | 0.0040 | Brooches 0.005669 ÷ 26 | **0.000218** | dyer 1.0 → 176 |
+| | comfort | books | 0.0020 | Writing Tablets 0.005001 ÷ 26 | **0.000192** | printing press 0.5 (120 s, Tabulus) → 100 |
+| | | soap | 0.0030 | Fine Glass 0.004922 ÷ 26 (role) | **0.000189** | soap maker 1.0 → 203 |
+| Patricians (43) | food | roast_beef | 0.0050 | Oysters with Caviar 0.007528 ÷ 43 (1st food) | **0.000175** | slaughterhouse 1.0 → 133 |
+| | | oysters | 0.0040 | Bird Tongues 0.006012 ÷ 43 | **0.000140** | oyster house 1.0 → 166 |
+| | drink | wine | 0.0040 | Bird Tongues 0.006012 ÷ 43 (role) | **0.000140** | winepress 1.33 (45 s, Vintner) → 221 |
+| | | grain_spirit | 0.0030 | Kayk 0.005594 ÷ 43 | **0.000130** | grain distillery 0.67 → 119 |
+| | clothing | fine_garments | 0.0030 | Cloaks 0.008658 ÷ 43 | **0.000201** | fashion house 0.5 → 58 |
+| | | lace | 0.0030 | Necklaces 0.0054645 ÷ 43 | **0.000127** | lace maker 0.67 (90 s, Cushion Stuffer) → 122 |
+| | comfort | candles | 0.0040 | Ivory Caskets 0.005102 ÷ 43 | **0.000119** | candle foundry 1.33 → 260 |
+| | | spectacles | 0.0020 | Handmirrors 0.004474 ÷ 43 | **0.000104** | optician 0.5 (120 s, Glassblower) → 112 |
+| | luxury | jewellery | 0.0010 | Latrunculi Sets 0.005333 ÷ 43 | **0.000124** | goldsmith 0.67 (90 s, Jeweller) → 125 |
+| | | instruments | 0.0010 | Standing Lyres 0.006814 ÷ 43 | **0.000158** | luthier 1.0 (60 s, Lythier) → 147 |
+
+### Table B — carried consumption (generated; per resident per minute)
+
+| Good | own tier | +1 tier | +2 | +3 |
+|---|---|---|---|---|
+| fish, wool_garments | 0.002975 | 0.001010 | 0.000434 | 0.000208 |
+| bread | 0.001156 | 0.000494 | 0.000239 | |
+| cheese, mead | 0.000621 | 0.000266 | 0.000128 | |
+| cider | 0.001099 | 0.000470 | 0.000227 | |
+| linen_garments | 0.001018 | 0.000435 | 0.000210 | |
+| leather_jerkins | 0.000465 | 0.000199 | 0.000096 | |
+| sausages | 0.000431 | 0.000207 | | |
+| pies, brandy | 0.000220 | 0.000106 | | |
+| beer | 0.000496 | 0.000238 | | |
+| coats | 0.000385 | 0.000185 | | |
+| dyed_garments | 0.000218 | 0.000105 | | |
+| books | 0.000192 | 0.000092 | | |
+| soap | 0.000189 | 0.000091 | | |
+
+Check against Anno's own carried rates (per house): Sardines 0.01785 →
+0.01376 → 0.0112 → 0.00943; formula 0.01785 → 0.01417 → 0.01124 →
+0.00893 (+3 / 0 / −5 %). Porridge −3 / −9 / −17 %, Bread −6 / −14 %,
+Soap −2 / −7 %, Garum −3 / −10 %, Wine −8 %, Togas −7 %.
+
+### Table C — final-good producers (cycle, gold maintenance)
+
+| Ours | cycle today → **new** | t/min | Anno counterpart (cycle, gold, workers) | our maintenance today → start value (0.5 × Anno) |
+|---|---|---|---|---|
+| fisher | 40 → **60** | 1.0 | Fishing Hut 60, 6, 4 L | 2 → 3 |
+| weaver_wool | 90 → **60** | 1.0 | Spinner 60, 8, 3 L | 2 → 4 |
+| bakery | 60 | 1.0 | Bakery 60, 14, 3 P | 4 → 7 |
+| cheese_dairy | 60 | 1.0 | Garum Works 90 → keep 60 (role, not name) | 3 → 6 |
+| cidery | 45 → **90** | 0.67 | Olive Press 90, 16, 5 P | 4 → 8 |
+| meadery | 60 | 1.0 | — (keep) | 3 → 6 |
+| weaver_linen | 45 → **60** | 1.0 | Loom Weavery 60, 20, 6 E → gold as Spinner-class 8 | 5 → 4 |
+| tannery | 60 → **120** | 0.5 | Sandal Maker 120, 12, 3 P | 2 → 6 |
+| butcher | 60 | 1.0 | — (Garum Works 90 is salt-fish; keep 60) | 3 → 6 |
+| pastry_kitchen | 60 | 1.0 | Bakery class 60, 14 | 4 → 7 |
+| brewery | 60 | 1.0 | Brewery (Celtic) 60 | 4 → 7 |
+| distillery | 90 | 0.67 | — (keep) | 4 → 8 |
+| tailor | 90 → **60** | 1.0 | Loom Weavery 60, 20, 6 E | 5 → 10 |
+| dyer | 60 | 1.0 | Dye Works 120 is the intermediate; keep 60 | 5 → 6 |
+| printing_press | 60 → **120** | 0.5 | Tabulus 120, 22, 10 E | 6 → 11 |
+| soap_maker | 60 | 1.0 | Soap Maker 60, 12, 3 P | 3 → 6 |
+| slaughterhouse | 60 | 1.0 | Epicure of Water 60, 40, 12 Pa | 8 → 20 |
+| oyster_house | 60 | 1.0 | Epicure of Water 60, 40 | 10 → 20 |
+| winepress | 60 → **45** | 1.33 | Vintner 45, 30, 14 E | 8 → 15 |
+| grain_distillery | 90 | 0.67 | — (keep) | 5 → 10 |
+| fashion_house | 120 | 0.5 | Chair Maker 120, 28, 12 Pa | 7 → 14 |
+| lace_maker | 120 → **90** | 0.67 | Cushion Stuffer 90, 16, 6 Pa | 4 → 8 |
+| candle_foundry | 45 | 1.33 | — (keep) | 12 → 8 |
+| optician | 90 → **120** | 0.5 | Glassblower 120, 26, 12 E | 12 → 13 |
+| goldsmith | 90 | 0.67 | Jeweller 90, 48, 6 Pa | 12 → 24 |
+| luthier | 120 → **60** | 1.0 | Lythier 60, 30, 10 Pa | 8 → 15 |
+
+Upstream (unchanged unless a ratio breaks): sheep_farm 90 (Anno Sheep
+Farm 30 — our 1 : 1 chain stays), wheat_farm 60, mill 30, orchard 90
+(Olive Grower 120), apiary 90 (45), hemp_farm 60, pig_farm 90 (30),
+cattle_farm 120, oyster_beds 90 (90), vineyard 90 (90), salt chain,
+mines 30–120. Materials (planks, stone, tools, bricks, glass, sails) are
+not consumption goods and stay as they are (construction pacing, D-067).
+
+### Table D — tax per resident per minute
+
+| Tier | today | Anno `Money` per full house / size | relative | **start value** (k = 1.18) |
+|---|---|---|---|---|
+| Settlers | 0.20 | 6 / 6 = 1.00 | 1.00 | 1.18 |
+| Citizens | 0.80 | 12 / 14 = 0.86 | 0.86 | 1.01 |
+| Merchants | 1.50 | 40 / 26 = 1.54 | 1.54 | 1.82 |
+| Patricians | 2.70 | 98 / 43 = 2.28 | 2.28 | 2.70 |
+
+The replay tunes `k` (one number) — if Settlers towns turn out too rich
+early, the alternative is to tune maintenance up rather than break the
+ladder.
+
+## D-081 The Trading Post is the single root of the road network
+
+- **Date:** 2026-11-20
+- **Status:** accepted (amends D-014 / D-042 connectivity)
+- **Context:** playtest 3 — an inland quarter with its own warehouse
+  worked without any road to the harbour. Stock is island-wide (D-014)
+  and the connectivity rule was "road path to any collector", so a
+  warehouse was a root of its own.
+- **Decision:** a Warehouse **collects only while a road path connects
+  it to the island's Trading Post**; a building is connected when a road
+  path reaches an *active* collector — equivalently, when a road path
+  reaches the Trading Post. One root per island, one flood fill. The
+  Trading Post is the only root: depots add capacity, trading piers add
+  berths, warehouses add collection reach and throughput — none of them
+  roots. No transport is simulated: goods still enter the island stock
+  instantly when collected; the road requirement is the whole rule.
+- **Display:** an unconnected warehouse shows `not_connected` ("Not
+  linked to the Trading Post by road") like any building, its reach ring
+  turns grey, and the buildings that only it served show `not_connected`
+  too; the placing ghost of a warehouse tints red when no adjacent road
+  reaches the Trading Post.
+- **Rejected:** carts or transfer delays between warehouse and Trading
+  Post (a mechanic for a rule); depots / piers / Kontor as additional
+  roots (one answer per island).
+- **Consequences:** sim connectivity rewritten as one flood fill from
+  the Trading Post (D-042 distance rules unchanged); goldens regenerate;
+  the four reference plans must still replay — a plan that built a
+  warehouse before its road moves the road forward (timings may shift,
+  targets stay); fixtures with unconnected warehouses get their road;
+  no state or schema change. MECHANICS §3, §5; UI.md warehouse card.
