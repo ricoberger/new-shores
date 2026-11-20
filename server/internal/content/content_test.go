@@ -122,15 +122,15 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 
 	// Balance (CONTENT §12): at 120 Settlers with the balanced tier-1 set,
-	// taxes cover upkeep with at least 20 % margin (D-080 upkeep: fisher 3,
-	// lumberjack 1, sawmill 2, sheep farm 1, weaver 4; the Trading Post
+	// taxes cover upkeep with at least 20 % margin (D-080 upkeep at
+	// k_upkeep 1: fisher 6, lumberjack 1, sawmill 2, sheep farm 1, weaver 8; the Trading Post
 	// and the chapel carry none, D-046; the market's level 1 stays free,
 	// D-069 §3 as tuned).
 	var upkeep int64
 	for _, id := range []string{"trading_post", "fisher", "lumberjack", "sawmill", "sheep_farm", "weaver_wool", "market", "chapel"} {
 		upkeep += c.BuildingByID[id].UpkeepPerMin
 	}
-	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 11_000 || tax*10 < upkeep*12 {
+	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 18_000 || tax*10 < upkeep*12 {
 		t.Errorf("tax %d vs upkeep %d milli-gold/min: margin below 20 %%", tax, upkeep)
 	}
 
@@ -206,9 +206,9 @@ func TestLoadOldCoast(t *testing.T) {
 		"chapel":         {100_000, 6_000, 0, 3, 5, "never"},
 		"lumberjack":     {60_000, 6_000, 1_000, 3, 3, "intermediate"},
 		"sawmill":        {120_000, 9_000, 2_000, 4, 6, "intermediate"},
-		"fisher":         {60_000, 6_000, 3_000, 3, 8, "food_basic"},
+		"fisher":         {60_000, 6_000, 6_000, 3, 8, "food_basic"},
 		"sheep_farm":     {60_000, 6_000, 1_000, 3, 3, "intermediate"},
-		"weaver_wool":    {60_000, 6_000, 4_000, 3, 4, "need_goods"},
+		"weaver_wool":    {60_000, 6_000, 8_000, 3, 4, "need_goods"},
 	}
 	for id, w := range want {
 		b := c.BuildingByID[id]

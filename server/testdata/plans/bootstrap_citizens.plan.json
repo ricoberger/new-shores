@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_citizens",
-  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes.",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. One fisher, two sheep farms and two weavers on the start island (one fisher or weaver feeds 56 Settler houses).",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
@@ -239,8 +239,9 @@
     {
       "houses": {
         "quarter": "home-1",
-        "count": 22
-      }
+        "count": 18
+      },
+      "note": "D-080: 120 Settlers fill twenty six-resident houses only with every need met, wool included, so the first sheep farm and weaver come before the last four houses."
     },
     {
       "civic": {
@@ -263,6 +264,12 @@
       }
     },
     {
+      "houses": {
+        "quarter": "home-1",
+        "count": 4
+      }
+    },
+    {
       "build": {
         "island": "oc-01",
         "type": "lumberjack",
@@ -274,13 +281,6 @@
       "build": {
         "island": "oc-01",
         "type": "sawmill",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "fisher",
         "count": 1
       }
     },
@@ -365,25 +365,6 @@
         ]
       },
       "note": "D-074: by the second sheep farm, not by the Trading Post (8 t/min at level 1 carries five producers)."
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
-        "count": 1,
-        "at": [
-          105,
-          172
-        ]
-      },
-      "note": "D-074: by the third sheep farm, away from the Trading Post too. D-080: no third fisher here any more (one fisher feeds 56 Settler houses)."
     },
     {
       "upgrade": {
