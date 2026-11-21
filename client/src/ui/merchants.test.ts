@@ -40,7 +40,6 @@ const content = {
   goods: [
     { id: "planks", name: "Planks" },
     { id: "sails", name: "Sails" },
-    { id: "tools", name: "Tools" },
     { id: "stone", name: "Stone" },
     { id: "bricks", name: "Bricks" },
     { id: "sausages", name: "Sausages" },
@@ -74,7 +73,7 @@ const content = {
   ],
   ships: [
     { id: "cog", name: "Cog", tier: "citizens", slots: 2, slot_size: 50_000, build_ms: 120_000, upkeep_per_min: 1_000, cost: { gold: 100_000, materials: { planks: 20_000, sails: 10_000 } } },
-    { id: "hulk", name: "Hulk", tier: "merchants", slots: 4, slot_size: 50_000, build_ms: 300_000, upkeep_per_min: 4_000, cost: { gold: 1_500_000, materials: { planks: 60_000, sails: 20_000, tools: 10_000 } } },
+    { id: "hulk", name: "Hulk", tier: "merchants", slots: 4, slot_size: 50_000, build_ms: 300_000, upkeep_per_min: 4_000, cost: { gold: 1_500_000, materials: { planks: 60_000, sails: 20_000 } } },
   ],
   quests: [],
 } as unknown as Content;
@@ -116,7 +115,7 @@ describe("tier 3 in the cards (D-056)", () => {
     expect(html).toContain('data-testid="shipyard-order-hulk"');
     expect(text(html.match(/data-testid="shipyard-ship-hulk">(.*?)<\/button>/)![0])).toContain("Hulk");
     expect(t).toContain("4×50\u00a0t cargo·1.0× speed·4.0 gold/min maintenance");
-    expect(text(html.match(/data-testid="shipyard-cost-hulk">(.*?)<\/div>/)![1]!)).toBe("1500 gold·60\u00a0tPlanks·20\u00a0tSails·10\u00a0tTools·5:00 min build");
+    expect(text(html.match(/data-testid="shipyard-cost-hulk">(.*?)<\/div>/)![1]!)).toBe("1500 gold·60\u00a0tPlanks·20\u00a0tSails·5:00 min build");
   });
 
   it("shows a market at level 3 of 4 (D-065) with its radius and the Patrician-locked level 4", () => {
