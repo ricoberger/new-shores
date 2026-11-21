@@ -426,6 +426,7 @@ export const de: Record<keyof typeof en, string> = {
   "error.over_capacity": "Das übersteigt die Kapazität.",
   "error.time_backwards": "Die Serveruhr ist zurückgesprungen. Bitte versuche es erneut.",
   "error.schema_version": "Diese Welt hat eine nicht unterstützte Version.",
+  "error.unknown_content": "Diese Welt nennt Spielinhalte, die es nicht mehr gibt.",
   "error.display_time": "Die Anzeigezeit ist veraltet. Bitte versuche es erneut.",
   "error.unauthorized": "Deine Sitzung ist beendet. Bitte melde dich erneut an.",
   "error.invalid_credentials": "E-Mail oder Passwort falsch.",

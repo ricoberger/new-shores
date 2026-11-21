@@ -457,3 +457,54 @@ func TestLockWorldRejectsOldSchema(t *testing.T) {
 		t.Errorf("stored world changed (%v)", err)
 	}
 }
+
+// TestLockWorldRejectsUnknownContent (D-083): a stored world of the
+// store's content version that names a building the content does not
+// define (like a toolmaker after D-083) fails to load with
+// sim.ErrUnknownContent, logged with the world ID; the stored world is
+// left untouched.
+func TestLockWorldRejectsUnknownContent(t *testing.T) {
+	_, pool := testenv.Database(t)
+	var logs bytes.Buffer
+	st := postgres.New(pool, catalogue(t), slog.New(slog.NewTextHandler(&logs, nil)))
+	_, id := newWorld(t, st, 0)
+	ctx := context.Background()
+	var state []byte
+	if err := pool.QueryRow(ctx, "SELECT state FROM worlds WHERE id = $1", string(id)).Scan(&state); err != nil {
+		t.Fatal(err)
+	}
+	var env map[string]any
+	if err := json.Unmarshal(state, &env); err != nil {
+		t.Fatal(err)
+	}
+	if env["content_version"] != catalogue(t).Region.Version {
+		t.Fatalf("stored content %v, want %s", env["content_version"], catalogue(t).Region.Version)
+	}
+	world := env["world"].(map[string]any)
+	island := world["regions"].([]any)[0].(map[string]any)["islands"].([]any)[0].(map[string]any)
+	buildings, _ := island["buildings"].([]any)
+	island["buildings"] = append(buildings, map[string]any{"id": 999_999, "type": "no_such_building", "x": 0, "y": 0, "rotation": 0, "efficiency": 1000})
+	bad, err := json.Marshal(env)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := pool.Exec(ctx, "UPDATE worlds SET state = $2 WHERE id = $1", string(id), bad); err != nil {
+		t.Fatal(err)
+	}
+	if err := pool.QueryRow(ctx, "SELECT state FROM worlds WHERE id = $1", string(id)).Scan(&bad); err != nil {
+		t.Fatal(err)
+	}
+	_, err = st.Update(ctx, id, func(*sim.World, int64, time.Time) (bool, error) { return true, nil })
+	if !errors.Is(err, sim.ErrUnknownContent) || !strings.Contains(err.Error(), "building no_such_building") {
+		t.Fatalf("err = %v, want ErrUnknownContent naming the building", err)
+	}
+	for _, want := range []string{"level=ERROR", "world_id=" + string(id), "names an ID the content does not define"} {
+		if !strings.Contains(logs.String(), want) {
+			t.Errorf("log %q lacks %q", logs.String(), want)
+		}
+	}
+	var stored []byte
+	if err := pool.QueryRow(ctx, "SELECT state FROM worlds WHERE id = $1", string(id)).Scan(&stored); err != nil || !bytes.Equal(stored, bad) {
+		t.Errorf("stored world changed (%v)", err)
+	}
+}

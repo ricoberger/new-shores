@@ -424,6 +424,7 @@ export const en = {
   "error.over_capacity": "That exceeds the capacity.",
   "error.time_backwards": "The server clock went backwards. Please try again.",
   "error.schema_version": "This world has an unsupported version.",
+  "error.unknown_content": "This world names game content that no longer exists.",
   "error.display_time": "The display time is out of date. Please try again.",
   "error.unauthorized": "Your session has ended. Please log in again.",
   "error.invalid_credentials": "Wrong email or password.",

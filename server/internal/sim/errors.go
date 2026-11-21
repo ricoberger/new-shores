@@ -33,6 +33,7 @@ var (
 	ErrOverCapacity          = errors.New("exceeds capacity")
 	ErrTimeBackwards         = errors.New("time before last evaluation")
 	ErrSchemaVersion         = errors.New("unsupported schema version")
+	ErrUnknownContent        = errors.New("world names an ID the content does not define")
 	ErrDisplayTime           = errors.New("display time differs from last evaluation")
 )
 

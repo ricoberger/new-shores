@@ -155,7 +155,8 @@ func TestDevSnapshotRoundTrip(t *testing.T) {
 }
 
 // TestDevSnapshotRejected: a schema or content version the server cannot
-// load is 409 with a code, malformed input 400; the world stays.
+// load, or a world of its content version naming an unknown ID, is 409
+// with a code, malformed input 400; the world stays.
 func TestDevSnapshotRejected(t *testing.T) {
 	ts, _ := newSnapshotServer(t)
 	saved := ts.snapshot().body
@@ -172,6 +173,19 @@ func TestDevSnapshotRejected(t *testing.T) {
 		}
 		return string(b)
 	}
+	// A toolmaker (retired with D-083) in an envelope of the server's
+	// content version: sim.ErrUnknownContent.
+	var world map[string]any
+	if err := json.Unmarshal(env["world"], &world); err != nil {
+		t.Fatal(err)
+	}
+	island := world["regions"].([]any)[0].(map[string]any)["islands"].([]any)[0].(map[string]any)
+	buildings, _ := island["buildings"].([]any)
+	island["buildings"] = append(buildings, map[string]any{"id": 999_999, "type": "no_such_building", "x": 0, "y": 0, "rotation": 0, "efficiency": 1000})
+	retired, err := json.Marshal(world)
+	if err != nil {
+		t.Fatal(err)
+	}
 	version := ts.getWorld().Version
 
 	for _, c := range []struct {
@@ -181,6 +195,7 @@ func TestDevSnapshotRejected(t *testing.T) {
 		{"newer schema", with("schema_version", fmt.Sprint(sim.SchemaVersion+1)), "", CodeSnapshotSchemaMismatch, http.StatusConflict},
 		{"unbridged schema", with("schema_version", "1"), "", CodeSnapshotSchemaMismatch, http.StatusConflict},
 		{"content version", with("content_version", `"other"`), "", CodeSnapshotContentMismatch, http.StatusConflict},
+		{"unknown building", with("world", string(retired)), "", CodeSnapshotContentMismatch, http.StatusConflict},
 		{"garbage", "not json", "", CodeBadRequest, http.StatusBadRequest},
 		{"truncated", string(saved[:len(saved)/2]), "", CodeBadRequest, http.StatusBadRequest},
 		{"bad resume", string(saved), "?resume=later", CodeBadRequest, http.StatusBadRequest},

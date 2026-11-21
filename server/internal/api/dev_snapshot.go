@@ -105,14 +105,20 @@ func (s *Server) postDevSnapshot(w http.ResponseWriter, r *http.Request) {
 
 // DecodeSnapshot decodes a snapshot envelope like a world load: older
 // schema versions are migrated (sim.SchemaMigrations); a schema version
-// the migrations cannot bridge, or a content version other than the
-// catalogue's, is a 409 error (snapshot_schema_mismatch,
-// snapshot_content_mismatch), anything malformed a 400.
+// the migrations cannot bridge, a content version other than the
+// catalogue's, or an envelope of the catalogue's version that names an ID
+// the catalogue does not define (sim.ErrUnknownContent), is a 409 error
+// (snapshot_schema_mismatch, snapshot_content_mismatch), anything
+// malformed a 400.
 func DecodeSnapshot(data []byte, c *content.Catalogue) (*sim.World, error) {
 	world, cv, _, err := sim.Decode(data, c)
 	switch {
 	case errors.Is(err, sim.ErrSchemaVersion):
 		return nil, &apiError{code: CodeSnapshotSchemaMismatch, status: http.StatusConflict, message: err.Error()}
+	case errors.Is(err, sim.ErrUnknownContent):
+		// The envelope claims the server's content version but names an ID
+		// that content does not define (a retired one, D-083).
+		return nil, &apiError{code: CodeSnapshotContentMismatch, status: http.StatusConflict, message: "snapshot: " + err.Error()}
 	case err != nil:
 		return nil, badRequest("snapshot: " + err.Error())
 	case cv != c.Region.Version:

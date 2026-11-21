@@ -16,9 +16,8 @@ import (
 // included, names only building, good, ship and quest IDs of the current
 // catalogue in its stored world — buildings, plans, stock, cargo, routes,
 // transit and quests — so that no fixture still holds a retired ID such
-// as tools or the toolmaker. The decoder does not check this (a world of
-// the current content version is trusted), so a fixture with a retired ID
-// would load and only show the wrong world.
+// as tools or the toolmaker. sim.Decode rejects such a stored world
+// (sim.ErrUnknownContent); this catches it where the fixture is built.
 func TestFixturesUseCatalogueIDs(t *testing.T) {
 	c := catalogue(t)
 	// The walk finds a retired ID in each place it checks.
