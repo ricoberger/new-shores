@@ -612,6 +612,14 @@ Sizes, counts, pools and ranges live in `islands.json`; the generator
 reads them and the content loader validates that the ranges are
 satisfiable (pool size × max ≥ islands × min fertilities, etc.).
 
+The generator places deposits in groups by tier: a kind joins the group
+of the lowest tier with a building that mines it. A deposit entry's
+optional `group_tier` pins the group instead. Iron has `"group_tier":
+"citizens"` (D-083): its mine moved to the Patricians tier, and without
+the pin every seed's archipelago would change. A mine that moves tier
+later needs the same pin, or a `GeneratorVersion` bump with every plan
+and fixture regenerated.
+
 ## 10. Decorations (cosmetic)
 
 The ornaments are gold buildings since D-077 §2 (§7 Ornaments; no
@@ -631,6 +639,10 @@ references, duplicate IDs, need weights not summing to 1 and out-of-range
 values, naming file, entity and field; the client gets generated TypeScript
 types for display only. Decimals have at most 3 places (weights and
 consumption rates 6), no exponent notation; they are converted to fixed point at load time.
+
+`islands.json` deposit pool entries are `{ id, count: { min, max },
+group_tier? }`. `group_tier` must name a tier in `tiers.json` (§9,
+D-083); fertility entries have no `group_tier`.
 
 ### Locale files (D-061)
 

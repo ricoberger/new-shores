@@ -54,6 +54,11 @@ func TestLoadIslands(t *testing.T) {
 		if (d.ID == "stone" && d.Count.Min < 3) || (d.ID == "iron" && d.Count.Min < 2) {
 			t.Errorf("deposit %+v below the D-053 minimum", d)
 		}
+		// D-083: only iron pins its generator group (its mine moved from
+		// Citizens to Patricians; the archipelagos stay the same).
+		if want := map[bool]string{true: "citizens"}[d.ID == "iron"]; d.GroupTier != want {
+			t.Errorf("deposit %s group_tier = %q, want %q", d.ID, d.GroupTier, want)
+		}
 	}
 	if r.SpacingMin != 55 || r.NearestMax != 120 || r.StraitMin != 24 || r.VoidMax != 150 || r.BuildableTarget != 185_000 || r.BuildableTolerance != 100 || r.Home.SizeClass != "large" {
 		t.Errorf("rules = %+v", r)
@@ -115,8 +120,13 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 		},
 		{
 			"building deposit not in pool", FileIslands,
-			[]string{`{ "id": "iron", "count": { "min": 2, "max": 4 } }`, `{ "id": "peat", "count": { "min": 2, "max": 4 } }`},
+			[]string{`{ "id": "iron", "count": { "min": 2, "max": 4 }, "group_tier": "citizens" }`, `{ "id": "peat", "count": { "min": 2, "max": 4 } }`},
 			[]string{FileBuildings, `building "iron_mine"`, `deposit "iron" is not in the deposit pool`},
+		},
+		{
+			"unknown deposit group tier", FileIslands,
+			[]string{`"group_tier": "citizens"`, `"group_tier": "nobles"`},
+			[]string{FileIslands, "deposits[1].group_tier", `unknown tier "nobles"`},
 		},
 		{
 			"building fertility not in pool", FileIslands,

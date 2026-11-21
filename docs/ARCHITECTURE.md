@@ -685,8 +685,8 @@ Pitfalls for local runs:
   The archipelago generator groups deposit kinds by the lowest tier of a
   building that mines them (`depositTiers`); iron moving from Citizens
   to Patricians (D-083) changed every seed's islands, and the plans and
-  fixtures with them. `depositGroupTier` in
-  `internal/sim/archipelago/plan.go` pins iron to its old group; a later
+  fixtures with them. The deposit entry's `group_tier` in
+  `islands.json` (CONTENT §9) pins iron to its old group; a later
   move of a mine or quarry needs the same pin or a `GeneratorVersion`
   bump with every plan rewritten. The archipelago goldens catch it.
 - **The reference plans continue each other.** Merchants replays the

@@ -89,27 +89,18 @@ func planComposition(r, mass *rng, late func(k int) *rng, c *content.Catalogue) 
 	return out, nil
 }
 
-// depositGroupTier pins the group of a deposit kind whose mine moved to a
-// later tier after the kind entered the pool: iron was first mined at
-// Citizens and its iron_mine is a Patricians building since D-083 §3. The
-// pin keeps iron in the first group, so every seed keeps its archipelago
-// (D-083 §4: the generator is unchanged; GeneratorVersion stays).
-func depositGroupTier(kind string) string {
-	if kind == "iron" {
-		return "citizens"
-	}
-	return ""
-}
-
 // depositTiers splits the deposit pool (in pool order) by the tier that
 // first uses a kind: the lowest tier of a building requiring it (a kind no
-// building requires counts to the first group), or its depositGroupTier.
+// building requires counts to the first group), or the pool entry's
+// GroupTier when the content pins it (D-083: iron, mined at Patricians,
+// keeps its Citizens group so every seed keeps its archipelago).
 // Groups are in tier order; the first is never empty unless the pool is.
 func depositTiers(c *content.Catalogue) [][]content.PoolEntry {
-	tierOf := func(kind string) int {
-		if t := c.TierByID[depositGroupTier(kind)]; t != nil {
+	tierOf := func(e content.PoolEntry) int {
+		if t := c.TierByID[e.GroupTier]; t != nil {
 			return t.Index
 		}
+		kind := e.ID
 		best := -1
 		for _, b := range c.Buildings {
 			if b.RequiresDeposit != kind {
@@ -124,7 +115,7 @@ func depositTiers(c *content.Catalogue) [][]content.PoolEntry {
 	byTier := map[int][]content.PoolEntry{}
 	var order []int
 	for _, e := range c.Islands.Deposits {
-		t := tierOf(e.ID)
+		t := tierOf(e)
 		if _, ok := byTier[t]; !ok {
 			order = append(order, t)
 		}
