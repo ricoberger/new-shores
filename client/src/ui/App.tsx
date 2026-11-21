@@ -44,7 +44,7 @@ import { IslandCard } from "./IslandCard";
 import { Minimap } from "./Minimap";
 import { RouteEditor } from "./RouteEditor";
 import { RoutesPanel } from "./RoutesPanel";
-import { ShipmentDialog } from "./ShipmentDialog";
+import { ShipmentDialog, shipmentCommand } from "./ShipmentDialog";
 import { ShipPanel } from "./ShipPanel";
 import { ShipsPanel } from "./ShipsPanel";
 import { type Toast, toastDuration, Toasts } from "./Toasts";
@@ -1330,7 +1330,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           model={model}
           content={content}
           onClose={() => dispatch({ type: "closeShipment" })}
-          onSend={(to, cargo) => void send({ type: "manual_shipment", ship_id: dialogShip.id, to_island_id: to, cargo })}
+          onSend={(to, cargo) => void send(shipmentCommand(dialogShip.id, to, cargo, dialogShip.cargo))}
         />
       )}
     </div>

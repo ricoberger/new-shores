@@ -127,7 +127,9 @@ UI shows the same numbers the server uses.
 - **Manual shipment:** only through the ship panel's "Send…" dialog; the
   destination is chosen in its dropdown (no drag and drop, no map pick).
   Send needs a destination and cargo within the ship's slots — an empty
-  ship may sail (the server accepts a shipment without cargo); over the
+  ship may sail: with nothing chosen and nothing aboard the dialog shows
+  "Nothing loaded…" and sends `sail_ship` instead of `manual_shipment`
+  (the server rejects a shipment without cargo); over the
   slots the slot line turns to a warning and Send is disabled. The server
   still validates stock and slots.
 - **Focused island** = the island under the camera centre, else the

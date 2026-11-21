@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CargoDisplay, Content, DisplayState, ShipDisplay } from "../api/client";
+import type { CargoDisplay, Command, Content, DisplayState, ShipDisplay } from "../api/client";
 import { tons } from "../display/format";
 import { cargoTotals, slotsFor } from "../display/ships";
 import { DialogPanel } from "./DialogPanel";
@@ -23,6 +23,12 @@ interface Props {
  * (to fetch goods or found a settlement). The server stays the truth: it
  * validates stock and slots again.
  */
+/** The command Send issues: `manual_shipment` when goods are chosen or already aboard, else `sail_ship` (the server rejects an empty shipment). */
+export function shipmentCommand(shipId: number, toIslandId: string, cargo: CargoDisplay[], aboard: CargoDisplay[]): Command {
+  if (cargo.length === 0 && aboard.length === 0) return { type: "sail_ship", ship_id: shipId, to_island_id: toIslandId };
+  return { type: "manual_shipment", ship_id: shipId, to_island_id: toIslandId, cargo };
+}
+
 export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClose }: Props) {
   const here = model.islands.find((i) => i.id === ship.island_id);
   const destinations = model.islands.filter((i) => i.id !== ship.island_id && !i.scenic);
@@ -94,6 +100,11 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
         <div className={`${styles.small} ${slots > ship.slots ? styles.warn : ""}`} data-testid="shipment-slots">
           {t("shipment.slots", { used: slots, total: ship.slots, size: tons(ship.slot_size) })}
         </div>
+        {cargo.length === 0 && ship.cargo.length === 0 && (
+          <div className={styles.small} data-testid="shipment-empty">
+            {t("shipment.empty")}
+          </div>
+        )}
         <div className={styles.buttons}>
           <button
             type="button"

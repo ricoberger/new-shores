@@ -5,7 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
-import { ShipmentDialog } from "./ShipmentDialog";
+import { ShipmentDialog, shipmentCommand } from "./ShipmentDialog";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const base = (JSON.parse(readFileSync(join(fixtureDir, "settlers_grow.json"), "utf8")) as { base: DisplayState }).base;
@@ -52,5 +52,25 @@ describe("shipment dialog", () => {
     const alone = { ...model, islands: [home] } as DisplayState;
     const html = renderToStaticMarkup(createElement(ShipmentDialog, { ship, model: alone, content, onSend: noop, onClose: noop }));
     expect(sendButton(html)).toContain("disabled");
+  });
+});
+
+describe("shipmentCommand", () => {
+  const aboard = [{ good: "planks", amount: 10_000 }];
+  it("sails an empty ship with sail_ship (the server rejects an empty manual_shipment)", () => {
+    expect(shipmentCommand(1, "oc-02", [], [])).toEqual({ type: "sail_ship", ship_id: 1, to_island_id: "oc-02" });
+  });
+  it("ships goods with manual_shipment when something is chosen or already aboard", () => {
+    const cargo = [{ good: "planks", amount: 5_000 }];
+    expect(shipmentCommand(1, "oc-02", cargo, [])).toEqual({ type: "manual_shipment", ship_id: 1, to_island_id: "oc-02", cargo });
+    expect(shipmentCommand(1, "oc-02", [], aboard)).toEqual({ type: "manual_shipment", ship_id: 1, to_island_id: "oc-02", cargo: [] });
+  });
+  it("shows the empty hint only for an empty ship without chosen cargo", () => {
+    const noop = () => {};
+    const html = renderToStaticMarkup(createElement(ShipmentDialog, { ship, initialTo: "oc-02", model, content, onSend: noop, onClose: noop }));
+    expect(html).toContain('data-testid="shipment-empty"');
+    const loaded = { ...ship, cargo: aboard } as unknown as ShipDisplay;
+    const html2 = renderToStaticMarkup(createElement(ShipmentDialog, { ship: loaded, initialTo: "oc-02", model, content, onSend: noop, onClose: noop }));
+    expect(html2).not.toContain('data-testid="shipment-empty"');
   });
 });

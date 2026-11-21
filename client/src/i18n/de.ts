@@ -477,6 +477,7 @@ export const de: Record<keyof typeof en, string> = {
   "shipment.loadLabel": "{good} laden (t)",
   "shipment.slots": "Plätze {used}/{total} (Platzgröße {size})",
   "shipment.send": "Losschicken",
+  "shipment.empty": "Nichts geladen: das Schiff fährt leer und wartet am Ziel.",
   "infoPanel.paint.removeTitle": "Rechtsklick oder langes Drücken: Felder entfernen",
   "infoPanel.paint.button": "{name} malen",
   "infoPanel.paint.cost": " ({gold} Gold pro Stück)",

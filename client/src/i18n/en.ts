@@ -475,6 +475,7 @@ export const en = {
   "shipment.loadLabel": "Load {good} (t)",
   "shipment.slots": "Slots {used}/{total} (slot size {size})",
   "shipment.send": "Send",
+  "shipment.empty": "Nothing loaded: the ship sails empty and waits at the destination.",
   "infoPanel.paint.removeTitle": "Right click or long press: remove fields",
   "infoPanel.paint.button": "Paint {name}",
   "infoPanel.paint.cost": " ({gold} gold each)",
