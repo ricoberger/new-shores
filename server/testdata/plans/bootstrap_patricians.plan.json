@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_patricians",
-  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. Farms moved off the start island (the D-065 chain plots leave oc-01 too little grass for its last wheat_farm, and wheat grows only on oc-01 among the settled islands): the 11th to 14th pig_farm stand on oc-06, served by a fourth cog on a new route 4 (stone out, pigs home); later ships and routes are renumbered; the eighth wheat_farm comes before the second apiary. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. The Patricians game adds one fisher, two sheep farms and weavers, two wheat farms, a mill, a salt pan, an apiary, a tannery, a slaughterhouse and a pig farm per pig island to the Merchants game's chains (no further brewery, butcher, tailor, meadery, cheese dairy or printing press); with fewer warehouses the last six warehouse upgrades are gone.",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. Farms moved off the start island (the D-065 chain plots leave oc-01 too little grass for its last wheat_farm, and wheat grows only on oc-01 among the settled islands): the 11th to 14th pig_farm stand on oc-06, served by a fourth cog on a new route 4 (stone out, pigs home); later ships and routes are renumbered; the eighth wheat_farm comes before the second apiary. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. The Patricians game adds one fisher, two sheep farms and weavers, two wheat farms, a mill and a bakery, a salt pan, an apiary, a tannery, a slaughterhouse and a pig farm per pig island to the Merchants game's chains (no further brewery, butcher, tailor, meadery, cheese dairy or printing press); with fewer warehouses the last six warehouse upgrades are gone. A second clay pit and brickworks go up before the university and the cathedral (240 bricks; one brickworks took close to four hours for them).",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
@@ -715,13 +715,6 @@
         "count": 1
       },
       "note": "D-074: bread beside cheese — the citizens' food was short with cheese alone."
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "bakery",
-        "count": 1
-      }
     },
     {
       "build": {
@@ -2448,6 +2441,21 @@
       "note": "Level 4 needs Patricians (D-065 extended to the Trading Post): after the first Patrician house.",
       "upgrade_trading_post": {
         "island": "oc-01"
+      }
+    },
+    {
+      "note": "D-080: the university and the cathedral take 240 bricks; one brickworks needed close to four hours for them, so a second clay pit and brickworks go up before.",
+      "build": {
+        "island": "oc-02",
+        "type": "clay_pit",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "oc-02",
+        "type": "brickworks",
+        "count": 1
       }
     },
     {

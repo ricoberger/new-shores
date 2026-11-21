@@ -937,18 +937,24 @@ table-C producers pay Anno's gold maintenance):
 | Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 50 / 25 / 71 / 124 | 50 / 28 / 64 / 112 | 10 / 62 / 36 / 38 |
 | Quests | island 2 / first house (unlock, tools) | 45 / 85 | 21 / 38 (6, 91) | 21 / 30 (6, 78) | 24 / 55 |
 | Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 215 / 250 / 387 | 153 / 219 / 304 | 87 / 51 / 116 |
-| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 721 / 868 / 1180 | 573 / 619 / 1006 | 327 / 341 / 794 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 721 / 868 / 1180 | 573 / 615 / 948 | 327 / 345 / 852 |
 
 One producer now feeds 40–60 houses of its tier, so the plans build a
 final producer (and its farm) only where the game's peak demand asks
 for it: the Patricians game ends with one brewery, butcher, tailor,
 meadery and cheese dairy instead of 14, 11, 10, 9 and 6, and 4 wool
-weavers instead of 19 (plans' descriptions). Gold never falls below the
-starting gold and nothing auto-pauses; at the tightest point (from
-minute 30) tax exceeds upkeep by 128.8 % (Patricians game, minute 305;
-Merchants 139.1 %, Citizens 427.7 %). The milestones do not move with
-`k_tax` / `k_upkeep` (tried 0.5 – 2.0; `k_upkeep` 2.0 still leaves
-52.7 %): materials and population pace the games, not gold. One
+weavers instead of 19 (plans' descriptions); a second clay pit and
+brickworks supply the university's and cathedral's 240 bricks. At the
+end of each game no consumption good has more than 60 % surplus beyond
+its last producer (`TestReferenceGamesSurplus`, below). Gold never falls
+below the starting gold after the first purchases (lowest 976 at minute
+4, Quests 712 at minute 1) and nothing auto-pauses; the games end with
+24 546 (Citizens), 22 146 (Quests), 73 675 (Merchants) and 932 046 gold
+(Patricians). At the tightest point (from minute 30) tax exceeds upkeep
+by 133.5 % (Patricians game, minute 305; Merchants 144.6 %, Citizens
+427.7 %). The milestones do not move with `k_tax` / `k_upkeep` (tried
+0.5 – 2.0; `k_upkeep` 2.0 still left 52.7 % on the first trimmed plans):
+materials and population pace the games, not gold. One
 milestone stays later than D-075: the Citizens unlock (+3) — 120
 Settlers now need twenty full six-resident houses, wool included
 (D-080 §1), and the planks for them pace it.
@@ -1210,8 +1216,14 @@ within target.
 
 
 - For each tier, one good per category at 100 % must support the tier's
-  unlock population with ≤ 25 % surplus; full variety must be affordable
-  with ~1.6× the chains.
+  unlock population; full variety must be affordable with ~1.6× the
+  chains. Since D-080 one producer feeds 40–60 houses, so the surplus
+  bound moved from the unlock population to the reference games: at the
+  end of each, no consumption good may have more than 60 % surplus
+  capacity beyond its last producer (archipelago-wide nominal output vs
+  the houses' consumption plus the producers' inputs; the plans build to
+  peak demand × 1.25). One producer of a little-used good is granularity,
+  not surplus.
 - Workforce: the house count needed for a tier's unlock population must
   also cover the workforce of that tier's balanced chain set on the same
   island(s) with ≥ 20 % slack.

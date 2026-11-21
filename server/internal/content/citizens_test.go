@@ -457,8 +457,9 @@ func chainCapacity(c *Catalogue, good string, demand int64, counts map[string]in
 // set, taxes cover the set's upkeep with a 20 % margin, and the set's
 // workforce leaves 20 % slack. Since D-080 one final producer feeds 43–260
 // houses (CONTENT §2), so at the unlock populations the set is mostly a
-// single producer with a large surplus: the former 25 % surplus bound
-// measured the old rates' granularity and is gone.
+// single producer with a large surplus. The surplus bound moved to the
+// end of the reference games: TestReferenceGamesSurplus in
+// internal/sim/scenario allows at most 60 % beyond the last producer.
 func TestBalanceChecklist(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
