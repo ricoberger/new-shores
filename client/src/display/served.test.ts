@@ -120,7 +120,7 @@ describe("ghostRelated (ghost hint, D-027)", () => {
     expect(ghostRelated(at(r), content, base)).toContain(chapel.id);
     expect(ghostRelated(at(r + 1), content, base)).not.toContain(chapel.id);
     // Only service buildings, none of the producers or houses.
-    const allowed = new Set(idsOf("chapel", "market"));
+    const allowed = new Set(idsOf("chapel", "market", "city_guard"));
     for (const id of ghostRelated(at(0), content, base)) expect(allowed.has(id)).toBe(true);
   });
 

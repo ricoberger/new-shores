@@ -953,6 +953,53 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
 | `intro_island2`, `intro_tools` | Quests retired with D-083 §4: the second island is a Merchants lesson (`merchants_island2`), tools are gone; `citizens_stone` leads to the first Citizen house. |
 | the three pre-D-075 ship IDs and the three quest IDs that named them | Renamed to `cog`, `hulk`, `carrack` and `citizens_cog`, `merchants_hulk`, `patricians_carrack` in D-075 §4 (content 0.21.0; the old names are listed in DECISIONS D-075 only — a test keeps them out of every other tracked file) |
 
+### D-083 reference results (sim minutes, seed 1053001)
+
+Content `old_coast-0.24.0`: tools and the toolmaker retired, the iron
+mine and smelter at Patricians, `citizens_stone` and
+`merchants_island2` (D-083). The Citizens games no longer found island
+2 (D-083 §5); their milestones are the unlock and the first Citizen
+house, and the Merchants game adds "island 2 (clay) settled":
+
+| Game | Milestones | Targets | D-082 | D-083 | Margins |
+|---|---|---|---|---|---|
+| Citizens | unlock / first house | 90 / 100 | 28 / 64 (island 2 50, tools 112) | 28 / 54 | 62 / 46 |
+| Quests | first house (unlock) | 85 | 30 (6) | 25 (6) | 60; 29 earlier than without claims |
+| Merchants | island 2 settled / unlock / first house / categories ≥0.6 | 240 / 240 / 270 / 420 | — / 153 / 219 / 304 | 80 / 141 / 215 / 308 | 160 / 99 / 55 / 112 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 573 / 615 / 948 | 576 / 618 / 950 | 324 / 342 / 850 |
+
+Gold (tax over upkeep at the tightest advance step from minute 30;
+min gold over every step; nothing auto-pauses in any game):
+
+| Game | Tax over upkeep (tightest, minute) | Min gold (minute) | End gold | D-082 end gold |
+|---|---|---|---|---|
+| Citizens | +179.4 % (97) | 865 (20) | 10 387 | 17 661 |
+| Quests | +179.4 % (68) | 706 (1); 738 after minute 5 | 9 635 | 16 141 |
+| Merchants | +41.7 % (308) | 865 (20) | 36 454 | 32 635 |
+| Patricians | +39.2 % (309) | 865 (20) | 501 342 | 493 436 |
+
+Plan changes (declarative, `server/testdata/plans`):
+
+- Citizens: no manual shipment to island 2, no founding, no iron chain,
+  toolmaker, tools shipment, route or tools checkpoint. After the first
+  Citizen house the game goes on to the city guard and the cheese chain
+  (dairy farm, cheese dairy) on the start island — moved from the
+  Merchants plan: ending at the first Citizen house, the Quests game's
+  town from minute 30 had +284 % of tax over upkeep, above its D-082
+  bound (≤ 210 %). The games are shorter (end at 97 / 68 minutes, were
+  142 / 108), hence the lower end gold.
+- Merchants: founds island 2 first (58 planks by ship 1, then 60; the
+  fisher, ten Settler houses, lumberjack and charcoal burner the
+  Citizens game used to build there) and creates route 1 "Goods out,
+  stone home" (50 planks a trip, the old Citizens route's load, until
+  the bricks run); no tools on any route ("Goods out, bricks home",
+  "Hops home").
+- Patricians: the iron mine and smelter on island 2 after the first
+  Patrician house and the Trading Post's level 4, before the cooperage;
+  no tools on any route; five explicit warehouse upgrades on the start
+  island instead of six (the reach collectors place five warehouses
+  there, six before, and take the last level).
+
 ### D-082 reference results (sim minutes, seed 1053001)
 
 Content `old_coast-0.23.1`: civic maintenance from Anno 117 (D-082
@@ -1305,7 +1352,8 @@ within target.
   must reach the tier's unlock and build its first house without a deadlock
   (no required material or good whose only producers need workforce of the
   tier being unlocked). Run in the scenario runner for every content change.
-  Current staffing satisfies it: stone and tools [S] for Citizens, bricks
+  Current staffing satisfies it: stone [S] for Citizens (tools until
+  D-083; one island suffices until Merchants), bricks
   [C] for Merchants, glass (quartz_quarry, glass_smelter) [C] for
   Patricians. Checked by a generic content test over every tier with a
   house and by the goldens `bootstrap_settlers`, `bootstrap_citizens`,
@@ -1322,7 +1370,8 @@ within target.
   If a later change needs room, the first lever is the cog's reference
   speed (legs are 3.4–4.3 min on the dev seed), not the targets.
 - **Tier 3–4 reference games (D-056, sim minutes from the starting
-  stock, attentive play; not faster):** Merchants unlocked (360
+  stock, attentive play; not faster):** island 2 (clay) settled ≤ 240
+  (D-083 §5), Merchants unlocked (360
   Citizens + tavern) ≤ 240, first Merchant house ≤ 270, every Merchant
   category ≥ 0.6 ≤ 420; Patricians unlocked (1 200 Merchants + church)
   ≤ 900, first Patrician house ≤ 960, every Patrician category ≥ 0.6

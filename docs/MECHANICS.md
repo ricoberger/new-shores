@@ -1268,7 +1268,8 @@ house cost is paid. One alternative per category is enough.
   gold to the balance; goods to the chosen settled island up to free
   capacity, the excess is lost (the quest text says so). Quests are
   optional: the tier 1–2 reference game meets every target without them
-  and gains ≈ 15–28 min of headroom with them.
+  and gains ≈ 15–30 min of headroom with them (29 min on the first
+  Citizen house since D-083).
 
 ## 12b. "While you were away" summary
 

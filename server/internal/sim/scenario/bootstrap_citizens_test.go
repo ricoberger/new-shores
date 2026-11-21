@@ -45,10 +45,10 @@ func firstStep(s *Scenario, match func(Step) bool) int {
 }
 
 // TestBootstrapCitizens checks golden (t), the tier 1-2 reference game
-// (R-18): only the content starting stock is seeded; island 2 is settled
-// within 60 minutes, Citizens unlock within 90, the first Citizen house
-// stands within 100, and within 150 the toolmaker on island 2 runs and
-// tools have arrived on the start island; no permanent insolvency.
+// (R-18): only the content starting stock is seeded; it settles the start
+// island only (D-083: one island suffices until Merchants), Citizens
+// unlock within 90 minutes and the first Citizen house stands within
+// 100; no permanent insolvency.
 func TestBootstrapCitizens(t *testing.T) {
 	const name = "bootstrap_citizens"
 	s := loadScenario(t, name)
@@ -69,13 +69,7 @@ func TestBootstrapCitizens(t *testing.T) {
 		}
 	}
 	rep := runScenario(t, name)
-	start, island2 := referenceIslands(t, s)
-
-	found := firstStep(s, func(st Step) bool { return st.FoundIsland != nil && st.FoundIsland.Island == island2 })
-	if found < 0 || minutesAt(t, s, found) > 60 {
-		t.Errorf("island 2 founded at step %d, minute %.0f (want <= 60)", found, minutesAt(t, s, found))
-	}
-	t.Logf("island 2 settled at minute %.0f", minutesAt(t, s, found))
+	referenceStart(t, s)
 
 	// The upgrade is a command at a step time; the next snapshot shows the
 	// Citizen house's residents.
@@ -83,18 +77,15 @@ func TestBootstrapCitizens(t *testing.T) {
 	if upgrade < 0 {
 		t.Fatal("no upgrade step")
 	}
-	unlocked, tools := -1.0, -1
+	unlocked := -1.0
 	citizens := int64(0)
-	for i, snap := range rep.Snapshots {
+	for _, snap := range rep.Snapshots {
 		m := snapshotMinutes(t, rep, s, snap)
 		if unlocked < 0 && slices.Contains(snap.UnlockedTiers, "citizens") {
 			unlocked = m
 		}
 		if citizens == 0 && snap.Step > upgrade {
 			citizens = snap.Population["citizens"]
-		}
-		if tools < 0 && snap.Inventory[start]["tools"].Stock > 0 {
-			tools = i
 		}
 	}
 	t.Logf("citizens unlocked by minute %.0f, first Citizen house at minute %.0f", unlocked, minutesAt(t, s, upgrade))
@@ -104,28 +95,6 @@ func TestBootstrapCitizens(t *testing.T) {
 	if minutesAt(t, s, upgrade) > 100 || citizens < 5_000 {
 		t.Errorf("first Citizen house at minute %.0f with %d milli-citizens after it, want <= 100 and >= 5000", minutesAt(t, s, upgrade), citizens)
 	}
-	if tools < 0 {
-		t.Fatal("no tools arrived on the start island")
-	}
-	toolsAt := snapshotMinutes(t, rep, s, rep.Snapshots[tools])
-	t.Logf("tools on the start island by minute %.0f", toolsAt)
-	if toolsAt > 150 {
-		t.Errorf("tools on the start island at minute %.0f (want <= 150)", toolsAt)
-	}
-	// At that snapshot the toolmaker on island 2 runs.
-	at := runUntilAdvance(t, name, tools)
-	running := false
-	for _, is := range at.Final.Islands {
-		for _, b := range is.Buildings {
-			if is.ID == island2 && b.Type == "toolmaker" && b.Status == sim.StatusOK && b.Rates.Outputs["tools"] > 0 {
-				running = true
-			}
-		}
-	}
-	if !running {
-		t.Error("toolmaker on island 2 not running when tools arrived")
-	}
-
 	// Quests are optional: the intro chain completes along the plan, but
 	// nothing is claimed.
 	if len(rep.Quests) == 0 {

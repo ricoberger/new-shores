@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_patricians",
-  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. Farms moved off the start island (the D-065 chain plots leave oc-01 too little grass for its last wheat_farm, and wheat grows only on oc-01 among the settled islands): the 11th to 14th pig_farm stand on oc-06, served by a fourth cog on a new route 4 (stone out, pigs home); later ships and routes are renumbered; the eighth wheat_farm comes before the second apiary. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. The Patricians game adds one fisher, two sheep farms and weavers, two wheat farms, a mill and a bakery, a salt pan, an apiary, a tannery, a slaughterhouse and a pig farm per pig island to the Merchants game's chains (no further brewery, butcher, tailor, meadery, cheese dairy or printing press); with fewer warehouses the last six warehouse upgrades are gone. A second clay pit and brickworks go up before the university and the cathedral (240 bricks; one brickworks took close to four hours for them).",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. Farms moved off the start island (the D-065 chain plots leave oc-01 too little grass for its last wheat_farm, and wheat grows only on oc-01 among the settled islands): the 11th to 14th pig_farm stand on oc-06, served by a fourth cog on a new route 4 (stone out, pigs home); later ships and routes are renumbered; the eighth wheat_farm comes before the second apiary. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. The Patricians game adds one fisher, two sheep farms and weavers, two wheat farms, a mill and a bakery, a salt pan, an apiary, a tannery, a slaughterhouse and a pig farm per pig island to the Merchants game's chains (no further brewery, butcher, tailor, meadery, cheese dairy or printing press); with fewer warehouses the last six warehouse upgrades are gone. A second clay pit and brickworks go up before the university and the cathedral (240 bricks; one brickworks took close to four hours for them). D-083 (content 0.24.0): the iron mine and smelter on island 2 come after the first Patrician house (tier 4), before the cooperage; no tools on any route.",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
@@ -90,7 +90,6 @@
               },
               "unload": [
                 "hops",
-                "tools",
                 "iron",
                 "bricks",
                 "stone"
@@ -1949,7 +1948,6 @@
               "island": "oc-01",
               "unload": [
                 "hops",
-                "tools",
                 "iron",
                 "stone"
               ]
@@ -2239,12 +2237,8 @@
     {
       "upgrade_warehouse": {
         "island": "oc-01"
-      }
-    },
-    {
-      "upgrade_warehouse": {
-        "island": "oc-01"
-      }
+      },
+      "note": "D-083: five upgrades here, not six — the reach collectors place five warehouses on the start island (six before), and all fifteen levels are taken after these."
     },
     {
       "upgrade_warehouse": {
@@ -2441,6 +2435,21 @@
       "note": "Level 4 needs Patricians (D-065 extended to the Trading Post): after the first Patrician house.",
       "upgrade_trading_post": {
         "island": "oc-01"
+      }
+    },
+    {
+      "note": "D-083 §3: iron is a Patricians good — the iron mine and smelter go up on island 2 (its iron slot and charcoal burners) after the unlock and before the cooperage; route 1 brings the iron home.",
+      "build": {
+        "island": "oc-02",
+        "type": "iron_mine",
+        "count": 1
+      }
+    },
+    {
+      "build": {
+        "island": "oc-02",
+        "type": "smelter",
+        "count": 1
       }
     },
     {

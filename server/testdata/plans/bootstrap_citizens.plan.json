@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_citizens",
-  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. One fisher, two sheep farms and two weavers on the start island (one fisher or weaver feeds 56 Settler houses).",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. One fisher, two sheep farms and two weavers on the start island (one fisher or weaver feeds 56 Settler houses). D-083 (content 0.24.0): one island until Merchants — the plan no longer founds island 2 (its founding moves to the Merchants game, the iron chain to the Patricians game) and has no tools route; it ends after the first Citizen house.",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
@@ -285,32 +285,6 @@
       }
     },
     {
-      "step": {
-        "manual_shipment": {
-          "ship": 1,
-          "to": "oc-02",
-          "cargo": {
-            "planks": 58
-          }
-        }
-      }
-    },
-    {
-      "found": {
-        "ship": 1,
-        "island": "oc-02"
-      }
-    },
-    {
-      "note": "Ship 1 sails home to load the route's first cargo.",
-      "step": {
-        "sail_ship": {
-          "ship": 1,
-          "to": "oc-01"
-        }
-      }
-    },
-    {
       "houses": {
         "quarter": "home-1",
         "count": 7
@@ -374,125 +348,24 @@
       }
     },
     {
-      "note": "Ship 1 carries the iron chain's planks and stone in one load.",
-      "step": {
-        "manual_shipment": {
-          "ship": 1,
-          "to": "oc-02",
-          "cargo": {
-            "planks": 50,
-            "stone": 27
-          }
-        }
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "fisher",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "isle2-1",
-        "count": 10
+      "civic": {
+        "quarter": "home-1",
+        "type": "city_guard"
       },
-      "note": "D-080: ten six-resident houses give the iron chain about the workforce eight eight-resident houses gave (the founding load carries their planks)."
+      "note": "D-083: the Citizens game goes on to the first Citizen need chain (city guard, then cheese) on the start island; without the second island and the tools route its town would end at the first Citizen house (the D-082 gold bounds of the two Citizens games read the town from minute 30)."
     },
     {
       "build": {
-        "island": "oc-02",
-        "type": "lumberjack",
-        "count": 1,
-        "near": "forest"
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "charcoal_burner",
+        "island": "oc-01",
+        "type": "dairy_farm",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "oc-02",
-        "type": "iron_mine",
+        "island": "oc-01",
+        "type": "cheese_dairy",
         "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "smelter",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "toolmaker",
-        "count": 1
-      }
-    },
-    {
-      "note": "Ship 1 waits at island 2 for the first tools.",
-      "step": {
-        "manual_shipment": {
-          "ship": 1,
-          "to": "oc-01",
-          "cargo": {
-            "tools": 2
-          }
-        }
-      }
-    },
-    {
-      "step": {
-        "create_route": {
-          "name": "Stone out, tools home",
-          "stops": [
-            {
-              "island": "oc-01",
-              "load": {
-                "planks": 50,
-                "stone": 50
-              },
-              "unload": [
-                "tools"
-              ]
-            },
-            {
-              "island": "oc-02",
-              "load": {
-                "tools": 50
-              },
-              "unload": [
-                "stone",
-                "planks"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "step": {
-        "assign_ship": {
-          "ship": 1,
-          "route": 1
-        }
-      }
-    },
-    {
-      "checkpoint": {
-        "name": "tools on the start island",
-        "stock": {
-          "island": "oc-01",
-          "good": "tools"
-        },
-        "max": "90m"
       }
     },
     {
