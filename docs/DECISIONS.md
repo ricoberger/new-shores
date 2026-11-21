@@ -2970,7 +2970,10 @@ props keep the 8-voxel helpers). Models 28.17 MiB; far 13 / 202 k,
   later than D-075 (twenty six-resident houses, planks pace it),
   accepted. Plans trimmed to peak demand × 1.25; the 25 % surplus
   bound became `TestReferenceGamesSurplus` (≤ 60 % beyond the last
-  producer). Client shows rates per 100 residents.
+  producer). Client shows rates per 100 residents. #82: houses above
+  the new `max` are capped on decode (a satisfied house above its target
+  never declines, D-074), so older worlds and snapshots come in at 6 / 14
+  / 26 / 43.
 
 ### Table A — own-tier consumption (per resident per minute)
 

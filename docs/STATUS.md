@@ -30,7 +30,8 @@ group move; the six 8-vpt holdouts at 12 vpt; content 0.22.1), #80
 baseline: houses 6 / 14 / 26 / 43, generated consumption rates, Anno
 cycles and maintenance, tax 1.18 / 1.01 / 1.82 / 2.70, radii guard /
 fire 28; D-081 Trading Post as the single road root; D-079 forest counts
-as grass; content 0.23.0) merged; **next: playtest 4** on a fresh
+as grass; content 0.23.0) and #82 (residents capped at the tier max on
+decode) merged; **next: playtest 4** on a fresh
 world (0.22.x snapshots no longer load), then gold pressure (D-082).
 
 ## What exists
