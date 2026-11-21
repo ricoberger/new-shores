@@ -1,7 +1,7 @@
 {
   "name": "house_growth_target",
-  "content_version": "old_coast-0.23.0",
-  "boundary_count": 32,
+  "content_version": "old_coast-0.23.1",
+  "boundary_count": 33,
   "totals": {
     "main": {
       "bread": {
@@ -114,21 +114,21 @@
   ],
   "pause_events": [
     {
-      "at": "2026-01-01T08:25:55.856Z",
-      "action": "auto_pause",
-      "island_id": "main",
-      "building_id": 5,
-      "type": "tavern"
-    },
-    {
-      "at": "2026-01-01T08:25:55.856Z",
+      "at": "2026-01-01T06:59:22.273Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 7,
       "type": "city_guard"
     },
     {
-      "at": "2026-01-01T08:25:55.856Z",
+      "at": "2026-01-01T06:59:22.273Z",
+      "action": "auto_pause",
+      "island_id": "main",
+      "building_id": 5,
+      "type": "tavern"
+    },
+    {
+      "at": "2026-01-01T06:59:22.273Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 6,
@@ -161,8 +161,8 @@
         }
       },
       "statuses": {},
-      "gold": 4639680,
-      "balance_rate_per_min": 7080,
+      "gold": 19543680,
+      "balance_rate_per_min": -8920,
       "population": {
         "settlers": 6000
       },
@@ -196,8 +196,8 @@
         }
       },
       "statuses": {},
-      "gold": 4248625,
-      "balance_rate_per_min": 2395,
+      "gold": 19032625,
+      "balance_rate_per_min": -21605,
       "population": {
         "citizens": 8000
       },
@@ -231,8 +231,8 @@
         }
       },
       "statuses": {},
-      "gold": 4336662,
-      "balance_rate_per_min": 2944,
+      "gold": 18400662,
+      "balance_rate_per_min": -21056,
       "population": {
         "citizens": 9000
       },
@@ -290,8 +290,8 @@
         }
       },
       "statuses": {},
-      "gold": 3152212,
-      "balance_rate_per_min": 6140,
+      "gold": 17021212,
+      "balance_rate_per_min": -32860,
       "population": {
         "citizens": 14000
       },
@@ -349,8 +349,8 @@
         }
       },
       "statuses": {},
-      "gold": 3182912,
-      "balance_rate_per_min": 6140,
+      "gold": 16856912,
+      "balance_rate_per_min": -32860,
       "population": {
         "citizens": 14000
       },
@@ -380,8 +380,8 @@
         }
       },
       "statuses": {},
-      "gold": 3225791,
-      "balance_rate_per_min": -4422,
+      "gold": 15729791,
+      "balance_rate_per_min": -43422,
       "population": {
         "citizens": 10000
       },
@@ -411,8 +411,8 @@
         }
       },
       "statuses": {},
-      "gold": 3073587,
-      "balance_rate_per_min": -5138,
+      "gold": 14407587,
+      "balance_rate_per_min": -44138,
       "population": {
         "citizens": 8000
       },
@@ -442,8 +442,8 @@
         }
       },
       "statuses": {},
-      "gold": 2919447,
-      "balance_rate_per_min": -5138,
+      "gold": 13083447,
+      "balance_rate_per_min": -44138,
       "population": {
         "citizens": 8000
       },
@@ -473,8 +473,8 @@
         }
       },
       "statuses": {},
-      "gold": 2839447,
-      "balance_rate_per_min": -8000,
+      "gold": 12613447,
+      "balance_rate_per_min": -47000,
       "population": {
         "citizens": 5000
       },
@@ -486,7 +486,7 @@
     {
       "step": 26,
       "at": "2026-01-01T14:31:00.000Z",
-      "boundaries": 4,
+      "boundaries": 5,
       "inventory": {
         "main": {
           "planks": {
@@ -505,7 +505,7 @@
       },
       "statuses": {},
       "gold": 0,
-      "balance_rate_per_min": 0,
+      "balance_rate_per_min": -16000,
       "population": {
         "citizens": 5000
       },
@@ -529,9 +529,9 @@
     "evaluated_at": "2026-01-01T14:31:00.000Z",
     "next_change_at": null,
     "gold": 0,
-    "balance_rate_per_min": 0,
+    "balance_rate_per_min": -16000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 0,
+    "upkeep_rate_per_min": 16000,
     "tiers": [
       {
         "id": "settlers",
@@ -1298,8 +1298,8 @@
     "insolvency": {
       "unpaid_buildings": 3,
       "unpaid_ships": 0,
-      "unpaid_upkeep_per_min": 8000,
-      "balance_if_resumed_per_min": -8000
+      "unpaid_upkeep_per_min": 31000,
+      "balance_if_resumed_per_min": -47000
     },
     "quests": {
       "active": [

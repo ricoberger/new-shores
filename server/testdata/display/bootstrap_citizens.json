@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T02:22:00.000Z",
     "next_change_at": "2026-01-01T02:24:20.499Z",
-    "gold": 24546875,
-    "balance_rate_per_min": 247337,
+    "gold": 21142875,
+    "balance_rate_per_min": 216337,
     "tax_rate_per_min": 304337,
-    "upkeep_rate_per_min": 57000,
+    "upkeep_rate_per_min": 88000,
     "tiers": [
       {
         "id": "settlers",
@@ -20795,7 +20795,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 247337
+      "balance_if_resumed_per_min": 216337
     },
     "quests": {
       "active": [
@@ -20905,10 +20905,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:22:00.250Z",
         "next_change_at": "2026-01-01T02:24:20.499Z",
-        "gold": 24547906,
-        "balance_rate_per_min": 247337,
+        "gold": 21143777,
+        "balance_rate_per_min": 216337,
         "tax_rate_per_min": 304337,
-        "upkeep_rate_per_min": 57000,
+        "upkeep_rate_per_min": 88000,
         "tiers": [
           {
             "id": "settlers",
@@ -41697,7 +41697,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 247337
+          "balance_if_resumed_per_min": 216337
         },
         "quests": {
           "active": [
@@ -41807,10 +41807,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:22:01.000Z",
         "next_change_at": "2026-01-01T02:24:20.499Z",
-        "gold": 24550997,
-        "balance_rate_per_min": 247337,
+        "gold": 21146481,
+        "balance_rate_per_min": 216337,
         "tax_rate_per_min": 304337,
-        "upkeep_rate_per_min": 57000,
+        "upkeep_rate_per_min": 88000,
         "tiers": [
           {
             "id": "settlers",
@@ -62599,7 +62599,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 247337
+          "balance_if_resumed_per_min": 216337
         },
         "quests": {
           "active": [
@@ -62709,10 +62709,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:22:05.000Z",
         "next_change_at": "2026-01-01T02:24:20.499Z",
-        "gold": 24567487,
-        "balance_rate_per_min": 247337,
+        "gold": 21160903,
+        "balance_rate_per_min": 216337,
         "tax_rate_per_min": 304337,
-        "upkeep_rate_per_min": 57000,
+        "upkeep_rate_per_min": 88000,
         "tiers": [
           {
             "id": "settlers",
@@ -83501,7 +83501,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 247337
+          "balance_if_resumed_per_min": 216337
         },
         "quests": {
           "active": [
@@ -83611,10 +83611,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:22:30.000Z",
         "next_change_at": "2026-01-01T02:24:20.499Z",
-        "gold": 24670544,
-        "balance_rate_per_min": 247337,
+        "gold": 21251044,
+        "balance_rate_per_min": 216337,
         "tax_rate_per_min": 304337,
-        "upkeep_rate_per_min": 57000,
+        "upkeep_rate_per_min": 88000,
         "tiers": [
           {
             "id": "settlers",
@@ -104403,7 +104403,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 247337
+          "balance_if_resumed_per_min": 216337
         },
         "quests": {
           "active": [

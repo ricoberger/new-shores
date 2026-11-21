@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_merchants",
-  "content_version": "old_coast-0.23.0",
+  "content_version": "old_coast-0.23.1",
   "boundary_count": 771,
   "totals": {
     "oc-01": {
@@ -467,8 +467,8 @@
       "statuses": {
         "short_of_workers": 5
       },
-      "gold": 983480,
-      "balance_rate_per_min": -4222,
+      "gold": 973480,
+      "balance_rate_per_min": -14222,
       "population": {
         "settlers": 12000
       },
@@ -549,8 +549,8 @@
       "statuses": {
         "ok": 5
       },
-      "gold": 1035902,
-      "balance_rate_per_min": 19185,
+      "gold": 945902,
+      "balance_rate_per_min": 9185,
       "population": {
         "settlers": 44000
       },
@@ -631,8 +631,8 @@
       "statuses": {
         "ok": 5
       },
-      "gold": 1252225,
-      "balance_rate_per_min": 71016,
+      "gold": 1050225,
+      "balance_rate_per_min": 55016,
       "population": {
         "settlers": 89000
       },
@@ -721,8 +721,8 @@
       "statuses": {
         "ok": 7
       },
-      "gold": 1748157,
-      "balance_rate_per_min": 118600,
+      "gold": 1388157,
+      "balance_rate_per_min": 97600,
       "population": {
         "settlers": 120000
       },
@@ -822,8 +822,8 @@
       "statuses": {
         "ok": 7
       },
-      "gold": 1991797,
-      "balance_rate_per_min": 129220,
+      "gold": 1589797,
+      "balance_rate_per_min": 108220,
       "population": {
         "settlers": 129000
       },
@@ -923,8 +923,8 @@
       "statuses": {
         "ok": 9
       },
-      "gold": 3056677,
-      "balance_rate_per_min": 129760,
+      "gold": 2444677,
+      "balance_rate_per_min": 108760,
       "population": {
         "settlers": 132000
       },
@@ -1034,8 +1034,8 @@
       "statuses": {
         "ok": 9
       },
-      "gold": 4354277,
-      "balance_rate_per_min": 129760,
+      "gold": 3532277,
+      "balance_rate_per_min": 108760,
       "population": {
         "settlers": 132000
       },
@@ -1153,8 +1153,8 @@
       "statuses": {
         "ok": 9
       },
-      "gold": 6088417,
-      "balance_rate_per_min": 255020,
+      "gold": 5046417,
+      "balance_rate_per_min": 229020,
       "population": {
         "settlers": 239000
       },
@@ -1272,8 +1272,8 @@
       "statuses": {
         "ok": 12
       },
-      "gold": 6841235,
-      "balance_rate_per_min": 240198,
+      "gold": 5669235,
+      "balance_rate_per_min": 214198,
       "population": {
         "citizens": 6000,
         "settlers": 234000
@@ -1403,8 +1403,8 @@
       "statuses": {
         "ok": 12
       },
-      "gold": 8045400,
-      "balance_rate_per_min": 241737,
+      "gold": 6743400,
+      "balance_rate_per_min": 215737,
       "population": {
         "citizens": 9000,
         "settlers": 234000
@@ -1534,8 +1534,8 @@
       "statuses": {
         "ok": 12
       },
-      "gold": 10462770,
-      "balance_rate_per_min": 241737,
+      "gold": 8900770,
+      "balance_rate_per_min": 215737,
       "population": {
         "citizens": 9000,
         "settlers": 234000
@@ -1669,8 +1669,8 @@
       "statuses": {
         "ok": 13
       },
-      "gold": 12812451,
-      "balance_rate_per_min": 252257,
+      "gold": 10990451,
+      "balance_rate_per_min": 226257,
       "population": {
         "citizens": 9000,
         "settlers": 262000
@@ -1824,8 +1824,8 @@
         "input_starved": 1,
         "ok": 17
       },
-      "gold": 14158721,
-      "balance_rate_per_min": 247337,
+      "gold": 12056721,
+      "balance_rate_per_min": 216337,
       "population": {
         "citizens": 9000,
         "settlers": 274000
@@ -1985,8 +1985,8 @@
       "statuses": {
         "ok": 18
       },
-      "gold": 16632091,
-      "balance_rate_per_min": 247337,
+      "gold": 14220091,
+      "balance_rate_per_min": 216337,
       "population": {
         "citizens": 9000,
         "settlers": 274000
@@ -2152,8 +2152,8 @@
       "statuses": {
         "ok": 19
       },
-      "gold": 18351756,
-      "balance_rate_per_min": 341224,
+      "gold": 15461756,
+      "balance_rate_per_min": 289224,
       "population": {
         "citizens": 48000,
         "settlers": 340000
@@ -2334,8 +2334,8 @@
       "statuses": {
         "ok": 21
       },
-      "gold": 20436360,
-      "balance_rate_per_min": 329161,
+      "gold": 16996360,
+      "balance_rate_per_min": 274161,
       "population": {
         "citizens": 88000,
         "settlers": 316000
@@ -2542,8 +2542,8 @@
         "input_starved": 1,
         "ok": 24
       },
-      "gold": 20779555,
-      "balance_rate_per_min": 342936,
+      "gold": 16757555,
+      "balance_rate_per_min": 279936,
       "population": {
         "citizens": 218000,
         "settlers": 250000
@@ -2775,8 +2775,8 @@
         "input_starved": 1,
         "ok": 26
       },
-      "gold": 22779732,
-      "balance_rate_per_min": 377132,
+      "gold": 18127732,
+      "balance_rate_per_min": 314132,
       "population": {
         "citizens": 337000,
         "settlers": 196000
@@ -3016,8 +3016,8 @@
         "input_starved": 1,
         "ok": 26
       },
-      "gold": 23459239,
-      "balance_rate_per_min": 378558,
+      "gold": 18618239,
+      "balance_rate_per_min": 315558,
       "population": {
         "citizens": 368000,
         "settlers": 178000
@@ -3262,8 +3262,8 @@
         "input_starved": 1,
         "ok": 27
       },
-      "gold": 25267320,
-      "balance_rate_per_min": 459149,
+      "gold": 19922320,
+      "balance_rate_per_min": 375149,
       "population": {
         "citizens": 385000,
         "settlers": 228000
@@ -3515,8 +3515,8 @@
         "input_starved": 1,
         "ok": 27
       },
-      "gold": 29922530,
-      "balance_rate_per_min": 466229,
+      "gold": 23737530,
+      "balance_rate_per_min": 382229,
       "population": {
         "citizens": 385000,
         "settlers": 234000
@@ -3768,8 +3768,8 @@
         "input_starved": 1,
         "ok": 27
       },
-      "gold": 33981530,
-      "balance_rate_per_min": 457840,
+      "gold": 26916530,
+      "balance_rate_per_min": 368840,
       "population": {
         "citizens": 412000,
         "settlers": 216000
@@ -4019,8 +4019,8 @@
         "input_starved": 1,
         "ok": 27
       },
-      "gold": 38559930,
-      "balance_rate_per_min": 457840,
+      "gold": 30604930,
+      "balance_rate_per_min": 368840,
       "population": {
         "citizens": 412000,
         "settlers": 216000
@@ -4281,8 +4281,8 @@
         "ok": 25,
         "warehouse_full": 4
       },
-      "gold": 42934330,
-      "balance_rate_per_min": 452840,
+      "gold": 34089330,
+      "balance_rate_per_min": 363840,
       "population": {
         "citizens": 412000,
         "settlers": 216000
@@ -4541,8 +4541,8 @@
         "ok": 25,
         "warehouse_full": 4
       },
-      "gold": 47462730,
-      "balance_rate_per_min": 452840,
+      "gold": 37727730,
+      "balance_rate_per_min": 363840,
       "population": {
         "citizens": 412000,
         "settlers": 216000
@@ -4804,8 +4804,8 @@
         "input_starved": 1,
         "ok": 31
       },
-      "gold": 50391272,
-      "balance_rate_per_min": 454982,
+      "gold": 39754272,
+      "balance_rate_per_min": 353982,
       "population": {
         "citizens": 400000,
         "merchants": 12000,
@@ -5076,8 +5076,8 @@
         "ok": 27,
         "warehouse_full": 4
       },
-      "gold": 54959280,
-      "balance_rate_per_min": 458290,
+      "gold": 43312280,
+      "balance_rate_per_min": 357290,
       "population": {
         "citizens": 400000,
         "merchants": 16000,
@@ -5376,8 +5376,8 @@
         "ok": 31,
         "throttled": 7
       },
-      "gold": 54818971,
-      "balance_rate_per_min": 413714,
+      "gold": 42125971,
+      "balance_rate_per_min": 308714,
       "population": {
         "citizens": 376000,
         "merchants": 52000,
@@ -5721,8 +5721,8 @@
         "ok": 31,
         "throttled": 7
       },
-      "gold": 58974979,
-      "balance_rate_per_min": 415882,
+      "gold": 45231979,
+      "balance_rate_per_min": 310882,
       "population": {
         "citizens": 376000,
         "merchants": 54000,
@@ -6081,8 +6081,8 @@
         "ok": 29,
         "throttled": 8
       },
-      "gold": 59389361,
-      "balance_rate_per_min": 406981,
+      "gold": 44526361,
+      "balance_rate_per_min": 287981,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -6434,8 +6434,8 @@
         "ok": 29,
         "throttled": 7
       },
-      "gold": 63459171,
-      "balance_rate_per_min": 406981,
+      "gold": 47406171,
+      "balance_rate_per_min": 287981,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -6794,8 +6794,8 @@
         "ok": 32,
         "throttled": 8
       },
-      "gold": 67528981,
-      "balance_rate_per_min": 406981,
+      "gold": 50285981,
+      "balance_rate_per_min": 287981,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -7151,8 +7151,8 @@
         "ok": 34,
         "warehouse_full": 4
       },
-      "gold": 71598791,
-      "balance_rate_per_min": 406981,
+      "gold": 53165791,
+      "balance_rate_per_min": 287981,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -7508,8 +7508,8 @@
         "ok": 34,
         "warehouse_full": 4
       },
-      "gold": 75668601,
-      "balance_rate_per_min": 406981,
+      "gold": 56045601,
+      "balance_rate_per_min": 287981,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -7868,8 +7868,8 @@
         "ok": 29,
         "warehouse_full": 9
       },
-      "gold": 73675348,
-      "balance_rate_per_min": 380284,
+      "gold": 49076348,
+      "balance_rate_per_min": 231284,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -8133,10 +8133,10 @@
   "final": {
     "evaluated_at": "2026-01-01T05:34:00.000Z",
     "next_change_at": "2026-01-01T05:38:01.567Z",
-    "gold": 73675348,
-    "balance_rate_per_min": 380284,
+    "gold": 49076348,
+    "balance_rate_per_min": 231284,
     "tax_rate_per_min": 643284,
-    "upkeep_rate_per_min": 263000,
+    "upkeep_rate_per_min": 412000,
     "tiers": [
       {
         "id": "settlers",
@@ -42447,7 +42447,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 380284
+      "balance_if_resumed_per_min": 231284
     },
     "quests": {
       "active": [

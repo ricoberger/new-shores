@@ -330,8 +330,8 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 		}
 	}
 	for id, w := range map[string]string{
-		"university": "100000000 [{bricks 120000} {planks 90000} {stone 90000}] 90000",
-		"cathedral":  "120000000 [{bricks 120000} {glass 60000} {planks 30000} {stone 120000}] 60000",
+		"university": "100000000 [{bricks 120000} {planks 90000} {stone 90000}] 180000",
+		"cathedral":  "120000000 [{bricks 120000} {glass 60000} {planks 30000} {stone 120000}] 100000",
 	} {
 		b := c.BuildingByID[id]
 		if b.Upgradable() || b.PauseCategory != "public" || fmt.Sprint(b.Cost.Gold, b.Cost.Materials, b.UpkeepPerMin) != w {

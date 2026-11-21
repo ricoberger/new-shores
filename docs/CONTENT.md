@@ -328,9 +328,9 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `house_settlers` | 1 | 3×3 | — | Residence | 0 / 5 | 0 | — | R; all houses 3×3, upgrade in place |
 | `road_dirt` | 1 | 1×1 | — | road | see text | 0 | — |  |
 | `trading_post` | 1 | 6×6 | 1–2 | Trading Post (D-062) | see text | 0 / 6 / 12 / 24 | — | founding only; collector with reach; levels as below (D-069) |
-| `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 1 / 5 / 10 / 20 | — | collector; reach and throughput per level, four levels (D-065, D-069, below) |
-| `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 / 10 / 40 / 60 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 20; lvl 2 (tier 2) radius 24, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 28, 2000 gold / 30 planks / 60 stone; lvl 4 (tier 4) radius 32, 10000 gold / 30 planks / 90 stone / 30 bricks (D-065; radii, and cost and upkeep of levels 3–4 ×2, D-072) |
-| `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 0 | — | R, radius 16; faith rank 1 (D-065) |
+| `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 6 / 10 / 16 / 24 | — | collector; reach and throughput per level, four levels (D-065, D-069, below) |
+| `market` | 1 | 5×6 | — | Market | 250 / 15 | 10 / 20 / 40 / 60 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 20; lvl 2 (tier 2) radius 24, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 28, 2000 gold / 30 planks / 60 stone; lvl 4 (tier 4) radius 32, 10000 gold / 30 planks / 90 stone / 30 bricks (D-065; radii, and cost and upkeep of levels 3–4 ×2, D-072) |
+| `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 6 | — | R, radius 16; faith rank 1 (D-065) |
 | `lumberjack` | 1 | 3×3 + 48 `tree_plot` | — | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest; 24 plots before content 0.20.0 — a forest of 48 reads as a wood, polish 7) |
 | `tree_plot` | 1 | 1×1 field | — | field tile | 1 g | 0 | — | lumberjack only; painted; grass or forest, no fertility (D-059; every field since D-079) |
 | `sawmill` | 1 | 4×6 | — | Sawmill | 120 / 9 | 2 | 4 S | R |
@@ -367,16 +367,16 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `pig_pen` | 2 | 3×4 field | — | pasture module | 20 g / 5 planks | 0 | — | pig_farm only; grass or forest (D-079) |
 | `tannery` | 2 | 3×4 | — | Tannery | 180 / 6 / 6 | 12 | 8 C | R |
 | `sailmaker` | 2 | 4×8 | — | Ropemaker | 240 / 6 / 9 | 2 | 6 C | R |
-| `tavern` | 2 | 4×6 | — | Tavern | 250 / 15 / 0 | 2 | — | R, radius 20 (D-072); culture rank 1 (D-065) |
-| `school` | 2 | 6×8 | — | Grammaticus | 1000 / 15 / 30 | 4 | — | R, radius 20 (D-072); education rank 1 (D-065) |
-| `city_guard` | 2 | 4×4 | — | Watch post class | 200 / 10 / 6 | 2 | — | R, safety; radius 28 (D-080 §7; 26 since D-072), one level (D-065) |
+| `tavern` | 2 | 4×6 | — | Tavern | 250 / 15 / 0 | 10 | — | R, radius 20 (D-072); culture rank 1 (D-065) |
+| `school` | 2 | 6×8 | — | Grammaticus | 1000 / 15 / 30 | 16 | — | R, radius 20 (D-072); education rank 1 (D-065) |
+| `city_guard` | 2 | 4×4 | — | Watch post class | 200 / 10 / 6 | 5 | — | R, safety; radius 28 (D-080 §7; 26 since D-072), one level (D-065) |
 | `house_merchants` | 3 | 3×3 | — | Residence | 400 / 5 / 3 / 3 | 0 | — | upgrade only |
-| `church` | 3 | 6×10 | — | Sanctuary | 3000 / 60 / 30 / 0 | 12 | — | R, radius 28; faith rank 2 (D-065); cost and upkeep ×2 (D-072) |
-| `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 60 / 120 / 60 | 30 | — | R, radius 38 (tier 3 since D-056); culture rank 2 (D-065); materials and upkeep ×2, gold kept (D-072: the Merchants game waits for its gold) |
-| `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, fire protection; radius 28 (D-080 §7; 22 since D-072), one level (D-065) |
+| `church` | 3 | 6×10 | — | Sanctuary | 3000 / 60 / 30 / 0 | 26 | — | R, radius 28; faith rank 2 (D-065); cost and upkeep ×2 (D-072) |
+| `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 60 / 120 / 60 | 60 | — | R, radius 38 (tier 3 since D-056); culture rank 2 (D-065); materials and upkeep ×2, gold kept (D-072: the Merchants game waits for its gold) |
+| `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 8 | — | R, fire protection; radius 28 (D-080 §7; 22 since D-072), one level (D-065) |
 | `trading_pier` | 3 | 6×9 | shore | Pier class (ours) | 250 / 20 / 10 | 0 | — | R, never auto-paused; +2 berths for the island (D-060); no levels; Merchants since D-069 §5 |
 | `depot` | 3 | 4×11 | shore | Depot class (ours) | 280 / 20 / 10 | 0 | — | R, never auto-paused; +150 capacity per good, no levels; any number (D-062); Merchants since D-069 §5 |
-| `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 4 | — | R, radius 28 (D-072), health; one level, glass cost (D-062) |
+| `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 8 | — | R, radius 28 (D-072), health; one level, glass cost (D-062) |
 | `harbourmaster_office` | 3 | 5×5 | (reserve) | Repair Crane class | 1000 / 60 / 45 / 0 | 6 | — | world map, expeditions, contracts |
 | `butcher` | 3 | 4×5 | — | Victualler class | 270 / 6 / 6 / 3 | 12 | 8 M | R |
 | `pastry_kitchen` | 3 | 4×5 | — | Bakery class | 320 / 5 / 9 / 3 | 14 | 8 M | R |
@@ -404,8 +404,8 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `brickworks` | 3 | 4×5 | — | Tiler | 90 / 9 / 0 / 0 | 3 | 8 C | R |
 | `coal_mine` | 3 | 3×8 on a coal slot | — | Iron Mine class | 180 / 6 / 6 / 0 | 2 | 10 C | R |
 | `house_patricians` | 4 | 3×3 | — | Residence | 1000 / 5 / 3 / 3 / 3 | 0 | — | upgrade only |
-| `university` | 4 | 12×12 | — | Library | 100000 / 90 / 90 / 120 / 0 | 90 | — | R, radius 46; education rank 2 (D-065); cost and upkeep ×2 (D-072) |
-| `cathedral` | 4 | 12×16 | — | Temple | 120000 / 30 / 120 / 120 / 60 | 60 | — | R, radius 50 (D-072); faith rank 3 (D-065); cost and upkeep ×2 (D-072) |
+| `university` | 4 | 12×12 | — | Library | 100000 / 90 / 90 / 120 / 0 | 180 | — | R, radius 46; education rank 2 (D-065); cost and upkeep ×2 (D-072) |
+| `cathedral` | 4 | 12×16 | — | Temple | 120000 / 30 / 120 / 120 / 60 | 100 | — | R, radius 50 (D-072); faith rank 3 (D-065); cost and upkeep ×2 (D-072) |
 | `cattle_farm` | 4 | 4×5 + 5 `cattle_pasture` | — | Pig Farm class, large | 410 / 5 / 9 / 6 / 0 | 4 | 8 S | R, grass |
 | `slaughterhouse` | 4 | 4×4 | — | Fish Gutter class | 390 / 6 / 6 / 3 / 3 | 40 | 8 P | R |
 | `oyster_beds` | 4 | 6×12 | 3–4 | Oyster Bed | 480 / 12 / 9 / 6 / 0 | 3 | 6 S | R |
@@ -448,10 +448,10 @@ needs tier *n*, D-065, extended to the Trading Post):
 | Trading Post | 2 (Citizens) | 500 | 20 | 28 | 6 | 2 | 300 gold / 20 planks / 10 stone |
 | Trading Post | 3 (Merchants) | 800 | 40 | 32 | 12 | 3 | 600 gold / 30 planks / 20 stone |
 | Trading Post | 4 (Patricians) | 1 200 | 80 | 36 | 24 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
-| Warehouse | 1 | — | 8 | 18 | 1 | — | placement (50 gold / 6 planks) |
-| Warehouse | 2 (Citizens) | — | 16 | 21 | 5 | — | 150 gold / 10 planks / 5 stone |
-| Warehouse | 3 (Merchants) | — | 32 | 24 | 10 | — | 300 gold / 15 planks / 10 stone |
-| Warehouse | 4 (Patricians) | — | 64 | 27 | 20 | — | 600 gold / 20 planks / 20 stone |
+| Warehouse | 1 | — | 8 | 18 | 6 | — | placement (50 gold / 6 planks) |
+| Warehouse | 2 (Citizens) | — | 16 | 21 | 10 | — | 150 gold / 10 planks / 5 stone |
+| Warehouse | 3 (Merchants) | — | 32 | 24 | 16 | — | 300 gold / 15 planks / 10 stone |
+| Warehouse | 4 (Patricians) | — | 64 | 27 | 24 | — | 600 gold / 20 planks / 20 stone |
 
 Reach grew by 4 tiles per level with D-072 §3 (D-069: Trading Post 20 /
 24 / 28 / 32, warehouse 14 / 17 / 20 / 23). Throughput fell with D-074 §3
@@ -463,10 +463,13 @@ doubles the ramp and cheapens it: throughput Trading Post 10 / 20 / 40 /
 48); upkeep Trading Post 0 / 6 / 12 / 24 (0 / 10 / 20 / 30), warehouse
 1 / 5 / 10 / 20 (1 / 10 / 15 / 25) — the level-2 upgrade of a warehouse
 is no longer a quarter of a tier-1 town's income. Reach, capacity and
-upgrade costs unchanged.
+upgrade costs unchanged. D-082 table E (content 0.23.1) sets the
+warehouse to Anno 117's (Warehouse 6): 6 / 10 / 16 / 24.
 
-Market upkeep per level 0 / 10 / 40 / 60 (D-072 doubled levels 3–4 from
-20 / 30). D-069 §3 named 5 for the
+Market upkeep per level 10 / 20 / 40 / 60 since D-082 table E (Anno 117's
+Market 10; content 0.23.1; before 0 / 10 / 40 / 60, D-072 doubled levels
+3–4 from 20 / 30). The chapel pays 6 (D-082), like the market without
+ever being auto-paused. D-069 §3 named 5 for the
 level 1 of market and warehouse; the plan replay tuned them: a market
 with any upkeep placed before the first houses holds gold at zero for
 good (it cannot be paused and roads cost gold), so its level 1 stays

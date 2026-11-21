@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_patricians",
-  "content_version": "old_coast-0.23.0",
+  "content_version": "old_coast-0.23.1",
   "boundary_count": 9103,
   "totals": {
     "oc-01": {
@@ -935,8 +935,8 @@
       "statuses": {
         "short_of_workers": 5
       },
-      "gold": 983480,
-      "balance_rate_per_min": -4222,
+      "gold": 973480,
+      "balance_rate_per_min": -14222,
       "population": {
         "settlers": 12000
       },
@@ -1017,8 +1017,8 @@
       "statuses": {
         "ok": 5
       },
-      "gold": 1035902,
-      "balance_rate_per_min": 19185,
+      "gold": 945902,
+      "balance_rate_per_min": 9185,
       "population": {
         "settlers": 44000
       },
@@ -1099,8 +1099,8 @@
       "statuses": {
         "ok": 5
       },
-      "gold": 1252225,
-      "balance_rate_per_min": 71016,
+      "gold": 1050225,
+      "balance_rate_per_min": 55016,
       "population": {
         "settlers": 89000
       },
@@ -1189,8 +1189,8 @@
       "statuses": {
         "ok": 7
       },
-      "gold": 1748157,
-      "balance_rate_per_min": 118600,
+      "gold": 1388157,
+      "balance_rate_per_min": 97600,
       "population": {
         "settlers": 120000
       },
@@ -1290,8 +1290,8 @@
       "statuses": {
         "ok": 7
       },
-      "gold": 1991797,
-      "balance_rate_per_min": 129220,
+      "gold": 1589797,
+      "balance_rate_per_min": 108220,
       "population": {
         "settlers": 129000
       },
@@ -1391,8 +1391,8 @@
       "statuses": {
         "ok": 9
       },
-      "gold": 3056677,
-      "balance_rate_per_min": 129760,
+      "gold": 2444677,
+      "balance_rate_per_min": 108760,
       "population": {
         "settlers": 132000
       },
@@ -1502,8 +1502,8 @@
       "statuses": {
         "ok": 9
       },
-      "gold": 4354277,
-      "balance_rate_per_min": 129760,
+      "gold": 3532277,
+      "balance_rate_per_min": 108760,
       "population": {
         "settlers": 132000
       },
@@ -1621,8 +1621,8 @@
       "statuses": {
         "ok": 9
       },
-      "gold": 6088417,
-      "balance_rate_per_min": 255020,
+      "gold": 5046417,
+      "balance_rate_per_min": 229020,
       "population": {
         "settlers": 239000
       },
@@ -1740,8 +1740,8 @@
       "statuses": {
         "ok": 12
       },
-      "gold": 6841235,
-      "balance_rate_per_min": 240198,
+      "gold": 5669235,
+      "balance_rate_per_min": 214198,
       "population": {
         "citizens": 6000,
         "settlers": 234000
@@ -1871,8 +1871,8 @@
       "statuses": {
         "ok": 12
       },
-      "gold": 8045400,
-      "balance_rate_per_min": 241737,
+      "gold": 6743400,
+      "balance_rate_per_min": 215737,
       "population": {
         "citizens": 9000,
         "settlers": 234000
@@ -2002,8 +2002,8 @@
       "statuses": {
         "ok": 12
       },
-      "gold": 10462770,
-      "balance_rate_per_min": 241737,
+      "gold": 8900770,
+      "balance_rate_per_min": 215737,
       "population": {
         "citizens": 9000,
         "settlers": 234000
@@ -2137,8 +2137,8 @@
       "statuses": {
         "ok": 13
       },
-      "gold": 12812451,
-      "balance_rate_per_min": 252257,
+      "gold": 10990451,
+      "balance_rate_per_min": 226257,
       "population": {
         "citizens": 9000,
         "settlers": 262000
@@ -2292,8 +2292,8 @@
         "input_starved": 1,
         "ok": 17
       },
-      "gold": 14158721,
-      "balance_rate_per_min": 247337,
+      "gold": 12056721,
+      "balance_rate_per_min": 216337,
       "population": {
         "citizens": 9000,
         "settlers": 274000
@@ -2453,8 +2453,8 @@
       "statuses": {
         "ok": 18
       },
-      "gold": 16632091,
-      "balance_rate_per_min": 247337,
+      "gold": 14220091,
+      "balance_rate_per_min": 216337,
       "population": {
         "citizens": 9000,
         "settlers": 274000
@@ -2620,8 +2620,8 @@
       "statuses": {
         "ok": 19
       },
-      "gold": 18351756,
-      "balance_rate_per_min": 341224,
+      "gold": 15461756,
+      "balance_rate_per_min": 289224,
       "population": {
         "citizens": 48000,
         "settlers": 340000
@@ -2802,8 +2802,8 @@
       "statuses": {
         "ok": 21
       },
-      "gold": 20436360,
-      "balance_rate_per_min": 329161,
+      "gold": 16996360,
+      "balance_rate_per_min": 274161,
       "population": {
         "citizens": 88000,
         "settlers": 316000
@@ -3010,8 +3010,8 @@
         "input_starved": 1,
         "ok": 24
       },
-      "gold": 20779555,
-      "balance_rate_per_min": 342936,
+      "gold": 16757555,
+      "balance_rate_per_min": 279936,
       "population": {
         "citizens": 218000,
         "settlers": 250000
@@ -3243,8 +3243,8 @@
         "input_starved": 1,
         "ok": 26
       },
-      "gold": 22779732,
-      "balance_rate_per_min": 377132,
+      "gold": 18127732,
+      "balance_rate_per_min": 314132,
       "population": {
         "citizens": 337000,
         "settlers": 196000
@@ -3484,8 +3484,8 @@
         "input_starved": 1,
         "ok": 26
       },
-      "gold": 23459239,
-      "balance_rate_per_min": 378558,
+      "gold": 18618239,
+      "balance_rate_per_min": 315558,
       "population": {
         "citizens": 368000,
         "settlers": 178000
@@ -3730,8 +3730,8 @@
         "input_starved": 1,
         "ok": 27
       },
-      "gold": 25267320,
-      "balance_rate_per_min": 459149,
+      "gold": 19922320,
+      "balance_rate_per_min": 375149,
       "population": {
         "citizens": 385000,
         "settlers": 228000
@@ -3983,8 +3983,8 @@
         "input_starved": 1,
         "ok": 27
       },
-      "gold": 29922530,
-      "balance_rate_per_min": 466229,
+      "gold": 23737530,
+      "balance_rate_per_min": 382229,
       "population": {
         "citizens": 385000,
         "settlers": 234000
@@ -4236,8 +4236,8 @@
         "input_starved": 1,
         "ok": 27
       },
-      "gold": 33981530,
-      "balance_rate_per_min": 457840,
+      "gold": 26916530,
+      "balance_rate_per_min": 368840,
       "population": {
         "citizens": 412000,
         "settlers": 216000
@@ -4487,8 +4487,8 @@
         "input_starved": 1,
         "ok": 27
       },
-      "gold": 38559930,
-      "balance_rate_per_min": 457840,
+      "gold": 30604930,
+      "balance_rate_per_min": 368840,
       "population": {
         "citizens": 412000,
         "settlers": 216000
@@ -4749,8 +4749,8 @@
         "ok": 25,
         "warehouse_full": 4
       },
-      "gold": 42934330,
-      "balance_rate_per_min": 452840,
+      "gold": 34089330,
+      "balance_rate_per_min": 363840,
       "population": {
         "citizens": 412000,
         "settlers": 216000
@@ -5009,8 +5009,8 @@
         "ok": 25,
         "warehouse_full": 4
       },
-      "gold": 47462730,
-      "balance_rate_per_min": 452840,
+      "gold": 37727730,
+      "balance_rate_per_min": 363840,
       "population": {
         "citizens": 412000,
         "settlers": 216000
@@ -5272,8 +5272,8 @@
         "input_starved": 1,
         "ok": 31
       },
-      "gold": 50391272,
-      "balance_rate_per_min": 454982,
+      "gold": 39754272,
+      "balance_rate_per_min": 353982,
       "population": {
         "citizens": 400000,
         "merchants": 12000,
@@ -5544,8 +5544,8 @@
         "ok": 27,
         "warehouse_full": 4
       },
-      "gold": 54959280,
-      "balance_rate_per_min": 458290,
+      "gold": 43312280,
+      "balance_rate_per_min": 357290,
       "population": {
         "citizens": 400000,
         "merchants": 16000,
@@ -5844,8 +5844,8 @@
         "ok": 31,
         "throttled": 7
       },
-      "gold": 54818971,
-      "balance_rate_per_min": 413714,
+      "gold": 42125971,
+      "balance_rate_per_min": 308714,
       "population": {
         "citizens": 376000,
         "merchants": 52000,
@@ -6189,8 +6189,8 @@
         "ok": 31,
         "throttled": 7
       },
-      "gold": 58974979,
-      "balance_rate_per_min": 415882,
+      "gold": 45231979,
+      "balance_rate_per_min": 310882,
       "population": {
         "citizens": 376000,
         "merchants": 54000,
@@ -6549,8 +6549,8 @@
         "ok": 29,
         "throttled": 8
       },
-      "gold": 59389361,
-      "balance_rate_per_min": 406981,
+      "gold": 44526361,
+      "balance_rate_per_min": 287981,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -6902,8 +6902,8 @@
         "ok": 29,
         "throttled": 7
       },
-      "gold": 63459171,
-      "balance_rate_per_min": 406981,
+      "gold": 47406171,
+      "balance_rate_per_min": 287981,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -7262,8 +7262,8 @@
         "ok": 32,
         "throttled": 8
       },
-      "gold": 67528981,
-      "balance_rate_per_min": 406981,
+      "gold": 50285981,
+      "balance_rate_per_min": 287981,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -7619,8 +7619,8 @@
         "ok": 34,
         "warehouse_full": 4
       },
-      "gold": 71598791,
-      "balance_rate_per_min": 406981,
+      "gold": 53165791,
+      "balance_rate_per_min": 287981,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -7976,8 +7976,8 @@
         "ok": 34,
         "warehouse_full": 4
       },
-      "gold": 75668601,
-      "balance_rate_per_min": 406981,
+      "gold": 56045601,
+      "balance_rate_per_min": 287981,
       "population": {
         "citizens": 376000,
         "merchants": 63000,
@@ -8336,8 +8336,8 @@
         "ok": 15,
         "short_of_workers": 30
       },
-      "gold": 61256801,
-      "balance_rate_per_min": 417366,
+      "gold": 40203801,
+      "balance_rate_per_min": 263366,
       "population": {
         "citizens": 336000,
         "merchants": 143000,
@@ -8724,8 +8724,8 @@
         "short_of_workers": 22,
         "warehouse_full": 8
       },
-      "gold": 65684635,
-      "balance_rate_per_min": 453535,
+      "gold": 43091635,
+      "balance_rate_per_min": 299535,
       "population": {
         "citizens": 337000,
         "merchants": 168000,
@@ -9115,8 +9115,8 @@
         "short_of_workers": 15,
         "warehouse_full": 15
       },
-      "gold": 70219985,
-      "balance_rate_per_min": 453535,
+      "gold": 46086985,
+      "balance_rate_per_min": 299535,
       "population": {
         "citizens": 337000,
         "merchants": 168000,
@@ -9506,8 +9506,8 @@
         "short_of_workers": 15,
         "warehouse_full": 15
       },
-      "gold": 74638055,
-      "balance_rate_per_min": 458615,
+      "gold": 48965055,
+      "balance_rate_per_min": 304615,
       "population": {
         "citizens": 337000,
         "merchants": 168000,
@@ -9901,8 +9901,8 @@
         "short_of_workers": 20,
         "warehouse_full": 15
       },
-      "gold": 77657765,
-      "balance_rate_per_min": 446775,
+      "gold": 50354765,
+      "balance_rate_per_min": 282775,
       "population": {
         "citizens": 337000,
         "merchants": 168000,
@@ -10336,8 +10336,8 @@
         "ok": 18,
         "short_of_workers": 37
       },
-      "gold": 78432009,
-      "balance_rate_per_min": 610192,
+      "gold": 49328009,
+      "balance_rate_per_min": 423192,
       "population": {
         "citizens": 328000,
         "merchants": 249000,
@@ -10779,8 +10779,8 @@
         "short_of_workers": 22,
         "warehouse_full": 15
       },
-      "gold": 84821759,
-      "balance_rate_per_min": 651865,
+      "gold": 53847759,
+      "balance_rate_per_min": 464865,
       "population": {
         "citizens": 337000,
         "merchants": 273000,
@@ -11220,8 +11220,8 @@
         "short_of_workers": 22,
         "warehouse_full": 15
       },
-      "gold": 91340409,
-      "balance_rate_per_min": 651865,
+      "gold": 58496409,
+      "balance_rate_per_min": 464865,
       "population": {
         "citizens": 337000,
         "merchants": 273000,
@@ -11661,8 +11661,8 @@
         "short_of_workers": 20,
         "warehouse_full": 17
       },
-      "gold": 97859059,
-      "balance_rate_per_min": 651865,
+      "gold": 63145059,
+      "balance_rate_per_min": 464865,
       "population": {
         "citizens": 337000,
         "merchants": 273000,
@@ -12125,8 +12125,8 @@
         "short_of_workers": 25,
         "warehouse_full": 17
       },
-      "gold": 102568265,
-      "balance_rate_per_min": 652913,
+      "gold": 65802265,
+      "balance_rate_per_min": 439913,
       "population": {
         "citizens": 337000,
         "merchants": 273000,
@@ -12621,8 +12621,8 @@
         "ok": 54,
         "warehouse_full": 8
       },
-      "gold": 107939822,
-      "balance_rate_per_min": 711607,
+      "gold": 69043822,
+      "balance_rate_per_min": 498607,
       "population": {
         "citizens": 331000,
         "merchants": 303000,
@@ -13124,8 +13124,8 @@
         "ok": 45,
         "warehouse_full": 17
       },
-      "gold": 115193519,
-      "balance_rate_per_min": 733741,
+      "gold": 74167519,
+      "balance_rate_per_min": 520741,
       "population": {
         "citizens": 337000,
         "merchants": 315000,
@@ -13631,8 +13631,8 @@
         "ok": 61,
         "warehouse_full": 2
       },
-      "gold": 122430929,
-      "balance_rate_per_min": 733741,
+      "gold": 79274929,
+      "balance_rate_per_min": 520741,
       "population": {
         "citizens": 337000,
         "merchants": 315000,
@@ -14146,8 +14146,8 @@
         "input_starved": 5,
         "ok": 65
       },
-      "gold": 127431234,
-      "balance_rate_per_min": 976900,
+      "gold": 82033234,
+      "balance_rate_per_min": 735900,
       "population": {
         "citizens": 375000,
         "merchants": 345000,
@@ -14669,8 +14669,8 @@
         "input_starved": 5,
         "ok": 67
       },
-      "gold": 135012605,
-      "balance_rate_per_min": 1119355,
+      "gold": 87204605,
+      "balance_rate_per_min": 878355,
       "population": {
         "citizens": 383000,
         "merchants": 420000,
@@ -15203,8 +15203,8 @@
         "ok": 65,
         "warehouse_full": 2
       },
-      "gold": 144015478,
-      "balance_rate_per_min": 1295233,
+      "gold": 93613478,
+      "balance_rate_per_min": 1031233,
       "population": {
         "citizens": 391000,
         "merchants": 515000,
@@ -15735,8 +15735,8 @@
         "ok": 65,
         "warehouse_full": 2
       },
-      "gold": 153932246,
-      "balance_rate_per_min": 1550510,
+      "gold": 100890246,
+      "balance_rate_per_min": 1286510,
       "population": {
         "citizens": 367000,
         "merchants": 664000,
@@ -16267,8 +16267,8 @@
         "ok": 60,
         "warehouse_full": 8
       },
-      "gold": 169449562,
-      "balance_rate_per_min": 1652635,
+      "gold": 113767562,
+      "balance_rate_per_min": 1388635,
       "population": {
         "citizens": 378000,
         "merchants": 712000,
@@ -16819,8 +16819,8 @@
         "ok": 62,
         "short_of_workers": 8
       },
-      "gold": 183353191,
-      "balance_rate_per_min": 1759077,
+      "gold": 124926191,
+      "balance_rate_per_min": 1474077,
       "population": {
         "citizens": 379000,
         "merchants": 765000,
@@ -17392,8 +17392,8 @@
         "short_of_workers": 8,
         "warehouse_full": 5
       },
-      "gold": 196357377,
-      "balance_rate_per_min": 1865290,
+      "gold": 134870377,
+      "balance_rate_per_min": 1550290,
       "population": {
         "citizens": 363000,
         "merchants": 852000,
@@ -17967,8 +17967,8 @@
         "ok": 65,
         "short_of_workers": 8
       },
-      "gold": 212764480,
-      "balance_rate_per_min": 1949299,
+      "gold": 147947480,
+      "balance_rate_per_min": 1614299,
       "population": {
         "citizens": 352000,
         "merchants": 906000,
@@ -18552,8 +18552,8 @@
         "short_of_workers": 8,
         "warehouse_full": 12
       },
-      "gold": 232306602,
-      "balance_rate_per_min": 1955141,
+      "gold": 164139602,
+      "balance_rate_per_min": 1620141,
       "population": {
         "citizens": 352000,
         "merchants": 910000,
@@ -19133,8 +19133,8 @@
         "short_of_workers": 8,
         "warehouse_full": 19
       },
-      "gold": 251858012,
-      "balance_rate_per_min": 1955141,
+      "gold": 180341012,
+      "balance_rate_per_min": 1620141,
       "population": {
         "citizens": 352000,
         "merchants": 910000,
@@ -19718,8 +19718,8 @@
         "short_of_workers": 8,
         "warehouse_full": 4
       },
-      "gold": 250510958,
-      "balance_rate_per_min": 2006685,
+      "gold": 175247958,
+      "balance_rate_per_min": 1627685,
       "population": {
         "citizens": 370000,
         "merchants": 969000,
@@ -20310,8 +20310,8 @@
         "short_of_workers": 8,
         "warehouse_full": 19
       },
-      "gold": 270917532,
-      "balance_rate_per_min": 2063837,
+      "gold": 191864532,
+      "balance_rate_per_min": 1684837,
       "population": {
         "citizens": 391000,
         "merchants": 995000,
@@ -20913,8 +20913,8 @@
         "ok": 66,
         "short_of_workers": 8
       },
-      "gold": 287099203,
-      "balance_rate_per_min": 2124960,
+      "gold": 204231203,
+      "balance_rate_per_min": 1740960,
       "population": {
         "citizens": 495000,
         "merchants": 1032000,
@@ -21532,8 +21532,8 @@
         "short_of_workers": 8,
         "warehouse_full": 19
       },
-      "gold": 306022091,
-      "balance_rate_per_min": 2275487,
+      "gold": 219314091,
+      "balance_rate_per_min": 1891487,
       "population": {
         "citizens": 430000,
         "merchants": 1186000,
@@ -22145,8 +22145,8 @@
         "short_of_workers": 8,
         "warehouse_full": 19
       },
-      "gold": 312876234,
-      "balance_rate_per_min": 2297183,
+      "gold": 225016234,
+      "balance_rate_per_min": 1913183,
       "population": {
         "citizens": 430000,
         "merchants": 1202000,
@@ -22769,8 +22769,8 @@
         "short_of_workers": 14,
         "warehouse_full": 4
       },
-      "gold": 320198209,
-      "balance_rate_per_min": 2304147,
+      "gold": 229650209,
+      "balance_rate_per_min": 1920147,
       "population": {
         "citizens": 378000,
         "merchants": 1262000,
@@ -23437,8 +23437,8 @@
         "short_of_workers": 13,
         "warehouse_full": 13
       },
-      "gold": 341583130,
-      "balance_rate_per_min": 2360374,
+      "gold": 247180130,
+      "balance_rate_per_min": 1971374,
       "population": {
         "citizens": 413000,
         "merchants": 1294000,
@@ -24118,8 +24118,8 @@
         "short_of_workers": 14,
         "warehouse_full": 5
       },
-      "gold": 354280424,
-      "balance_rate_per_min": 2394794,
+      "gold": 256002424,
+      "balance_rate_per_min": 2008794,
       "population": {
         "citizens": 433000,
         "merchants": 1294000,
@@ -24842,8 +24842,8 @@
         "short_of_workers": 14,
         "warehouse_full": 1
       },
-      "gold": 376711270,
-      "balance_rate_per_min": 2385533,
+      "gold": 274573270,
+      "balance_rate_per_min": 1999533,
       "population": {
         "citizens": 436000,
         "merchants": 1294000,
@@ -25580,8 +25580,8 @@
         "ok": 73,
         "short_of_workers": 13
       },
-      "gold": 386138156,
-      "balance_rate_per_min": 2324761,
+      "gold": 281680156,
+      "balance_rate_per_min": 1934761,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -26344,8 +26344,8 @@
         "ok": 73,
         "short_of_workers": 13
       },
-      "gold": 395462951,
-      "balance_rate_per_min": 2337903,
+      "gold": 289444951,
+      "balance_rate_per_min": 1947903,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -27109,8 +27109,8 @@
         "ok": 78,
         "short_of_workers": 13
       },
-      "gold": 418860920,
-      "balance_rate_per_min": 2340426,
+      "gold": 308942920,
+      "balance_rate_per_min": 1950426,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -27882,8 +27882,8 @@
         "short_of_workers": 13,
         "warehouse_full": 2
       },
-      "gold": 442265180,
-      "balance_rate_per_min": 2340426,
+      "gold": 328447180,
+      "balance_rate_per_min": 1950426,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -28647,8 +28647,8 @@
         "short_of_workers": 13,
         "warehouse_full": 10
       },
-      "gold": 465720480,
-      "balance_rate_per_min": 2346758,
+      "gold": 348002480,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -29417,8 +29417,8 @@
         "short_of_workers": 13,
         "warehouse_full": 10
       },
-      "gold": 489188060,
-      "balance_rate_per_min": 2346758,
+      "gold": 367570060,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -30197,8 +30197,8 @@
         "short_of_workers": 13,
         "warehouse_full": 10
       },
-      "gold": 512655640,
-      "balance_rate_per_min": 2346758,
+      "gold": 387137640,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -30972,8 +30972,8 @@
         "short_of_workers": 13,
         "warehouse_full": 17
       },
-      "gold": 536123220,
-      "balance_rate_per_min": 2346758,
+      "gold": 406705220,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -31743,8 +31743,8 @@
         "short_of_workers": 13,
         "warehouse_full": 18
       },
-      "gold": 559590800,
-      "balance_rate_per_min": 2346758,
+      "gold": 426272800,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -32528,8 +32528,8 @@
         "short_of_workers": 13,
         "warehouse_full": 18
       },
-      "gold": 583058380,
-      "balance_rate_per_min": 2346758,
+      "gold": 445840380,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -33298,8 +33298,8 @@
         "short_of_workers": 13,
         "warehouse_full": 18
       },
-      "gold": 606525960,
-      "balance_rate_per_min": 2346758,
+      "gold": 465407960,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -34063,8 +34063,8 @@
         "short_of_workers": 13,
         "warehouse_full": 18
       },
-      "gold": 629993540,
-      "balance_rate_per_min": 2346758,
+      "gold": 484975540,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -34844,8 +34844,8 @@
         "short_of_workers": 13,
         "warehouse_full": 18
       },
-      "gold": 653461120,
-      "balance_rate_per_min": 2346758,
+      "gold": 504543120,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -35614,8 +35614,8 @@
         "short_of_workers": 13,
         "warehouse_full": 18
       },
-      "gold": 676928700,
-      "balance_rate_per_min": 2346758,
+      "gold": 524110700,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -36382,8 +36382,8 @@
         "short_of_workers": 15,
         "warehouse_full": 21
       },
-      "gold": 700396280,
-      "balance_rate_per_min": 2346758,
+      "gold": 543678280,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -37154,8 +37154,8 @@
         "short_of_workers": 15,
         "warehouse_full": 21
       },
-      "gold": 723863860,
-      "balance_rate_per_min": 2346758,
+      "gold": 563245860,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -37932,8 +37932,8 @@
         "short_of_workers": 15,
         "warehouse_full": 21
       },
-      "gold": 747331440,
-      "balance_rate_per_min": 2346758,
+      "gold": 582813440,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -38705,8 +38705,8 @@
         "short_of_workers": 15,
         "warehouse_full": 21
       },
-      "gold": 770799020,
-      "balance_rate_per_min": 2346758,
+      "gold": 602381020,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -39477,8 +39477,8 @@
         "short_of_workers": 15,
         "warehouse_full": 21
       },
-      "gold": 794266600,
-      "balance_rate_per_min": 2346758,
+      "gold": 621948600,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -40258,8 +40258,8 @@
         "short_of_workers": 13,
         "warehouse_full": 25
       },
-      "gold": 817734180,
-      "balance_rate_per_min": 2346758,
+      "gold": 641516180,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -41035,8 +41035,8 @@
         "short_of_workers": 13,
         "warehouse_full": 26
       },
-      "gold": 841201760,
-      "balance_rate_per_min": 2346758,
+      "gold": 661083760,
+      "balance_rate_per_min": 1956758,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -41807,8 +41807,8 @@
         "short_of_workers": 13,
         "warehouse_full": 11
       },
-      "gold": 764488154,
-      "balance_rate_per_min": 2257665,
+      "gold": 580290154,
+      "balance_rate_per_min": 1777665,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -42592,8 +42592,8 @@
         "short_of_workers": 12,
         "warehouse_full": 27
       },
-      "gold": 787064804,
-      "balance_rate_per_min": 2257665,
+      "gold": 598066804,
+      "balance_rate_per_min": 1777665,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -43372,8 +43372,8 @@
         "short_of_workers": 11,
         "warehouse_full": 28
       },
-      "gold": 809641454,
-      "balance_rate_per_min": 2257665,
+      "gold": 615843454,
+      "balance_rate_per_min": 1777665,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -44148,8 +44148,8 @@
         "short_of_workers": 11,
         "warehouse_full": 30
       },
-      "gold": 832218104,
-      "balance_rate_per_min": 2257665,
+      "gold": 633620104,
+      "balance_rate_per_min": 1777665,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -44920,8 +44920,8 @@
         "short_of_workers": 11,
         "warehouse_full": 30
       },
-      "gold": 854794754,
-      "balance_rate_per_min": 2257665,
+      "gold": 651396754,
+      "balance_rate_per_min": 1777665,
       "population": {
         "citizens": 436000,
         "merchants": 1272000,
@@ -45710,8 +45710,8 @@
         "short_of_workers": 11,
         "warehouse_full": 27
       },
-      "gold": 756702201,
-      "balance_rate_per_min": 2255415,
+      "gold": 548344201,
+      "balance_rate_per_min": 1735415,
       "population": {
         "citizens": 423000,
         "merchants": 1302000,
@@ -46482,8 +46482,8 @@
         "short_of_workers": 3,
         "warehouse_full": 22
       },
-      "gold": 773265468,
-      "balance_rate_per_min": 2301185,
+      "gold": 559635468,
+      "balance_rate_per_min": 1773185,
       "population": {
         "citizens": 423000,
         "merchants": 1262000,
@@ -47273,8 +47273,8 @@
         "short_of_workers": 3,
         "warehouse_full": 12
       },
-      "gold": 793530940,
-      "balance_rate_per_min": 2316722,
+      "gold": 574620940,
+      "balance_rate_per_min": 1788722,
       "population": {
         "citizens": 390000,
         "merchants": 1303000,
@@ -48081,8 +48081,8 @@
         "short_of_workers": 3,
         "warehouse_full": 27
       },
-      "gold": 815109713,
-      "balance_rate_per_min": 2387458,
+      "gold": 590919713,
+      "balance_rate_per_min": 1859458,
       "population": {
         "citizens": 384000,
         "merchants": 1342000,
@@ -48883,8 +48883,8 @@
         "short_of_workers": 4,
         "warehouse_full": 28
       },
-      "gold": 839204671,
-      "balance_rate_per_min": 2417031,
+      "gold": 609734671,
+      "balance_rate_per_min": 1889031,
       "population": {
         "citizens": 384000,
         "merchants": 1352000,
@@ -49682,8 +49682,8 @@
         "short_of_workers": 4,
         "warehouse_full": 28
       },
-      "gold": 932046220,
-      "balance_rate_per_min": 2451043,
+      "gold": 682512220,
+      "balance_rate_per_min": 1923043,
       "population": {
         "citizens": 384000,
         "merchants": 1352000,
@@ -50249,10 +50249,10 @@
   "final": {
     "evaluated_at": "2026-01-01T15:48:00.000Z",
     "next_change_at": "2026-01-01T15:48:10.542Z",
-    "gold": 932046220,
-    "balance_rate_per_min": 2451043,
+    "gold": 682512220,
+    "balance_rate_per_min": 1923043,
     "tax_rate_per_min": 3428043,
-    "upkeep_rate_per_min": 977000,
+    "upkeep_rate_per_min": 1505000,
     "tiers": [
       {
         "id": "settlers",
@@ -127552,7 +127552,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 2451043
+      "balance_if_resumed_per_min": 1923043
     },
     "quests": {
       "active": [

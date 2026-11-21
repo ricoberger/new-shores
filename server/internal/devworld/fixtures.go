@@ -376,7 +376,7 @@ const (
 	merchantsShip    = "hulk"
 	merchantsDeposit = "clay"
 	// merchantsGold (milli-gold) is granted on top of FixtureGold.
-	merchantsGold = 5_000_000
+	merchantsGold = 15_000_000
 )
 
 // merchants unlocks the citizens and merchants tiers (granted, like the

@@ -819,11 +819,12 @@ decorations, and the tier-1 market and chapel. **Never-pausable buildings
 carry no upkeep** (D-046): their running cost is folded into their
 construction price, so a fully stalled city always has `balance_rate ≥ 0`
 from floor-level taxes and gold keeps accumulating. Pausable public
-buildings (tavern and up) keep upkeep. The exception are the hubs (D-069 §3):
-Trading Post, warehouses and the market carry upkeep per level
-(CONTENT §7; the Trading Post's and the market's level 1 are free) and
-are never paused; when nothing pausable is left their upkeep holds gold
-at zero until taxes cover it (a demolished hub stops its upkeep).
+buildings (tavern and up) keep upkeep. The exception are the hubs (D-069 §3)
+and the tier-1 public buildings (D-082 table E): Trading Post, warehouses
+and the market carry upkeep per level, the chapel a flat upkeep
+(CONTENT §7; the Trading Post's level 1 is free), and they are never
+paused; when nothing pausable is left their upkeep holds gold at zero
+until taxes cover it (a demolished hub stops its upkeep).
 
 - **Auto-resume**: the candidate is the most recently auto-paused
   building or ship, **skipping a producer with a cut-off input** (the
