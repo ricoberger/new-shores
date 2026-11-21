@@ -24,7 +24,8 @@ type goldBounds struct {
 // fallback, k_tax keeps the Patricians game in the window. The two
 // Citizens games are therefore bounded at their recorded margins
 // (195 % and 204 % at k_tax 1.05) plus a small headroom, so a drift in
-// either direction still fails.
+// either direction still fails. D-083 (both at 179 %) kept the bounds and
+// ended the Citizens plan at the cheese chain instead.
 var referenceGold = map[string]goldBounds{
 	"bootstrap_citizens":        {minPermille: 200, maxPermille: 2_100, floor: 500_000},
 	"bootstrap_citizens_quests": {minPermille: 200, maxPermille: 2_100, floor: 500_000},

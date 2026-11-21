@@ -18,7 +18,7 @@ by timers. Monetisation is cosmetic only.
 ## Design pillars
 
 1. **Anno pace, never blocked.** Buildings appear in seconds. The only thing
-   between you and your next expansion is planks, stone, tools and gold — and
+   between you and your next expansion is planks, stone, bricks and gold — and
    that is the puzzle. (D-006)
 2. **A living economy that keeps going.** The world runs while you are away,
    bounded by your warehouses. Coming back is "see what accumulated, spend it,

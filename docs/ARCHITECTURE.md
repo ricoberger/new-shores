@@ -681,6 +681,29 @@ Pitfalls for local runs:
   After a gold change, regenerate the plans (`-update`) before reading
   `TestReferenceGamesGold`, which pins each game's tightest
   tax-over-upkeep margin.
+- **Moving a mining building to another tier reshuffles every world.**
+  The archipelago generator groups deposit kinds by the lowest tier of a
+  building that mines them (`depositTiers`); iron moving from Citizens
+  to Patricians (D-083) changed every seed's islands, and the plans and
+  fixtures with them. `depositGroupTier` in
+  `internal/sim/archipelago/plan.go` pins iron to its old group; a later
+  move of a mine or quarry needs the same pin or a `GeneratorVersion`
+  bump with every plan rewritten. The archipelago goldens catch it.
+- **The reference plans continue each other.** Merchants replays the
+  Citizens plan minus its final wait, Patricians the Merchants plan;
+  moving actions between them (D-083 moved island 2 from Citizens to
+  Merchants) needs all plans regenerated together (`-update` on
+  `TestPlansRegenerate` without a subtest filter), or the replay fails
+  with "bootstrap_patricians does not continue bootstrap_merchants".
+  A shorter Citizens game also moves `TestReferenceGamesGold`: it reads
+  from minute 30, so a game finished by then is judged on its last
+  town only (D-083 kept the city guard and cheese chain in it).
+- **A stored world is trusted to name current IDs.** The decoder checks
+  the content version, not each building, good or quest ID; a world of
+  the current version that names a retired ID loads (the schema-14
+  migration fixture still has a toolmaker). The dev fixtures are checked
+  by `TestFixturesUseCatalogueIDs`; a content change that retires an ID
+  must bump the content version (D-083: 0.24.0).
 - **The shot tool cannot drag rectangles on the phone device:** the
   Playwright mouse drag starts no rectangle there, so the group-move
   presets (`move-group-drag`, `move-group-ghost`) are desktop only.

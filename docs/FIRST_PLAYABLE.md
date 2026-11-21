@@ -22,7 +22,9 @@ proceeds in the milestones below, each with acceptance criteria.
   with tier-1/2 numbers, even though tier 1 has single goods.
 - **Chains:** fish; wood → planks; stone; sheep → wool garments; wheat → flour
   → bread; apples → cider; hemp → linen; iron ore + charcoal → iron → tools
-  (iron only on island 2 → forced trade route).
+  (iron only on island 2 → forced trade route). Since D-083 tools are
+  retired and iron is a Patricians good; one island suffices until
+  Merchants (CONTENT §12).
 - **Logistics:** dirt + paved roads, warehouse assignment/throughput/capacity,
   one route with one cog, manual shipment to found island 2.
 - **Economy:** taxes, upkeep, auto-pause order and resume, manual pause,
