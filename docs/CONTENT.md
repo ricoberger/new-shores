@@ -980,6 +980,16 @@ house, and the Merchants game adds "island 2 (clay) settled":
 | Merchants | island 2 settled / unlock / first house / categories ≥0.6 | 240 / 240 / 270 / 420 | — / 153 / 219 / 304 | 80 / 141 / 215 / 308 | 160 / 99 / 55 / 112 |
 | Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 573 / 615 / 948 | 576 / 618 / 950 | 324 / 342 / 850 |
 
+Both Citizens plans now end with the city guard and the cheese chain
+(dairy farm, cheese dairy) on the start island, moved from the Merchants
+plan; the Quests game replays the same plan. Without them, the Quests
+game had built its whole town by minute 25. `TestReferenceGamesGold`
+reads from minute 30, so the game was judged on that finished town
+alone: +284 % of tax over upkeep, above the unchanged D-082 bound of
+200–2 100 ‰. With the extra upkeep both games sit at +179 %. The
+milestones are reached before these buildings, and the Merchants game
+builds the same set, only earlier in its replay.
+
 Gold (tax over upkeep at the tightest advance step from minute 30;
 min gold over every step; nothing auto-pauses in any game):
 
