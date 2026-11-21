@@ -761,6 +761,10 @@ accepted by at most one input of a recipe.
 - `balance_rate` = Σ taxes − Σ upkeep of non-paused buildings and ships.
   Gold is linear between boundaries; only its zero crossing and the resume
   reserve (below) are boundaries.
+- Tax follows Anno 117's ladder 1.00 : 0.86 : 1.54 : 2.28 per resident
+  times one scale `k_tax` (§6.3), tuned so that in the reference games tax
+  exceeds upkeep by 20–50 % at the tightest point from minute 30 on
+  (D-082; CONTENT §12, `TestReferenceGamesGold`).
 - Gold can never go below zero. When the advancement reaches the boundary
   where gold would cross zero with a negative rate, the simulation runs the
   **auto-pause cascade** at that instant: pause one candidate according to

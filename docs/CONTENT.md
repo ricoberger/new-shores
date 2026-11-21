@@ -53,8 +53,13 @@ House sizes are Anno 117's (D-080 §1; 8 / 15 / 25 / 40 before content
 0.23.0); the unlocks (below) are 20 / 26 / 46 full houses. Tax follows
 Anno's `Money` per full house divided by its size, 6 / 6 : 12 / 14 :
 40 / 26 : 98 / 43 = 1.00 : 0.86 : 1.54 : 2.28 per resident, times one
-scale `k_tax` = 1.05 (D-082 §1, tuned to the margin target, §12; 1.18
-under D-080, which kept the Patricians at 2.70).
+scale `k_tax` = 1.05, rounded to two decimals (D-082 §1; 1.18 under
+D-080, which kept the Patricians at 2.70). `k_tax` is tuned so that in
+the reference games tax exceeds upkeep by 20–50 % at the tightest point
+from minute 30 on; the Merchants and Patricians games meet it, the
+Citizens games stay richer (§12, D-082 reference results). It is the
+one number to move when a change shifts the gold balance; civic and
+producer maintenance are Anno's (D-080 table C, D-082 table E, §7).
 
 ### Unlock conditions (archipelago-wide)
 

@@ -673,6 +673,14 @@ Pitfalls for local runs:
   a second clay pit + brickworks instead of the producers it lost
   (#81). Measure peak demand × 1.25 against producers before trimming;
   `TestReferenceGamesSurplus` catches over-building afterwards.
+- **Gold binds in the plan generator first.** When a tax or upkeep change
+  leaves a reference game short of gold, the replay tests still pass on
+  the old scenario JSON. Only `TestPlansRegenerate` (skipped under
+  `-short`) fails, with "still failing after 4h0m0s: insufficient gold"
+  (D-082: `k_tax` 0.65 stopped the Merchants plan at its playhouse).
+  After a gold change, regenerate the plans (`-update`) before reading
+  `TestReferenceGamesGold`, which pins each game's tightest
+  tax-over-upkeep margin.
 - **The shot tool cannot drag rectangles on the phone device:** the
   Playwright mouse drag starts no rectangle there, so the group-move
   presets (`move-group-drag`, `move-group-ghost`) are desktop only.
