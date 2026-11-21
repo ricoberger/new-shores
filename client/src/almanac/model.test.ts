@@ -139,9 +139,9 @@ describe("arithmetic of the tables", () => {
 
   it("reads tiers, residents and tax", () => {
     const t = tierViews(idx);
-    expect(t[1]).toMatchObject({ id: "citizens", residentsFloor: 5, residentsMax: 14, tax: 1.01 });
+    expect(t[1]).toMatchObject({ id: "citizens", residentsFloor: 5, residentsMax: 14, tax: 0.9 });
     expect(t[1]?.unlock.population).toEqual([{ tier: "settlers", amount: 120 }]);
-    expect(t[1]?.taxFullHouse).toBeCloseTo(14.14);
+    expect(t[1]?.taxFullHouse).toBeCloseTo(12.6);
   });
 
   it("lists need alternatives with shares, rates and services with radii", () => {

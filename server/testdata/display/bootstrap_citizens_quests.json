@@ -3,9 +3,9 @@
   "base": {
     "evaluated_at": "2026-01-01T01:48:00.000Z",
     "next_change_at": "2026-01-01T01:50:20.499Z",
-    "gold": 19249714,
-    "balance_rate_per_min": 216337,
-    "tax_rate_per_min": 304337,
+    "gold": 16141968,
+    "balance_rate_per_min": 182814,
+    "tax_rate_per_min": 270814,
     "upkeep_rate_per_min": 88000,
     "tiers": [
       {
@@ -3730,7 +3730,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -3794,7 +3794,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -3859,7 +3859,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 508,
-            "tax_rate_per_min": 4617,
+            "tax_rate_per_min": 4114,
             "needs": [
               {
                 "id": "citizens_food",
@@ -3978,7 +3978,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4042,7 +4042,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4106,7 +4106,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4170,7 +4170,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4234,7 +4234,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4298,7 +4298,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4362,7 +4362,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4426,7 +4426,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4490,7 +4490,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4554,7 +4554,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4618,7 +4618,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4682,7 +4682,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4746,7 +4746,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4810,7 +4810,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -4874,7 +4874,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -5077,7 +5077,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -5141,7 +5141,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -5205,7 +5205,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -5269,7 +5269,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6120,7 +6120,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6184,7 +6184,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6248,7 +6248,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6312,7 +6312,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6376,7 +6376,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6440,7 +6440,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6504,7 +6504,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6568,7 +6568,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6632,7 +6632,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6696,7 +6696,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6760,7 +6760,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6824,7 +6824,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6888,7 +6888,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -6952,7 +6952,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -7016,7 +7016,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -7080,7 +7080,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -7144,7 +7144,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -7208,7 +7208,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "tax_rate_per_min": 7080,
+            "tax_rate_per_min": 6300,
             "needs": [
               {
                 "id": "settlers_food",
@@ -9199,7 +9199,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 2360,
+            "tax_rate_per_min": 2100,
             "needs": [
               {
                 "id": "settlers_food",
@@ -9260,7 +9260,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 2360,
+            "tax_rate_per_min": 2100,
             "needs": [
               {
                 "id": "settlers_food",
@@ -9321,7 +9321,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 2360,
+            "tax_rate_per_min": 2100,
             "needs": [
               {
                 "id": "settlers_food",
@@ -9382,7 +9382,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 2360,
+            "tax_rate_per_min": 2100,
             "needs": [
               {
                 "id": "settlers_food",
@@ -9443,7 +9443,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 2360,
+            "tax_rate_per_min": 2100,
             "needs": [
               {
                 "id": "settlers_food",
@@ -9504,7 +9504,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 2360,
+            "tax_rate_per_min": 2100,
             "needs": [
               {
                 "id": "settlers_food",
@@ -9565,7 +9565,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 2360,
+            "tax_rate_per_min": 2100,
             "needs": [
               {
                 "id": "settlers_food",
@@ -9626,7 +9626,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 2360,
+            "tax_rate_per_min": 2100,
             "needs": [
               {
                 "id": "settlers_food",
@@ -9687,7 +9687,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 2360,
+            "tax_rate_per_min": 2100,
             "needs": [
               {
                 "id": "settlers_food",
@@ -9748,7 +9748,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "tax_rate_per_min": 2360,
+            "tax_rate_per_min": 2100,
             "needs": [
               {
                 "id": "settlers_food",
@@ -20795,7 +20795,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 216337
+      "balance_if_resumed_per_min": 182814
     },
     "quests": {
       "active": [
@@ -20892,9 +20892,9 @@
       "display": {
         "evaluated_at": "2026-01-01T01:48:00.250Z",
         "next_change_at": "2026-01-01T01:50:20.499Z",
-        "gold": 19250615,
-        "balance_rate_per_min": 216337,
-        "tax_rate_per_min": 304337,
+        "gold": 16142730,
+        "balance_rate_per_min": 182814,
+        "tax_rate_per_min": 270814,
         "upkeep_rate_per_min": 88000,
         "tiers": [
           {
@@ -24619,7 +24619,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -24683,7 +24683,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -24748,7 +24748,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 508,
-                "tax_rate_per_min": 4617,
+                "tax_rate_per_min": 4114,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -24867,7 +24867,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -24931,7 +24931,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -24995,7 +24995,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25059,7 +25059,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25123,7 +25123,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25187,7 +25187,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25251,7 +25251,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25315,7 +25315,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25379,7 +25379,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25443,7 +25443,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25507,7 +25507,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25571,7 +25571,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25635,7 +25635,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25699,7 +25699,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25763,7 +25763,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -25966,7 +25966,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -26030,7 +26030,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -26094,7 +26094,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -26158,7 +26158,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27009,7 +27009,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27073,7 +27073,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27137,7 +27137,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27201,7 +27201,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27265,7 +27265,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27329,7 +27329,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27393,7 +27393,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27457,7 +27457,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27521,7 +27521,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27585,7 +27585,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27649,7 +27649,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27713,7 +27713,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27777,7 +27777,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27841,7 +27841,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27905,7 +27905,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -27969,7 +27969,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -28033,7 +28033,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -28097,7 +28097,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -30088,7 +30088,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -30149,7 +30149,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -30210,7 +30210,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -30271,7 +30271,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -30332,7 +30332,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -30393,7 +30393,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -30454,7 +30454,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -30515,7 +30515,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -30576,7 +30576,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -30637,7 +30637,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -41684,7 +41684,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 216337
+          "balance_if_resumed_per_min": 182814
         },
         "quests": {
           "active": [
@@ -41781,9 +41781,9 @@
       "display": {
         "evaluated_at": "2026-01-01T01:48:01.000Z",
         "next_change_at": "2026-01-01T01:50:20.499Z",
-        "gold": 19253320,
-        "balance_rate_per_min": 216337,
-        "tax_rate_per_min": 304337,
+        "gold": 16145015,
+        "balance_rate_per_min": 182814,
+        "tax_rate_per_min": 270814,
         "upkeep_rate_per_min": 88000,
         "tiers": [
           {
@@ -45508,7 +45508,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -45572,7 +45572,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -45637,7 +45637,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 508,
-                "tax_rate_per_min": 4617,
+                "tax_rate_per_min": 4114,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -45756,7 +45756,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -45820,7 +45820,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -45884,7 +45884,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -45948,7 +45948,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46012,7 +46012,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46076,7 +46076,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46140,7 +46140,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46204,7 +46204,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46268,7 +46268,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46332,7 +46332,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46396,7 +46396,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46460,7 +46460,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46524,7 +46524,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46588,7 +46588,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46652,7 +46652,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46855,7 +46855,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46919,7 +46919,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -46983,7 +46983,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -47047,7 +47047,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -47898,7 +47898,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -47962,7 +47962,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48026,7 +48026,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48090,7 +48090,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48154,7 +48154,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48218,7 +48218,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48282,7 +48282,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48346,7 +48346,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48410,7 +48410,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48474,7 +48474,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48538,7 +48538,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48602,7 +48602,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48666,7 +48666,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48730,7 +48730,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48794,7 +48794,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48858,7 +48858,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48922,7 +48922,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -48986,7 +48986,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -50977,7 +50977,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -51038,7 +51038,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -51099,7 +51099,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -51160,7 +51160,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -51221,7 +51221,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -51282,7 +51282,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -51343,7 +51343,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -51404,7 +51404,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -51465,7 +51465,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -51526,7 +51526,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -62573,7 +62573,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 216337
+          "balance_if_resumed_per_min": 182814
         },
         "quests": {
           "active": [
@@ -62670,9 +62670,9 @@
       "display": {
         "evaluated_at": "2026-01-01T01:48:05.000Z",
         "next_change_at": "2026-01-01T01:50:20.499Z",
-        "gold": 19267742,
-        "balance_rate_per_min": 216337,
-        "tax_rate_per_min": 304337,
+        "gold": 16157203,
+        "balance_rate_per_min": 182814,
+        "tax_rate_per_min": 270814,
         "upkeep_rate_per_min": 88000,
         "tiers": [
           {
@@ -66397,7 +66397,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -66461,7 +66461,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -66526,7 +66526,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 508,
-                "tax_rate_per_min": 4617,
+                "tax_rate_per_min": 4114,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -66645,7 +66645,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -66709,7 +66709,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -66773,7 +66773,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -66837,7 +66837,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -66901,7 +66901,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -66965,7 +66965,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67029,7 +67029,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67093,7 +67093,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67157,7 +67157,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67221,7 +67221,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67285,7 +67285,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67349,7 +67349,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67413,7 +67413,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67477,7 +67477,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67541,7 +67541,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67744,7 +67744,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67808,7 +67808,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67872,7 +67872,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -67936,7 +67936,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -68787,7 +68787,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -68851,7 +68851,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -68915,7 +68915,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -68979,7 +68979,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69043,7 +69043,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69107,7 +69107,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69171,7 +69171,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69235,7 +69235,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69299,7 +69299,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69363,7 +69363,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69427,7 +69427,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69491,7 +69491,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69555,7 +69555,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69619,7 +69619,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69683,7 +69683,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69747,7 +69747,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69811,7 +69811,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -69875,7 +69875,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -71866,7 +71866,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -71927,7 +71927,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -71988,7 +71988,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -72049,7 +72049,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -72110,7 +72110,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -72171,7 +72171,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -72232,7 +72232,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -72293,7 +72293,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -72354,7 +72354,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -72415,7 +72415,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -83462,7 +83462,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 216337
+          "balance_if_resumed_per_min": 182814
         },
         "quests": {
           "active": [
@@ -83559,9 +83559,9 @@
       "display": {
         "evaluated_at": "2026-01-01T01:48:30.000Z",
         "next_change_at": "2026-01-01T01:50:20.499Z",
-        "gold": 19357882,
-        "balance_rate_per_min": 216337,
-        "tax_rate_per_min": 304337,
+        "gold": 16233375,
+        "balance_rate_per_min": 182814,
+        "tax_rate_per_min": 270814,
         "upkeep_rate_per_min": 88000,
         "tiers": [
           {
@@ -87286,7 +87286,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -87350,7 +87350,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -87415,7 +87415,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 508,
-                "tax_rate_per_min": 4617,
+                "tax_rate_per_min": 4114,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -87534,7 +87534,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -87598,7 +87598,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -87662,7 +87662,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -87726,7 +87726,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -87790,7 +87790,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -87854,7 +87854,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -87918,7 +87918,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -87982,7 +87982,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88046,7 +88046,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88110,7 +88110,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88174,7 +88174,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88238,7 +88238,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88302,7 +88302,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88366,7 +88366,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88430,7 +88430,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88633,7 +88633,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88697,7 +88697,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88761,7 +88761,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -88825,7 +88825,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -89676,7 +89676,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -89740,7 +89740,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -89804,7 +89804,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -89868,7 +89868,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -89932,7 +89932,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -89996,7 +89996,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90060,7 +90060,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90124,7 +90124,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90188,7 +90188,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90252,7 +90252,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90316,7 +90316,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90380,7 +90380,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90444,7 +90444,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90508,7 +90508,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90572,7 +90572,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90636,7 +90636,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90700,7 +90700,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -90764,7 +90764,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 1000,
-                "tax_rate_per_min": 7080,
+                "tax_rate_per_min": 6300,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -92755,7 +92755,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -92816,7 +92816,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -92877,7 +92877,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -92938,7 +92938,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -92999,7 +92999,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -93060,7 +93060,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -93121,7 +93121,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -93182,7 +93182,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -93243,7 +93243,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -93304,7 +93304,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 500,
-                "tax_rate_per_min": 2360,
+                "tax_rate_per_min": 2100,
                 "needs": [
                   {
                     "id": "settlers_food",
@@ -104351,7 +104351,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 216337
+          "balance_if_resumed_per_min": 182814
         },
         "quests": {
           "active": [

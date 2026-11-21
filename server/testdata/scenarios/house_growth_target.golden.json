@@ -114,21 +114,21 @@
   ],
   "pause_events": [
     {
-      "at": "2026-01-01T06:59:22.273Z",
+      "at": "2026-01-01T06:57:33.706Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 7,
       "type": "city_guard"
     },
     {
-      "at": "2026-01-01T06:59:22.273Z",
+      "at": "2026-01-01T06:57:33.706Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 5,
       "type": "tavern"
     },
     {
-      "at": "2026-01-01T06:59:22.273Z",
+      "at": "2026-01-01T06:57:33.706Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 6,
@@ -161,8 +161,8 @@
         }
       },
       "statuses": {},
-      "gold": 19543680,
-      "balance_rate_per_min": -8920,
+      "gold": 19540300,
+      "balance_rate_per_min": -9700,
       "population": {
         "settlers": 6000
       },
@@ -196,8 +196,8 @@
         }
       },
       "statuses": {},
-      "gold": 19032625,
-      "balance_rate_per_min": -21605,
+      "gold": 19027181,
+      "balance_rate_per_min": -22084,
       "population": {
         "citizens": 8000
       },
@@ -231,8 +231,8 @@
         }
       },
       "statuses": {},
-      "gold": 18400662,
-      "balance_rate_per_min": -21056,
+      "gold": 18379109,
+      "balance_rate_per_min": -21594,
       "population": {
         "citizens": 9000
       },
@@ -290,8 +290,8 @@
         }
       },
       "statuses": {},
-      "gold": 17021212,
-      "balance_rate_per_min": -32860,
+      "gold": 16993609,
+      "balance_rate_per_min": -34400,
       "population": {
         "citizens": 14000
       },
@@ -349,8 +349,8 @@
         }
       },
       "statuses": {},
-      "gold": 16856912,
-      "balance_rate_per_min": -32860,
+      "gold": 16821609,
+      "balance_rate_per_min": -34400,
       "population": {
         "citizens": 14000
       },
@@ -380,8 +380,8 @@
         }
       },
       "statuses": {},
-      "gold": 15729791,
-      "balance_rate_per_min": -43422,
+      "gold": 15663678,
+      "balance_rate_per_min": -43812,
       "population": {
         "citizens": 10000
       },
@@ -411,8 +411,8 @@
         }
       },
       "statuses": {},
-      "gold": 14407587,
-      "balance_rate_per_min": -44138,
+      "gold": 14331903,
+      "balance_rate_per_min": -44450,
       "population": {
         "citizens": 8000
       },
@@ -442,8 +442,8 @@
         }
       },
       "statuses": {},
-      "gold": 13083447,
-      "balance_rate_per_min": -44138,
+      "gold": 12998403,
+      "balance_rate_per_min": -44450,
       "population": {
         "citizens": 8000
       },
@@ -473,7 +473,7 @@
         }
       },
       "statuses": {},
-      "gold": 12613447,
+      "gold": 12528403,
       "balance_rate_per_min": -47000,
       "population": {
         "citizens": 5000

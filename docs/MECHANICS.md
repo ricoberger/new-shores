@@ -750,8 +750,8 @@ accepted by at most one input of a recipe.
 ### 6.3 Taxes
 
 - `tax_rate[tier]` gold per resident per minute (content, CONTENT §2;
-  Settlers 1.18, Citizens 1.01, Merchants 1.82, Patricians 2.70 — Anno
-  117's tax per resident times `k_tax` 1.18, D-080 §5 and table D),
+  Settlers 1.05, Citizens 0.90, Merchants 1.62, Patricians 2.39 — Anno
+  117's tax per resident times `k_tax` 1.05, D-080 table D, D-082 §1),
   multiplied by
   `satisfaction`, rounding down.
 - Taxes only accrue from houses; nothing else creates gold (D-018).

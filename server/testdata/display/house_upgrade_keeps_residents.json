@@ -2,10 +2,10 @@
   "scenario": "house_upgrade_keeps_residents",
   "base": {
     "evaluated_at": "2026-01-01T00:42:00.000Z",
-    "next_change_at": "2026-01-01T03:22:57.902Z",
-    "gold": 3389279,
-    "balance_rate_per_min": -21056,
-    "tax_rate_per_min": 4944,
+    "next_change_at": "2026-01-01T03:17:55.998Z",
+    "gold": 3367224,
+    "balance_rate_per_min": -21594,
+    "tax_rate_per_min": 4406,
     "upkeep_rate_per_min": 26000,
     "tiers": [
       {
@@ -822,7 +822,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 544,
-            "tax_rate_per_min": 4944,
+            "tax_rate_per_min": 4406,
             "needs": [
               {
                 "id": "citizens_food",
@@ -961,7 +961,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": -21056
+      "balance_if_resumed_per_min": -21594
     },
     "quests": {
       "active": [
@@ -1010,10 +1010,10 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T00:42:00.250Z",
-        "next_change_at": "2026-01-01T03:22:57.902Z",
-        "gold": 3389192,
-        "balance_rate_per_min": -21056,
-        "tax_rate_per_min": 4944,
+        "next_change_at": "2026-01-01T03:17:55.998Z",
+        "gold": 3367134,
+        "balance_rate_per_min": -21594,
+        "tax_rate_per_min": 4406,
         "upkeep_rate_per_min": 26000,
         "tiers": [
           {
@@ -1830,7 +1830,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 544,
-                "tax_rate_per_min": 4944,
+                "tax_rate_per_min": 4406,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -1969,7 +1969,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -21056
+          "balance_if_resumed_per_min": -21594
         },
         "quests": {
           "active": [
@@ -2018,10 +2018,10 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T00:42:01.000Z",
-        "next_change_at": "2026-01-01T03:22:57.902Z",
-        "gold": 3388928,
-        "balance_rate_per_min": -21056,
-        "tax_rate_per_min": 4944,
+        "next_change_at": "2026-01-01T03:17:55.998Z",
+        "gold": 3366864,
+        "balance_rate_per_min": -21594,
+        "tax_rate_per_min": 4406,
         "upkeep_rate_per_min": 26000,
         "tiers": [
           {
@@ -2838,7 +2838,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 544,
-                "tax_rate_per_min": 4944,
+                "tax_rate_per_min": 4406,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -2977,7 +2977,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -21056
+          "balance_if_resumed_per_min": -21594
         },
         "quests": {
           "active": [
@@ -3026,10 +3026,10 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T00:42:05.000Z",
-        "next_change_at": "2026-01-01T03:22:57.902Z",
-        "gold": 3387525,
-        "balance_rate_per_min": -21056,
-        "tax_rate_per_min": 4944,
+        "next_change_at": "2026-01-01T03:17:55.998Z",
+        "gold": 3365424,
+        "balance_rate_per_min": -21594,
+        "tax_rate_per_min": 4406,
         "upkeep_rate_per_min": 26000,
         "tiers": [
           {
@@ -3846,7 +3846,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 544,
-                "tax_rate_per_min": 4944,
+                "tax_rate_per_min": 4406,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -3985,7 +3985,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -21056
+          "balance_if_resumed_per_min": -21594
         },
         "quests": {
           "active": [
@@ -4034,10 +4034,10 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T00:42:30.000Z",
-        "next_change_at": "2026-01-01T03:22:57.902Z",
-        "gold": 3378751,
-        "balance_rate_per_min": -21056,
-        "tax_rate_per_min": 4944,
+        "next_change_at": "2026-01-01T03:17:55.998Z",
+        "gold": 3356427,
+        "balance_rate_per_min": -21594,
+        "tax_rate_per_min": 4406,
         "upkeep_rate_per_min": 26000,
         "tiers": [
           {
@@ -4854,7 +4854,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 544,
-                "tax_rate_per_min": 4944,
+                "tax_rate_per_min": 4406,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -4993,7 +4993,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -21056
+          "balance_if_resumed_per_min": -21594
         },
         "quests": {
           "active": [
@@ -5042,10 +5042,10 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T00:47:00.000Z",
-        "next_change_at": "2026-01-01T03:22:57.902Z",
-        "gold": 3283999,
-        "balance_rate_per_min": -21056,
-        "tax_rate_per_min": 4944,
+        "next_change_at": "2026-01-01T03:17:55.998Z",
+        "gold": 3259254,
+        "balance_rate_per_min": -21594,
+        "tax_rate_per_min": 4406,
         "upkeep_rate_per_min": 26000,
         "tiers": [
           {
@@ -5862,7 +5862,7 @@
                 "growth_progress_permille": 0,
                 "growth_rate_per_min": 0,
                 "satisfaction_permille": 544,
-                "tax_rate_per_min": 4944,
+                "tax_rate_per_min": 4406,
                 "needs": [
                   {
                     "id": "citizens_food",
@@ -6001,7 +6001,7 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": -21056
+          "balance_if_resumed_per_min": -21594
         },
         "quests": {
           "active": [

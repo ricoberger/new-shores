@@ -92,7 +92,7 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	wantIDs("tiers", ids, "settlers", "citizens", "merchants", "patricians")
 	// Merchants and Patricians unlock by population only (D-069 §4).
-	for id, want := range map[string]string{"merchants": "8000-26000 1820 citizens=360 ", "patricians": "12000-43000 2700 merchants=1200 "} {
+	for id, want := range map[string]string{"merchants": "8000-26000 1620 citizens=360 ", "patricians": "12000-43000 2390 merchants=1200 "} {
 		tr := c.TierByID[id]
 		var pop []string
 		for k, v := range tr.Unlock.Population {
@@ -112,11 +112,11 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 
 	settlers := c.TierByID["settlers"]
-	if settlers.ResidentsFloor != 2000 || settlers.ResidentsMax != 6000 || settlers.TaxPerResidentPerMin != 1180 || settlers.House != "house_settlers" {
+	if settlers.ResidentsFloor != 2000 || settlers.ResidentsMax != 6000 || settlers.TaxPerResidentPerMin != 1050 || settlers.House != "house_settlers" {
 		t.Errorf("settlers = %+v", settlers)
 	}
 	citizens := c.TierByID["citizens"]
-	if citizens.Index != 1 || citizens.ResidentsFloor != 5000 || citizens.ResidentsMax != 14000 || citizens.TaxPerResidentPerMin != 1010 || citizens.House != "house_citizens" ||
+	if citizens.Index != 1 || citizens.ResidentsFloor != 5000 || citizens.ResidentsMax != 14000 || citizens.TaxPerResidentPerMin != 900 || citizens.House != "house_citizens" ||
 		citizens.Unlock.Population["settlers"] != 120 || len(citizens.Unlock.Buildings) != 0 {
 		t.Errorf("citizens = %+v", citizens)
 	}

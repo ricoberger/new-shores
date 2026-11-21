@@ -44,17 +44,17 @@ there is no passage and no gate.
 
 | # | ID | Name | Residents (floor–max) | Tax/res/min | House cost | Workforce role |
 |---|---|---|---|---|---|---|
-| 1 | `settlers` | Settlers | 2–6 | 1.18 | 5 planks (§7) | farms, fishers, lumber, gatherers |
-| 2 | `citizens` | Citizens | 5–14 | 1.01 | §7 `house_citizens` | mines, kilns, mills, basic workshops |
-| 3 | `merchants` | Merchants | 8–26 | 1.82 | §7 `house_merchants` | refined workshops, printing, brewing |
-| 4 | `patricians` | Patricians | 12–43 | 2.70 | §7 `house_patricians` | fine crafts, opticians (small numbers) |
+| 1 | `settlers` | Settlers | 2–6 | 1.05 | 5 planks (§7) | farms, fishers, lumber, gatherers |
+| 2 | `citizens` | Citizens | 5–14 | 0.90 | §7 `house_citizens` | mines, kilns, mills, basic workshops |
+| 3 | `merchants` | Merchants | 8–26 | 1.62 | §7 `house_merchants` | refined workshops, printing, brewing |
+| 4 | `patricians` | Patricians | 12–43 | 2.39 | §7 `house_patricians` | fine crafts, opticians (small numbers) |
 
 House sizes are Anno 117's (D-080 §1; 8 / 15 / 25 / 40 before content
 0.23.0); the unlocks (below) are 20 / 26 / 46 full houses. Tax follows
 Anno's `Money` per full house divided by its size, 6 / 6 : 12 / 14 :
 40 / 26 : 98 / 43 = 1.00 : 0.86 : 1.54 : 2.28 per resident, times one
-scale `k_tax` (D-080 §5, table D; 1.18, which keeps the Patricians at
-2.70 — the start value, kept by the D-080 tuning, §12).
+scale `k_tax` = 1.05 (D-082 §1, tuned to the margin target, §12; 1.18
+under D-080, which kept the Patricians at 2.70).
 
 ### Unlock conditions (archipelago-wide)
 
@@ -927,6 +927,52 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
 | `theatre` | Retired for D-063; `playhouse` is a new ID, same cost/radius/ladder position. Roman recipe parked for a later southern region. |
 | `settlers_services`, `citizens_services`, `merchants_services`, `patricians_services` | Need IDs retired with the `services` category in D-065 (split into market and the faith/education/culture chains) |
 | the three pre-D-075 ship IDs and the three quest IDs that named them | Renamed to `cog`, `hulk`, `carrack` and `citizens_cog`, `merchants_hulk`, `patricians_carrack` in D-075 §4 (content 0.21.0; the old names are listed in DECISIONS D-075 only — a test keeps them out of every other tracked file) |
+
+### D-082 reference results (sim minutes, seed 1053001)
+
+Content `old_coast-0.23.1`: civic maintenance from Anno 117 (D-082
+table E, §7) and **`k_tax` = 1.05** (tax 1.05 / 0.90 / 1.62 / 2.39 =
+the ladder 1.00 / 0.86 / 1.54 / 2.28 × 1.05); producers keep D-080's
+`k_upkeep` = 1.0. The plans regenerate byte for byte, so every
+milestone equals D-080's (deltas 0, inside the ±5 min of D-082):
+
+| Game | Milestones | Targets | D-080 | D-082 | Margins |
+|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 50 / 28 / 64 / 112 | 50 / 28 / 64 / 112 | 10 / 62 / 36 / 38 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 21 / 30 (6, 78) | 21 / 30 (6, 78) | 24 / 55 |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 153 / 219 / 304 | 153 / 219 / 304 | 87 / 51 / 116 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 573 / 615 / 948 | 573 / 615 / 948 | 327 / 345 / 852 |
+
+Gold (tax over upkeep at the tightest advance step from minute 30;
+min gold over every step; nothing auto-pauses in any game):
+
+| Game | Tax over upkeep (tightest, minute) | Min gold (minute) | End gold | D-080 end gold |
+|---|---|---|---|---|
+| Citizens | +194.9 % (33) | 871 (20) | 17 661 | 24 546 |
+| Quests | +204.2 % (63) | 712 (1); 740 (6) after minute 5 | 16 141 | 22 146 |
+| Merchants | +39.0 % (304) | 871 (20) | 32 635 | 73 675 |
+| Patricians | +35.3 % (305) | 871 (20) | 493 436 | 932 046 |
+
+The Merchants and Patricians games sit in D-082's 20–50 % window; the
+two Citizens games cannot: their tightest point is a Settlers town with
+market, chapel and the first producers (tax 138 against upkeep 47 at
+minute 33), and ≤ 50 % there needs `k_tax` ≈ 0.53, while 0.65 already
+stops the Merchants plan (the playhouse's 15 000 gold never accrues).
+Kept by the D-082 rule "the k that satisfies the Patricians game";
+rule (2) (cheaper chapel / market level 1) was not applied — the
+Citizens games are too rich, not too poor (≥ 500 gold after the
+opening purchases, ≥ 20 % margin). The Patricians game ends with
+493 k gold, above D-082's 100–250 k expectation. Tuning log (every
+`k_tax` tried; margins Citizens / Quests / Merchants / Patricians):
+
+- 1.18 (D-080, table E only): 231.4 / 241.8 / 56.1 / 52.0 %, min gold
+  935, end gold Patricians 682 512 — Patricians above 50 %.
+- 0.65 (D-082's estimate): 82.6 / 88.3 % / — / —; the Merchants plan
+  fails at action 54 (playhouse unaffordable after a 4 h wait, balance
+  negative) — gold would pace the game.
+- 0.92: 158.4 / 166.5 / 21.9 / 18.7 %, min gold 789, Patricians end
+  304 554 — Patricians below 20 %.
+- **1.05**: 194.9 / 204.2 / 39.0 / 35.3 %, min gold 871 — kept.
 
 ### D-080 reference results (sim minutes, seed 1053001)
 
