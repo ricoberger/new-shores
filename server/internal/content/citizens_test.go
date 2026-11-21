@@ -19,7 +19,7 @@ func TestLoadCitizensContent(t *testing.T) {
 	types := map[string]string{
 		"wheat": "raw", "flour": "intermediate", "bread": "food", "apples": "raw", "cider": "drink", "hemp": "raw",
 		"linen_garments": "clothing", "stone": "construction", "iron_ore": "raw", "charcoal": "intermediate", "iron": "intermediate",
-		"tools": "construction", "coal": "intermediate",
+		"coal": "intermediate",
 		"milk": "raw", "cheese": "food", "honey": "raw", "mead": "drink", "pigs": "raw", "leather_jerkins": "clothing",
 	}
 	for id, typ := range types {
@@ -109,10 +109,7 @@ func TestLoadCitizensContent(t *testing.T) {
 		"weaver_linen":    {"hemp", "linen_garments", 60_000, "citizens", 6000, "", "", "need_goods"},
 		"sailmaker":       {"hemp", "sails", 60_000, "citizens", 6000, "", "", "intermediate"},
 		"quarry":          {"", "stone", 45_000, "settlers", 8000, "", "stone", "intermediate"},
-		"iron_mine":       {"", "iron_ore", 60_000, "settlers", 10_000, "", "iron", "intermediate"},
 		"charcoal_burner": {"wood", "charcoal", 45_000, "settlers", 4000, "", "", "intermediate"},
-		"smelter":         {"iron_ore,charcoal|coal", "iron", 60_000, "settlers", 8000, "", "", "intermediate"},
-		"toolmaker":       {"iron", "tools", 60_000, "settlers", 8000, "", "", "intermediate"},
 		// D-056 tier-2 alternatives.
 		"dairy_farm":   {"", "milk", 60_000, "settlers", 6000, "", "", "intermediate"},
 		"cheese_dairy": {"milk", "cheese", 60_000, "citizens", 6000, "", "", "need_goods"},

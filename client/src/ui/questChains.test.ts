@@ -40,7 +40,7 @@ describe("quest chains in the quest list", () => {
     const chains = questChains(model, content);
     expect(chains.map((c) => c.id)).toEqual(["intro", "citizens"]);
     const [intro, citizens] = chains;
-    expect(intro).toMatchObject({ name: "Intro", total: 12, done: 8, next: "intro_tools" });
+    expect(intro).toMatchObject({ name: "Intro", total: 11, done: 8, next: "intro_citizen_house" });
     expect(intro?.open).toEqual([
       { id: "intro_settlers_120", claimable: true, step: 9 },
       { id: "intro_island2", claimable: false, step: 10 },
@@ -62,14 +62,14 @@ describe("quest chains in the quest list", () => {
   it("renders the chains, steps and next quests in the panel (English and German)", () => {
     const render = () => text(renderToStaticMarkup(createElement(QuestsPanel, { model, content, onClaim: () => {}, onClose: () => {} })));
     const en = render();
-    expect(en).toMatch(/^Quests.*Intro8 of 12 doneStep 9 of 12/);
-    expect(en).toContain("Step 10 of 12");
+    expect(en).toMatch(/^Quests.*Intro8 of 11 doneStep 9 of 11/);
+    expect(en).toContain("Step 10 of 11");
     expect(en).toContain("Citizens0 of 5 doneStep 1 of 5");
     expect(en).toMatch(/Next: [^N]+Citizens0 of 5/);
     expect(en).toMatch(/Next: [^N]+$/);
     setLanguage("de", false);
     const de = render();
-    expect(de).toContain("Einstieg8 von 12 erledigtSchritt 9 von 12");
+    expect(de).toContain("Einstieg8 von 11 erledigtSchritt 9 von 11");
     expect(de).toContain("Danach: ");
   });
 });

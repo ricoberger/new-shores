@@ -49,7 +49,7 @@ describe("HUD icon set", () => {
 
   it("has an icon for every good, need and status of the content", () => {
     const goods = content("goods.json") as { id: string }[];
-    expect(goods).toHaveLength(65);
+    expect(goods).toHaveLength(64);
     for (const g of goods) expect(ICON_PATHS[`good:${g.id}`], g.id).toBeTruthy();
     // A need shows its category's content icon (need_categories[].icon), else need:<category> or need:<building>.
     const categories = content("need_categories.json") as { id: string; icon?: string }[];

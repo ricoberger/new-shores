@@ -138,13 +138,18 @@ Patrician houses.
 Variety reserve (D-056, IDs reserved, not in the tier plan): fur_coats,
 tableware, confectionery, paintings.
 
-## 3. Construction materials (D-037)
+## 3. Construction materials (D-037, D-083)
+
+One construction material per tier (D-083 §2): planks (Settlers), stone
+(Citizens), bricks (Merchants), glass (Patricians); every tier reuses the
+earlier materials, nothing else is a construction material. Sails are
+the ship material. `tools` and the `toolmaker` are retired (D-083 §1,
+content 0.24.0, §12); iron is a Patricians intermediate (§4).
 
 | Material | Tier | Chain | Slot / resource |
 |---|---|---|---|
 | `planks` | Settlers | `lumberjack` (48 `tree_plot`s, D-059; 24 before 0.20.0) → `sawmill` | open land for the plots |
 | `stone` | Citizens | `quarry` | stone slot |
-| `tools` | Citizens | `iron_mine` (iron slot) + `charcoal` → `smelter` → `toolmaker` | iron slot; also ships |
 | `bricks` | Merchants | `clay_pit` (clay slot) + `charcoal` → `brickworks` | clay slot (shared with tableware) |
 | `glass` | Patricians | `quartz_quarry` (quartz slot) + `charcoal` → `glass_smelter` | quartz slot (shared with spectacles) |
 | `sails` | Citizens (ships) | `hemp_farm` → `sailmaker` | hemp fertility |
@@ -160,7 +165,7 @@ bricks; T4 stone + bricks + glass.
 | `salt` | `salt_pans` (harbour slot, slow) | `salt_mine` (salt slot) → brine → `salt_works` (+charcoal) | butcher, slaughterhouse, oyster_house |
 | `clay` | `clay_pit` (clay slot) | — | brickworks, potter |
 | `flour` | `mill` (wheat) | — | bakery, pastry_kitchen, confectioner |
-| `iron` | `smelter` | — | toolmaker, cooperage |
+| `iron` | `smelter` (Patricians, D-083 §3) | — | cooperage; warships balinger 10, war cog 20, war carrack 40 (§8) |
 | `pigs` | `pig_farm` (grass) | — | tannery, butcher, rendering_house |
 | `tallow` | `rendering_house` (pigs) | — | soap_maker, candle_foundry |
 | `honey` | `apiary` (meadow) | — | meadery, confectioner |
@@ -212,12 +217,13 @@ ship is a cog; the shipyard unlocks at tier 2 (D-056).
 | drink | mead | `apiary` (meadow → honey, 90 s) [4 S], `meadery` (honey → mead, 60 s) [6 C] | 3 : 2 |
 | clothing | linen_garments | `hemp_farm` (hemp fert. → hemp, 60 s) [6 S], `weaver_linen` (hemp → linen_garments, 60 s) [6 C] | 1 : 1 |
 | clothing | leather_jerkins | `pig_farm` (grass → pigs, 90 s) [6 S], `tannery` (pigs → leather_jerkins, 120 s) [8 C] | 3 : 4 |
-| construction | stone, tools | `quarry` (stone slot → stone, 45 s) [8 S]; `iron_mine` (iron slot → iron_ore, 60 s) [10 S], `charcoal_burner` (wood → charcoal, 45 s) [4 S], `smelter` (iron_ore + charcoal → iron, 60 s) [8 S], `toolmaker` (iron → tools, 60 s) [8 S] | tools 1 : 1.3 : 1 : 1 |
+| construction | stone | `quarry` (stone slot → stone, 45 s) [8 S] | — |
+| intermediate | charcoal | `charcoal_burner` (wood → charcoal, 45 s) [4 S] — no Citizens consumer since D-083; kept for the Merchants' brickworks, salt works and distillery | — |
 | ships | sails | `sailmaker` (hemp → sails, 60 s) [6 C] | — |
 
 Infrastructure: `trading_post` lvl 2, `market` and `warehouse` lvl 2 (D-065), `road_paved`, `quay` (D-060), `tavern`, `school`,
-`city_guard`, `shipyard` (cog, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
-The construction chains (quarry, tool chain) are **Settler-staffed** per the
+`city_guard`, `shipyard` (cog, 2 slots), `house_citizens`. Hemp is on the second settleable island, never the first; the home candidate has stone and no other deposit, so one island suffices until Merchants (D-083).
+The construction chain (quarry) is **Settler-staffed** per the
 bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
 must be producible before any Citizen exists. Likewise bricks (tier 3) are
 made by Citizens and glass (tier 4) by Citizens.
@@ -264,6 +270,7 @@ feature, not a tier gate, and not authored yet. Variety reserve
 | luxury | jewellery | `gold_mine` (gold slot → gold_ore, 120 s) [10 C], `gold_smelter` (gold_ore + charcoal → gold_bars, 60 s) [8 C], `goldsmith` (gold_bars → jewellery, 90 s) [6 P] | 1 : 2 : 1.5 |
 | luxury | instruments | `sawmill`, `copper_smelter`, `luthier` (planks + brass → instruments, 60 s) [8 P] | 1 : 2 : 2 |
 | construction | glass | `quartz_quarry` (quartz slot → quartz, 60 s) [10 C], `glass_smelter` (quartz + charcoal → glass, 60 s) [8 C] | 1 : 1 |
+| intermediate | iron | `iron_mine` (iron slot → iron_ore, 60 s) [10 S], `charcoal_burner`, `smelter` (iron_ore + charcoal → iron, 60 s) [8 S] — Patricians since D-083 §3 (Citizens before, for tools); feeds the `cooperage` and the warships | 1 : 1.3 : 1 |
 
 `gold_bars` avoids a good named `gold`, which is the reserved cost key
 (§11). Variety reserve (D-056): confectionery (`confectioner`), paintings
@@ -278,10 +285,10 @@ Infrastructure: `trading_post` lvl 4, `market` and `warehouse` lvl 4 (D-065), `u
 | | Settlers | Citizens | Merchants | Patricians | Total |
 |---|---|---|---|---|---|
 | Final goods (needs) | 2 | 6 | 8 | 10 | **26** (+4 reserve) |
-| Construction/ship materials | 1 | 3 | 1 (+coal) | 1 | 6 (+1) |
+| Construction/ship materials | 1 | 2 | 1 (+coal) | 1 | 5 (+1) |
 | Buildings (all kinds, content `old_coast-0.13.0`; reserve not counted) | 12 | 30 | 25 | 26 | **93** |
 | Fertilities | — | wheat, apple, hemp | hops, woad | grapes | 6 |
-| Deposit slot types | — | stone, iron | clay, salt, coal | quartz, copper, gold | 8 |
+| Deposit slot types | — | stone | clay, salt, coal | iron, quartz, copper, gold | 8 |
 
 Mandatory chains for one player to reach Patricians with one alternative
 per category (0.6 coverage): ~14. The second alternative of each category
@@ -348,10 +355,7 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `road_paved` | 2 | 1×1 | — | road | see text | 0 | — | 3 gold / 1 stone |
 | `quay` | 2 | 1×1 on shallows | — | road (D-060) | see text | 0 | — | 5 gold / 2 stone; 0.6 s/tile; water-edge and shore buildings stand on it; connected to land (D-077 §8) |
 | `quarry` | 2 | 3×8 on a stone slot | — | Limestone Quarry | 120 / 9 / 0 | 3 | 8 S | R; strip into the mountain |
-| `iron_mine` | 2 | 3×8 on an iron slot | — | Iron Mine | 180 / 6 / 6 | 2 | 10 S | R |
 | `charcoal_burner` | 2 | 5×6 | — | Charcoal Burner | 90 / 9 / 0 | 2 | 4 S | R, forest nearby (visual) |
-| `smelter` | 2 | 4×6 | — | Furnace | 290 / 5 / 12 | 2 | 8 S | R |
-| `toolmaker` | 2 | 4×4 | — | Weaponsmith | 230 / 5 / 9 | 4 | 8 S | R |
 | `wheat_farm` | 2 | 3×4 + 140 `wheat_field` | — | Wheat Farm | 150 / 9 / 3 | 2 | 6 S | R, wheat fertility |
 | `wheat_field` | 2 | 1×1 field | — | field tile | 3 g | 0 | — | wheat_farm only; painted |
 | `mill` | 2 | 3×3 | — | Grain Mill | 180 / 6 / 6 | 2 | 4 C | R (no river slot: plain land); a lone windmill, no miller's house and no chimney (D-074 §6; 4×6 before content 0.20.0) |
@@ -418,6 +422,8 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `confectioner` (reserve) | 4 | 4×5 | — | Bakery class | 650 / 5 / 9 / 6 / 6 | 4 | 8 P | R |
 | `vineyard` | 4 | 4×5 + 100 `vine_row` | — | Vineyard | 330 / 6 / 9 / 3 / 0 | 2 | 8 S | R, grapes fertility |
 | `vine_row` | 4 | 1×1 field | — | field tile | 3 g | 0 | — | vineyard only |
+| `iron_mine` | 4 | 3×8 on an iron slot | — | Iron Mine | 180 / 6 / 6 / 0 / 0 | 2 | 10 S | R; tier 2 until D-083 §3 (costs, workforce and model kept) |
+| `smelter` | 4 | 4×6 | — | Furnace | 290 / 5 / 12 / 0 / 0 | 2 | 8 S | R; tier 2 until D-083 §3 (costs, workforce and model kept) |
 | `cooperage` | 4 | 4×6 | — | Caelator class | 840 / 9 / 12 / 9 / 6 | 7 | 8 C | R |
 | `winepress` | 4 | 6×9 | — | Vintner | 540 / 6 / 15 / 6 / 0 | 30 | 8 P | R |
 | `malt_house` | 4 | 4×6 | — | Grain Mill class | 270 / 6 / 6 / 3 / 0 | 2 | 6 C | R |
@@ -452,7 +458,7 @@ needs tier *n*, D-065, extended to the Trading Post):
 | Trading Post | 1 | 300 | 10 | 24 | 0 | 1 | founding (200 gold / 15 planks) |
 | Trading Post | 2 (Citizens) | 500 | 20 | 28 | 6 | 2 | 300 gold / 20 planks / 10 stone |
 | Trading Post | 3 (Merchants) | 800 | 40 | 32 | 12 | 3 | 600 gold / 30 planks / 20 stone |
-| Trading Post | 4 (Patricians) | 1 200 | 80 | 36 | 24 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
+| Trading Post | 4 (Patricians) | 1 200 | 80 | 36 | 24 | 4 | 1 200 gold / 40 planks / 30 stone (10 tools until D-083) |
 | Warehouse | 1 | — | 8 | 18 | 6 | — | placement (50 gold / 6 planks) |
 | Warehouse | 2 (Citizens) | — | 16 | 21 | 10 | — | 150 gold / 10 planks / 5 stone |
 | Warehouse | 3 (Merchants) | — | 32 | 24 | 16 | — | 300 gold / 15 planks / 10 stone |
@@ -553,11 +559,15 @@ show it. Costs provisional.
 | ID | Tier | Slots × size | Speed | Build | Cost | Upkeep |
 |---|---|---|---|---|---|---|
 | `cog` | 2 (start ship from tier 1) | 2 × 50 | 1.2 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
-| `hulk` | 3 | 4 × 50 | 1.0 | 5 min | 1 500 gold, 60 planks, 20 sails, 10 tools | 4 |
-| `carrack` | 4 | 6 × 60 | 0.85 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
-| `balinger` | 4 | — (attack 4) | 1.3 | 5 min | 800 gold, 40 planks, 15 sails, 10 tools | 3 |
-| `war_cog` | 4 | — (attack 10) | 1.0 | 7.5 min | 2 500 gold, 80 planks, 30 sails, 20 tools | 5 |
-| `war_carrack` | 4 | — (attack 20) | 0.8 | 10 min | 6 000 gold, 150 planks, 50 sails, 40 tools | 8 |
+| `hulk` | 3 | 4 × 50 | 1.0 | 5 min | 1 500 gold, 60 planks, 20 sails | 4 |
+| `carrack` | 4 | 6 × 60 | 0.85 | 10 min | 6 000 gold, 120 planks, 40 sails | 8 |
+| `balinger` | 4 | — (attack 4) | 1.3 | 5 min | 800 gold, 40 planks, 15 sails, 10 iron | 3 |
+| `war_cog` | 4 | — (attack 10) | 1.0 | 7.5 min | 2 500 gold, 80 planks, 30 sails, 20 iron | 5 |
+| `war_carrack` | 4 | — (attack 20) | 0.8 | 10 min | 6 000 gold, 150 planks, 50 sails, 40 iron | 8 |
+
+Trading ships cost gold, planks and sails only; warships replace the
+retired tools 1 : 1 with iron (D-083 §3, content 0.24.0; brass stays the
+luxury metal).
 
 \*The sails for the first built cog are the reward of the tier-2
 "Build a shipyard" quest (D-056) — the only source of sails before a
@@ -715,7 +725,7 @@ Every building has `id`, `name`, `region` (must equal the region id),
 called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min`,
 `pause_category` and `look`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **17** (D-077 patrol), content **old_coast-0.23.0** (D-080 Anno 117 house sizes, generated rates, final-producer cycles, tax and upkeep; D-081 Trading Post road root — 0.22.x worlds and snapshots do not load; 0.22.1 D-078 `harbour_lane`, ornament and military tiers, the 12 × 12 castle; 0.22.0 D-077 ornaments, military, repair crane, Kontor, warships, `placement`, `category`, `defence`, `unique`, `paint_family`, `repairs`, `attack`; 0.21.1 D-076 `regions.json`, island IDs `oc-NN`, worlds with `regions[]`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): schema-15 and schema-16 worlds migrate (MECHANICS §9.4, ARCHITECTURE §4.2); older
+World schema **17** (D-077 patrol), content **old_coast-0.24.0** (D-083 tools and the toolmaker retired, iron at Patricians — 0.23.x worlds and snapshots do not load; 0.23.1 D-082 civic maintenance and tax; 0.23.0 D-080 Anno 117 house sizes, generated rates, final-producer cycles, tax and upkeep; D-081 Trading Post road root — 0.22.x worlds and snapshots do not load; 0.22.1 D-078 `harbour_lane`, ornament and military tiers, the 12 × 12 castle; 0.22.0 D-077 ornaments, military, repair crane, Kontor, warships, `placement`, `category`, `defence`, `unique`, `paint_family`, `repairs`, `attack`; 0.21.1 D-076 `regions.json`, island IDs `oc-NN`, worlds with `regions[]`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): schema-15 and schema-16 worlds migrate (MECHANICS §9.4, ARCHITECTURE §4.2); older
 ones need a fresh local database (`make down VOLUMES=1 && make up`).
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.
@@ -806,7 +816,7 @@ assignment:
 | Look | Buildings |
 |---|---|
 | `rural` | lumberjack, tree_plot, sheep_farm, pasture, fisher, wheat_farm, wheat_field, dairy_farm, cattle_pasture, orchard, orchard_plot, apiary, meadow, hemp_farm, hemp_field, pig_farm, pig_pen, quarry, iron_mine, charcoal_burner, hop_farm, hop_field, woad_farm, woad_field, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, vine_row, quartz_quarry, copper_mine, gold_mine, road_dirt, road_paved |
-| `workshop` | sawmill, weaver_wool, mill, bakery, cheese_dairy, cidery, meadery, weaver_linen, tannery, sailmaker, smelter, toolmaker, butcher, pastry_kitchen, brewery, distillery, leather_works, tailor, dyer_works, dyer, paper_mill, printing_press, rendering_house, soap_maker, salt_works, brickworks, slaughterhouse, oyster_house, cooperage, winepress, malt_house, grain_distillery, fashion_house, thread_spinner, lace_maker, candle_foundry, glass_smelter, copper_smelter, optician, gold_smelter, goldsmith, luthier |
+| `workshop` | sawmill, weaver_wool, mill, bakery, cheese_dairy, cidery, meadery, weaver_linen, tannery, sailmaker, smelter, butcher, pastry_kitchen, brewery, distillery, leather_works, tailor, dyer_works, dyer, paper_mill, printing_press, rendering_house, soap_maker, salt_works, brickworks, slaughterhouse, oyster_house, cooperage, winepress, malt_house, grain_distillery, fashion_house, thread_spinner, lace_maker, candle_foundry, glass_smelter, copper_smelter, optician, gold_smelter, goldsmith, luthier |
 | `civic` | house_settlers, house_citizens, house_merchants, house_patricians, market, chapel, church, cathedral, school, university, tavern, playhouse, city_guard, fire_station, surgery, every ornament and military building (D-077) |
 | `harbour` | trading_post, warehouse, shipyard, quay, trading_pier, depot, repair_crane, kontor |
 
@@ -869,10 +879,10 @@ Ordered list of `{ id, title, text, objectives[], rewards: { gold?, goods?,
 decorations: [] }, prerequisites[] }`; objectives are `oneOf` the predicate
 kinds in MECHANICS §12a (`building_count`, `population`, `stock`,
 `connected`, `route_exists`, `island_settled`, `tier_unlocked`,
-`ship_count`, `satisfaction`). The intro chain is 12 linear quests
+`ship_count`, `satisfaction`). The intro chain is 11 linear quests
 (`intro_home_island` … `intro_citizen_house`; island 2 is founded with
-the start cog) with rewards of 25–100 gold or 30–45 planks; never
-stone, tools or sails (those are taught, not given). The tier-2 chain
+the start cog; `intro_tools` retired with D-083) with rewards of 25–100 gold or 30–45 planks; never
+stone or sails (those are taught, not given). The tier-2 chain
 (D-056) is 5 linear quests branching off at `intro_settlers_120`
 (`citizens_shipyard`, `citizens_cog`, `citizens_tavern`,
 `citizens_school`, `citizens_cheese`) with rewards of 50–100 gold; the
@@ -931,6 +941,8 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
 | `market_small` | Renamed to `market` in D-056 C3 |
 | `theatre` | Retired for D-063; `playhouse` is a new ID, same cost/radius/ladder position. Roman recipe parked for a later southern region. |
 | `settlers_services`, `citizens_services`, `merchants_services`, `patricians_services` | Need IDs retired with the `services` category in D-065 (split into market and the faith/education/culture chains) |
+| `tools`, `toolmaker` | Retired with D-083 §1 (content 0.24.0): the good had no building consumer; construction is one material per tier. The recipe and the models `toolmaker.glb` / `.lite.glb` are deleted. |
+| `intro_tools` | Quest retired with D-083 §4 (it asked for ten tools). |
 | the three pre-D-075 ship IDs and the three quest IDs that named them | Renamed to `cog`, `hulk`, `carrack` and `citizens_cog`, `merchants_hulk`, `patricians_carrack` in D-075 §4 (content 0.21.0; the old names are listed in DECISIONS D-075 only — a test keeps them out of every other tracked file) |
 
 ### D-082 reference results (sim minutes, seed 1053001)

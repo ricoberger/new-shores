@@ -69,7 +69,7 @@
           "upkeep_per_min": 24,
           "berths": 4,
           "tier": "patricians",
-          "cost": { "gold": 1200, "planks": 40, "stone": 30, "tools": 10 }
+          "cost": { "gold": 1200, "planks": 40, "stone": 30 }
         }
       ]
     }
@@ -809,7 +809,7 @@
     "id": "iron_mine",
     "name": "Iron mine",
     "region": "old_coast",
-    "tier": "citizens",
+    "tier": "patricians",
     "footprint": [3, 8],
     "coastal": false,
     "requires_road": true,
@@ -850,7 +850,7 @@
     "id": "smelter",
     "name": "Smelter",
     "region": "old_coast",
-    "tier": "citizens",
+    "tier": "patricians",
     "footprint": [4, 6],
     "coastal": false,
     "requires_road": true,
@@ -863,26 +863,6 @@
     "recipe": {
       "inputs": [{ "good": "iron_ore", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
       "outputs": [{ "good": "iron", "amount": 1 }],
-      "cycle_seconds": 60
-    }
-  },
-  {
-    "id": "toolmaker",
-    "name": "Toolmaker",
-    "region": "old_coast",
-    "tier": "citizens",
-    "footprint": [4, 4],
-    "coastal": false,
-    "requires_road": true,
-    "cost": { "gold": 230, "planks": 5, "stone": 9 },
-    "upkeep_per_min": 4,
-    "pause_category": "intermediate",
-    "look": "workshop",
-    "smoke": true,
-    "workforce": { "tier": "settlers", "amount": 8 },
-    "recipe": {
-      "inputs": [{ "good": "iron", "amount": 1 }],
-      "outputs": [{ "good": "tools", "amount": 1 }],
       "cycle_seconds": 60
     }
   },

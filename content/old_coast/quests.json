@@ -102,17 +102,6 @@
     "prerequisites": ["intro_settlers_120"]
   },
   {
-    "id": "intro_tools",
-    "title": "Tools from the second island",
-    "text": "Citizens' workshops need tools. Mine iron, smelt it and make tools where the iron is, and let a cog on a route bring them home: store ten tools in a Trading Post.",
-    "objectives": [
-      { "kind": "route_exists" },
-      { "kind": "stock", "good": "tools", "min": 10 }
-    ],
-    "rewards": { "gold": 100 },
-    "prerequisites": ["intro_island2"]
-  },
-  {
     "id": "intro_citizen_house",
     "title": "The first citizens",
     "text": "Upgrade a full settler house whose needs are all met into a citizen house. Its walls need stone: quarry it on an island with stone deposits.",
@@ -120,7 +109,7 @@
       { "kind": "building_count", "type": "house_citizens", "min": 1 }
     ],
     "rewards": { "gold": 100 },
-    "prerequisites": ["intro_tools"]
+    "prerequisites": ["intro_island2"]
   },
   {
     "id": "citizens_shipyard",

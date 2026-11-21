@@ -50,11 +50,14 @@ func TestLoadPatriciansChains(t *testing.T) {
 	}
 	const ng, im = "need_goods", "intermediate"
 	chains := map[string]chain{
-		"cattle_farm":      {"", "cattle", 120_000, "settlers", 8000, "", "", im, "410/5/9/6/0", 4, false},
-		"slaughterhouse":   {"cattle,salt", "roast_beef", 60_000, "patricians", 8000, "", "", ng, "390/6/6/3/3", 40, true},
-		"oyster_beds":      {"", "raw_oysters", 90_000, "settlers", 6000, "", "", im, "480/12/9/6/0", 3, false},
-		"oyster_house":     {"raw_oysters,salt", "oysters", 60_000, "patricians", 6000, "", "", ng, "510/6/6/3/6", 40, true},
-		"vineyard":         {"", "grapes", 90_000, "settlers", 8000, "grapes", "", im, "330/6/9/3/0", 2, false},
+		"cattle_farm":    {"", "cattle", 120_000, "settlers", 8000, "", "", im, "410/5/9/6/0", 4, false},
+		"slaughterhouse": {"cattle,salt", "roast_beef", 60_000, "patricians", 8000, "", "", ng, "390/6/6/3/3", 40, true},
+		"oyster_beds":    {"", "raw_oysters", 90_000, "settlers", 6000, "", "", im, "480/12/9/6/0", 3, false},
+		"oyster_house":   {"raw_oysters,salt", "oysters", 60_000, "patricians", 6000, "", "", ng, "510/6/6/3/6", 40, true},
+		"vineyard":       {"", "grapes", 90_000, "settlers", 8000, "grapes", "", im, "330/6/9/3/0", 2, false},
+		// D-083 §3: iron is a Patricians good (Settler-staffed, costs as at tier 2).
+		"iron_mine":        {"", "iron_ore", 60_000, "settlers", 10_000, "", "iron", im, "180/6/6/0/0", 2, true},
+		"smelter":          {"iron_ore,charcoal|coal", "iron", 60_000, "settlers", 8000, "", "", im, "290/5/12/0/0", 2, true},
 		"cooperage":        {"planks,iron", "barrels", 45_000, "citizens", 8000, "", "", im, "840/9/12/9/6", 7, true},
 		"winepress":        {"grapes,barrels", "wine", 45_000, "patricians", 8000, "", "", ng, "540/6/15/6/0", 30, true},
 		"malt_house":       {"wheat", "malt", 60_000, "citizens", 6000, "", "", im, "270/6/6/3/0", 2, true},
@@ -202,7 +205,9 @@ func TestTierFourMatchesPlannedModels(t *testing.T) {
 		if b.Tier != "patricians" {
 			continue
 		}
-		if !seen[b.ID] && b.ID != "grain_distillery" && b.ID != "surgery" && !d077Building(b) {
+		// The iron chain was modelled as tier 2 (planned/tier2.json) and moved
+		// to the Patricians by D-083 §3; its look follows the workers.
+		if !seen[b.ID] && b.ID != "grain_distillery" && b.ID != "surgery" && b.ID != "iron_mine" && b.ID != "smelter" && !d077Building(b) {
 			t.Errorf("%s is not in the planned tier-4 models", b.ID)
 		}
 		m, ok := manifest.Models[b.ID]
@@ -343,7 +348,7 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 	if m := c.BuildingByID["market"]; m.LevelCount() != 4 || m.Service.RadiusAt(4) != 32 || m.LevelTier(4) != "patricians" {
 		t.Errorf("market level 4 = %d %s", m.Service.RadiusAt(4), m.LevelTier(4))
 	}
-	if tp := c.BuildingByID["trading_post"]; tp.LevelCount() != 4 || fmt.Sprint(tp.LevelCost(4).Gold, tp.LevelCost(4).Materials) != "1200000 [{planks 40000} {stone 30000} {tools 10000}]" {
+	if tp := c.BuildingByID["trading_post"]; tp.LevelCount() != 4 || fmt.Sprint(tp.LevelCost(4).Gold, tp.LevelCost(4).Materials) != "1200000 [{planks 40000} {stone 30000}]" {
 		t.Errorf("trading_post level 4 = %+v", tp.LevelCost(4))
 	}
 	// The carrack is the Patricians' ship, built at the shipyard.
