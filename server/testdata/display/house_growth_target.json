@@ -4,9 +4,9 @@
     "evaluated_at": "2026-01-01T14:31:00.000Z",
     "next_change_at": null,
     "gold": 0,
-    "balance_rate_per_min": 0,
+    "balance_rate_per_min": -16000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 0,
+    "upkeep_rate_per_min": 16000,
     "tiers": [
       {
         "id": "settlers",
@@ -773,8 +773,8 @@
     "insolvency": {
       "unpaid_buildings": 3,
       "unpaid_ships": 0,
-      "unpaid_upkeep_per_min": 8000,
-      "balance_if_resumed_per_min": -8000
+      "unpaid_upkeep_per_min": 31000,
+      "balance_if_resumed_per_min": -47000
     },
     "quests": {
       "active": [
@@ -825,9 +825,9 @@
         "evaluated_at": "2026-01-01T14:31:00.250Z",
         "next_change_at": null,
         "gold": 0,
-        "balance_rate_per_min": 0,
+        "balance_rate_per_min": -16000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 0,
+        "upkeep_rate_per_min": 16000,
         "tiers": [
           {
             "id": "settlers",
@@ -1594,8 +1594,8 @@
         "insolvency": {
           "unpaid_buildings": 3,
           "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 8000,
-          "balance_if_resumed_per_min": -8000
+          "unpaid_upkeep_per_min": 31000,
+          "balance_if_resumed_per_min": -47000
         },
         "quests": {
           "active": [
@@ -1646,9 +1646,9 @@
         "evaluated_at": "2026-01-01T14:31:01.000Z",
         "next_change_at": null,
         "gold": 0,
-        "balance_rate_per_min": 0,
+        "balance_rate_per_min": -16000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 0,
+        "upkeep_rate_per_min": 16000,
         "tiers": [
           {
             "id": "settlers",
@@ -2415,8 +2415,8 @@
         "insolvency": {
           "unpaid_buildings": 3,
           "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 8000,
-          "balance_if_resumed_per_min": -8000
+          "unpaid_upkeep_per_min": 31000,
+          "balance_if_resumed_per_min": -47000
         },
         "quests": {
           "active": [
@@ -2467,9 +2467,9 @@
         "evaluated_at": "2026-01-01T14:31:05.000Z",
         "next_change_at": null,
         "gold": 0,
-        "balance_rate_per_min": 0,
+        "balance_rate_per_min": -16000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 0,
+        "upkeep_rate_per_min": 16000,
         "tiers": [
           {
             "id": "settlers",
@@ -3236,8 +3236,8 @@
         "insolvency": {
           "unpaid_buildings": 3,
           "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 8000,
-          "balance_if_resumed_per_min": -8000
+          "unpaid_upkeep_per_min": 31000,
+          "balance_if_resumed_per_min": -47000
         },
         "quests": {
           "active": [
@@ -3288,9 +3288,9 @@
         "evaluated_at": "2026-01-01T14:31:30.000Z",
         "next_change_at": null,
         "gold": 0,
-        "balance_rate_per_min": 0,
+        "balance_rate_per_min": -16000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 0,
+        "upkeep_rate_per_min": 16000,
         "tiers": [
           {
             "id": "settlers",
@@ -4057,8 +4057,8 @@
         "insolvency": {
           "unpaid_buildings": 3,
           "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 8000,
-          "balance_if_resumed_per_min": -8000
+          "unpaid_upkeep_per_min": 31000,
+          "balance_if_resumed_per_min": -47000
         },
         "quests": {
           "active": [
@@ -4109,9 +4109,9 @@
         "evaluated_at": "2026-01-01T14:36:00.000Z",
         "next_change_at": null,
         "gold": 0,
-        "balance_rate_per_min": 0,
+        "balance_rate_per_min": -16000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 0,
+        "upkeep_rate_per_min": 16000,
         "tiers": [
           {
             "id": "settlers",
@@ -4878,8 +4878,8 @@
         "insolvency": {
           "unpaid_buildings": 3,
           "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 8000,
-          "balance_if_resumed_per_min": -8000
+          "unpaid_upkeep_per_min": 31000,
+          "balance_if_resumed_per_min": -47000
         },
         "quests": {
           "active": [

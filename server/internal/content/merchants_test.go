@@ -186,7 +186,7 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 			t.Errorf("%s = %+v", id, b)
 		}
 	}
-	if up := map[string]Qty{"church": 12000, "playhouse": 30000}; c.BuildingByID["church"].UpkeepPerMin != up["church"] || c.BuildingByID["playhouse"].UpkeepPerMin != up["playhouse"] {
+	if up := map[string]Qty{"church": 26_000, "playhouse": 60_000}; c.BuildingByID["church"].UpkeepPerMin != up["church"] || c.BuildingByID["playhouse"].UpkeepPerMin != up["playhouse"] {
 		t.Error("church/playhouse upkeep")
 	}
 	// The market's level 3 is the Merchants' (radius 28, D-065, D-072).

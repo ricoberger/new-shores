@@ -1,6 +1,6 @@
 {
   "name": "house_upgrade_keeps_residents",
-  "content_version": "old_coast-0.23.0",
+  "content_version": "old_coast-0.23.1",
   "boundary_count": 7,
   "totals": {
     "main": {
@@ -90,8 +90,8 @@
         }
       },
       "statuses": {},
-      "gold": 4639680,
-      "balance_rate_per_min": 7080,
+      "gold": 4540300,
+      "balance_rate_per_min": -9700,
       "population": {
         "settlers": 6000
       },
@@ -125,8 +125,8 @@
         }
       },
       "statuses": {},
-      "gold": 4492758,
-      "balance_rate_per_min": 3078,
+      "gold": 4377043,
+      "balance_rate_per_min": -13257,
       "population": {
         "citizens": 6000
       },
@@ -160,8 +160,8 @@
         }
       },
       "statuses": {},
-      "gold": 4244106,
-      "balance_rate_per_min": 1846,
+      "gold": 4104026,
+      "balance_rate_per_min": -22573,
       "population": {
         "citizens": 7000
       },
@@ -195,8 +195,8 @@
         }
       },
       "statuses": {},
-      "gold": 4252959,
-      "balance_rate_per_min": 2944,
+      "gold": 4015044,
+      "balance_rate_per_min": -21594,
       "population": {
         "citizens": 9000
       },
@@ -230,8 +230,8 @@
         }
       },
       "statuses": {},
-      "gold": 4341279,
-      "balance_rate_per_min": 2944,
+      "gold": 3367224,
+      "balance_rate_per_min": -21594,
       "population": {
         "citizens": 9000
       },
@@ -253,11 +253,11 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:42:00.000Z",
-    "next_change_at": "2026-01-02T12:34:37.606Z",
-    "gold": 4341279,
-    "balance_rate_per_min": 2944,
-    "tax_rate_per_min": 4944,
-    "upkeep_rate_per_min": 2000,
+    "next_change_at": "2026-01-01T03:17:55.998Z",
+    "gold": 3367224,
+    "balance_rate_per_min": -21594,
+    "tax_rate_per_min": 4406,
+    "upkeep_rate_per_min": 26000,
     "tiers": [
       {
         "id": "settlers",
@@ -1073,7 +1073,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 544,
-            "tax_rate_per_min": 4944,
+            "tax_rate_per_min": 4406,
             "needs": [
               {
                 "id": "citizens_food",
@@ -1212,7 +1212,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 2944
+      "balance_if_resumed_per_min": -21594
     },
     "quests": {
       "active": [

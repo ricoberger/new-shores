@@ -44,17 +44,22 @@ there is no passage and no gate.
 
 | # | ID | Name | Residents (floor–max) | Tax/res/min | House cost | Workforce role |
 |---|---|---|---|---|---|---|
-| 1 | `settlers` | Settlers | 2–6 | 1.18 | 5 planks (§7) | farms, fishers, lumber, gatherers |
-| 2 | `citizens` | Citizens | 5–14 | 1.01 | §7 `house_citizens` | mines, kilns, mills, basic workshops |
-| 3 | `merchants` | Merchants | 8–26 | 1.82 | §7 `house_merchants` | refined workshops, printing, brewing |
-| 4 | `patricians` | Patricians | 12–43 | 2.70 | §7 `house_patricians` | fine crafts, opticians (small numbers) |
+| 1 | `settlers` | Settlers | 2–6 | 1.05 | 5 planks (§7) | farms, fishers, lumber, gatherers |
+| 2 | `citizens` | Citizens | 5–14 | 0.90 | §7 `house_citizens` | mines, kilns, mills, basic workshops |
+| 3 | `merchants` | Merchants | 8–26 | 1.62 | §7 `house_merchants` | refined workshops, printing, brewing |
+| 4 | `patricians` | Patricians | 12–43 | 2.39 | §7 `house_patricians` | fine crafts, opticians (small numbers) |
 
 House sizes are Anno 117's (D-080 §1; 8 / 15 / 25 / 40 before content
 0.23.0); the unlocks (below) are 20 / 26 / 46 full houses. Tax follows
 Anno's `Money` per full house divided by its size, 6 / 6 : 12 / 14 :
 40 / 26 : 98 / 43 = 1.00 : 0.86 : 1.54 : 2.28 per resident, times one
-scale `k_tax` (D-080 §5, table D; 1.18, which keeps the Patricians at
-2.70 — the start value, kept by the D-080 tuning, §12).
+scale `k_tax` = 1.05, rounded to two decimals (D-082 §1; 1.18 under
+D-080, which kept the Patricians at 2.70). `k_tax` is tuned so that in
+the reference games tax exceeds upkeep by 20–50 % at the tightest point
+from minute 30 on; the Merchants and Patricians games meet it, the
+Citizens games stay richer (§12, D-082 reference results). It is the
+one number to move when a change shifts the gold balance; civic and
+producer maintenance are Anno's (D-080 table C, D-082 table E, §7).
 
 ### Unlock conditions (archipelago-wide)
 
@@ -328,9 +333,9 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `house_settlers` | 1 | 3×3 | — | Residence | 0 / 5 | 0 | — | R; all houses 3×3, upgrade in place |
 | `road_dirt` | 1 | 1×1 | — | road | see text | 0 | — |  |
 | `trading_post` | 1 | 6×6 | 1–2 | Trading Post (D-062) | see text | 0 / 6 / 12 / 24 | — | founding only; collector with reach; levels as below (D-069) |
-| `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 1 / 5 / 10 / 20 | — | collector; reach and throughput per level, four levels (D-065, D-069, below) |
-| `market` | 1 | 5×6 | — | Market | 250 / 15 | 0 / 10 / 40 / 60 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 20; lvl 2 (tier 2) radius 24, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 28, 2000 gold / 30 planks / 60 stone; lvl 4 (tier 4) radius 32, 10000 gold / 30 planks / 90 stone / 30 bricks (D-065; radii, and cost and upkeep of levels 3–4 ×2, D-072) |
-| `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 0 | — | R, radius 16; faith rank 1 (D-065) |
+| `warehouse` | 1 | 6×6 | — | Warehouse 6×6 | 50 / 6 | 6 / 10 / 16 / 24 | — | collector; reach and throughput per level, four levels (D-065, D-069, below) |
+| `market` | 1 | 5×6 | — | Market | 250 / 15 | 10 / 20 / 40 / 60 | — | R (was `market_small` until D-056 C3; that ID is retired); market category (D-065); levels: lvl 1 radius 20; lvl 2 (tier 2) radius 24, 400 gold / 10 planks / 10 stone; lvl 3 (tier 3) radius 28, 2000 gold / 30 planks / 60 stone; lvl 4 (tier 4) radius 32, 10000 gold / 30 planks / 90 stone / 30 bricks (D-065; radii, and cost and upkeep of levels 3–4 ×2, D-072) |
+| `chapel` | 1 | 3×5 | — | Chapel (Anno 1404) | 100 / 6 | 6 | — | R, radius 16; faith rank 1 (D-065) |
 | `lumberjack` | 1 | 3×3 + 48 `tree_plot` | — | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest; 24 plots before content 0.20.0 — a forest of 48 reads as a wood, polish 7) |
 | `tree_plot` | 1 | 1×1 field | — | field tile | 1 g | 0 | — | lumberjack only; painted; grass or forest, no fertility (D-059; every field since D-079) |
 | `sawmill` | 1 | 4×6 | — | Sawmill | 120 / 9 | 2 | 4 S | R |
@@ -367,16 +372,16 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `pig_pen` | 2 | 3×4 field | — | pasture module | 20 g / 5 planks | 0 | — | pig_farm only; grass or forest (D-079) |
 | `tannery` | 2 | 3×4 | — | Tannery | 180 / 6 / 6 | 12 | 8 C | R |
 | `sailmaker` | 2 | 4×8 | — | Ropemaker | 240 / 6 / 9 | 2 | 6 C | R |
-| `tavern` | 2 | 4×6 | — | Tavern | 250 / 15 / 0 | 2 | — | R, radius 20 (D-072); culture rank 1 (D-065) |
-| `school` | 2 | 6×8 | — | Grammaticus | 1000 / 15 / 30 | 4 | — | R, radius 20 (D-072); education rank 1 (D-065) |
-| `city_guard` | 2 | 4×4 | — | Watch post class | 200 / 10 / 6 | 2 | — | R, safety; radius 28 (D-080 §7; 26 since D-072), one level (D-065) |
+| `tavern` | 2 | 4×6 | — | Tavern | 250 / 15 / 0 | 10 | — | R, radius 20 (D-072); culture rank 1 (D-065) |
+| `school` | 2 | 6×8 | — | Grammaticus | 1000 / 15 / 30 | 16 | — | R, radius 20 (D-072); education rank 1 (D-065) |
+| `city_guard` | 2 | 4×4 | — | Watch post class | 200 / 10 / 6 | 5 | — | R, safety; radius 28 (D-080 §7; 26 since D-072), one level (D-065) |
 | `house_merchants` | 3 | 3×3 | — | Residence | 400 / 5 / 3 / 3 | 0 | — | upgrade only |
-| `church` | 3 | 6×10 | — | Sanctuary | 3000 / 60 / 30 / 0 | 12 | — | R, radius 28; faith rank 2 (D-065); cost and upkeep ×2 (D-072) |
-| `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 60 / 120 / 60 | 30 | — | R, radius 38 (tier 3 since D-056); culture rank 2 (D-065); materials and upkeep ×2, gold kept (D-072: the Merchants game waits for its gold) |
-| `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 4 | — | R, fire protection; radius 28 (D-080 §7; 22 since D-072), one level (D-065) |
+| `church` | 3 | 6×10 | — | Sanctuary | 3000 / 60 / 30 / 0 | 26 | — | R, radius 28; faith rank 2 (D-065); cost and upkeep ×2 (D-072) |
+| `playhouse` | 3 | 11×14 | — | Playhouse (D-063) | 15000 / 60 / 120 / 60 | 60 | — | R, radius 38 (tier 3 since D-056); culture rank 2 (D-065); materials and upkeep ×2, gold kept (D-072: the Merchants game waits for its gold) |
+| `fire_station` | 3 | 4×5 | — | Fire station class | 400 / 15 / 15 / 5 | 8 | — | R, fire protection; radius 28 (D-080 §7; 22 since D-072), one level (D-065) |
 | `trading_pier` | 3 | 6×9 | shore | Pier class (ours) | 250 / 20 / 10 | 0 | — | R, never auto-paused; +2 berths for the island (D-060); no levels; Merchants since D-069 §5 |
 | `depot` | 3 | 4×11 | shore | Depot class (ours) | 280 / 20 / 10 | 0 | — | R, never auto-paused; +150 capacity per good, no levels; any number (D-062); Merchants since D-069 §5 |
-| `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 4 | — | R, radius 28 (D-072), health; one level, glass cost (D-062) |
+| `surgery` | 4 | 4×6 | — | Surgery class | 450 / 10 / 15 / 0 / 5 | 8 | — | R, radius 28 (D-072), health; one level, glass cost (D-062) |
 | `harbourmaster_office` | 3 | 5×5 | (reserve) | Repair Crane class | 1000 / 60 / 45 / 0 | 6 | — | world map, expeditions, contracts |
 | `butcher` | 3 | 4×5 | — | Victualler class | 270 / 6 / 6 / 3 | 12 | 8 M | R |
 | `pastry_kitchen` | 3 | 4×5 | — | Bakery class | 320 / 5 / 9 / 3 | 14 | 8 M | R |
@@ -404,8 +409,8 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `brickworks` | 3 | 4×5 | — | Tiler | 90 / 9 / 0 / 0 | 3 | 8 C | R |
 | `coal_mine` | 3 | 3×8 on a coal slot | — | Iron Mine class | 180 / 6 / 6 / 0 | 2 | 10 C | R |
 | `house_patricians` | 4 | 3×3 | — | Residence | 1000 / 5 / 3 / 3 / 3 | 0 | — | upgrade only |
-| `university` | 4 | 12×12 | — | Library | 100000 / 90 / 90 / 120 / 0 | 90 | — | R, radius 46; education rank 2 (D-065); cost and upkeep ×2 (D-072) |
-| `cathedral` | 4 | 12×16 | — | Temple | 120000 / 30 / 120 / 120 / 60 | 60 | — | R, radius 50 (D-072); faith rank 3 (D-065); cost and upkeep ×2 (D-072) |
+| `university` | 4 | 12×12 | — | Library | 100000 / 90 / 90 / 120 / 0 | 180 | — | R, radius 46; education rank 2 (D-065); cost and upkeep ×2 (D-072) |
+| `cathedral` | 4 | 12×16 | — | Temple | 120000 / 30 / 120 / 120 / 60 | 100 | — | R, radius 50 (D-072); faith rank 3 (D-065); cost and upkeep ×2 (D-072) |
 | `cattle_farm` | 4 | 4×5 + 5 `cattle_pasture` | — | Pig Farm class, large | 410 / 5 / 9 / 6 / 0 | 4 | 8 S | R, grass |
 | `slaughterhouse` | 4 | 4×4 | — | Fish Gutter class | 390 / 6 / 6 / 3 / 3 | 40 | 8 P | R |
 | `oyster_beds` | 4 | 6×12 | 3–8 | Oyster Bed | 480 / 12 / 9 / 6 / 0 | 3 | 6 S | R |
@@ -448,10 +453,10 @@ needs tier *n*, D-065, extended to the Trading Post):
 | Trading Post | 2 (Citizens) | 500 | 20 | 28 | 6 | 2 | 300 gold / 20 planks / 10 stone |
 | Trading Post | 3 (Merchants) | 800 | 40 | 32 | 12 | 3 | 600 gold / 30 planks / 20 stone |
 | Trading Post | 4 (Patricians) | 1 200 | 80 | 36 | 24 | 4 | 1 200 gold / 40 planks / 30 stone / 10 tools |
-| Warehouse | 1 | — | 8 | 18 | 1 | — | placement (50 gold / 6 planks) |
-| Warehouse | 2 (Citizens) | — | 16 | 21 | 5 | — | 150 gold / 10 planks / 5 stone |
-| Warehouse | 3 (Merchants) | — | 32 | 24 | 10 | — | 300 gold / 15 planks / 10 stone |
-| Warehouse | 4 (Patricians) | — | 64 | 27 | 20 | — | 600 gold / 20 planks / 20 stone |
+| Warehouse | 1 | — | 8 | 18 | 6 | — | placement (50 gold / 6 planks) |
+| Warehouse | 2 (Citizens) | — | 16 | 21 | 10 | — | 150 gold / 10 planks / 5 stone |
+| Warehouse | 3 (Merchants) | — | 32 | 24 | 16 | — | 300 gold / 15 planks / 10 stone |
+| Warehouse | 4 (Patricians) | — | 64 | 27 | 24 | — | 600 gold / 20 planks / 20 stone |
 
 Reach grew by 4 tiles per level with D-072 §3 (D-069: Trading Post 20 /
 24 / 28 / 32, warehouse 14 / 17 / 20 / 23). Throughput fell with D-074 §3
@@ -463,10 +468,13 @@ doubles the ramp and cheapens it: throughput Trading Post 10 / 20 / 40 /
 48); upkeep Trading Post 0 / 6 / 12 / 24 (0 / 10 / 20 / 30), warehouse
 1 / 5 / 10 / 20 (1 / 10 / 15 / 25) — the level-2 upgrade of a warehouse
 is no longer a quarter of a tier-1 town's income. Reach, capacity and
-upgrade costs unchanged.
+upgrade costs unchanged. D-082 table E (content 0.23.1) sets the
+warehouse to Anno 117's (Warehouse 6): 6 / 10 / 16 / 24.
 
-Market upkeep per level 0 / 10 / 40 / 60 (D-072 doubled levels 3–4 from
-20 / 30). D-069 §3 named 5 for the
+Market upkeep per level 10 / 20 / 40 / 60 since D-082 table E (Anno 117's
+Market 10; content 0.23.1; before 0 / 10 / 40 / 60, D-072 doubled levels
+3–4 from 20 / 30). The chapel pays 6 (D-082), like the market without
+ever being auto-paused. D-069 §3 named 5 for the
 level 1 of market and warehouse; the plan replay tuned them: a market
 with any upkeep placed before the first houses holds gold at zero for
 good (it cannot be paused and roads cost gold), so its level 1 stays
@@ -925,6 +933,52 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
 | `settlers_services`, `citizens_services`, `merchants_services`, `patricians_services` | Need IDs retired with the `services` category in D-065 (split into market and the faith/education/culture chains) |
 | the three pre-D-075 ship IDs and the three quest IDs that named them | Renamed to `cog`, `hulk`, `carrack` and `citizens_cog`, `merchants_hulk`, `patricians_carrack` in D-075 §4 (content 0.21.0; the old names are listed in DECISIONS D-075 only — a test keeps them out of every other tracked file) |
 
+### D-082 reference results (sim minutes, seed 1053001)
+
+Content `old_coast-0.23.1`: civic maintenance from Anno 117 (D-082
+table E, §7) and **`k_tax` = 1.05** (tax 1.05 / 0.90 / 1.62 / 2.39 =
+the ladder 1.00 / 0.86 / 1.54 / 2.28 × 1.05); producers keep D-080's
+`k_upkeep` = 1.0. The plans regenerate byte for byte, so every
+milestone equals D-080's (deltas 0, inside the ±5 min of D-082):
+
+| Game | Milestones | Targets | D-080 | D-082 | Margins |
+|---|---|---|---|---|---|
+| Citizens | island 2 / unlock / first house / tools | 60 / 90 / 100 / 150 | 50 / 28 / 64 / 112 | 50 / 28 / 64 / 112 | 10 / 62 / 36 / 38 |
+| Quests | island 2 / first house (unlock, tools) | 45 / 85 | 21 / 30 (6, 78) | 21 / 30 (6, 78) | 24 / 55 |
+| Merchants | unlock / first house / categories ≥0.6 | 240 / 270 / 420 | 153 / 219 / 304 | 153 / 219 / 304 | 87 / 51 / 116 |
+| Patricians | unlock / first house / final all-needs ≥0.6 | 900 / 960 / 1800 | 573 / 615 / 948 | 573 / 615 / 948 | 327 / 345 / 852 |
+
+Gold (tax over upkeep at the tightest advance step from minute 30;
+min gold over every step; nothing auto-pauses in any game):
+
+| Game | Tax over upkeep (tightest, minute) | Min gold (minute) | End gold | D-080 end gold |
+|---|---|---|---|---|
+| Citizens | +194.9 % (33) | 871 (20) | 17 661 | 24 546 |
+| Quests | +204.2 % (63) | 712 (1); 740 (6) after minute 5 | 16 141 | 22 146 |
+| Merchants | +39.0 % (304) | 871 (20) | 32 635 | 73 675 |
+| Patricians | +35.3 % (305) | 871 (20) | 493 436 | 932 046 |
+
+The Merchants and Patricians games sit in D-082's 20–50 % window; the
+two Citizens games cannot: their tightest point is a Settlers town with
+market, chapel and the first producers (tax 138 against upkeep 47 at
+minute 33), and ≤ 50 % there needs `k_tax` ≈ 0.53, while 0.65 already
+stops the Merchants plan (the playhouse's 15 000 gold never accrues).
+Kept by the D-082 rule "the k that satisfies the Patricians game";
+rule (2) (cheaper chapel / market level 1) was not applied — the
+Citizens games are too rich, not too poor (≥ 500 gold after the
+opening purchases, ≥ 20 % margin). The Patricians game ends with
+493 k gold, above D-082's 100–250 k expectation. Tuning log (every
+`k_tax` tried; margins Citizens / Quests / Merchants / Patricians):
+
+- 1.18 (D-080, table E only): 231.4 / 241.8 / 56.1 / 52.0 %, min gold
+  935, end gold Patricians 682 512 — Patricians above 50 %.
+- 0.65 (D-082's estimate): 82.6 / 88.3 % / — / —; the Merchants plan
+  fails at action 54 (playhouse unaffordable after a 4 h wait, balance
+  negative) — gold would pace the game.
+- 0.92: 158.4 / 166.5 / 21.9 / 18.7 %, min gold 789, Patricians end
+  304 554 — Patricians below 20 %.
+- **1.05**: 194.9 / 204.2 / 39.0 / 35.3 %, min gold 871 — kept.
+
 ### D-080 reference results (sim minutes, seed 1053001)
 
 Content `old_coast-0.23.0`: Anno 117 house sizes, rates and final-producer
@@ -1285,6 +1339,16 @@ within target.
   warehouses or a level-2 collector.
 - Tax income at each tier's unlock population must cover upkeep of the
   balanced chain set with ≥ 20 % margin.
+- **Gold pressure (D-082):** in every reference game, from minute 30 on,
+  tax exceeds upkeep by 20–50 % at the tightest advance step, gold stays
+  positive, nothing is paused for insolvency, and the Citizens game
+  never drops below 500 gold after minute 5 (the opening purchases).
+  `TestReferenceGamesGold` (next to `TestReferenceGamesSurplus`) checks
+  it with hard bounds per game; the two Citizens games, which no
+  `k_tax` brings to 50 % (D-082 reference results above), are held at
+  20–210 % — their recorded 195 / 204 % plus headroom — so a drift
+  still fails. A content change that moves a margin out of its bounds
+  retunes `k_tax` (the one knob, D-082 §1), never a plan.
 - Charcoal demand of a balanced Merchant economy must exceed one island's
   forest capacity so coal or a second forest island becomes relevant.
 - Starting stock (`start.json`: 2 000 gold, 100 planks — D-074 §4; the

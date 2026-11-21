@@ -86,7 +86,7 @@ func TestLoadCitizensContent(t *testing.T) {
 	}
 	// The second tier-2 service (D-056 §3).
 	if sc := c.BuildingByID["school"]; sc.Service == nil || sc.Service.RadiusAt(1) != 20 || sc.Upgradable() || sc.PauseCategory != "public" || !sc.RequiresRoad ||
-		sc.Tier != "citizens" || sc.Cost.Gold != 1_000_000 || sc.UpkeepPerMin != 4000 || sc.Width != 6 || sc.Height != 8 {
+		sc.Tier != "citizens" || sc.Cost.Gold != 1_000_000 || sc.UpkeepPerMin != 16_000 || sc.Width != 6 || sc.Height != 8 {
 		t.Errorf("school = %+v", sc)
 	}
 

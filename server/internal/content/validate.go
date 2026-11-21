@@ -115,11 +115,12 @@ func checkReferences(c *Catalogue) error {
 		// A building that is never auto-paused carries no upkeep: its
 		// running cost is folded into its price, so a fully stalled city
 		// (everything pausable paused) never has a negative balance and
-		// recovers on its own (D-009). The hubs are the exception (D-069
-		// §3): collectors and public buildings with levels carry upkeep
-		// per level; with nothing left to pause gold is held at zero
-		// (MECHANICS §7).
-		hub := b.Collector() || (b.Service != nil && len(b.Service.Levels) > 1)
+		// recovers on its own (D-009). The hubs and the public buildings
+		// are the exception (D-069 §3, D-082 table E): collectors and
+		// public buildings (the tier-1 market with its levels and the
+		// chapel) carry upkeep; with nothing left to pause gold is held at
+		// zero (MECHANICS §7).
+		hub := b.Collector() || b.Service != nil
 		if b.PauseCategory == "never" && b.UpkeepPerMin != 0 && !hub {
 			col.add(FileBuildings, ent, "upkeep_per_min", "must be 0 for pause_category never")
 		}

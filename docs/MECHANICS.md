@@ -753,8 +753,8 @@ accepted by at most one input of a recipe.
 ### 6.3 Taxes
 
 - `tax_rate[tier]` gold per resident per minute (content, CONTENT §2;
-  Settlers 1.18, Citizens 1.01, Merchants 1.82, Patricians 2.70 — Anno
-  117's tax per resident times `k_tax` 1.18, D-080 §5 and table D),
+  Settlers 1.05, Citizens 0.90, Merchants 1.62, Patricians 2.39 — Anno
+  117's tax per resident times `k_tax` 1.05, D-080 table D, D-082 §1),
   multiplied by
   `satisfaction`, rounding down.
 - Taxes only accrue from houses; nothing else creates gold (D-018).
@@ -764,6 +764,10 @@ accepted by at most one input of a recipe.
 - `balance_rate` = Σ taxes − Σ upkeep of non-paused buildings and ships.
   Gold is linear between boundaries; only its zero crossing and the resume
   reserve (below) are boundaries.
+- Tax follows Anno 117's ladder 1.00 : 0.86 : 1.54 : 2.28 per resident
+  times one scale `k_tax` (§6.3), tuned so that in the reference games tax
+  exceeds upkeep by 20–50 % at the tightest point from minute 30 on
+  (D-082; CONTENT §12, `TestReferenceGamesGold`).
 - Gold can never go below zero. When the advancement reaches the boundary
   where gold would cross zero with a negative rate, the simulation runs the
   **auto-pause cascade** at that instant: pause one candidate according to
@@ -822,11 +826,12 @@ decorations, and the tier-1 market and chapel. **Never-pausable buildings
 carry no upkeep** (D-046): their running cost is folded into their
 construction price, so a fully stalled city always has `balance_rate ≥ 0`
 from floor-level taxes and gold keeps accumulating. Pausable public
-buildings (tavern and up) keep upkeep. The exception are the hubs (D-069 §3):
-Trading Post, warehouses and the market carry upkeep per level
-(CONTENT §7; the Trading Post's and the market's level 1 are free) and
-are never paused; when nothing pausable is left their upkeep holds gold
-at zero until taxes cover it (a demolished hub stops its upkeep).
+buildings (tavern and up) keep upkeep. The exception are the hubs (D-069 §3)
+and the tier-1 public buildings (D-082 table E): Trading Post, warehouses
+and the market carry upkeep per level, the chapel a flat upkeep
+(CONTENT §7; the Trading Post's level 1 is free), and they are never
+paused; when nothing pausable is left their upkeep holds gold at zero
+until taxes cover it (a demolished hub stops its upkeep).
 
 - **Auto-resume**: the candidate is the most recently auto-paused
   building or ship, **skipping a producer with a cut-off input** (the
