@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_merchants",
-  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes.",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. No further fisher; one dairy and cheese dairy, apiary and meadery, and tannery for the Citizens' second goods (the second and third of each are gone).",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
@@ -66,15 +66,8 @@
       "houses": {
         "quarter": "home-2",
         "count": 16
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "fisher",
-        "count": 1
       },
-      "note": "D-074: the fisher only; home-2's wool comes from the Citizens game's three weavers (a sheep farm and a weaver here cost the gold the first Merchant house needs by 270)."
+      "note": "D-080: no second fisher on the start island: the Citizens game's fisher feeds home-2 as well (one fisher feeds 56 Settler houses), and home-2's wool comes from the Citizens game's two weavers."
     },
     {
       "note": "D-074 §1: a house holds what its supply allows, so each need chain grows every Citizen house; the upgrades and the chains alternate.",
@@ -315,83 +308,6 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "dairy_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "cheese_dairy",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "apiary",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "dairy_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "cheese_dairy",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tannery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "apiary",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "meadery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "meadery",
-        "count": 1
-      }
-    },
-    {
       "civic": {
         "quarter": "home-1",
         "type": "school"
@@ -534,34 +450,6 @@
       "build": {
         "island": "oc-01",
         "type": "tailor",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tannery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "apiary",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "meadery",
         "count": 1
       }
     },

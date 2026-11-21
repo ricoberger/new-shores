@@ -15,8 +15,9 @@ import (
 // "residents" boundaries, so all rates stay piecewise constant.
 //
 // A house is connected when a road path leads from a road tile adjacent to
-// its footprint to a road tile adjacent to a warehouse's footprint (the
-// producer rule of roads.go; AssignedWarehouseID != 0). An unconnected house
+// its footprint to a road tile adjacent to an active collector's footprint,
+// i.e. to the Trading Post (D-081; the producer rule of roads.go;
+// AssignedWarehouseID != 0). An unconnected house
 // keeps its residents (population, workforce, unlocks) but receives no
 // supply: it is excluded from the goods demand, all its needs have
 // fulfilment 0 with reason not_connected, so its satisfaction and tax are 0
@@ -86,7 +87,8 @@ func islandPopulation(is *Island, c *content.Catalogue) map[string]Qty {
 	return pop
 }
 
-// houseConnected reports whether a house has a road path to a warehouse.
+// houseConnected reports whether a house has a road path to the Trading Post
+// (directly or through an active warehouse, D-081).
 func houseConnected(b *Building) bool { return b.AssignedWarehouseID != 0 }
 
 // connectedPopulation returns the residents (milli) per tier of the

@@ -213,7 +213,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },
-    "upkeep_per_min": 2,
+    "upkeep_per_min": 6,
     "pause_category": "food_basic",
     "look": "rural",
     "smoke": true,
@@ -222,7 +222,7 @@
     "recipe": {
       "inputs": [],
       "outputs": [{ "good": "fish", "amount": 1 }],
-      "cycle_seconds": 40
+      "cycle_seconds": 60
     }
   },
   {
@@ -242,7 +242,7 @@
     "recipe": {
       "inputs": [],
       "outputs": [{ "good": "wool", "amount": 1 }],
-      "cycle_seconds": 90
+      "cycle_seconds": 60
     },
     "fields": { "type": "pasture", "required": 3, "max": 3 }
   },
@@ -269,7 +269,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },
-    "upkeep_per_min": 2,
+    "upkeep_per_min": 8,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -277,7 +277,7 @@
     "recipe": {
       "inputs": [{ "good": "wool", "amount": 1 }],
       "outputs": [{ "good": "wool_garments", "amount": 1 }],
-      "cycle_seconds": 90
+      "cycle_seconds": 60
     }
   },
   {
@@ -410,7 +410,7 @@
     "upkeep_per_min": 2,
     "pause_category": "public",
     "look": "civic",
-    "service": { "radius": 26 }
+    "service": { "radius": 28 }
   },
   {
     "id": "wheat_farm",
@@ -476,7 +476,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 230, "planks": 5, "stone": 9 },
-    "upkeep_per_min": 4,
+    "upkeep_per_min": 14,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -531,7 +531,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 180, "planks": 6, "stone": 6 },
-    "upkeep_per_min": 3,
+    "upkeep_per_min": 12,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -587,7 +587,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 240, "planks": 6, "stone": 9 },
-    "upkeep_per_min": 4,
+    "upkeep_per_min": 16,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -595,7 +595,7 @@
     "recipe": {
       "inputs": [{ "good": "apples", "amount": 1 }],
       "outputs": [{ "good": "cider", "amount": 1 }],
-      "cycle_seconds": 45
+      "cycle_seconds": 90
     }
   },
   {
@@ -642,7 +642,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 180, "planks": 6, "stone": 6 },
-    "upkeep_per_min": 3,
+    "upkeep_per_min": 12,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -698,7 +698,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 410, "planks": 5, "stone": 18 },
-    "upkeep_per_min": 5,
+    "upkeep_per_min": 8,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -706,7 +706,7 @@
     "recipe": {
       "inputs": [{ "good": "hemp", "amount": 1 }],
       "outputs": [{ "good": "linen_garments", "amount": 1 }],
-      "cycle_seconds": 45
+      "cycle_seconds": 60
     }
   },
   {
@@ -753,7 +753,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 180, "planks": 6, "stone": 6 },
-    "upkeep_per_min": 2,
+    "upkeep_per_min": 12,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -761,7 +761,7 @@
     "recipe": {
       "inputs": [{ "good": "pigs", "amount": 1 }],
       "outputs": [{ "good": "leather_jerkins", "amount": 1 }],
-      "cycle_seconds": 60
+      "cycle_seconds": 120
     }
   },
   {
@@ -941,7 +941,7 @@
     "upkeep_per_min": 4,
     "pause_category": "public",
     "look": "civic",
-    "service": { "radius": 22 }
+    "service": { "radius": 28 }
   },
   {
     "id": "surgery",
@@ -966,7 +966,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 270, "planks": 6, "stone": 6, "bricks": 3 },
-    "upkeep_per_min": 3,
+    "upkeep_per_min": 12,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -986,7 +986,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 320, "planks": 5, "stone": 9, "bricks": 3 },
-    "upkeep_per_min": 4,
+    "upkeep_per_min": 14,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1041,7 +1041,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 330, "planks": 6, "stone": 9, "bricks": 3 },
-    "upkeep_per_min": 4,
+    "upkeep_per_min": 14,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1061,7 +1061,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 420, "planks": 6, "stone": 9, "bricks": 6 },
-    "upkeep_per_min": 4,
+    "upkeep_per_min": 16,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1100,14 +1100,14 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 410, "planks": 5, "stone": 9, "bricks": 6 },
-    "upkeep_per_min": 5,
+    "upkeep_per_min": 20,
     "pause_category": "need_goods",
     "look": "workshop",
     "workforce": { "tier": "merchants", "amount": 10 },
     "recipe": {
       "inputs": [{ "good": "wool_garments", "amount": 1 }, { "good": "leather", "amount": 1 }],
       "outputs": [{ "good": "coats", "amount": 1 }],
-      "cycle_seconds": 90
+      "cycle_seconds": 60
     }
   },
   {
@@ -1174,7 +1174,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 410, "planks": 5, "stone": 9, "bricks": 6 },
-    "upkeep_per_min": 5,
+    "upkeep_per_min": 12,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1214,14 +1214,14 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 330, "planks": 6, "stone": 9, "bricks": 3 },
-    "upkeep_per_min": 6,
+    "upkeep_per_min": 22,
     "pause_category": "need_goods",
     "look": "workshop",
     "workforce": { "tier": "merchants", "amount": 10 },
     "recipe": {
       "inputs": [{ "good": "paper", "amount": 1 }],
       "outputs": [{ "good": "books", "amount": 1 }],
-      "cycle_seconds": 60
+      "cycle_seconds": 120
     }
   },
   {
@@ -1273,7 +1273,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 120, "planks": 6, "stone": 3 },
-    "upkeep_per_min": 3,
+    "upkeep_per_min": 12,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1455,7 +1455,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 390, "planks": 6, "stone": 6, "bricks": 3, "glass": 3 },
-    "upkeep_per_min": 8,
+    "upkeep_per_min": 40,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1496,7 +1496,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 510, "planks": 6, "stone": 6, "bricks": 3, "glass": 6 },
-    "upkeep_per_min": 10,
+    "upkeep_per_min": 40,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1559,7 +1559,7 @@
     "recipe": {
       "inputs": [{ "good": "planks", "amount": 1 }, { "good": "iron", "amount": 1 }],
       "outputs": [{ "good": "barrels", "amount": 1 }],
-      "cycle_seconds": 60
+      "cycle_seconds": 45
     }
   },
   {
@@ -1571,7 +1571,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 540, "planks": 6, "stone": 15, "bricks": 6 },
-    "upkeep_per_min": 8,
+    "upkeep_per_min": 30,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1579,7 +1579,7 @@
     "recipe": {
       "inputs": [{ "good": "grapes", "amount": 2 }, { "good": "barrels", "amount": 1 }],
       "outputs": [{ "good": "wine", "amount": 1 }],
-      "cycle_seconds": 60
+      "cycle_seconds": 45
     }
   },
   {
@@ -1611,7 +1611,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 600, "planks": 6, "stone": 9, "bricks": 6, "glass": 6 },
-    "upkeep_per_min": 5,
+    "upkeep_per_min": 20,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1631,7 +1631,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 900, "planks": 6, "stone": 9, "bricks": 6, "glass": 12 },
-    "upkeep_per_min": 7,
+    "upkeep_per_min": 28,
     "pause_category": "need_goods",
     "look": "workshop",
     "workforce": { "tier": "patricians", "amount": 10 },
@@ -1669,14 +1669,14 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 650, "planks": 5, "stone": 3, "bricks": 6, "glass": 9 },
-    "upkeep_per_min": 4,
+    "upkeep_per_min": 16,
     "pause_category": "need_goods",
     "look": "workshop",
     "workforce": { "tier": "patricians", "amount": 10 },
     "recipe": {
       "inputs": [{ "good": "thread", "amount": 1 }],
       "outputs": [{ "good": "lace", "amount": 1 }],
-      "cycle_seconds": 120
+      "cycle_seconds": 90
     }
   },
   {
@@ -1688,7 +1688,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 680, "planks": 5, "bricks": 9, "glass": 9 },
-    "upkeep_per_min": 12,
+    "upkeep_per_min": 16,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1788,7 +1788,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 680, "planks": 5, "bricks": 9, "glass": 9 },
-    "upkeep_per_min": 12,
+    "upkeep_per_min": 26,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1796,7 +1796,7 @@
     "recipe": {
       "inputs": [{ "good": "glass", "amount": 1 }, { "good": "brass", "amount": 1 }],
       "outputs": [{ "good": "spectacles", "amount": 1 }],
-      "cycle_seconds": 90
+      "cycle_seconds": 120
     }
   },
   {
@@ -1848,7 +1848,7 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 680, "planks": 5, "bricks": 9, "glass": 9 },
-    "upkeep_per_min": 12,
+    "upkeep_per_min": 48,
     "pause_category": "need_goods",
     "look": "workshop",
     "smoke": true,
@@ -1868,14 +1868,14 @@
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 870, "planks": 6, "stone": 9, "bricks": 9, "glass": 9 },
-    "upkeep_per_min": 8,
+    "upkeep_per_min": 30,
     "pause_category": "need_goods",
     "look": "workshop",
     "workforce": { "tier": "patricians", "amount": 8 },
     "recipe": {
       "inputs": [{ "good": "planks", "amount": 1 }, { "good": "brass", "amount": 1 }],
       "outputs": [{ "good": "instruments", "amount": 1 }],
-      "cycle_seconds": 120
+      "cycle_seconds": 60
     }
   },
   {

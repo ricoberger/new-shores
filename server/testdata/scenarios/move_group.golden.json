@@ -1,6 +1,6 @@
 {
   "name": "move_group",
-  "content_version": "old_coast-0.22.1",
+  "content_version": "old_coast-0.23.0",
   "boundary_count": 0,
   "totals": {
     "start": {
@@ -23,7 +23,7 @@
         "granted": 100000
       },
       "wool": {
-        "produced": 667,
+        "produced": 1000,
         "consumed": 0,
         "lost": 0
       },
@@ -797,7 +797,7 @@
             },
             "residents": 2000,
             "residents_floor": 2000,
-            "residents_max": 8000,
+            "residents_max": 6000,
             "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
@@ -858,7 +858,7 @@
             },
             "residents": 2000,
             "residents_floor": 2000,
-            "residents_max": 8000,
+            "residents_max": 6000,
             "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
@@ -919,14 +919,14 @@
                 "wool": 0
               }
             },
-            "cycle_seconds": 90,
-            "cycle_progress_permille": 666,
+            "cycle_seconds": 60,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 0,
             "assigned_warehouse_id": 0,
             "road_distance": 0,
             "buffer": {
               "stock": {
-                "wool": 667
+                "wool": 1000
               },
               "capacity": 5000
             },
@@ -1005,7 +1005,7 @@
             },
             "residents": 2000,
             "residents_floor": 2000,
-            "residents_max": 8000,
+            "residents_max": 6000,
             "residents_target": 2000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,

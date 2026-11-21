@@ -4,10 +4,10 @@ import { percent, perMin, residentsLine, signedTons, speedFactor, tons, tonsPerM
 
 describe("format", () => {
   it("shows the house's residents towards the server's target (D-074)", () => {
-    expect(residentsLine({ residents: 10_000, residents_max: 15_000, residents_target: 10_000, growth_rate_per_min: 0 })).toBe("→ 10 / 15");
-    expect(residentsLine({ residents: 8_000, residents_max: 15_000, residents_target: 10_000, growth_rate_per_min: 585 })).toBe("↑ 8 → 10 / 15");
-    expect(residentsLine({ residents: 15_000, residents_max: 15_000, residents_target: 8_000, growth_rate_per_min: -350 })).toBe("↓ 15 → 8 / 15");
-    expect(residentsLine({ residents: 3_000, residents_max: 8_000, growth_rate_per_min: 1000 })).toBe("↑ 3 / 8");
+    expect(residentsLine({ residents: 10_000, residents_max: 14_000, residents_target: 10_000, growth_rate_per_min: 0 })).toBe("→ 10 / 14");
+    expect(residentsLine({ residents: 8_000, residents_max: 14_000, residents_target: 10_000, growth_rate_per_min: 585 })).toBe("↑ 8 → 10 / 14");
+    expect(residentsLine({ residents: 14_000, residents_max: 14_000, residents_target: 8_000, growth_rate_per_min: -350 })).toBe("↓ 14 → 8 / 14");
+    expect(residentsLine({ residents: 3_000, residents_max: 6_000, growth_rate_per_min: 1000 })).toBe("↑ 3 / 6");
   });
 
   it("shows whole units, never raw milli values", () => {
@@ -33,6 +33,11 @@ describe("format", () => {
       expect(tonsRatio(120_000, 300_000)).toBe("120/300\u00a0t");
       expect(tonsPerMin(1500)).toBe(`1${comma}5\u00a0t/min`);
       expect(tonsPerMin(48_000, true)).toBe(`+48${comma}0\u00a0t/min`);
+      // D-080: a few houses consume hundredths of a tonne per minute.
+      expect(tonsPerMin(38, true)).toBe(`+0${comma}04\u00a0t/min`);
+      expect(tonsPerMin(-7)).toBe(`-0${comma}01\u00a0t/min`);
+      expect(tonsPerMin(2)).toBe(`0${comma}00\u00a0t/min`);
+      expect(tonsPerMin(95)).toBe(`0${comma}1\u00a0t/min`);
       expect(signedTons(-50_000)).toBe("−50\u00a0t");
       expect(units(45_000)).toBe("45");
     }

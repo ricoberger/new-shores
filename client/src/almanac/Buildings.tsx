@@ -2,7 +2,7 @@ import styles from "./almanac.module.css";
 import { t } from "../i18n";
 import { buildingNotes } from "../display/buildMenu";
 import { tonsPerMinText, tonsText } from "../display/format";
-import { buildingGroups, categoryName, buildingView, num, tierViews, type BuildingView, type FlowView, type Index } from "./model";
+import { buildingGroups, categoryName, buildingView, housesSupplied, num, tierViews, type BuildingView, type FlowView, type Index } from "./model";
 import { A, BuildingLink, Cost, GoodAlternatives, Row, Thumb } from "./parts";
 
 function Flows({ idx, flows, empty }: { idx: Index; flows: FlowView[]; empty: string }) {
@@ -23,6 +23,7 @@ function Flows({ idx, flows, empty }: { idx: Index; flows: FlowView[]; empty: st
 export function BuildingCard({ idx, view, linked, level = 3 }: { idx: Index; view: BuildingView; linked?: boolean; level?: 3 | 4 }) {
   const H = `h${level}` as "h3" | "h4";
   const house = view.residents ? tierViews(idx).find((x) => x.id === view.residents?.tier) : undefined;
+  const supplied = housesSupplied(idx, view.id);
   return (
     <article className={styles.card} id={`building-${view.id}`} aria-labelledby={`building-h-${view.id}`}>
       <div className={styles.cardHead}>
@@ -69,6 +70,15 @@ export function BuildingCard({ idx, view, linked, level = 3 }: { idx: Index; vie
               <Flows idx={idx} flows={view.outputs} empty={t("almanac.b.nothing")} />
             </Row>
             {view.cycleSeconds !== undefined && <Row label={t("infoPanel.cycle")}>{t("infoPanel.seconds", { count: num(view.cycleSeconds) })}</Row>}
+            {supplied.length > 0 && (
+              <Row label={t("almanac.b.supplies")}>
+                <span data-testid="almanac-houses-supplied">
+                  {supplied
+                    .map((s) => t("almanac.b.housesSupplied", { count: Math.round(s.houses), tier: idx.tierName(s.tier), good: idx.goodName(s.good) }))
+                    .join(" · ")}
+                </span>
+              </Row>
+            )}
           </>
         )}
         {view.needsSite.length > 0 && (

@@ -47,13 +47,23 @@ describe("statusText", () => {
         for (const b of is.buildings) {
           if (b.status !== "not_connected") continue;
           const s = statusText(b, is, d, content);
-          expect(s.sentence).toBe("No road to the Trading Post or a Warehouse");
-          expect(s.fix).toBe("Build a road next to it that leads to the Trading Post or a Warehouse.");
+          expect(s.sentence).toBe("No road to the Trading Post or a linked Warehouse");
+          expect(s.fix).toBe("Build a road next to it that leads to the Trading Post or a Warehouse linked to it.");
           return;
         }
       }
     }
     throw new Error("no not_connected building in the fixtures");
+  });
+
+  it("says a Warehouse is not linked to the Trading Post (D-081)", () => {
+    const d = bases[0]!;
+    const is = d.islands[0]!;
+    const withWarehouse = { ...content, buildings: [{ id: "warehouse", name: "Warehouse", warehouse: { levels: [] } }] } as unknown as Content;
+    const b = { ...is.buildings[0]!, type: "warehouse", status: "not_connected" as const };
+    const s = statusText(b, is, d, withWarehouse);
+    expect(s.sentence).toBe("Not linked to the Trading Post by road");
+    expect(s.fix).toContain("collects nothing");
   });
 
   it("names the starved inputs with their island rate", () => {
@@ -62,7 +72,7 @@ describe("statusText", () => {
         for (const b of is.buildings) {
           if (b.status !== "input_starved") continue;
           const s = statusText(b, is, d, content);
-          expect(s.sentence).toMatch(/^Missing: .+ \(-?\d+\.\d\u00a0t\/min\)/);
+          expect(s.sentence).toMatch(/^Missing: .+ \(-?\d+\.\d{1,2}\u00a0t\/min\)/);
           return;
         }
       }

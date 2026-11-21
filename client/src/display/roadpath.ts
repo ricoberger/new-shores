@@ -66,3 +66,33 @@ export function alongPath(path: readonly TilePos[], f: number, out: { x: number;
   out.y = a.y + (b.y - a.y) * k + 0.5;
   out.heading = Math.atan2(b.y - a.y, b.x - a.x);
 }
+
+/** A building type as far as the root rule's hint needs it: its footprint and whether it is a Trading Post or a Warehouse. */
+type RootDef = FootprintDef & { trading_post?: unknown; warehouse?: unknown };
+
+/**
+ * Ghost hint (UI.md §3, D-081): true when a Warehouse at (x, y) with the rotation would not be linked to the
+ * island's Trading Post by road — no road path from a road tile next to its footprint to a road tile next to the
+ * Trading Post's (the BFS above, the one the carts draw with). False for any other building. A display hint for
+ * the ghost's colour; the server decides (`not_connected` on the built warehouse).
+ */
+export function unlinkedWarehouseHint(
+  def: RootDef,
+  roads: ReadonlySet<string>,
+  x: number,
+  y: number,
+  rotation: number,
+  buildings: readonly Pick<BuildingDisplay, "type" | "x" | "y" | "rotation">[],
+  defs: ReadonlyMap<string, RootDef>,
+): boolean {
+  if (!def.warehouse) return false;
+  const [w, h] = rotatedFootprint(def.width, def.height, rotation);
+  const from = adjacentRoads(roads, x, y, w, h);
+  if (from.length === 0) return true;
+  for (const b of buildings) {
+    const d = defs.get(b.type);
+    if (!d?.trading_post) continue;
+    if (roadPath(roads, from, footprintRoads(roads, b, d)) !== null) return false;
+  }
+  return true;
+}

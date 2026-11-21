@@ -1,6 +1,6 @@
 {
   "name": "house_upgrade_keeps_residents",
-  "description": "D-074 §2: a Settler house with fish, garments, a market and a chapel grows to 8 / 8 at satisfaction 1; upgraded to Citizens it keeps its 8 residents (not the Citizens' floor of 5) and, with a tavern added (satisfaction 0.544: the carried Settler goods, market, faith and culture), grows to its target of 10 and holds there.",
+  "description": "D-074 §2: a Settler house with fish, garments, a market and a chapel grows to 6 / 6 at satisfaction 1; upgraded to Citizens it keeps its 6 residents (not the Citizens' floor of 5) and, with a tavern added (satisfaction 0.544: the carried Settler goods, market, faith and culture), grows to its target of 9 and holds there.",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "island": {

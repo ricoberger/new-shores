@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_patricians",
-  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. Farms moved off the start island (the D-065 chain plots leave oc-01 too little grass for its last wheat_farm, and wheat grows only on oc-01 among the settled islands): the 11th to 14th pig_farm stand on oc-06, served by a fourth cog on a new route 4 (stone out, pigs home); later ships and routes are renumbered; the eighth wheat_farm comes before the second apiary.",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. Farms moved off the start island (the D-065 chain plots leave oc-01 too little grass for its last wheat_farm, and wheat grows only on oc-01 among the settled islands): the 11th to 14th pig_farm stand on oc-06, served by a fourth cog on a new route 4 (stone out, pigs home); later ships and routes are renumbered; the eighth wheat_farm comes before the second apiary. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. The Patricians game adds one fisher, two sheep farms and weavers, two wheat farms, a mill and a bakery, a salt pan, an apiary, a tannery, a slaughterhouse and a pig farm per pig island to the Merchants game's chains (no further brewery, butcher, tailor, meadery, cheese dairy or printing press); with fewer warehouses the last six warehouse upgrades are gone. A second clay pit and brickworks go up before the university and the cathedral (240 bricks; one brickworks took close to four hours for them).",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
@@ -85,6 +85,9 @@
           "stops": [
             {
               "island": "oc-01",
+              "load": {
+                "planks": 20
+              },
               "unload": [
                 "hops",
                 "tools",
@@ -98,11 +101,15 @@
               "load": {
                 "hops": 50,
                 "stone": 50
-              }
+              },
+              "unload": [
+                "planks"
+              ]
             }
           ]
         }
-      }
+      },
+      "note": "D-080: planks to isle 2 as well; its six-resident Settler houses take more houses (and planks) than the Merchants game leaves there."
     },
     {
       "build": {
@@ -212,7 +219,7 @@
       "build": {
         "island": "oc-01",
         "type": "pig_farm",
-        "count": 3
+        "count": 1
       }
     },
     {
@@ -226,7 +233,7 @@
       "build": {
         "island": "oc-01",
         "type": "salt_pans",
-        "count": 3
+        "count": 1
       }
     },
     {
@@ -252,27 +259,6 @@
     },
     {
       "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "butcher",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tailor",
-        "count": 1
-      }
-    },
-    {
-      "build": {
         "island": "oc-02",
         "type": "weaver_wool",
         "count": 1
@@ -281,13 +267,6 @@
     {
       "houses": {
         "quarter": "isle2-1",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "hop_farm",
         "count": 1
       }
     },
@@ -308,41 +287,6 @@
       "upgrade": {
         "quarter": "home-1",
         "from": "house_settlers",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "leather_works",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
         "count": 1
       }
     },
@@ -410,13 +354,6 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-3",
         "count": 1
@@ -439,13 +376,6 @@
     {
       "houses": {
         "quarter": "home-3",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
         "count": 1
       }
     },
@@ -463,36 +393,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-02",
-        "type": "hop_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "isle2-1",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "butcher",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tailor",
         "count": 1
       }
     },
@@ -517,42 +419,14 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-3",
         "count": 1
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-3",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "meadery",
         "count": 1
       }
     },
@@ -743,22 +617,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-3",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
         "count": 1
       }
     },
@@ -864,20 +724,6 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "mill",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "bakery",
-        "count": 1
-      }
-    },
-    {
       "upgrade": {
         "quarter": "home-3",
         "from": "house_settlers",
@@ -891,29 +737,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-3",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
         "count": 1
       }
     },
@@ -956,29 +781,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-3",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "hop_farm",
         "count": 1
       }
     },
@@ -989,27 +793,6 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "butcher",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tailor",
-        "count": 1
-      }
-    },
-    {
       "upgrade": {
         "quarter": "home-3",
         "from": "house_settlers",
@@ -1030,29 +813,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-3",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "leather_works",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "fisher",
         "count": 1
       }
     },
@@ -1083,49 +845,14 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "dairy_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-3",
         "count": 1
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-3",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "cheese_dairy",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "printing_press",
         "count": 1
       }
     },
@@ -1150,22 +877,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-3",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
         "count": 1
       }
     },
@@ -1230,13 +943,6 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "note": "D-072: the 33rd to 36th house of home-3 stand in home-5 (the chain plots of this terrain take home-3's last house land).",
       "houses": {
         "quarter": "home-5",
@@ -1244,22 +950,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-5",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
         "count": 1
       }
     },
@@ -1290,50 +982,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "hop_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "isle2-1",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "butcher",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tailor",
         "count": 1
       }
     },
@@ -1388,9 +1038,60 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
         "count": 1
       }
     },
@@ -1441,120 +1142,6 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "fisher",
-        "count": 1
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-3",
-        "from": "house_settlers",
-        "count": 1
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-3",
-        "from": "house_citizens",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "leather_works",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "meadery",
-        "count": 1
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-3",
-        "from": "house_settlers",
-        "count": 1
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-3",
-        "from": "house_citizens",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-4",
         "count": 1
@@ -1581,145 +1168,14 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-4",
         "count": 1
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "butcher",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tailor",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "hop_farm",
-        "count": 1
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-3",
-        "from": "house_settlers",
-        "count": 1
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-3",
-        "from": "house_citizens",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "note": "D-069: before the pig farms of this round, which otherwise take the grass it needs next to the warehouses reach asks for.",
-      "build": {
-        "island": "oc-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "note": "D-069: the last wheat farm right after the round's first one, before the pastures and small buildings fragment the grass.",
-      "build": {
-        "island": "oc-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-3",
-        "from": "house_settlers",
-        "count": 1
-      }
-    },
-    {
-      "upgrade": {
-        "quarter": "home-3",
-        "from": "house_citizens",
-        "count": 1
-      }
-    },
-    {
-      "houses": {
-        "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "apiary",
         "count": 1
       }
     },
@@ -1756,9 +1212,16 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
         "count": 1
       }
     },
@@ -1769,16 +1232,40 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
+      "houses": {
+        "quarter": "home-4",
         "count": 1
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_settlers",
+        "count": 1
+      }
+    },
+    {
+      "upgrade": {
+        "quarter": "home-3",
+        "from": "house_citizens",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "home-4",
         "count": 1
       }
     },
@@ -1886,32 +1373,10 @@
       }
     },
     {
-      "note": "D-069: pig farms #13–14 on oc-06 too (pig route): the warehouses reach asks for take the home grass of the last wheat farm.",
-      "build": {
-        "island": "oc-06",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-06",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "note": "D-069: on oc-06 (milk home on the pig route): the warehouses reach asks for take the home grass this pasture needed.",
       "build": {
         "island": "oc-06",
         "type": "dairy_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "cheese_dairy",
         "count": 1
       }
     },
@@ -1942,22 +1407,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-4",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "hop_farm",
         "count": 1
       }
     },
@@ -1968,36 +1419,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "butcher",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "fisher",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-5",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tailor",
         "count": 1
       }
     },
@@ -2027,36 +1450,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-06",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-5",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "leather_works",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
         "count": 1
       }
     },
@@ -2077,13 +1472,6 @@
       "upgrade": {
         "quarter": "home-3",
         "from": "house_citizens",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "printing_press",
         "count": 1
       }
     },
@@ -2126,22 +1514,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-06",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-5",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
         "count": 1
       }
     },
@@ -2172,36 +1546,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "paper_mill",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-5",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tannery",
         "count": 1
       }
     },
@@ -2280,48 +1626,6 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "apiary",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "apiary",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "meadery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "apiary",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "meadery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-06",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-5",
         "count": 1
@@ -2348,22 +1652,8 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "apiary",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-5",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
         "count": 1
       }
     },
@@ -2394,13 +1684,6 @@
       }
     },
     {
-      "build": {
-        "island": "oc-02",
-        "type": "hop_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "isle2-1",
         "count": 1
@@ -2416,34 +1699,6 @@
     {
       "houses": {
         "quarter": "isle2-1",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "butcher",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "meadery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tailor",
         "count": 1
       }
     },
@@ -2512,35 +1767,14 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-5",
         "count": 1
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-5",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
         "count": 1
       }
     },
@@ -2578,33 +1812,12 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "home-5",
         "count": 1
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "cheese_dairy",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "fisher",
-        "count": 1
-      }
-    },
-    {
       "upgrade": {
         "quarter": "home-4",
         "from": "house_settlers",
@@ -2615,13 +1828,6 @@
       "upgrade": {
         "quarter": "home-4",
         "from": "house_citizens",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "leather_works",
         "count": 1
       }
     },
@@ -2654,27 +1860,6 @@
       }
     },
     {
-      "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "salt_pans",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
-        "count": 1
-      }
-    },
-    {
       "upgrade": {
         "quarter": "home-4",
         "from": "house_settlers",
@@ -2685,40 +1870,12 @@
       "upgrade": {
         "quarter": "home-4",
         "from": "house_citizens",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "hop_farm",
         "count": 1
       }
     },
     {
       "houses": {
         "quarter": "isle2-1",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "butcher",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tailor",
         "count": 1
       }
     },
@@ -2802,11 +1959,15 @@
               "load": {
                 "hops": 50,
                 "iron": 30
-              }
+              },
+              "unload": [
+                "planks"
+              ]
             }
           ]
         }
-      }
+      },
+      "note": "D-080: the ship still unloads the planks of the opening's route on isle 2 (they would block a slot)."
     },
     {
       "step": {
@@ -2850,13 +2011,6 @@
     },
     {
       "build": {
-        "island": "oc-01",
-        "type": "sheep_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
         "island": "oc-06",
         "type": "charcoal_burner",
         "count": 1
@@ -2872,13 +2026,6 @@
       "build": {
         "island": "oc-06",
         "type": "charcoal_burner",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "weaver_wool",
         "count": 1
       }
     },
@@ -2943,13 +2090,6 @@
       "order_ship": {
         "island": "oc-01",
         "ship_type": "carrack"
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "pig_farm",
-        "count": 1
       }
     },
     {
@@ -3091,13 +2231,6 @@
       }
     },
     {
-      "build": {
-        "island": "oc-02",
-        "type": "pig_farm",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "isle2-1",
         "count": 1
@@ -3131,76 +2264,6 @@
     {
       "upgrade_warehouse": {
         "island": "oc-01"
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "wheat_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "brewery",
-        "count": 1
       }
     },
     {
@@ -3302,7 +2365,7 @@
         "island": "oc-01",
         "ship_type": "hulk"
       },
-      "note": "D-074: sixty Merchant houses drink more beer: five more breweries, five wheat farms and a hulk for hops alone."
+      "note": "D-074: sixty Merchant houses drink more beer: five more breweries, five wheat farms and a hulk for hops alone. D-080: one brewery serves the town now, so the five breweries and their wheat farms are gone; the hulk still sails the hops route."
     },
     {
       "step": {
@@ -3356,37 +2419,9 @@
       }
     },
     {
-      "build": {
-        "island": "oc-02",
-        "type": "cattle_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "cattle_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "slaughterhouse",
-        "count": 1
-      }
-    },
-    {
       "houses": {
         "quarter": "isle2-1",
         "count": 3
-      }
-    },
-    {
-      "build": {
-        "island": "oc-02",
-        "type": "pig_farm",
-        "count": 1
       }
     },
     {
@@ -3409,46 +2444,17 @@
       }
     },
     {
-      "upgrade_warehouse": {
-        "island": "oc-01"
-      }
-    },
-    {
-      "upgrade_warehouse": {
-        "island": "oc-01"
-      }
-    },
-    {
-      "upgrade_warehouse": {
-        "island": "oc-01"
-      }
-    },
-    {
-      "upgrade_warehouse": {
-        "island": "oc-01"
-      }
-    },
-    {
-      "upgrade_warehouse": {
-        "island": "oc-01"
-      }
-    },
-    {
-      "upgrade_warehouse": {
-        "island": "oc-01"
-      }
-    },
-    {
+      "note": "D-080: the university and the cathedral take 240 bricks; one brickworks needed close to four hours for them, so a second clay pit and brickworks go up before.",
       "build": {
-        "island": "oc-01",
-        "type": "butcher",
+        "island": "oc-02",
+        "type": "clay_pit",
         "count": 1
       }
     },
     {
       "build": {
-        "island": "oc-01",
-        "type": "butcher",
+        "island": "oc-02",
+        "type": "brickworks",
         "count": 1
       }
     },
@@ -3683,28 +2689,6 @@
       "upgrade": {
         "quarter": "home-4",
         "from": "house_citizens",
-        "count": 1
-      }
-    },
-    {
-      "note": "D-072: coats and sausages ran short in the final wait (the tailors and butchers starve for pigs): a seventh leather works, a tenth tailor and three more pig farms on oc-02.",
-      "build": {
-        "island": "oc-02",
-        "type": "pig_farm",
-        "count": 3
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "leather_works",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "tailor",
         "count": 1
       }
     },

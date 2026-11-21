@@ -1,0 +1,124 @@
+{
+  "name": "warehouse_root_link",
+  "description": "D-081: the Trading Post is the single root of the road network. A warehouse, a lumberjack and a Settler house stand on a road that does not reach the Trading Post (a two-tile gap at x 15..16): the warehouse is inactive and shows not_connected, the lumberjack fills its unconnected buffer, the house is not connected. Closing the gap links the warehouse; the lumberjack and the house connect (the lumberjack to the warehouse, nearer by road) and the buffer leaves first.",
+  "content": "server/testdata/content/old_coast_pre_d054",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~ffffffffffffffffffffffffffffffffff~",
+      "~~~~~ffffffffffffffffffffffffffffffffff~",
+      "~....ffffffffffffffffffffffffffffffffff~",
+      "~....ffffffffffffffffffffffffffffffffff~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 5000,
+    "workforce": {
+      "settlers": 1000
+    },
+    "stock": {
+      "planks": 200
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          14,
+          5
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          17,
+          5
+        ],
+        "to": [
+          38,
+          5
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "warehouse",
+        "x": 25,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 30,
+        "y": 3,
+        "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          30,
+          3
+        ],
+        "tiles": [
+          [
+            30,
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 34,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          15,
+          5
+        ],
+        "to": [
+          16,
+          5
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    }
+  ]
+}

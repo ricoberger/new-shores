@@ -121,7 +121,7 @@ export interface TestHook {
   /** Plans and planned road tiles drawn (D-071; none at far LOD). */
   planCount(): number;
   /** The reach/radius ring drawn: none, a collector's reach (yellow) or gold (a service radius or a plan's ring, D-071). */
-  ring(): "none" | "reach" | "gold";
+  ring(): "none" | "reach" | "gold" | "unlinked";
   /** Whether the selected berth holder's gold harbour-lane outline is drawn (D-078 §1). */
   laneRing(): boolean;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */

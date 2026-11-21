@@ -1,50 +1,50 @@
 {
   "name": "house_growth_target",
-  "content_version": "old_coast-0.22.1",
-  "boundary_count": 34,
+  "content_version": "old_coast-0.23.0",
+  "boundary_count": 32,
   "totals": {
     "main": {
       "bread": {
         "produced": 0,
-        "consumed": 1000,
+        "consumed": 145,
         "lost": 0,
-        "granted": 1000
+        "granted": 145
       },
       "cheese": {
         "produced": 0,
-        "consumed": 1000,
+        "consumed": 104,
         "lost": 0,
-        "granted": 1000
+        "granted": 104
       },
       "cider": {
         "produced": 0,
-        "consumed": 1000,
+        "consumed": 183,
         "lost": 0,
-        "granted": 1000
+        "granted": 183
       },
       "fish": {
         "produced": 0,
-        "consumed": 3000,
+        "consumed": 720,
         "lost": 0,
-        "granted": 3000
+        "granted": 720
       },
       "leather_jerkins": {
         "produced": 0,
-        "consumed": 1000,
+        "consumed": 116,
         "lost": 0,
-        "granted": 1000
+        "granted": 116
       },
       "linen_garments": {
         "produced": 0,
-        "consumed": 1000,
+        "consumed": 204,
         "lost": 0,
-        "granted": 1000
+        "granted": 204
       },
       "mead": {
         "produced": 0,
-        "consumed": 1000,
+        "consumed": 124,
         "lost": 0,
-        "granted": 1000
+        "granted": 124
       },
       "planks": {
         "produced": 0,
@@ -62,7 +62,7 @@
       },
       "wool_garments": {
         "produced": 0,
-        "consumed": 3028,
+        "consumed": 1400,
         "lost": 0,
         "granted": 30000
       }
@@ -114,21 +114,21 @@
   ],
   "pause_events": [
     {
-      "at": "2026-01-01T08:05:48.709Z",
+      "at": "2026-01-01T08:25:55.856Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 5,
       "type": "tavern"
     },
     {
-      "at": "2026-01-01T08:05:48.709Z",
+      "at": "2026-01-01T08:25:55.856Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 7,
       "type": "city_guard"
     },
     {
-      "at": "2026-01-01T08:05:48.709Z",
+      "at": "2026-01-01T08:25:55.856Z",
       "action": "auto_pause",
       "island_id": "main",
       "building_id": 6,
@@ -139,11 +139,11 @@
     {
       "step": 6,
       "at": "2026-01-01T00:06:00.000Z",
-      "boundaries": 6,
+      "boundaries": 4,
       "inventory": {
         "main": {
           "fish": {
-            "stock": 2730,
+            "stock": 643,
             "in_transit": 0
           },
           "planks": {
@@ -155,16 +155,16 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 29865,
+            "stock": 29923,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 4614400,
-      "balance_rate_per_min": 1600,
+      "gold": 4639680,
+      "balance_rate_per_min": 7080,
       "population": {
-        "settlers": 8000
+        "settlers": 6000
       },
       "unlocked_tiers": [
         "settlers",
@@ -178,7 +178,7 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 2543,
+            "stock": 608,
             "in_transit": 0
           },
           "planks": {
@@ -190,16 +190,16 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 29772,
+            "stock": 29888,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 4223757,
-      "balance_rate_per_min": 2352,
+      "gold": 4248625,
+      "balance_rate_per_min": 2395,
       "population": {
-        "citizens": 10000
+        "citizens": 8000
       },
       "unlocked_tiers": [
         "settlers",
@@ -209,11 +209,11 @@
     {
       "step": 10,
       "at": "2026-01-01T00:41:00.000Z",
-      "boundaries": 0,
+      "boundaries": 1,
       "inventory": {
         "main": {
           "fish": {
-            "stock": 1283,
+            "stock": 335,
             "in_transit": 0
           },
           "planks": {
@@ -225,16 +225,16 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 29142,
+            "stock": 29615,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 4294317,
-      "balance_rate_per_min": 2352,
+      "gold": 4336662,
+      "balance_rate_per_min": 2944,
       "population": {
-        "citizens": 10000
+        "citizens": 9000
       },
       "unlocked_tiers": [
         "settlers",
@@ -248,31 +248,31 @@
       "inventory": {
         "main": {
           "bread": {
-            "stock": 760,
+            "stock": 113,
             "in_transit": 0
           },
           "cheese": {
-            "stock": 820,
+            "stock": 87,
             "in_transit": 0
           },
           "cider": {
-            "stock": 820,
+            "stock": 153,
             "in_transit": 0
           },
           "fish": {
-            "stock": 1031,
+            "stock": 279,
             "in_transit": 0
           },
           "leather_jerkins": {
-            "stock": 880,
+            "stock": 103,
             "in_transit": 0
           },
           "linen_garments": {
-            "stock": 850,
+            "stock": 176,
             "in_transit": 0
           },
           "mead": {
-            "stock": 850,
+            "stock": 107,
             "in_transit": 0
           },
           "planks": {
@@ -284,16 +284,16 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 29016,
+            "stock": 29559,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 3102317,
-      "balance_rate_per_min": 4000,
+      "gold": 3152212,
+      "balance_rate_per_min": 6140,
       "population": {
-        "citizens": 15000
+        "citizens": 14000
       },
       "unlocked_tiers": [
         "settlers",
@@ -307,31 +307,31 @@
       "inventory": {
         "main": {
           "bread": {
-            "stock": 460,
+            "stock": 73,
             "in_transit": 0
           },
           "cheese": {
-            "stock": 595,
+            "stock": 65,
             "in_transit": 0
           },
           "cider": {
-            "stock": 595,
+            "stock": 114,
             "in_transit": 0
           },
           "fish": {
-            "stock": 716,
+            "stock": 209,
             "in_transit": 0
           },
           "leather_jerkins": {
-            "stock": 730,
+            "stock": 87,
             "in_transit": 0
           },
           "linen_garments": {
-            "stock": 663,
+            "stock": 140,
             "in_transit": 0
           },
           "mead": {
-            "stock": 663,
+            "stock": 85,
             "in_transit": 0
           },
           "planks": {
@@ -343,16 +343,16 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 28858,
+            "stock": 29489,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 3122317,
-      "balance_rate_per_min": 4000,
+      "gold": 3182912,
+      "balance_rate_per_min": 6140,
       "population": {
-        "citizens": 15000
+        "citizens": 14000
       },
       "unlocked_tiers": [
         "settlers",
@@ -362,7 +362,7 @@
     {
       "step": 21,
       "at": "2026-01-01T01:21:00.000Z",
-      "boundaries": 12,
+      "boundaries": 11,
       "inventory": {
         "main": {
           "planks": {
@@ -374,14 +374,14 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 27994,
+            "stock": 29091,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 3100586,
-      "balance_rate_per_min": -5166,
+      "gold": 3225791,
+      "balance_rate_per_min": -4422,
       "population": {
         "citizens": 10000
       },
@@ -405,14 +405,14 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 27476,
+            "stock": 28843,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 2930484,
-      "balance_rate_per_min": -5733,
+      "gold": 3073587,
+      "balance_rate_per_min": -5138,
       "population": {
         "citizens": 8000
       },
@@ -436,14 +436,14 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 26972,
+            "stock": 28600,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 2758494,
-      "balance_rate_per_min": -5733,
+      "gold": 2919447,
+      "balance_rate_per_min": -5138,
       "population": {
         "citizens": 8000
       },
@@ -467,13 +467,13 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 26972,
+            "stock": 28600,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 2678494,
+      "gold": 2839447,
       "balance_rate_per_min": -8000,
       "population": {
         "citizens": 5000
@@ -498,7 +498,7 @@
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 26972,
+            "stock": 28600,
             "in_transit": 0
           }
         }
@@ -1063,7 +1063,7 @@
             "in_transit_rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 26972,
+            "stock": 28600,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -1136,7 +1136,7 @@
             },
             "residents": 5000,
             "residents_floor": 5000,
-            "residents_max": 15000,
+            "residents_max": 14000,
             "residents_target": 5000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,

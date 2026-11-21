@@ -1,6 +1,6 @@
 {
   "name": "house_growth_target",
-  "description": "D-074 §1: a Citizen house settles at floor + (max − floor) × satisfaction, rounded down. At 0.544 (the carried Settler goods, market, chapel and tavern) it holds 10 / 15; with both alternatives of food, drink and clothing, a school and a city guard (satisfaction 1) it fills to 15 / 15; when the Citizen goods and the fish run out (0.354: garments and the five public buildings) it declines to 8 and holds; cut off from the road (satisfaction 0) it declines to the floor of 5 and never below.",
+  "description": "D-074 §1: a Citizen house settles at floor + (max − floor) × satisfaction, rounded down. At 0.544 (the carried Settler goods, market, chapel and tavern) it grows to 9 / 14 and holds; with both alternatives of food, drink and clothing, a school and a city guard (satisfaction 1) it fills to 14 / 14; when the Citizen goods and the fish run out (0.354: garments and the five public buildings) it declines to 8 and holds; cut off from the road (satisfaction 0) it declines to the floor of 5 and never below.",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "island": {
@@ -82,7 +82,7 @@
     {
       "stock": {
         "good": "fish",
-        "amount": "3"
+        "amount": "0.72"
       }
     },
     {
@@ -139,37 +139,37 @@
     {
       "stock": {
         "good": "bread",
-        "amount": "1"
+        "amount": "0.145"
       }
     },
     {
       "stock": {
         "good": "cheese",
-        "amount": "1"
+        "amount": "0.104"
       }
     },
     {
       "stock": {
         "good": "cider",
-        "amount": "1"
+        "amount": "0.183"
       }
     },
     {
       "stock": {
         "good": "mead",
-        "amount": "1"
+        "amount": "0.124"
       }
     },
     {
       "stock": {
         "good": "linen_garments",
-        "amount": "1"
+        "amount": "0.204"
       }
     },
     {
       "stock": {
         "good": "leather_jerkins",
-        "amount": "1"
+        "amount": "0.116"
       }
     },
     {

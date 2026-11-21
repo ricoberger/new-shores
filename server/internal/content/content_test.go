@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.22.1" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.23.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 80 {
@@ -92,7 +92,7 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	wantIDs("tiers", ids, "settlers", "citizens", "merchants", "patricians")
 	// Merchants and Patricians unlock by population only (D-069 §4).
-	for id, want := range map[string]string{"merchants": "8000-25000 1500 citizens=360 ", "patricians": "12000-40000 2700 merchants=1200 "} {
+	for id, want := range map[string]string{"merchants": "8000-26000 1820 citizens=360 ", "patricians": "12000-43000 2700 merchants=1200 "} {
 		tr := c.TierByID[id]
 		var pop []string
 		for k, v := range tr.Unlock.Population {
@@ -112,25 +112,25 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 
 	settlers := c.TierByID["settlers"]
-	if settlers.ResidentsFloor != 2000 || settlers.ResidentsMax != 8000 || settlers.TaxPerResidentPerMin != 200 || settlers.House != "house_settlers" {
+	if settlers.ResidentsFloor != 2000 || settlers.ResidentsMax != 6000 || settlers.TaxPerResidentPerMin != 1180 || settlers.House != "house_settlers" {
 		t.Errorf("settlers = %+v", settlers)
 	}
 	citizens := c.TierByID["citizens"]
-	if citizens.Index != 1 || citizens.ResidentsFloor != 5000 || citizens.ResidentsMax != 15000 || citizens.TaxPerResidentPerMin != 800 || citizens.House != "house_citizens" ||
+	if citizens.Index != 1 || citizens.ResidentsFloor != 5000 || citizens.ResidentsMax != 14000 || citizens.TaxPerResidentPerMin != 1010 || citizens.House != "house_citizens" ||
 		citizens.Unlock.Population["settlers"] != 120 || len(citizens.Unlock.Buildings) != 0 {
 		t.Errorf("citizens = %+v", citizens)
 	}
 
 	// Balance (CONTENT §12): at 120 Settlers with the balanced tier-1 set,
-	// taxes cover upkeep with at least 20 % margin (D-054 upkeep: fisher 2,
-	// lumberjack 1, sawmill 2, sheep farm 1, weaver 2; the Trading Post
+	// taxes cover upkeep with at least 20 % margin (D-080 upkeep at
+	// k_upkeep 1: fisher 6, lumberjack 1, sawmill 2, sheep farm 1, weaver 8; the Trading Post
 	// and the chapel carry none, D-046; the market's level 1 stays free,
 	// D-069 §3 as tuned).
 	var upkeep int64
 	for _, id := range []string{"trading_post", "fisher", "lumberjack", "sawmill", "sheep_farm", "weaver_wool", "market", "chapel"} {
 		upkeep += c.BuildingByID[id].UpkeepPerMin
 	}
-	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 8_000 || tax*10 < upkeep*12 {
+	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 18_000 || tax*10 < upkeep*12 {
 		t.Errorf("tax %d vs upkeep %d milli-gold/min: margin below 20 %%", tax, upkeep)
 	}
 
@@ -206,9 +206,9 @@ func TestLoadOldCoast(t *testing.T) {
 		"chapel":         {100_000, 6_000, 0, 3, 5, "never"},
 		"lumberjack":     {60_000, 6_000, 1_000, 3, 3, "intermediate"},
 		"sawmill":        {120_000, 9_000, 2_000, 4, 6, "intermediate"},
-		"fisher":         {60_000, 6_000, 2_000, 3, 8, "food_basic"},
+		"fisher":         {60_000, 6_000, 6_000, 3, 8, "food_basic"},
 		"sheep_farm":     {60_000, 6_000, 1_000, 3, 3, "intermediate"},
-		"weaver_wool":    {60_000, 6_000, 2_000, 3, 4, "need_goods"},
+		"weaver_wool":    {60_000, 6_000, 8_000, 3, 4, "need_goods"},
 	}
 	for id, w := range want {
 		b := c.BuildingByID[id]
@@ -280,7 +280,7 @@ func TestLoadOldCoast(t *testing.T) {
 	if lj.WorkArea != nil || lj.Fields == nil || lj.Fields.Type != "tree_plot" || lj.Fields.Required != 48 || lj.Fields.Max != 48 {
 		t.Errorf("lumberjack work area = %+v, fields = %+v", lj.WorkArea, lj.Fields)
 	}
-	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || waterRange(f).Max != 3 || f.Coastal || !f.Boat || !f.Smoke {
+	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 60_000 || waterRange(f).Max != 3 || f.Coastal || !f.Boat || !f.Smoke {
 		t.Error("fisher recipe/water-edge mismatch")
 	}
 	tp := c.BuildingByID["trading_post"]
@@ -366,11 +366,11 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	food, clothing, marketNeed, faith := needs[0], needs[1], needs[2], needs[3]
 	if food.ID != "settlers_food" || food.Kind != NeedRequired || food.Category != "food" || food.Weight != 500_000 ||
-		len(food.Goods) != 1 || food.Goods[0] != (NeedGood{"fish", 10_000, ShareLone}) || !food.IsGoods() {
+		len(food.Goods) != 1 || food.Goods[0] != (NeedGood{"fish", 2_975, ShareLone}) || !food.IsGoods() {
 		t.Errorf("food = %+v", food)
 	}
 	if clothing.ID != "settlers_clothing" || clothing.Category != "clothing" || clothing.Weight != 200_000 ||
-		len(clothing.Goods) != 1 || clothing.Goods[0] != (NeedGood{"wool_garments", 5_000, ShareLone}) {
+		len(clothing.Goods) != 1 || clothing.Goods[0] != (NeedGood{"wool_garments", 2_975, ShareLone}) {
 		t.Errorf("clothing = %+v", clothing)
 	}
 	// D-065: the market is its own category, faith a chain need.
@@ -438,7 +438,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{`"kind": "required",
     "weight": 0.5,
     "category": "food",
-    "goods": [{ "good": "fish", "per_resident_per_min": 0.010 }]`, `"weight": 0.5, "category": "basic", "good": "fish", "per_resident_per_min": 0.010`},
+    "goods": [{ "good": "fish", "per_resident_per_min": 0.002975 }]`, `"weight": 0.5, "category": "basic", "good": "fish", "per_resident_per_min": 0.002975`},
 			[]string{FileNeeds, `need "settlers_food"`, "schema violation"},
 		},
 		{
@@ -448,7 +448,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"duplicate good in category", FileNeeds,
-			[]string{`"goods": [{ "good": "fish", "per_resident_per_min": 0.010 }]`, `"goods": [{ "good": "fish", "per_resident_per_min": 0.010 }, { "good": "fish", "per_resident_per_min": 0.02 }]`},
+			[]string{`"goods": [{ "good": "fish", "per_resident_per_min": 0.002975 }]`, `"goods": [{ "good": "fish", "per_resident_per_min": 0.002975 }, { "good": "fish", "per_resident_per_min": 0.02 }]`},
 			[]string{FileNeeds, `need "settlers_food"`, "goods[1].good", `duplicate good "fish"`},
 		},
 		{
@@ -780,7 +780,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"from_tier other goods", FileNeeds,
-			[]string{`{ "good": "fish", "per_resident_per_min": 0.0042 }`, `{ "good": "bread", "per_resident_per_min": 0.0042 }`},
+			[]string{`{ "good": "fish", "per_resident_per_min": 0.001012 }`, `{ "good": "bread", "per_resident_per_min": 0.001012 }`},
 			[]string{FileNeeds, `need "citizens_settlers_food"`, "goods", "must list the goods"},
 		},
 		{
@@ -1207,7 +1207,7 @@ func TestNeedShareDefaults(t *testing.T) {
 	}
 
 	dir := copyContent(t, FileNeeds,
-		`"goods": [{ "good": "fish", "per_resident_per_min": 0.010 }]`, `"goods": [{ "good": "fish", "per_resident_per_min": 0.010, "share": 0.5 }]`,
+		`"goods": [{ "good": "fish", "per_resident_per_min": 0.002975 }]`, `"goods": [{ "good": "fish", "per_resident_per_min": 0.002975, "share": 0.5 }]`,
 		`{ "building": "market" }`, `{ "building": "market", "share": 0.75 }`)
 	c, err := LoadWithSchemas(dir, schemaDir)
 	if err != nil {
@@ -1270,8 +1270,8 @@ func TestCumulativeTierRates(t *testing.T) {
 				dist := float64(hi.Index - lo.Index)
 				for i, g := range src.Goods {
 					want := float64(g.PerResidentPerMin) * float64(lo.ResidentsMax) / float64(hi.ResidentsMax) * math.Pow(0.5, dist/3)
-					// Content rounds to four decimals (100 micro-units).
-					if got := float64(carried.Goods[i].PerResidentPerMin); math.Abs(got-want) > 50 {
+					// content/tools/needs_gen.py rounds to six decimals (one micro-unit, D-080).
+					if got := float64(carried.Goods[i].PerResidentPerMin); math.Abs(got-want) > 0.5000001 {
 						t.Errorf("%s: %s rate %.0f micro, want %.0f (rule)", carried.ID, g.Good, got, want)
 					}
 				}
@@ -1310,7 +1310,7 @@ func TestRetiredIDsAreNotReused(t *testing.T) {
 	if m := c.BuildingByID["market"]; m == nil || m.Name != "Market" || m.Service == nil || len(m.Service.Levels) != 4 {
 		t.Errorf("market = %+v", m)
 	}
-	for id, r := range map[string]int{"city_guard": 26, "fire_station": 22} {
+	for id, r := range map[string]int{"city_guard": 28, "fire_station": 28} {
 		if b := c.BuildingByID[id]; b.Upgradable() || len(b.Service.Levels) != 1 || b.Service.RadiusAt(1) != r {
 			t.Errorf("%s = %+v, want one radius %d and no upgrade (D-065, D-072)", id, b.Service, r)
 		}

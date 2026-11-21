@@ -15,9 +15,9 @@ func citizensAt(t *testing.T, rep *Report, step int) int64 {
 	return 0
 }
 
-// TestHouseGrowthTarget (D-074 §1): a Citizen house holds 10 / 15 at
-// satisfaction 0.544, fills to 15 at 1, declines to 8 at 0.354 and to the
-// floor of 5 (never below) at 0.
+// TestHouseGrowthTarget (D-074 §1, D-080 sizes): a Citizen house grows
+// towards 9 / 14 at satisfaction 0.544 and holds there, fills to 14 at 1,
+// declines to 8 at 0.354 and to the floor of 5 (never below) at 0.
 func TestHouseGrowthTarget(t *testing.T) {
 	rep := runScenario(t, "house_growth_target")
 	for _, c := range []struct {
@@ -25,9 +25,9 @@ func TestHouseGrowthTarget(t *testing.T) {
 		want int64
 		what string
 	}{
-		{9, 10_000, "0.544 after 5 min"},
-		{10, 10_000, "0.544 holds"},
-		{20, 15_000, "satisfaction 1"},
+		{9, 8_000, "0.544 after 5 min: on its way"},
+		{10, 9_000, "0.544 holds"},
+		{20, 14_000, "satisfaction 1"},
 		{23, 8_000, "0.354 holds"},
 		{25, 5_000, "unconnected: floor"},
 		{26, 5_000, "never below the floor"},
@@ -38,14 +38,14 @@ func TestHouseGrowthTarget(t *testing.T) {
 	}
 }
 
-// TestHouseUpgradeKeepsResidents (D-074 §2): the upgraded house keeps its
-// 8 residents and then grows to its Citizens target of 10.
+// TestHouseUpgradeKeepsResidents (D-074 §2, D-080 sizes): the upgraded
+// house keeps its 6 residents and then grows to its Citizens target of 9.
 func TestHouseUpgradeKeepsResidents(t *testing.T) {
 	rep := runScenario(t, "house_upgrade_keeps_residents")
-	if got := citizensAt(t, rep, 8); got != 8_000 {
-		t.Errorf("after the upgrade: %d milli-citizens, want 8000", got)
+	if got := citizensAt(t, rep, 8); got != 6_000 {
+		t.Errorf("after the upgrade: %d milli-citizens, want 6000", got)
 	}
-	if got := citizensAt(t, rep, 12); got != 10_000 {
-		t.Errorf("at the target: %d milli-citizens, want 10000", got)
+	if got := citizensAt(t, rep, 12); got != 9_000 {
+		t.Errorf("at the target: %d milli-citizens, want 9000", got)
 	}
 }

@@ -473,6 +473,18 @@ UI shows the same numbers the server uses.
   server-side hard failures the client can know from content and island
   data without rules: missing fertility tag, no deposit under the
   footprint, locked tier, upgrade-only house.
+- **Warehouse linked to the Trading Post (D-081):** a Warehouse collects
+  only while a road links it to the Trading Post. Its placing (and
+  moving) ghost is red with the hint "Not linked to the Trading Post by
+  road" when no road tile next to its footprint has a road path to a road
+  tile next to the Trading Post (`unlinkedWarehouseHint` in
+  `display/roadpath.ts`, the BFS the carts draw with — a hint, the click
+  is not blocked); a built one the server reports `not_connected` shows
+  that sentence on its card and in the warnings panel with the fix
+  "Build a road from it to the Trading Post or to a road that leads
+  there…", and its reach ring (ghost or selection) is grey (the neutral
+  ghost colour) instead of the selection yellow. The buildings only it
+  reached show `not_connected` as usual.
 - **Deposit highlight:** while a mine or quarry (a building with
   `requires_deposit`) is the build tool, the tiles of its deposit kind are
   tinted in the selection yellow on every island drawn in detail (near
@@ -510,7 +522,7 @@ UI shows the same numbers the server uses.
 
 **House**
 
-- A "Residents" heading, then two rows like the producer Details: "Residents  ↑ current → target / max" (the arrow is the growth direction; the target is the server's `residents_target`, D-074 — at the target the line reads "→ 10 / 15") and "Satisfaction  %"; no bars.
+- A "Residents" heading, then two rows like the producer Details: "Residents  ↑ current → target / max" (the arrow is the growth direction; the target is the server's `residents_target`, D-074 — at the target the line reads "→ 9 / 14") and "Satisfaction  %"; no bars.
 - No "Needs" heading: **Goods** and **Public buildings** are section headings
   like Residents. In Goods each category appears once as a heading row (icon
   and name), also with a single need. Its needs, one per tier the house
@@ -726,7 +738,8 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
 - Every number in the UI is a server number or a linear extrapolation of one;
   never a client-side rule result (D-027).
 - Every negative state has a cause and a suggested fix in one sentence.
-- Rates are always shown per minute; quantities as integers. Goods are measured
+- Rates are always shown per minute (one decimal; below 0.1 t/min two, so a
+  few houses' D-080 consumption does not read as 0.0); quantities as integers. Goods are measured
   in tonnes, abbreviated `t`, everywhere: rates `{rate} t/min`, stocks `{n} t`,
   capacities and buffers `{n}/{cap} t`, ship cargo and slot sizes, costs,
   rewards and trading offers (catalogue keys `unit.t`, `unit.tRatio`,
@@ -781,7 +794,12 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   hardcoded (no tier, building or good names). `model.ts` turns the
   payload into view models; the only arithmetic is the one of the
   CONTENT tables (per-minute rates from cycle times, a full house's tax,
-  shares as percent). Unknown or missing fields render nothing.
+  shares as percent, and the full houses a producer of a needed good
+  supplies: its output per minute ÷ (own-tier rate × house size),
+  rounded, as "about 56 full Settlers houses with Fish" on its building
+  page, D-080). The Needs page gives goods rates **per 100 residents**
+  (D-080 rates are 0.0001–0.003 per resident) and words the carry
+  formula of CONTENT §2 in one sentence. Unknown or missing fields render nothing.
   `questText.ts` words every objective kind of MECHANICS §12a. The
   Islands page shows each size class's size, count, per-island
   fertility and deposit ranges, shape (plain, massifs, rivers, terraces,

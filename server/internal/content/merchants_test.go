@@ -43,21 +43,21 @@ func TestLoadMerchantsChains(t *testing.T) {
 		upkeep int64
 	}
 	chains := map[string]chain{
-		"butcher":         {"pigs,salt", "sausages", 60_000, "merchants", 8000, "", "", "need_goods", "270/6/6/3", 3},
-		"pastry_kitchen":  {"flour,apples", "pies", 60_000, "merchants", 8000, "", "", "need_goods", "320/5/9/3", 4},
+		"butcher":         {"pigs,salt", "sausages", 60_000, "merchants", 8000, "", "", "need_goods", "270/6/6/3", 12},
+		"pastry_kitchen":  {"flour,apples", "pies", 60_000, "merchants", 8000, "", "", "need_goods", "320/5/9/3", 14},
 		"hop_farm":        {"", "hops", 60_000, "settlers", 6000, "hops", "", "intermediate", "120/6/3/0", 2},
-		"brewery":         {"wheat,hops", "beer", 60_000, "merchants", 10_000, "", "", "need_goods", "330/6/9/3", 4},
-		"distillery":      {"cider,charcoal|coal", "brandy", 90_000, "merchants", 8000, "", "", "need_goods", "420/6/9/6", 4},
+		"brewery":         {"wheat,hops", "beer", 60_000, "merchants", 10_000, "", "", "need_goods", "330/6/9/3", 14},
+		"distillery":      {"cider,charcoal|coal", "brandy", 90_000, "merchants", 8000, "", "", "need_goods", "420/6/9/6", 16},
 		"leather_works":   {"pigs", "leather", 60_000, "citizens", 8000, "", "", "intermediate", "270/6/6/3", 2},
-		"tailor":          {"wool_garments,leather", "coats", 90_000, "merchants", 10_000, "", "", "need_goods", "410/5/9/6", 5},
+		"tailor":          {"wool_garments,leather", "coats", 60_000, "merchants", 10_000, "", "", "need_goods", "410/5/9/6", 20},
 		"woad_farm":       {"", "woad", 90_000, "settlers", 6000, "woad", "", "intermediate", "120/6/3/0", 2},
 		"dyer_works":      {"woad", "dye", 60_000, "citizens", 6000, "", "", "intermediate", "470/5/12/6", 3},
-		"dyer":            {"linen_garments,dye", "dyed_garments", 60_000, "merchants", 8000, "", "", "need_goods", "410/5/9/6", 5},
+		"dyer":            {"linen_garments,dye", "dyed_garments", 60_000, "merchants", 8000, "", "", "need_goods", "410/5/9/6", 12},
 		"paper_mill":      {"wood", "paper", 30_000, "citizens", 8000, "", "", "intermediate", "300/9/6/3", 2},
-		"printing_press":  {"paper", "books", 60_000, "merchants", 10_000, "", "", "need_goods", "330/6/9/3", 6},
+		"printing_press":  {"paper", "books", 120_000, "merchants", 10_000, "", "", "need_goods", "330/6/9/3", 22},
 		"clay_pit":        {"", "clay", 45_000, "citizens", 8000, "", "clay", "intermediate", "60/6/0/0", 2},
 		"rendering_house": {"pigs", "tallow", 60_000, "citizens", 6000, "", "", "intermediate", "170/5/6/0", 2},
-		"soap_maker":      {"tallow", "soap", 60_000, "merchants", 8000, "", "", "need_goods", "120/6/3/0", 3},
+		"soap_maker":      {"tallow", "soap", 60_000, "merchants", 8000, "", "", "need_goods", "120/6/3/0", 12},
 		"salt_pans":       {"", "salt", 120_000, "settlers", 4000, "", "", "intermediate", "180/6/6/0", 2},
 		"salt_mine":       {"", "brine", 30_000, "citizens", 10_000, "", "salt", "intermediate", "180/6/6/0", 2},
 		"salt_works":      {"brine,charcoal|coal", "salt", 30_000, "citizens", 8000, "", "", "intermediate", "290/5/12/0", 2},
@@ -142,8 +142,8 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 	}
 	want := []string{
 		// Own categories: 0.17 each (clothing 0.09) and services 0.16 of the own 0.6.
-		"merchants_food:food:sausages=6000/pies=5000:102000", "merchants_drink:drink:beer=6000/brandy=4000:102000",
-		"merchants_clothing:clothing:coats=4000/dyed_garments=4000:54000", "merchants_comfort:comfort:books=2000/soap=3000:102000",
+		"merchants_food:food:sausages=431/pies=220:102000", "merchants_drink:drink:beer=496/brandy=220:102000",
+		"merchants_clothing:clothing:coats=385/dyed_garments=218:54000", "merchants_comfort:comfort:books=192/soap=189:102000",
 		// D-065: market 40 % of the former services weight, the three
 		// chains the rest; faith rank 2 (church), education 1, culture 2.
 		"merchants_market:market:market=1000000:57600", "merchants_faith:faith:faith>=2:28800",
@@ -153,9 +153,9 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 		// like services) from services.
 		"merchants_safety:safety:city_guard=1000000:48000", "merchants_fire_protection:fire_protection:fire_station=1000000:48000",
 		// Lower tiers: 0.2 each, split by their own weights (rounding to the last).
-		"merchants_settlers_food:food:fish=2000:142857", "merchants_settlers_clothing:clothing:wool_garments=1000:57142",
-		"merchants_citizens_food:food:bread=3800/cheese=2900:66666", "merchants_citizens_drink:drink:cider=2900/mead=2400:66666",
-		"merchants_citizens_clothing:clothing:linen_garments=2400/leather_jerkins=1900:66669",
+		"merchants_settlers_food:food:fish=432:142857", "merchants_settlers_clothing:clothing:wool_garments=432:57142",
+		"merchants_citizens_food:food:bread=494/cheese=265:66666", "merchants_citizens_drink:drink:cider=470/mead=265:66666",
+		"merchants_citizens_clothing:clothing:linen_garments=435/leather_jerkins=199:66669",
 	}
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("merchants needs = %v (weights %d), want %v", got, weights, want)

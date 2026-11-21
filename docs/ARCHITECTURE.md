@@ -88,6 +88,7 @@ new-shores/
 ├── content/
 │   ├── regions.json            the regions of a world in order, the home region first, passages (D-076)
 │   ├── schema/                 JSON Schema per entity
+│   ├── tools/                  generators (`needs_gen.py`: D-080 rates; `make content-gen`)
 │   └── old_coast/              tiers, goods, buildings, needs, ships, quests, islands, decorations
 ├── deploy/                     docker-compose.yaml, Dockerfiles, later Helm/Kustomize
 ├── docs/
@@ -561,6 +562,12 @@ STATS=2` attributes a real view per layer, with the neighbours in relief
 
 - `content/schema/*.schema.json` → Go types (hand-written structs, validated
   with a JSON Schema library at startup) and TS types (`json-schema-to-typescript`).
+- Generated content (D-080): the goods rates of `needs.json` are written by
+  `content/tools/needs_gen.py` (standard-library Python, like the asset
+  build) from D-080 table A and the house sizes in `tiers.json`; `make
+  content-gen` regenerates them, `make content-test` runs the generator's
+  unit tests and fails when `needs.json` differs from its output. The
+  file stays the content the server loads; nothing generates at runtime.
 - Reference checks: every good/building/need/tier ID referenced must exist;
   recipes balanced per the checklist in CONTENT.md §10 (a `go test` runs the
   balance checks over the catalogue).

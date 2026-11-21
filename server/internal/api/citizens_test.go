@@ -171,6 +171,14 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 					tmp := world.Clone()
 					is := tmp.Island(islandID)
 					ok := true
+					// The block's roads must not cut another building off
+					// (the chapel or market serving the house).
+					connected := map[int64]bool{}
+					for _, b := range is.Buildings {
+						if b.AssignedWarehouseID != 0 {
+							connected[b.ID] = true
+						}
+					}
 					ids := map[int64]bool{}
 					roads := []sim.Pos{}
 					for yy := y; yy < y+def.Height; yy++ {
@@ -209,6 +217,15 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 					}
 					b := is.Buildings[len(is.Buildings)-1]
 					if b.AssignedWarehouseID == 0 || is.Building(house.ID).AssignedWarehouseID == 0 {
+						continue
+					}
+					cut := false
+					for _, o := range is.Buildings {
+						if connected[o.ID] && o.AssignedWarehouseID == 0 {
+							cut = true
+						}
+					}
+					if cut {
 						continue
 					}
 					if sim.Apply(tmp, c, sim.Demolish{IslandID: islandID, BuildingID: b.ID}) != nil {

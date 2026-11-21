@@ -28,6 +28,7 @@ import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks"
 import { gridOverlayVisible } from "../display/grid";
 import { freeShallows, isQuayType, withQuays } from "../display/quay";
 import { buildingAt, levelAt, missingDepositHint, missingRoadHint, rotatedFootprint, shoreHint, shoreTiles, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
+import { unlinkedWarehouseHint } from "../display/roadpath";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
@@ -238,6 +239,9 @@ export class GameRenderer {
   private ghostTintKey = "";
   /** What the tint was computed for (ghost tile, rotation, level, server version): the frame loop skips unchanged. */
   private ghostTintFor = "";
+  /** Whether a Warehouse ghost is not linked to the Trading Post by road (D-081 hint), and what it was computed for. */
+  private ghostUnlinkedFor = "";
+  private ghostUnlinkedValue = false;
   /** Validity the placement ghost was drawn with in the last frame (null: hidden). */
   private ghostValid: "ok" | "no_road" | "invalid" | null = null;
   /** The last pointer was a mouse or pen (the ghost follows it, not a touch-pending tile). */
@@ -264,7 +268,7 @@ export class GameRenderer {
   private readonly laneRing: ReachRing;
   private readonly depositMarkers: DepositMarkers;
   /** The reach of the collector ghost under the pointer (D-069 §1), or null. */
-  private ghostReach: { island: string; x: number; y: number; w: number; h: number; r: number; gold?: boolean } | null = null;
+  private ghostReach: { island: string; x: number; y: number; w: number; h: number; r: number; gold?: boolean; muted?: boolean } | null = null;
   private depositKey = "";
   private lastPaintStatus: string | null = null;
   private selected: number | null = null;
@@ -1884,6 +1888,18 @@ export class GameRenderer {
         if (h) hint = fieldHintText(h, def.name, this.defs.get(farm.b.type)?.name ?? farm.b.type);
       }
     }
+    // A Warehouse collects only when a road links it to the Trading Post (D-081): red with the reason (a hint).
+    if (!hint && (tool.kind === "build" || tool.kind === "move") && def.warehouse && l) {
+      const key = `${tl.island}|${tl.x}|${tl.y}|${tool.rotation}|${server?.version ?? ""}`;
+      if (key !== this.ghostUnlinkedFor) {
+        this.ghostUnlinkedFor = key;
+        this.ghostUnlinkedValue = unlinkedWarehouseHint(def, l.roads, tl.x, tl.y, tool.rotation, l.display.buildings, this.defs);
+      }
+      if (this.ghostUnlinkedValue) {
+        hint = t("status.not_connected.warehouse");
+        if (this.ghostReach) this.ghostReach.muted = true;
+      }
+    }
     // Founding needs no road (the island has none yet); a field has none either.
     const noRoad = tool.kind !== "found" && missingRoadHint(def, l?.roads ?? new Set(), tl.x, tl.y, tool.rotation);
     this.ghostValid = hint ? "invalid" : noRoad ? "no_road" : "ok";
@@ -2245,7 +2261,7 @@ export class GameRenderer {
    */
   private updateReachRing(): void {
     // None at far zoom: the ring is a hint of the near and mid views.
-    let src: { island: string; x: number; y: number; w: number; h: number; r: number; gold?: boolean } | null = this.lod === "far" ? null : this.ghostReach;
+    let src: { island: string; x: number; y: number; w: number; h: number; r: number; gold?: boolean; muted?: boolean } | null = this.lod === "far" ? null : this.ghostReach;
     // A selected planned collector or service building: its level-1 reach or radius in gold (D-071 §4).
     const plan = !src && this.lod !== "far" ? this.findPlan() : undefined;
     const planDef = plan ? this.defs.get(plan.plan.type) : undefined;
@@ -2261,7 +2277,9 @@ export class GameRenderer {
       const radius = found && def && !reach ? serviceRadius(def, found.b.level ?? 1) : null;
       if (found && def && (reach || radius)) {
         const [w, h] = rotatedFootprint(def.width, def.height, found.b.rotation);
-        src = { island: found.island.id, x: found.b.x, y: found.b.y, w, h, r: (reach ?? radius) as number, ...(radius ? { gold: true } : {}) };
+        // A Warehouse the server reports not linked to the Trading Post (D-081): its ring grey.
+        const muted = reach !== null && found.b.status === "not_connected";
+        src = { island: found.island.id, x: found.b.x, y: found.b.y, w, h, r: (reach ?? radius) as number, ...(radius ? { gold: true } : {}), ...(muted ? { muted } : {}) };
       }
     }
     const d = src ? this.details.get(src.island) : undefined;
@@ -2270,12 +2288,13 @@ export class GameRenderer {
       this.reachRing.set("", null);
       return;
     }
-    const key = `${src.island}|${src.x}|${src.y}|${src.w}|${src.h}|${src.r}|${pl.position.x}|${pl.position.y}|${src.gold ? 1 : 0}`;
+    const key = `${src.island}|${src.x}|${src.y}|${src.w}|${src.h}|${src.r}|${pl.position.x}|${pl.position.y}|${src.gold ? 1 : 0}|${src.muted ? 1 : 0}`;
     const outline = reachOutline({ x: src.x, y: src.y, w: src.w, h: src.h }, src.r);
     this.reachRing.set(
       key,
       outline.map((p) => ({ x: pl.position.x + p.x, z: -(pl.position.y + p.y), y: d.reliefAt(Math.floor(p.x), Math.floor(p.y)) })),
       src.gold === true,
+      src.muted === true,
     );
   }
 
@@ -2324,9 +2343,9 @@ export class GameRenderer {
     return this.reachRing.shown();
   }
 
-  /** Which ring is drawn: none, a collector's reach (yellow) or gold (a service radius or a plan's ring; tests and shots). */
-  ring(): "none" | "reach" | "gold" {
-    return !this.reachRing.shown() ? "none" : this.reachRing.gold() ? "gold" : "reach";
+  /** Which ring is drawn: none, a collector's reach (yellow), gold (a service radius or a plan's ring) or an unlinked Warehouse's (grey, D-081); tests and shots. */
+  ring(): "none" | "reach" | "gold" | "unlinked" {
+    return !this.reachRing.shown() ? "none" : this.reachRing.gold() ? "gold" : this.reachRing.muted() ? "unlinked" : "reach";
   }
 
   /** How many deposit markers float over the highlighted slots (tests and shots). */

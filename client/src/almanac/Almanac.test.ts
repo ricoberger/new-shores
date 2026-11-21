@@ -49,6 +49,9 @@ describe("almanac rendering", () => {
     const farm = html({ section: "buildings", id: "wheat_farm" });
     expect(farm).toContain("Fields");
     expect(farm).toContain("140 needed");
+    // A producer of a needed good names the full houses it supplies (D-080 table A); an intermediate none.
+    expect(html({ section: "buildings", id: "fisher" })).toContain("about 56 full Settlers houses with Fish");
+    expect(html({ section: "buildings", id: "mill" })).not.toContain("almanac-houses-supplied");
   });
 
   it("renders a good page with producers, consumers and the upstream chain", () => {
@@ -63,8 +66,10 @@ describe("almanac rendering", () => {
 
   it("renders needs, ships, quests and islands from content", () => {
     const needs = html({ section: "needs" });
-    expect(needs).toContain("Per resident");
-    expect(needs).toContain("0.008\u00a0t/min");
+    // D-080 rates are small: per 100 residents (bread 0.001156 per resident).
+    expect(needs).toContain("Per 100 residents");
+    expect(needs).toContain("0.1156\u00a0t/min");
+    expect(needs).toContain("halved every three tiers apart");
     expect(needs).toContain("60 %");
     expect(needs).toContain("rank 2 or higher");
     const ships = html({ section: "ships" });

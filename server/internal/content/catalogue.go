@@ -843,7 +843,7 @@ type NeedCategory struct {
 type NeedGood struct {
 	Good string
 	// PerResidentPerMin in micro-units per resident per minute (the
-	// cumulative-tier rates of D-056 have four decimal places).
+	// generated D-080 rates use all six decimal places).
 	PerResidentPerMin Qty
 	// Share is the coverage (ppm) the good contributes to its category at
 	// full supply (D-056).

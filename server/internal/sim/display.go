@@ -904,7 +904,8 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, wr *worldRates, r
 			displayProducer(&bd, is, c, prods[b.ID])
 		case b.Paused:
 			bd.Status = StatusPaused
-		case (def.Service != nil || def.Shipyard != nil || houses[b.ID] != nil) && b.AssignedWarehouseID == 0:
+		case (def.Service != nil || def.Shipyard != nil || houses[b.ID] != nil || def.Warehouse != nil) && b.AssignedWarehouseID == 0:
+			// A Warehouse without a road to the Trading Post (D-081) too.
 			bd.Status = StatusNotConnected
 		}
 		if def.Fields != nil {
