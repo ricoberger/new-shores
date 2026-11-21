@@ -363,6 +363,10 @@ island-wide tags; buildable area is the second scarcity.
 
 ## D-037 Construction materials: one per tier; bricks at Merchants; materials are regional
 
+> **Amended by D-083 (2026-11-21):** tools are retired; the ladder is
+> planks → stone → bricks → glass only. Iron is a Patricians good
+> (barrels, warships).
+
 **Decision:** planks (Settlers) → stone (Citizens; tools also unlock here for
 the iron route) → **bricks** (Merchants; clay slot + charcoal) → **glass**
 (Patricians; quartz slot + charcoal). Verified against Anno 117 (planks →
@@ -3206,3 +3210,76 @@ ladder.
 | cathedral | 60 | Forum 100 | 100 |
 | warehouse L1–L4 | 1 / 5 / 10 / 20 | Warehouse 6 | 6 / 10 / 16 / 24 |
 | trading_post L1–L4 | 0 / 6 / 12 / 24 | — | unchanged |
+
+## D-083 Tools retired; iron is a Patricians good; the second island is a Merchants lesson
+
+- **Date:** 2026-11-21
+- **Status:** accepted — amends D-037 (construction
+  materials), D-022 / D-067 quest chain and reference milestones,
+  D-075 §4 / D-077 §4 ship costs
+- **Context:** playtest 4 — "what do I need tools for?" Tools are
+  consumed by the hulk (10), carrack (30), the three warships (10 / 20
+  / 40) and Trading Post level 4 (10); no building, level or recipe
+  needs them, although D-037 named them the Citizens construction
+  material and the intro quest says "Citizens' workshops need tools".
+  A four-building chain on a deposit island plus a route exists for a
+  tutorial and a handful of ships. In Anno 117 iron is late (weapons,
+  armour, monuments) and construction is timber / tiles / concrete /
+  marble — one material per tier.
+- **Decision:**
+  1. **Tools retired.** Good `tools` and building `toolmaker` are retired
+     IDs (never reused); recipe `assets/voxel/recipes/toolmaker.py`, its
+     planned entry and the models `toolmaker.glb` / `toolmaker.lite.glb`
+     are deleted. Trading Post level 4 costs 1 200 gold / 40 planks /
+     30 stone.
+  2. **Construction ladder** = planks (Settlers), stone (Citizens),
+     bricks (Merchants), glass (Patricians); every tier reuses the
+     earlier materials. Nothing else is a construction material.
+  3. **Iron at Patricians.** `iron_mine` and `smelter` move to tier 4
+     (the `charcoal_burner` stays at Citizens — charcoal also feeds the
+     Merchants' brickworks, salt works and distillery). Iron's consumers:
+     the cooperage (barrels for wine press and grain distillery) and the
+     warships — balinger 10, war cog 20, war carrack 40 **iron**
+     (replacing tools 1 : 1). Trading ships cost gold, planks and sails
+     only: hulk 1 500 / 60 / 20, carrack 6 000 / 120 / 40. Brass stays
+     the luxury metal (spectacles, instruments); warships take iron
+     only.
+  4. **Quests.** `intro_island2` and `intro_tools` retired (IDs never
+     reused; their 30 planks and 100 gold are dropped). New
+     `citizens_stone` "Stone for your builders" — objective `stock`
+     stone ≥ 20, reward 50 gold, prerequisite `intro_settlers_120`; it
+     completes at once on a home island with a stone slot and otherwise
+     nudges the player to sail. `intro_citizen_house` follows
+     `citizens_stone`. New `merchants_island2` "A second settlement" —
+     objective `island_settled` ≥ 2, reward 30 planks, prerequisite
+     `merchants_hulk`, text: an island with clay in its hills, bricks
+     for the builders; `merchants_bricks` follows it (its text names the
+     route home). The generator and `islands.json` `home` are unchanged
+     (the home *candidate* has stone and no other deposit; the player may
+     settle elsewhere, D-051).
+  5. **Reference games (D-067).** Citizens game milestones: unlock /
+     first Citizen house (targets 90 / 100; island 2 and tools dropped —
+     the plan no longer founds island 2). Quests game: first Citizen
+     house (85) through the new chain. Merchants game adds "island 2
+     (clay) settled" with target 240 (it already founds it). Patricians
+     game unchanged in targets; its plan builds the iron chain before the
+     cooperage as today. Plans are declarative — the generator drops the
+     iron island from the Citizens plans.
+  6. Content `old_coast-0.24.0` (retired IDs: worlds and snapshots of
+     0.23.x do not load, D-066 as intended). Schema unchanged. CONTENT
+     §3, §5 (tier 2 / tier 4 chain tables), §7, §8, §12; MECHANICS §12a;
+     locale files EN + DE; D-037 amended.
+- **Rejected:** tools as the Citizens construction cost on every
+  workshop (the Anno 1404 model — a second mandatory deposit island at
+  Citizens, against the owner's wish to reach Merchants on one island);
+  tools for ships only (a four-building chain for 10 tools per hulk);
+  a conditional stone-or-bricks tutorial quest (the quest system has no
+  branching, and the Merchants arc covers both cases).
+- **Consequences:** one island suffices until Merchants; the Citizens
+  intro chain is one quest shorter and loses the route lesson, which
+  returns at Merchants where everyone needs clay; the iron island
+  becomes a Patricians project with two consumers; the Citizens
+  reference plan loses its second island, so its unlock may come later
+  (fewer planks from the island-2 quest; the 90-minute target holds);
+  the charcoal burner has no consumer at Citizens (kept; cheap). Models
+  folder shrinks by the toolmaker.
