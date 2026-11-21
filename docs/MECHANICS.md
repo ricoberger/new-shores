@@ -1285,7 +1285,8 @@ house cost is paid. One alternative per category is enough.
   consumption, demolition surplus, or explicit removal.
 - `0 ≤ stock ≤ capacity` for every good on every island after every step.
 - `gold ≥ 0` always.
-- `floor ≤ residents ≤ max` for every house.
+- `floor ≤ residents ≤ max` for every house; a world saved under content
+  with a larger `max` is capped on decode (`clampResidents`, D-080).
 - `0 ≤ workforce_factor ≤ 1`; a building never occupies more than one slot.
 - Goods are conserved across island inventories, goods in transit and ship
   cargo; a ship is never at two islands; unloading never exceeds capacity;
