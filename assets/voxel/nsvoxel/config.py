@@ -70,6 +70,11 @@ WATER_MODELS = ("depot", "fisher", "oyster_beds", "salt_pans", "shipyard", "trad
 #: `placement: shore`, no `water_rows` in the content) are authored with: their recipes lay out the
 #: deck over these front rows (rotation 0) as before, so the models stay as they were.
 SHORE_DECK_ROWS = {"depot": 9, "shipyard": 4, "trading_pier": 6}
+#: Water rows the recipes of the rural water buildings are authored for. Since the
+#: content lets them stand with more water rows (fisher 2–6, salt pans 2–5, oyster
+#: beds 3–8 of their depth), the models keep their deck over these front rows and
+#: the hut on the rows behind; with more water under them the hut stands on its deck.
+MODEL_WATER_ROWS = {"fisher": 3, "salt_pans": 3, "oyster_beds": 4}
 
 #: The join pieces of the paint families (D-077 §2–§3; ART_DIRECTION §7 wall
 #: set): the content ID's own model is the straight piece; each piece here is

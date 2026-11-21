@@ -334,7 +334,7 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `lumberjack` | 1 | 3×3 + 48 `tree_plot` | — | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest; 24 plots before content 0.20.0 — a forest of 48 reads as a wood, polish 7) |
 | `tree_plot` | 1 | 1×1 field | — | field tile | 1 g | 0 | — | lumberjack only; painted; grass or forest, no fertility (D-059; every field since D-079) |
 | `sawmill` | 1 | 4×6 | — | Sawmill | 120 / 9 | 2 | 4 S | R |
-| `fisher` | 1 | 3×8 | 2–3 | Fishing Hut | 60 / 6 | 6 | 4 S | R |
+| `fisher` | 1 | 3×8 | 2–6 | Fishing Hut | 60 / 6 | 6 | 4 S | R |
 | `sheep_farm` | 1 | 3×3 + 3 `pasture` | — | Sheep Farm | 60 / 6 | 1 | 4 S | R, cycle 60 s (90 s before D-080: keeps the weaver's 1 : 1) |
 | `pasture` | 1 | 3×3 field | — | pasture module | 15 g / 1 plank | 0 | — | sheep_farm only; grass or forest (D-079); edge-adjacent chain |
 | `weaver_wool` | 1 | 3×4 | — | Spinner | 60 / 6 | 8 | 6 S | R, cycle 60 s (D-080; 90 s before) |
@@ -398,7 +398,7 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `potter` (reserve) | 3 | 4×5 | — | Potter | 180 / 6 / 6 / 0 | 4 | 8 M | R |
 | `rendering_house` | 3 | 3×3 | — | Renderer | 170 / 5 / 6 / 0 | 2 | 6 C | R |
 | `soap_maker` | 3 | 3×4 | — | Soap Maker | 120 / 6 / 3 / 0 | 12 | 8 M | R |
-| `salt_pans` | 3 | 5×9 | 2–3 | Salt Ponds | 180 / 6 / 6 / 0 | 2 | 4 S | R |
+| `salt_pans` | 3 | 5×9 | 2–5 | Salt Ponds | 180 / 6 / 6 / 0 | 2 | 4 S | R |
 | `salt_mine` | 3 | 3×8 on a salt slot | — | Iron Mine class | 180 / 6 / 6 / 0 | 2 | 10 C | R |
 | `salt_works` | 3 | 4×6 | — | Furnace class | 290 / 5 / 12 / 0 | 2 | 8 C | R |
 | `brickworks` | 3 | 4×5 | — | Tiler | 90 / 9 / 0 / 0 | 3 | 8 C | R |
@@ -408,7 +408,7 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `cathedral` | 4 | 12×16 | — | Temple | 120000 / 30 / 120 / 120 / 60 | 60 | — | R, radius 50 (D-072); faith rank 3 (D-065); cost and upkeep ×2 (D-072) |
 | `cattle_farm` | 4 | 4×5 + 5 `cattle_pasture` | — | Pig Farm class, large | 410 / 5 / 9 / 6 / 0 | 4 | 8 S | R, grass |
 | `slaughterhouse` | 4 | 4×4 | — | Fish Gutter class | 390 / 6 / 6 / 3 / 3 | 40 | 8 P | R |
-| `oyster_beds` | 4 | 6×12 | 3–4 | Oyster Bed | 480 / 12 / 9 / 6 / 0 | 3 | 6 S | R |
+| `oyster_beds` | 4 | 6×12 | 3–8 | Oyster Bed | 480 / 12 / 9 / 6 / 0 | 3 | 6 S | R |
 | `oyster_house` | 4 | 6×6 | — | Epicure of Water class | 510 / 6 / 6 / 3 / 6 | 40 | 6 P | R |
 | `confectioner` (reserve) | 4 | 4×5 | — | Bakery class | 650 / 5 / 9 / 6 / 6 | 4 | 8 P | R |
 | `vineyard` | 4 | 4×5 + 100 `vine_row` | — | Vineyard | 330 / 6 / 9 / 3 / 0 | 2 | 8 S | R, grapes fertility |

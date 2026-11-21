@@ -106,7 +106,7 @@ func TestLoadMerchantsChains(t *testing.T) {
 		}
 	}
 	// Salt pans: the harbour-slot alternative of the salt chain (3 water rows, no boat loop).
-	if sp := c.BuildingByID["salt_pans"]; waterRange(sp).Max != 3 || sp.Boat || sp.Coastal {
+	if sp := c.BuildingByID["salt_pans"]; waterRange(sp).Min != 2 || waterRange(sp).Max != 5 || sp.Boat || sp.Coastal {
 		t.Errorf("salt_pans = %+v", sp)
 	}
 }
@@ -343,7 +343,10 @@ func TestTierThreeMatchesPlannedModels(t *testing.T) {
 			continue // authored in a later step (houses, services)
 		}
 		seen[p.ID] = true
-		if b.Tier != "merchants" || b.Width != p.Footprint[0] || b.Height != p.Footprint[1] || waterRange(b).Max != p.WaterTiles ||
+		// The planned water tiles are the rows the model is authored for; the
+		// content may allow more (fisher / salt pans / oyster beds stand with
+		// their hut over the water too), so the plan must lie in the range.
+		if b.Tier != "merchants" || b.Width != p.Footprint[0] || b.Height != p.Footprint[1] || !waterInRange(b, p.WaterTiles) ||
 			b.RequiresDeposit != p.Slot || b.Smoke != p.Smoke {
 			t.Errorf("%s: content %dx%d water %d slot %q smoke %v, planned %+v", p.ID, b.Width, b.Height, waterRange(b).Max, b.RequiresDeposit, b.Smoke, p)
 		}
@@ -361,4 +364,11 @@ func TestTierThreeMatchesPlannedModels(t *testing.T) {
 			t.Errorf("%s boat = %v", b.ID, b.Boat)
 		}
 	}
+}
+
+// waterInRange reports whether n water rows are allowed by the building's
+// water_rows (0 for a building without them).
+func waterInRange(b *Building, n int) bool {
+	r := waterRange(b)
+	return r.Min <= n && n <= r.Max
 }
