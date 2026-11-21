@@ -3111,3 +3111,71 @@ ladder.
   `recomputeConnectivity`; goldens `warehouse_root_link` /
   `warehouse_root_cut`; the `played` fixture has no unlinked warehouse,
   so the `warehouse-unlinked` shot preset patches the displayed status.
+
+## D-082 Gold pressure after the Anno 117 baseline
+
+- **Date:** 2026-11-20
+- **Status:** accepted — amends D-080 §5 (tax and
+  maintenance scale); D-009 (gold never negative, auto-pause) unchanged
+- **Context:** #81 showed that gold no longer limits anything: with
+  tax 1.18 / 1.01 / 1.82 / 2.70 per resident and Anno's producer
+  maintenance, every reference game keeps tax ≥ 2.3 × upkeep from
+  minute 30 on (Citizens game 5.3 ×), the Patricians game ends with
+  932 046 gold, and the two D-080 scalars could not be tuned because no
+  value between 0.5 and 2.0 moved a milestone. Cause: D-080 table D took
+  Anno's `Money` per house as a per-*resident* ladder and then scaled it
+  to keep Patricians at the old 2.70 — a 6 × raise of Settlers tax per
+  resident while the number of producers fell 3–10 ×. Civic buildings
+  also pay about half of their Anno counterparts (market level 1 0 vs
+  10, tavern 2 vs 10, school 4 vs 16, surgery 4 vs 8, playhouse 30 vs
+  60, university 90 vs Library 180).
+- **Decision:**
+  1. **Tax ladder stays Anno's** (1.00 : 0.86 : 1.54 : 2.28 per
+     resident) with one scale `k_tax`; the **target** replaces the start
+     value: at the tightest point of each reference game from minute 30
+     on, tax exceeds upkeep by **20–50 %** (D-080 found 133 % at k 1.18;
+     linear estimate k ≈ **0.65**, tax 0.65 / 0.56 / 1.00 / 1.48). Gold
+     still never negative, no auto-pause, milestones unchanged within
+     ±5 min (gold must not become the pacing factor — materials and
+     population stay it, D-067).
+  2. **Civic maintenance = Anno counterpart** (table E) — the same
+     "wholesale" rule as D-080 table C, so the second knob is data, not
+     tuning: market 10 / 20 / 40 / 60, tavern 10, chapel 6, school 16,
+     city guard 5, fire station 8, surgery 8, church 26, playhouse 60,
+     university 180, cathedral 100, warehouse 6 / 10 / 16 / 24. Trading
+     Post levels keep 0 / 6 / 12 / 24.
+  3. **Early game check:** the Citizens game must not drop below 500
+     gold after the opening purchases and must keep ≥ 20 % margin at
+     its tightest point too — if the Settlers tier alone cannot carry
+     table E at the chosen `k_tax`, the chapel (6) and market level 1
+     (10) are the only values allowed to come down, recorded.
+  4. Content `old_coast-0.23.1`; reference games regenerated; CONTENT
+     §12 gets the D-082 row with the new end-gold figures (expectation:
+     Patricians game ends with 100–250 k gold instead of 932 k).
+- **Rejected:** scaling construction costs instead (pacing by one-off
+  costs instead of rates, against D-006 / D-009); tax per house instead
+  of per resident (D-074's satisfaction ladder depends on per-resident
+  tax); a third scalar for civic buildings (table E is data).
+- **Consequences:** towns earn roughly half of today per resident;
+  upgrading to the next tier is still the best way to raise income
+  (ladder unchanged); the house card's "+n gold/min" and the almanac
+  update from content; the playtest decides whether 20–50 % feels like
+  pressure or like grind — `k_tax` is the one number to move.
+
+### Table E — civic maintenance (gold per minute)
+
+| Ours | today | Anno counterpart | **new** |
+|---|---|---|---|
+| market L1 / L2 / L3 / L4 | 0 / 10 / 40 / 60 | Market 10 | 10 / 20 / 40 / 60 |
+| chapel | 0 | Well 3 / Watchtower 5 (small institution) | 6 |
+| tavern | 2 | Tavern 10 | 10 |
+| school | 4 | Grammaticus 16 | 16 |
+| city_guard | 2 | Watchtower 5 | 5 |
+| fire_station | 4 | Latrine 8 (small institution, tier 2) | 8 |
+| surgery | 4 | Latrine 8 | 8 |
+| church | 12 | Sanctuary 26 | 26 |
+| playhouse | 30 | Theatre 60 | 60 |
+| university | 90 | Library 180 | 180 |
+| cathedral | 60 | Forum 100 | 100 |
+| warehouse L1–L4 | 1 / 5 / 10 / 20 | Warehouse 6 | 6 / 10 / 16 / 24 |
+| trading_post L1–L4 | 0 / 6 / 12 / 24 | — | unchanged |
