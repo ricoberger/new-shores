@@ -92,13 +92,13 @@
     "prerequisites": ["intro_chapel"]
   },
   {
-    "id": "intro_island2",
-    "title": "A second settlement",
-    "text": "Beyond the bay lies a second island with iron in its hills. Load your cog with planks for a Trading Post and sail there to found a settlement. Here are planks for its first buildings. Goods beyond the Trading Post capacity of the island you choose are lost.",
+    "id": "citizens_stone",
+    "title": "Stone for your builders",
+    "text": "Citizens build with stone: their houses and workshops need it besides planks. Quarry it on an island with a stone deposit, perhaps your home island, and store twenty stone in a Trading Post.",
     "objectives": [
-      { "kind": "island_settled", "count": 2 }
+      { "kind": "stock", "good": "stone", "min": 20 }
     ],
-    "rewards": { "goods": { "planks": 30 } },
+    "rewards": { "gold": 50 },
     "prerequisites": ["intro_settlers_120"]
   },
   {
@@ -109,7 +109,7 @@
       { "kind": "building_count", "type": "house_citizens", "min": 1 }
     ],
     "rewards": { "gold": 100 },
-    "prerequisites": ["intro_island2"]
+    "prerequisites": ["citizens_stone"]
   },
   {
     "id": "citizens_shipyard",
@@ -217,14 +217,24 @@
     "prerequisites": ["merchants_drink"]
   },
   {
+    "id": "merchants_island2",
+    "title": "A second settlement",
+    "text": "Merchant houses need bricks, and bricks need clay. Load a ship with planks for a Trading Post and found a settlement on an island with clay in its hills: its builders will fire the bricks. Here are planks for its first buildings. Goods beyond the Trading Post capacity of the island you choose are lost.",
+    "objectives": [
+      { "kind": "island_settled", "count": 2 }
+    ],
+    "rewards": { "goods": { "planks": 30 } },
+    "prerequisites": ["merchants_hulk"]
+  },
+  {
     "id": "merchants_bricks",
     "title": "Bricks for the playhouse",
-    "text": "A playhouse needs thirty bricks. Store thirty bricks in a Trading Post.",
+    "text": "A playhouse needs thirty bricks. Fire them on the clay island and let a ship on a route bring them home: store thirty bricks in a Trading Post.",
     "objectives": [
       { "kind": "stock", "good": "bricks", "min": 30 }
     ],
     "rewards": { "gold": 200 },
-    "prerequisites": ["merchants_hulk"]
+    "prerequisites": ["merchants_island2"]
   },
   {
     "id": "patricians_cathedral",

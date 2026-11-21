@@ -137,8 +137,13 @@ func TestLoadOldCoast(t *testing.T) {
 	// Quests (quests.json): the intro chain, the tier-2 chain (D-056 §10)
 	// the tier-3 chain (C3) and the tier-4 chain (C4), each linear; the
 	// tier-2 chain branches off at intro_settlers_120, the tier-3 chain
-	// follows citizens_cheese, the tier-4 chain merchants_bricks. Rewards in fixed point; only the shipyard quest
-	// gives sails (for the first built cog, CONTENT §8).
+	// follows citizens_cheese, the tier-4 chain merchants_bricks. D-083 §4:
+	// citizens_stone follows intro_settlers_120 and leads to
+	// intro_citizen_house (the intro chain passes through it), and the
+	// shipyard quest still branches off at intro_settlers_120.
+	// Rewards in fixed point; only the shipyard quest gives sails (for the
+	// first built cog, CONTENT §8).
+	branch := map[string]string{"intro_citizen_house": "citizens_stone", "citizens_shipyard": "intro_settlers_120"}
 	if len(c.Quests) < 10 || c.Quests[0].ID != "intro_home_island" || len(c.Quests[0].Prerequisites) != 0 ||
 		c.Quests[0].Objectives[0] != (Objective{Kind: ObjectiveIslandSettled, Min: 1}) || c.Quests[1].ID != "intro_first_road" {
 		t.Fatalf("quests = %+v", c.Quests)
@@ -155,6 +160,9 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 		if !ok && chain == "patricians" {
 			want = "merchants_bricks"
+		}
+		if b, ok := branch[q.ID]; ok {
+			want = b
 		}
 		prev[chain] = q.ID
 		if (chain != "intro" && chain != "citizens" && chain != "merchants" && chain != "patricians") || len(q.Prerequisites) != 1 || q.Prerequisites[0] != want || c.QuestByID[q.ID] != q || q.Index != i+1 {
@@ -174,6 +182,12 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	if q := c.QuestByID["intro_planks"]; q.Rewards.Gold != 0 || len(q.Rewards.Goods) != 1 || q.Rewards.Goods[0] != (GoodAmount{"planks", 45_000}) {
 		t.Errorf("intro_planks rewards %+v", q.Rewards)
+	}
+	// D-083 §4: stone stored anywhere (it completes at once on a home island
+	// with a stone slot), 50 gold.
+	if q := c.QuestByID["citizens_stone"]; len(q.Objectives) != 1 || q.Objectives[0] != (Objective{Kind: ObjectiveStock, Good: "stone", Min: 20_000}) ||
+		q.Rewards.Gold != 50_000 || len(q.Rewards.Goods) != 0 {
+		t.Errorf("citizens_stone = %+v", q)
 	}
 	if q := c.QuestByID["intro_settlers_120"]; q.Objectives[0] != (Objective{Kind: ObjectivePopulation, Tier: "settlers", Min: 120_000}) {
 		t.Errorf("intro_settlers_120 objectives %+v", q.Objectives)
@@ -1281,14 +1295,14 @@ func TestCumulativeTierRates(t *testing.T) {
 // TestRetiredIDsAreNotReused: content IDs are never reused (CONTENT §1).
 // Retired IDs stay out of every entity of the shipped content: market_small
 // became market with the tier-3 content (D-056 C3); theatre became playhouse
-// (D-063); tools, the toolmaker and the quest intro_tools were retired with
-// D-083.
+// (D-063); tools, the toolmaker and the quests intro_island2 and
+// intro_tools were retired with D-083.
 func TestRetiredIDsAreNotReused(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, id := range []string{"market_small", "theatre", "tools", "toolmaker", "intro_tools"} {
+	for _, id := range []string{"market_small", "theatre", "tools", "toolmaker", "intro_island2", "intro_tools"} {
 		_, b := c.BuildingByID[id]
 		_, g := c.GoodByID[id]
 		_, s := c.ShipByID[id]

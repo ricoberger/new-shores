@@ -725,7 +725,7 @@ Every building has `id`, `name`, `region` (must equal the region id),
 called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min`,
 `pause_category` and `look`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **17** (D-077 patrol), content **old_coast-0.24.0** (D-083 tools and the toolmaker retired, iron at Patricians — 0.23.x worlds and snapshots do not load; 0.23.1 D-082 civic maintenance and tax; 0.23.0 D-080 Anno 117 house sizes, generated rates, final-producer cycles, tax and upkeep; D-081 Trading Post road root — 0.22.x worlds and snapshots do not load; 0.22.1 D-078 `harbour_lane`, ornament and military tiers, the 12 × 12 castle; 0.22.0 D-077 ornaments, military, repair crane, Kontor, warships, `placement`, `category`, `defence`, `unique`, `paint_family`, `repairs`, `attack`; 0.21.1 D-076 `regions.json`, island IDs `oc-NN`, worlds with `regions[]`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): schema-15 and schema-16 worlds migrate (MECHANICS §9.4, ARCHITECTURE §4.2); older
+World schema **17** (D-077 patrol), content **old_coast-0.24.0** (D-083 tools and the toolmaker retired, iron at Patricians, quests `citizens_stone` / `merchants_island2` — 0.23.x worlds and snapshots do not load; 0.23.1 D-082 civic maintenance and tax; 0.23.0 D-080 Anno 117 house sizes, generated rates, final-producer cycles, tax and upkeep; D-081 Trading Post road root — 0.22.x worlds and snapshots do not load; 0.22.1 D-078 `harbour_lane`, ornament and military tiers, the 12 × 12 castle; 0.22.0 D-077 ornaments, military, repair crane, Kontor, warships, `placement`, `category`, `defence`, `unique`, `paint_family`, `repairs`, `attack`; 0.21.1 D-076 `regions.json`, island IDs `oc-NN`, worlds with `regions[]`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): schema-15 and schema-16 worlds migrate (MECHANICS §9.4, ARCHITECTURE §4.2); older
 ones need a fresh local database (`make down VOLUMES=1 && make up`).
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.
@@ -879,16 +879,24 @@ Ordered list of `{ id, title, text, objectives[], rewards: { gold?, goods?,
 decorations: [] }, prerequisites[] }`; objectives are `oneOf` the predicate
 kinds in MECHANICS §12a (`building_count`, `population`, `stock`,
 `connected`, `route_exists`, `island_settled`, `tier_unlocked`,
-`ship_count`, `satisfaction`). The intro chain is 11 linear quests
-(`intro_home_island` … `intro_citizen_house`; island 2 is founded with
-the start cog; `intro_tools` retired with D-083) with rewards of 25–100 gold or 30–45 planks; never
-stone or sails (those are taught, not given). The tier-2 chain
-(D-056) is 5 linear quests branching off at `intro_settlers_120`
-(`citizens_shipyard`, `citizens_cog`, `citizens_tavern`,
-`citizens_school`, `citizens_cheese`) with rewards of 50–100 gold; the
-shipyard quest's 10 sails for the first built cog are the only sails
-(§8). The tier-3 chain is 6 quests after `citizens_cheese`
-(`merchants_church` … `merchants_bricks`, 100–200 gold) and the tier-4
+`ship_count`, `satisfaction`). The intro chain is 10 linear quests
+(`intro_home_island` … `intro_settlers_120`, then `intro_citizen_house`)
+with rewards of 25–100 gold or 30–45 planks; never stone or sails (those
+are taught, not given). Since D-083 §4 (content 0.24.0) one island
+suffices until Merchants: `citizens_stone` ("Stone for your builders",
+20 stone in stock, 50 gold) follows `intro_settlers_120` and leads to
+`intro_citizen_house` — it completes at once on a home island with a
+stone slot and otherwise nudges the player to sail; `intro_island2` and
+`intro_tools` are retired (§12, their 30 planks and 100 gold dropped).
+The tier-2 chain (D-056) is `citizens_stone` and 5 linear quests
+branching off at `intro_settlers_120` (`citizens_shipyard`,
+`citizens_cog`, `citizens_tavern`, `citizens_school`, `citizens_cheese`)
+with rewards of 50–100 gold; the shipyard quest's 10 sails for the first
+built cog are the only sails (§8). The tier-3 chain is 7 quests after
+`citizens_cheese` (`merchants_church` … `merchants_hulk`, then
+`merchants_island2` — a second settlement on an island with clay,
+`island_settled` ≥ 2, 30 planks — and `merchants_bricks`, whose text
+names the route home; gold 100–200) and the tier-4
 chain 6 after it (`patricians_cathedral`, `patricians_house`,
 `patricians_food`, `patricians_drink`, `patricians_glass` — 30 glass in
 stock — and `patricians_carrack`, 150–250 gold); `ship_count` takes an
@@ -942,7 +950,7 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
 | `theatre` | Retired for D-063; `playhouse` is a new ID, same cost/radius/ladder position. Roman recipe parked for a later southern region. |
 | `settlers_services`, `citizens_services`, `merchants_services`, `patricians_services` | Need IDs retired with the `services` category in D-065 (split into market and the faith/education/culture chains) |
 | `tools`, `toolmaker` | Retired with D-083 §1 (content 0.24.0): the good had no building consumer; construction is one material per tier. The recipe and the models `toolmaker.glb` / `.lite.glb` are deleted. |
-| `intro_tools` | Quest retired with D-083 §4 (it asked for ten tools). |
+| `intro_island2`, `intro_tools` | Quests retired with D-083 §4: the second island is a Merchants lesson (`merchants_island2`), tools are gone; `citizens_stone` leads to the first Citizen house. |
 | the three pre-D-075 ship IDs and the three quest IDs that named them | Renamed to `cog`, `hulk`, `carrack` and `citizens_cog`, `merchants_hulk`, `patricians_carrack` in D-075 §4 (content 0.21.0; the old names are listed in DECISIONS D-075 only — a test keeps them out of every other tracked file) |
 
 ### D-082 reference results (sim minutes, seed 1053001)

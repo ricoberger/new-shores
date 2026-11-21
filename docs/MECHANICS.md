@@ -1254,7 +1254,11 @@ house cost is paid. One alternative per category is enough.
   {good, min, island?}`, `connected {type}`, `route_exists` (a route with
   an assigned ship), `island_settled {count}`, `tier_unlocked {tier}`,
   `ship_count {min, type?}` (optionally one ship type), `satisfaction {tier, min}` (resident-weighted mean).
-  No quest ID appears in code.
+  No quest ID appears in code. The shipped chains (CONTENT §11): the intro
+  to 120 Settlers, then `citizens_stone` (20 stone in stock) and the first
+  Citizen house on one island, the Citizens' shipyard branch, the
+  Merchants' chain with `merchants_island2` (a second settlement for the
+  clay, D-083 §4) before the bricks, and the Patricians' chain.
 - A quest is active when its prerequisites are completed; completion is
   evaluated at every advancement boundary and after every command, happens
   once and is permanent (`quest_completed` boundary). The first moment a

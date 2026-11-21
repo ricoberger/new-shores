@@ -13,15 +13,17 @@ afterEach(() => setLanguage("en", false));
 
 const contentDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "content", "old_coast");
 const shipped = (n: string) => JSON.parse(readFileSync(join(contentDir, `${n}.json`), "utf8")) as unknown;
-const content = { tiers: shipped("tiers"), quests: shipped("quests"), goods: shipped("goods"), buildings: shipped("buildings"), ships: [] } as unknown as Content;
+// Quests in the served shape (rewards.goods always present, as the server sends them).
+const quests = (shipped("quests") as { rewards: object }[]).map((q) => ({ ...q, rewards: { gold: 0, goods: {}, ...q.rewards } }));
+const content = { tiers: shipped("tiers"), quests, goods: shipped("goods"), buildings: shipped("buildings"), ships: [] } as unknown as Content;
 
-/** The fork after intro_settlers_120: the intro's island 2 and the Citizens' shipyard are both open, the 120 settlers wait to be claimed. */
+/** The fork after intro_settlers_120: the Citizens' stone (D-083) and shipyard are both open, the 120 settlers wait to be claimed. */
 const model = {
   islands: [],
   quests: {
     claimable: ["intro_settlers_120"],
     active: [
-      { id: "intro_island2", objectives: [{ kind: "island_settled", count: 2, met: false }] },
+      { id: "citizens_stone", objectives: [{ kind: "stock", good: "stone", min: 20_000, met: false }] },
       { id: "citizens_shipyard", objectives: [] },
     ],
   },
@@ -40,13 +42,13 @@ describe("quest chains in the quest list", () => {
     const chains = questChains(model, content);
     expect(chains.map((c) => c.id)).toEqual(["intro", "citizens"]);
     const [intro, citizens] = chains;
-    expect(intro).toMatchObject({ name: "Intro", total: 11, done: 8, next: "intro_citizen_house" });
-    expect(intro?.open).toEqual([
-      { id: "intro_settlers_120", claimable: true, step: 9 },
-      { id: "intro_island2", claimable: false, step: 10 },
+    expect(intro).toMatchObject({ name: "Intro", total: 10, done: 8, next: "intro_citizen_house" });
+    expect(intro?.open).toEqual([{ id: "intro_settlers_120", claimable: true, step: 9 }]);
+    expect(citizens).toMatchObject({ name: "Citizens", total: 6, done: 0, next: "citizens_cog" });
+    expect(citizens?.open).toEqual([
+      { id: "citizens_stone", claimable: false, step: 1 },
+      { id: "citizens_shipyard", claimable: false, step: 2 },
     ]);
-    expect(citizens).toMatchObject({ name: "Citizens", total: 5, done: 0, next: "citizens_cog" });
-    expect(citizens?.open).toEqual([{ id: "citizens_shipyard", claimable: false, step: 1 }]);
   });
 
   it("lists a chain's last quest without a next one, and quests the content lacks on their own", () => {
@@ -62,14 +64,14 @@ describe("quest chains in the quest list", () => {
   it("renders the chains, steps and next quests in the panel (English and German)", () => {
     const render = () => text(renderToStaticMarkup(createElement(QuestsPanel, { model, content, onClaim: () => {}, onClose: () => {} })));
     const en = render();
-    expect(en).toMatch(/^Quests.*Intro8 of 11 doneStep 9 of 11/);
-    expect(en).toContain("Step 10 of 11");
-    expect(en).toContain("Citizens0 of 5 doneStep 1 of 5");
-    expect(en).toMatch(/Next: [^N]+Citizens0 of 5/);
+    expect(en).toMatch(/^Quests.*Intro8 of 10 doneStep 9 of 10/);
+    expect(en).toContain("Citizens0 of 6 doneStep 1 of 6");
+    expect(en).toContain("Step 2 of 6");
+    expect(en).toMatch(/Next: [^N]+Citizens0 of 6/);
     expect(en).toMatch(/Next: [^N]+$/);
     setLanguage("de", false);
     const de = render();
-    expect(de).toContain("Einstieg8 von 11 erledigtSchritt 9 von 11");
+    expect(de).toContain("Einstieg8 von 10 erledigtSchritt 9 von 10");
     expect(de).toContain("Danach: ");
   });
 });
