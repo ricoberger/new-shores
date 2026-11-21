@@ -515,6 +515,13 @@ handler-only.
 
 ## D-046 Never-pausable buildings carry no upkeep
 
+> **Partly superseded by D-082 (2026-11-21):** public buildings carry
+> their Anno 117 maintenance (table E: chapel 6, market level 1 10)
+> although the cascade never pauses them; content validation allows
+> upkeep on every public building. The "stall, don't ruin" floor now
+> rests on the D-082 margin test (tax ≥ 1.2 × upkeep from minute 30 in
+> every reference game) rather than on zero upkeep.
+
 **Decision:** Buildings that the insolvency cascade never pauses (houses,
 warehouses, roads, shipyard, harbourmaster, decorations, tier-1 market and
 chapel) have zero upkeep; their running cost is folded into their
@@ -3164,6 +3171,23 @@ ladder.
   (ladder unchanged); the house card's "+n gold/min" and the almanac
   update from content; the playtest decides whether 20–50 % feels like
   pressure or like grind — `k_tax` is the one number to move.
+
+- **As built (#84, content 0.23.1):** table E as written; `k_tax` =
+  **1.05** (tax 1.05 / 0.90 / 1.62 / 2.39) — 1.18 left Patricians at
+  52 %, 0.92 at 19 %, 0.65 stalled the Merchants plan at the playhouse
+  (gold is a limiter again). Margins from minute 30: Citizens 195 %,
+  Quests 204 %, Merchants 39 %, Patricians 35 %; lowest gold 871 (Quests
+  712 at minute 1); end gold 17 661 / 16 141 / 32 635 / 493 436 (the
+  monuments are the Patricians sink; the 100–250 k estimate was not a
+  target). Milestones unchanged (plans regenerate byte for byte).
+  **Amendment:** the 20–50 % window applies to the Merchants and
+  Patricians games; the two Citizens games have no gold sink by design
+  (Anno is equally rich at Liberti) and `TestReferenceGamesGold` holds
+  them in a 20–210 % guard band. Knob (2) unused. Side effects: content
+  validation allows upkeep on every public building (D-046 note); the
+  `house_growth_target` scenario starts with 20 000 gold and the
+  `merchants` dev fixture grants 15 000. Early-game pressure, if the
+  playtest asks for it, needs a sink of its own (separate decision).
 
 ### Table E — civic maintenance (gold per minute)
 
