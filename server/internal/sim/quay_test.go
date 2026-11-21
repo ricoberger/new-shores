@@ -216,10 +216,11 @@ func TestPlaceQuay(t *testing.T) {
 func TestQuayCarriesWaterEdgeBuildings(t *testing.T) {
 	c := shippedCatalogue(t)
 	w := quayWorld(t, c, 2, quayCoast()...)
-	fisher := PlaceBuilding{IslandID: "main", Type: "fisher", X: 10, Y: 3}
-	if err := Apply(w, c, fisher); !errors.Is(err, ErrTerrain) {
+	// Rows 2–8 are water: seven rows, more than the fisher's six.
+	if err := Apply(w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 10, Y: 2}); !errors.Is(err, ErrTerrain) {
 		t.Fatalf("fisher on water without quay: err = %v, want ErrTerrain", err)
 	}
+	fisher := PlaceBuilding{IslandID: "main", Type: "fisher", X: 10, Y: 3}
 	var quay []Pos
 	for y := 6; y <= 8; y++ {
 		quay = append(quay, quayRow(y, 10, 12)...)

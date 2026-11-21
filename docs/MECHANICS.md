@@ -137,9 +137,12 @@ handlers only.
   `0 ≤ min ≤ max < depth`. River tiles never count as sea water.
   Quays count as land, terminate the water prefix, and are replaced without
   refund when covered by a valid land part (§3); required water cannot
-  carry quay. Values: Trading Post 1–2, fisher/salt pans 2–3,
-  oyster beds 3–4 rows (shipyard, trading pier and depot have the shore
-  placement since D-077, below).
+  carry quay. Values: Trading Post 1–2, fisher 2–6 of 8, salt pans 2–5
+  of 9, oyster beds 3–8 of 12 rows (the rural water buildings may stand
+  with their hut over the water too, so they claim as little as two
+  land rows; the models are authored for 3 / 3 / 4 water rows,
+  `MODEL_WATER_ROWS`); shipyard, trading pier and depot have the shore
+  placement since D-077, below.
   A zero minimum permits an all-land footprint. Other coastal buildings
   still need a coast tile (quay counts). Harbour points remain two tiles
   off the **front row**, not the variable water/land boundary (§9).

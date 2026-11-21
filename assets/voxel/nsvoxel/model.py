@@ -36,6 +36,8 @@ class Ctx:
         self.join = self.defn.get("join", "straight")
         rows = self.defn.get("water_rows")
         self.water = int(rows["max"] if isinstance(rows, dict) else self.defn.get("water_tiles", 0))
+        if cid in config.MODEL_WATER_ROWS and self.water:
+            self.water = config.MODEL_WATER_ROWS[cid]
         if not self.water and self.defn.get("placement") == "shore":
             self.water = config.SHORE_DECK_ROWS.get(cid, 0)
         #: First land row (voxels): rows below it stand over the sea.

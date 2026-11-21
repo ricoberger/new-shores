@@ -280,7 +280,7 @@ func TestLoadOldCoast(t *testing.T) {
 	if lj.WorkArea != nil || lj.Fields == nil || lj.Fields.Type != "tree_plot" || lj.Fields.Required != 48 || lj.Fields.Max != 48 {
 		t.Errorf("lumberjack work area = %+v, fields = %+v", lj.WorkArea, lj.Fields)
 	}
-	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 60_000 || waterRange(f).Max != 3 || f.Coastal || !f.Boat || !f.Smoke {
+	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 60_000 || waterRange(f).Min != 2 || waterRange(f).Max != 6 || f.Coastal || !f.Boat || !f.Smoke {
 		t.Error("fisher recipe/water-edge mismatch")
 	}
 	tp := c.BuildingByID["trading_post"]
@@ -631,7 +631,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"water rows cover the whole footprint", FileBuildings,
-			[]string{`"water_rows": { "min": 2, "max": 3 },
+			[]string{`"water_rows": { "min": 2, "max": 6 },
     "coastal": false,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },`, `"water_rows": { "min": 8, "max": 8 },
@@ -642,10 +642,10 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"water-edge building also coastal", FileBuildings,
-			[]string{`"water_rows": { "min": 2, "max": 3 },
+			[]string{`"water_rows": { "min": 2, "max": 6 },
     "coastal": false,
     "requires_road": true,
-    "cost": { "gold": 60, "planks": 6 },`, `"water_rows": { "min": 2, "max": 3 },
+    "cost": { "gold": 60, "planks": 6 },`, `"water_rows": { "min": 2, "max": 6 },
     "coastal": true,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },`},
