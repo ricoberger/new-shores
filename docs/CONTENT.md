@@ -1334,6 +1334,16 @@ within target.
   warehouses or a level-2 collector.
 - Tax income at each tier's unlock population must cover upkeep of the
   balanced chain set with ≥ 20 % margin.
+- **Gold pressure (D-082):** in every reference game, from minute 30 on,
+  tax exceeds upkeep by 20–50 % at the tightest advance step, gold stays
+  positive, nothing is paused for insolvency, and the Citizens game
+  never drops below 500 gold after minute 5 (the opening purchases).
+  `TestReferenceGamesGold` (next to `TestReferenceGamesSurplus`) checks
+  it with hard bounds per game; the two Citizens games, which no
+  `k_tax` brings to 50 % (D-082 reference results above), are held at
+  20–210 % — their recorded 195 / 204 % plus headroom — so a drift
+  still fails. A content change that moves a margin out of its bounds
+  retunes `k_tax` (the one knob, D-082 §1), never a plan.
 - Charcoal demand of a balanced Merchant economy must exceed one island's
   forest capacity so coal or a second forest island becomes relevant.
 - Starting stock (`start.json`: 2 000 gold, 100 planks — D-074 §4; the
