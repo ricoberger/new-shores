@@ -2939,6 +2939,8 @@ props keep the 8-voxel helpers). Models 28.17 MiB; far 13 / 202 k,
      are 16 / 20 / 16, so 28 is already generous). Warehouses stay
      collectors without a road requirement to the Trading Post (D-014,
      island-wide stock as in Anno 1404 / 117) — considered, kept.
+     *Superseded the same day by D-081:* a warehouse collects only while
+     a road path connects it to the Trading Post.
   8. Content `old_coast-0.23.0`; sim unchanged; reference games
      regenerated (they will get faster — fewer producers — targets stay;
      CONTENT reference tables rewritten); almanac numbers follow from
@@ -2955,6 +2957,20 @@ props keep the 8-voxel helpers). Models 28.17 MiB; far 13 / 202 k,
   card's "→ 10 / 15" becomes "/ 14"; `max` is content, residents state —
   houses above the new max are clamped by the existing path, no
   migration. Playtest snapshots at 0.22.x no longer load (D-066).
+
+- **As built (#81, content 0.23.0):** `k_tax` 1.18 (1.18 / 1.01 /
+  1.82 / 2.70), `k_upkeep` 1.0 (full Anno gold column, not the 0.5 start
+  value — the replay showed gold never limits any reference game, so
+  the two scalars could not be tuned: tightest tax-over-upkeep margin
+  +133 %, end gold 24 546 / 22 146 / 73 675 / 932 046; gold pressure
+  needs its own decision). Rates rounded to six decimals (micro-units,
+  not six significant digits). Generator `content/tools/needs_gen.py`,
+  `make content-gen`, drift test. Reference games 50/28/64/112 ·
+  21/30 · 153/219/304 · 573/615/948 — the Citizens unlock is 3 min
+  later than D-075 (twenty six-resident houses, planks pace it),
+  accepted. Plans trimmed to peak demand × 1.25; the 25 % surplus
+  bound became `TestReferenceGamesSurplus` (≤ 60 % beyond the last
+  producer). Client shows rates per 100 residents.
 
 ### Table A — own-tier consumption (per resident per minute)
 
@@ -3091,3 +3107,7 @@ ladder.
   warehouse before its road moves the road forward (timings may shift,
   targets stay); fixtures with unconnected warehouses get their road;
   no state or schema change. MECHANICS §3, §5; UI.md warehouse card.
+- **As built (#81):** one flood fill from the Trading Post in
+  `recomputeConnectivity`; goldens `warehouse_root_link` /
+  `warehouse_root_cut`; the `played` fixture has no unlinked warehouse,
+  so the `warehouse-unlinked` shot preset patches the displayed status.

@@ -665,6 +665,14 @@ Pitfalls for local runs:
   `castle.go`). A fixture constant in a new file must be added to that
   list, to `FIXTURES` in `shots-args.ts` and to `FIXTURE_INFO` in
   `shots.ts`, or `make check` fails.
+- **Trimming a plan's producers can break later actions.** Plan
+  `upgrade_warehouse` steps target a warehouse by order; after dropping
+  build actions they fail with "at its last level 4" and must go too.
+  The generator gives up after 4 sim hours: a single brickworks takes
+  239 min to deliver a university's bricks, so a trimmed plan may need
+  a second clay pit + brickworks instead of the producers it lost
+  (#81). Measure peak demand × 1.25 against producers before trimming;
+  `TestReferenceGamesSurplus` catches over-building afterwards.
 - **The shot tool cannot drag rectangles on the phone device:** the
   Playwright mouse drag starts no rectangle there, so the group-move
   presets (`move-group-drag`, `move-group-ghost`) are desktop only.
