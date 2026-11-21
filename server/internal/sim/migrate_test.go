@@ -490,3 +490,40 @@ func must(data []byte, err error) []byte {
 	}
 	return data
 }
+
+// TestDecodeClampsResidents: a house saved with more residents than the
+// loading catalogue's tier allows (content lowered residents_max, D-080) is
+// capped on decode; a house within the maximum is untouched.
+func TestDecodeClampsResidents(t *testing.T) {
+	c := catalogue(t)
+	w := testWorld(t, c)
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "house_settlers", X: 3, Y: 5, Rotation: 180})
+	is := w.Islands()[0]
+	var h *Building
+	for _, b := range is.Buildings {
+		if b.House != nil {
+			h = b
+		}
+	}
+	maxRes := c.TierByID["settlers"].ResidentsMax
+	h.House.Residents = maxRes + 2_000
+	h.House.Growth = 500
+	got, _, _, err := Decode(encode(t, w), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gh := got.Islands()[0].Building(h.ID)
+	if gh.House.Residents != maxRes || gh.House.Growth != 0 {
+		t.Fatalf("residents %d growth %d, want %d 0", gh.House.Residents, gh.House.Growth, maxRes)
+	}
+
+	h.House.Residents = maxRes - 1_000
+	h.House.Growth = 500
+	got, _, _, err = Decode(encode(t, w), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gh := got.Islands()[0].Building(h.ID); gh.House.Residents != maxRes-1_000 || gh.House.Growth != 500 {
+		t.Fatalf("untouched house changed: %+v", gh.House)
+	}
+}

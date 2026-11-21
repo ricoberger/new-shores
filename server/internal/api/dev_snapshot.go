@@ -109,7 +109,7 @@ func (s *Server) postDevSnapshot(w http.ResponseWriter, r *http.Request) {
 // catalogue's, is a 409 error (snapshot_schema_mismatch,
 // snapshot_content_mismatch), anything malformed a 400.
 func DecodeSnapshot(data []byte, c *content.Catalogue) (*sim.World, error) {
-	world, cv, _, err := sim.DecodeWith(data, sim.SchemaMigrations(c))
+	world, cv, _, err := sim.Decode(data, c)
 	switch {
 	case errors.Is(err, sim.ErrSchemaVersion):
 		return nil, &apiError{code: CodeSnapshotSchemaMismatch, status: http.StatusConflict, message: err.Error()}

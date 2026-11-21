@@ -56,5 +56,33 @@ func Encode(w *World, contentVersion string) ([]byte, error) {
 // a schema version without a migration path to SchemaVersion, or a newer
 // one, is rejected with ErrSchemaVersion.
 func Decode(data []byte, c *content.Catalogue) (*World, string, MigrationNotes, error) {
-	return DecodeWith(data, SchemaMigrations(c))
+	w, cv, notes, err := DecodeWith(data, SchemaMigrations(c))
+	if err != nil {
+		return nil, cv, notes, err
+	}
+	if c != nil {
+		clampResidents(w, c)
+	}
+	return w, cv, notes, nil
+}
+
+// clampResidents caps every house at its tier's residents_max. State
+// stores residents, content the maximum; a world saved under content with
+// larger houses (D-080 lowered them) would otherwise keep the surplus
+// forever, because a fully satisfied house above its target does not
+// decline (D-074). Worlds saved under the loading catalogue are unchanged;
+// Decode without a catalogue (nil) skips the clamp.
+func clampResidents(w *World, c *content.Catalogue) {
+	for _, is := range w.Islands() {
+		for _, b := range is.Buildings {
+			tier := houseTier(b, c)
+			if tier == nil || b.House.Residents <= tier.ResidentsMax {
+				continue
+			}
+			b.House.Residents = tier.ResidentsMax
+			if b.House.Growth > 0 {
+				b.House.Growth = 0
+			}
+		}
+	}
 }
