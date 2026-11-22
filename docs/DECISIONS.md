@@ -3380,3 +3380,66 @@ ladder.
   the calculator with a full-house preset. Later: the Needs page's
   `housesSupplied` and the calculator's houses-per-producer are the same
   number — keep one.
+
+## D-085 Timber jetty: a Settlers quay for the rural water buildings
+
+- **Date:** 2026-11-22
+- **Status:** accepted
+- **Context:** the quay (D-060, D-077 §8) already lets water-edge
+  buildings stand offshore: it counts as land, terminates the water
+  prefix and connects to the island's road net. But it is a Citizens
+  stone building (5 gold / 2 stone) with the harbour look, while the
+  tier with the first coast pressure is Settlers (fisher, salt pans)
+  and the rural water buildings deliberately keep timber decks (D-078
+  §3). Playtest 4: "a plank construction in the water that fishers and
+  salt pans can use" — the Anno 1404 wooden pier.
+- **Decision:**
+  1. New Settlers building **`jetty`** (EN "Jetty", DE "Steg"): 1×1 on
+     shallows, **3 gold / 1 plank**, no upkeep, never pausable, carries a
+     road (`road: true` like the quay), placed by drag like roads and
+     quays, same shallows reach (8 tiles of the island's own land) and the
+     same connected-to-land rule as the quay (a jetty or quay chain may
+     mix). Ground kind `boards` painted into the ground texture (planks
+     on piles over the water, D-068 style, no model).
+  2. **Who may stand on it:** the jetty counts as land only for the
+     **rural water-edge buildings** — those with `water_rows` and
+     `look: rural` or a new content flag `stands_on: ["jetty", "quay"]`
+     (fisher, salt pans, oyster beds; the Trading Post stays
+     `["quay"]`). **Shore buildings** (trading pier, depot, shipyard,
+     repair crane, harbour tower, harbour statue, Kontor, D-077 §5) and
+     the Trading Post accept **quay only**: a jetty under their
+     footprint or behind their back edge is `terrain`. Error code for a
+     rural building whose land rows would include something it may not
+     stand on stays `terrain`. Harbour points, lanes and berths ignore
+     jetties as they ignore quays. Roads on jetties behave as roads on
+     quays (connectivity, carts, D-081 warehouse root).
+  3. **Upgrade in place:** a quay placed on a jetty replaces it without
+     a `occupied` error and refunds 50 % of the jetty's cost — the paved-
+     over-dirt rule (polish 5) generalised to a content `replaces` list
+     (`road_paved` replaces `road_dirt`; `quay` replaces `jetty`); a jetty
+     cannot replace a quay (`occupied`). A water-edge building covering a
+     jetty with a valid land part replaces it without refund, as for the
+     quay. Demolishing a jetty under a building that needs it: refused as
+     for quays (`in_use`, existing rule — verify and reuse).
+  4. Art: boards in `wood` / `timber` roles with dark pile shadows along
+     the water edges, lite far colour = board top; the quay's cobbles
+     stay. Jetty tiles under a rural building's land rows show through
+     where the footprint has no deck (the fisher's hut already brings its
+     own deck, `MODEL_WATER_ROWS` unchanged).
+  5. Content `old_coast-0.25.0` (new ID and flag; snapshots at 0.24.0
+     load if the loader defaults `stands_on` to `["quay"]` for buildings
+     without it — keep the field optional so 0.24.0 worlds decode).
+     Schema: `stands_on`, `replaces`. Reference plans unchanged (no plan
+     needs a jetty; the Settlers coast on seed 1053001 suffices).
+- **Rejected:** moving the quay to Settlers (stone is Citizens by the
+  D-037 ladder, and the harbour look is wrong for a fishing village); a
+  shorter reach for the jetty (shallows already bound it, and reach is
+  not what the stone buys — the harbour buildings are); a modelled pier
+  piece (ground paint is the D-068 way for walkable surfaces).
+- **Consequences:** a Settlers island gets a second coastline for its
+  fishers and salt pans; the harbour stays stone; the content gains two
+  small generic mechanics (`stands_on`, `replaces`) instead of code
+  special-cases; the build menu's Harbour group at tier 1 gets its first
+  entry; MECHANICS §2 (water-edge rows: "quay or jetty per `stands_on`"),
+  §3 (roads on jetties, replaces), CONTENT §7 / §11, UI.md build menu,
+  ART_DIRECTION ground kinds.
