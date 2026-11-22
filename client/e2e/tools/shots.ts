@@ -1404,6 +1404,25 @@ function riverBridgeShot(half: number, device: Device | readonly Device[]): (typ
   };
 }
 
+/** The settled fixture's jetty row with its fisher (D-085), near: the camera on the middle of the home island's jetty tiles. */
+async function jettyView(page: Page, half: number): Promise<void> {
+  const t = await page.evaluate(() => {
+    for (const is of window.__newShores!.getServer()!.display.islands) {
+      const tiles = is.roads.filter((r) => r.type === "jetty");
+      if (tiles.length > 0) {
+        const x = tiles.reduce((a, r) => a + r.x, 0) / tiles.length;
+        const y = tiles.reduce((a, r) => a + r.y, 0) / tiles.length;
+        return { x: is.position.x + x + 0.5, y: is.position.y + y + 0.5, n: tiles.length };
+      }
+    }
+    throw new Error("settled-jetty-near: the fixture has no jetty");
+  });
+  console.log(`settled-jetty-near: ${t.n} jetty tiles around ${t.x.toFixed(1)}, ${t.y.toFixed(1)}`);
+  await setCamera(page, { x: t.x, y: t.y, half, rotation: 0 });
+  await waitLod(page, half < MID_TO_NEAR_HALF ? "near" : "mid");
+  await settle(page);
+}
+
 /** Centres the camera on the first lumberjack of the focused fixture's islands (forest shots). */
 async function lumberjackView(page: Page, half: number): Promise<void> {
   const t = await page.evaluate(() => {
@@ -1918,6 +1937,17 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.getByTestId("build-tab-settlers").click();
     },
   },
+  // The tier-1 Harbour group with the jetty's card (D-085), scrolled into view.
+  "build-menu-harbour": {
+    fixture: "settled",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+      await page.getByTestId("build-tab-settlers").click();
+      await page.getByTestId("build-jetty").scrollIntoViewIfNeeded();
+    },
+  },
   "build-menu-public": {
     fixture: "settled",
     device: ["desktop"],
@@ -2073,6 +2103,8 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   // A road bridge over the 2-tile river (D-072; a road crosses at most two river tiles, MECHANICS §10): near
   // (desktop and phone) and mid (desktop), the camera on the fixture's first bridge, looking along the river.
   "river-bridge": riverBridgeShot(10, ["desktop", "phone"]),
+  // The settled fixture's jetty row with a fisher on it (D-085): the boards on their piles beside the fisher, near.
+  "settled-jetty-near": { fixture: "settled", device: ["desktop", "phone"], run: (page) => jettyView(page, 9) },
   "river-bridge-mid": riverBridgeShot(36, "desktop"),
   // The island card, opened from an island label at far LOD (desktop).
   // A new world as it opens (D-053): the far zoom over the whole

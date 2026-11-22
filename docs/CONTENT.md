@@ -204,7 +204,8 @@ smelter : luthier 1 : 4 / 1 : 2 → 1 : 2 / 1 : 1.
 | wool_garments | `sheep_farm` (grass → wool, 60 s) [4 S], `weaver_wool` (wool → wool_garments, 60 s) [6 S] | 1 : 1 |
 
 Infrastructure: `trading_post` lvl 1 (founding), `warehouse` lvl 1,
-`road_dirt`, `market` lvl 1, `chapel`, `house_settlers`. The start
+`road_dirt`, `jetty` (D-085: the timber water road the fisher stands
+on), `market` lvl 1, `chapel`, `house_settlers`. The start
 ship is a cog; the shipyard unlocks at tier 2 (D-056).
 
 ### Tier 2 — Citizens
@@ -286,7 +287,7 @@ Infrastructure: `trading_post` lvl 4, `market` and `warehouse` lvl 4 (D-065), `u
 |---|---|---|---|---|---|
 | Final goods (needs) | 2 | 6 | 8 | 10 | **26** (+4 reserve) |
 | Construction/ship materials | 1 | 2 | 1 (+coal) | 1 | 5 (+1) |
-| Buildings (all kinds, content `old_coast-0.13.0`; reserve not counted) | 12 | 30 | 25 | 26 | **93** |
+| Buildings (all kinds, content `old_coast-0.13.0`; reserve not counted; since then D-077 ornaments and military and D-085 the jetty) | 12 | 30 | 25 | 26 | **93** |
 | Fertilities | — | wheat, apple, hemp | hops, woad | grapes | 6 |
 | Deposit slot types | — | stone | clay, salt, coal | iron, quartz, copper, gold | 8 |
 
@@ -350,10 +351,11 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `sheep_farm` | 1 | 3×3 + 3 `pasture` | — | Sheep Farm | 60 / 6 | 1 | 4 S | R, cycle 60 s (90 s before D-080: keeps the weaver's 1 : 1) |
 | `pasture` | 1 | 3×3 field | — | pasture module | 15 g / 1 plank | 0 | — | sheep_farm only; grass or forest (D-079); edge-adjacent chain |
 | `weaver_wool` | 1 | 3×4 | — | Spinner | 60 / 6 | 8 | 6 S | R, cycle 60 s (D-080; 90 s before) |
+| `jetty` | 1 | 1×1 on shallows | — | wooden pier (D-085) | see text | 0 | — | 3 gold / 1 plank; 1.0 s/tile; never paused; `look: rural`; fisher, salt pans and oyster beds stand on it (`stands_on`); connected to land like the quay; the quay replaces it |
 | `shipyard` | 2 | 8×12 | shore | Shipyard | 300 / 45 / 0 | 0 | — | R, never auto-paused; tier 2 since D-056; builds every unlocked ship type |
 | `house_citizens` | 2 | 3×3 | — | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
-| `road_paved` | 2 | 1×1 | — | road | see text | 0 | — | 3 gold / 1 stone |
-| `quay` | 2 | 1×1 on shallows | — | road (D-060) | see text | 0 | — | 5 gold / 2 stone; 0.6 s/tile; water-edge and shore buildings stand on it; connected to land (D-077 §8) |
+| `road_paved` | 2 | 1×1 | — | road | see text | 0 | — | 3 gold / 1 stone; `replaces: ["road_dirt"]` |
+| `quay` | 2 | 1×1 on shallows | — | road (D-060) | see text | 0 | — | 5 gold / 2 stone; 0.6 s/tile; water-edge and shore buildings stand on it; connected to land (D-077 §8); `replaces: ["jetty"]` (D-085) |
 | `quarry` | 2 | 3×8 on a stone slot | — | Limestone Quarry | 120 / 9 / 0 | 3 | 8 S | R; strip into the mountain |
 | `charcoal_burner` | 2 | 5×6 | — | Charcoal Burner | 90 / 9 / 0 | 2 | 4 S | R, forest nearby (visual) |
 | `wheat_farm` | 2 | 3×4 + 140 `wheat_field` | — | Wheat Farm | 150 / 9 / 3 | 2 | 6 S | R, wheat fertility |
@@ -444,8 +446,12 @@ shore placement (D-077 §5, MECHANICS §2); upkeep in gold/min;
 | `studio` (reserve) | 4 | 5×5 | — | Gilder | 680 / 5 / 6 / 9 / 6 | 4 | 6 P | R |
 | `luthier` | 4 | 5×5 | — | Lythier | 870 / 6 / 9 / 9 / 9 | 30 | 8 P | R |
 
-Roads: `road_dirt` 1 gold; `road_paved` 3 gold / 1 stone; `quay` 5 gold /
-2 stone on the shallows (D-060, MECHANICS §3). Trading Post
+Roads: `road_dirt` 1 gold; `road_paved` 3 gold / 1 stone; `jetty` 3 gold /
+1 plank and `quay` 5 gold / 2 stone on the shallows (D-060, D-085,
+MECHANICS §3). A road over one its `replaces` list names refunds 50 % of
+the old road's materials, floored to milli-units per tile, no gold
+(paved over dirt: nothing back for the gold-only dirt road; quay over
+jetty: half a plank). Trading Post
 founding cost 200 gold / 15 planks (start stock, D-051) — the levels below.
 
 Collector levels (D-069, throughput D-074 §3; T = throughput per minute, reach in
@@ -737,7 +743,11 @@ Every building has `id`, `name`, `region` (must equal the region id),
 called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min`,
 `pause_category` and `look`. Optional `description` is localized like the name
 (English source plus locale key, 1–2000 printable characters).
-World schema **17** (D-077 patrol), content **old_coast-0.24.0** (D-083 tools and the toolmaker retired, iron at Patricians, quests `citizens_stone` / `merchants_island2` — 0.23.x worlds and snapshots do not load; 0.23.1 D-082 civic maintenance and tax; 0.23.0 D-080 Anno 117 house sizes, generated rates, final-producer cycles, tax and upkeep; D-081 Trading Post road root — 0.22.x worlds and snapshots do not load; 0.22.1 D-078 `harbour_lane`, ornament and military tiers, the 12 × 12 castle; 0.22.0 D-077 ornaments, military, repair crane, Kontor, warships, `placement`, `category`, `defence`, `unique`, `paint_family`, `repairs`, `attack`; 0.21.1 D-076 `regions.json`, island IDs `oc-NN`, worlds with `regions[]`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): schema-15 and schema-16 worlds migrate (MECHANICS §9.4, ARCHITECTURE §4.2); older
+World schema **17** (D-077 patrol), content **old_coast-0.25.0** (D-085 the
+`jetty`, `stands_on`, `replaces` — 0.24.0 worlds decode unchanged: the
+loader defaults `stands_on`, `TestDecodeContent024` decodes a 0.24.0
+world; the dev snapshot endpoint still refuses another content version;
+0.24.0 D-083 tools and the toolmaker retired, iron at Patricians, quests `citizens_stone` / `merchants_island2` — 0.23.x worlds and snapshots do not load; 0.23.1 D-082 civic maintenance and tax; 0.23.0 D-080 Anno 117 house sizes, generated rates, final-producer cycles, tax and upkeep; D-081 Trading Post road root — 0.22.x worlds and snapshots do not load; 0.22.1 D-078 `harbour_lane`, ornament and military tiers, the 12 × 12 castle; 0.22.0 D-077 ornaments, military, repair crane, Kontor, warships, `placement`, `category`, `defence`, `unique`, `paint_family`, `repairs`, `attack`; 0.21.1 D-076 `regions.json`, island IDs `oc-NN`, worlds with `regions[]`; 0.21.0 D-075; 0.20.0 D-074; 0.19.0 D-072; 0.18.0 D-069): schema-15 and schema-16 worlds migrate (MECHANICS §9.4, ARCHITECTURE §4.2); older
 ones need a fresh local database (`make down VOLUMES=1 && make up`).
 The old `water_tiles` key is rejected; `water_rows` has required integer
 `min`/`max`, with `0 ≤ min ≤ max < depth` checked by the loader.
@@ -762,6 +772,17 @@ front of its water edge — its width plus one tile on each side, four
 rows deep — on which quays, shore buildings and paint tiles are refused
 (MECHANICS §2). Set on `trading_post`, `trading_pier`, `depot`,
 `shipyard`, `repair_crane` and `kontor`.
+D-085 fields: `stands_on` (list of water-road IDs — 1×1 roads with
+`road.shallows` — whose tiles count as land under the building's land
+part and behind a shore building's back edge, MECHANICS §2; only on a
+building with `water_rows` or the shore placement; absent: the loader
+gives every water-edge, shore and coastal building `["quay"]` when the
+content defines a `quay`, so 0.24.0 content and worlds keep their
+meaning; fisher, salt pans and oyster beds carry `["jetty", "quay"]`);
+`replaces` (list of road IDs this road replaces in place with 50 % of
+their materials back, MECHANICS §3; only on roads, never itself, the same
+class — land or water — and no cycles: `road_paved` → `road_dirt`,
+`quay` → `jetty`).
 What a building *does* is defined by the optional blocks
 it carries:
 
@@ -773,7 +794,7 @@ it carries:
 | `pier` | `berths` (≥ 1) — berths added to the island's pool; needs `water_rows` or `placement: shore`; no collector, service or levels (D-060) | trading_pier |
 | `depot` | `capacity` — fixed capacity per good added to the island; no levels, collector, service or pier (D-062) | depot |
 | `warehouse` | `levels[] {throughput_per_min, reach?, upkeep_per_min?, tier?, cost?}` — collector only, no capacity (`upgrade_warehouse`); every later level names the tier it needs (D-065) | inland Warehouse |
-| `road` | `seconds_per_tile`, `shallows?` (true: laid on the shallows instead of land, D-060) (building must be 1×1) | roads, quay |
+| `road` | `seconds_per_tile`, `shallows?` (true: a water road laid on the shallows instead of land, D-060, D-085) (building must be 1×1) | roads, jetty, quay |
 | `service` | `radius` or `levels[] {radius, upkeep_per_min?, cost?}` (level *n* needs tier *n*, derived by the loader, D-065; only the market has levels); `chain` + `rank` for a chain building (one radius, D-065) | public buildings |
 | `work_area` | `fertility` (island-wide tag the island must carry, else `no_fertility`); no radius or terrain rule | farms (the lumberjack is a farm since D-059) |
 | `fields` | `type` (a field building's `field.type`), `required`, `max` | farms (D-051 part 4), lumberjack (D-059) |
@@ -827,13 +848,15 @@ assignment:
 
 | Look | Buildings |
 |---|---|
-| `rural` | lumberjack, tree_plot, sheep_farm, pasture, fisher, wheat_farm, wheat_field, dairy_farm, cattle_pasture, orchard, orchard_plot, apiary, meadow, hemp_farm, hemp_field, pig_farm, pig_pen, quarry, iron_mine, charcoal_burner, hop_farm, hop_field, woad_farm, woad_field, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, vine_row, quartz_quarry, copper_mine, gold_mine, road_dirt, road_paved |
+| `rural` | lumberjack, tree_plot, sheep_farm, pasture, fisher, wheat_farm, wheat_field, dairy_farm, cattle_pasture, orchard, orchard_plot, apiary, meadow, hemp_farm, hemp_field, pig_farm, pig_pen, quarry, iron_mine, charcoal_burner, hop_farm, hop_field, woad_farm, woad_field, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, vine_row, quartz_quarry, copper_mine, gold_mine, road_dirt, road_paved, jetty |
 | `workshop` | sawmill, weaver_wool, mill, bakery, cheese_dairy, cidery, meadery, weaver_linen, tannery, sailmaker, smelter, butcher, pastry_kitchen, brewery, distillery, leather_works, tailor, dyer_works, dyer, paper_mill, printing_press, rendering_house, soap_maker, salt_works, brickworks, slaughterhouse, oyster_house, cooperage, winepress, malt_house, grain_distillery, fashion_house, thread_spinner, lace_maker, candle_foundry, glass_smelter, copper_smelter, optician, gold_smelter, goldsmith, luthier |
 | `civic` | house_settlers, house_citizens, house_merchants, house_patricians, market, chapel, church, cathedral, school, university, tavern, playhouse, city_guard, fire_station, surgery, every ornament and military building (D-077) |
 | `harbour` | trading_post, warehouse, shipyard, quay, trading_pier, depot, repair_crane, kontor |
 
 Fisher, salt pans and oyster beds are primary producers on the water
-(`rural`); the quay is a harbour structure although it is a road.
+(`rural`); the quay is a harbour structure although it is a road; the
+jetty (D-085) is `rural`, timber like the fishers' decks (a water road
+may be either).
 
 `pause_category` ∈ `need_goods`, `public`, `intermediate`, `food_basic`,
 `never` drives the insolvency order (MECHANICS §7). Buildings accepting

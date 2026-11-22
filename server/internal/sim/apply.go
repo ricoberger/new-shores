@@ -618,8 +618,8 @@ func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 				if t != content.TerrainWater || is.roadOrPlan(i) {
 					return false
 				}
-			case standsOnQuay(def) && quayAt(is, s.c, i):
-				// A quay counts as coast (D-060).
+			case standsOnAt(is, def, i):
+				// A quay (or a jetty in stands_on) counts as coast (D-060, D-085).
 			case is.roadOrPlan(i) && buildableTerrain(t) && roadCrossing(def, x, y, rotation, tx, ty):
 				// A wall or gate passage on a road (D-077 §3).
 			case is.roadOrPlan(i) || (!buildableTerrain(t) && (!mountain || t != content.TerrainMountain)):
@@ -664,11 +664,17 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 				crossing = append(crossing, Pos{tx, ty})
 				continue
 			}
-			// A coastal or water-edge building may stand on a quay: it
-			// counts as coast and is replaced (D-060).
-			if standsOnQuay(def) && quayAt(is, c, is.index(tx, ty)) {
+			// A coastal or water-edge building may stand on the water
+			// roads of its stands_on: they count as coast and are
+			// replaced (D-060, D-085 §2). Any other water road is not
+			// ground for it (terrain; for a building without stands_on
+			// checkTiles reports the water under it).
+			if standsOnAt(is, def, is.index(tx, ty)) {
 				quay = append(quay, Pos{tx, ty})
 				continue
+			}
+			if len(def.StandsOn) > 0 && quayAt(is, c, is.index(tx, ty)) {
+				return fmt.Errorf("%w: (%d,%d) is a %s, %s stands on %v only", ErrTerrain, tx, ty, is.RoadAt(tx, ty), def.ID, def.StandsOn)
 			}
 			tiles = append(tiles, Pos{tx, ty})
 		}
@@ -872,9 +878,11 @@ func checkRoadTiles(tiles []Pos) error {
 // land or straight bridges, where a road of a lower type is replaced.
 func checkRoadSite(is *Island, c *content.Catalogue, def *content.Building, tiles []Pos) error {
 	if def.Road.Shallows {
-		// A quay (D-060) stands on free shallows and keeps the harbour
-		// open (quay.go).
-		if err := checkQuayTiles(is, is.occupancy(c), tiles); err != nil {
+		// A water road (quay D-060, jetty D-085) stands on free shallows
+		// — or replaces a water road of its replaces list — and keeps the
+		// harbour open (quay.go).
+		replace := func(p Pos) bool { return replaceableRoad(is, c, def, p) != nil }
+		if err := checkQuayTiles(is, is.occupancy(c), tiles, replace); err != nil {
 			return err
 		}
 		if err := checkQuayLane(is, c, tiles); err != nil {
@@ -893,9 +901,10 @@ func checkRoadSite(is *Island, c *content.Catalogue, def *content.Building, tile
 		}
 		return checkQuaysConnected(is, c, tmp.Roads, tiles)
 	}
-	// A land road replaces a road of a lower type on its tile (MECHANICS
-	// §3): the old road's demolition refund, the new road's cost, and the
-	// tile never stops being a road. Same or higher types stay occupied.
+	// A land road replaces a road of its replaces list on its tile
+	// (MECHANICS §3, D-085 §3): the old road's demolition refund, the new
+	// road's cost, and the tile never stops being a road. Other roads stay
+	// occupied.
 	fresh := make([]Pos, 0, len(tiles))
 	for _, p := range tiles {
 		if replaceableRoad(is, c, def, p) == nil {
@@ -910,15 +919,13 @@ func checkRoadSite(is *Island, c *content.Catalogue, def *content.Building, tile
 }
 
 // applyRoad charges and places validated road tiles of type def: the
-// replaced lower roads are refunded, planned road tiles under them are
-// dropped (D-071).
+// replaced roads are refunded, planned road tiles under them are dropped
+// (D-071).
 func applyRoad(w *World, c *content.Catalogue, is *Island, def *content.Building, tiles []Pos, l *Ledger) error {
 	replaced := map[string]int64{}
-	if !def.Road.Shallows {
-		for _, p := range tiles {
-			if old := replaceableRoad(is, c, def, p); old != nil {
-				replaced[old.ID]++
-			}
+	for _, p := range tiles {
+		if old := replaceableRoad(is, c, def, p); old != nil {
+			replaced[old.ID]++
 		}
 	}
 	n := int64(len(tiles))
@@ -929,7 +936,7 @@ func applyRoad(w *World, c *content.Catalogue, is *Island, def *content.Building
 	chargeCost(w, is, def.Cost, n, l)
 	now := w.LastEvaluatedAt.UnixMilli()
 	for _, old := range sortedKeys(replaced) {
-		refund(is, c, c.BuildingByID[old].Cost, replaced[old], l, now)
+		refundWith(is, c, c.BuildingByID[old].Cost, replaced[old], l, now, replaceRefundAmount)
 	}
 	if is.Roads == nil {
 		is.Roads = map[int]string{}
@@ -946,20 +953,17 @@ func applyRoad(w *World, c *content.Catalogue, is *Island, def *content.Building
 	return nil
 }
 
-// replaceableRoad is the land road on tile p that a road of type def
-// replaces: one of a lower type, i.e. of an earlier tier (MECHANICS §3);
-// nil when the tile is off the grid, has no road, or has a road of the
-// same or a higher type, or either road is a quay.
+// replaceableRoad is the road on tile p that a road of type def replaces
+// in place: one of def's replaces list (MECHANICS §3, D-085 §3: the paved
+// road over the dirt road, the quay over the jetty; the content keeps the
+// classes apart); nil when the tile is off the grid, has no road, or one
+// def does not replace.
 func replaceableRoad(is *Island, c *content.Catalogue, def *content.Building, p Pos) *content.Building {
-	if !is.InBounds(p.X, p.Y) {
+	if !is.InBounds(p.X, p.Y) || def.Road == nil {
 		return nil
 	}
 	old := c.BuildingByID[is.Roads[is.index(p.X, p.Y)]]
-	if old == nil || old.Road == nil || old.Road.Shallows || def.Road == nil || def.Road.Shallows {
-		return nil
-	}
-	ot, nt := c.TierByID[old.Tier], c.TierByID[def.Tier]
-	if ot == nil || nt == nil || ot.Index >= nt.Index {
+	if old == nil || old.Road == nil || !def.ReplacesRoad(old.ID) {
 		return nil
 	}
 	return old
@@ -971,11 +975,25 @@ func refundAmount(cost Qty) Qty {
 	return cost / 2 / content.MilliPerUnit * content.MilliPerUnit
 }
 
+// replaceRefundAmount is the refund of a material of a road replaced in
+// place (MECHANICS §3, D-085 §3: the jetty under a quay, the dirt road
+// under a paved one): 50 % of the cost floored to milli-units, so the
+// jetty's single plank refunds half a plank per tile; no gold (D-019).
+func replaceRefundAmount(cost Qty) Qty {
+	return cost / 2
+}
+
 // refund adds the demolition refund to the island inventory, clamped to the
 // free committed capacity; the clamped excess is lost.
 func refund(is *Island, c *content.Catalogue, cost content.Cost, n int64, l *Ledger, now int64) {
+	refundWith(is, c, cost, n, l, now, refundAmount)
+}
+
+// refundWith is refund with the per-tile amount of each material from
+// amount (refundAmount, replaceRefundAmount).
+func refundWith(is *Island, c *content.Catalogue, cost content.Cost, n int64, l *Ledger, now int64, amountOf func(Qty) Qty) {
 	for _, m := range cost.Materials {
-		amount := refundAmount(m.Amount) * n * SubPerMilli
+		amount := amountOf(m.Amount) * n * SubPerMilli
 		if amount == 0 {
 			continue
 		}

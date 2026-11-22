@@ -33,7 +33,8 @@ import (
 //     claimed, and a sheep farm with its three 3x3 pastures painted in
 //     one place_fields drag (D-054).
 //   - settled: town plus the citizens tier (granted; the shipyard is tier
-//     2, D-056), a shipyard on the coast, a second cog (ship 2),
+//     2, D-056), a shipyard on the coast, a jetty row with a fisher on it
+//     (D-085, jetty.go), a second cog (ship 2),
 //     the nearest habitable island founded by it (Trading Post, street,
 //     two houses, a fisher) and ship 2 sailing the route "Fish home"; the
 //     start cog (ship 1) idle at the home island.
@@ -277,6 +278,8 @@ func settle(f *fixture) {
 	}
 	home := f.home()
 	yard := f.placeNear(home, "shipyard", f.streetEnd(home))
+	// A jetty row along the coast with a fisher on it (D-085, jetty.go).
+	jettyRow(f, home, f.tradingPostCentre(home))
 	if f.err != nil {
 		return
 	}

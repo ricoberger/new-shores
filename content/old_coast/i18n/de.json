@@ -85,6 +85,8 @@
   "buildings.house_citizens.name": "Bürgerhaus",
   "buildings.road_paved.name": "Gepflasterte Straße",
   "buildings.quay.name": "Kai",
+  "buildings.jetty.name": "Steg",
+  "buildings.jetty.description": "Planken auf Holzpfählen über dem flachen Wasser: ein Weg für Fischer, Salzpfannen und Austernbänke, die darauf stehen dürfen. Später kann ein Kai darüber gebaut werden.",
   "buildings.trading_pier.name": "Handelssteg",
   "buildings.depot.name": "Depot",
   "buildings.tavern.name": "Taverne",

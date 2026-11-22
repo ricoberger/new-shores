@@ -290,6 +290,8 @@ func checkReferences(c *Catalogue) error {
 		}
 	}
 
+	checkWaterRoads(c, col)
+
 	// Every world starts at sea and settles by founding a Trading Post
 	// (MECHANICS §8), so the content needs one.
 	if tradingPosts == 0 {
@@ -738,5 +740,68 @@ func checkD077(col *collector, ent string, b *Building) {
 	}
 	if b.Gate && (b.Category != CategoryMilitary || b.PaintFamily != nil || b.Shore() || b.Width != b.Height || b.Width < 3 || b.Width%2 == 0) {
 		col.add(FileBuildings, ent, "gate", "a gate is a square military building with an odd side of at least 3 on land, not a paint family")
+	}
+}
+
+// checkWaterRoads validates stands_on and replaces (D-085): stands_on
+// names water roads (1x1 roads with road.shallows); replaces sits on a
+// road and names other roads of its class (land or shallows) without a
+// cycle.
+func checkWaterRoads(c *Catalogue, col *collector) {
+	for _, b := range c.Buildings {
+		ent := fmt.Sprintf("building %q", b.ID)
+		for i, id := range b.StandsOn {
+			field := fmt.Sprintf("stands_on[%d]", i)
+			r := c.BuildingByID[id]
+			switch {
+			case r == nil:
+				col.add(FileBuildings, ent, field, "unknown building %q", id)
+			case r.Road == nil || !r.Road.Shallows || r.Width != 1 || r.Height != 1:
+				col.add(FileBuildings, ent, field, "%q is not a water road (a 1x1 road with shallows)", id)
+			}
+		}
+		if len(b.Replaces) > 0 && b.Road == nil {
+			col.add(FileBuildings, ent, "replaces", "only a road replaces roads")
+			continue
+		}
+		for i, id := range b.Replaces {
+			field := fmt.Sprintf("replaces[%d]", i)
+			r := c.BuildingByID[id]
+			switch {
+			case r == nil:
+				col.add(FileBuildings, ent, field, "unknown building %q", id)
+			case id == b.ID:
+				col.add(FileBuildings, ent, field, "a road cannot replace itself")
+			case r.Road == nil || r.Road.Shallows != b.Road.Shallows:
+				col.add(FileBuildings, ent, field, "%q is not a road of the same class (land road on land road, water road on water road)", id)
+			}
+		}
+	}
+	// No cycles: a road never (transitively) replaces a road that
+	// replaces it.
+	state := map[string]int{} // 0 unseen, 1 on the path, 2 done
+	var visit func(id string) bool
+	visit = func(id string) bool {
+		switch state[id] {
+		case 1:
+			return false
+		case 2:
+			return true
+		}
+		state[id] = 1
+		if b := c.BuildingByID[id]; b != nil {
+			for _, next := range b.Replaces {
+				if next != id && !visit(next) {
+					return false
+				}
+			}
+		}
+		state[id] = 2
+		return true
+	}
+	for _, b := range c.Buildings {
+		if len(b.Replaces) > 0 && state[b.ID] == 0 && !visit(b.ID) {
+			col.add(FileBuildings, fmt.Sprintf("building %q", b.ID), "replaces", "the replaces lists form a cycle")
+		}
 	}
 }

@@ -57,7 +57,7 @@ describe("plans as hint data (D-071)", () => {
 });
 
 describe("road drag with plans (D-071)", () => {
-  const data = { island: statics, buildings: hintSite(island, false).buildings, roads: island.roads, defs, tiers: [{ id: "settlers", index: 0 }] };
+  const data = { island: statics, buildings: hintSite(island, false).buildings, roads: island.roads, defs };
 
   it("rejects a tile under a planned building in both modes", () => {
     const tiles = planRoadDrag({ x: 0, y: 2 }, { x: 3, y: 2 }, "road_dirt", data);

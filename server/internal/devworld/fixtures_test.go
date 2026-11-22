@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
+	"github.com/ricoberger/new-shores/server/internal/layout"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 )
 
@@ -116,6 +117,7 @@ func TestFixtures(t *testing.T) {
 				if count(w, home, "shipyard") != 1 {
 					t.Error("no shipyard at home")
 				}
+				checkJettyRow(t, c, w.Island(home))
 				if len(w.Ships) != 2 || w.Ships[0].State != sim.ShipIdle || w.Ships[0].IslandID != home || second == 0 ||
 					len(w.Routes) != 1 || w.Routes[0].Name != "Fish home" {
 					t.Errorf("ships %+v routes %+v", w.Ships, w.Routes)
@@ -401,4 +403,42 @@ func TestFixturesOtherSeeds(t *testing.T) {
 			checkCitizens(t, c, w)
 		}
 	}
+}
+
+// checkJettyRow checks the settled fixture's jetty row (D-085): a fisher
+// at home borders the jetty tiles left beside its footprint (the row runs
+// on beside it), and every jetty tile lies on the water.
+func checkJettyRow(t *testing.T, c *content.Catalogue, is *sim.Island) {
+	t.Helper()
+	var jetties []sim.Pos
+	for y := range is.Height {
+		for x := range is.Width {
+			if is.RoadAt(x, y) == jettyType {
+				jetties = append(jetties, sim.Pos{X: x, Y: y})
+				if is.Tile(x, y).Terrain != content.TerrainWater {
+					t.Errorf("jetty on %s at (%d,%d)", is.Tile(x, y).Terrain, x, y)
+				}
+			}
+		}
+	}
+	if len(jetties) < 2 {
+		t.Fatalf("settled: %d jetty tiles at home, want a row", len(jetties))
+	}
+	for _, b := range is.Buildings {
+		if b.Type != jettyFisher {
+			continue
+		}
+		def := c.BuildingByID[b.Type]
+		w, h := layout.Dims(def, b.Rotation)
+		touching := 0
+		for _, p := range jetties {
+			if (p.X == b.X-1 || p.X == b.X+w) && p.Y >= b.Y && p.Y < b.Y+h || (p.Y == b.Y-1 || p.Y == b.Y+h) && p.X >= b.X && p.X < b.X+w {
+				touching++
+			}
+		}
+		if touching >= 1 && len(jetties) >= 2 {
+			return
+		}
+	}
+	t.Errorf("settled: no fisher at home on the jetty row %v", jetties)
 }

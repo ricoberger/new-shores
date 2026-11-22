@@ -42,7 +42,7 @@ describe("shallows (D-060)", () => {
     expect(isQuayType(defs, "quay")).toBe(true);
     expect(isQuayType(defs, "road_dirt")).toBe(false);
     expect(isQuayType(defs, "nope")).toBe(false);
-    expect([...roadsOnWater(island, [{ x: 3, y: 8 }, { x: 3, y: 10 }])]).toEqual(["3,8"]);
+    expect([...roadsOnWater(island, [{ x: 3, y: 8, type: "quay" }, { x: 3, y: 10, type: "quay" }])]).toEqual([["3,8", "quay"]]);
   });
 
   it("tints the free shallows and reads quays as non-water for the water-edge hint", () => {

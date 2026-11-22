@@ -214,7 +214,7 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                         <span className={`${styles.small} ${styles.cardLine}`} data-testid={`build-info-${b.id}`}>
                           {/* An ornament shows its cost only (no upkeep, D-077 §2); the D-077 notes follow (dormant values say so). */}
                           {b.category !== "ornaments" && <span>{t("infoPanel.upkeepRate", { rate: perMin(b.upkeep_per_min) })}</span>}
-                          {buildingNotes(b).map((note, i) => (
+                          {buildingNotes(b, content).map((note, i) => (
                             <Fragment key={note}>
                               {(i > 0 || b.category !== "ornaments") && <span aria-hidden="true">·</span>}
                               <span data-testid={`build-note-${b.id}-${i}`}>{note}</span>

@@ -32,6 +32,16 @@ export const SAND = c3(TERRAIN.sand);
 /** Planks: the recipes' plank shade (nsvoxel mats PLANK, timber × 1.62) — the palette has no plank role, timber is the nearest. */
 export const PLANKS = c3(BUILDINGS.timber).scale(1.62);
 
+/**
+ * Boards (D-085, the jetty's deck): one-column planks in two shades of the
+ * recipes' plank colour with a little grain — `plank` the column's index
+ * across the planks, `r` a hash of the column. No seams or nails: the
+ * deck's average is the plank colour, which the lite and far views show.
+ */
+export function boardsTop(plank: number, r: number): number {
+  return pack(PLANKS.scale((plank % 2 === 0 ? 1.05 : 0.95) + 0.05 * (r - 0.5)));
+}
+
 /** Packed earth with stones (a road's path, a dirt yard): `r` a hash of the column, `s` a second one. */
 export function dirtTop(r: number, s: number): number {
   return pack(r < 0.05 ? STONE_DARK : r < 0.13 ? STONE : DIRT.scale(0.93 + 0.1 * s));

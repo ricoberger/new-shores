@@ -1,0 +1,175 @@
+{
+  "name": "jetty_fisher",
+  "description": "D-085 on the shipped content, Settlers only: a jetty platform (x 20..22, rows 15..17, in front of the coast row 18) carries a fisher (3×8 at (20,13)): its two front rows 13..14 are water, the jetty rows are its land part and are replaced without refund; a dirt road from the Trading Post connects it. A jetty tile at (23,15) hangs on the fisher only. Demolishing the jetty under the fisher fails (no_road: the placement replaced it), demolishing the fisher fails (quay_would_float: the jetty at (23,15) would float, the existing D-077 §8 rule); the hanging jetty demolished, the fisher works. Every failed step leaves the world byte-identical.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "fertilities": [],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 4,
+      "y": 16,
+      "rotation": 0
+    },
+    "gold": "5000",
+    "stock": {
+      "planks": 200
+    },
+    "workforce": {
+      "settlers": 1000
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "jetty",
+        "from": [
+          20,
+          17
+        ],
+        "to": [
+          22,
+          17
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "jetty",
+        "from": [
+          20,
+          16
+        ],
+        "to": [
+          22,
+          16
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "jetty",
+        "from": [
+          20,
+          15
+        ],
+        "to": [
+          22,
+          15
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          10,
+          19
+        ],
+        "to": [
+          19,
+          19
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 20,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "type": "jetty",
+        "from": [
+          23,
+          15
+        ],
+        "to": [
+          23,
+          15
+        ]
+      }
+    },
+    {
+      "demolish_road": {
+        "type": "jetty",
+        "from": [
+          21,
+          16
+        ],
+        "to": [
+          21,
+          16
+        ]
+      },
+      "expect_error": "no_road"
+    },
+    {
+      "demolish": {
+        "x": 20,
+        "y": 13
+      },
+      "expect_error": "quay_would_float"
+    },
+    {
+      "demolish_road": {
+        "type": "jetty",
+        "from": [
+          23,
+          15
+        ],
+        "to": [
+          23,
+          15
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    }
+  ]
+}

@@ -24,7 +24,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { Island, Terrain } from "../api/client";
 import type { CoastLoop } from "../display/coastline";
 import { fbm, hash2 } from "../display/noise";
-import { ISLAND, TERRAIN, WATER } from "../theme/palette";
+import { BUILDINGS, ISLAND, SHADOWS, TERRAIN, WATER } from "../theme/palette";
 import { c3 } from "./palette";
 import { RIVER_WATER } from "./water";
 import { insideGrid, LEVEL_STEPS, reliefColumns, type ReliefColumns, reliefOf, RIVER_DROP, rockStrata, rockTop } from "./terraces";
@@ -66,6 +66,8 @@ export const SIDE_CLIFF = 4;
 export const SIDE_EARTH_B = 5;
 /** A quay wall in deeper water (D-077 §8): dressed stone courses, a capping course, darker and wet toward the foot. */
 export const SIDE_QUAY = 6;
+/** A jetty's side (D-085): the boards' edge, then the piles in their own dark shadow, wet toward the foot. */
+export const SIDE_PILES = 7;
 
 const RIM = c3(ISLAND.sand_rim);
 const SAND = c3(TERRAIN.sand);
@@ -80,6 +82,10 @@ const CLIFF_FOOT = c3(ISLAND.cliff_foot);
 /** The quay wall's ashlar (render/groundpaint.ts STONE, the deck's stone) and its wet foot. */
 const QUAY_STONE = c3(ISLAND.rock_light);
 const QUAY_WET = Color3.Lerp(c3(ISLAND.rock), c3(WATER.shallows), 0.25).scale(0.8);
+/** A jetty's boards' edge (render/groundpaint.ts PLANKS, a shade darker) and the piles under it in the timber's shadow tone. */
+const BOARD_EDGE = c3(BUILDINGS.timber).scale(1.62 * 0.82);
+const PILES = c3(SHADOWS.timber);
+const PILES_WET = Color3.Lerp(PILES, c3(WATER.shallows), 0.3).scale(0.8);
 /** Earth and rock bands of a grass edge over the sea, top to foot (darker at the base). */
 const EARTH_BANDS = [Color3.Lerp(c3(TERRAIN.road_dirt), c3(ISLAND.rock_deep), 0.3), c3(ISLAND.cliff_upper), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_lower), c3(ISLAND.cliff_foot)];
 /** Sand walls of the beach steps, top to foot. */
@@ -137,7 +143,7 @@ export interface Field {
   floor?: Int8Array;
   /** The flat ground of each column's tile (steps; its terrace level): roads and field ground paint where the column stands at it (default 0). */
   flat?: Int8Array;
-  /** The road columns of the last road paint (render/roadvoxels.ts; 0 none, 1 dirt, 2 paved, 3 quay): field ground and yards paint around them. */
+  /** The road columns of the last road paint (render/roadvoxels.ts; 0 none, 1 dirt, 2 paved, 3 quay, 4 jetty): field ground and yards paint around them. */
   road?: Uint8Array;
   /** The road colours of the columns a bridge spans (render/roadvoxels.ts; 0 none, else 0x1000000 | packed RGB): the far view paints them over the river, where its bridges are hidden. */
   bridge?: Uint32Array;
@@ -233,6 +239,7 @@ export function coastSide(z: number, kind: number): Color3 {
   const p = ((z % LEVEL_STEPS) + LEVEL_STEPS) % LEVEL_STEPS;
   if (kind === SIDE_FALL) return FALL_BANDS[p] as Color3;
   if (kind === SIDE_QUAY) return quaySide(z);
+  if (kind === SIDE_PILES) return pileSide(z);
   if (kind === SIDE_ROCK && z >= 0) return rockStrata(z);
   if (kind === SIDE_CLIFF) return z >= 0 ? rockStrata(z) : Color3.Lerp(rockStrata(z), CLIFF_FOOT, Math.min(0.85, -z / 6));
   if (z >= 0) return (kind === SIDE_EARTH_B ? TERRACE_BANDS_B : TERRACE_BANDS)[p] as Color3;
@@ -245,6 +252,13 @@ export function quaySide(z: number): Color3 {
   if (z >= 0) return QUAY_STONE.scale(1.04);
   const course = QUAY_STONE.scale(z % 2 === 0 ? 0.8 : 0.9);
   return z <= -3 ? Color3.Lerp(course, QUAY_WET, Math.min(1, (-z - 2) / 3)) : course;
+}
+
+/** A jetty's side at layer z (D-085): the boards' edge (≥ 0), the dark piles below, wetter toward the foot. */
+export function pileSide(z: number): Color3 {
+  if (z >= 0) return BOARD_EDGE;
+  const pile = PILES.scale(z % 2 === 0 ? 0.9 : 1.0);
+  return z <= -3 ? Color3.Lerp(pile, PILES_WET, Math.min(1, (-z - 2) / 3)) : pile;
 }
 
 /** Whether a river column's surface is above a neighbouring river column's (a rapid of the estuary). */

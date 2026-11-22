@@ -125,6 +125,20 @@
         "description": "The building is a berth holder with a harbour lane in front of its water edge (D-078 §1): the footprint's width plus one tile on each side, four rows deep; quays, shore buildings and paint tiles are rejected on it. Needs shore placement or water rows. Absent is false.",
         "type": "boolean"
       },
+      "stands_on": {
+        "description": "Water roads the building may stand on (D-085 \u00a72): the road-like 1x1 buildings with road.shallows (quay, jetty) whose tiles count as land under its footprint and behind a shore building's back edge, and are replaced (no refund) when it is placed. Only on buildings with water_rows or shore placement. Absent: [\"quay\"] (the D-060 rule; also for coastal buildings).",
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": { "$ref": "#/$defs/id" }
+      },
+      "replaces": {
+        "description": "Roads this road replaces in place when placed over them (D-085 \u00a73, the paved-over-dirt rule of MECHANICS \u00a73): one transaction, the new road's cost, the old road's demolition refund. Only on roads and only naming roads of the same class (land road on land road, shallows road on shallows road); no cycles. Absent: replaces nothing.",
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": { "$ref": "#/$defs/id" }
+      },
       "gate": {
         "description": "The building is a gate in the city wall (gatehouse, D-077 §3): placed with a road-crossing paint family on two opposite sides, a road may run along its centre line. Absent is false.",
         "type": "boolean"
@@ -200,7 +214,7 @@
         "properties": {
           "seconds_per_tile": { "type": "number", "minimum": 0 },
           "shallows": {
-            "description": "A quay (D-060): placed on shallow water (water within 3 tiles of the island's own land, not river) instead of land.",
+            "description": "A water road (quay D-060, jetty D-085): placed on shallow water (water within 8 tiles of the island's own land, not river) instead of land; land for ships, connected to land, kept off harbour lanes.",
             "type": "boolean"
           }
         }

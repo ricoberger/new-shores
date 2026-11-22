@@ -26,7 +26,7 @@ import { islandSeed } from "../display/scatter";
 import { allocateFarTerrain, type MaskIsland, MaskLayer, reliefOrder } from "./farmesh";
 import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
-import { freeShallows, isQuayType, withQuays } from "../display/quay";
+import { freeShallows, isQuayType, waterRoadsFor, withQuays } from "../display/quay";
 import { buildingAt, levelAt, missingDepositHint, missingRoadHint, rotatedFootprint, shoreHint, shoreTiles, type TilePos, tileKey, waterEdgeTiles, type WaterEdgeTile } from "../display/geometry";
 import { unlinkedWarehouseHint } from "../display/roadpath";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
@@ -252,7 +252,6 @@ export class GameRenderer {
   private lastIslands: ReadonlyMap<string, Island> | null = null;
   private lastContent: unknown = null;
   private defs = new Map<string, ContentBuilding>();
-  private tiers: readonly { id: string; index: number }[] = [];
   private hover: Point | null = null;
   private roadStart: IslandTile | null = null;
   /** The tile under the pointer of the road drag (its ghost runs from roadStart to here). */
@@ -1092,7 +1091,6 @@ export class GameRenderer {
     if (snap.content !== this.lastContent && snap.content) {
       this.lastContent = snap.content;
       this.defs = new Map(snap.content.buildings.map((b) => [b.id, b]));
-      this.tiers = snap.content.tiers;
       this.shipLengths = new Map(snap.content.ships.map((s) => [s.id, shipLengthRatio(s)]));
       this.arch.setShipLengths(this.shipLengths);
       // The zoom-out cap of the region (an older server sends none: no cap).
@@ -1829,12 +1827,14 @@ export class GameRenderer {
     if (l?.statics && def.water_rows) {
       const st = l.statics;
       const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
-      waterTiles = waterEdgeTiles(def, withQuays(terrain, l.roads), tl.x, tl.y, tool.rotation, levelAt(st.levels, st.width));
+      const wr = waterRoadsFor(l.display.roads, def.stands_on);
+      waterTiles = waterEdgeTiles(def, withQuays(terrain, wr.on, wr.off), tl.x, tl.y, tool.rotation, levelAt(st.levels, st.width));
     } else if (l?.statics && def.placement === "shore") {
       // A shore building (D-077 §5): its deck over water and level-0 land, the back edge on land or a quay.
       const st = l.statics;
       const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
-      waterTiles = shoreTiles(def, withQuays(terrain, l.roads), tl.x, tl.y, tool.rotation, levelAt(st.levels, st.width));
+      const wr = waterRoadsFor(l.display.roads, def.stands_on);
+      waterTiles = shoreTiles(def, withQuays(terrain, wr.on, wr.off), tl.x, tl.y, tool.rotation, levelAt(st.levels, st.width));
     }
     // The harbour lane (D-078 §1): a holder's own lane drawn in the ghost colour, its tiles over a quay, a shore building
     // or a paint tile red; a shore building's footprint tiles on another holder's lane red.
@@ -2096,7 +2096,7 @@ export class GameRenderer {
     if (!l?.statics || !pl) return [];
     const detail = this.details.get(island);
     // Plans reserve their tiles; a planned road goes on free tiles only (D-071).
-    const drag = planRoadDrag(start, end, roadType, { island: l.statics, buildings: hintSite(l.display, false).buildings, roads: l.display.roads, defs: this.defs, tiers: this.tiers });
+    const drag = planRoadDrag(start, end, roadType, { island: l.statics, buildings: hintSite(l.display, false).buildings, roads: l.display.roads, defs: this.defs });
     const tiles = this.planning && !isPaintType(this.defs, roadType) ? planningRoadDrag(drag, l.display) : drag;
     // A road the new one replaces (MECHANICS §3) is marked like a new tile.
     return tiles

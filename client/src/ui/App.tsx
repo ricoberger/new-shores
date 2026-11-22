@@ -609,7 +609,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       // Tiles that already carry the road are not sent (display hint, the server validates the rest); plans reserve
       // their tiles, and a planned road goes on free tiles only (D-071).
       const st = renderer?.islandStatics().get(islandId);
-      const drag = st ? planRoadDrag(from, to, tool.roadType, { island: st, buildings: hintSite(is, false).buildings, roads: is.roads, defs, tiers: content?.tiers }) : null;
+      const drag = st ? planRoadDrag(from, to, tool.roadType, { island: st, buildings: hintSite(is, false).buildings, roads: is.roads, defs }) : null;
       const paint = isPaintType(defs, tool.roadType);
       const tiles = drag
         ? roadDragSend(planning && !paint ? planningRoadDrag(drag, is) : drag)
@@ -617,7 +617,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       if (tiles.length === 0) return;
       // A quay off the shallows would be rejected (display mirror of the rule, D-060).
       if (isQuayType(defs, tool.roadType) && st && offShallows(st, tiles).length > 0) {
-        toast(t("app.quayShallows", { count: SHALLOWS_REACH }));
+        toast(t("app.quayShallows", { count: SHALLOWS_REACH, name: defs.get(tool.roadType)?.name ?? tool.roadType }));
         return;
       }
       // A paint family (D-077 §2–§3) goes tile by tile as buildings (one place_paint).
@@ -1184,7 +1184,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         )}
       {tool.kind === "road" &&
         (isQuayType(defs, tool.roadType)
-          ? t("app.hint.quay", { count: SHALLOWS_REACH })
+          ? t("app.hint.quay", { count: SHALLOWS_REACH, name: defs.get(tool.roadType)?.name ?? tool.roadType })
           : isPaintType(defs, tool.roadType)
             ? t("app.hint.paint", { name: defs.get(tool.roadType)?.name ?? tool.roadType })
             : t("app.hint.road"))}

@@ -672,6 +672,16 @@ Pitfalls for local runs:
   `castle.go`). A fixture constant in a new file must be added to that
   list, to `FIXTURES` in `shots-args.ts` and to `FIXTURE_INFO` in
   `shots.ts`, or `make check` fails.
+- **A new golden scenario needs its display fixture.**
+  `TestGoldenFinalsMatchDisplaySchema` (`internal/api`) requires as many
+  files in `server/testdata/display` as `*.golden.json` scenarios, so a
+  scenario added with `-update` in `internal/sim/scenario` alone fails
+  the API tests: run `go test ./internal/sim/scenario/ -run
+  TestDisplayFixtures -update` too and commit both.
+- **A new shot preset needs the shots-args test.**
+  `client/e2e/tools/shots-args.test.ts` spells out the whole `PRESET`
+  list in the unknown-value error; add the preset there as well as to
+  `PRESETS` (`shots-args.ts`) and `PRESET_RUN` (`shots.ts`).
 - **Trimming a plan's producers can break later actions.** Plan
   `upgrade_warehouse` steps target a warehouse by order; after dropping
   build actions they fail with "at its last level 4" and must go too.

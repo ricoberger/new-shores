@@ -92,12 +92,14 @@ describe("build menu planning toggle (D-071)", () => {
 describe("build menu groups", () => {
   const groups = (tier: string) => buildMenuGroups(content, tier).map((r) => [r.group, r.items.map((b) => b.id)] as const);
 
-  it("lists General (house, road, warehouse), Production, Public (market first) in a tab, empty groups left out", () => {
-    const [general, production, pub, ...rest] = groups("settlers");
+  it("lists General (house, road, warehouse), Production, Public (market first), Harbour (jetty) in a tab, empty groups left out", () => {
+    const [general, production, pub, harbour, ...rest] = groups("settlers");
     expect(general).toEqual(["general", ["house_settlers", "road_dirt", "warehouse"]]);
     expect(production?.[0]).toBe("production");
     // The market serves a public-group need (D-065): it stands with the service buildings.
     expect(pub).toEqual(["public", ["market", "chapel"]]);
+    // The timber jetty is the Settlers' water road (D-085 §1).
+    expect(harbour).toEqual(["harbour", ["jetty"]]);
     // No ornaments before the Citizens (D-078 §2).
     expect(rest).toEqual([]);
     // The Trading Post is never listed; later houses are upgrade-only.
@@ -140,7 +142,7 @@ describe("build menu groups", () => {
   it("renders the groups in the strip, each with its label", () => {
     const html = render();
     expect(ids(html).slice(0, 3)).toEqual(["house_settlers", "road_dirt", "warehouse"]);
-    expect([...html.matchAll(/data-testid="build-group-([a-z]+)"/g)].map((m) => m[1])).toEqual(["general", "production", "public"]);
+    expect([...html.matchAll(/data-testid="build-group-([a-z]+)"/g)].map((m) => m[1])).toEqual(["general", "production", "public", "harbour"]);
     expect(text(html.match(/data-testid="build-group-general"[^>]*><div[^>]*>(.*?)<\/div>/)![1]!)).toBe("General");
     const citizens = render({ initialTier: "citizens" });
     expect(text(citizens.match(/data-testid="build-group-ornaments"[^>]*><div[^>]*>(.*?)<\/div>/)![1]!)).toBe("Ornaments");
@@ -149,6 +151,15 @@ describe("build menu groups", () => {
 
 describe("build cards", () => {
   const card = (html: string, id: string) => html.match(new RegExp(`<button[^>]*data-testid="build-${id}"[^>]*>.*?</button>`))![0];
+
+  it("shows the jetty in the Settlers' Harbour group with its water-road notes (D-085)", () => {
+    const html = render();
+    const jetty = card(html, "jetty");
+    expect(text(jetty)).toContain("Jetty");
+    expect(text(jetty)).toContain("On shallow water");
+    expect(text(jetty)).toContain("Quay builds over it");
+    expect(jetty).toContain('title="Planks on timber piles');
+  });
 
   it("shows the cost with good icons and marks only the parts the player cannot cover in red", () => {
     const tight = {

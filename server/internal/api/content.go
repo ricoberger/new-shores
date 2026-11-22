@@ -1,6 +1,8 @@
 package api
 
 import (
+	"slices"
+
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 )
@@ -367,7 +369,14 @@ type buildingJSON struct {
 	// HarbourLane marks a berth holder with a harbour lane (D-078 §1).
 	HarbourLane bool `json:"harbour_lane,omitempty"`
 	// Gate marks the gatehouse (D-077 §3).
-	Gate          bool             `json:"gate,omitempty"`
+	Gate bool `json:"gate,omitempty"`
+	// StandsOn lists the water roads (quay, jetty) the building stands
+	// on (D-085 §2; content default ["quay"] for water-edge, shore and
+	// coastal buildings), else absent.
+	StandsOn []string `json:"stands_on,omitempty"`
+	// Replaces lists the roads this road replaces in place (D-085 §3),
+	// else absent.
+	Replaces      []string         `json:"replaces,omitempty"`
 	RequiresRoad  bool             `json:"requires_road"`
 	Cost          costJSON         `json:"cost"`
 	UpkeepPerMin  int64            `json:"upkeep_per_min"`
@@ -451,7 +460,8 @@ func buildingCategory(b *content.Building) string {
 	case b.TradingPost != nil, b.Shipyard != nil, b.Pier != nil, b.Depot != nil:
 		return categoryHarbour
 	case b.Road != nil && b.Road.Shallows:
-		// The quay is a road on the shallows, but a harbour building to the player.
+		// A water road (quay, jetty) is a road on the shallows, but a
+		// harbour building to the player.
 		return categoryHarbour
 	case b.Road != nil:
 		return categoryRoads
@@ -655,6 +665,12 @@ func newBuildingJSON(b *content.Building, tx texts) buildingJSON {
 	}
 	if rd := b.Road; rd != nil {
 		bj.Road = &roadJSON{MsPerTile: rd.MsPerTile, Shallows: rd.Shallows}
+	}
+	if len(b.StandsOn) > 0 {
+		bj.StandsOn = slices.Clone(b.StandsOn)
+	}
+	if len(b.Replaces) > 0 {
+		bj.Replaces = slices.Clone(b.Replaces)
 	}
 	if s := b.Service; s != nil {
 		bj.Service = &serviceJSON{Radius: s.RadiusAt(1), Chain: s.Chain, Rank: s.Rank, Levels: []serviceLevelJSON{}}

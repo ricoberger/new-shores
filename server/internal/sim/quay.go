@@ -66,15 +66,17 @@ func quayAt(is *Island, c *content.Catalogue, i int) bool {
 	return rt != "" && isQuay(c, rt)
 }
 
-// standsOnQuay reports whether a building may stand on quay tiles: a
-// coastal or water-edge building (D-060).
-func standsOnQuay(def *content.Building) bool {
-	return def.Coastal || def.WaterRows != nil || def.Shore()
+// standsOnAt reports whether the building may stand on tile i: the tile
+// carries a water road of its stands_on (D-060, D-085 §2; content
+// defaults it to the quay for water-edge, shore and coastal buildings).
+func standsOnAt(is *Island, def *content.Building, i int) bool {
+	return def.StandsOnRoad(is.Roads[i])
 }
 
-// checkQuayTiles validates the tiles of a quay placement: on the island,
-// shallow and free.
-func checkQuayTiles(is *Island, occ []int64, tiles []Pos) error {
+// checkQuayTiles validates the tiles of a water road placement (quay,
+// jetty): on the island, shallow and free, except tiles replace accepts
+// (nil: none) — a road the placed one replaces in place (D-085 §3).
+func checkQuayTiles(is *Island, occ []int64, tiles []Pos, replace func(Pos) bool) error {
 	for _, p := range tiles {
 		if !is.InBounds(p.X, p.Y) {
 			return fmt.Errorf("%w: (%d,%d)", ErrOutOfBounds, p.X, p.Y)
@@ -85,15 +87,16 @@ func checkQuayTiles(is *Island, occ []int64, tiles []Pos) error {
 		if !Shallow(is, p.X, p.Y) {
 			return fmt.Errorf("%w: (%d,%d) is %s, a quay needs shallow water (within %d tiles of the island's land)", ErrTerrain, p.X, p.Y, is.Tiles[i].Terrain, ShallowsReach)
 		}
-		if occ[i] != 0 || is.roadOrPlan(i) {
+		if occ[i] != 0 || (is.roadOrPlan(i) && (replace == nil || !replace(p))) {
 			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
 		}
 	}
 	return nil
 }
 
-// clearQuay removes the quay tiles under a building's footprint (its
-// land rows; water rows never hold one).
+// clearQuay removes the water road tiles (quay, jetty) under a
+// building's footprint (its land rows, all of them in its stands_on after
+// the site check; water rows never hold one).
 func clearQuay(is *Island, c *content.Catalogue, def *content.Building, b *Building) {
 	w, h := footprint(def, b.Rotation)
 	for ty := b.Y; ty < b.Y+h; ty++ {
