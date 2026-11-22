@@ -220,6 +220,7 @@ func TestLoadOldCoast(t *testing.T) {
 		"fisher":         {60_000, 6_000, 6_000, 3, 8, "food_basic"},
 		"sheep_farm":     {60_000, 6_000, 1_000, 3, 3, "intermediate"},
 		"weaver_wool":    {60_000, 6_000, 8_000, 3, 4, "need_goods"},
+		"jetty":          {3_000, 1_000, 0, 1, 1, "never"},
 	}
 	for id, w := range want {
 		b := c.BuildingByID[id]

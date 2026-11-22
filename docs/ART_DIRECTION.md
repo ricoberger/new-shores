@@ -279,13 +279,13 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   stones out to the rims, the stone road three-shade **cobbles between
   kerb** columns; both read as one continuous road at mid zoom. Where a road meets a road one
   terrace level lower, the terrace's road ramp climbs across the tile
-  (`IslandGround`); ramps and quay decks are the only height changes, and
+  (`IslandGround`); ramps and quay and jetty decks are the only height changes, and
   only they rebuild terrain chunks — a plain road change updates the
   ground texture alone. Carts and walkers walk on the ground. Near and
   far roads are the same paint at two resolutions: at far LOD roads are
-  colour in the lite terrain's ground texture, and the quays' decks are
-  columns of the island's one lite terrain mesh (rebuilt when the quays
-  change) — no road or quay mesh of their own.
+  colour in the lite terrain's ground texture, and the quays' and
+  jetties' decks are columns of the island's one lite terrain mesh
+  (rebuilt when the water roads change) — no road or quay mesh of their own.
 - **Quay walls (D-077 §8).** A quay tile in deeper water (every ground
   column below the wet sand line, `isDeepQuay`: a harbour basin's pier)
   is a level-0 block whose side is dressed stone (`SIDE_QUAY`,
@@ -295,6 +295,22 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   after each bollard tile. A quay on the beach or sand shelf next to the
   land keeps the D-060 look. At far LOD the deep quay is a column of the
   lite mesh with the same stone side: a stone-coloured line.
+- **Jetty boards (D-085).** The jetty is the ground kind **`boards`**:
+  paint, no model (D-068), and no content ground enum — the jetty's road
+  type picks it. Every column of a jetty tile is a deck at the quay's
+  level (`QUAY_H`) whose top is planks in the `PLANKS` colour, one column
+  per plank in two shades (×1.05 / ×0.95, `boardsTop`, averaging the
+  planks' colour), laid across the run (a jetty with an east or west
+  water-road neighbour runs along x, its planks along y). Its side
+  (`SIDE_PILES`, `pileSide`) is the boards' edge (the `wood`/`timber`
+  role: the planks' colour a shade darker) on the top course and dark **piles**
+  (`SHADOWS.timber`, two alternating shades) below, wetter toward the
+  foot like the quay wall; no fender, bollard or mooring post. At far LOD
+  the jetty is a column of the lite mesh with the board top's colour and
+  the pile side, and the minimap draws it in the planks' colour. A rural
+  building standing on a jetty brings its own deck; the boards show only
+  where its footprint has none. No palette role or model changed, so the
+  asset build is untouched.
 - **The square (D-077 §2)** is paint, not a model: each tile of the
   paint family with `paint_family.ground: cobbles_fine` paints **fine
   cobbles** (one-column setts in a light–dark checker, lighter than the

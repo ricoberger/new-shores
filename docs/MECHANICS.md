@@ -135,29 +135,37 @@ handlers only.
   right at 90°, bottom at 180°, left at 270°; rotation swaps the footprint
   but never the authored width/depth or bounds. Both bounds are required,
   `0 ≤ min ≤ max < depth`. River tiles never count as sea water.
-  Quays count as land, terminate the water prefix, and are replaced without
-  refund when covered by a valid land part (§3); required water cannot
-  carry quay. Values: Trading Post 1–2, fisher 2–6 of 8, salt pans 2–5
+  Water roads (§3: quay, jetty) terminate the water prefix; those in the
+  building's **`stands_on`** list (D-085 §2; content default `["quay"]`
+  for water-edge, shore and coastal buildings; fisher, salt pans and
+  oyster beds `["jetty", "quay"]`) count as land and are replaced
+  without refund when covered by a valid land part (§3); any other water
+  road under a land row is `terrain` (a jetty under the Trading Post).
+  Required water cannot carry a water road (`occupied`). Values: Trading Post 1–2, fisher 2–6 of 8, salt pans 2–5
   of 9, oyster beds 3–8 of 12 rows (the rural water buildings may stand
   with their hut over the water too, so they claim as little as two
   land rows; the models are authored for 3 / 3 / 4 water rows,
   `MODEL_WATER_ROWS`); shipyard, trading pier and depot have the shore
   placement since D-077, below.
   A zero minimum permits an all-land footprint. Other coastal buildings
-  still need a coast tile (quay counts). Harbour points remain two tiles
+  still need a coast tile (quay counts; they keep the default
+  `stands_on`). Harbour points remain two tiles
   off the **front row**, not the variable water/land boundary (§9).
   Error codes stay `not_on_water`, `terrain` and `occupied`.
 - **Shore placement** (D-077 §5, `placement: shore`: trading pier,
   depot, shipyard, repair crane, harbour tower, harbour statue, Kontor).
   Every footprint tile is free sea water (shallows included, never
-  river) or free buildable land at terrace level 0 or a quay (replaced
+  river) or free buildable land at terrace level 0 or a water road of
+  its `stands_on` — the quay for every shipped shore building — (replaced
   without refund, as for water-edge buildings); `terrain`, `occupied`
-  and `needs_low_shore` as above. At least one tile is water
+  and `needs_low_shore` as above; a jetty in the footprint is `terrain`. At least one tile is water
   (`shore_needs_water`). The **back edge** — the side opposite the
   front (bottom row at 0°, left column at 90°, top row at 180°, right
   column at 270°) — touches land or quay along its full length: for
   every back-row tile, the tile itself or the tile behind it is the
-  island's own land or a quay (`shore_back_edge`). So a shore building
+  island's own land or a quay (`shore_back_edge`); a back edge resting on
+  a water road outside its `stands_on` (a jetty) is `terrain` (D-085
+  §2). So a shore building
   stands on the beach (straddling the water line, any mix of water and
   land per column) or fully on the water against a quay. No footprint
   tile may lie on a **harbour lane** (below, `harbour_lane`), on a
@@ -372,17 +380,22 @@ handlers only.
   stub that does not reach a warehouse is *not* connected, and neither is a
   building that only an inactive Warehouse's road reaches. A planned
   road tile (D-071, §2) is never a road for this rule. Roads are tiles;
-  dirt roads (tier 1), paved roads (tier 2, +speed) and quays (tier 2,
-  D-060) are the types.
-- **Replacing a road:** `place_road` on a tile that carries a land road
-  of a **lower** type (an earlier tier: dirt under paved) replaces it in
-  the same command: the old road's demolition refund (50 % of its
-  materials, as for `demolish_road`) is added, the new road's cost is
-  charged for every tile of the command, and the tile is a road at every
-  instant (one transaction, no gap in connectivity or assignment). The
-  cost check runs before the refund. A road of the same type or of a
-  higher type on a tile, and any quay tile, stay `occupied`; the command
-  fails as a whole. The road tool sends the tiles it can replace and
+  dirt roads (tier 1), paved roads (tier 2, +speed), jetties (tier 1,
+  D-085) and quays (tier 2, D-060) are the types; jetties and quays are
+  the **water roads** (`road.shallows`).
+- **Replacing a road:** `place_road` on a tile that carries a road its
+  content **`replaces`** list names (D-085 §3: the paved road replaces
+  the dirt road, the quay the jetty; the list only names roads of the
+  same class, land or water, and has no cycles — content validation)
+  replaces it in the same command: 50 % of the old road's materials,
+  floored to milli-units per tile, no gold, is refunded (a jetty under a
+  quay: half a plank; the paved road over dirt as before), the new
+  road's cost is charged for every tile of the command, and the tile is
+  a road at every instant (one transaction, no gap in connectivity or
+  assignment). The cost check runs before the refund. Any other road on
+  a tile (the same type, a road that replaces it — a jetty on a quay)
+  stays `occupied`, and so does a planned road over a road or plan; the
+  command fails as a whole. The road tool sends the tiles it can replace and
   skips the others (display hint, the server decides).
 - **Demolishing roads in a rectangle:** `demolish_roads` (the Demolish
   tool's drag) removes every road and planned road tile among its tiles
@@ -392,16 +405,23 @@ handlers only.
   paved road's single stone refunds nothing), no gold; planned tiles go
   for free. The command touches no building or field (the tool removes
   fields and plans under the rectangle with their own commands).
-- **Quays** (D-060) are roads on the island's **shallows**: water tiles
+- **Quays** (D-060) and **jetties** (D-085) are roads on the island's
+  **shallows** — everything below holds for both alike, "quay" standing
+  for either; the jetty differs only in tier (Settlers), cost and look
+  (timber boards), and in who stands on it (`stands_on`, §2): water tiles
   of its grid, not river, within 8 tiles (Chebyshev, D-077 §8; was 3;
   `ShallowsReach` in `quay.go`, mirrored in the client) of its own land
   (any tile but water, river and islet; derived from the tiles, no
   generator field). A quay tile must be free (no road, no footprint —
   the water rows of water-edge buildings included). A quay is a road for
-  connection and carts like any other; for a **water-edge or coastal
-  building** it counts as coast: the building's land rows may stand on
-  quay tiles, which it replaces (no refund), while its water rows need
-  free water without quay. Other buildings never stand on a quay. A quay
+  connection and carts like any other (a warehouse root over a jetty
+  chain included, D-081); for a **water-edge, shore or coastal
+  building** whose `stands_on` names its type it counts as coast: the
+  building's land rows may stand on it, and it is replaced (no refund),
+  while its water rows need free water without a water road. Other
+  buildings never stand on a water road. Demolishing a water road under
+  a building is `no_road` (the placement replaced it); demolishing the
+  building that anchors one is `quay_would_float` (below). A quay
   tile never lies on a **harbour lane** (§2, `harbour_lane`, D-078 §1),
   placed or planned. For
   ships a quay tile is **land** (sea grid, approach, harbour point,
@@ -421,8 +441,8 @@ handlers only.
   tile that reached the land before would no longer (built quays over
   built ground, planned ones over the plan view); quays that floated
   before D-077 never block a change. Cost and speed are content
-  (provisional 5 gold / 2 stone per tile, 0.6 s/tile like the paved
-  road).
+  (provisional: quay 5 gold / 2 stone per tile, 0.6 s/tile like the paved
+  road; jetty 3 gold / 1 plank, 1.0 s/tile like the dirt road).
 - **Paint families** (D-077 §2–§3; `paint_family` in the content, `paint.go`):
   the hedge, the garden wall, the city wall and the square are 1×1
   buildings painted tile by tile with the road tools. `place_paint` is a

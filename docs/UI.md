@@ -214,8 +214,9 @@ UI shows the same numbers the server uses.
   recipe's inputs, content order within a step; fields are not listed),
   **Public** (the Market first — it serves a `public`-group need, D-065 —
   then the service buildings in content order), **Harbor** (shipyard,
-  pier, depot, repair crane, Kontor, then the quay, a road on the
-  shallows that the server files under harbour), **Ornaments** and
+  pier, depot, repair crane, Kontor, then the quay and the jetty, roads
+  on the shallows that the server files under harbour; the jetty is the
+  Settlers tab's only Harbor card, D-085), **Ornaments** and
   **Military** (D-077, content order; the content's `category`). The groups follow the server's `category`, except
   houses, roads and the Warehouse, which are General; the Trading Post is
   never listed and houses of later tiers are upgrade-only.
@@ -244,8 +245,11 @@ UI shows the same numbers the server uses.
      families, "Gate in the city wall", "Defense 5 (no effect yet)" for a
      military building, "Repairs ships (no effect yet)" for the repair
      crane and "Only one in the world · unlocks expeditions later" for the
-     Kontor. The info panel shows the same notes below its status row, the
-     almanac's building page as a Notes row.
+     Kontor. A water road's card (D-085) adds "On shallow water" and what
+     its content `replaces` says: "Builds over Jetty" on the quay, "Quay
+     builds over it" on the jetty (the paved road's card has no such note:
+     only water roads). The info panel shows the D-077 notes below its
+     status row, the almanac's building page all of them as a Notes row.
 - **Panels:** parchment with a 3 px dark-wood border and inset light-wood
   edge (10 px radius; build cards 7 px); status badges as wax seals (ink
   bands, parchment ring). Every panel has a fixed title row with an icon
@@ -284,15 +288,20 @@ UI shows the same numbers the server uses.
   is required, or water/non-buildable terrain where land is required, red;
   so is a land tile above terrace level 0 (D-075 §1, from the statics'
   `levels`; hint "Needs a low shore — its land tiles must be at sea
-  level, not on a terrace", after the front/land hints); valid tiles keep the normal light/no-road yellow. Quays count as land,
-  rivers never as sea. The model keeps its normal tint for a water-edge
+  level, not on a terrace", after the front/land hints); valid tiles keep the normal light/no-road yellow. Water roads in the
+  building's `stands_on` count as land (quays for all, jetties for the
+  fisher, salt pans and oyster beds); any other water road — a jetty
+  under the Trading Post — is red like unbuildable terrain (the server's
+  `terrain`, D-085 §2; `waterRoadsFor` / `withQuays`, `display/quay.ts`);
+  rivers never count as sea. The model keeps its normal tint for a water-edge
   mismatch so one bad tile does not turn the entire building red. This is
   a display hint only: the server validates every placement.
 - **Shore ghosts (D-077 §5):** a building with `placement: shore` (the
   trading pier, depot, shipyard, harbor statue, harbor tower, repair crane
   and Kontor) gets the same per-tile overlay (`shoreTiles`,
   `display/geometry.ts`): its deck may cover water and buildable land at
-  level 0 (quays count as land); unbuildable terrain, a land tile on a
+  level 0 (quays count as land, a jetty is red like unbuildable terrain,
+  also when the back edge rests on it, D-085 §2); unbuildable terrain, a land tile on a
   terrace, a footprint without any water ("Must stand partly on the
   water") and a back-edge column on open water with open water behind it
   ("Its back must touch land or a quay — rotate it (R) to face the sea")
@@ -317,17 +326,20 @@ UI shows the same numbers the server uses.
   L-path of the drag shows as a ghost on the ground, one mark per tile in
   the field paint's tints: green where the client expects a road, red
   where a rule rejects it (terrain, a building, off the shallows for a
-  quay, a quay or paint tile on a harbor lane); a land road of a lower type (dirt under a paved drag) is marked
-  green too and sent — the new road replaces it (MECHANICS §3) — while
-  tiles with a road of the same or a higher type are left unmarked and
-  are not sent (`display/roaddrag.ts`, a display hint; bridge shapes are
-  the server's). The quay (D-060) is
+  quay, a quay or paint tile on a harbor lane); a road the drawn type's
+  content `replaces` names (dirt under a paved drag, a jetty under a quay
+  drag) is marked green too and sent — the new road replaces it
+  (MECHANICS §3) — while tiles with any other road (the same type, a
+  quay under a jetty drag) are left unmarked and are not sent
+  (`display/roaddrag.ts`, a display hint; bridge shapes are the
+  server's). The quay (D-060) and the jetty (D-085) share the quay tool:
   drawn the same way over shallow water; a drag that leaves the shallows
-  is not sent (toast; display mirror of the rule, `display/quay.ts`).
-  A quay tile that would not reach the island's land or a building over
-  the drag's and the island's quay tiles is red (D-077 §8, the server's
-  `quay_disconnected` rejects the whole drag); the tool hint says a quay
-  must touch land or a connected quay.
+  is not sent (toast naming the road; display mirror of the rule,
+  `display/quay.ts`). A tile that would not reach the island's land or
+  a building over the drag's and the island's water-road tiles is red
+  (D-077 §8, the server's `quay_disconnected` rejects the whole drag);
+  the tool hint names the road and says it must touch land or a
+  connected quay or jetty.
 - **Paint families (D-077 §2–§3):** the hedge, garden wall, city wall and
   square are drawn with the road tool (their cards select it): the drag's
   L-path marks each tile green on buildable land and red on a building,
@@ -344,7 +356,9 @@ UI shows the same numbers the server uses.
   under it, built or planned, with one `demolish_paint` ("Remove 5 wall,
   hedge or square tiles").
   Quays render as a stone wharf with a timber fender and a bollard every
-  third tile, and in the paved road's colour on the minimap; a quay in
+  third tile, and in the paved road's colour on the minimap; jetties
+  (D-085) as boards on dark piles at the same level, and in the planks'
+  colour on the minimap (ART_DIRECTION §4); a quay in
   deeper water has a dressed-stone wall and mooring posts (D-077 §8,
   ART_DIRECTION §4). A square tile is fine cobbles in the ground, no
   model (D-077 §2).
