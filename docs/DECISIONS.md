@@ -3369,3 +3369,14 @@ ladder.
   a balance check for the owner (one number per good against the Anno
   table). Rates shown per 100 residents elsewhere (D-080) stay; the
   calculator shows t/min with two decimals and counts.
+- **As built (#86):** `client/src/almanac/calc.ts` + `Calculator.tsx`;
+  query keys `s`, `c`, `m`, `p` (residents) and `off` (unsupplied goods),
+  the houses field is an input only; upstream demand is the fractional
+  consumption of the recipe above (not the rounded producer's capacity —
+  what the sim draws), ceil only per building count. Patricians fixture
+  check (756 / 476 / 1 612 / 172 residents): the plan has ≥ the
+  calculator's final producers for all 15 goods within the 1.6 × bound,
+  largest gaps fish 5 vs 4 and wool garments 7 vs 5. Needs rows link to
+  the calculator with a full-house preset. Later: the Needs page's
+  `housesSupplied` and the calculator's houses-per-producer are the same
+  number — keep one.
