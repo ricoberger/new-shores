@@ -460,7 +460,9 @@
 /* ----------------------------------------------------------- calculator */
 
 .calcInput {
+  box-sizing: border-box;
   width: 7em;
+  max-width: 100%;
   padding: 4px 6px;
   font: inherit;
   text-align: right;
@@ -492,4 +494,20 @@
   margin: 0 0 10px;
   padding-left: 20px;
   color: var(--ns-ui-ink-soft);
+}
+
+.calcTable .num {
+  white-space: nowrap;
+}
+
+@media (max-width: 859px) {
+  .calcInput {
+    width: 4.6em;
+    padding: 4px;
+  }
+
+  .calcTable th,
+  .calcTable td {
+    padding: 5px 4px;
+  }
 }

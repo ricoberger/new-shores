@@ -193,7 +193,7 @@ export const en = {
   "almanac.calc.lead": "Enter the residents of each tier to see which goods they consume and how many producers, fields and deposit slots the chains need. Everything is steady state at full efficiency, rounded up per building type. The inputs are in the address bar: copy the link to share a plan.",
   "almanac.calc.inputs": "Residents",
   "almanac.calc.tier": "Tier",
-  "almanac.calc.houses": "Full houses",
+  "almanac.calc.houses": "Houses",
   "almanac.calc.perHouse": "{max} per house",
   "almanac.calc.residentsOf": "{tier} residents",
   "almanac.calc.housesOf": "{tier} houses",

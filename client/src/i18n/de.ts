@@ -195,7 +195,7 @@ export const de: Record<keyof typeof en, string> = {
   "almanac.calc.lead": "Gib die Bewohner jeder Stufe ein, um zu sehen, welche Waren sie verbrauchen und wie viele Produzenten, Felder und Lagerstättenplätze die Ketten brauchen. Alles gilt im Dauerbetrieb bei voller Effizienz, je Gebäudetyp aufgerundet. Die Eingaben stehen in der Adresszeile: Kopiere den Link, um einen Plan zu teilen.",
   "almanac.calc.inputs": "Bewohner",
   "almanac.calc.tier": "Stufe",
-  "almanac.calc.houses": "Volle Häuser",
+  "almanac.calc.houses": "Häuser",
   "almanac.calc.perHouse": "{max} je Haus",
   "almanac.calc.residentsOf": "Bewohner: {tier}",
   "almanac.calc.housesOf": "Häuser: {tier}",

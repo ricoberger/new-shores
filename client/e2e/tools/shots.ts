@@ -1455,6 +1455,17 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.locator("#building-warehouse").waitFor({ state: "visible" });
     },
   },
+  // The almanac's calculator with a town of 120 Settlers, 400 Citizens, 200 Merchants and 100 Patricians (D-084; the URL query is the input).
+  "almanac-calculator": {
+    fixture: "default",
+    device: ["desktop", "phone"],
+    almanac: "/almanac/calculator?s=120&c=400&m=200&p=100",
+    run: async (page) => {
+      await page.getByTestId("almanac-calc-totals").waitFor({ state: "visible" });
+      // The result is what the shot is about: scroll the chain of bread (bakery, mill, wheat farm with its fields) to the top.
+      await page.locator("#calc-chain-bread").evaluate((el) => el.closest("section")?.scrollIntoView({ block: "start" }));
+    },
+  },
   // The road tool mid-drag across a road (UI.md §3): a dirt road on the settled fixture, a paved road across a dirt road on the played one.
   "road-drag": roadDrag("settled", "road_dirt", "road_dirt"),
   "road-drag-paved": roadDrag("played", "road_paved", "road_dirt"),

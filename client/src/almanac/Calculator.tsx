@@ -35,7 +35,7 @@ function Inputs({ idx, input, onChange }: { idx: Index; input: CalcInput; onChan
   const set = (tier: string, residents: number) => onChange({ ...input, residents: { ...input.residents, [tier]: residents } });
   return (
     <div className={styles.tableWrap}>
-      <table className={styles.table} data-testid="almanac-calc-inputs">
+      <table className={`${styles.table} ${styles.calcTable}`} data-testid="almanac-calc-inputs">
         <thead>
           <tr>
             <th scope="col">{t("almanac.calc.tier")}</th>
@@ -189,7 +189,7 @@ function Chain({ idx, group }: { idx: Index; group: CalcResult["groups"][number]
         {idx.goodName(group.good)}
       </h4>
       <div className={styles.tableWrap}>
-        <table className={styles.table}>
+        <table className={`${styles.table} ${styles.calcTable}`}>
           <thead>
             <tr>
               <th scope="col">{t("almanac.o.building")}</th>
@@ -215,7 +215,7 @@ function Chain({ idx, group }: { idx: Index; group: CalcResult["groups"][number]
                 </td>
                 <td className={styles.num}>{r.count}</td>
                 <td className={styles.num}>{ppmPercent(r.used * 1_000_000)}</td>
-                <td>{r.fields > 0 ? t("almanac.calc.fields", { total: r.fields, perFarm: r.fieldsPerFarm }) : "—"}</td>
+                <td>{r.fields > 0 ? (r.count > 1 ? t("almanac.calc.fields", { total: r.fields, perFarm: r.fieldsPerFarm }) : r.fields) : "—"}</td>
                 <td>{r.deposit ? titleCase(depositName(r.deposit)) : "—"}</td>
               </tr>
             ))}
