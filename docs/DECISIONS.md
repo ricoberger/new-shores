@@ -3306,3 +3306,66 @@ ladder.
   content version (metric only) — a content migration path (retire →
   replace / demolish with refund) is a decision for before the first
   live worlds, not a refusal.
+
+## D-084 Almanac calculator: residents per tier → goods → production buildings
+
+- **Date:** 2026-11-22
+- **Status:** accepted
+- **Context:** since D-080 the consumption rates are Anno-sized and
+  carried per resident (D-056 formula), so "how many bakeries for 400
+  Citizens and 200 Merchants" is arithmetic nobody does in their head.
+  Anno 117 players use `anno117.tools/calculator` for exactly this. The
+  Almanac already derives the per-resident rates, chains, houses supplied
+  and producer rates from the content the server sends (`client/src/
+  almanac/model.ts`); a calculator is a sum over them, not a rule
+  (D-027: nothing is simulated or predicted about a world, the page
+  reads content only).
+- **Decision:**
+  1. A new Almanac section **`calculator`** (`/almanac/calculator`) after
+     Needs. Inputs: residents per tier (four fields; a "houses" field per
+     tier sets residents = houses × `residents_max`), and per goods
+     category with two or more alternatives a checkbox per good
+     ("supplied"), all checked by default. Inputs live in the URL query
+     (`?s=120&c=400&m=200&p=0&off=cider,mead`) so a plan can be shared and
+     reloaded; no storage.
+  2. **Demand** follows MECHANICS §6.2: for each tier and category, each
+     supplied good is consumed at `residents × per_resident_per_min / m`
+     over the `m` supplied goods; goods of the same ID are summed over the
+     tiers (the carry formula is already in the rates). A category with
+     only some alternatives supplied shows its **coverage** `Σ share` (0.6
+     for one of two) and the note that the tier's houses settle below
+     `residents_max` (§6.3). Unsupplied categories show nothing.
+  3. **Buildings**: for every demanded good the final producer count =
+     ⌈demand ÷ producer rate at 100 % efficiency⌉ (`amount / cycle`, full
+     fields / plots, full workforce — the §4 rate without throughput and
+     workforce factors); its inputs become demand for the upstream
+     recipes, recursively, with the same rounding at each step (shared
+     intermediates such as charcoal, flour, iron, planks are summed before
+     rounding). Alternative inputs (`charcoal | coal`) take the first
+     listed. Output per chain: building, count, rate used %, fields or
+     plots per farm, deposit slot kind; totals: buildings, fields, deposit
+     slots per kind, workforce per tier, maintenance per minute, and the
+     tax of the entered residents at full coverage for comparison.
+  4. **Out of scope**: service buildings and radii (a different problem:
+     coverage, not rate), warehouse capacity and throughput (steady state
+     only), construction cost totals (the building pages have them),
+     efficiency below 100 % (no field-count or workforce slider), saving
+     plans, the game HUD (the calculator stays a reference page; the game
+     may link to it later).
+  5. The Almanac tests run the calculator against the content fixtures:
+     one Citizen house (14) alone, the D-080 table-A examples (Anno
+     houses per producer within the carry rounding), and the Patricians
+     reference town (the plan's producer counts ≥ the calculator's for
+     every good, the `TestReferenceGamesSurplus` bound as the upper
+     check). EN + DE through `t()`.
+- **Rejected:** a server endpoint (the content is already in the client;
+  a POST would make a reference page depend on a world); the Anno-tools
+  layout with per-building efficiency sliders (our efficiency is fields,
+  not items; keep 100 %); embedding the calculator in the game's build
+  menu (planning mode D-071 covers "what fits here", the calculator
+  covers "how much do I need" — separate questions).
+- **Consequences:** the Almanac model gains a pure `calculate(index,
+  input)`; players can size a chain before building; the page doubles as
+  a balance check for the owner (one number per good against the Anno
+  table). Rates shown per 100 residents elsewhere (D-080) stay; the
+  calculator shows t/min with two decimals and counts.
