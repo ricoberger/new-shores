@@ -846,8 +846,11 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   `?s=120&c=400&m=200&p=100&off=cider,mead` (first letter of the tier ID,
   0…999 999, unknown goods ignored); typing replaces the query with the
   History API without a history entry, so a plan is a link and back /
-  forward follow it. Nothing is stored. Tables scroll sideways on the
-  phone like the other Almanac tables.
+  forward follow it. Nothing is stored. The Overview links to the page
+  and every goods category of the Needs page links to it with the tier's
+  full-house preset (`?c=14`). Tables scroll sideways on the phone like
+  the other Almanac tables; `make shots PRESET=almanac-calculator` takes
+  the desktop and phone shots (`?s=120&c=400&m=200&p=100`).
 - **Look:** the HUD's parchment in a dark-wood frame, Cinzel headings,
   brass accent; left navigation on desktop, sticky tabs on the phone;
   a search box filters buildings, goods, ships, quests, tiers and island
