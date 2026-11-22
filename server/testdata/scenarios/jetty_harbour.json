@@ -1,0 +1,156 @@
+{
+  "name": "jetty_harbour",
+  "description": "D-085 on the shipped content: a jetty row along the coast (x 14..25, row 17). The Trading Post moved onto it (its land part on the jetty) and a depot whose back edge rests on it or whose footprint covers it fail with terrain: harbour buildings stand on quays only. A quay over two jetty tiles and one free tile replaces them in place: the quay's cost for three tiles, half a plank back per jetty (50 % of 1 plank floored to milli-units; no gold, D-019). A jetty over the quay and a planned quay over a jetty fail (occupied). Every failed step leaves the world byte-identical.",
+  "content": "content/old_coast",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "fertilities": [],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 4,
+      "y": 16,
+      "rotation": 0
+    },
+    "gold": "2000000",
+    "stock": {
+      "planks": 290,
+      "stone": 290
+    },
+    "unlocked_tiers": [
+      "citizens",
+      "merchants"
+    ]
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "jetty",
+        "from": [
+          14,
+          17
+        ],
+        "to": [
+          25,
+          17
+        ]
+      }
+    },
+    {
+      "move": {
+        "x": 4,
+        "y": 16,
+        "to_x": 14,
+        "to_y": 16,
+        "rotation": 0
+      },
+      "expect_error": "terrain"
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 20,
+        "y": 6,
+        "rotation": 0
+      },
+      "expect_error": "terrain"
+    },
+    {
+      "place": {
+        "type": "depot",
+        "x": 20,
+        "y": 8,
+        "rotation": 0
+      },
+      "expect_error": "terrain"
+    },
+    {
+      "road": {
+        "type": "quay",
+        "from": [
+          13,
+          17
+        ],
+        "to": [
+          15,
+          17
+        ],
+        "all_tiles": true
+      }
+    },
+    {
+      "road": {
+        "type": "jetty",
+        "from": [
+          14,
+          17
+        ],
+        "to": [
+          14,
+          17
+        ],
+        "all_tiles": true
+      },
+      "expect_error": "occupied"
+    },
+    {
+      "road": {
+        "type": "quay",
+        "from": [
+          16,
+          17
+        ],
+        "to": [
+          16,
+          17
+        ],
+        "planned": true,
+        "all_tiles": true
+      },
+      "expect_error": "occupied"
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

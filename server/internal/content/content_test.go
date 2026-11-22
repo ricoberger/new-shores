@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.24.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.25.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 80 {
@@ -71,7 +71,7 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	wantIDs("buildings", ids, "house_settlers", "road_dirt", "trading_post", "warehouse", "market", "chapel",
 		"lumberjack", "tree_plot", "sawmill", "fisher", "sheep_farm", "pasture", "weaver_wool", "shipyard",
-		"house_citizens", "road_paved", "quay", "trading_pier", "depot", "tavern", "school", "city_guard", "wheat_farm", "wheat_field", "mill", "bakery",
+		"house_citizens", "road_paved", "quay", "jetty", "trading_pier", "depot", "tavern", "school", "city_guard", "wheat_farm", "wheat_field", "mill", "bakery",
 		"dairy_farm", "cattle_pasture", "cheese_dairy", "orchard", "orchard_plot", "cidery", "apiary", "meadow", "meadery",
 		"hemp_farm", "hemp_field", "weaver_linen", "pig_farm", "pig_pen", "tannery", "sailmaker", "quarry", "iron_mine",
 		"charcoal_burner", "smelter",
@@ -1356,6 +1356,8 @@ func TestBuildingLooks(t *testing.T) {
 		"city_guard": LookCivic, "fire_station": LookCivic, "surgery": LookCivic, "market": LookCivic,
 		"trading_post": LookHarbour, "warehouse": LookHarbour, "shipyard": LookHarbour,
 		"trading_pier": LookHarbour, "depot": LookHarbour, "quay": LookHarbour,
+		// The timber jetty keeps the rural decks (D-085 §1, D-078 §3).
+		"jetty": LookRural,
 	}
 	for id, look := range want {
 		if b := c.BuildingByID[id]; b == nil || b.Look != look {
@@ -1365,8 +1367,10 @@ func TestBuildingLooks(t *testing.T) {
 	for _, b := range c.Buildings {
 		switch {
 		case b.Road != nil && b.Road.Shallows:
-			if b.Look != LookHarbour {
-				t.Errorf("%s (quay) look %q, want harbour", b.ID, b.Look)
+			// Water roads: the stone quay is harbour, the timber jetty
+			// rural (pinned above).
+			if b.Look != LookHarbour && b.Look != LookRural {
+				t.Errorf("%s (water road) look %q, want harbour or rural", b.ID, b.Look)
 			}
 		case b.Field != nil || b.Road != nil:
 			if b.Look != LookRural {

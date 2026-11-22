@@ -2832,7 +2832,7 @@ export interface components {
              *     harbour. Otherwise derived by the server from the capability
              *     blocks: house → houses, recipe, field or warehouse →
              *     production, service → public, trading_post, shipyard, pier,
-             *     depot or a shallows road (the quay) → harbour, any other
+             *     depot or a shallows road (quay, jetty) → harbour, any other
              *     road → roads; other for none of these. The Trading
              *     Post is placed only by `found_island`, never from the build
              *     menu.
@@ -2910,6 +2910,22 @@ export interface components {
              *     may run along its centre line.
              */
             gate?: boolean;
+            /**
+             * @description The water roads (`road.shallows`: quay, jetty) whose tiles
+             *     count as land under the building's land part and behind a
+             *     shore building's back edge, replaced without refund when it
+             *     is placed (D-085 §2). Present on water-edge, shore and coastal
+             *     buildings (content default `["quay"]`); any other water road
+             *     there is `terrain`. Absent for other buildings.
+             */
+            stands_on?: string[];
+            /**
+             * @description The roads of the same class (land or water) this road replaces
+             *     in place, with 50 % of the old road's materials back (floored
+             *     to milli-units, no gold; D-085 §3): the paved road the dirt
+             *     road, the quay the jetty. Absent: none.
+             */
+            replaces?: string[];
             requires_road: boolean;
             cost: {
                 /**
@@ -3051,7 +3067,7 @@ export interface components {
                  * @description Transfer time per road tile (ms).
                  */
                 ms_per_tile: number;
-                /** @description A quay (D-060): placed on shallow water — water (not river) within 3 tiles (Chebyshev) of the island's own land — instead of land. */
+                /** @description A water road — the quay (D-060) or the jetty (D-085): placed on shallow water — water (not river) within 8 tiles (Chebyshev) of the island's own land — instead of land. */
                 shallows: boolean;
             };
             service?: {

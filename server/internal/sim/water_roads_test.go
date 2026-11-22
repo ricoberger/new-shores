@@ -1,8 +1,13 @@
 package sim
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
@@ -140,4 +145,50 @@ func TestStandsOnAndReplaces(t *testing.T) {
 		expect(t, w, PlaceRoad{IslandID: "main", Type: "pontoon", Tiles: []Pos{{13, 8}}}, ErrOccupied)
 		expect(t, w, PlaceRoad{IslandID: "main", Type: "quay", Tiles: []Pos{{13, 8}}, Planned: true}, ErrOccupied)
 	})
+}
+
+// TestDecodeContent024 (D-085 §5): a world stored under content 0.24.0
+// (testdata/content024_bootstrap_citizens.json, the schema-17 fixture
+// before the jetty) decodes under the shipped content: stands_on and
+// replaces are optional and the 0.25.0 content only adds the jetty. It
+// keeps its content version until saved, re-encodes as the current
+// schema-17 fixture under the catalogue's version, advances and displays.
+func TestDecodeContent024(t *testing.T) {
+	c := shippedCatalogue(t)
+	data, err := os.ReadFile(filepath.Join("testdata", "content024_bootstrap_citizens.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	terrain, err := os.ReadFile(filepath.Join("testdata", "content024_bootstrap_citizens.terrain.gz"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Region.Version == "old_coast-0.24.0" {
+		t.Fatal("the shipped content is still 0.24.0")
+	}
+	w, cv, notes, err := DecodeState(data, terrain, c)
+	if err != nil || cv != "old_coast-0.24.0" || notes.FromSchema != 0 {
+		t.Fatalf("decode: %v, content %q, notes %+v", err, cv, notes)
+	}
+	if _, _, _, err := Decode(data, c); err != nil {
+		t.Fatalf("Decode: %v", err)
+	}
+	state, _, err := EncodeState(w, c.Region.Version)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want, err := os.ReadFile(filepath.Join("testdata", fmt.Sprintf("schema%d_bootstrap_citizens.json", SchemaVersion)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(append(state, '\n'), want) {
+		t.Error("the 0.24.0 world re-encoded differs from the current schema fixture")
+	}
+	end := w.LastEvaluatedAt.Add(time.Hour)
+	if _, err := Advance(w, c, end); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Display(w, c, end); err != nil {
+		t.Fatal(err)
+	}
 }

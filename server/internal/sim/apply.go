@@ -666,11 +666,15 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 			}
 			// A coastal or water-edge building may stand on the water
 			// roads of its stands_on: they count as coast and are
-			// replaced (D-060, D-085 §2). Any other water road is water
-			// for checkTiles (terrain).
+			// replaced (D-060, D-085 §2). Any other water road is not
+			// ground for it (terrain; for a building without stands_on
+			// checkTiles reports the water under it).
 			if standsOnAt(is, def, is.index(tx, ty)) {
 				quay = append(quay, Pos{tx, ty})
 				continue
+			}
+			if len(def.StandsOn) > 0 && quayAt(is, c, is.index(tx, ty)) {
+				return fmt.Errorf("%w: (%d,%d) is a %s, %s stands on %v only", ErrTerrain, tx, ty, is.RoadAt(tx, ty), def.ID, def.StandsOn)
 			}
 			tiles = append(tiles, Pos{tx, ty})
 		}

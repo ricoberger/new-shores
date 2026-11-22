@@ -216,6 +216,7 @@
     "upkeep_per_min": 6,
     "pause_category": "food_basic",
     "look": "rural",
+    "stands_on": ["jetty", "quay"],
     "smoke": true,
     "boat": true,
     "workforce": { "tier": "settlers", "amount": 4 },
@@ -337,7 +338,22 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "harbour",
-    "road": { "seconds_per_tile": 0.6, "shallows": true }
+    "road": { "seconds_per_tile": 0.6, "shallows": true },
+    "replaces": ["jetty"]
+  },
+  {
+    "id": "jetty",
+    "name": "Jetty",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 3, "planks": 1 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "look": "rural",
+    "road": { "seconds_per_tile": 1.0, "shallows": true }
   },
   {
     "id": "trading_pier",
@@ -1278,6 +1294,7 @@
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
     "look": "rural",
+    "stands_on": ["jetty", "quay"],
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -1460,6 +1477,7 @@
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
     "look": "rural",
+    "stands_on": ["jetty", "quay"],
     "boat": true,
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
