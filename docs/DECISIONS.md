@@ -3443,3 +3443,15 @@ ladder.
   entry; MECHANICS §2 (water-edge rows: "quay or jetty per `stands_on`"),
   §3 (roads on jetties, replaces), CONTENT §7 / §11, UI.md build menu,
   ART_DIRECTION ground kinds.
+- **As built (#87, content 0.25.0):** as decided, with three
+  corrections to the text above: demolishing a jetty under a building
+  that needs it uses the quay's existing codes (`no_road` for the tile
+  under the building, `quay_would_float` for a tile that anchors further
+  jetty tiles — there is no `in_use`); a quay over a jetty refunds
+  0.5 plank and **no gold** (D-019 never refunds gold; the `road_replace`
+  golden stayed byte-identical); the dev snapshot endpoint still refuses
+  other content versions with 409 (D-066) — 0.24.0 worlds decode, the
+  envelope string must be patched. Build-card notes are short ("On
+  shallow water", "Builds over Jetty", "Quay builds over it"); the
+  `settled` fixture carries a jetty row with a fisher; shot presets
+  `settled-jetty-near` and `build-menu-harbour`.
