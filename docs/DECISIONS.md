@@ -1821,6 +1821,10 @@ Reference results 48/24/82/118 · 32/64 · 224/256/369 · 826/866/1073.
 ## D-066 Dev world start state and snapshots belong to the server and the Makefile
 
 - **Status:** accepted (2026-11-01)
+- **Amended by D-083 (#85):** a snapshot or stored world at the current
+  schema and content version naming a retired or unknown ID is refused
+  (`ErrUnknownContent`); older content versions are still only counted
+  by the store — see D-083 as built.
 - **Context:** every `make dev` / `make preview` starts the in-memory
   world at zero or at a fixture chosen by the client (`?fixture=`,
   `ServerFixtureGate`, `POST /api/v1/dev/reset`). Playtesting tiers 2–4
@@ -3283,3 +3287,22 @@ ladder.
   (fewer planks from the island-2 quest; the 90-minute target holds);
   the charcoal burner has no consumer at Citizens (kept; cheap). Models
   folder shrinks by the toolmaker.
+- **As built (#85, content 0.24.0):** as decided, plus: the deposit
+  pool entries of `islands.json` take an optional `group_tier` (iron:
+  `citizens`) so the generator keeps every seed's archipelago although
+  the iron mine moved tier (`GeneratorVersion` unchanged); decode of a
+  world at the current schema and content version that names an unknown
+  building, good, ship or quest fails with `sim.ErrUnknownContent` (dev
+  snapshot 409 `snapshot_content_mismatch`; store load logs and fails;
+  migrated worlds are exempt — `MigrationNotes.FromSchema`); both
+  Citizens plans end with the city guard and the cheese chain (moved
+  from the Merchants plan: without them the Quests town was finished by
+  minute 25 and the gold check from minute 30 saw +284 % against the
+  210 % band; now +179 %); the Merchants plan founds the clay island
+  first (50 planks per trip), the Patricians plan builds mine and
+  smelter after Trading Post level 4. Reference games 28/54 · 25 ·
+  80/141/215/308 · 576/618/950. `TestFixturesUseCatalogueIDs` guards
+  the dev fixtures. Open: the store still loads a world of an *older*
+  content version (metric only) — a content migration path (retire →
+  replace / demolish with refund) is a decision for before the first
+  live worlds, not a refusal.
