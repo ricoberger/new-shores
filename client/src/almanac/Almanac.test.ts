@@ -24,6 +24,18 @@ describe("almanac rendering", () => {
     expect(out).toContain("20 / 24 / 28 / 32");
   });
 
+  it("links the calculator from the overview and from every goods need of the needs page (D-084)", () => {
+    expect(html({ section: "overview" })).toMatch(/data-testid="almanac-overview-calc">[^<]*<a href="\/almanac\/calculator"[^>]*>Calculator<\/a>/);
+    const needs = html({ section: "needs" });
+    // One full house of the tier: Citizens 14, Settlers 6.
+    expect(needs).toContain('href="/almanac/calculator?c=14"');
+    expect(needs).toContain('href="/almanac/calculator?s=6"');
+    expect(needs).toContain("Calculator: one full Citizens house");
+    // Goods categories only: one link per own goods need.
+    const goodsNeeds = content.needs.filter((n) => !n.from_tier && n.goods?.length).length;
+    expect(needs.split('data-testid="almanac-needs-calc"').length - 1).toBe(goodsNeeds);
+  });
+
   it("explains the auto-pause and the transitive supply-chain guard (D-075 §5)", () => {
     const out = html({ section: "overview" });
     expect(out).toContain('<h3 id="gold">When gold runs out</h3>');

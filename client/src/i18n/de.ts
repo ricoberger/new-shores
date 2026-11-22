@@ -190,6 +190,8 @@ export const de: Record<keyof typeof en, string> = {
   "almanac.n.perResident": "Je 100 Bewohner",
   "almanac.n.lead": "Eine Kategorie ist durch die Summe der Anteile ihrer gelieferten Alternativen gedeckt, höchstens zu 100 %. Dienste versorgen ein Haus, wenn das Gebäude in dessen Radius steht und verbunden ist; bei einer Kette jedes Gebäude des verlangten oder eines höheren Rangs. Die Raten gelten je 100 Bewohner und Minute.",
   "almanac.n.carries": "Trägt auch die Warenkategorien von {tiers} zu verringerten Raten: die Rate der unteren Stufe mal deren Hausgröße geteilt durch die dieser Stufe, halbiert je drei Stufen Abstand.",
+  "almanac.o.calcLead": "Eine Stadt planen? Berechne die Waren, Produzenten und Felder, die sie braucht:",
+  "almanac.n.calcLink": "Rechner: ein volles Haus der Stufe {tier}",
   "almanac.calc.lead": "Gib die Bewohner jeder Stufe ein, um zu sehen, welche Waren sie verbrauchen und wie viele Produzenten, Felder und Lagerstättenplätze die Ketten brauchen. Alles gilt im Dauerbetrieb bei voller Effizienz, je Gebäudetyp aufgerundet. Die Eingaben stehen in der Adresszeile: Kopiere den Link, um einen Plan zu teilen.",
   "almanac.calc.inputs": "Bewohner",
   "almanac.calc.tier": "Stufe",

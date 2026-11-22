@@ -4,10 +4,11 @@ import { Icon } from "../ui/Icon";
 import styles from "./almanac.module.css";
 import { tonsPerMinText } from "../display/format";
 import { needsByTier, num, ppmPercent, type Index, type NeedView } from "./model";
-import { BuildingLink, GoodLink } from "./parts";
+import { housePreset } from "./calc";
+import { A, BuildingLink, GoodLink } from "./parts";
 import { useScrollTo } from "./useScrollTo";
 
-function Need({ idx, n }: { idx: Index; n: NeedView }) {
+function Need({ idx, n, tier }: { idx: Index; n: NeedView; tier: string }) {
   return (
     <div className={styles.tableWrap}>
       <table className={styles.table}>
@@ -20,6 +21,14 @@ function Need({ idx, n }: { idx: Index; n: NeedView }) {
               {n.kind === "optional" ? t("almanac.n.optional") : ""}
               {n.chain ? `, ${t("almanac.n.chainRank", { rank: n.minRank ?? 1 })}` : ""}
             </span>
+            {!n.services && (
+              <span className={styles.small} data-testid="almanac-needs-calc">
+                {" · "}
+                <A section="calculator" query={housePreset(idx, tier)}>
+                  {t("almanac.n.calcLink", { tier: idx.tierName(tier) })}
+                </A>
+              </span>
+            )}
           </h5>
         </caption>
         <thead>
@@ -74,7 +83,7 @@ export function Needs({ idx, id }: { idx: Index; id?: string }) {
           </h3>
           {tier.own.length === 0 && <p className={styles.small}>{t("almanac.o.noNeeds")}</p>}
           {tier.own.map((n) => (
-            <Need key={n.id} idx={idx} n={n} />
+            <Need key={n.id} idx={idx} n={n} tier={tier.tier} />
           ))}
           {tier.carried.length > 0 && (
             <p className={styles.small}>{t("almanac.n.carries", { tiers: tier.carried.map((c) => idx.tierName(c)).join(", ") })}</p>

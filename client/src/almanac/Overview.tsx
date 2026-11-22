@@ -24,6 +24,10 @@ export function Overview({ idx, id }: { idx: Index; id?: string }) {
         {idx.content.region?.name ? `${idx.content.region.name}: ` : ""}
         {t("almanac.o.lead")}
       </p>
+      <p data-testid="almanac-overview-calc">
+        {t("almanac.o.calcLead")}{" "}
+        <A section="calculator">{t("almanac.section.calculator")}</A>
+      </p>
 
       <h3>{t("almanac.o.tiers")}</h3>
       <div className={styles.cards}>

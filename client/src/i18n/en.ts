@@ -188,6 +188,8 @@ export const en = {
   "almanac.n.perResident": "Per 100 residents",
   "almanac.n.lead": "A category is covered by the sum of the shares of its supplied alternatives, at most 100 %. Services cover a house when the building stands within its radius and is connected; of a chain, any building of the asked rank or higher does. Rates are per 100 residents and minute.",
   "almanac.n.carries": "Also carries the goods categories of {tiers} at reduced rates: the lower tier's rate times its house size divided by this tier's, halved every three tiers apart.",
+  "almanac.o.calcLead": "Planning a town? Work out the goods, producers and fields it needs:",
+  "almanac.n.calcLink": "Calculator: one full {tier} house",
   "almanac.calc.lead": "Enter the residents of each tier to see which goods they consume and how many producers, fields and deposit slots the chains need. Everything is steady state at full efficiency, rounded up per building type. The inputs are in the address bar: copy the link to share a plan.",
   "almanac.calc.inputs": "Residents",
   "almanac.calc.tier": "Tier",
