@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ComponentType } from "react"
 import { getContent, type Content } from "../api/client";
 import styles from "./almanac.module.css";
 import { Buildings } from "./Buildings";
+import { Calculator } from "./Calculator";
 import { Goods } from "./Goods";
 import { Islands } from "./Islands";
 import { Needs } from "./Needs";
@@ -15,11 +16,12 @@ import { t, useLanguage } from "../i18n";
 import { navigate, SECTIONS, sectionLabel, routePath, useRoute, type Route } from "./route";
 
 /** Pages by section; a section without a page is not listed in the navigation. */
-const PAGES: Partial<Record<SectionId, ComponentType<{ idx: Index; id?: string }>>> = {
+const PAGES: Partial<Record<SectionId, ComponentType<{ idx: Index; id?: string; search?: string }>>> = {
   overview: Overview,
   buildings: Buildings,
   goods: Goods,
   needs: Needs,
+  calculator: Calculator,
   ships: Ships,
   quests: Quests,
   islands: Islands,
@@ -29,6 +31,8 @@ interface ViewProps {
   content: Content;
   /** Overrides the route of the address bar (tests). */
   route?: Route;
+  /** Overrides the query of the address bar (tests; the calculator's inputs). */
+  urlSearch?: string;
   /** Where "back to the game" leads. */
   exitHref?: string;
 }
@@ -38,7 +42,7 @@ function setDocumentTitle(title: string): void {
 }
 
 /** The almanac for loaded content: header with search, section navigation, the page, the footer. */
-export function AlmanacView({ content, route: forced, exitHref = "/" }: ViewProps) {
+export function AlmanacView({ content, route: forced, urlSearch, exitHref = "/" }: ViewProps) {
   const current = useRoute();
   const route = forced ?? current;
   const idx = useMemo(() => buildIndex(content), [content]);
@@ -118,7 +122,7 @@ export function AlmanacView({ content, route: forced, exitHref = "/" }: ViewProp
           ))}
         </nav>
         <main className={styles.main} id="almanac-main">
-          <Page idx={idx} id={route.id} key={route.section} />
+          <Page idx={idx} id={route.id} search={urlSearch} key={route.section} />
         </main>
         <footer className={styles.foot}>
           {region?.name ?? t("almanac.footer.content")}

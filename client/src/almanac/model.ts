@@ -676,7 +676,7 @@ export function islandsView(content: Content): IslandsView {
 
 // ------------------------------------------------------------------ search
 
-export type SectionId = "overview" | "buildings" | "goods" | "needs" | "ships" | "quests" | "islands";
+export type SectionId = "overview" | "buildings" | "goods" | "needs" | "calculator" | "ships" | "quests" | "islands";
 
 export interface SearchEntry {
   section: SectionId;

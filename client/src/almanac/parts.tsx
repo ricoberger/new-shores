@@ -11,13 +11,15 @@ import { navigate, routePath } from "./route";
 interface LinkProps {
   section: SectionId;
   id?: string;
+  /** A query string such as "?c=14" (the calculator's inputs). */
+  query?: string;
   children: ReactNode;
   className?: string;
 }
 
 /** An in-almanac link: a real anchor (new tab, copy link) that navigates without a reload on a plain click. */
-export function A({ section, id, children, className }: LinkProps) {
-  const href = routePath(section, id);
+export function A({ section, id, query = "", children, className }: LinkProps) {
+  const href = `${routePath(section, id)}${query}`;
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();

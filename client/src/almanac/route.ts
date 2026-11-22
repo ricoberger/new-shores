@@ -13,6 +13,7 @@ export const SECTIONS: { id: SectionId }[] = [
   { id: "buildings" },
   { id: "goods" },
   { id: "needs" },
+  { id: "calculator" },
   { id: "ships" },
   { id: "quests" },
   { id: "islands" },
@@ -54,9 +55,9 @@ export function routePath(section: SectionId, id?: string): string {
 
 const EVENT = "almanac:navigate";
 
-/** Goes to a pathname (history entry, no reload). */
+/** Goes to a path, with an optional query (history entry, no reload). */
 export function navigate(path: string): void {
-  if (globalThis.location?.pathname === path) return;
+  if (globalThis.location && `${globalThis.location.pathname}${globalThis.location.search}` === path) return;
   globalThis.history.pushState(null, "", path);
   globalThis.dispatchEvent(new Event(EVENT));
 }
@@ -68,6 +69,23 @@ function subscribe(cb: () => void): () => void {
     globalThis.removeEventListener("popstate", cb);
     globalThis.removeEventListener(EVENT, cb);
   };
+}
+
+const search = () => globalThis.location?.search ?? "";
+
+/**
+ * The query string of the address bar ("?c=14"), following back/forward, `navigate` and `replaceSearch`;
+ * `fallback` is what a render without a window (tests, server) sees. The calculator keeps its inputs here (D-084 §1).
+ */
+export function useSearch(fallback = ""): string {
+  return useSyncExternalStore(subscribe, search, () => fallback);
+}
+
+/** Replaces the query of the current page without a history entry (typing in a field is not a page visit). */
+export function replaceSearch(query: string): void {
+  if (!globalThis.history || !globalThis.location) return;
+  globalThis.history.replaceState(null, "", `${globalThis.location.pathname}${query}`);
+  globalThis.dispatchEvent(new Event(EVENT));
 }
 
 const pathname = () => globalThis.location?.pathname ?? ALMANAC_BASE;

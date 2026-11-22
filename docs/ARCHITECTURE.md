@@ -71,6 +71,7 @@ new-shores/
 ├── client/                     Vite + React + Babylon.js
 │   ├── src/api/                generated types (openapi-typescript), fetch/ws client
 │   ├── src/display/            extrapolation + display model
+│   ├── src/almanac/            public reference pages (`model.ts` view models, `calc.ts` pure calculator arithmetic of D-084, one component per section)
 │   ├── src/render/             Babylon scene, voxel terrain, chunks, instancing, pickers
 │   ├── src/ui/                 React HUD, panels, build menu, world map
 │   ├── src/dev/                dev/E2E-only `?stats=1` fps badge with the top-10 models by triangles (no dev-state handling, D-066)
@@ -711,6 +712,29 @@ Pitfalls for local runs:
   schema-14 migration fixture still has a toolmaker). A content change
   that retires an ID must therefore bump the content version (D-083:
   0.24.0); the dev fixtures are checked by `TestFixturesUseCatalogueIDs`.
+- **The calculator's state is the query string, not React state.**
+  `Calculator` reads `location.search` through `useSearch` (a
+  `useSyncExternalStore` on the same `popstate` / `almanac:navigate`
+  events as the route) and writes it with `replaceSearch`
+  (`history.replaceState`): typing in a field is not a page visit, so
+  back leaves the calculator instead of stepping through keystrokes,
+  and a link with a query (`/almanac/calculator?c=14`, the Needs
+  presets) re-renders the open page through `navigate`, which compares
+  path *and* query. Tests render with the `urlSearch` prop (a server
+  render has no `location`). A new query key needs `parseQuery` /
+  `writeQuery` in `calc.ts` (validated, round-trip tested), never a
+  second reader.
+- **Calculator rounding order.** `calculate` processes goods consumers
+  first, adds every recipe's input demand (`demand ÷ output × input`,
+  the demand of the recipe above, not its rounded-up capacity) to the
+  good below and rounds up only when it reaches that good, so charcoal
+  or flour shared by several recipes is summed before the `ceil`;
+  rounding capacity instead would compound (two bakeries' worth of
+  flour for a 0.3 bakery). `ceilCount` ignores float noise just above a
+  whole number (a demand of 1.0000000001 is one producer). Checks
+  against the reference plans must switch off the goods no plan
+  producer makes: the games supply one good of a two-good category, the
+  calculator's default supplies both.
 - **The shot tool cannot drag rectangles on the phone device:** the
   Playwright mouse drag starts no rectangle there, so the group-move
   presets (`move-group-drag`, `move-group-ghost`) are desktop only.
