@@ -456,3 +456,40 @@
   justify-content: center;
   margin-top: 8px;
 }
+
+/* ----------------------------------------------------------- calculator */
+
+.calcInput {
+  width: 7em;
+  padding: 4px 6px;
+  font: inherit;
+  text-align: right;
+  color: var(--ns-ui-ink);
+  background: var(--ns-ui-parchment-light);
+  border: 1px solid var(--ns-ui-parchment-edge);
+  border-radius: 4px;
+}
+
+.calcGroup {
+  min-width: 0;
+  margin: 0;
+  padding: 6px 12px 8px;
+  border: 1px solid var(--ns-ui-parchment-edge);
+  border-radius: 8px;
+}
+
+.calcGroup legend {
+  padding: 0 4px;
+  font-weight: 600;
+}
+
+.calcCheck {
+  display: block;
+  padding: 3px 0;
+}
+
+.calcNotes {
+  margin: 0 0 10px;
+  padding-left: 20px;
+  color: var(--ns-ui-ink-soft);
+}

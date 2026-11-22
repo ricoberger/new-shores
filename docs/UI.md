@@ -783,7 +783,7 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
 ## 9. The Almanac (public reference)
 
 - **Route:** `/almanac/<section>[/<id>]` (sections `overview`, `buildings`,
-  `goods`, `needs`, `ships`, `quests`, `islands`; the ID is a content ID, a
+  `goods`, `needs`, `calculator`, `ships`, `quests`, `islands`; the ID is a content ID, a
   tier for overview/needs, a size class for islands). No login and no
   world: `Root` mounts the component tree of `client/src/almanac/` when
   the pathname starts with `/almanac` (a pathname check and the History
@@ -824,6 +824,30 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   and when a producer loses it (an input with no producer and no stock),
   the resume queue that skips such a producer, and the resume reserve, whose minutes come from the served rules
   (`auto_resume_upkeep_ms`; the line is left out without them).
+- **Calculator (D-084)** at `/almanac/calculator`, after Needs: residents
+  (or full houses = residents ÷ `residents_max`) per tier, a checkbox per
+  good of every goods category with two or more alternatives of a tier
+  that has residents (all supplied by default; a good's state is global
+  by ID, so a carried category follows the lower tier's checkbox). Output:
+  coverage notes for a category with only some goods supplied ("covers
+  60 %, the houses settle below their maximum"; a fully unsupplied
+  category shows nothing), the demand per good (residents / upstream /
+  total, t/min), one table per consumed good (building, good, count,
+  rate used %, fields per farm, deposit), and the totals (buildings,
+  fields, deposit slots per kind, workforce per tier, maintenance, tax of
+  the entered residents). Empty state while all residents are 0. The
+  arithmetic is `calc.ts` (pure; D-084 §2–§3): the demand of a category
+  splits over its supplied goods; a producer count is ⌈demand ÷ output at
+  100 %⌉ and its inputs become demand for the recipes below it by the
+  recipe ratio (the counts do not compound), shared intermediates summed
+  before rounding and listed once under the first chain that reaches
+  them; alternative inputs take the first listed, a good with two
+  producers the first listed. **State is the address bar**:
+  `?s=120&c=400&m=200&p=100&off=cider,mead` (first letter of the tier ID,
+  0…999 999, unknown goods ignored); typing replaces the query with the
+  History API without a history entry, so a plan is a link and back /
+  forward follow it. Nothing is stored. Tables scroll sideways on the
+  phone like the other Almanac tables.
 - **Look:** the HUD's parchment in a dark-wood frame, Cinzel headings,
   brass accent; left navigation on desktop, sticky tabs on the phone;
   a search box filters buildings, goods, ships, quests, tiers and island
@@ -834,7 +858,9 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
 - **Tests:** Vitest on the view models against `content/old_coast` and the
   `server/testdata/content` fixtures (every building, good, need, ship and
   quest exactly once, every reference resolves, every quest condition
-  formats) and a rendering smoke test of every page.
+  formats), the calculator against the fixtures (one Citizen house, the D-080
+  table-A producers, the Patricians reference town's producer counts) and
+  a rendering smoke test of every page.
 
 ## 10. Language (D-061)
 

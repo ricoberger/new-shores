@@ -91,7 +91,7 @@ describe("almanac rendering", () => {
 
   it("survives content without optional parts", () => {
     const empty = { region: {}, quests: [], tiers: [], goods: [], buildings: [], needs: [], need_categories: [], ships: [], size_classes: [] } as never;
-    for (const section of ["overview", "buildings", "goods", "needs", "ships", "quests", "islands"] as const)
+    for (const section of ["overview", "buildings", "goods", "needs", "calculator", "ships", "quests", "islands"] as const)
       expect(() => renderToStaticMarkup(createElement(AlmanacView, { content: empty, route: { section } }))).not.toThrow();
   });
 });
