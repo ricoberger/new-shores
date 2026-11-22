@@ -344,7 +344,18 @@ type Building struct {
 	// Gate marks the gatehouse (D-077 §3): it needs a road-crossing
 	// paint family (the city wall) on two opposite sides and lets a road
 	// through its centre line.
-	Gate         bool
+	Gate bool
+	// StandsOn lists the water roads (road.shallows: quay, jetty) whose
+	// tiles count as land under the footprint of a water-edge, shore or
+	// coastal building and behind a shore building's back edge, replaced
+	// on placement (D-085 §2). Absent in the content it is
+	// DefaultStandsOn (the IDs of it the catalogue defines) for those
+	// buildings and empty for every other one.
+	StandsOn []string
+	// Replaces lists the roads of the same class (land or shallows) that
+	// this road replaces in place, with the old road's demolition refund
+	// (D-085 §3, the paved-over-dirt rule of MECHANICS §3). Empty: none.
+	Replaces     []string
 	RequiresRoad bool
 	Cost         Cost
 	// UpkeepPerMin is in milli-gold per minute.
@@ -577,6 +588,22 @@ func (b *Building) Collector() bool { return b.TradingPost != nil || b.Warehouse
 // Shore reports whether the building has the shore placement (D-077 §5).
 func (b *Building) Shore() bool { return b.Placement == PlacementShore }
 
+// DefaultStandsOn is the stands_on of a water-edge, shore or coastal
+// building that declares none (D-085 §5): the quay, as before D-085.
+var DefaultStandsOn = []string{"quay"}
+
+// StandsOnRoad reports whether the building may stand on a tile carrying
+// the road roadType (D-085 §2).
+func (b *Building) StandsOnRoad(roadType string) bool {
+	return roadType != "" && slices.Contains(b.StandsOn, roadType)
+}
+
+// ReplacesRoad reports whether the road b replaces the road roadType in
+// place (D-085 §3).
+func (b *Building) ReplacesRoad(roadType string) bool {
+	return roadType != "" && slices.Contains(b.Replaces, roadType)
+}
+
 // LevelCount is the number of levels of a Trading Post or Warehouse (0
 // for every other building).
 func (b *Building) LevelCount() int {
@@ -687,8 +714,9 @@ func (b *Building) TradingPostLevelAt(level int) TradingPostLevel {
 type Road struct {
 	// MsPerTile is the transfer time per road tile.
 	MsPerTile int64
-	// Shallows marks a quay (D-060): the road stands on shallow water
-	// (MECHANICS §3) instead of land.
+	// Shallows marks a water road — the quay (D-060) or the jetty
+	// (D-085): the road stands on shallow water (MECHANICS §3) instead
+	// of land.
 	Shallows bool
 }
 

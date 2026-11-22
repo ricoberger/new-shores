@@ -8,10 +8,11 @@ import (
 )
 
 // TestPavedRoadReplacesDirt pins the replacement rule of MECHANICS §3: a
-// road over a road of a lower type replaces it in one command — the new
-// road's cost for every tile, the old road's demolition refund (50 % of
-// its materials), the tile a road throughout — while the same type and a
-// lower type over a higher one stay occupied and change nothing.
+// road over a road of its replaces list (D-085 §3) replaces it in one
+// command — the new road's cost for every tile, the old road's refund (50 %
+// of its materials floored to milli-units, no gold), the tile a road
+// throughout — while the same type and a lower type over a higher one stay
+// occupied and change nothing.
 func TestPavedRoadReplacesDirt(t *testing.T) {
 	c := shippedCatalogue(t)
 	// A dirt road with materials, so the refund shows: 3 stone per tile.
@@ -42,12 +43,12 @@ func TestPavedRoadReplacesDirt(t *testing.T) {
 	if got, want := w.Gold, gold-3*paved.Gold; got != want {
 		t.Errorf("gold = %d, want %d (the paved cost for all three tiles, no gold refund)", got, want)
 	}
-	// Paved stone for three tiles, the dirt refund of 1 stone (50 % of 3, whole units) for two.
-	if got, want := is.Inventory.Stock["stone"], stone-3*paved.Materials[0].Amount+2*1_000; got != want {
+	// Paved stone for three tiles, the dirt refund of 1.5 stone (50 % of 3, floored to milli-units) for two.
+	if got, want := is.Inventory.Stock["stone"], stone-3*paved.Materials[0].Amount+2*1_500; got != want {
 		t.Errorf("stone = %d, want %d", got, want)
 	}
-	if f := l.flow("main", "stone"); f.Refunded != 2*1_000*SubPerMilli {
-		t.Errorf("ledger refunded = %d, want %d", f.Refunded, 2*1_000*SubPerMilli)
+	if f := l.flow("main", "stone"); f.Refunded != 2*1_500*SubPerMilli {
+		t.Errorf("ledger refunded = %d, want %d", f.Refunded, 2*1_500*SubPerMilli)
 	}
 
 	before := encodeWorld(t, w)

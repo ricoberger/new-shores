@@ -47,8 +47,13 @@ func checkShoreSite(is *Island, c *content.Catalogue, occ []int64, def *content.
 			switch {
 			case occ[i] != 0 || is.PlannedRoads[i] != "":
 				return fmt.Errorf("%w: (%d,%d)", ErrOccupied, tx, ty)
+			case standsOnAt(is, def, i):
+				// A quay (a water road of stands_on) counts as land and
+				// is replaced (D-060, D-085 §2).
 			case quayAt(is, c, i):
-				// A quay counts as land and is replaced (D-060).
+				// Any other water road (the jetty under a harbour
+				// building) is not ground for it (D-085 §2).
+				return fmt.Errorf("%w: (%d,%d) is a %s, %s stands on %v only", ErrTerrain, tx, ty, is.Roads[i], def.ID, def.StandsOn)
 			case is.Roads[i] != "":
 				return fmt.Errorf("%w: (%d,%d)", ErrOccupied, tx, ty)
 			case t == content.TerrainWater:
@@ -75,11 +80,17 @@ func checkShoreSite(is *Island, c *content.Catalogue, occ []int64, def *content.
 			return false
 		}
 		i := is.index(p.X, p.Y)
-		return ownLand(is.Tiles[i].Terrain) || quayAt(is, c, i)
+		return ownLand(is.Tiles[i].Terrain) || standsOnAt(is, def, i)
 	}
 	for column := range def.Width {
 		back := waterPosition(def, x, y, rotation, column, def.Height-1)
-		if !shoreLand(back) && !shoreLand(shoreBehind(def, x, y, rotation, column)) {
+		behind := shoreBehind(def, x, y, rotation, column)
+		if !shoreLand(back) && !shoreLand(behind) {
+			// A water road the building may not stand on behind it (the
+			// jetty, D-085 §2) is terrain, not open water.
+			if is.InBounds(behind.X, behind.Y) && quayAt(is, c, is.index(behind.X, behind.Y)) {
+				return fmt.Errorf("%w: %s at (%d,%d): back edge at (%d,%d) rests on a %s, it stands on %v only", ErrTerrain, def.ID, x, y, behind.X, behind.Y, is.Roads[is.index(behind.X, behind.Y)], def.StandsOn)
+			}
 			return fmt.Errorf("%w: %s at (%d,%d): back edge at (%d,%d) is open water", ErrShoreBackEdge, def.ID, x, y, back.X, back.Y)
 		}
 	}

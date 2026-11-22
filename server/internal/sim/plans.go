@@ -151,6 +151,14 @@ func planRoad(c *content.Catalogue, is *Island, def *content.Building, cmd Place
 		if err := checkTiles(v, v.roadOccupancy(c), cmd.Tiles, allowRiver); err != nil {
 			return err
 		}
+	} else {
+		// Nor does a planned water road (D-085 §3): checkRoadSite would
+		// let it replace one.
+		for _, p := range cmd.Tiles {
+			if v.InBounds(p.X, p.Y) && Shallow(v, p.X, p.Y) && v.roadOrPlan(v.index(p.X, p.Y)) {
+				return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
+			}
+		}
 	}
 	if err := checkRoadSite(v, c, def, cmd.Tiles); err != nil {
 		return err

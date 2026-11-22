@@ -323,6 +323,8 @@ type rawBuilding struct {
 	Repairs       bool                   `json:"repairs"`
 	HarbourLane   bool                   `json:"harbour_lane"`
 	Gate          bool                   `json:"gate"`
+	StandsOn      []string               `json:"stands_on"`
+	Replaces      []string               `json:"replaces"`
 	RequiresRoad  bool                   `json:"requires_road"`
 	Cost          map[string]json.Number `json:"cost"`
 	Upkeep        json.Number            `json:"upkeep_per_min"`
@@ -656,6 +658,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			cat.FieldByType[f.Type] = b
 		}
 	}
+	defaultStandsOn(cat)
 
 	for _, rc := range needCats {
 		ent := fmt.Sprintf("need category %q", rc.ID)
@@ -789,6 +792,24 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 	return cat, nil
 }
 
+// defaultStandsOn gives every water-edge, shore or coastal building
+// without stands_on the IDs of DefaultStandsOn the catalogue defines
+// (D-085 §5): content before 0.25.0 and buildings that stand on quays
+// only keep the D-060 rule.
+func defaultStandsOn(cat *Catalogue) {
+	for _, b := range cat.Buildings {
+		if b.StandsOn != nil || (b.WaterRows == nil && !b.Shore() && !b.Coastal) {
+			continue
+		}
+		b.StandsOn = []string{}
+		for _, id := range DefaultStandsOn {
+			if cat.BuildingByID[id] != nil {
+				b.StandsOn = append(b.StandsOn, id)
+			}
+		}
+	}
+}
+
 func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string]*Good) *Building {
 	const file = FileBuildings
 	b := &Building{
@@ -807,6 +828,8 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		Repairs:       rb.Repairs,
 		HarbourLane:   rb.HarbourLane,
 		Gate:          rb.Gate,
+		StandsOn:      rb.StandsOn,
+		Replaces:      rb.Replaces,
 		RequiresRoad:  rb.RequiresRoad,
 		UpkeepPerMin:  col.fixed(file, ent, "upkeep_per_min", rb.Upkeep, 3),
 		PauseCategory: rb.PauseCategory,
@@ -827,6 +850,11 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 	}
 	if b.Width < 1 || b.Height < 1 {
 		col.add(file, ent, "footprint", "must be at least 1x1")
+	}
+	// D-085 §2: only a water-edge or shore building chooses the water
+	// roads it stands on (a coastal one keeps the default).
+	if rb.StandsOn != nil && rb.WaterRows == nil && rb.Placement != PlacementShore {
+		col.add(file, ent, "stands_on", "only a building with water_rows or shore placement stands on water roads")
 	}
 
 	b.Cost = decodeCost(col, file, ent, rb.Cost, goods)

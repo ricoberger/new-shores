@@ -189,7 +189,7 @@ func moveGroup(w *World, c *content.Catalogue, cmd MoveGroup) error {
 		}
 		var err error
 		if def.Road.Shallows {
-			err = checkQuayTiles(&after, occ, []Pos{r.to})
+			err = checkQuayTiles(&after, occ, []Pos{r.to}, nil)
 		} else {
 			err = checkTiles(&after, occ, []Pos{r.to}, allowRiver)
 		}

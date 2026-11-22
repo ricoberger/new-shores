@@ -285,7 +285,8 @@
     "upkeep_per_min": 0,
     "pause_category": "never",
     "look": "rural",
-    "road": { "seconds_per_tile": 0.6 }
+    "road": { "seconds_per_tile": 0.6 },
+    "replaces": ["road_dirt"]
   },
   {
     "id": "tavern",
