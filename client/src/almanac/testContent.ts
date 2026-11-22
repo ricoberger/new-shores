@@ -36,6 +36,10 @@ export function loadContent(dir: string): Content {
   const d = join(REPO, dir);
   const buildingsRaw: Raw[] = read(d, "buildings.json");
   const tierIDs = (read(d, "tiers.json") as Raw[]).map((t) => t.id as string);
+  // The server's stands_on default (D-085 §2): ["quay"] for water-edge, shore and coastal buildings, filtered to defined IDs.
+  const ids = new Set(buildingsRaw.map((b) => b.id as string));
+  const standsOn = (b: Raw): string[] | undefined =>
+    b.stands_on ?? (b.water_rows || b.placement === "shore" || b.coastal ? ["quay"].filter((id) => ids.has(id)) : undefined);
   const buildings = buildingsRaw.map((b) => {
     const out: Raw = {
       id: b.id,
@@ -53,6 +57,8 @@ export function loadContent(dir: string): Content {
       ...(b.repairs ? { repairs: true } : {}),
       ...(b.gate ? { gate: true } : {}),
       ...(b.description ? { description: b.description } : {}),
+      ...(standsOn(b)?.length ? { stands_on: standsOn(b) } : {}),
+      ...(b.replaces?.length ? { replaces: b.replaces } : {}),
       requires_road: !!b.requires_road,
       cost: cost(b.cost),
       upkeep_per_min: m(b.upkeep_per_min),

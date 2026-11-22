@@ -152,6 +152,15 @@ describe("build menu groups", () => {
 describe("build cards", () => {
   const card = (html: string, id: string) => html.match(new RegExp(`<button[^>]*data-testid="build-${id}"[^>]*>.*?</button>`))![0];
 
+  it("shows the jetty in the Settlers' Harbour group with its water-road notes (D-085)", () => {
+    const html = render();
+    const jetty = card(html, "jetty");
+    expect(text(jetty)).toContain("Jetty");
+    expect(text(jetty)).toContain("On shallow water");
+    expect(text(jetty)).toContain("Quay builds over it");
+    expect(jetty).toContain('title="Planks on timber piles');
+  });
+
   it("shows the cost with good icons and marks only the parts the player cannot cover in red", () => {
     const tight = {
       ...model,

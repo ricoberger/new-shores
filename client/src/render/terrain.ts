@@ -34,9 +34,9 @@ import { skyFill } from "./lighting";
 import type { RoadTile } from "./roads";
 import { fieldPatchTops } from "./farfields";
 import { paintYards, type YardTile } from "./groundpaint";
-import { type FieldBase, fieldBase, type FieldTile, isDeepQuay, isQuayTile, paintFields, paintRoads, QUAY_H, touchedChunks } from "./roadvoxels";
+import { type FieldBase, fieldBase, type FieldTile, isDeepQuay, isJettyTile, isWaterRoadTile, paintFields, paintRoads, QUAY_H, touchedChunks } from "./roadvoxels";
 import { LEVEL_STEPS } from "./terraces";
-import { COAST_REACH, downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, roundDistanceTo, SIDE_QUAY, SIDE_ROCK, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
+import { COAST_REACH, downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, roundDistanceTo, SIDE_PILES, SIDE_QUAY, SIDE_ROCK, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
 import { riverWater } from "./water";
 
 /** Height of the sea surface: the coast's columns drop from the ground (0) to below it. */
@@ -205,7 +205,7 @@ export class TerrainBuild {
   /** The coarse lite mesh (1 column per tile; null: not built or out of date) and whether it is the one drawn. */
   private coarseMesh: Mesh | null = null;
   private coarse = false;
-  /** The quay tiles (D-060) the lite mesh carries as decks at QUAY_H, and their key. */
+  /** The water road tiles (quays D-060, jetties D-085) the lite mesh carries as decks at QUAY_H, and their key. */
   private quays: readonly RoadTile[] = [];
   private quayKey = "";
   /** The near field's tops with the far view's field patches (null: no fields). */
@@ -274,9 +274,9 @@ export class TerrainBuild {
     paintYards(f, this.base, yards, this.seed);
     this.texture.update(groundTexels(f));
     this.updatePatches(fields);
-    // The quays stand on the water, which the lite field (built roadless) has below the sea: their decks join the lite mesh.
-    const quays = tiles.filter(isQuayTile);
-    const quayKey = quays.map((t) => `${t.x},${t.y}`).join(";");
+    // The water roads stand on the water, which the lite field (built roadless) has below the sea: their decks join the lite mesh.
+    const quays = tiles.filter(isWaterRoadTile);
+    const quayKey = quays.map((t) => `${t.x},${t.y},${t.type ?? ""}`).join(";");
     if (quayKey !== this.quayKey) {
       this.quayKey = quayKey;
       this.quays = quays;
@@ -352,8 +352,9 @@ export class TerrainBuild {
   }
 
   /**
-   * The island's one lite mesh (far LOD): the lite field with the quays'
-   * decks (flat at QUAY_H over their tiles, stone sides; their colours
+   * The island's one lite mesh (far LOD): the lite field with the water
+   * roads' decks (flat at QUAY_H over their tiles, stone sides under a
+   * quay, piles under a jetty; their colours
    * come from the ground texture). Replaces the one built before and
    * keeps its shown state.
    */
@@ -364,7 +365,8 @@ export class TerrainBuild {
       const kind = lite.kind ? lite.kind.slice() : new Uint8Array(lite.nx * lite.ny);
       for (const t of this.quays) {
         // A deep quay's wall is dressed stone (D-077 §8), a stone-coloured line at the far view.
-        const side = isDeepQuay(lite, lite.nx, lite.ny, t.x, t.y, LITE_VPT) ? SIDE_QUAY : SIDE_ROCK;
+        // A jetty's side is its piles (D-085), the boards' colour on top from the ground texture.
+        const side = isJettyTile(t) ? SIDE_PILES : isDeepQuay(lite, lite.nx, lite.ny, t.x, t.y, LITE_VPT) ? SIDE_QUAY : SIDE_ROCK;
         for (let b = 0; b < LITE_VPT; b++) {
           for (let a = 0; a < LITE_VPT; a++) {
             const i = t.x * LITE_VPT + a;

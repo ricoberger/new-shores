@@ -48,7 +48,7 @@ export function BuildingCard({ idx, view, linked, level = 3 }: { idx: Index; vie
         {(() => {
           // The D-077 notes: paint family, gate, defence and repairs (no effect yet), uniqueness.
           const def = idx.content.buildings?.find((b) => b.id === view.id);
-          const notes = def ? buildingNotes(def) : [];
+          const notes = def ? buildingNotes(def, { buildings: idx.content.buildings ?? [] }) : [];
           return notes.length > 0 && <Row label={t("almanac.i.notes")}>{notes.join(" · ")}</Row>;
         })()}
         {view.workforce && (

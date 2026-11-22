@@ -167,10 +167,23 @@ export function recipeFlow(b: ContentBuilding): { inputs: string[]; outputs: str
  * The D-077 notes of a building's card and info panel: a paint family is
  * painted tile by tile, a military building's defence and the repair
  * crane's repairs have no effect yet, a unique building says its scope
- * (the Kontor: expeditions later). Empty for other buildings.
+ * (the Kontor: expeditions later). With the content (build card, almanac),
+ * a water road says it stands on the shallows and which roads it replaces
+ * or is replaced by (D-085 §3: the quay over the jetty). Empty for other
+ * buildings.
  */
-export function buildingNotes(b: Pick<ContentBuilding, "paint_family" | "defence" | "repairs" | "unique" | "gate">): string[] {
+export function buildingNotes(
+  b: Pick<ContentBuilding, "paint_family" | "defence" | "repairs" | "unique" | "gate"> & Partial<Pick<ContentBuilding, "id" | "road" | "replaces">>,
+  content?: Pick<Content, "buildings">,
+): string[] {
   const out: string[] = [];
+  if (content && b.road?.shallows) {
+    const names = (ids: readonly string[]) => ids.map((id) => content.buildings.find((x) => x.id === id)?.name ?? id).join(", ");
+    const replacedBy = content.buildings.filter((x) => b.id !== undefined && x.replaces?.includes(b.id)).map((x) => x.id);
+    out.push(t("build.note.shallows"));
+    if (b.replaces && b.replaces.length > 0) out.push(t("build.note.replaces", { names: names(b.replaces) }));
+    if (replacedBy.length > 0) out.push(t("build.note.replacedBy", { names: names(replacedBy) }));
+  }
   if (b.paint_family) out.push(t("build.note.paint"));
   if (b.gate) out.push(t("build.note.gate"));
   if (b.defence !== undefined) out.push(t("build.note.defence", { value: b.defence }));

@@ -8,7 +8,7 @@ import type { GameRenderer } from "../render/engine";
 import { reliefOf } from "../render/terraces";
 import { MAP_SEA, mapLandColor, mapTileRgb, rgbOf } from "../render/mapcolors";
 import { toolIcon } from "../theme/iconSet";
-import { TERRAIN, UI } from "../theme/palette";
+import { BUILDINGS, TERRAIN, UI } from "../theme/palette";
 import { Compass } from "./Compass";
 import { Icon } from "./Icon";
 import { t } from "../i18n";
@@ -36,8 +36,10 @@ const REFRESH_MS = 50;
 const SEA = MAP_SEA;
 const SHIP = UI.map_ship;
 const VIEW = UI.map_view;
-/** Quays: the paved road's stone. */
+/** Quays: the paved road's stone; jetties (D-085): the boards' planks (render/groundpaint.ts PLANKS). */
 const QUAY = rgbOf(TERRAIN.road_paved);
+const TIMBER = rgbOf(BUILDINGS.timber);
+const JETTY = [Math.min(1, TIMBER[0] * 1.62), Math.min(1, TIMBER[1] * 1.62), Math.min(1, TIMBER[2] * 1.62)] as const;
 
 /**
  * Minimap (D-048): a north-up 2D canvas of the islands' land (the voxel
@@ -71,13 +73,13 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
   // Islands whose tiles are loaded draw their relief (terraces, rivers, rock) instead of the mask.
   const statics = renderer?.islandStatics();
   const tilesKey = statics ? [...statics.values()].map((s) => `${s.id}:${s.revision}`).join(",") : "";
-  // Quays (D-060): the roads on water tiles, drawn in the road colour.
-  const quays = new Map<string, Set<string>>();
+  // Quays (D-060) and jetties (D-085): the roads on water tiles, drawn in the road or the planks' colour.
+  const quays = new Map<string, Map<string, string>>();
   for (const is of islands) {
     const st = statics?.get(is.id);
     if (st) quays.set(is.id, roadsOnWater(st, is.roads));
   }
-  const quayKey = [...quays].map(([id, q]) => `${id}:${[...q].join(";")}`).join(",");
+  const quayKey = [...quays].map(([id, q]) => `${id}:${[...q].map(([k, type]) => `${k}=${type}`).join(";")}`).join(",");
   const landKey = `${minimapLandKey(islands)}|${tilesKey}|${quayKey}`;
   // The payload's archipelago bounds (D-053); the islands' own for an older payload without extent.
   const ab = model.archipelago.bounds;
@@ -213,7 +215,7 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
 }
 
 /** Draws an island's loaded tiles: one sample per minimap pixel (the tile at its centre), shaded by terrace level and rock. */
-function drawTiles(ctx: CanvasRenderingContext2D, m: ReturnType<typeof minimapProjection>, pos: { x: number; y: number }, st: Island, quays?: ReadonlySet<string>): void {
+function drawTiles(ctx: CanvasRenderingContext2D, m: ReturnType<typeof minimapProjection>, pos: { x: number; y: number }, st: Island, quays?: ReadonlyMap<string, string>): void {
   const p = toMinimap(m, pos);
   const q = toMinimap(m, { x: pos.x + st.width, y: pos.y + st.height });
   const x0 = Math.floor(p.x);
@@ -229,7 +231,8 @@ function drawTiles(ctx: CanvasRenderingContext2D, m: ReturnType<typeof minimapPr
       const ty = Math.floor(pt.y - pos.y);
       if (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height) continue;
       const t = ty * st.width + tx;
-      const c = quays?.has(`${tx},${ty}`) ? QUAY : mapTileRgb(st.terrain[t] as string, r.level[t] as number, r.rock[t] as number);
+      const road = quays?.get(`${tx},${ty}`);
+      const c = road !== undefined ? (road === "jetty" ? JETTY : QUAY) : mapTileRgb(st.terrain[t] as string, r.level[t] as number, r.rock[t] as number);
       if (!c) continue;
       const o = (j * w + i) * 4;
       img.data[o] = Math.round(c[0] * 255);

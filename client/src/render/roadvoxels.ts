@@ -18,17 +18,21 @@
 // edge, with an iron bollard on it every third tile. A quay tile in deeper
 // water (D-077 §8: no beach or sand shelf under it, a harbour basin's pier)
 // gets a dressed-stone wall (SIDE_QUAY) and a timber mooring post on the
-// fender of the tile after each bollard tile. The island's terrain
+// fender of the tile after each bollard tile. Jetties (D-085) are the
+// timber water road: the same whole-tile deck at the shore's level, its
+// top the ground kind `boards` (planks laid across the run) and its sides
+// the boards' edge over dark piles (SIDE_PILES); no fender, bollard or
+// post. The island's terrain
 // mesh (ramps and quays) and ground texture are rebuilt from the result
 // (render/terrain.ts).
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { hash2 } from "../display/noise";
 import { ISLAND, TERRAIN } from "../theme/palette";
-import { cobbleTop, DIRT, dirtTop, KERB, STONE, STONE_DARK } from "./groundpaint";
+import { boardsTop, cobbleTop, DIRT, dirtTop, KERB, STONE, STONE_DARK } from "./groundpaint";
 import { c3 } from "./palette";
 import type { RoadTile } from "./roads";
 import { bridgeDecks, bridgeRunsOf, LEVEL_STEPS } from "./terraces";
-import { type Field, pack, SIDE_QUAY, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
+import { type Field, pack, SIDE_PILES, SIDE_QUAY, SIDE_ROCK, TERRAIN_VPT } from "./voxelterrain";
 
 /** Directions to a road neighbour (x, y). */
 const RAMP_DIRS = [
@@ -57,6 +61,10 @@ const DEEP_BELOW = -4;
 const paved = (t: RoadTile) => t.type === "road_paved";
 /** Whether a road tile is a quay (D-060). */
 export const isQuayTile = (t: RoadTile) => t.type === "quay";
+/** Whether a road tile is a jetty (D-085): the timber water road, its deck the ground kind `boards`. */
+export const isJettyTile = (t: RoadTile) => t.type === "jetty";
+/** Whether a road tile is a water road (quay or jetty): a whole-tile deck on the water, not a painted path. */
+export const isWaterRoadTile = (t: RoadTile) => isQuayTile(t) || isJettyTile(t);
 
 /** The base (roadless) heights, top colours and side kinds of a field, kept to repaint from. */
 export interface FieldBase {
@@ -92,7 +100,7 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   const lo = Math.floor(vpt / 2) - 1;
   const hi = Math.ceil(vpt / 2);
   for (const t of tiles) {
-    if (isQuayTile(t)) continue;
+    if (isWaterRoadTile(t)) continue;
     const kind = paved(t) ? 2 : 1;
     const put = (a: number, b: number) => {
       const i = t.x * vpt + a;
@@ -180,7 +188,7 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   }
   // Quays: a stone deck over the whole tile, a timber fender along the edges toward open water, a bollard every third tile.
   const quays = tiles.filter(isQuayTile);
-  if (quays.length > 0 && !f.kind) f.kind = new Uint8Array(nx * ny);
+  if (quays.length + tiles.filter(isJettyTile).length > 0 && !f.kind) f.kind = new Uint8Array(nx * ny);
   for (const t of quays) {
     // An edge toward open water: the neighbour tile is no road and its ground (base) is below the shore.
     const open = (dx: number, dy: number) => {
@@ -215,6 +223,25 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
           const slab = ((Math.floor(i / 2) + Math.floor(j / 2)) & 1) === 0;
           f.top[k] = pack(r > 0.94 ? STONE_DARK : STONE.scale((slab ? 0.92 : 1.0) + 0.05 * r));
         }
+      }
+    }
+  }
+  // Jetties: a deck of boards over the whole tile at the shore's level, the planks across the run (a tile with a
+  // water-road neighbour east or west runs along x: its planks lie along y), the sides the boards' edge over piles.
+  for (const t of tiles) {
+    if (!isJettyTile(t)) continue;
+    const alongX = set.has(`${t.x - 1},${t.y}`) || set.has(`${t.x + 1},${t.y}`);
+    for (let b = 0; b < vpt; b++) {
+      for (let a = 0; a < vpt; a++) {
+        const i = t.x * vpt + a;
+        const j = t.y * vpt + b;
+        if (i < 0 || j < 0 || i >= nx || j >= ny) continue;
+        const k = j * nx + i;
+        f.h[k] = QUAY_H;
+        (f.kind as Uint8Array)[k] = SIDE_PILES;
+        f.road[k] = 4;
+        painted.add(k);
+        f.top[k] = boardsTop(alongX ? i : j, hash2(i, j, seed + 65));
       }
     }
   }

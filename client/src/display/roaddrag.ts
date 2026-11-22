@@ -10,8 +10,8 @@ import { harbourLanes } from "./lane";
 import { isShallow, type ShallowsInput } from "./quay";
 
 /**
- * `ok`: a new road tile; `replace`: a land road of a lower type (an earlier tier) the new one replaces (MECHANICS §3);
- * `skip`: a road of this or a higher type is already there (not sent); `bad`: the server would reject the tile
+ * `ok`: a new road tile; `replace`: a road the new one lists in its content `replaces` (the paved road the dirt road,
+ * the quay the jetty; MECHANICS §3, D-085 §3); `skip`: any other road is already there (not sent); `bad`: the server would reject the tile
  * (terrain, a building, off the shallows for a quay, a quay or paint tile on a harbour lane, D-078 §1).
  */
 export type RoadDragHint = "ok" | "replace" | "skip" | "bad";
@@ -27,21 +27,13 @@ export interface RoadDragData {
   roads: readonly { x: number; y: number; type: string }[];
   defs: ReadonlyMap<
     string,
-    FootprintDef & { tier?: string; road?: { shallows?: boolean } | null; paint_family?: { road_crossing?: boolean; ground?: string }; harbour_lane?: boolean; placement?: string }
+    FootprintDef & { road?: { shallows?: boolean } | null; replaces?: readonly string[] | null; paint_family?: { road_crossing?: boolean; ground?: string }; harbour_lane?: boolean; placement?: string }
   >;
-  /** The content tiers (progression order by index): a road replaces one of an earlier tier. Without: nothing is replaced. */
-  tiers?: readonly { id: string; index: number }[];
 }
 
-/** Whether a road of type `next` replaces the road of type `old` on a tile: both land roads, `old` of an earlier tier. */
-export function replacesRoad(old: string, next: string, data: Pick<RoadDragData, "defs" | "tiers">): boolean {
-  const a = data.defs.get(old);
-  const b = data.defs.get(next);
-  if (!a?.road || !b?.road || a.road.shallows || b.road.shallows) return false;
-  const index = (tier: string | undefined) => data.tiers?.find((t) => t.id === tier)?.index;
-  const ia = index(a.tier);
-  const ib = index(b.tier);
-  return ia !== undefined && ib !== undefined && ia < ib;
+/** Whether a road of type `next` replaces the road of type `old` on a tile: `next` lists `old` in its content `replaces` (D-085 §3). */
+export function replacesRoad(old: string, next: string, data: Pick<RoadDragData, "defs">): boolean {
+  return data.defs.get(next)?.replaces?.includes(old) === true;
 }
 
 /** Terrain a land road may stand on: the buildable terrain and rivers (a bridge, D-058). */

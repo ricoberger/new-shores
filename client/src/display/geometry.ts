@@ -163,7 +163,8 @@ export interface WaterEdgeTile extends TilePos {
 }
 
 /**
- * Per-tile water-edge preview from server terrain (quays read as "quay").
+ * Per-tile water-edge preview from server terrain (quays read as "quay",
+ * a water road the building does not stand on as "water_road": red, D-085).
  * A column's contiguous water prefix is clamped to min..max. Non-water in
  * that prefix is red; non-buildable terrain after it is red too. A river
  * never counts as water, nor does water behind an intervening land tile.
@@ -229,11 +230,12 @@ export function waterEdgeHint(
 
 /**
  * Per-tile shore preview (D-077 §5, a display mirror of the server's
- * checkShoreSite; quays read as "quay"): every footprint tile is water or
+ * checkShoreSite; quays read as "quay", a water road the building does not
+ * stand on as "water_road", D-085): every footprint tile is water or
  * buildable land at terrace level 0 (else `land` / `low`); without any water
  * tile every tile is `water`; a back-edge column (row height-1 from the
  * front) whose tile and the tile behind it are both open water marks its
- * back tile `back`. Precedence of the ghost text: land, low, water, back.
+ * back tile `back` (`land` when the tile behind is a "water_road"). Precedence of the ghost text: land, low, water, back.
  */
 export function shoreTiles(
   def: { width: number; height: number },
@@ -254,7 +256,7 @@ export function shoreTiles(
   };
   const land = (p: TilePos) => {
     const t = terrain(p.x, p.y);
-    return t !== "water" && t !== "river" && t !== "islet" && t !== "";
+    return t !== "water" && t !== "river" && t !== "islet" && t !== "" && t !== "water_road";
   };
   const out: WaterEdgeTile[] = [];
   for (let column = 0; column < def.width; column++) {
@@ -270,9 +272,11 @@ export function shoreTiles(
   if (!out.some((p) => p.water)) return out.map((p) => ({ ...p, problem: p.problem ?? "water" }));
   for (let column = 0; column < def.width; column++) {
     const back = pos(column, def.height - 1);
-    if (land(back) || land(pos(column, def.height))) continue;
+    const behind = pos(column, def.height);
+    if (land(back) || land(behind)) continue;
     const tile = out.find((p) => p.x === back.x && p.y === back.y);
-    if (tile && !tile.problem) tile.problem = "back";
+    // The back edge resting on a water road the building does not stand on (D-085 §2) is the server's terrain.
+    if (tile && !tile.problem) tile.problem = terrain(behind.x, behind.y) === "water_road" ? "land" : "back";
   }
   return out;
 }

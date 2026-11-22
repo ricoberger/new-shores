@@ -3,16 +3,13 @@ import { isPaintType, planRoadDrag, roadDragSend, type RoadDragData } from "./ro
 
 const defs = new Map([
   ["house", { width: 2, height: 2 }],
-  ["road_dirt", { width: 1, height: 1, tier: "settlers", road: {} }],
-  ["road_paved", { width: 1, height: 1, tier: "citizens", road: {} }],
-  ["quay", { width: 1, height: 1, tier: "citizens", road: { shallows: true } }],
+  ["road_dirt", { width: 1, height: 1, road: {} }],
+  ["road_paved", { width: 1, height: 1, road: {}, replaces: ["road_dirt"] }],
+  ["jetty", { width: 1, height: 1, road: { shallows: true } }],
+  ["quay", { width: 1, height: 1, road: { shallows: true }, replaces: ["jetty"] }],
   ["hedge", { width: 1, height: 1, tier: "settlers", paint_family: {} }],
   ["city_wall", { width: 1, height: 1, tier: "citizens", paint_family: { road_crossing: true } }],
 ]);
-const tiers = [
-  { id: "settlers", index: 0 },
-  { id: "citizens", index: 1 },
-];
 
 /** A 12 × 6 island: water in row 0 and column 11, a mountain at (6,3), grass elsewhere. */
 function data(): RoadDragData {
@@ -33,7 +30,6 @@ function data(): RoadDragData {
       { x: 4, y: 3, type: "road_paved" },
     ],
     defs,
-    tiers,
   };
 }
 
@@ -57,12 +53,20 @@ describe("planRoadDrag", () => {
     ]);
   });
 
-  it("replaces a road of a lower type (dirt under paved) and sends it; same or higher types are skipped (MECHANICS §3)", () => {
+  it("replaces a road its content lists in replaces (dirt under paved) and sends it; any other road is skipped (MECHANICS §3)", () => {
     const tiles = planRoadDrag({ x: 2, y: 3 }, { x: 5, y: 3 }, "road_paved", data());
     expect(tiles.map((t) => t.hint)).toEqual(["ok", "replace", "skip", "ok"]);
     expect(roadDragSend(tiles).map((t) => t.x)).toEqual([2, 3, 5]);
-    // Without the tiers nothing is known to be lower: skipped.
-    expect(planRoadDrag({ x: 3, y: 3 }, { x: 3, y: 3 }, "road_paved", { ...data(), tiers: undefined })[0]!.hint).toBe("skip");
+    // The dirt road replaces nothing.
+    expect(planRoadDrag({ x: 4, y: 3 }, { x: 4, y: 3 }, "road_dirt", data())[0]!.hint).toBe("skip");
+  });
+
+  it("replaces a jetty with the quay, never a quay with the jetty (D-085 §3)", () => {
+    const d = { ...data(), roads: [{ x: 2, y: 0, type: "jetty" }, { x: 3, y: 0, type: "quay" }] };
+    expect(planRoadDrag({ x: 2, y: 0 }, { x: 3, y: 0 }, "quay", d).map((t) => t.hint)).toEqual(["replace", "skip"]);
+    expect(planRoadDrag({ x: 2, y: 0 }, { x: 3, y: 0 }, "jetty", d).map((t) => t.hint)).toEqual(["skip", "skip"]);
+    // A jetty drag is a quay drag: shallows and the connection to land.
+    expect(planRoadDrag({ x: 4, y: 0 }, { x: 4, y: 1 }, "jetty", d).map((t) => t.hint)).toEqual(["ok", "bad"]);
   });
 
   it("hints a quay drag by the shallows", () => {
@@ -74,7 +78,7 @@ describe("planRoadDrag", () => {
     // A 6 × 6 island: land in the bottom row only; water above (all shallows).
     const width = 6;
     const terrain = Array.from({ length: width * 6 }, (_, i) => (Math.floor(i / width) === 5 ? "grass" : "water"));
-    const d: RoadDragData = { island: { width, height: 6, terrain }, buildings: [], roads: [{ x: 0, y: 2, type: "quay" }], defs, tiers };
+    const d: RoadDragData = { island: { width, height: 6, terrain }, buildings: [], roads: [{ x: 0, y: 2, type: "quay" }], defs };
     // A pier from the land up: every tile reaches land over the drag.
     expect(planRoadDrag({ x: 2, y: 4 }, { x: 2, y: 1 }, "quay", d).map((t) => t.hint)).toEqual(["ok", "ok", "ok", "ok"]);
     // A floating row: red; a row touching the (floating) old quay at (0,2) is still not anchored.

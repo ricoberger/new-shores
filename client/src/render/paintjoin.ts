@@ -95,7 +95,7 @@ export function joinedBuildings(display: Pick<IslandDisplay, "buildings" | "road
     const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
     for (let y = b.y; y < b.y + h; y++) for (let x = b.x; x < b.x + w; x++) at.set(`${x},${y}`, b.type);
   }
-  const landRoad = new Set(display.roads.filter((r) => r.type !== "quay").map((r) => `${r.x},${r.y}`));
+  const landRoad = new Set(display.roads.filter((r) => r.type !== "quay" && defs.get(r.type)?.road?.shallows !== true).map((r) => `${r.x},${r.y}`));
   return display.buildings.map((b) => {
     const def = defs.get(b.type);
     if (!joins(def)) return b;

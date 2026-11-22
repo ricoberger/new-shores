@@ -344,6 +344,7 @@
   {
     "id": "jetty",
     "name": "Jetty",
+    "description": "Planks on timber piles over the shallows: a road for fishers, salt pans and oyster beds, which may stand on it. A quay can later be built over it.",
     "region": "old_coast",
     "tier": "settlers",
     "footprint": [1, 1],

@@ -36,16 +36,29 @@ export function offShallows(is: ShallowsInput, tiles: readonly TilePos[]): TileP
   return tiles.filter((t) => !isShallow(is, t.x, t.y));
 }
 
-/** Whether a road type is a quay (its content road block stands on the shallows). */
+/** Whether a road type is a water road — the quay or the jetty (D-085): its content road block stands on the shallows. */
 export function isQuayType(defs: ReadonlyMap<string, { road?: { shallows?: boolean } | null }>, type: string): boolean {
   return defs.get(type)?.road?.shallows === true;
 }
 
-/** The roads on an island's water tiles ("x,y" keys): its quays (only a quay stands on water), for the minimap. */
-export function roadsOnWater(is: ShallowsInput, roads: readonly { x: number; y: number }[]): Set<string> {
-  const out = new Set<string>();
-  for (const r of roads) if (is.terrain[r.y * is.width + r.x] === "water") out.add(`${r.x},${r.y}`);
+/** The roads on an island's water tiles ("x,y" key → road type): its quays and jetties (only a water road stands on water), for the minimap. */
+export function roadsOnWater(is: ShallowsInput, roads: readonly { x: number; y: number; type?: string }[]): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const r of roads) if (is.terrain[r.y * is.width + r.x] === "water") out.set(`${r.x},${r.y}`, r.type ?? "");
   return out;
+}
+
+/**
+ * The water roads a building stands on and the others ("x,y" keys; D-085
+ * §2): `on` the roads of a type in its `stands_on` (the content default
+ * ["quay"] when absent), `off` every other road — withQuays reads them.
+ */
+export function waterRoadsFor(roads: readonly { x: number; y: number; type: string }[], standsOn: readonly string[] | null | undefined): { on: Set<string>; off: Set<string> } {
+  const types = standsOn ?? ["quay"];
+  const on = new Set<string>();
+  const off = new Set<string>();
+  for (const r of roads) (types.includes(r.type) ? on : off).add(`${r.x},${r.y}`);
+  return { on, off };
 }
 
 /** The free shallows of an island (no road on them): the tiles the quay tool's overlay tints. */
@@ -58,11 +71,16 @@ export function freeShallows(is: ShallowsInput, roads: ReadonlySet<string>): Til
 /**
  * A terrain lookup in which a road on a water tile (a quay, D-060) reads
  * "quay": the land rows of a water-edge building may stand on it, its
- * water rows may not (the placement ghost's water-edge hint).
+ * water rows may not (the placement ghost's water-edge hint). A water
+ * road in `off` (one the building does not stand on, D-085 §2: a jetty
+ * under a quay-only building) reads "water_road": neither water nor land,
+ * the server's `terrain`.
  */
-export function withQuays(terrain: (x: number, y: number) => string, roads: ReadonlySet<string>): (x: number, y: number) => string {
+export function withQuays(terrain: (x: number, y: number) => string, roads: ReadonlySet<string>, off?: ReadonlySet<string>): (x: number, y: number) => string {
   return (x, y) => {
     const t = terrain(x, y);
-    return t === "water" && roads.has(`${x},${y}`) ? "quay" : t;
+    if (t !== "water") return t;
+    const k = `${x},${y}`;
+    return off?.has(k) ? "water_road" : roads.has(k) ? "quay" : t;
   };
 }
