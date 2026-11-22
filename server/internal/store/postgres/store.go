@@ -52,8 +52,9 @@ type LockedWorld struct {
 // LockWorld locks the world row (FOR UPDATE) and decodes its envelope with
 // the terrain row of the state's seed and roll (D-054).
 // Unknown or malformed IDs are store.ErrWorldNotFound; an envelope without
-// a schema migration path fails with sim.ErrSchemaVersion (logged with the
-// world ID); farms whose efficiency a migration could not keep are logged
+// a schema migration path fails with sim.ErrSchemaVersion, one of the
+// current content version that names an ID the catalogue does not define
+// with sim.ErrUnknownContent (both logged with the world ID); farms whose efficiency a migration could not keep are logged
 // as warnings.
 func (s *Store) LockWorld(ctx context.Context, tx pgx.Tx, id store.WorldID) (*LockedWorld, error) {
 	if !validUUID(string(id)) {
@@ -78,8 +79,11 @@ FOR UPDATE OF w`, string(id)).Scan(&state, &version, &terrain)
 	}
 	w, cv, _, err := sim.DecodeState(state, terrain, s.catalogue)
 	if err != nil {
-		if errors.Is(err, sim.ErrSchemaVersion) {
+		switch {
+		case errors.Is(err, sim.ErrSchemaVersion):
 			s.logger.Error("world envelope has an unsupported schema version", "world_id", string(id), "error", err)
+		case errors.Is(err, sim.ErrUnknownContent):
+			s.logger.Error("world names an ID the content does not define", "world_id", string(id), "error", err)
 		}
 		return nil, fmt.Errorf("world %s: %w", id, err)
 	}

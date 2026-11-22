@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_merchants",
-  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. No further fisher; one dairy and cheese dairy, apiary and meadery, and tannery for the Citizens' second goods (the second and third of each are gone).",
+  "description": "D-062 reference replay: original build order and island assignment, footprints replanned locally; surgery deferred until Patricians and glass. No stock grants, pauses or target changes. D-080 (content 0.23.0): one producer now feeds 40–60 houses of its tier, so the plan builds a final producer (and its farm) only where the peak demand of the game asks for it. No further fisher; one dairy and cheese dairy, apiary and meadery, and tannery for the Citizens' second goods (the second and third of each are gone). D-083 (content 0.24.0): the Merchants game founds island 2 (oc-02, clay) first — the planks, fisher, ten Settler houses, lumberjack and charcoal burner the Citizens game used to build there — and creates route 1 (goods out, stone home); no tools on any route.",
   "content": "content/old_coast",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
@@ -11,27 +11,90 @@
   "continues": "bootstrap_citizens.plan.json",
   "actions": [
     {
-      "note": "D-074: the opening has no stone to spare; the second island's stone comes home for the Citizen upgrades and the need chains.",
+      "note": "D-083 §4/§5: the second island is a Merchants lesson — the clay for the bricks; ship 1 carries the founding planks.",
       "step": {
-        "update_route": {
-          "route": 1,
-          "name": "Goods out, tools and stone home",
+        "manual_shipment": {
+          "ship": 1,
+          "to": "oc-02",
+          "cargo": {
+            "planks": 58
+          }
+        }
+      }
+    },
+    {
+      "found": {
+        "ship": 1,
+        "island": "oc-02"
+      }
+    },
+    {
+      "note": "Ship 1 sails home for the settlement's planks.",
+      "step": {
+        "sail_ship": {
+          "ship": 1,
+          "to": "oc-01"
+        }
+      }
+    },
+    {
+      "step": {
+        "manual_shipment": {
+          "ship": 1,
+          "to": "oc-02",
+          "cargo": {
+            "planks": 60
+          }
+        }
+      }
+    },
+    {
+      "build": {
+        "island": "oc-02",
+        "type": "fisher",
+        "count": 1
+      }
+    },
+    {
+      "houses": {
+        "quarter": "isle2-1",
+        "count": 10
+      }
+    },
+    {
+      "build": {
+        "island": "oc-02",
+        "type": "lumberjack",
+        "count": 1,
+        "near": "forest"
+      }
+    },
+    {
+      "build": {
+        "island": "oc-02",
+        "type": "charcoal_burner",
+        "count": 1
+      }
+    },
+    {
+      "note": "D-074: the opening has no stone to spare; the second island's stone comes home for the Citizen upgrades and the need chains. D-083: route 1 carries the planks island 2 has no sawmill for (50 a trip, as the Citizens game's route did) until the bricks run.",
+      "step": {
+        "create_route": {
+          "name": "Goods out, stone home",
           "stops": [
             {
               "island": "oc-01",
               "load": {
-                "planks": 20,
+                "planks": 50,
                 "wool_garments": 10
               },
               "unload": [
-                "tools",
                 "stone"
               ]
             },
             {
               "island": "oc-02",
               "load": {
-                "tools": 50,
                 "stone": 50
               },
               "unload": [
@@ -40,6 +103,14 @@
               ]
             }
           ]
+        }
+      }
+    },
+    {
+      "step": {
+        "assign_ship": {
+          "ship": 1,
+          "route": 1
         }
       }
     },
@@ -75,26 +146,6 @@
         "quarter": "home-1",
         "from": "house_settlers",
         "count": 5
-      }
-    },
-    {
-      "civic": {
-        "quarter": "home-1",
-        "type": "city_guard"
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "dairy_farm",
-        "count": 1
-      }
-    },
-    {
-      "build": {
-        "island": "oc-01",
-        "type": "cheese_dairy",
-        "count": 1
       }
     },
     {
@@ -232,7 +283,7 @@
       "step": {
         "update_route": {
           "route": 1,
-          "name": "Goods out, tools and stone home",
+          "name": "Goods out, bricks home",
           "stops": [
             {
               "island": "oc-01",
@@ -241,14 +292,12 @@
                 "wool_garments": 10
               },
               "unload": [
-                "tools",
                 "bricks"
               ]
             },
             {
               "island": "oc-02",
               "load": {
-                "tools": 50,
                 "bricks": 30
               },
               "unload": [
@@ -400,12 +449,11 @@
       "step": {
         "update_route": {
           "route": 1,
-          "name": "Hops and tools home",
+          "name": "Hops home",
           "stops": [
             {
               "island": "oc-01",
               "unload": [
-                "tools",
                 "hops",
                 "planks",
                 "stone"
@@ -414,8 +462,7 @@
             {
               "island": "oc-02",
               "load": {
-                "hops": 50,
-                "tools": 50
+                "hops": 50
               },
               "unload": [
                 "wool_garments"

@@ -887,7 +887,9 @@ land buildings).
   **32 MiB folder limit** (D-077 §7, raised from 24 MiB) after the
   D-077 re-dress; with the D-077 models published (content 0.22.0) they
   are 25.47 MiB (26 704 448 B), and after D-078 (quay plinths, heights,
-  the six holdouts at 12 voxels per tile) 28.17 MiB (29 535 772 B);
+  the six holdouts at 12 voxels per tile) 28.17 MiB (29 535 772 B),
+  and after D-083 (the toolmaker recipe and its two GLBs deleted with the
+  retired building) 28.00 MiB (29 361 924 B);
   what remains per triangle is indices and AO/normal-split vertices.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at

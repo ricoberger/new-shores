@@ -35,7 +35,7 @@ const defs = new Map<string, ContentBuilding>(
   [
     ["lumberjack", 1, 1, "settlers"],
     ["warehouse", 2, 2, "settlers"],
-    ["toolmaker", 1, 1, "citizens"],
+    ["bakery", 1, 1, "citizens"],
   ].map(([id, w, h, tier]) => [id as string, { id, width: w, height: h, tier, category: "production" } as unknown as ContentBuilding]),
 );
 
@@ -217,7 +217,7 @@ describe("IslandLife", () => {
 
   it("dresses the driver in the producer's tier", () => {
     const life = new IslandLife();
-    life.update(island([producer(1, 2, { type: "toolmaker" } as Partial<BuildingDisplay>)]), defs, null);
+    life.update(island([producer(1, 2, { type: "bakery" } as Partial<BuildingDisplay>)]), defs, null);
     const s = record();
     life.frame(1000, s, NEAR, BIG);
     expect([...s.by.keys()].filter((k) => k.startsWith("villager_"))).toEqual([expect.stringMatching(/^villager_citizens_[0-2]$/)]);

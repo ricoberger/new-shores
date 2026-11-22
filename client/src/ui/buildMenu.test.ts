@@ -214,10 +214,11 @@ describe("build cards", () => {
   });
 
   it("separates a producer's several inputs with commas", () => {
-    const html = render({ initialTier: "citizens" });
+    // The smelter is a Patricians building since D-083 §3.
+    const html = render({ initialTier: "patricians" }, { ...model, tiers: model.tiers.map((t) => ({ ...t, unlocked: true })) } as DisplayState);
     const info = text(card(html, "smelter").match(/data-testid="build-info-smelter"[^>]*>(.*?)<\/button>/)![1]!);
     expect(info).toMatch(/gold\/min·[\w ]+,[\w ]+→/);
-    expect(text(card(html, "mill").match(/data-testid="build-info-mill"[^>]*>(.*?)<\/button>/)![1]!)).not.toContain(",");
+    expect(text(card(render({ initialTier: "citizens" }), "mill").match(/data-testid="build-info-mill"[^>]*>(.*?)<\/button>/)![1]!)).not.toContain(",");
   });
 
   it("separates gold and every material with a dot", () => {

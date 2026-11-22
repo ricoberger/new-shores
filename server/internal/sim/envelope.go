@@ -2,6 +2,7 @@ package sim
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
@@ -54,11 +55,22 @@ func Encode(w *World, contentVersion string) ([]byte, error) {
 // the notes of the applied migrations. Older envelopes are upgraded with
 // the registered schema migrations (SchemaMigrations with the catalogue c);
 // a schema version without a migration path to SchemaVersion, or a newer
-// one, is rejected with ErrSchemaVersion.
+// one, is rejected with ErrSchemaVersion. An envelope stored at
+// SchemaVersion under c's content version must name only building, good,
+// ship and quest IDs of c (checkContentIDs, ErrUnknownContent): such a
+// world claims to be current, so a retired ID (D-083: the toolmaker) is a
+// broken world, not something to run. Migrated envelopes are not checked:
+// they were written by an older binary under the content of their time,
+// and the committed migration fixtures keep such IDs.
 func Decode(data []byte, c *content.Catalogue) (*World, string, MigrationNotes, error) {
 	w, cv, notes, err := DecodeWith(data, SchemaMigrations(c))
 	if err != nil {
 		return nil, cv, notes, err
+	}
+	if c != nil && notes.FromSchema == 0 && cv == c.Region.Version {
+		if err := checkContentIDs(w, c); err != nil {
+			return nil, cv, notes, fmt.Errorf("decode content %s: %w", cv, err)
+		}
 	}
 	if c != nil {
 		clampResidents(w, c)

@@ -155,6 +155,7 @@ var simErrors = []simError{
 	{sim.ErrOverCapacity, "over_capacity", http.StatusInternalServerError},
 	{sim.ErrTimeBackwards, "time_backwards", http.StatusInternalServerError},
 	{sim.ErrSchemaVersion, "schema_version", http.StatusInternalServerError},
+	{sim.ErrUnknownContent, "unknown_content", http.StatusInternalServerError},
 	{sim.ErrDisplayTime, "display_time", http.StatusInternalServerError},
 }
 

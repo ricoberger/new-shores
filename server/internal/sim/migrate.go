@@ -30,8 +30,12 @@ type Migrations map[int]Migration
 
 // MigrationNotes is what the migrations of one Decode report to the caller,
 // which logs it (this package never logs). No registered migration reports
-// anything yet.
-type MigrationNotes struct{}
+// anything of its own yet.
+type MigrationNotes struct {
+	// FromSchema is the stored schema version when migrations ran; 0 when
+	// the envelope was stored at SchemaVersion.
+	FromSchema int
+}
 
 // SchemaMigrations returns the registered schema migrations; c is the
 // content catalogue of the binary for migrations that need content
@@ -211,6 +215,7 @@ func DecodeWith(data []byte, migrations Migrations) (*World, string, MigrationNo
 		return w, cv, notes, err
 	}
 	env := RawEnvelope{ContentVersion: head.ContentVersion, World: head.World}
+	notes.FromSchema = v
 	for ; v < SchemaVersion; v++ {
 		m := migrations[v]
 		if m == nil {

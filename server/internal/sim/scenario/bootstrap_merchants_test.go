@@ -50,10 +50,11 @@ func merchantsPrefix(t *testing.T) int {
 // reference game (D-056, CONTENT §12): it continues the tier 1-2
 // reference game bootstrap_citizens step for step (so the tier 1-2
 // timings are those of bootstrap_citizens), from the content starting
-// stock only; Merchants unlock within 240 minutes, the first Merchant
-// house stands within 270, and by 420 every need category of every
-// Merchant house (carried ones included) is at least 0.6; no permanent
-// insolvency.
+// stock only; island 2 — the island of the clay pit, the game's second
+// settlement (D-083: a Merchants lesson) — is settled within 240 minutes,
+// Merchants unlock within 240, the first Merchant house stands within
+// 270, and by 420 every need category of every Merchant house (carried
+// ones included) is at least 0.6; no permanent insolvency.
 func TestBootstrapMerchants(t *testing.T) {
 	const name = "bootstrap_merchants"
 	s := loadScenario(t, name)
@@ -82,6 +83,29 @@ func TestBootstrapMerchants(t *testing.T) {
 		if q.ClaimedAt != "" && q.ID != "citizens_shipyard" {
 			t.Errorf("quest %s claimed in the reference game", q.ID)
 		}
+	}
+
+	// Island 2: the second found_island, after the Citizens prefix, on the
+	// island where the clay pit stands.
+	var founds []int
+	for i, st := range s.Steps {
+		if st.FoundIsland != nil {
+			founds = append(founds, i)
+		}
+	}
+	if len(founds) < 2 || founds[1] < prefix {
+		t.Fatalf("found_island steps %v, want the second after the Citizens prefix (%d)", founds, prefix)
+	}
+	island2 := s.Steps[founds[1]].FoundIsland.Island
+	clay := firstStep(s, func(st Step) bool {
+		return st.Place != nil && st.Place.Type == "clay_pit" && st.Place.Island == island2
+	})
+	if clay < 0 {
+		t.Errorf("no clay pit on island 2 (%s)", island2)
+	}
+	t.Logf("island 2 (%s) settled at minute %.0f", island2, minutesAt(t, s, founds[1]))
+	if minutesAt(t, s, founds[1]) > 240 {
+		t.Errorf("island 2 settled at minute %.0f (want <= 240)", minutesAt(t, s, founds[1]))
 	}
 
 	unlocked := -1.0

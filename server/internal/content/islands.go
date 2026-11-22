@@ -75,6 +75,10 @@ const (
 type PoolEntry struct {
 	ID    string
 	Count Range
+	// GroupTier (deposits only, optional) is the tier whose deposit group
+	// the kind joins in the generator; empty: the lowest tier of a
+	// building that mines it (D-083: iron stays in the Citizens group).
+	GroupTier string
 }
 
 // HomeRule describes the guaranteed home candidate (D-053 part 1).
@@ -128,8 +132,9 @@ type rawRange struct {
 }
 
 type rawPoolEntry struct {
-	ID    string   `json:"id"`
-	Count rawRange `json:"count"`
+	ID        string   `json:"id"`
+	Count     rawRange `json:"count"`
+	GroupTier string   `json:"group_tier"`
 }
 
 type rawIslands struct {
@@ -202,7 +207,7 @@ func decodeIslands(col *collector, raw rawIslands, names []string) (IslandRules,
 				continue
 			}
 			seen[e.ID] = true
-			out = append(out, PoolEntry{ID: e.ID, Count: Range(e.Count)})
+			out = append(out, PoolEntry{ID: e.ID, Count: Range(e.Count), GroupTier: e.GroupTier})
 		}
 		return out
 	}
@@ -326,6 +331,11 @@ func checkIslands(c *Catalogue, col *collector) {
 			hi += e.Count.Max
 		}
 		return lo, hi
+	}
+	for i, e := range r.Deposits {
+		if e.GroupTier != "" && c.TierByID[e.GroupTier] == nil {
+			col.add(file, "", fmt.Sprintf("deposits[%d].group_tier", i), "unknown tier %q", e.GroupTier)
+		}
 	}
 	pfMin, pfMax := poolSum("fertilities", r.Fertilities)
 	pdMin, pdMax := poolSum("deposits", r.Deposits)

@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.23.1" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.24.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 80 {
@@ -57,7 +57,7 @@ func TestLoadOldCoast(t *testing.T) {
 		ids = append(ids, g.ID)
 	}
 	wantIDs("goods", ids, "wood", "planks", "fish", "wool", "wool_garments", "sails",
-		"wheat", "flour", "bread", "apples", "cider", "hemp", "linen_garments", "stone", "iron_ore", "charcoal", "coal", "iron", "tools",
+		"wheat", "flour", "bread", "apples", "cider", "hemp", "linen_garments", "stone", "iron_ore", "charcoal", "coal", "iron",
 		"milk", "cheese", "honey", "mead", "pigs", "leather_jerkins",
 		// Tier 3 (D-056 C3).
 		"hops", "woad", "clay", "brine", "salt", "leather", "tallow", "dye", "paper", "bricks",
@@ -74,7 +74,7 @@ func TestLoadOldCoast(t *testing.T) {
 		"house_citizens", "road_paved", "quay", "trading_pier", "depot", "tavern", "school", "city_guard", "wheat_farm", "wheat_field", "mill", "bakery",
 		"dairy_farm", "cattle_pasture", "cheese_dairy", "orchard", "orchard_plot", "cidery", "apiary", "meadow", "meadery",
 		"hemp_farm", "hemp_field", "weaver_linen", "pig_farm", "pig_pen", "tannery", "sailmaker", "quarry", "iron_mine",
-		"charcoal_burner", "smelter", "toolmaker",
+		"charcoal_burner", "smelter",
 		// Tier 3 (D-056 C3).
 		"house_merchants", "church", "playhouse", "fire_station", "surgery", "butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
 		"woad_farm", "woad_field", "dyer_works", "dyer", "paper_mill", "printing_press", "clay_pit", "rendering_house",
@@ -137,8 +137,13 @@ func TestLoadOldCoast(t *testing.T) {
 	// Quests (quests.json): the intro chain, the tier-2 chain (D-056 §10)
 	// the tier-3 chain (C3) and the tier-4 chain (C4), each linear; the
 	// tier-2 chain branches off at intro_settlers_120, the tier-3 chain
-	// follows citizens_cheese, the tier-4 chain merchants_bricks. Rewards in fixed point; only the shipyard quest
-	// gives sails (for the first built cog, CONTENT §8).
+	// follows citizens_cheese, the tier-4 chain merchants_bricks. D-083 §4:
+	// citizens_stone follows intro_settlers_120 and leads to
+	// intro_citizen_house (the intro chain passes through it), and the
+	// shipyard quest still branches off at intro_settlers_120.
+	// Rewards in fixed point; only the shipyard quest gives sails (for the
+	// first built cog, CONTENT §8).
+	branch := map[string]string{"intro_citizen_house": "citizens_stone", "citizens_shipyard": "intro_settlers_120"}
 	if len(c.Quests) < 10 || c.Quests[0].ID != "intro_home_island" || len(c.Quests[0].Prerequisites) != 0 ||
 		c.Quests[0].Objectives[0] != (Objective{Kind: ObjectiveIslandSettled, Min: 1}) || c.Quests[1].ID != "intro_first_road" {
 		t.Fatalf("quests = %+v", c.Quests)
@@ -155,6 +160,9 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 		if !ok && chain == "patricians" {
 			want = "merchants_bricks"
+		}
+		if b, ok := branch[q.ID]; ok {
+			want = b
 		}
 		prev[chain] = q.ID
 		if (chain != "intro" && chain != "citizens" && chain != "merchants" && chain != "patricians") || len(q.Prerequisites) != 1 || q.Prerequisites[0] != want || c.QuestByID[q.ID] != q || q.Index != i+1 {
@@ -175,8 +183,11 @@ func TestLoadOldCoast(t *testing.T) {
 	if q := c.QuestByID["intro_planks"]; q.Rewards.Gold != 0 || len(q.Rewards.Goods) != 1 || q.Rewards.Goods[0] != (GoodAmount{"planks", 45_000}) {
 		t.Errorf("intro_planks rewards %+v", q.Rewards)
 	}
-	if q := c.QuestByID["intro_tools"]; q.Objectives[1] != (Objective{Kind: ObjectiveStock, Good: "tools", Min: 10_000}) {
-		t.Errorf("intro_tools objectives %+v", q.Objectives)
+	// D-083 §4: stone stored anywhere (it completes at once on a home island
+	// with a stone slot), 50 gold.
+	if q := c.QuestByID["citizens_stone"]; len(q.Objectives) != 1 || q.Objectives[0] != (Objective{Kind: ObjectiveStock, Good: "stone", Min: 20_000}) ||
+		q.Rewards.Gold != 50_000 || len(q.Rewards.Goods) != 0 {
+		t.Errorf("citizens_stone = %+v", q)
 	}
 	if q := c.QuestByID["intro_settlers_120"]; q.Objectives[0] != (Objective{Kind: ObjectivePopulation, Tier: "settlers", Min: 120_000}) {
 		t.Errorf("intro_settlers_120 objectives %+v", q.Objectives)
@@ -247,16 +258,17 @@ func TestLoadOldCoast(t *testing.T) {
 		slots          int
 		size, gold     Qty
 		buildMs, upkep int64
-		tools          Qty
+		planks, sails  Qty
 		speed          int64
 	}{
 		// D-060: the cog is fast and light, the carrack slow and heavy.
-		{"hulk", "merchants", 4, 50_000, 1_500_000, 300_000, 4_000, 10_000, 1000},
-		{"carrack", "patricians", 6, 60_000, 6_000_000, 600_000, 8_000, 30_000, 850},
+		// D-083 §3: trading ships cost gold, planks and sails only.
+		{"hulk", "merchants", 4, 50_000, 1_500_000, 300_000, 4_000, 60_000, 20_000, 1000},
+		{"carrack", "patricians", 6, 60_000, 6_000_000, 600_000, 8_000, 120_000, 40_000, 850},
 	} {
 		s := c.ShipByID[w.id]
 		if s == nil || s.Tier != w.tier || s.Slots != w.slots || s.SlotSize != w.size || s.Cost.Gold != w.gold || s.BuildMs != w.buildMs ||
-			s.UpkeepPerMin != w.upkep || s.SpeedPermille != w.speed || len(s.Cost.Materials) != 3 || s.Cost.Materials[2] != (GoodAmount{"tools", w.tools}) {
+			s.UpkeepPerMin != w.upkep || s.SpeedPermille != w.speed || fmt.Sprint(s.Cost.Materials) != fmt.Sprint([]GoodAmount{{"planks", w.planks}, {"sails", w.sails}}) {
 			t.Errorf("%s = %+v", w.id, s)
 		}
 	}
@@ -668,8 +680,8 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"quest unknown good", FileQuests,
-			[]string{`"good": "tools", "min": 10`, `"good": "spades", "min": 10`},
-			[]string{FileQuests, `quest "intro_tools"`, "objectives[1].good", `unknown good "spades"`},
+			[]string{`"good": "bricks", "min": 30`, `"good": "spades", "min": 30`},
+			[]string{FileQuests, `quest "merchants_bricks"`, "objectives[0].good", `unknown good "spades"`},
 		},
 		{
 			"quest unknown ship type", FileQuests,
@@ -713,8 +725,8 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"quest unknown objective kind", FileQuests,
-			[]string{`{ "kind": "route_exists" }`, `{ "kind": "trade_done" }`},
-			[]string{FileQuests, `quest "intro_tools"`, "schema violation"},
+			[]string{`{ "kind": "ship_count", "min": 2 }`, `{ "kind": "trade_done" }`},
+			[]string{FileQuests, `quest "citizens_cog"`, "schema violation"},
 		},
 		{
 			"quest without rewards", FileQuests,
@@ -732,8 +744,8 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"quest satisfaction decimals", FileQuests,
-			[]string{`{ "kind": "route_exists" }`, `{ "kind": "satisfaction", "tier": "settlers", "min": 0.8125 }`},
-			[]string{FileQuests, `quest "intro_tools"`, "objectives[0].min", "more than 3 decimal places"},
+			[]string{`{ "kind": "ship_count", "min": 2 }`, `{ "kind": "satisfaction", "tier": "settlers", "min": 0.8125 }`},
+			[]string{FileQuests, `quest "citizens_cog"`, "objectives[0].min", "more than 3 decimal places"},
 		},
 		{
 			"trial reserve equal to the reserve", FileRegion,
@@ -1282,17 +1294,20 @@ func TestCumulativeTierRates(t *testing.T) {
 
 // TestRetiredIDsAreNotReused: content IDs are never reused (CONTENT §1).
 // Retired IDs stay out of every entity of the shipped content: market_small
-// became market with the tier-3 content (D-056 C3).
+// became market with the tier-3 content (D-056 C3); theatre became playhouse
+// (D-063); tools, the toolmaker and the quests intro_island2 and
+// intro_tools were retired with D-083.
 func TestRetiredIDsAreNotReused(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, id := range []string{"market_small"} {
+	for _, id := range []string{"market_small", "theatre", "tools", "toolmaker", "intro_island2", "intro_tools"} {
 		_, b := c.BuildingByID[id]
 		_, g := c.GoodByID[id]
 		_, s := c.ShipByID[id]
-		if b || g || s {
+		_, q := c.QuestByID[id]
+		if b || g || s || q {
 			t.Errorf("retired ID %q is in use", id)
 		}
 	}
@@ -1335,7 +1350,7 @@ func TestBuildingLooks(t *testing.T) {
 		"road_dirt": LookRural, "road_paved": LookRural,
 		"sawmill": LookWorkshop, "weaver_wool": LookWorkshop, "mill": LookWorkshop, "bakery": LookWorkshop,
 		"cidery": LookWorkshop, "meadery": LookWorkshop, "tannery": LookWorkshop, "sailmaker": LookWorkshop,
-		"smelter": LookWorkshop, "toolmaker": LookWorkshop, "brewery": LookWorkshop, "goldsmith": LookWorkshop,
+		"smelter": LookWorkshop, "brewery": LookWorkshop, "goldsmith": LookWorkshop,
 		"house_settlers": LookCivic, "house_patricians": LookCivic, "chapel": LookCivic, "cathedral": LookCivic,
 		"school": LookCivic, "university": LookCivic, "tavern": LookCivic, "playhouse": LookCivic,
 		"city_guard": LookCivic, "fire_station": LookCivic, "surgery": LookCivic, "market": LookCivic,

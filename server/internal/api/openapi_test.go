@@ -299,7 +299,7 @@ func TestErrorCodeEnumMatchesSpec(t *testing.T) {
 			}
 		}
 	}
-	if len(internalOnly) != 4 {
+	if len(internalOnly) != 5 {
 		t.Errorf("internal-only codes: %v", internalOnly)
 	}
 }

@@ -1301,7 +1301,7 @@ func Sentinels() map[string]error {
 		"no_deposit": sim.ErrNoDeposit, "insufficient_gold": sim.ErrInsufficientGold,
 		"insufficient_materials": sim.ErrInsufficientMaterials, "surplus_loss": sim.ErrSurplusLoss,
 		"not_pausable": sim.ErrNotPausable, "no_road": sim.ErrNoRoad, "over_capacity": sim.ErrOverCapacity,
-		"time_backwards": sim.ErrTimeBackwards, "schema_version": sim.ErrSchemaVersion,
+		"time_backwards": sim.ErrTimeBackwards, "schema_version": sim.ErrSchemaVersion, "unknown_content": sim.ErrUnknownContent,
 		"display_time": sim.ErrDisplayTime, "tier_locked": sim.ErrTierLocked, "not_a_house": sim.ErrNotAHouse,
 		"upgrade_unavailable": sim.ErrUpgradeUnavailable, "house_not_full": sim.ErrHouseNotFull,
 		"needs_unmet": sim.ErrNeedsUnmet, "upgrade_only": sim.ErrUpgradeOnly, "shipyard_busy": sim.ErrShipyardBusy,

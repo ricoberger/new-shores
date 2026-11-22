@@ -952,9 +952,12 @@ components:
         **Internal-only codes** (HTTP 500, never caused by a client command;
         clients should treat them like `internal` and not handle them
         specifically): `over_capacity`, `time_backwards`, `schema_version`,
-        `display_time`. `schema_version` means a stored world has a schema
-        version this server cannot read (no registered migration); the
-        world is never reset. `time_backwards` means the database clock is
+        `unknown_content`, `display_time`. `schema_version` means a
+        stored world has a schema version this server cannot read (no
+        registered migration); the world is never reset.
+        `unknown_content` means a stored world of the server's content
+        version names a building, good, ship or quest the content does not
+        define (e.g. a retired ID); it is not loaded. `time_backwards` means the database clock is
         before the world's last evaluation.
       enum:
         - bad_request
@@ -1023,6 +1026,7 @@ components:
         - over_capacity
         - time_backwards
         - schema_version
+        - unknown_content
         - display_time
         - unauthorized
         - invalid_credentials

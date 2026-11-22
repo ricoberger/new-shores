@@ -201,20 +201,22 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 
 // TestMerchantsQuests pins the tier-3 quest chain (D-056 C3): church,
 // first Merchant house, both food and both drink alternatives, a hulk
-// (the third ship: there is no per-type ship predicate) and stored
-// bricks, with modest gold rewards only.
+// (the third ship: there is no per-type ship predicate), a second
+// settlement for the clay (D-083 §4, 30 planks) and stored bricks, with
+// modest gold rewards otherwise.
 func TestMerchantsQuests(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	want := map[string]string{
-		"merchants_church": "tier_unlocked:merchants:0 connected:church:0",
-		"merchants_house":  "building_count:house_merchants:1",
-		"merchants_food":   "connected:butcher:0 connected:pastry_kitchen:0",
-		"merchants_drink":  "connected:brewery:0 connected:distillery:0",
-		"merchants_hulk":   "ship_count::3",
-		"merchants_bricks": "stock:bricks:30000",
+		"merchants_church":  "tier_unlocked:merchants:0 connected:church:0",
+		"merchants_house":   "building_count:house_merchants:1",
+		"merchants_food":    "connected:butcher:0 connected:pastry_kitchen:0",
+		"merchants_drink":   "connected:brewery:0 connected:distillery:0",
+		"merchants_hulk":    "ship_count::3",
+		"merchants_island2": "island_settled::2",
+		"merchants_bricks":  "stock:bricks:30000",
 	}
 	n := 0
 	for _, q := range c.Quests {
@@ -226,7 +228,12 @@ func TestMerchantsQuests(t *testing.T) {
 		for _, o := range q.Objectives {
 			objs = append(objs, fmt.Sprintf("%s:%s:%d", o.Kind, o.Building+o.Good+o.Tier, o.Min))
 		}
-		if got := strings.Join(objs, " "); got != want[q.ID] || len(q.Rewards.Goods) != 0 || q.Rewards.Gold < 100_000 || q.Rewards.Gold > 200_000 {
+		// D-083 §4: the second settlement pays 30 planks for its first buildings.
+		rewardOK := len(q.Rewards.Goods) == 0 && q.Rewards.Gold >= 100_000 && q.Rewards.Gold <= 200_000
+		if q.ID == "merchants_island2" {
+			rewardOK = q.Rewards.Gold == 0 && len(q.Rewards.Goods) == 1 && q.Rewards.Goods[0] == (GoodAmount{"planks", 30_000})
+		}
+		if got := strings.Join(objs, " "); got != want[q.ID] || !rewardOK {
 			t.Errorf("%s = %s, rewards %+v", q.ID, got, q.Rewards)
 		}
 	}

@@ -495,13 +495,6 @@
             "rate_per_min": 0,
             "in_transit_rate_per_min": 0
           },
-          "tools": {
-            "stock": 0,
-            "capacity": 300000,
-            "in_transit": 0,
-            "rate_per_min": 0,
-            "in_transit_rate_per_min": 0
-          },
           "wheat": {
             "stock": 0,
             "capacity": 300000,
@@ -1435,13 +1428,6 @@
                 "in_transit_rate_per_min": 0
               },
               "thread": {
-                "stock": 0,
-                "capacity": 300000,
-                "in_transit": 0,
-                "rate_per_min": 0,
-                "in_transit_rate_per_min": 0
-              },
-              "tools": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -2387,13 +2373,6 @@
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
-              "tools": {
-                "stock": 0,
-                "capacity": 300000,
-                "in_transit": 0,
-                "rate_per_min": 0,
-                "in_transit_rate_per_min": 0
-              },
               "wheat": {
                 "stock": 0,
                 "capacity": 300000,
@@ -3327,13 +3306,6 @@
                 "in_transit_rate_per_min": 0
               },
               "thread": {
-                "stock": 0,
-                "capacity": 300000,
-                "in_transit": 0,
-                "rate_per_min": 0,
-                "in_transit_rate_per_min": 0
-              },
-              "tools": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -4279,13 +4251,6 @@
                 "rate_per_min": 0,
                 "in_transit_rate_per_min": 0
               },
-              "tools": {
-                "stock": 0,
-                "capacity": 300000,
-                "in_transit": 0,
-                "rate_per_min": 0,
-                "in_transit_rate_per_min": 0
-              },
               "wheat": {
                 "stock": 0,
                 "capacity": 300000,
@@ -5219,13 +5184,6 @@
                 "in_transit_rate_per_min": 0
               },
               "thread": {
-                "stock": 0,
-                "capacity": 300000,
-                "in_transit": 0,
-                "rate_per_min": 0,
-                "in_transit_rate_per_min": 0
-              },
-              "tools": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,

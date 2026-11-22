@@ -17,7 +17,6 @@
   { "id": "charcoal", "name": "Charcoal", "type": "intermediate" },
   { "id": "coal", "name": "Coal", "type": "intermediate" },
   { "id": "iron", "name": "Iron", "type": "intermediate" },
-  { "id": "tools", "name": "Tools", "type": "construction" },
   { "id": "milk", "name": "Milk", "type": "raw" },
   { "id": "cheese", "name": "Cheese", "type": "food" },
   { "id": "honey", "name": "Honey", "type": "raw" },

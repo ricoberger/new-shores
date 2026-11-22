@@ -8,17 +8,17 @@ import (
 	"time"
 )
 
-// referenceTimings are the measured minutes of a reference game: island 2
-// founded, Citizens unlocked (first snapshot), first Citizen house
-// (upgrade step) and tools on the start island (first snapshot).
+// referenceTimings are the measured minutes of a reference game:
+// Citizens unlocked (first snapshot) and the first Citizen house (upgrade
+// step). Island 2 and tools left the Citizens games with D-083.
 type referenceTimings struct {
-	island2, citizens, house, tools float64
+	citizens, house float64
 }
 
-// referenceIslands returns the start island and island 2 of a reference
-// game on the generated archipelago: the islands of its first and second
-// found_island steps.
-func referenceIslands(t *testing.T, s *Scenario) (start, island2 string) {
+// referenceStart returns the start island of a reference game: the island
+// of its first found_island step. Since D-083 the Citizens games settle
+// no other island (one island suffices until Merchants).
+func referenceStart(t *testing.T, s *Scenario) string {
 	t.Helper()
 	var found []string
 	for _, st := range s.Steps {
@@ -26,29 +26,21 @@ func referenceIslands(t *testing.T, s *Scenario) (start, island2 string) {
 			found = append(found, st.FoundIsland.Island)
 		}
 	}
-	if len(found) < 2 {
-		t.Fatalf("%s founds %d islands, want 2", s.Name, len(found))
+	if len(found) != 1 {
+		t.Fatalf("%s founds %d islands, want 1 (D-083)", s.Name, len(found))
 	}
-	return found[0], found[1]
+	return found[0]
 }
 
 func measureReference(t *testing.T, s *Scenario, rep *Report) referenceTimings {
 	t.Helper()
-	start, island2 := referenceIslands(t, s)
-	m := referenceTimings{island2: -1, citizens: -1, house: -1, tools: -1}
-	if i := firstStep(s, func(st Step) bool { return st.FoundIsland != nil && st.FoundIsland.Island == island2 }); i >= 0 {
-		m.island2 = minutesAt(t, s, i)
-	}
+	m := referenceTimings{citizens: -1, house: -1}
 	if i := firstStep(s, func(st Step) bool { return st.Upgrade != nil }); i >= 0 {
 		m.house = minutesAt(t, s, i)
 	}
 	for _, snap := range rep.Snapshots {
-		at := snapshotMinutes(t, rep, s, snap)
 		if m.citizens < 0 && slices.Contains(snap.UnlockedTiers, "citizens") {
-			m.citizens = at
-		}
-		if m.tools < 0 && snap.Inventory[start]["tools"].Stock > 0 {
-			m.tools = at
+			m.citizens = snapshotMinutes(t, rep, s, snap)
 		}
 	}
 	return m
@@ -58,11 +50,12 @@ func measureReference(t *testing.T, s *Scenario, rep *Report) referenceTimings {
 // bootstrap_citizens with the intro quests claimed as soon as they are
 // completed. Claims are the only change to the plan (same commands in the
 // same order, same seed restrictions); the rewards give at least 15
-// minutes of headroom on the island-2 (<= 45) and first-Citizen-house
-// (<= 85) targets, absolutely and against bootstrap_citizens; every quest
-// of the intro chain is completed and claimed; the tier-2 chain stays at
-// its first quest (the shipyard, which the plan builds only in the
-// Merchants segment since D-074); no permanent insolvency.
+// minutes of headroom on the first-Citizen-house target (<= 85),
+// absolutely and against bootstrap_citizens; every quest of the intro
+// chain and citizens_stone (D-083: it leads to the first Citizen house)
+// is completed and claimed; the rest of the tier-2 chain stays at its
+// first quest (the shipyard, which the plan builds only in the Merchants
+// segment since D-074); no permanent insolvency.
 func TestBootstrapCitizensQuests(t *testing.T) {
 	const name = "bootstrap_citizens_quests"
 	s := loadScenario(t, name)
@@ -104,21 +97,15 @@ func TestBootstrapCitizensQuests(t *testing.T) {
 	rep := runScenario(t, name)
 	got := measureReference(t, s, rep)
 	base := measureReference(t, ref, runScenario(t, "bootstrap_citizens"))
-	t.Logf("with quests: island 2 at minute %.0f, citizens unlocked by %.0f, first Citizen house at %.0f, tools home by %.0f",
-		got.island2, got.citizens, got.house, got.tools)
-	t.Logf("without claims: island 2 at minute %.0f, citizens unlocked by %.0f, first Citizen house at %.0f, tools home by %.0f",
-		base.island2, base.citizens, base.house, base.tools)
-	if got.island2 < 0 || got.island2 > 45 || base.island2-got.island2 < 15 {
-		t.Errorf("island 2 at minute %.0f (bootstrap_citizens %.0f), want <= 45 and >= 15 min earlier", got.island2, base.island2)
-	}
+	referenceStart(t, s)
+	t.Logf("with quests: citizens unlocked by %.0f, first Citizen house at %.0f", got.citizens, got.house)
+	t.Logf("without claims: citizens unlocked by %.0f, first Citizen house at %.0f", base.citizens, base.house)
 	if got.house < 0 || got.house > 85 || base.house-got.house < 15 {
 		t.Errorf("first Citizen house at minute %.0f (bootstrap_citizens %.0f), want <= 85 and >= 15 min earlier", got.house, base.house)
 	}
-	if got.tools < 0 {
-		t.Error("no tools arrived on the start island")
-	}
 
-	// Every quest of the intro chain is completed and claimed; the tier-2
+	// Every quest of the intro chain and citizens_stone is completed and
+	// claimed; the tier-2
 	// chain (D-056) waits at the shipyard, which the Citizens plan no longer
 	// builds (D-074: the Merchants plan does).
 	c, err := s.LoadContent(repoRoot(t))
@@ -132,7 +119,7 @@ func TestBootstrapCitizensQuests(t *testing.T) {
 		}
 	}
 	for _, q := range c.Quests {
-		if !claimed[q.ID] && strings.HasPrefix(q.ID, "intro_") {
+		if !claimed[q.ID] && (strings.HasPrefix(q.ID, "intro_") || q.ID == "citizens_stone") {
 			t.Errorf("quest %s not completed and claimed", q.ID)
 		}
 	}

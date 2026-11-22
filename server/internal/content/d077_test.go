@@ -84,9 +84,9 @@ func TestD077Content(t *testing.T) {
 		t.Errorf("repair_crane = %+v", rc)
 	}
 	for id, w := range map[string]struct {
-		attack               int
-		speed, gold, length  int64
-		planks, sails, tools int64
+		attack              int
+		speed, gold, length int64
+		planks, sails, iron int64
 	}{
 		"balinger":    {4, 1300, 800_000, 2_000, 40_000, 15_000, 10_000},
 		"war_cog":     {10, 1000, 2_500_000, 2_600, 80_000, 30_000, 20_000},
@@ -102,7 +102,7 @@ func TestD077Content(t *testing.T) {
 		for _, m := range s.Cost.Materials {
 			got[m.Good] = m.Amount
 		}
-		if len(got) != 3 || got["planks"] != w.planks || got["sails"] != w.sails || got["tools"] != w.tools {
+		if len(got) != 3 || got["planks"] != w.planks || got["sails"] != w.sails || got["iron"] != w.iron {
 			t.Errorf("%s cost %v", id, got)
 		}
 	}

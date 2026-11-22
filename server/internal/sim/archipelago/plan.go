@@ -91,10 +91,16 @@ func planComposition(r, mass *rng, late func(k int) *rng, c *content.Catalogue) 
 
 // depositTiers splits the deposit pool (in pool order) by the tier that
 // first uses a kind: the lowest tier of a building requiring it (a kind no
-// building requires counts to the first group). Groups are in tier order;
-// the first is never empty unless the pool is.
+// building requires counts to the first group), or the pool entry's
+// GroupTier when the content pins it (D-083: iron, mined at Patricians,
+// keeps its Citizens group so every seed keeps its archipelago).
+// Groups are in tier order; the first is never empty unless the pool is.
 func depositTiers(c *content.Catalogue) [][]content.PoolEntry {
-	tierOf := func(kind string) int {
+	tierOf := func(e content.PoolEntry) int {
+		if t := c.TierByID[e.GroupTier]; t != nil {
+			return t.Index
+		}
+		kind := e.ID
 		best := -1
 		for _, b := range c.Buildings {
 			if b.RequiresDeposit != kind {
@@ -109,7 +115,7 @@ func depositTiers(c *content.Catalogue) [][]content.PoolEntry {
 	byTier := map[int][]content.PoolEntry{}
 	var order []int
 	for _, e := range c.Islands.Deposits {
-		t := tierOf(e.ID)
+		t := tierOf(e)
 		if _, ok := byTier[t]; !ok {
 			order = append(order, t)
 		}

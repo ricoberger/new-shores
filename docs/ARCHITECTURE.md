@@ -206,7 +206,13 @@ return Display(w, now)
   of the content (D-076), so a later region adds no row. The world row is stored as the sim envelope `{schema_version,
   content_version, world}`; decoding runs the sim's pure migration hook
   and fails with `ErrSchemaVersion` (HTTP 500, own code) when no migration
-  is registered for an older version — never a silent reset. Migrations
+  is registered for an older version — never a silent reset. An envelope
+  stored at the current schema under the catalogue's content version must
+  name only buildings, goods, ships and quests the catalogue defines;
+  otherwise decoding fails with `ErrUnknownContent` (HTTP 500
+  `unknown_content`, logged with the world ID; a dev snapshot gets 409
+  `snapshot_content_mismatch`). Migrated envelopes are not checked: they
+  keep the IDs of the content they were written under (D-083). Migrations
   are pure functions over the raw envelope that may take the content
   catalogue and return **notes** (e.g. the 2→3 fields migration reports
   farms whose efficiency could not be preserved); the store logs the
@@ -681,6 +687,30 @@ Pitfalls for local runs:
   After a gold change, regenerate the plans (`-update`) before reading
   `TestReferenceGamesGold`, which pins each game's tightest
   tax-over-upkeep margin.
+- **Moving a mining building to another tier reshuffles every world.**
+  The archipelago generator groups deposit kinds by the lowest tier of a
+  building that mines them (`depositTiers`); iron moving from Citizens
+  to Patricians (D-083) changed every seed's islands, and the plans and
+  fixtures with them. The deposit entry's `group_tier` in
+  `islands.json` (CONTENT §9) pins iron to its old group; a later
+  move of a mine or quarry needs the same pin or a `GeneratorVersion`
+  bump with every plan rewritten. The archipelago goldens catch it.
+- **The reference plans continue each other.** Merchants replays the
+  Citizens plan minus its final wait, Patricians the Merchants plan;
+  moving actions between them (D-083 moved island 2 from Citizens to
+  Merchants) needs all plans regenerated together (`-update` on
+  `TestPlansRegenerate` without a subtest filter), or the replay fails
+  with "bootstrap_patricians does not continue bootstrap_merchants".
+  A shorter Citizens game also moves `TestReferenceGamesGold`: it reads
+  from minute 30, so a game finished by then is judged on its last
+  town only (D-083 kept the city guard and cheese chain in it).
+- **Retiring an ID needs a content version bump.** `sim.Decode` rejects
+  a current-schema world of the catalogue's content version that names
+  an unknown building, good, ship or quest (`ErrUnknownContent`), but
+  not a world of another content version or a migrated one (the
+  schema-14 migration fixture still has a toolmaker). A content change
+  that retires an ID must therefore bump the content version (D-083:
+  0.24.0); the dev fixtures are checked by `TestFixturesUseCatalogueIDs`.
 - **The shot tool cannot drag rectangles on the phone device:** the
   Playwright mouse drag starts no rectangle there, so the group-move
   presets (`move-group-drag`, `move-group-ghost`) are desktop only.
